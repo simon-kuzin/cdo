@@ -147,56 +147,56 @@ public class OCLTest extends AbstractModel1Test
   //      fail("Parse failed: " + ex.getLocalizedMessage());
   //    }
   //  }
-
-  public void testExtentTwoResources() throws Exception
-  {
-    final String RESOURCE1 = "/test/res1";
-    final String RESOURCE2 = "/test/res2";
-
-    { // Create first CDO resource
-      TreeNode root = createNode("root");
-      TreeNode a = createNode("a", root);
-      TreeNode b = createNode("b", root);
-      TreeNode c = createNode("c", root);
-      createNode("a1", a);
-      createNode("b1", b);
-      createNode("c1", c);
-      createExtended("a2", a);
-      createExtended("b2", b);
-      createExtended("c2", c);
-      saveRoot(root, RESOURCE1);
-    }
-
-    { // Create second CDO resource
-      TreeNode root = createNode("root");
-      TreeNode a = createNode("a", root);
-      TreeNode b = createNode("b", root);
-      TreeNode c = createNode("c", root);
-      createNode("a1", a);
-      createNode("b1", b);
-      createNode("c1", c);
-      createExtended("a2", a);
-      createExtended("b2", b);
-      createExtended("c2", c);
-      saveRoot(root, RESOURCE2);
-    }
-
-    TreeNode root = (TreeNode) loadRoot(RESOURCE1);
-    //    CDOResource resource = root.cdoGetResource();
-    IOCLHelper helper = CDOHelperUtil.createOCLHelper();
-    helper.setContext(root);
-
-    try
-    {
-      Set result = (Set) helper.evaluate(root, "ExtendedNode.allInstances()");
-      assertEquals(3, result.size());
-    }
-    catch (Exception ex)
-    {
-      ex.printStackTrace();
-      fail("Parse failed: " + ex.getLocalizedMessage());
-    }
-  }
+  //
+  //  public void testExtentTwoResources() throws Exception
+  //  {
+  //    final String RESOURCE1 = "/test/res1";
+  //    final String RESOURCE2 = "/test/res2";
+  //
+  //    { // Create first CDO resource
+  //      TreeNode root = createNode("root");
+  //      TreeNode a = createNode("a", root);
+  //      TreeNode b = createNode("b", root);
+  //      TreeNode c = createNode("c", root);
+  //      createNode("a1", a);
+  //      createNode("b1", b);
+  //      createNode("c1", c);
+  //      createExtended("a2", a);
+  //      createExtended("b2", b);
+  //      createExtended("c2", c);
+  //      saveRoot(root, RESOURCE1);
+  //    }
+  //
+  //    { // Create second CDO resource
+  //      TreeNode root = createNode("root");
+  //      TreeNode a = createNode("a", root);
+  //      TreeNode b = createNode("b", root);
+  //      TreeNode c = createNode("c", root);
+  //      createNode("a1", a);
+  //      createNode("b1", b);
+  //      createNode("c1", c);
+  //      createExtended("a2", a);
+  //      createExtended("b2", b);
+  //      createExtended("c2", c);
+  //      saveRoot(root, RESOURCE2);
+  //    }
+  //
+  //    TreeNode root = (TreeNode) loadRoot(RESOURCE1);
+  //    //    CDOResource resource = root.cdoGetResource();
+  //    IOCLHelper helper = CDOHelperUtil.createOCLHelper();
+  //    helper.setContext(root);
+  //
+  //    try
+  //    {
+  //      Set result = (Set) helper.evaluate(root, "ExtendedNode.allInstances()");
+  //      assertEquals(3, result.size());
+  //    }
+  //    catch (Exception ex)
+  //    {
+  //      ex.printStackTrace();
+  //      fail("Parse failed: " + ex.getLocalizedMessage());
+  //    }
+  //  }
 
   public void testGlobalExtent() throws Exception
   {
