@@ -11,12 +11,12 @@
 package org.eclipse.emf.cdo.internal.server;
 
 import org.eclipse.emf.cdo.protocol.id.CDOID;
-import org.eclipse.emf.cdo.protocol.model.CDOClass;
 import org.eclipse.emf.cdo.protocol.model.CDOClassRef;
 import org.eclipse.emf.cdo.protocol.model.CDOFeature;
 import org.eclipse.emf.cdo.protocol.model.CDOPackage;
 import org.eclipse.emf.cdo.protocol.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.protocol.revision.CDORevision;
+import org.eclipse.emf.cdo.protocol.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.IStoreChunkReader;
 import org.eclipse.emf.cdo.server.IStoreReader;
@@ -99,24 +99,31 @@ public class NOOPStoreAccessor extends StoreAccessor implements IStoreReader, IS
     throw new UnsupportedOperationException();
   }
 
-  public CDOID primeNewObject(CDOClass cdoClass)
+  public void beginCommit(CommitContext context)
+  {
+  }
+
+  public CDOID createNewResourceID(CommitContext context, int i, CDORevision newResource)
   {
     return getStore().getNextCDOID();
   }
 
-  public void writePackages(CDOPackage... cdoPackages)
+  public CDOID createNewObjectID(CommitContext context, int i, CDORevision newObject)
+  {
+    return getStore().getNextCDOID();
+  }
+
+  public void finishCommit(CommitContext context, CDORevision[] newResources, CDORevision[] newObjects,
+      CDORevision[] dirtyObjects)
   {
   }
 
-  public void writeRevision(CDORevision revision)
+  public void finishCommit(CommitContext context, CDORevision[] newResources, CDORevision[] newObjects,
+      CDORevisionDelta[] dirtyObjectDeltas)
   {
   }
 
-  public void commit()
-  {
-  }
-
-  public void rollback()
+  public void cancelCommit(CommitContext context)
   {
   }
 }

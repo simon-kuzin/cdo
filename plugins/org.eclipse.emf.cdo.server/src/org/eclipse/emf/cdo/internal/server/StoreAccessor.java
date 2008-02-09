@@ -13,7 +13,6 @@ package org.eclipse.emf.cdo.internal.server;
 
 import org.eclipse.emf.cdo.internal.protocol.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.protocol.revision.CDORevision;
-import org.eclipse.emf.cdo.protocol.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.IView;
@@ -88,10 +87,5 @@ public class StoreAccessor implements IStoreAccessor
   public InternalCDORevision verifyRevision(CDORevision revision)
   {
     return (InternalCDORevision)revision;
-  }
-
-  public void writeRevisionDelta(CDORevisionDelta delta)
-  {
-    throw new UnsupportedOperationException();
   }
 }

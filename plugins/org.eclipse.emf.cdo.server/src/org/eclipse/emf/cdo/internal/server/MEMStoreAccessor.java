@@ -13,7 +13,6 @@ package org.eclipse.emf.cdo.internal.server;
 
 import org.eclipse.emf.cdo.internal.protocol.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.protocol.id.CDOID;
-import org.eclipse.emf.cdo.protocol.model.CDOClass;
 import org.eclipse.emf.cdo.protocol.model.CDOClassRef;
 import org.eclipse.emf.cdo.protocol.model.CDOFeature;
 import org.eclipse.emf.cdo.protocol.model.CDOPackage;
@@ -129,40 +128,69 @@ public class MEMStoreAccessor extends StoreAccessor implements IStoreReader, ISt
     throw new UnsupportedOperationException();
   }
 
-  public CDOID primeNewObject(CDOClass cdoClass)
+  public void beginCommit(CommitContext context)
+  {
+    // Do nothing
+  }
+
+  public CDOID createNewResourceID(CommitContext context, int i, CDORevision newResource)
   {
     return getStore().getNextCDOID();
   }
 
-  public void writePackages(CDOPackage... cdoPackages)
+  public CDOID createNewObjectID(CommitContext context, int i, CDORevision newObject)
+  {
+    return getStore().getNextCDOID();
+  }
+
+  public void finishCommit(CommitContext context, CDORevision[] newResources, CDORevision[] newObjects,
+      CDORevision[] dirtyObjects)
+  {
+    writeRevisions(newResources);
+    writeRevisions(newObjects);
+    writeRevisions(dirtyObjects);
+    commit();
+  }
+
+  public void finishCommit(CommitContext context, CDORevision[] newResources, CDORevision[] newObjects,
+      CDORevisionDelta[] dirtyObjectDeltas)
+  {
+    writeRevisions(newResources);
+    writeRevisions(newObjects);
+    writeRevisionDeltas(dirtyObjectDeltas);
+    commit();
+  }
+
+  public void cancelCommit(CommitContext context)
   {
   }
 
-  public void writeRevision(CDORevision revision)
+  protected void writeRevisions(CDORevision[] revisions)
   {
-    newRevisions.add(revision);
+    for (CDORevision revision : revisions)
+    {
+      newRevisions.add(revision);
+    }
   }
 
-  @Override
-  public void writeRevisionDelta(CDORevisionDelta delta)
+  protected void writeRevisionDeltas(CDORevisionDelta[] revisionDeltas)
   {
-    InternalCDORevision revision = (InternalCDORevision)getStore().getRevision(delta.getID());
-    InternalCDORevision newRevision = (InternalCDORevision)CDORevisionUtil.copy(revision);
-    delta.apply(newRevision);
-    newRevisions.add(newRevision);
+    for (CDORevisionDelta revisionDelta : revisionDeltas)
+    {
+      CDORevision revision = getStore().getRevision(revisionDelta.getID());
+      CDORevision newRevision = CDORevisionUtil.copy(revision);
+      revisionDelta.apply(newRevision);
+      newRevisions.add(newRevision);
+    }
   }
 
-  public void commit()
+  protected void commit()
   {
     MEMStore store = getStore();
     for (CDORevision revision : newRevisions)
     {
       store.addRevision(revision);
     }
-  }
-
-  public void rollback()
-  {
   }
 
   @Override

@@ -190,7 +190,7 @@ public class CDOViewImpl extends org.eclipse.net4j.internal.util.event.Notifier 
 
   public CDOResourceImpl getResource(CDOID resourceID)
   {
-    if (resourceID == null || resourceID == CDOID.NULL)
+    if (resourceID == null || resourceID.isNull())
     {
       throw new IllegalArgumentException("resourceID == null || resourceID == CDOID.NULL");
     }

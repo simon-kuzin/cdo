@@ -19,6 +19,7 @@ import org.eclipse.emf.cdo.protocol.model.CDOClass;
 import org.eclipse.emf.cdo.protocol.model.CDOFeature;
 import org.eclipse.emf.cdo.protocol.model.CDOPackage;
 import org.eclipse.emf.cdo.protocol.revision.CDORevision;
+import org.eclipse.emf.cdo.protocol.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.server.IView;
 import org.eclipse.emf.cdo.server.db.IClassMapping;
 import org.eclipse.emf.cdo.server.db.IDBStoreWriter;
@@ -46,12 +47,78 @@ public class DBStoreWriter extends DBStoreReader implements IDBStoreWriter
     super(store, view);
   }
 
-  public CDOID primeNewObject(CDOClass cdoClass)
+  public void beginCommit(CommitContext context)
+  {
+    writePackages(context.getNewPackages());
+  }
+
+  public CDOID createNewResourceID(CommitContext context, int i, CDORevision newResource)
   {
     return getStore().getNextCDOID();
   }
 
-  public void writePackages(CDOPackage... cdoPackages)
+  public CDOID createNewObjectID(CommitContext context, int i, CDORevision newObject)
+  {
+    return getStore().getNextCDOID();
+  }
+
+  public void finishCommit(CommitContext context, CDORevision[] newResources, CDORevision[] newObjects,
+      CDORevision[] dirtyObjects)
+  {
+    for (CDORevision revision : newResources)
+    {
+      writeRevision(revision);
+    }
+
+    for (CDORevision revision : newObjects)
+    {
+      writeRevision(revision);
+    }
+
+    for (CDORevision revision : dirtyObjects)
+    {
+      writeRevision(revision);
+    }
+
+    try
+    {
+      if (TRACER.isEnabled())
+      {
+        TRACER.format("Committing transaction: {0}", getView());
+      }
+
+      getConnection().commit();
+    }
+    catch (SQLException ex)
+    {
+      throw new DBException(ex);
+    }
+  }
+
+  public void finishCommit(CommitContext context, CDORevision[] newResources, CDORevision[] newObjects,
+      CDORevisionDelta[] dirtyObjectDeltas)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  public void cancelCommit(CommitContext context)
+  {
+    try
+    {
+      if (TRACER.isEnabled())
+      {
+        TRACER.format("Rolling back transaction: {0}", getView());
+      }
+
+      getConnection().rollback();
+    }
+    catch (SQLException ex)
+    {
+      throw new DBException(ex);
+    }
+  }
+
+  protected void writePackages(CDOPackage... cdoPackages)
   {
     for (CDOPackage cdoPackage : cdoPackages)
     {
@@ -60,6 +127,19 @@ public class DBStoreWriter extends DBStoreReader implements IDBStoreWriter
 
     Set<IDBTable> affectedTables = mapPackages(cdoPackages);
     getStore().getDBAdapter().createTables(affectedTables, getConnection());
+  }
+
+  protected void writeRevision(CDORevision revision)
+  {
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("Inserting revision: {0}", revision);
+    }
+
+    CDOClass cdoClass = revision.getCDOClass();
+    IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
+    IClassMapping mapping = mappingStrategy.getClassMapping(cdoClass);
+    mapping.writeRevision(this, revision);
   }
 
   protected void writePackage(CDOPackage cdoPackage)
@@ -76,8 +156,8 @@ public class DBStoreWriter extends DBStoreReader implements IDBStoreWriter
     String ecore = cdoPackage.getEcore();
     boolean dynamic = cdoPackage.isDynamic();
     CDOIDMetaRange metaIDRange = cdoPackage.getMetaIDRange();
-    long lowerBound = metaIDRange == null ? 0L : ((CDOIDMeta)metaIDRange.getLowerBound()).getValue();
-    long upperBound = metaIDRange == null ? 0L : ((CDOIDMeta)metaIDRange.getUpperBound()).getValue();
+    long lowerBound = metaIDRange == null ? 0L : ((CDOIDMeta)metaIDRange.getLowerBound()).getLongValue();
+    long upperBound = metaIDRange == null ? 0L : ((CDOIDMeta)metaIDRange.getUpperBound()).getLongValue();
 
     String sql = "INSERT INTO " + CDODBSchema.PACKAGES + " VALUES (?, ?, ?, ?, ?, ?, ?)";
     DBUtil.trace(sql);
@@ -168,52 +248,5 @@ public class DBStoreWriter extends DBStoreReader implements IDBStoreWriter
     int idx = feature.getFeatureIndex();
     DBUtil.insertRow(getConnection(), getStore().getDBAdapter(), CDODBSchema.FEATURES, id, classID, featureID, name,
         type, packageURI, classifierID, many, containment, idx);
-  }
-
-  public void writeRevision(CDORevision revision)
-  {
-    if (TRACER.isEnabled())
-    {
-      TRACER.format("Inserting revision: {0}", revision);
-    }
-
-    CDOClass cdoClass = revision.getCDOClass();
-    IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
-    IClassMapping mapping = mappingStrategy.getClassMapping(cdoClass);
-    mapping.writeRevision(this, revision);
-  }
-
-  public void commit()
-  {
-    try
-    {
-      if (TRACER.isEnabled())
-      {
-        TRACER.format("Committing transaction: {0}", getView());
-      }
-
-      getConnection().commit();
-    }
-    catch (SQLException ex)
-    {
-      throw new DBException(ex);
-    }
-  }
-
-  public void rollback()
-  {
-    try
-    {
-      if (TRACER.isEnabled())
-      {
-        TRACER.format("Rolling back transaction: {0}", getView());
-      }
-
-      getConnection().rollback();
-    }
-    catch (SQLException ex)
-    {
-      throw new DBException(ex);
-    }
   }
 }

@@ -427,7 +427,7 @@ public class CDOSessionImpl extends Container<CDOView> implements CDOSession, CD
     CDOIDTemp lowerBound = new CDOIDTempMetaImpl(lastTempMetaID + 1);
     CDOIDMetaRange range = CDOIDUtil.createMetaRange(lowerBound, 0);
     range = registerMetaInstance((InternalEObject)ePackage, range);
-    lastTempMetaID = ((CDOIDTemp)range.getUpperBound()).getValue();
+    lastTempMetaID = ((CDOIDTemp)range.getUpperBound()).getIntValue();
     return range;
   }
 
