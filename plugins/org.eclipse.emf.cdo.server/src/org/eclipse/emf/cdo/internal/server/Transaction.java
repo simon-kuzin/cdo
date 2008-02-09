@@ -62,8 +62,6 @@ public class Transaction extends View implements ITransaction, IStoreWriter.Comm
 
   private CDOPackage[] newPackages;
 
-  private CDORevision[] newResources;
-
   private CDORevision[] newObjects;
 
   private CDORevisionDelta[] dirtyObjectDeltas;
@@ -105,11 +103,6 @@ public class Transaction extends View implements ITransaction, IStoreWriter.Comm
     return newPackages;
   }
 
-  public int getNumberOfNewResources()
-  {
-    return newResources == null ? 0 : newResources.length;
-  }
-
   public int getNumberOfNewObjects()
   {
     return newObjects == null ? 0 : newObjects.length;
@@ -135,12 +128,10 @@ public class Transaction extends View implements ITransaction, IStoreWriter.Comm
     return rollbackMessage;
   }
 
-  public void commit(CDOPackage[] newPackages, CDORevision[] newResources, CDORevision[] newObjects,
-      CDORevisionDelta[] dirtyObjectDeltas)
+  public void commit(CDOPackage[] newPackages, CDORevision[] newObjects, CDORevisionDelta[] dirtyObjectDeltas)
   {
     timeStamp = System.currentTimeMillis();
     this.newPackages = newPackages;
-    this.newResources = newResources;
     this.newObjects = newObjects;
     this.dirtyObjectDeltas = dirtyObjectDeltas;
     dirtyObjects = new CDORevision[dirtyObjectDeltas.length];
@@ -199,7 +190,6 @@ public class Transaction extends View implements ITransaction, IStoreWriter.Comm
       idMappings.clear();
       rollbackMessage = null;
       newPackages = null;
-      newResources = null;
       newObjects = null;
       dirtyObjectDeltas = null;
       dirtyObjects = null;
@@ -246,18 +236,11 @@ public class Transaction extends View implements ITransaction, IStoreWriter.Comm
 
   private void populateIDMappings()
   {
-    for (int i = 0; i < newResources.length; i++)
-    {
-      CDORevision newResource = newResources[i];
-      CDOID newID = storeWriter.createNewResourceID(this, i, newResource);
-      addIDMapping((CDOIDTemp)newResource.getID(), newID);
-    }
-
+    CDOID[] newIDs = new CDOID[newObjects.length];
+    storeWriter.createNewIDs(this, newObjects, newIDs);
     for (int i = 0; i < newObjects.length; i++)
     {
-      CDORevision newObject = newObjects[i];
-      CDOID newID = storeWriter.createNewObjectID(this, i, newObject);
-      addIDMapping((CDOIDTemp)newObject.getID(), newID);
+      addIDMapping((CDOIDTemp)newObjects[i].getID(), newIDs[i]);
     }
   }
 
@@ -277,11 +260,6 @@ public class Transaction extends View implements ITransaction, IStoreWriter.Comm
 
   private void adjust()
   {
-    for (CDORevision newResource : newResources)
-    {
-      adjustRevision((InternalCDORevision)newResource);
-    }
-
     for (CDORevision newObject : newObjects)
     {
       adjustRevision((InternalCDORevision)newObject);
@@ -335,12 +313,12 @@ public class Transaction extends View implements ITransaction, IStoreWriter.Comm
     if (repository.isSupportingRevisionDeltas())
     {
       computeDirtyObjects(false);
-      storeWriter.finishCommit(this, newResources, newObjects, dirtyObjectDeltas);
+      storeWriter.finishCommit(this, newObjects, dirtyObjectDeltas);
     }
     else
     {
       computeDirtyObjects(true);
-      storeWriter.finishCommit(this, newResources, newObjects, dirtyObjects);
+      storeWriter.finishCommit(this, newObjects, dirtyObjects);
     }
   }
 
@@ -364,7 +342,6 @@ public class Transaction extends View implements ITransaction, IStoreWriter.Comm
     try
     {
       addNewPackages();
-      addRevisions(newResources);
       addRevisions(newObjects);
       addRevisions(dirtyObjects);
     }

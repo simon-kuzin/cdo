@@ -133,29 +133,23 @@ public class MEMStoreAccessor extends StoreAccessor implements IStoreReader, ISt
     // Do nothing
   }
 
-  public CDOID createNewResourceID(CommitContext context, int i, CDORevision newResource)
+  public void createNewIDs(CommitContext context, CDORevision[] newObjects, CDOID[] newIDs)
   {
-    return getStore().getNextCDOID();
+    for (int i = 0; i < newObjects.length; i++)
+    {
+      newIDs[i] = getStore().getNextCDOID();
+    }
   }
 
-  public CDOID createNewObjectID(CommitContext context, int i, CDORevision newObject)
+  public void finishCommit(CommitContext context, CDORevision[] newObjects, CDORevision[] dirtyObjects)
   {
-    return getStore().getNextCDOID();
-  }
-
-  public void finishCommit(CommitContext context, CDORevision[] newResources, CDORevision[] newObjects,
-      CDORevision[] dirtyObjects)
-  {
-    writeRevisions(newResources);
     writeRevisions(newObjects);
     writeRevisions(dirtyObjects);
     commit();
   }
 
-  public void finishCommit(CommitContext context, CDORevision[] newResources, CDORevision[] newObjects,
-      CDORevisionDelta[] dirtyObjectDeltas)
+  public void finishCommit(CommitContext context, CDORevision[] newObjects, CDORevisionDelta[] dirtyObjectDeltas)
   {
-    writeRevisions(newResources);
     writeRevisions(newObjects);
     writeRevisionDeltas(dirtyObjectDeltas);
     commit();

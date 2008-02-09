@@ -68,7 +68,6 @@ public class CommitTransactionIndication extends CDOServerIndication
     TransactionPackageManager packageManager = transaction.getPackageManager();
 
     CDOPackage[] newPackages = new CDOPackage[in.readInt()];
-    CDORevision[] newResources = new CDORevision[in.readInt()];
     CDORevision[] newObjects = new CDORevision[in.readInt()];
     CDORevisionDelta[] dirtyObjectDeltas = new CDORevisionDelta[in.readInt()];
 
@@ -82,17 +81,6 @@ public class CommitTransactionIndication extends CDOServerIndication
     {
       newPackages[i] = CDOModelUtil.readPackage(packageManager, in);
       packageManager.addPackage(newPackages[i]);
-    }
-
-    // New resources
-    if (PROTOCOL.isEnabled())
-    {
-      PROTOCOL.format("Reading {0} new resources", newResources.length);
-    }
-
-    for (int i = 0; i < newResources.length; i++)
-    {
-      newResources[i] = CDORevisionUtil.read(in, revisionResolver, packageManager);
     }
 
     // New objects
@@ -117,7 +105,7 @@ public class CommitTransactionIndication extends CDOServerIndication
       dirtyObjectDeltas[i] = new CDORevisionDeltaImpl(in, packageManager);
     }
 
-    transaction.commit(newPackages, newResources, newObjects, dirtyObjectDeltas);
+    transaction.commit(newPackages, newObjects, dirtyObjectDeltas);
   }
 
   @Override

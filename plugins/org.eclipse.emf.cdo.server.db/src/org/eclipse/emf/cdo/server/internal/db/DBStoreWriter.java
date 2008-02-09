@@ -52,24 +52,16 @@ public class DBStoreWriter extends DBStoreReader implements IDBStoreWriter
     writePackages(context.getNewPackages());
   }
 
-  public CDOID createNewResourceID(CommitContext context, int i, CDORevision newResource)
+  public void createNewIDs(CommitContext context, CDORevision[] newObjects, CDOID[] newIDs)
   {
-    return getStore().getNextCDOID();
-  }
-
-  public CDOID createNewObjectID(CommitContext context, int i, CDORevision newObject)
-  {
-    return getStore().getNextCDOID();
-  }
-
-  public void finishCommit(CommitContext context, CDORevision[] newResources, CDORevision[] newObjects,
-      CDORevision[] dirtyObjects)
-  {
-    for (CDORevision revision : newResources)
+    for (int i = 0; i < newObjects.length; i++)
     {
-      writeRevision(revision);
+      newIDs[i] = getStore().getNextCDOID();
     }
+  }
 
+  public void finishCommit(CommitContext context, CDORevision[] newObjects, CDORevision[] dirtyObjects)
+  {
     for (CDORevision revision : newObjects)
     {
       writeRevision(revision);
@@ -95,8 +87,7 @@ public class DBStoreWriter extends DBStoreReader implements IDBStoreWriter
     }
   }
 
-  public void finishCommit(CommitContext context, CDORevision[] newResources, CDORevision[] newObjects,
-      CDORevisionDelta[] dirtyObjectDeltas)
+  public void finishCommit(CommitContext context, CDORevision[] newObjects, CDORevisionDelta[] dirtyObjectDeltas)
   {
     throw new UnsupportedOperationException();
   }

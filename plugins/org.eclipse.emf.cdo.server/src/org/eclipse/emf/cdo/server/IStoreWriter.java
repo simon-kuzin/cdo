@@ -31,15 +31,11 @@ public interface IStoreWriter extends IStoreReader
 
   public void beginCommit(CommitContext context);
 
-  public CDOID createNewResourceID(CommitContext context, int i, CDORevision newResource);
+  public void createNewIDs(CommitContext context, CDORevision[] newObjects, CDOID[] newIDs);
 
-  public CDOID createNewObjectID(CommitContext context, int i, CDORevision newObject);
+  public void finishCommit(CommitContext context, CDORevision[] newObjects, CDORevision[] dirtyObjects);
 
-  public void finishCommit(CommitContext context, CDORevision[] newResources, CDORevision[] newObjects,
-      CDORevision[] dirtyObjects);
-
-  public void finishCommit(CommitContext context, CDORevision[] newResources, CDORevision[] newObjects,
-      CDORevisionDelta[] dirtyObjectDeltas);
+  public void finishCommit(CommitContext context, CDORevision[] newObjects, CDORevisionDelta[] dirtyObjectDeltas);
 
   public void cancelCommit(CommitContext context);
 
@@ -76,12 +72,6 @@ public interface IStoreWriter extends IStoreReader
      * <code>CommitContext</code>.
      */
     public CDOPackage[] getNewPackages();
-
-    /**
-     * Returns the number of new resources that are part of the commit operation represented by this
-     * <code>CommitContext</code>.
-     */
-    public int getNumberOfNewResources();
 
     /**
      * Returns the number of new objects that are part of the commit operation represented by this

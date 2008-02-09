@@ -71,8 +71,7 @@ public class CommitTransactionRequest extends CDOClientRequest<CommitTransaction
 
     out.writeInt(transaction.getViewID());
     out.writeInt(newPackages.size());
-    out.writeInt(newResources.size());
-    out.writeInt(newObjects.size());
+    out.writeInt(newResources.size() + newObjects.size());
     out.writeInt(dirtyObjects.size());
 
     if (PROTOCOL.isEnabled())
@@ -87,16 +86,10 @@ public class CommitTransactionRequest extends CDOClientRequest<CommitTransaction
 
     if (PROTOCOL.isEnabled())
     {
-      PROTOCOL.format("Writing {0} new resources", newResources.size());
+      PROTOCOL.format("Writing {0} new objects", newResources.size() + newObjects.size());
     }
 
     writeRevisions(out, newResources);
-
-    if (PROTOCOL.isEnabled())
-    {
-      PROTOCOL.format("Writing {0} new objects", newObjects.size());
-    }
-
     writeRevisions(out, newObjects);
 
     if (PROTOCOL.isEnabled())
