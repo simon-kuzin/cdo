@@ -70,6 +70,18 @@ public class RevisionManager extends CDORevisionResolverImpl implements IRevisio
   }
 
   @Override
+  public boolean addRevision(InternalCDORevision revision)
+  {
+    if (revision.isResource())
+    {
+      String path = (String)revision.get(cdoPathFeature, 0);
+      repository.getResourceManager().registerResource(revision.getID(), path);
+    }
+
+    return super.addRevision(revision);
+  }
+
+  @Override
   protected InternalCDORevision verifyRevision(InternalCDORevision revision, int referenceChunk)
   {
     IStoreReader storeReader = null;
