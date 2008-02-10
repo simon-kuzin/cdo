@@ -64,9 +64,9 @@ public class Transaction extends View implements ITransaction, IStoreWriter.Comm
 
   private CDORevision[] newObjects;
 
-  private CDORevisionDelta[] dirtyObjectDeltas;
-
   private CDORevision[] dirtyObjects;
+
+  private CDORevisionDelta[] dirtyObjectDeltas;
 
   private List<CDOIDMetaRange> metaIDRanges = new ArrayList<CDOIDMetaRange>();
 
@@ -103,14 +103,19 @@ public class Transaction extends View implements ITransaction, IStoreWriter.Comm
     return newPackages;
   }
 
-  public int getNumberOfNewObjects()
+  public CDORevision[] getNewObjects()
   {
-    return newObjects == null ? 0 : newObjects.length;
+    return newObjects;
   }
 
-  public int getNumberOfDirtyObjects()
+  public CDORevision[] getDirtyObjects()
   {
-    return dirtyObjects == null ? 0 : dirtyObjects.length;
+    return dirtyObjects;
+  }
+
+  public CDORevisionDelta[] getDirtyObjectDeltas()
+  {
+    return dirtyObjectDeltas;
   }
 
   public List<CDOIDMetaRange> getMetaIDRanges()
@@ -118,9 +123,33 @@ public class Transaction extends View implements ITransaction, IStoreWriter.Comm
     return Collections.unmodifiableList(metaIDRanges);
   }
 
-  public Map<CDOIDTemp, CDOID> getIdMappings()
+  public Map<CDOIDTemp, CDOID> getIDMappings()
   {
     return Collections.unmodifiableMap(idMappings);
+  }
+
+  public void addIDMapping(CDOIDTemp oldID, CDOID newID)
+  {
+    if (newID == null || newID.isNull() || newID.isTemporary())
+    {
+      throw new IllegalStateException("newID=" + newID);
+    }
+
+    CDOID previousMapping = idMappings.putIfAbsent(oldID, newID);
+    if (previousMapping != null)
+    {
+      throw new IllegalStateException("previousMapping != null");
+    }
+  }
+
+  public void applyIDMappings()
+  {
+    applyIDMappings(newObjects);
+    applyIDMappings(dirtyObjects);
+    for (CDORevisionDelta dirtyObjectDelta : dirtyObjectDeltas)
+    {
+      ((InternalCDORevisionDelta)dirtyObjectDelta).adjustReferences(idMappings);
+    }
   }
 
   public String getRollbackMessage()
@@ -142,17 +171,17 @@ public class Transaction extends View implements ITransaction, IStoreWriter.Comm
     try
     {
       adjustMetaRanges();
-      beginCommit();
-      populateIDMappings();
-      adjust();
-      finishCommit();
+      adjustTimeStamps();
+      computeDirtyObjects(!repository.isSupportingRevisionDeltas());
+
+      storeWriter.commit(this);
       updateInfraStructure();
     }
     catch (RuntimeException ex)
     {
       OM.LOG.error(ex);
       rollbackMessage = ex.getMessage();
-      cancelCommit();
+      rollback();
     }
     finally
     {
@@ -196,6 +225,15 @@ public class Transaction extends View implements ITransaction, IStoreWriter.Comm
     }
   }
 
+  private void adjustTimeStamps()
+  {
+    for (CDORevision newObject : newObjects)
+    {
+      InternalCDORevision revision = (InternalCDORevision)newObject;
+      revision.setCreated(timeStamp);
+    }
+  }
+
   private void adjustMetaRanges()
   {
     for (CDOPackage newPackage : newPackages)
@@ -229,55 +267,6 @@ public class Transaction extends View implements ITransaction, IStoreWriter.Comm
     metaIDRanges.add(newRange);
   }
 
-  private void beginCommit()
-  {
-    storeWriter.beginCommit(this);
-  }
-
-  private void populateIDMappings()
-  {
-    CDOID[] newIDs = new CDOID[newObjects.length];
-    storeWriter.createNewIDs(this, newObjects, newIDs);
-    for (int i = 0; i < newObjects.length; i++)
-    {
-      addIDMapping((CDOIDTemp)newObjects[i].getID(), newIDs[i]);
-    }
-  }
-
-  private void addIDMapping(CDOIDTemp oldID, CDOID newID)
-  {
-    if (newID == null)
-    {
-      throw new IllegalArgumentException("newID == null");
-    }
-
-    CDOID previousMapping = idMappings.putIfAbsent(oldID, newID);
-    if (previousMapping != null)
-    {
-      throw new IllegalStateException("previousMapping != null");
-    }
-  }
-
-  private void adjust()
-  {
-    for (CDORevision newObject : newObjects)
-    {
-      adjustRevision((InternalCDORevision)newObject);
-    }
-
-    for (CDORevisionDelta dirtyObjectDelta : dirtyObjectDeltas)
-    {
-      ((InternalCDORevisionDelta)dirtyObjectDelta).adjustReferences(idMappings);
-    }
-  }
-
-  private void adjustRevision(InternalCDORevision revision)
-  {
-    revision.setID(idMappings.get(revision.getID()));
-    revision.setCreated(timeStamp);
-    revision.adjustReferences(idMappings);
-  }
-
   private void computeDirtyObjects(boolean failOnNull)
   {
     for (int i = 0; i < dirtyObjectDeltas.length; i++)
@@ -299,36 +288,41 @@ public class Transaction extends View implements ITransaction, IStoreWriter.Comm
     CDORevision originObject = revisionResolver.getRevisionByVersion(id, CDORevision.UNCHUNKED, version, false);
     if (originObject != null)
     {
-      CDORevision dirtyObject = CDORevisionUtil.copy(originObject);
+      InternalCDORevision dirtyObject = (InternalCDORevision)CDORevisionUtil.copy(originObject);
       dirtyObjectDelta.apply(dirtyObject);
-      ((InternalCDORevision)dirtyObject).setCreated(timeStamp);
+      dirtyObject.setCreated(timeStamp);
+      // dirtyObject.setVersion(originObject.getVersion() + 1);
       return dirtyObject;
     }
 
     return null;
   }
 
-  private void finishCommit()
+  private void applyIDMappings(CDORevision[] revisions)
   {
-    if (repository.isSupportingRevisionDeltas())
+    for (CDORevision revision : revisions)
     {
-      computeDirtyObjects(false);
-      storeWriter.finishCommit(this, newObjects, dirtyObjectDeltas);
-    }
-    else
-    {
-      computeDirtyObjects(true);
-      storeWriter.finishCommit(this, newObjects, dirtyObjects);
+      if (revision != null)
+      {
+        InternalCDORevision internal = (InternalCDORevision)revision;
+        CDOID newID = idMappings.get(internal.getID());
+        if (newID != null)
+        {
+          internal.setID(newID);
+        }
+
+        internal.adjustReferences(idMappings);
+      }
     }
   }
 
-  private void cancelCommit()
+  private void rollback()
   {
     if (storeWriter != null)
     {
       try
       {
-        storeWriter.cancelCommit(this);
+        storeWriter.rollback(this);
       }
       catch (RuntimeException ex)
       {

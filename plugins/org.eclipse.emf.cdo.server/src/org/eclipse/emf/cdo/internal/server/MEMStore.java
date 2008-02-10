@@ -132,13 +132,16 @@ public class MEMStore extends LongIDStore
     return false;
   }
 
-  @Override
+  public boolean hasBranchingSupport()
+  {
+    return false;
+  }
+
   public boolean hasWriteDeltaSupport()
   {
     return true;
   }
 
-  @Override
   public boolean hasAuditingSupport()
   {
     return true;

@@ -126,7 +126,7 @@ public class CommitTransactionIndication extends CDOServerIndication
       }
 
       // ID mappings
-      Map<CDOIDTemp, CDOID> idMappings = transaction.getIdMappings();
+      Map<CDOIDTemp, CDOID> idMappings = transaction.getIDMappings();
       for (Entry<CDOIDTemp, CDOID> entry : idMappings.entrySet())
       {
         CDOIDTemp oldID = entry.getKey();

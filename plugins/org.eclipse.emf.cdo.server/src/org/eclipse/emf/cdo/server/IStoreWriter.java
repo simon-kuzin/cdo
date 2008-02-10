@@ -12,14 +12,12 @@
 package org.eclipse.emf.cdo.server;
 
 import org.eclipse.emf.cdo.protocol.id.CDOID;
-import org.eclipse.emf.cdo.protocol.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.protocol.id.CDOIDTemp;
 import org.eclipse.emf.cdo.protocol.model.CDOPackage;
 import org.eclipse.emf.cdo.protocol.model.CDOPackageManager;
 import org.eclipse.emf.cdo.protocol.revision.CDORevision;
 import org.eclipse.emf.cdo.protocol.revision.delta.CDORevisionDelta;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -29,15 +27,9 @@ public interface IStoreWriter extends IStoreReader
 {
   public IView getView();
 
-  public void beginCommit(CommitContext context);
+  public void commit(CommitContext context);
 
-  public void createNewIDs(CommitContext context, CDORevision[] newObjects, CDOID[] newIDs);
-
-  public void finishCommit(CommitContext context, CDORevision[] newObjects, CDORevision[] dirtyObjects);
-
-  public void finishCommit(CommitContext context, CDORevision[] newObjects, CDORevisionDelta[] dirtyObjectDeltas);
-
-  public void cancelCommit(CommitContext context);
+  public void rollback(CommitContext context);
 
   /**
    * Represents the state of a single, logical commit operation which is driven through multiple calls to several
@@ -74,27 +66,31 @@ public interface IStoreWriter extends IStoreReader
     public CDOPackage[] getNewPackages();
 
     /**
-     * Returns the number of new objects that are part of the commit operation represented by this
+     * Returns an array of the new objects that are part of the commit operation represented by this
      * <code>CommitContext</code>.
      */
-    public int getNumberOfNewObjects();
+    public CDORevision[] getNewObjects();
 
     /**
-     * Returns the number of dirty objects that are part of the commit operation represented by this
+     * Returns an array of the dirty objects that are part of the commit operation represented by this
      * <code>CommitContext</code>.
      */
-    public int getNumberOfDirtyObjects();
+    public CDORevision[] getDirtyObjects();
 
     /**
-     * Returns an unmodifiable list of the temporary meta ID ranges of the new packages as they are received by the
-     * framework.
+     * Returns an array of the dirty object deltas that are part of the commit operation represented by this
+     * <code>CommitContext</code>.
      */
-    public List<CDOIDMetaRange> getMetaIDRanges();
+    public CDORevisionDelta[] getDirtyObjectDeltas();
 
     /**
      * Returns an unmodifiable map from all temporary IDs (meta or not) to their persistent counter parts. It is
      * initially populated with the mappings of all new meta objects.
      */
-    public Map<CDOIDTemp, CDOID> getIdMappings();
+    public Map<CDOIDTemp, CDOID> getIDMappings();
+
+    public void addIDMapping(CDOIDTemp oldID, CDOID newID);
+
+    public void applyIDMappings();
   }
 }

@@ -16,7 +16,6 @@ import org.eclipse.emf.cdo.protocol.model.CDOFeature;
 import org.eclipse.emf.cdo.protocol.model.CDOPackage;
 import org.eclipse.emf.cdo.protocol.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.protocol.revision.CDORevision;
-import org.eclipse.emf.cdo.protocol.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.IStoreChunkReader;
 import org.eclipse.emf.cdo.server.IStoreReader;
@@ -97,29 +96,5 @@ public class NOOPStoreAccessor extends StoreAccessor implements IStoreReader, IS
   public String readResourcePath(CDOID id)
   {
     throw new UnsupportedOperationException();
-  }
-
-  public void beginCommit(CommitContext context)
-  {
-  }
-
-  public void createNewIDs(CommitContext context, CDORevision[] newObjects, CDOID[] newIDs)
-  {
-    for (int i = 0; i < newObjects.length; i++)
-    {
-      newIDs[i] = getStore().getNextCDOID();
-    }
-  }
-
-  public void finishCommit(CommitContext context, CDORevision[] newObjects, CDORevision[] dirtyObjects)
-  {
-  }
-
-  public void finishCommit(CommitContext context, CDORevision[] newObjects, CDORevisionDelta[] dirtyObjectDeltas)
-  {
-  }
-
-  public void cancelCommit(CommitContext context)
-  {
   }
 }
