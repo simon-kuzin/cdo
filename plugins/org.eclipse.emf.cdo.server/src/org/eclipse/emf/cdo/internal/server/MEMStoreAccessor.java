@@ -120,7 +120,8 @@ public class MEMStoreAccessor extends StoreAccessor implements IStoreReader, ISt
 
   public CDOID readResourceID(String path)
   {
-    throw new UnsupportedOperationException();
+    CDORevision revision = getStore().getResource(path);
+    return revision == null ? null : revision.getID();
   }
 
   public String readResourcePath(CDOID id)

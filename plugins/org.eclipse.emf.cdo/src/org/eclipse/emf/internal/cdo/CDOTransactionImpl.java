@@ -194,6 +194,19 @@ public class CDOTransactionImpl extends CDOViewImpl implements CDOTransaction
     return (CDOResource)getResourceSet().createResource(createURI);
   }
 
+  public CDOResource getOrCreateResource(String path)
+  {
+    CDOID id = getResourceID(path);
+    if (id == null || id.isNull())
+    {
+      return createResource(path);
+    }
+    else
+    {
+      return addResource(id, path);
+    }
+  }
+
   public void commit() throws TransactionException
   {
     if (dirty)

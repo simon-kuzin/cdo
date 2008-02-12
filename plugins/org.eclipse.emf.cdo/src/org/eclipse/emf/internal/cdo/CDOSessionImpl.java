@@ -75,6 +75,9 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * @author Eike Stepper
  */
+/**
+ * @author Eike Stepper
+ */
 public class CDOSessionImpl extends Container<CDOView> implements CDOSession, CDOIDObjectFactory
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_SESSION, CDOSessionImpl.class);
@@ -700,14 +703,6 @@ public class CDOSessionImpl extends Container<CDOView> implements CDOSession, CD
   /**
    * @author Eike Stepper
    */
-  private final class CDOIDObjectFactoryClassLoader extends ClassLoader
-  {
-    public CDOIDObjectFactoryClassLoader()
-    {
-      super(OM.BUNDLE.getClass().getClassLoader());
-    }
-  }
-
   private final class InvalidationEvent extends Event implements CDOSessionInvalidationEvent
   {
     private static final long serialVersionUID = 1L;
