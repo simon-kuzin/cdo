@@ -65,8 +65,9 @@ public class CommitTransactionIndication extends CDOServerIndication
 
     int viewID = in.readInt();
     transaction = getTransaction(viewID);
-    TransactionPackageManager packageManager = transaction.getPackageManager();
+    transaction.preCommit();
 
+    TransactionPackageManager packageManager = transaction.getPackageManager();
     CDOPackage[] newPackages = new CDOPackage[in.readInt()];
     CDORevision[] newObjects = new CDORevision[in.readInt()];
     CDORevisionDelta[] dirtyObjectDeltas = new CDORevisionDelta[in.readInt()];
@@ -111,41 +112,48 @@ public class CommitTransactionIndication extends CDOServerIndication
   @Override
   protected void responding(ExtendedDataOutputStream out) throws IOException
   {
-    String rollbackMessage = transaction.getRollbackMessage();
-    boolean success = rollbackMessage == null;
-    out.writeBoolean(success);
-    if (success)
+    boolean success = false;
+
+    try
     {
-      out.writeLong(transaction.getTimeStamp());
-
-      // Meta ID ranges
-      List<CDOIDMetaRange> metaRanges = transaction.getMetaIDRanges();
-      for (CDOIDMetaRange metaRange : metaRanges)
+      String rollbackMessage = transaction.getRollbackMessage();
+      success = rollbackMessage == null;
+      out.writeBoolean(success);
+      if (success)
       {
-        CDOIDUtil.writeMetaRange(out, metaRange);
-      }
+        out.writeLong(transaction.getTimeStamp());
 
-      // ID mappings
-      Map<CDOIDTemp, CDOID> idMappings = transaction.getIDMappings();
-      for (Entry<CDOIDTemp, CDOID> entry : idMappings.entrySet())
-      {
-        CDOIDTemp oldID = entry.getKey();
-        if (!oldID.isMeta())
+        // Meta ID ranges
+        List<CDOIDMetaRange> metaRanges = transaction.getMetaIDRanges();
+        for (CDOIDMetaRange metaRange : metaRanges)
         {
-          CDOID newID = entry.getValue();
-          CDOIDUtil.write(out, oldID);
-          CDOIDUtil.write(out, newID);
+          CDOIDUtil.writeMetaRange(out, metaRange);
         }
+
+        // ID mappings
+        Map<CDOIDTemp, CDOID> idMappings = transaction.getIDMappings();
+        for (Entry<CDOIDTemp, CDOID> entry : idMappings.entrySet())
+        {
+          CDOIDTemp oldID = entry.getKey();
+          if (!oldID.isMeta())
+          {
+            CDOID newID = entry.getValue();
+            CDOIDUtil.write(out, oldID);
+            CDOIDUtil.write(out, newID);
+          }
+        }
+
+        CDOIDUtil.write(out, CDOID.NULL);
       }
-
-      CDOIDUtil.write(out, CDOID.NULL);
+      else
+      {
+        out.writeString(rollbackMessage);
+      }
     }
-    else
+    finally
     {
-      out.writeString(rollbackMessage);
+      transaction.postCommit(success);
     }
-
-    transaction.postCommit(success);
   }
 
   private Transaction getTransaction(int viewID)

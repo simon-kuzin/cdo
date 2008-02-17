@@ -157,6 +157,12 @@ public class Transaction extends View implements ITransaction, IStoreWriter.Comm
     return rollbackMessage;
   }
 
+  public void preCommit()
+  {
+    storeWriter = repository.getStore().getWriter(this);
+    StoreUtil.setReader(storeWriter);
+  }
+
   public void commit(CDOPackage[] newPackages, CDORevision[] newObjects, CDORevisionDelta[] dirtyObjectDeltas)
   {
     timeStamp = System.currentTimeMillis();
@@ -164,9 +170,6 @@ public class Transaction extends View implements ITransaction, IStoreWriter.Comm
     this.newObjects = newObjects;
     this.dirtyObjectDeltas = dirtyObjectDeltas;
     dirtyObjects = new CDORevision[dirtyObjectDeltas.length];
-
-    storeWriter = repository.getStore().getWriter(this);
-    StoreUtil.setReader(storeWriter);
 
     try
     {
@@ -182,15 +185,6 @@ public class Transaction extends View implements ITransaction, IStoreWriter.Comm
       OM.LOG.error(ex);
       rollbackMessage = ex.getMessage();
       rollback();
-    }
-    finally
-    {
-      if (storeWriter != null)
-      {
-        StoreUtil.setReader(null);
-        storeWriter.release();
-        storeWriter = null;
-      }
     }
   }
 
@@ -213,6 +207,14 @@ public class Transaction extends View implements ITransaction, IStoreWriter.Comm
     }
     finally
     {
+      // TODO Do this while indcating instead of responding
+      if (storeWriter != null)
+      {
+        StoreUtil.setReader(null);
+        storeWriter.release();
+        storeWriter = null;
+      }
+
       timeStamp = 0L;
       packageManager.clear();
       metaIDRanges.clear();
