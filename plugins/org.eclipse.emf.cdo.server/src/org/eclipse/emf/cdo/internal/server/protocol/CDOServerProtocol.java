@@ -7,6 +7,8 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Simon McDuff - 233273: [QUERY] Develop Query mechanism
+ *                   https://bugs.eclipse.org/bugs/show_bug.cgi?id=233273    
  **************************************************************************/
 package org.eclipse.emf.cdo.internal.server.protocol;
 
@@ -75,8 +77,15 @@ public class CDOServerProtocol extends CDOProtocolImpl
     case CDOProtocolConstants.SIGNAL_COMMIT_TRANSACTION:
       return new CommitTransactionIndication();
 
+    case CDOProtocolConstants.SIGNAL_QUERY:
+      return new QueryIndication();
+      
+    case CDOProtocolConstants.SIGNAL_QUERY_CANCEL:
+      return new QueryCancelIndication();
+
     default:
       return null;
+
     }
   }
 }

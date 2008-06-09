@@ -8,6 +8,9 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  *    Simon McDuff - https://bugs.eclipse.org/bugs/show_bug.cgi?id=201266
+ *    Simon McDuff - 233273: [QUERY] Develop Query mechanism
+ *                   https://bugs.eclipse.org/bugs/show_bug.cgi?id=233273    
+ *    
  **************************************************************************/
 package org.eclipse.emf.cdo.internal.server;
 
@@ -53,6 +56,8 @@ public class Repository extends Container<IRepositoryElement> implements IReposi
   private ResourceManager resourceManager = createResourceManager();
 
   private RevisionManager revisionManager = createRevisionManager();
+  
+  private QueryManager queryManager = createQueryManager();
 
   private IRepositoryElement[] elements;
 
@@ -162,6 +167,11 @@ public class Repository extends Container<IRepositoryElement> implements IReposi
     return revisionManager;
   }
 
+  public QueryManager getQueryManager()
+  {
+    return queryManager;
+  }
+
   public IRepositoryElement[] getElements()
   {
     return elements;
@@ -215,7 +225,11 @@ public class Repository extends Container<IRepositoryElement> implements IReposi
   {
     return new RevisionManager(this);
   }
-
+  
+  protected QueryManager createQueryManager()
+  {
+    return new QueryManager();
+  }
   @Override
   protected void doBeforeActivate() throws Exception
   {

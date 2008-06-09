@@ -31,6 +31,8 @@ import org.eclipse.emf.cdo.common.util.TransportException;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.eresource.EresourceFactory;
 import org.eclipse.emf.cdo.eresource.impl.CDOResourceImpl;
+import org.eclipse.emf.cdo.internal.common.query.CDOQueryParameterImpl;
+import org.eclipse.emf.cdo.query.CDOQuery;
 import org.eclipse.emf.cdo.spi.common.InternalCDORevision;
 import org.eclipse.emf.cdo.util.CDOUtil;
 import org.eclipse.emf.cdo.util.ReadOnlyException;
@@ -38,6 +40,7 @@ import org.eclipse.emf.cdo.util.ReadOnlyException;
 import org.eclipse.emf.internal.cdo.bundle.OM;
 import org.eclipse.emf.internal.cdo.protocol.ResourceIDRequest;
 import org.eclipse.emf.internal.cdo.protocol.ResourcePathRequest;
+import org.eclipse.emf.internal.cdo.query.CDOQueryImpl;
 import org.eclipse.emf.internal.cdo.util.FSMUtil;
 import org.eclipse.emf.internal.cdo.util.ModelUtil;
 
@@ -199,6 +202,13 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
   {
     CDOID id = getResourceID(path);
     return id != null && !id.isNull();
+  }
+
+  public CDOQuery createQuery(String language, String queryString)
+  {
+    CDOQueryParameterImpl parameter = new CDOQueryParameterImpl(language, queryString);
+
+    return new CDOQueryImpl(this, parameter);
   }
 
   public CDOID getResourceID(String path)

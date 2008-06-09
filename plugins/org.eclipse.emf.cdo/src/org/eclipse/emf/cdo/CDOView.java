@@ -16,6 +16,7 @@ import org.eclipse.emf.cdo.common.CDOProtocolView;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.eresource.CDOResource;
+import org.eclipse.emf.cdo.query.CDOQuery;
 
 import org.eclipse.net4j.util.event.INotifier;
 
@@ -72,7 +73,8 @@ public interface CDOView extends CDOProtocolView, INotifier
   public CDORevision getRevision(CDOID id);
 
   public boolean hasResource(String path);
-
+  
+  public CDOQuery createQuery(String language, String queryString);
   /**
    * @see ResourceSet#getResource(URI, boolean)
    */

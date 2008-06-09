@@ -7,14 +7,16 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Simon McDuff - 233273: [QUERY] Develop Query mechanism
+ *                   https://bugs.eclipse.org/bugs/show_bug.cgi?id=233273        
  **************************************************************************/
 package org.eclipse.emf.cdo.server;
 
+import org.eclipse.emf.cdo.common.id.CDOIDLibraryDescriptor;
+import org.eclipse.emf.cdo.common.id.CDOIDLibraryProvider;
+import org.eclipse.emf.cdo.common.id.CDOIDObjectFactory;
+import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.internal.server.Repository;
-import org.eclipse.emf.cdo.protocol.id.CDOIDLibraryDescriptor;
-import org.eclipse.emf.cdo.protocol.id.CDOIDLibraryProvider;
-import org.eclipse.emf.cdo.protocol.id.CDOIDObjectFactory;
-import org.eclipse.emf.cdo.protocol.revision.delta.CDORevisionDelta;
 
 /**
  * @author Eike Stepper
@@ -104,4 +106,5 @@ public interface IStore extends IRepositoryElement
    * @return a writer that can be used to write to this store in the context of the given view, never <code>null</code>.
    */
   public IStoreWriter getWriter(IView view);
+    
 }

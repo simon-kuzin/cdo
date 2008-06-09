@@ -8,6 +8,9 @@
  * Contributors:
  *    Simon McDuff - initial API and implementation
  *    Eike Stepper - maintenance
+ *    Simon McDuff - 233273: [QUERY] Develop Query mechanism
+ *                   https://bugs.eclipse.org/bugs/show_bug.cgi?id=233273    
+ *    
  **************************************************************************/
 package org.eclipse.emf.cdo.internal.server;
 
@@ -212,4 +215,18 @@ public class MEMStore extends LongIDStore
 
     return null;
   }
+  
+  public List<CDORevision> getRevisions()
+  {
+    ArrayList<CDORevision> simpleRevisions = new ArrayList<CDORevision>();
+    Iterator<List<CDORevision>> itr = revisions.values().iterator();
+    while (itr.hasNext())
+    {
+      List<CDORevision> list = itr.next();
+      CDORevision revision = list.get(list.size() - 1);
+      simpleRevisions.add(revision);
+    }
+    return simpleRevisions;
+  }
+
 }

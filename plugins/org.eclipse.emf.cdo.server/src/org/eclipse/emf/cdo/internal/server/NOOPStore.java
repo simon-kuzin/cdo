@@ -7,6 +7,8 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Simon McDuff - 233273: [QUERY] Develop Query mechanism
+ *                   https://bugs.eclipse.org/bugs/show_bug.cgi?id=233273    
  **************************************************************************/
 package org.eclipse.emf.cdo.internal.server;
 
