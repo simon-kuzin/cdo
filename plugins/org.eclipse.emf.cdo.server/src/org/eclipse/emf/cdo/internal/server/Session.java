@@ -8,6 +8,8 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  *    Simon McDuff - https://bugs.eclipse.org/bugs/show_bug.cgi?id=201266
+ *    Simon McDuff - 230832: Make remote invalidation configurable
+ *                   https://bugs.eclipse.org/bugs/show_bug.cgi?id=230832
  **************************************************************************/
 package org.eclipse.emf.cdo.internal.server;
 
@@ -50,6 +52,8 @@ public class Session extends Container<IView> implements ISession, CDOIDProvider
   private CDOServerProtocol protocol;
 
   private int sessionID;
+  
+  private boolean passiveUpdateEnabled = true;
 
   private boolean legacySupportEnabled;
 
@@ -198,10 +202,13 @@ public class Session extends Container<IView> implements ISession, CDOIDProvider
   }
 
   public void notifyInvalidation(long timeStamp, List<CDOID> dirtyIDs)
-  {
+  {    
+    if (!isPassiveUpdateEnabled())
+      return;
+    
     try
     {
-      new InvalidationNotification(protocol.getChannel(), timeStamp, dirtyIDs).send();
+        new InvalidationNotification(protocol.getChannel(), timeStamp, dirtyIDs).send();
     }
     catch (Exception ex)
     {
@@ -277,5 +284,15 @@ public class Session extends Container<IView> implements ISession, CDOIDProvider
     protocol.removeListener(protocolListener);
     sessionManager.sessionClosed(this);
     super.doDeactivate();
+  }
+
+  public boolean isPassiveUpdateEnabled()
+  {
+    return passiveUpdateEnabled;
+  }
+
+  public void setPassiveUpdateEnabled(boolean passiveUpdateEnabled)
+  {
+    this.passiveUpdateEnabled = passiveUpdateEnabled;
   }
 }

@@ -11,6 +11,8 @@
  *    Simon McDuff - https://bugs.eclipse.org/bugs/show_bug.cgi?id=201266
  *    Simon McDuff - https://bugs.eclipse.org/bugs/show_bug.cgi?id=201997
  *    Simon McDuff - https://bugs.eclipse.org/bugs/show_bug.cgi?id=202064
+ *    Simon McDuff - 230832: Make remote invalidation configurable
+ *                   https://bugs.eclipse.org/bugs/show_bug.cgi?id=230832    
  **************************************************************************/
 package org.eclipse.emf.internal.cdo;
 
@@ -65,7 +67,9 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
@@ -223,6 +227,11 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
     {
       throw new TransactionException(ex);
     }
+  }
+
+  public Map<CDOID, InternalCDOObject> getObjectsMap()
+  {
+    return Collections.unmodifiableMap(objects);
   }
 
   public CDOResource getResource(String path)

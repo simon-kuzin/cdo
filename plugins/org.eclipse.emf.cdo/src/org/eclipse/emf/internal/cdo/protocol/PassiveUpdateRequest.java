@@ -7,58 +7,53 @@
  * 
  * Contributors:
  *    Simon McDuff - initial API and implementation
+ *    				 230832: Make remote invalidation configurable
+ *                   https://bugs.eclipse.org/bugs/show_bug.cgi?id=230832
  **************************************************************************/
 package org.eclipse.emf.internal.cdo.protocol;
 
 import org.eclipse.emf.cdo.common.CDOProtocolConstants;
+import org.eclipse.emf.cdo.common.revision.CDORevision;
 
+import org.eclipse.emf.internal.cdo.CDOSessionImpl;
 import org.eclipse.emf.internal.cdo.bundle.OM;
 
 import org.eclipse.net4j.channel.IChannel;
-import org.eclipse.net4j.util.io.ExtendedDataInputStream;
 import org.eclipse.net4j.util.io.ExtendedDataOutputStream;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import java.io.IOException;
+import java.util.Collection;
 
 /**
  * @author Simon McDuff
  */
-public class QueryCancelRequest extends CDOClientRequest<Object>
+public class PassiveUpdateRequest extends SyncRevisionRequest
 {
-  private static final ContextTracer PROTOCOL = new ContextTracer(OM.DEBUG_PROTOCOL, QueryCancelRequest.class);
+  private static final ContextTracer PROTOCOL = new ContextTracer(OM.DEBUG_PROTOCOL, PassiveUpdateRequest.class);
 
-  private long queryID;
-
-  public QueryCancelRequest(long queryID, IChannel channel)
+  private boolean passiveUpdateEnabled;
+  
+  public PassiveUpdateRequest(IChannel channel, CDOSessionImpl session, Collection<CDORevision> cdoRevisions,
+      int referenceChunk, boolean passiveUpdateEnabled)
   {
-    super(channel);
-    this.queryID = queryID;
+    super(channel, session, cdoRevisions, referenceChunk);
+    this.passiveUpdateEnabled = passiveUpdateEnabled;
   }
 
   @Override
   protected short getSignalID()
   {
-    return CDOProtocolConstants.SIGNAL_QUERY_CANCEL;
+    return CDOProtocolConstants.SIGNAL_AUTOMATIC_REFRESH;
   }
 
   @Override
   protected void requesting(ExtendedDataOutputStream out) throws IOException
   {
-    if (PROTOCOL.isEnabled()) PROTOCOL.trace("Cancel query " + queryID);
-    // Write queryID
-    out.writeLong(queryID);
-  }
+    if (PROTOCOL.isEnabled()) PROTOCOL.trace("Turning " + (passiveUpdateEnabled ? "on" : "off") + " passive update");
 
-  @Override
-  protected Object confirming(ExtendedDataInputStream in) throws IOException
-  {
-    byte result = in.readByte();
-    if (result == 1)
-    {
-      String exception = in.readString();
-      throw new RuntimeException(exception);
-    }
-    return true;
+    super.requesting(out);
+    out.writeBoolean(passiveUpdateEnabled);
+    
   }
 }

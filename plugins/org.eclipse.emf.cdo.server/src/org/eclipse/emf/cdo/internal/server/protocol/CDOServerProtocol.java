@@ -9,6 +9,8 @@
  *    Eike Stepper - initial API and implementation
  *    Simon McDuff - 233273: [QUERY] Develop Query mechanism
  *                   https://bugs.eclipse.org/bugs/show_bug.cgi?id=233273    
+ *    Simon McDuff - 230832: Make remote invalidation configurable
+ *                   https://bugs.eclipse.org/bugs/show_bug.cgi?id=230832                   
  **************************************************************************/
 package org.eclipse.emf.cdo.internal.server.protocol;
 
@@ -82,6 +84,12 @@ public class CDOServerProtocol extends CDOProtocolImpl
       
     case CDOProtocolConstants.SIGNAL_QUERY_CANCEL:
       return new QueryCancelIndication();
+      
+    case CDOProtocolConstants.SIGNAL_SYNC:
+      return new SyncRevisionIndication();
+
+    case CDOProtocolConstants.SIGNAL_AUTOMATIC_REFRESH:
+      return new PassiveUpdateIndication();
 
     default:
       return null;

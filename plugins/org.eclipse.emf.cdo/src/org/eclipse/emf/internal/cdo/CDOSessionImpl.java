@@ -8,6 +8,8 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  *    Simon McDuff - https://bugs.eclipse.org/bugs/show_bug.cgi?id=226778
+ *    Simon McDuff - 230832: Make remote invalidation configurable
+ *                   https://bugs.eclipse.org/bugs/show_bug.cgi?id=230832
  **************************************************************************/
 package org.eclipse.emf.internal.cdo;
 
@@ -37,7 +39,9 @@ import org.eclipse.emf.internal.cdo.protocol.CDOFacade;
 import org.eclipse.emf.internal.cdo.protocol.LoadLibrariesRequest;
 import org.eclipse.emf.internal.cdo.protocol.OpenSessionRequest;
 import org.eclipse.emf.internal.cdo.protocol.OpenSessionResult;
+import org.eclipse.emf.internal.cdo.protocol.PassiveUpdateRequest;
 import org.eclipse.emf.internal.cdo.protocol.QueryObjectTypesRequest;
+import org.eclipse.emf.internal.cdo.protocol.SyncRevisionRequest;
 import org.eclipse.emf.internal.cdo.protocol.ViewsChangedRequest;
 import org.eclipse.emf.internal.cdo.util.CDOPackageRegistryImpl;
 import org.eclipse.emf.internal.cdo.util.FSMUtil;
@@ -93,6 +97,8 @@ public class CDOSessionImpl extends Container<CDOView> implements CDOSession, CD
   private int sessionID;
 
   private boolean legacySupportEnabled;
+
+  private boolean passiveUpdateEnabled = true;
 
   private int referenceChunkSize;
 
@@ -167,7 +173,6 @@ public class CDOSessionImpl extends Container<CDOView> implements CDOSession, CD
   {
     return cdoidObjectFactory.createCDOIDObject(in);
   }
-
 
   public CDOIDObject createCDOIDObject(String in)
   {
@@ -552,7 +557,20 @@ public class CDOSessionImpl extends Container<CDOView> implements CDOSession, CD
 
   public void notifyInvalidation(long timeStamp, Set<CDOID> dirtyOIDs, CDOViewImpl excludedView)
   {
+    if (!isPassiveUpdateEnabled()) return;
+
+    forceNotifyInvalidation(timeStamp, dirtyOIDs, excludedView);
+  }
+
+  public void refresh(Set<CDOID> dirtyOIDs)
+  {
+    forceNotifyInvalidation(CDORevision.UNSPECIFIED_DATE, dirtyOIDs, null);
+  }
+
+  private void forceNotifyInvalidation(long timeStamp, Set<CDOID> dirtyOIDs, CDOViewImpl excludedView)
+  {
     dirtyOIDs = Collections.unmodifiableSet(dirtyOIDs);
+
     for (CDOViewImpl view : getViews())
     {
       if (view != excludedView)
@@ -855,6 +873,86 @@ public class CDOSessionImpl extends Container<CDOView> implements CDOSession, CD
     public String toString()
     {
       return "CDOSessionInvalidationEvent" + dirtyOIDs;
+    }
+  }
+
+  public boolean isPassiveUpdateEnabled()
+  {
+    return passiveUpdateEnabled;
+  }
+
+  private Collection<CDORevision> getAllRevisions()
+  {
+    Map<CDOID, CDORevision> uniqueObjects = new HashMap<CDOID, CDORevision>();
+
+    for (CDOViewImpl view : views.values())
+    {
+      for (InternalCDOObject internalCDOObject : view.getObjectsMap().values())
+      {
+        if (internalCDOObject.cdoRevision() != null && !internalCDOObject.cdoID().isTemporary()
+            && !uniqueObjects.containsKey(internalCDOObject.cdoID()))
+        {
+          uniqueObjects.put(internalCDOObject.cdoID(), internalCDOObject.cdoRevision());
+        }
+      }
+    }
+
+    // Need to add Revision from revisionManager since we do not have all objects in transaction.
+    for (CDORevision revision : this.getRevisionManager().getRevisions())
+    {
+      if (!uniqueObjects.containsKey(revision.getID()))
+      {
+        uniqueObjects.put(revision.getID(), revision);
+      }
+    }
+    return uniqueObjects.values();
+  }
+
+  public void setPassiveUpdateEnabled(boolean aPassiveUpdateEnabled)
+  {
+    if (passiveUpdateEnabled != aPassiveUpdateEnabled)
+    {
+      passiveUpdateEnabled = aPassiveUpdateEnabled;
+
+      // Need to refresh if we change state
+      Collection<CDORevision> allRevisions = getAllRevisions();
+      try
+      {
+        if (!allRevisions.isEmpty())
+        {
+          new PassiveUpdateRequest(this.getChannel(), this, allRevisions, this.getReferenceChunkSize(),
+              passiveUpdateEnabled).send();
+        }
+      }
+      catch (Exception ex)
+      {
+        throw WrappedException.wrap(ex);
+      }
+    }
+  }
+
+  public Set<CDOID> refresh()
+  {
+    if (isPassiveUpdateEnabled())
+    {
+      // Update is passive, doesn`t need to refresh.
+      // We do not throw an exception since the client could turn that feature on or off without affecting their code.
+      return new HashSet<CDOID>();
+    }
+
+    Collection<CDORevision> allRevisions = getAllRevisions();
+
+    try
+    {
+      if (!allRevisions.isEmpty())
+      {
+        return new SyncRevisionRequest(this.getChannel(), this, allRevisions, this.getReferenceChunkSize()).send();
+      }
+      return new HashSet<CDOID>();
+    }
+    catch (Exception ex)
+    {
+      throw WrappedException.wrap(ex);
     }
   }
 

@@ -221,4 +221,9 @@ public class MEMStoreAccessor extends StoreAccessor implements IStoreReader, ISt
     throw new RuntimeException("Unsupported language " + queryParameter.getQueryLanguage());
 
   }
+
+  public void refreshRevisions()
+  {
+    
+  }
 }

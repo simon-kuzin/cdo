@@ -7,6 +7,8 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Simon McDuff - 230832: Make remote invalidation configurable
+ *                   https://bugs.eclipse.org/bugs/show_bug.cgi?id=230832    
  **************************************************************************/
 package org.eclipse.emf.cdo.server;
 
@@ -28,4 +30,6 @@ public interface ISession extends CDOProtocolSession, IContainer<IView>
   public IView openView(int viewID, CDOProtocolView.Type type);
 
   public IView closeView(int viewID);
+  
+  public boolean isPassiveUpdateEnabled();
 }

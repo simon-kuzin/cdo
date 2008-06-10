@@ -7,10 +7,13 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Simon McDuff - 230832: Make remote invalidation configurable
+ *                   https://bugs.eclipse.org/bugs/show_bug.cgi?id=230832
  **************************************************************************/
 package org.eclipse.emf.cdo;
 
 import org.eclipse.emf.cdo.common.CDOProtocolSession;
+import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.util.CDOPackageRegistry;
 
 import org.eclipse.net4j.channel.IChannel;
@@ -19,6 +22,8 @@ import org.eclipse.net4j.signal.failover.IFailOverStrategy;
 import org.eclipse.net4j.util.container.IContainer;
 
 import org.eclipse.emf.ecore.resource.ResourceSet;
+
+import java.util.Set;
 
 /**
  * @author Eike Stepper
@@ -60,6 +65,12 @@ public interface CDOSession extends CDOProtocolSession, IContainer<CDOView>
   public CDOAudit openAudit(ResourceSet resourceSet, long timeStamp);
 
   public CDOAudit openAudit(long timeStamp);
+  
+  public void setPassiveUpdateEnabled(boolean enable);
+  
+  public boolean isPassiveUpdateEnabled();
+  
+  public Set<CDOID> refresh();
 
   public void close();
 }

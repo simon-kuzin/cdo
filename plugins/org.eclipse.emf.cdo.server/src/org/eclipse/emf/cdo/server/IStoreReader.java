@@ -7,6 +7,8 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Simon McDuff - 230832: Make remote invalidation configurable
+ *                   https://bugs.eclipse.org/bugs/show_bug.cgi?id=230832    
  **************************************************************************/
 package org.eclipse.emf.cdo.server;
 
@@ -72,4 +74,6 @@ public interface IStoreReader extends IStoreAccessor
   public String readResourcePath(CDOID id);
 
   public CDORevision verifyRevision(CDORevision revision);
+  
+  public void refreshRevisions();
 }

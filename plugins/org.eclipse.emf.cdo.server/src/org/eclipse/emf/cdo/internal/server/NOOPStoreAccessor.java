@@ -103,4 +103,8 @@ public class NOOPStoreAccessor extends StoreAccessor implements IStoreReader, IS
   {
     throw new UnsupportedOperationException();
   }
+
+  public void refreshRevisions()
+  {
+  }
 }

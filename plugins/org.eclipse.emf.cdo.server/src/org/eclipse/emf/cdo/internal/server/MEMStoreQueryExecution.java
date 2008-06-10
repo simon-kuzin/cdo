@@ -14,7 +14,6 @@ import org.eclipse.emf.cdo.common.revision.CDORevision;
 
 import org.eclipse.net4j.util.collection.CloseableIterator;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
