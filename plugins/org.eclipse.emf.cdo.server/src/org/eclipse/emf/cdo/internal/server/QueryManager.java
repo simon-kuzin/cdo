@@ -130,7 +130,7 @@ public class QueryManager
       {
         resultQueue.setException(exception);
       }
-      catch (Exception exception)
+      catch (Throwable exception)
       {
         resultQueue.setException(new RuntimeException(exception));
       }
