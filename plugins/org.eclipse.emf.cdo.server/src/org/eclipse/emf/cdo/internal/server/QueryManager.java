@@ -88,7 +88,7 @@ public class QueryManager
     {
       if (listener == null)
       {
-        final IView view = (IView) getQueryResult().getView();
+        final IView view = (IView)getQueryResult().getView();
 
         listener = new IListener()
         {
@@ -105,7 +105,7 @@ public class QueryManager
             }
           }
         };
-        
+
         // Add listener to the session
         view.getSession().addListener(listener);
       }
@@ -113,13 +113,14 @@ public class QueryManager
 
     public void run()
     {
-   
-      CloseableIterator<Object> itrResult = reader.createQueryIterator(queryResult.getQueryParameter());
-
       ResultWriterQueue<Object> resultQueue = queryResult.getResultWriterQueue();
+
+      CloseableIterator<Object> itrResult = null;
       
       try
       {
+        itrResult = reader.createQueryIterator(queryResult.getQueryParameter());
+
         while (itrResult.hasNext())
         {
           resultQueue.add(itrResult.next());
@@ -137,10 +138,11 @@ public class QueryManager
       {
         resultQueue.release();
         
-        itrResult.close();
-        
+        if (itrResult != null)
+          itrResult.close();
+
         unregisterQueryNative(this);
-        
+
       }
     }
 
