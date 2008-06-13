@@ -64,6 +64,16 @@ public interface CDOView extends CDOProtocolView, INotifier
 
   public CDOChangeSubscriptionPolicy getChangeSubscriptionPolicy();
 
+  /**
+   * Specifies the change subscription policy. By default, the value is set to {@link CDOChangeSubscriptionPolicy.NONE}.
+   * <p>
+   * By activating this feature, every objects that have at least one adapter that match the current policy will be
+   * registered to the server and will be notify for every changes happening on any other CDOTransaction.
+   * <p>
+   * {@link CDOChangeSubscriptionPolicy.NONE} - Disabled
+   * {@link CDOChangeSubscriptionPolicy.ALL} - Enabled
+   * Any others classes that implement {@link CDOChangeSubscriptionPolicy} - Enabled   
+   */
   public void setChangeSubscriptionPolicy(CDOChangeSubscriptionPolicy changeSubscriptionPolicy);
 
   public int getLoadRevisionCollectionChunkSize();
