@@ -7,6 +7,8 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Simon McDuff - 233490: Change Subscription
+ *				     https://bugs.eclipse.org/bugs/show_bug.cgi?id=233490
  **************************************************************************/
 package org.eclipse.emf.internal.cdo;
 
@@ -29,6 +31,7 @@ import org.eclipse.emf.internal.cdo.util.ModelUtil;
 import org.eclipse.net4j.util.ImplementationError;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
+import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.util.BasicEMap;
 import org.eclipse.emf.common.util.ECollections;
 import org.eclipse.emf.common.util.EList;
@@ -214,6 +217,14 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
         }
       }
     }
+    if (eBasicAdapters() != null)
+    {
+      for (Adapter adapter : eBasicAdapters())
+      {
+        cdoView().subscribe(this, adapter);
+      }
+    }
+    
   }
 
   @SuppressWarnings("unchecked")
@@ -358,6 +369,37 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
   public EStructuralFeature cdoInternalDynamicFeature(int dynamicFeatureID)
   {
     return eDynamicFeature(dynamicFeatureID);
+  }
+  
+  @Override
+  public EList<Adapter> eAdapters()
+  {
+    if (eAdapters == null)
+    {
+      eAdapters =  new EAdapterList<Adapter>(this)
+      {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        protected void didAdd(int index, Adapter newObject)
+        {
+          if (!FSMUtil.isTransient(CDOObjectImpl.this))
+          {
+            cdoView().subscribe(CDOObjectImpl.this, newObject);
+          }
+        }
+
+        @Override
+        protected void didRemove(int index, Adapter oldObject)
+        {
+          if (!FSMUtil.isTransient(CDOObjectImpl.this))
+          {
+            cdoView().unsubscribe(CDOObjectImpl.this, oldObject);
+          }
+        }
+      };
+    }
+    return eAdapters;
   }
 
   @Override

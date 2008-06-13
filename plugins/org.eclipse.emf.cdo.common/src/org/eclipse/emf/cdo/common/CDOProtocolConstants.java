@@ -9,6 +9,8 @@
  *    Eike Stepper - initial API and implementation
  *    Simon McDuff - 230832: Make remote invalidation configurable
  *                   https://bugs.eclipse.org/bugs/show_bug.cgi?id=230832    
+ *    Simon McDuff - 233490: Change Subscription
+ *                   https://bugs.eclipse.org/bugs/show_bug.cgi?id=233490
  **************************************************************************/
 package org.eclipse.emf.cdo.common;
 
@@ -53,7 +55,9 @@ public interface CDOProtocolConstants
   
   public static final short SIGNAL_SYNC = 17;
   
-  public static final short SIGNAL_AUTOMATIC_REFRESH = 18;
+  public static final short SIGNAL_PASSIVE_UPDATE = 18;
+  
+  public static final short SIGNAL_CHANGE_SUBSCRIPTION = 19;
 
   public static final int ERROR_REPOSITORY_NOT_FOUND = -1;
 

@@ -11,6 +11,7 @@
 package org.eclipse.emf.cdo.server;
 
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
+import org.eclipse.emf.cdo.internal.server.NotificationManager;
 
 import org.eclipse.net4j.util.container.IContainer;
 
@@ -48,6 +49,8 @@ public interface IRepository extends IContainer<IRepositoryElement>
   public IResourceManager getResourceManager();
 
   public IRevisionManager getRevisionManager();
+  
+  public INotificationManager getNotificationManager();
 
   public long getLastMetaID();
 

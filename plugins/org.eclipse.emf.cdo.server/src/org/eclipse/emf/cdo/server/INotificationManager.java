@@ -6,20 +6,19 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *    Eike Stepper - initial API and implementation
+ *    Simon McDuff - initial API and implementation
  **************************************************************************/
 package org.eclipse.emf.cdo.server;
 
-import org.eclipse.emf.cdo.common.CDOProtocolView;
-import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.internal.server.Session;
+import org.eclipse.emf.cdo.server.IStoreWriter.CommitContext;
 
 /**
- * @author Eike Stepper
+ * @author Simon McDuff
  */
-public interface IView extends CDOProtocolView
+public interface INotificationManager
 {
-  public ISession getSession();
-  public void subscribe(CDOID id);
-  public void unsubscribe(CDOID id);
-  public void clearChangeSubscription();
+
+  public abstract void notifyInvalidation(Session session, CommitContext commitContext);
+
 }

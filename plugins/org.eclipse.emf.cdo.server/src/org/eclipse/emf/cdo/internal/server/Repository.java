@@ -10,7 +10,8 @@
  *    Simon McDuff - https://bugs.eclipse.org/bugs/show_bug.cgi?id=201266
  *    Simon McDuff - 233273: [QUERY] Develop Query mechanism
  *                   https://bugs.eclipse.org/bugs/show_bug.cgi?id=233273    
- *    
+ *    Simon McDuff - 233490: Change Subscription
+ *                   https://bugs.eclipse.org/bugs/show_bug.cgi?id=233490
  **************************************************************************/
 package org.eclipse.emf.cdo.internal.server;
 
@@ -58,6 +59,8 @@ public class Repository extends Container<IRepositoryElement> implements IReposi
   private RevisionManager revisionManager = createRevisionManager();
   
   private QueryManager queryManager = createQueryManager();
+  
+  private NotificationManager notificationManager = createNotificationManager();
 
   private IRepositoryElement[] elements;
 
@@ -172,6 +175,11 @@ public class Repository extends Container<IRepositoryElement> implements IReposi
     return queryManager;
   }
 
+  public NotificationManager getNotificationManager()
+  {
+    return notificationManager;
+  }
+
   public IRepositoryElement[] getElements()
   {
     return elements;
@@ -229,6 +237,10 @@ public class Repository extends Container<IRepositoryElement> implements IReposi
   protected QueryManager createQueryManager()
   {
     return new QueryManager();
+  }
+  protected NotificationManager createNotificationManager()
+  {
+    return new NotificationManager(this);
   }
   @Override
   protected void doBeforeActivate() throws Exception

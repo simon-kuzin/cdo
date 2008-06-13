@@ -35,7 +35,7 @@ public class PassiveUpdateIndication extends SyncRevisionIndication
   @Override
   protected short getSignalID()
   {
-    return CDOProtocolConstants.SIGNAL_AUTOMATIC_REFRESH;
+    return CDOProtocolConstants.SIGNAL_PASSIVE_UPDATE;
   }
   @Override
   protected void indicating(ExtendedDataInputStream in) throws IOException

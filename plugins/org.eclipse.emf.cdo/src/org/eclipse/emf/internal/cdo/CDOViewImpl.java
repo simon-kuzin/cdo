@@ -13,9 +13,12 @@
  *    Simon McDuff - https://bugs.eclipse.org/bugs/show_bug.cgi?id=202064
  *    Simon McDuff - 230832: Make remote invalidation configurable
  *                   https://bugs.eclipse.org/bugs/show_bug.cgi?id=230832    
+ *    Simon McDuff - 233490: Change Subscription
+ *				     https://bugs.eclipse.org/bugs/show_bug.cgi?id=233490
  **************************************************************************/
 package org.eclipse.emf.internal.cdo;
 
+import org.eclipse.emf.cdo.CDOChangeSubscriptionPolicy;
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.CDOState;
 import org.eclipse.emf.cdo.CDOView;
@@ -29,6 +32,8 @@ import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.model.CDOClass;
 import org.eclipse.emf.cdo.common.model.CDOClassRef;
 import org.eclipse.emf.cdo.common.revision.CDORevisionResolver;
+import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
+import org.eclipse.emf.cdo.common.util.CDOException;
 import org.eclipse.emf.cdo.common.util.TransportException;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.eresource.EresourceFactory;
@@ -40,6 +45,7 @@ import org.eclipse.emf.cdo.util.CDOUtil;
 import org.eclipse.emf.cdo.util.ReadOnlyException;
 
 import org.eclipse.emf.internal.cdo.bundle.OM;
+import org.eclipse.emf.internal.cdo.protocol.ChangeSubscriptionRequest;
 import org.eclipse.emf.internal.cdo.protocol.ResourceIDRequest;
 import org.eclipse.emf.internal.cdo.protocol.ResourcePathRequest;
 import org.eclipse.emf.internal.cdo.query.CDOQueryImpl;
@@ -55,6 +61,7 @@ import org.eclipse.net4j.util.transaction.TransactionException;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.Notifier;
+import org.eclipse.emf.common.notify.impl.NotificationImpl;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
@@ -71,6 +78,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
@@ -103,6 +112,10 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
 
   private InternalCDOObject lastLookupObject;
 
+  protected ChangeSubscriptionManager changeSubscriptionManager = new ChangeSubscriptionManager();
+
+  protected CDOChangeSubscriptionPolicy changeSubscriptionPolicy = CDOChangeSubscriptionPolicy.NONE;
+
   public CDOViewImpl(int id, CDOSessionImpl session)
   {
     viewID = id;
@@ -110,6 +123,187 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
     invalidationNotificationsEnabled = OM.PREF_ENABLE_INVALIDATION_NOTIFICATIONS.getValue();
     loadRevisionCollectionChunkSize = OM.PREF_LOAD_REVISION_COLLECTION_CHUNK_SIZE.getValue();
     objects = createObjectsMap();
+  }
+
+  public class ChangeSubscriptionManager
+  {
+    // List of persisted objects
+    private Map<InternalCDOObject, Integer> persistedObjects = new ConcurrentHashMap<InternalCDOObject, Integer>();
+
+    // List of new objects
+    private Map<InternalCDOObject, Integer> newObjects = new ConcurrentHashMap<InternalCDOObject, Integer>();
+
+    private boolean valid(InternalCDOObject internalCDOObject)
+    {
+      return !internalCDOObject.cdoID().isTemporary();
+    }
+
+    protected int getNumberOfValidAdapter(InternalCDOObject object)
+    {
+      int count = 0;
+      if (object.eNotificationRequired())
+      {
+        for (Adapter adapter : object.eAdapters())
+        {
+          if (changeSubscriptionPolicy.valid(object, adapter)) count++;
+        }
+
+      }
+      return count;
+    }
+
+    /*
+     * Register to the server all objects from the active list
+     */
+    protected void notifyChangeSubcriptionPolicy()
+    {
+      synchronized (persistedObjects)
+      {
+        persistedObjects.clear();
+        newObjects.clear();
+
+        List<CDOID> cdoIDs = new ArrayList<CDOID>();
+
+        if (changeSubscriptionPolicy != CDOChangeSubscriptionPolicy.NONE)
+        {
+          for (InternalCDOObject cdoObject : objects.values())
+          {
+            int count = getNumberOfValidAdapter(cdoObject);
+
+            if (count > 0)
+            {
+              cdoIDs.add(cdoObject.cdoID());
+              boolean isValid = valid(cdoObject);
+              Map<InternalCDOObject, Integer> subscribersMap = isValid ? persistedObjects : newObjects;
+              subscribersMap.put(cdoObject, count);
+            }
+          }
+        }
+        request(cdoIDs, true, true);
+      }
+    }
+
+    protected void request(List<CDOID> cdoIDs, boolean registered, boolean clear)
+    {
+      try
+      {
+        new ChangeSubscriptionRequest(getSession().getChannel(), getViewID(), cdoIDs, registered, clear).send();
+      }
+      catch (Exception ex)
+      {
+        throw new TransactionException(ex);
+      }
+    }
+
+    protected void notifyCommit()
+    {
+      synchronized (persistedObjects)
+      {
+        List<InternalCDOObject> objectToRemove = new ArrayList<InternalCDOObject>();
+        for (Entry<InternalCDOObject, Integer> entry : newObjects.entrySet())
+        {
+          if (valid(entry.getKey()))
+          {
+            subscribe(entry.getKey(), entry.getValue());
+            objectToRemove.add(entry.getKey());
+          }
+        }
+        for (InternalCDOObject internalCDOObject : objectToRemove)
+          newObjects.remove(internalCDOObject);
+      }
+    }
+
+    protected boolean isSubscribe(InternalCDOObject eObject)
+    {
+      return (persistedObjects.get(eObject) != null);
+    }
+
+    private void subscribe(EObject eObject, Adapter adapter, int adjust)
+    {
+      synchronized (persistedObjects)
+      {
+        if (!getChangeSubscriptionPolicy().valid(eObject, adapter)) return;
+
+        subscribe(eObject, adjust);
+      }
+    }
+
+    private void subscribe(EObject eObject, int adjust)
+    {
+      synchronized (persistedObjects)
+      {
+
+        InternalCDOObject internalCDOObject = FSMUtil.adapt(eObject, CDOViewImpl.this);
+
+        if (internalCDOObject.cdoView() != CDOViewImpl.this)
+        {
+          throw new CDOException("Object " + internalCDOObject + " doesn`t belong to this view.");
+        }
+
+        boolean isValid = valid(internalCDOObject);
+
+        Map<InternalCDOObject, Integer> subscribersMap = isValid ? persistedObjects : newObjects;
+
+        Integer count = subscribersMap.get(internalCDOObject);
+
+        if (count == null)
+        {
+          // Cannot adjust negative value
+          if (adjust < 0) throw new IllegalStateException();
+
+          count = 0;
+
+          // Notification need to be enable to send correct value to the server
+          if (isValid && getChangeSubscriptionPolicy() != CDOChangeSubscriptionPolicy.NONE)
+          {
+            List<CDOID> cdoIDs = new ArrayList<CDOID>();
+            cdoIDs.add(internalCDOObject.cdoID());
+            request(cdoIDs, true, false);
+          }
+        }
+
+        count += adjust;
+
+        // Look if objects need to be unsubscribe
+        if (count <= 0)
+        {
+          subscribersMap.remove(internalCDOObject);
+
+          // Notification need to be enable to send correct value to the server
+          if (isValid && getChangeSubscriptionPolicy() != CDOChangeSubscriptionPolicy.NONE)
+          {
+            List<CDOID> cdoIDs = new ArrayList<CDOID>();
+            cdoIDs.add(internalCDOObject.cdoID());
+            request(cdoIDs, false, false);
+          }
+        }
+        else
+        {
+          subscribersMap.put(internalCDOObject, count);
+        }
+
+      }
+    }
+
+    public void subscribe(EObject eObject, Adapter adapter)
+    {
+      subscribe(eObject, adapter, 1);
+    }
+
+    public void unsubscribe(EObject eObject, Adapter adapter)
+    {
+      subscribe(eObject, adapter, -1);
+    }
+  }
+
+  public void subscribe(EObject eObject, Adapter adapter)
+  {
+    changeSubscriptionManager.subscribe(eObject, adapter);
+  }
+
+  public void unsubscribe(EObject eObject, Adapter adapter)
+  {
+    changeSubscriptionManager.unsubscribe(eObject, adapter);
   }
 
   protected ConcurrentMap<CDOID, InternalCDOObject> createObjectsMap()
@@ -170,6 +364,21 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
   public void setInvalidationNotificationsEnabled(boolean invalidationNotificationsEnabled)
   {
     this.invalidationNotificationsEnabled = invalidationNotificationsEnabled;
+  }
+
+  public CDOChangeSubscriptionPolicy getChangeSubscriptionPolicy()
+  {
+    return this.changeSubscriptionPolicy;
+  }
+
+  public void setChangeSubscriptionPolicy(CDOChangeSubscriptionPolicy notificationsEnabled)
+  {
+    if (this.changeSubscriptionPolicy != notificationsEnabled)
+    {
+      changeSubscriptionPolicy = notificationsEnabled;
+
+      changeSubscriptionManager.notifyChangeSubcriptionPolicy();
+    }
   }
 
   public int getLoadRevisionCollectionChunkSize()
@@ -325,6 +534,8 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
 
   public InternalCDOObject getObject(CDOID id, boolean loadOnDemand)
   {
+    if (id == null || id.isNull()) return null;
+
     synchronized (objects)
     {
       if (id.equals(lastLookupID))
@@ -631,6 +842,24 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
       {
         CDOInvalidationNotificationImpl notification = new CDOInvalidationNotificationImpl(dirtyObject);
         dirtyObject.eNotify(notification);
+      }
+    }
+  }
+
+  public void notifyChangeSubcription(Collection<CDORevisionDelta> deltas)
+  {
+    if (deltas != null && getChangeSubscriptionPolicy() != CDOChangeSubscriptionPolicy.NONE)
+    {
+      CDONotificationBuilder builder = new CDONotificationBuilder(getSession().getPackageRegistry());
+
+      for (CDORevisionDelta delta : deltas)
+      {
+        InternalCDOObject object = objects.get(delta.getID());
+        if (object != null && object.eNotificationRequired() && changeSubscriptionManager.isSubscribe(object))
+        {
+          NotificationImpl notification = builder.buildNotification(object, delta);
+          if (notification != null) notification.dispatch();
+        }
       }
     }
   }

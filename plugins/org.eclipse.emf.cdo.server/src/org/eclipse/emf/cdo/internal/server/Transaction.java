@@ -7,6 +7,8 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Simon McDuff - 233490: Change Subscription
+ *                   https://bugs.eclipse.org/bugs/show_bug.cgi?id=233490
  **************************************************************************/
 package org.eclipse.emf.cdo.internal.server;
 
@@ -196,17 +198,9 @@ public class Transaction extends View implements ITransaction, IStoreWriter.Comm
   {
     try
     {
-      int modifications = dirtyObjectDeltas.length;
-      if (success && modifications > 0)
+      if (success)
       {
-        List<CDOID> dirtyIDs = new ArrayList<CDOID>(modifications);
-        for (int i = 0; i < modifications; i++)
-        {
-          dirtyIDs.add(dirtyObjectDeltas[i].getID());
-        }
-
-        SessionManager sessionManager = (SessionManager)repository.getSessionManager();
-        sessionManager.notifyInvalidation(timeStamp, dirtyIDs, getSession());
+        repository.getNotificationManager().notifyInvalidation( getSession(), this);
       }
     }
     finally

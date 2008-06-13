@@ -99,7 +99,7 @@ public class SyncRevisionRequest extends CDOClientRequest<Set<CDOID>>
 
     if (PROTOCOL.isEnabled()) PROTOCOL.trace("Synchronization received  " + size + " dirty objects");
 
-    cdoSession.refresh(listofDirtyObjects);
+    cdoSession.notifySync(listofDirtyObjects);
 
     return listofDirtyObjects;
   }

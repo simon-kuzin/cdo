@@ -7,12 +7,16 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Simon McDuff - 233490: Change Subscription
+ *				     https://bugs.eclipse.org/bugs/show_bug.cgi?id=233490
  **************************************************************************/
 package org.eclipse.emf.internal.cdo.protocol;
 
 import org.eclipse.emf.cdo.common.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
+import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
+import org.eclipse.emf.cdo.internal.common.revision.delta.CDORevisionDeltaImpl;
 
 import org.eclipse.emf.internal.cdo.CDOSessionImpl;
 import org.eclipse.emf.internal.cdo.bundle.OM;
@@ -22,7 +26,9 @@ import org.eclipse.net4j.util.io.ExtendedDataInputStream;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -64,8 +70,20 @@ public class InvalidationIndication extends Indication
       CDOID dirtyOID = CDOIDUtil.read(in, session);
       dirtyOIDs.add(dirtyOID);
     }
-
-    session.notifyInvalidation(timeStamp, dirtyOIDs, null);
+    
+    size = in.readInt();
+    if (PROTOCOL.isEnabled())
+    {
+      PROTOCOL.format("Reading {0} Deltas", size);
+    }
+    
+    List<CDORevisionDelta> deltas = new ArrayList<CDORevisionDelta>();
+    for (int i = 0; i < size; i++)
+    {
+      deltas.add(new CDORevisionDeltaImpl(in, getSession().getPackageManager()));
+    }
+    
+    session.notifyCommit(timeStamp, dirtyOIDs, deltas, null);
   }
 
   protected CDOSessionImpl getSession()

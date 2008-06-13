@@ -11,6 +11,8 @@
  *                   https://bugs.eclipse.org/bugs/show_bug.cgi?id=233273    
  *    Simon McDuff - 230832: Make remote invalidation configurable
  *                   https://bugs.eclipse.org/bugs/show_bug.cgi?id=230832                   
+ *    Simon McDuff - 233490: Change Subscription
+ *                   https://bugs.eclipse.org/bugs/show_bug.cgi?id=233490
  **************************************************************************/
 package org.eclipse.emf.cdo.internal.server.protocol;
 
@@ -88,8 +90,11 @@ public class CDOServerProtocol extends CDOProtocolImpl
     case CDOProtocolConstants.SIGNAL_SYNC:
       return new SyncRevisionIndication();
 
-    case CDOProtocolConstants.SIGNAL_AUTOMATIC_REFRESH:
+    case CDOProtocolConstants.SIGNAL_PASSIVE_UPDATE:
       return new PassiveUpdateIndication();
+
+    case CDOProtocolConstants.SIGNAL_CHANGE_SUBSCRIPTION:
+      return new ChangeSubscriptionIndication();
 
     default:
       return null;

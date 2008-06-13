@@ -9,6 +9,8 @@
  *    Eike Stepper - initial API and implementation
  *    Simon McDuff - https://bugs.eclipse.org/bugs/show_bug.cgi?id=201266
  *    Simon McDuff - https://bugs.eclipse.org/bugs/show_bug.cgi?id=201997
+ *    Simon McDuff - 233490: Change Subscription
+ *				     https://bugs.eclipse.org/bugs/show_bug.cgi?id=233490
  **************************************************************************/
 package org.eclipse.emf.cdo;
 
@@ -59,6 +61,10 @@ public interface CDOView extends CDOProtocolView, INotifier
   public boolean isInvalidationNotificationsEnabled();
 
   public void setInvalidationNotificationsEnabled(boolean invalidationNotificationsEnabled);
+
+  public CDOChangeSubscriptionPolicy getChangeSubscriptionPolicy();
+
+  public void setChangeSubscriptionPolicy(CDOChangeSubscriptionPolicy changeSubscriptionPolicy);
 
   public int getLoadRevisionCollectionChunkSize();
 

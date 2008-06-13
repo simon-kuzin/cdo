@@ -10,6 +10,8 @@
  *    Simon McDuff - https://bugs.eclipse.org/bugs/show_bug.cgi?id=226778
  *    Simon McDuff - 230832: Make remote invalidation configurable
  *                   https://bugs.eclipse.org/bugs/show_bug.cgi?id=230832
+ *    Simon McDuff - 233490: Change Subscription
+ *				     https://bugs.eclipse.org/bugs/show_bug.cgi?id=233490
  **************************************************************************/
 package org.eclipse.emf.internal.cdo;
 
@@ -28,6 +30,7 @@ import org.eclipse.emf.cdo.common.model.CDOClass;
 import org.eclipse.emf.cdo.common.model.CDOClassRef;
 import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.common.util.TransportException;
 import org.eclipse.emf.cdo.util.CDOPackageRegistry;
 import org.eclipse.emf.cdo.util.CDOUtil;
@@ -555,19 +558,23 @@ public class CDOSessionImpl extends Container<CDOView> implements CDOSession, CD
     types.put(id, type);
   }
 
-  public void notifyInvalidation(long timeStamp, Set<CDOID> dirtyOIDs, CDOViewImpl excludedView)
+  public void notifyCommit(long timeStamp, Set<CDOID> dirtyOIDs, Collection<CDORevisionDelta> deltas,
+      CDOViewImpl excludedView)
   {
-    if (!isPassiveUpdateEnabled()) return;
+    if (isPassiveUpdateEnabled())
+    {
+      notifyInvalidation(timeStamp, dirtyOIDs, excludedView);
+    }
 
-    forceNotifyInvalidation(timeStamp, dirtyOIDs, excludedView);
+    notifyChangeSubcription(deltas, excludedView);
   }
 
-  public void refresh(Set<CDOID> dirtyOIDs)
+  public void notifySync(Set<CDOID> dirtyOIDs)
   {
-    forceNotifyInvalidation(CDORevision.UNSPECIFIED_DATE, dirtyOIDs, null);
+    notifyInvalidation(CDORevision.UNSPECIFIED_DATE, dirtyOIDs, null);
   }
 
-  private void forceNotifyInvalidation(long timeStamp, Set<CDOID> dirtyOIDs, CDOViewImpl excludedView)
+  private void notifyInvalidation(long timeStamp, Set<CDOID> dirtyOIDs, CDOViewImpl excludedView)
   {
     dirtyOIDs = Collections.unmodifiableSet(dirtyOIDs);
 
@@ -587,6 +594,26 @@ public class CDOSessionImpl extends Container<CDOView> implements CDOSession, CD
     }
 
     fireInvalidationEvent(timeStamp, dirtyOIDs, excludedView);
+  }
+
+  private void notifyChangeSubcription(Collection<CDORevisionDelta> deltas, CDOViewImpl excludedView)
+  {
+    if (deltas == null || deltas.size() <= 0) return;
+
+    for (CDOViewImpl view : getViews())
+    {
+      if (view != excludedView)
+      {
+        try
+        {
+          view.notifyChangeSubcription(deltas);
+        }
+        catch (RuntimeException ex)
+        {
+          OM.LOG.error(ex);
+        }
+      }
+    }
   }
 
   public void fireInvalidationEvent(long timeStamp, Set<CDOID> dirtyOIDs, CDOViewImpl excludedView)
@@ -698,7 +725,8 @@ public class CDOSessionImpl extends Container<CDOView> implements CDOSession, CD
       channel = connector.openChannel(CDOProtocolConstants.PROTOCOL_NAME, this);
     }
 
-    OpenSessionRequest request = new OpenSessionRequest(channel, repositoryName, legacySupportEnabled);
+    OpenSessionRequest request = new OpenSessionRequest(channel, repositoryName, legacySupportEnabled,
+        passiveUpdateEnabled);
     OpenSessionResult result = request.send();
 
     sessionID = result.getSessionID();

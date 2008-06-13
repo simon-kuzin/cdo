@@ -44,7 +44,7 @@ public class PassiveUpdateRequest extends SyncRevisionRequest
   @Override
   protected short getSignalID()
   {
-    return CDOProtocolConstants.SIGNAL_AUTOMATIC_REFRESH;
+    return CDOProtocolConstants.SIGNAL_PASSIVE_UPDATE;
   }
 
   @Override

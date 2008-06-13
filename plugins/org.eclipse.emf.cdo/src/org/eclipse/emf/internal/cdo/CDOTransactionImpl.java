@@ -10,6 +10,8 @@
  *    Simon McDuff - https://bugs.eclipse.org/bugs/show_bug.cgi?id=201266
  *    Simon McDuff - https://bugs.eclipse.org/bugs/show_bug.cgi?id=233314
  *    Simon McDuff - https://bugs.eclipse.org/bugs/show_bug.cgi?id=215688    
+ *    Simon McDuff - 233490: Change Subscription
+ *				     https://bugs.eclipse.org/bugs/show_bug.cgi?id=233490
  **************************************************************************/
 package org.eclipse.emf.internal.cdo;
 
@@ -208,6 +210,8 @@ public class CDOTransactionImpl extends CDOViewImpl implements CDOTransaction
       {
         newPackages = analyzeNewPackages();
 
+        Collection<CDORevisionDelta> deltas = getRevisionDeltas().values();
+        
         for (CDOSavePointImpl itrSavePoint = lastSavePoint; itrSavePoint != null; itrSavePoint = itrSavePoint
             .getPreviousSavePoint())
         {
@@ -239,15 +243,19 @@ public class CDOTransactionImpl extends CDOViewImpl implements CDOTransaction
           ((InternalCDOPackage)newPackage).setPersistent(true);
         }
 
+        changeSubscriptionManager.notifyCommit();
+        
         Map<CDOID, CDOObject> dirtyObjects = this.getDirtyObjects();
 
         if (!dirtyObjects.isEmpty())
         {
-          session.notifyInvalidation(result.getTimeStamp(), dirtyObjects.keySet(), this);
+          session.notifyCommit(result.getTimeStamp(), dirtyObjects.keySet(),deltas, this);
         }
 
         cleanUp();
         Map<CDOIDTemp, CDOID> idMappings = result.getIDMappings();
+        
+        
         fireEvent(new FinishedEvent(CDOTransactionFinishedEvent.Type.COMMITTED, idMappings));
       }
       catch (RuntimeException ex)

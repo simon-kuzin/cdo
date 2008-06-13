@@ -10,6 +10,8 @@
  *    Simon McDuff - https://bugs.eclipse.org/bugs/show_bug.cgi?id=201266
  *    Simon McDuff - 230832: Make remote invalidation configurable
  *                   https://bugs.eclipse.org/bugs/show_bug.cgi?id=230832
+ *    Simon McDuff - 233490: Change Subscription
+ *                   https://bugs.eclipse.org/bugs/show_bug.cgi?id=233490
  **************************************************************************/
 package org.eclipse.emf.cdo.internal.server;
 
@@ -21,6 +23,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.model.CDOClass;
 import org.eclipse.emf.cdo.common.model.CDOClassRef;
 import org.eclipse.emf.cdo.common.model.CDOFeature;
+import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
 import org.eclipse.emf.cdo.internal.server.protocol.CDOServerProtocol;
 import org.eclipse.emf.cdo.internal.server.protocol.InvalidationNotification;
@@ -37,6 +40,7 @@ import org.eclipse.net4j.util.lifecycle.ILifecycle;
 import org.eclipse.net4j.util.lifecycle.LifecycleEventAdapter;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -52,7 +56,7 @@ public class Session extends Container<IView> implements ISession, CDOIDProvider
   private CDOServerProtocol protocol;
 
   private int sessionID;
-  
+
   private boolean passiveUpdateEnabled = true;
 
   private boolean legacySupportEnabled;
@@ -201,14 +205,28 @@ public class Session extends Container<IView> implements ISession, CDOIDProvider
     return new View(this, viewID, type);
   }
 
-  public void notifyInvalidation(long timeStamp, List<CDOID> dirtyIDs)
-  {    
-    if (!isPassiveUpdateEnabled())
-      return;
-    
+  public void notifyInvalidation(long timeStamp, List<CDOID> dirtyIDs, List<CDORevisionDelta> deltas)
+  {
+    if (!isPassiveUpdateEnabled()) dirtyIDs = new ArrayList<CDOID>();
+
+    // Look if someone needs to know something about modified objects
+    List<CDORevisionDelta> newDeltas = new ArrayList<CDORevisionDelta>();
+    for (CDORevisionDelta delta : deltas)
+    {
+      CDOID lookupID = delta.getID();
+      for (IView view : views.values())
+      {
+        if (((View)view).isSubscribe(lookupID))
+        {
+          newDeltas.add(delta);
+          break;
+        }
+      }
+    }
     try
     {
-        new InvalidationNotification(protocol.getChannel(), timeStamp, dirtyIDs).send();
+      if (dirtyIDs.size() > 0 || newDeltas.size() > 0)
+        new InvalidationNotification(protocol.getChannel(), this, timeStamp, dirtyIDs, newDeltas).send();
     }
     catch (Exception ex)
     {

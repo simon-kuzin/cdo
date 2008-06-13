@@ -41,6 +41,8 @@ public class AllTests
     suite.addTestSuite(IndexReconstructionTest.class);
     suite.addTestSuite(NoLegacyTest.class);
     suite.addTestSuite(SavePointTest.class);
+    suite.addTestSuite(ChangeSubscriptionTest.class);
+    suite.addTestSuite(QueryTest.class);
     // TODO suite.addTestSuite(GeneratedEcoreTest.class);
     // $JUnit-END$
 

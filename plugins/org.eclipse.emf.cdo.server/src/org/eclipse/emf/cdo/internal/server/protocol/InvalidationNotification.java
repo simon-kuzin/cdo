@@ -8,12 +8,16 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  *    Simon McDuff - https://bugs.eclipse.org/bugs/show_bug.cgi?id=201266
+ *    Simon McDuff - 233490: Change Subscription
+ *                   https://bugs.eclipse.org/bugs/show_bug.cgi?id=233490
  **************************************************************************/
 package org.eclipse.emf.cdo.internal.server.protocol;
 
 import org.eclipse.emf.cdo.common.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
+import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
 
 import org.eclipse.net4j.channel.IChannel;
@@ -31,15 +35,21 @@ public class InvalidationNotification extends Request
 {
   private static final ContextTracer PROTOCOL = new ContextTracer(OM.DEBUG_PROTOCOL, InvalidationNotification.class);
 
+  private CDOIDProvider provider;
+  
   private long timeStamp;
 
   private List<CDOID> dirtyIDs;
+  
+  private List<CDORevisionDelta> deltas;
 
-  public InvalidationNotification(IChannel channel, long timeStamp, List<CDOID> dirtyIDs)
+  public InvalidationNotification(IChannel channel, CDOIDProvider provider, long timeStamp, List<CDOID> dirtyIDs, List<CDORevisionDelta> deltas)
   {
     super(channel);
+    this.provider = provider;
     this.timeStamp = timeStamp;
     this.dirtyIDs = dirtyIDs;
+    this.deltas = deltas;
   }
 
   @Override
@@ -62,10 +72,18 @@ public class InvalidationNotification extends Request
       PROTOCOL.format("Writing {0} dirty IDs", dirtyIDs.size());
     }
 
-    out.writeInt(dirtyIDs.size());
+    out.writeInt(dirtyIDs == null ? 0 : dirtyIDs.size());
+    
     for (CDOID dirtyID : dirtyIDs)
     {
       CDOIDUtil.write(out, dirtyID);
+    }
+    
+    out.writeInt(deltas == null ? 0 : deltas.size());
+    
+    for (CDORevisionDelta delta : deltas)
+    {
+      delta.write(out, provider);
     }
   }
 }
