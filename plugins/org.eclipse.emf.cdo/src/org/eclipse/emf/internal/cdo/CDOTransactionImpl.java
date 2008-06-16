@@ -249,7 +249,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements CDOTransaction
 
         if (!dirtyObjects.isEmpty())
         {
-          session.notifyCommit(result.getTimeStamp(), dirtyObjects.keySet(),deltas, this);
+          session.handleCommitNotification(result.getTimeStamp(), dirtyObjects.keySet(),deltas, this);
         }
 
         cleanUp();

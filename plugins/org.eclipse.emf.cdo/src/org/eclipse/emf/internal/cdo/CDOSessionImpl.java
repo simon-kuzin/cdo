@@ -558,7 +558,7 @@ public class CDOSessionImpl extends Container<CDOView> implements CDOSession, CD
     types.put(id, type);
   }
 
-  public void notifyCommit(long timeStamp, Set<CDOID> dirtyOIDs, Collection<CDORevisionDelta> deltas,
+  public void handleCommitNotification(long timeStamp, Set<CDOID> dirtyOIDs, Collection<CDORevisionDelta> deltas,
       CDOViewImpl excludedView)
   {
     if (isPassiveUpdateEnabled())

@@ -49,7 +49,7 @@ public class NotificationManager implements INotificationManager
 
       SessionManager sessionManager = (SessionManager)repository.getSessionManager();
       
-      sessionManager.notifyCommit(commitContext.getTimeStamp(), dirtyIDs, deltas, session);
+      sessionManager.handleCommitNotification(commitContext.getTimeStamp(), dirtyIDs, deltas, session);
     }
     
   }

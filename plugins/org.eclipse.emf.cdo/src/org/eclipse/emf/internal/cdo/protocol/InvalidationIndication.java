@@ -83,7 +83,7 @@ public class InvalidationIndication extends Indication
       deltas.add(new CDORevisionDeltaImpl(in, getSession().getPackageManager()));
     }
     
-    session.notifyCommit(timeStamp, dirtyOIDs, deltas, null);
+    session.handleCommitNotification(timeStamp, dirtyOIDs, deltas, null);
   }
 
   protected CDOSessionImpl getSession()

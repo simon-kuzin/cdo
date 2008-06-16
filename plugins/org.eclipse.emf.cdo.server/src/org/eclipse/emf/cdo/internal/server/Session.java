@@ -205,7 +205,7 @@ public class Session extends Container<IView> implements ISession, CDOIDProvider
     return new View(this, viewID, type);
   }
 
-  public void notifyCommit(long timeStamp, List<CDOID> dirtyIDs, List<CDORevisionDelta> deltas)
+  public void handleCommitNotification(long timeStamp, List<CDOID> dirtyIDs, List<CDORevisionDelta> deltas)
   {
     if (!isPassiveUpdateEnabled()) dirtyIDs = new ArrayList<CDOID>();
 
