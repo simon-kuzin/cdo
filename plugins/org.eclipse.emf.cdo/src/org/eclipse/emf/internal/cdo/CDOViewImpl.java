@@ -195,7 +195,7 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
       }
     }
 
-    protected void notifyCommit()
+    protected void notifyDirtyObjects()
     {
       synchronized (persistedObjects)
       {

@@ -200,7 +200,7 @@ public class Transaction extends View implements ITransaction, IStoreWriter.Comm
     {
       if (success)
       {
-        repository.getNotificationManager().notifyInvalidation( getSession(), this);
+        repository.getNotificationManager().notifyCommit( getSession(), this);
       }
     }
     finally

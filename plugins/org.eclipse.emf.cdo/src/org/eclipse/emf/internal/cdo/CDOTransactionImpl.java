@@ -243,7 +243,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements CDOTransaction
           ((InternalCDOPackage)newPackage).setPersistent(true);
         }
 
-        changeSubscriptionManager.notifyCommit();
+        changeSubscriptionManager.notifyDirtyObjects();
         
         Map<CDOID, CDOObject> dirtyObjects = this.getDirtyObjects();
 

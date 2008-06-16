@@ -105,13 +105,13 @@ public class SessionManager extends Container<ISession> implements ISessionManag
     }
   }
 
-  public void notifyInvalidation(long timeStamp, List<CDOID> dirtyIDs, List<CDORevisionDelta> deltas, Session excludedSession)
+  public void notifyCommit(long timeStamp, List<CDOID> dirtyIDs, List<CDORevisionDelta> deltas, Session excludedSession)
   {
     for (Session session : getSessions())
     {
       if (session != excludedSession)
       {
-        session.notifyInvalidation(timeStamp, dirtyIDs, deltas);
+        session.notifyCommit(timeStamp, dirtyIDs, deltas);
       }
     }
   }

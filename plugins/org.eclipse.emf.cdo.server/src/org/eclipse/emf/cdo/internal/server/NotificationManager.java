@@ -30,7 +30,7 @@ public class NotificationManager implements INotificationManager
     this.repository = repository;
   }
 
-  public void notifyInvalidation(Session session, CommitContext commitContext)
+  public void notifyCommit(Session session, CommitContext commitContext)
   {
     CDORevisionDelta[] dirtyObjectDeltas = commitContext.getDirtyObjectDeltas();
 
@@ -49,7 +49,7 @@ public class NotificationManager implements INotificationManager
 
       SessionManager sessionManager = (SessionManager)repository.getSessionManager();
       
-      sessionManager.notifyInvalidation(commitContext.getTimeStamp(), dirtyIDs, deltas, session);
+      sessionManager.notifyCommit(commitContext.getTimeStamp(), dirtyIDs, deltas, session);
     }
     
   }

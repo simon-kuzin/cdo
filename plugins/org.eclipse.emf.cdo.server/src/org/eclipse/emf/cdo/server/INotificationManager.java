@@ -19,6 +19,6 @@ import org.eclipse.emf.cdo.server.IStoreWriter.CommitContext;
 public interface INotificationManager
 {
 
-  public abstract void notifyInvalidation(Session session, CommitContext commitContext);
+  public abstract void notifyCommit(Session session, CommitContext commitContext);
 
 }
