@@ -30,6 +30,7 @@ import java.util.List;
 
 /**
  * @author Eike Stepper
+ * @TODO After Merging to HEAD (from 2.0.0) need to change this classname for CommitNotificationRequest
  */
 public class InvalidationNotification extends Request
 {

@@ -33,6 +33,7 @@ import java.util.Set;
 
 /**
  * @author Eike Stepper
+ * @TODO After Merging to HEAD (from 2.0.0) need to change this classname for CommitNotificationIndication
  */
 public class InvalidationIndication extends Indication
 {
