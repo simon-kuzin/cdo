@@ -18,6 +18,7 @@ import org.eclipse.emf.cdo.common.model.CDOClassRef;
 import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
+import org.eclipse.emf.cdo.common.model.resource.CDOPathFeature;
 import org.eclipse.emf.cdo.common.query.CDOQueryParameter;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
@@ -129,7 +130,13 @@ public class MEMStoreAccessor extends StoreAccessor implements IStoreReader, ISt
 
   public String readResourcePath(CDOID id)
   {
-    throw new UnsupportedOperationException();
+    CDORevision revision = getStore().getRevision(id);
+
+    CDOPathFeature pathFeature = getStore().getRepository().getPackageManager().getCDOResourcePackage().getCDOResourceClass()
+    .getCDOPathFeature();
+    
+    String p = (String)revision.getData().get(pathFeature, 0);
+    return p;
   }
 
   @Override
