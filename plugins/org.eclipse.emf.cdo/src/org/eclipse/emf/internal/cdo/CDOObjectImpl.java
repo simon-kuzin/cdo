@@ -11,7 +11,6 @@
  **************************************************************************/
 package org.eclipse.emf.internal.cdo;
 
-import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.CDOState;
 import org.eclipse.emf.cdo.CDOView;
 import org.eclipse.emf.cdo.common.id.CDOID;
@@ -607,34 +606,118 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
   }
 
   @Override
-  protected void eBasicSetContainer(InternalEObject newContainer, int newContainerFeatureID)
+  protected void eBasicSetContainer(InternalEObject newEContainer, int newContainerFeatureID)
   {
     if (TRACER.isEnabled())
     {
-      TRACER.format("Setting container: {0}, featureID={1}", newContainer, newContainerFeatureID);
+      TRACER.format("Setting container: {0}, featureID={1}", newEContainer, newContainerFeatureID);
     }
 
-    if (FSMUtil.isTransient(this))
+    if (handleContainment(newEContainer))
     {
-      super.eBasicSetContainer(newContainer, newContainerFeatureID);
+      // resource = (CDOResourceImpl)newResource;
+      // if (newEContainer instanceof Resource.Internal)
+      // {
+      // eSetDirectResource((Resource.Internal)newEContainer);
+      // }
     }
     else
     {
-      CDOResource newResource = null;
-      if (newContainer instanceof CDOObject)
-      {
-        newResource = ((CDOObject)newContainer).cdoResource();
-      }
-
-      // Delegate to CDOStore
-      getStore().setContainer(this, newResource, newContainer, newContainerFeatureID);
-
-      resource = (CDOResourceImpl)newResource;
-      if (newContainer instanceof Resource.Internal)
-      {
-        eSetDirectResource((Resource.Internal)newContainer);
-      }
+      super.eBasicSetContainer(newEContainer, newContainerFeatureID);
     }
+
+    // if (FSMUtil.isTransient(this))
+    // {
+    // super.eBasicSetContainer(newEContainer, newContainerFeatureID);
+    // }
+    // else
+    // {
+    // CDOResource newResource = null;
+    // if (newEContainer instanceof CDOObject)
+    // {
+    // newResource = ((CDOObject)newEContainer).cdoResource();
+    // }
+    //
+    // // Delegate to CDOStore
+    // getStore().setContainer(this, newResource, newEContainer, newContainerFeatureID);
+    //
+    // resource = (CDOResourceImpl)newResource;
+    // if (newEContainer instanceof Resource.Internal)
+    // {
+    // eSetDirectResource((Resource.Internal)newEContainer);
+    // }
+    // }
+  }
+
+  private boolean handleContainment(InternalEObject newEContainer)
+  {
+    InternalCDOObject oldContainer = eContainer instanceof InternalCDOObject ? (InternalCDOObject)eContainer : null;
+    InternalCDOObject newContainer = newEContainer instanceof InternalCDOObject ? (InternalCDOObject)newEContainer
+        : null;
+
+    CDOView oldView = oldContainer == null ? null : oldContainer.cdoView();
+    CDOView newView = newContainer == null ? null : newContainer.cdoView();
+
+    CDOTransactionImpl oldTx = oldView instanceof CDOTransactionImpl ? (CDOTransactionImpl)oldView : null;
+    CDOTransactionImpl newTx = newView instanceof CDOTransactionImpl ? (CDOTransactionImpl)newView : null;
+
+    if (oldTx != null)
+    {
+      if (oldTx == newTx)
+      {
+        handleContainmentMove(oldContainer, newContainer, newTx);
+        return true;
+      }
+
+      if (newTx != null)
+      {
+        if (oldTx.getSession() == newTx.getSession())
+        {
+          handleContainmentSwitch(oldContainer, oldTx, newContainer, newTx);
+          return true;
+        }
+
+        handleContainmentDetach(oldContainer, oldTx);
+        handleContainmentAttach(newContainer, newTx);
+        return true;
+      }
+
+      handleContainmentDetach(oldContainer, oldTx);
+      return true;
+    }
+
+    if (newTx != null)
+    {
+      handleContainmentAttach(newContainer, newTx);
+      return true;
+    }
+
+    return false;
+  }
+
+  private void handleContainmentAttach(InternalCDOObject newContainer, CDOTransactionImpl newTx)
+  {
+    FSMUtil.checkLegacySystemAvailability(newTx.getSession(), this);
+    CDOStateMachine.INSTANCE.attach(this, newContainer);
+
+    // CDOResource containerResource = newContainer.cdoResource();
+    // CDOView containerView = newContainer.cdoView();
+    // CDOStateMachine.INSTANCE.attach(this, containerResource, containerView);
+  }
+
+  private void handleContainmentDetach(InternalCDOObject oldContainer, CDOTransactionImpl oldTx)
+  {
+    CDOStateMachine.INSTANCE.detach(this);
+  }
+
+  private void handleContainmentMove(InternalCDOObject oldContainer, InternalCDOObject newContainer,
+      CDOTransactionImpl tx)
+  {
+  }
+
+  private void handleContainmentSwitch(InternalCDOObject oldContainer, CDOTransactionImpl oldTx,
+      InternalCDOObject newContainer, CDOTransactionImpl newTx)
+  {
   }
 
   @Override

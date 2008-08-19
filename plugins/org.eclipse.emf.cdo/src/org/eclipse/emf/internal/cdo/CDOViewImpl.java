@@ -916,7 +916,7 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
   {
     try
     {
-      CDOStateMachine.INSTANCE.attach(cdoResource, cdoResource, this);
+      CDOStateMachine.INSTANCE.attach(cdoResource, (CDOTransactionImpl)this);
       fireEvent(new ResourcesEvent(cdoResource.getPath(), ResourcesEvent.Kind.ADDED));
     }
     catch (RuntimeException ex)

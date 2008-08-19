@@ -25,6 +25,7 @@ import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
 import org.eclipse.emf.cdo.common.util.TransportException;
 import org.eclipse.emf.cdo.eresource.CDOResource;
+import org.eclipse.emf.cdo.eresource.impl.CDOResourceImpl;
 import org.eclipse.emf.cdo.spi.common.InternalCDORevision;
 import org.eclipse.emf.cdo.util.CDOUtil;
 import org.eclipse.emf.cdo.util.ServerException;
@@ -145,19 +146,77 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
   /**
    * @since 2.0
    */
+  public void attach(CDOResourceImpl resource, CDOTransactionImpl transaction)
+  {
+    attach1(resource, transaction);
+    attach2(resource, transaction);
+  }
+
+  /**
+   * @since 2.0
+   */
+  public void attach(InternalCDOObject object, InternalCDOObject container)
+  {
+    attach1(object, container);
+    attach2(object, container);
+  }
+
+  /**
+   * Phase 1: TRANSIENT --> PREPARED
+   */
+  private void attach1(InternalCDOObject object, Object containerOrTransaction)
+  {
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("PREPARE: {0} --> {1}", object, containerOrTransaction);
+    }
+
+    process(object, CDOEvent.PREPARE, containerOrTransaction);
+  }
+
+  /**
+   * Phase 2: PREPARED --> NEW
+   */
+  private void attach2(InternalCDOObject object, Object containerOrTransaction)
+  {
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("ATTACH: {0} --> {1}", object, containerOrTransaction);
+    }
+
+    process(object, CDOEvent.ATTACH, null);
+  }
+
+  /**
+   * @since 2.0
+   */
+  @Deprecated
   public void attach(InternalCDOObject object, CDOResource resource, CDOView view)
   {
-    ResourceAndView data = new ResourceAndView(resource, (CDOViewImpl)view);
+    attach1(object, resource, view);
+    attach2(object, view);
+  }
 
-    // Phase 1: TRANSIENT --> PREPARED
+  /**
+   * Phase 1: TRANSIENT --> PREPARED
+   */
+  @Deprecated
+  private void attach1(InternalCDOObject object, CDOResource resource, CDOView view)
+  {
     if (TRACER.isEnabled())
     {
       TRACER.format("PREPARE: {0} --> {1}", object, view);
     }
 
-    process(object, CDOEvent.PREPARE, data);
+    process(object, CDOEvent.PREPARE, new ResourceAndView(resource, (CDOViewImpl)view));
+  }
 
-    // Phase 2: PREPARED --> NEW
+  /**
+   * Phase 2: PREPARED --> NEW
+   */
+  @Deprecated
+  private void attach2(InternalCDOObject object, CDOView view)
+  {
     if (TRACER.isEnabled())
     {
       TRACER.format("ATTACH: {0} --> {1}", object, view);
@@ -367,36 +426,53 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
    * @see AttachTransition
    * @author Eike Stepper
    */
-  private final class PrepareTransition implements ITransition<CDOState, CDOEvent, InternalCDOObject, ResourceAndView>
+  private final class PrepareTransition implements ITransition<CDOState, CDOEvent, InternalCDOObject, Object>
   {
-    public void execute(InternalCDOObject object, CDOState state, CDOEvent event, ResourceAndView data)
+    public void execute(InternalCDOObject object, CDOState state, CDOEvent event, Object containerOrTransaction)
     {
-      CDOTransactionImpl transaction = data.view.toTransaction();
+      InternalCDOObject container;
+      CDOResource resource;
+      CDOTransactionImpl transaction;
+      if (containerOrTransaction instanceof CDOTransactionImpl)
+      {
+        // Prepare attachment of a CDOResource to a CDOTransaction
+        container = null;
+        resource = (CDOResource)object;
+        transaction = (CDOTransactionImpl)containerOrTransaction;
+      }
+      else
+      {
+        // Prepare attachment of a CDOObject to another CDOObject
+        container = (InternalCDOObject)containerOrTransaction;
+        resource = container.cdoResource();
+        transaction = (CDOTransactionImpl)((InternalCDOObject)containerOrTransaction).cdoView();
+      }
+
       CDORevisionManager revisionManager = transaction.getSession().getRevisionManager();
 
       // Prepare object
       CDOID id = transaction.getNextTemporaryID();
       object.cdoInternalSetID(id);
-      object.cdoInternalSetResource(data.resource);
-      object.cdoInternalSetView(data.view);
+      object.cdoInternalSetResource(resource);
+      object.cdoInternalSetView(transaction);
       changeState(object, CDOState.PREPARED);
 
       // Create new revision
       CDOClass cdoClass = object.cdoClass();
       InternalCDORevision revision = (InternalCDORevision)CDORevisionUtil.create(revisionManager, cdoClass, id);
       revision.setVersion(-1);
-      revision.setResourceID(data.resource.cdoID());
+      revision.setResourceID(resource.cdoID());
       object.cdoInternalSetRevision(revision);
 
       // Register object
-      data.view.registerObject(object);
+      transaction.registerObject(object);
       transaction.registerNew(object);
 
       // Prepare content tree
       for (Iterator<InternalCDOObject> it = FSMUtil.iterator(object.eContents(), transaction); it.hasNext();)
       {
         InternalCDOObject content = it.next();
-        INSTANCE.process(content, CDOEvent.PREPARE, data);
+        INSTANCE.process(content, CDOEvent.PREPARE, container);
       }
     }
   }

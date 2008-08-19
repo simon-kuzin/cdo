@@ -181,6 +181,7 @@ public class InitialTest extends AbstractCDOTest
     assertEquals(transaction.getResourceSet(), resource.getResourceSet());
   }
 
+  // TODO Check after Simon comes up with CDOViewSet
   public void testAttachViewWithObject() throws Exception
   {
     final URI uri = URI.createURI("cdo:/test1");
