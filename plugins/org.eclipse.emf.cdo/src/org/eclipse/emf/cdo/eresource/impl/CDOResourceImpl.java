@@ -320,6 +320,10 @@ public class CDOResourceImpl extends CDOObjectImpl implements CDOResource
   /**
    * <b>Note:</b> URI from temporary objects are going to changed when we commit the CDOTransaction. Objects will not be
    * accessible from their temporary URI once CDOTransaction is committed.
+   * <p>
+   * <b>Note:</b> This resource is not actually used to lookup the resulting object in CDO. Only the CDOView is used for
+   * this lookup! This means that this resource can be used to resolve <em>any</em> fragment with a CDOID of the
+   * associated CDOView.
    * 
    * @ADDED
    */
@@ -538,6 +542,8 @@ public class CDOResourceImpl extends CDOObjectImpl implements CDOResource
   }
 
   /**
+   * {@link ResourceImpl.ContentsEList}!!! --> Bugzilla!
+   * 
    * @ADDED
    * @author Eike Stepper
    */
@@ -563,23 +569,11 @@ public class CDOResourceImpl extends CDOObjectImpl implements CDOResource
       CDOTransactionImpl transaction = cdoView().toTransaction();
       InternalCDOObject cdoObject = FSMUtil.adapt(object, transaction);
       notifications = cdoObject.eSetResource(CDOResourceImpl.this, notifications);
-      attached(cdoObject, transaction);
-
-      // if (object instanceof InternalCDOObject)
-      // {
-      // InternalCDOObject eObject = (InternalCDOObject)object;
-      // notifications = eObject.eSetResource(CDOResourceImpl.this, notifications);
-      // // It is possible that a attached objects gets add to the resource.
-      // if (FSMUtil.isTransient(eObject))
-      // {
-      // attached(eObject);
-      // }
-      // }
-      // else
-      // {
-      // // throw new LegacySystemNotAvailableException();
-      // throw new IllegalArgumentException();
-      // }
+      // Attach here instead of i CDOObjectImpl.eSetResource because EMF does it also here
+      if (FSMUtil.isTransient(cdoObject))
+      {
+        attached(cdoObject, transaction);
+      }
 
       return notifications;
     }
@@ -597,7 +591,8 @@ public class CDOResourceImpl extends CDOObjectImpl implements CDOResource
   }
 
   /**
-   * TODO Change superclass to NotifyingInternalEListImpl when EMF 2.3 is out of maintenance
+   * TODO Change superclass to NotifyingInternalEListImpl when EMF 2.3 is out of maintenance TODO Reuse
+   * {@link ResourceImpl.ContentsEList}!!! --> Bugzilla!
    * 
    * @ADDED
    * @author Eike Stepper

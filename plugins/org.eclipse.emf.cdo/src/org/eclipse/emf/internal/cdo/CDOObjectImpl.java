@@ -77,6 +77,8 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
 
   private CDOViewImpl cdoView;
 
+  // TODO Consider removal because it's only an optimization (proof that revision.resourceID could be used in all cases
+  // as well)
   private CDOResourceImpl resource;
 
   private InternalCDORevision revision;
@@ -749,7 +751,6 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
 
       // When setting the resource to null we assume that detach has already been called in the resource implementation
       //
-
       if (!isSameView && resource != null)
       {
         oldResource.detached(this);

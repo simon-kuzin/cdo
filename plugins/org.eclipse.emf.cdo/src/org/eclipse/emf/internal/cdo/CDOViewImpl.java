@@ -419,13 +419,13 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
         }
         else
         {
-          if (!loadOnDemand)
+          if (loadOnDemand)
           {
             localLookupObject = createObject(id);
           }
           else
           {
-            localLookupObject = createProxy(id);
+            return null;
           }
         }
 
