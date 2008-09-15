@@ -31,6 +31,4 @@ public interface CDOPackageTypeRegistry extends IRegistry<String, CDOPackageType
   public void registerLegacy(String uri);
 
   public void registerNative(String uri);
-
-  public void registerConverted(String uri);
 }

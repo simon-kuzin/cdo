@@ -20,10 +20,11 @@ import org.eclipse.emf.ecore.InternalEObject;
 
 /**
  * @author Eike Stepper
+ * @since 2.0
  */
-public class CDOMetaImpl extends CDOWrapperImpl
+public class CDOMetaWrapper extends CDOObjectWrapper
 {
-  public CDOMetaImpl(CDOViewImpl view, InternalEObject instance, CDOID id)
+  public CDOMetaWrapper(CDOViewImpl view, InternalEObject instance, CDOID id)
   {
     this.view = view;
     this.instance = instance;

@@ -636,11 +636,11 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
 
     if (object instanceof CDOResourceImpl)
     {
-      register(lastSavepoint.getNewResources(), object);
+      registerNew(lastSavepoint.getNewResources(), object);
     }
     else
     {
-      register(lastSavepoint.getNewObjects(), object);
+      registerNew(lastSavepoint.getNewObjects(), object);
     }
   }
 
@@ -696,11 +696,11 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     }
 
     registerFeatureDelta(object, featureDelta);
-    register(lastSavepoint.getDirtyObjects(), object);
+    registerNew(lastSavepoint.getDirtyObjects(), object);
   }
 
   @SuppressWarnings("unchecked")
-  private void register(Map map, InternalCDOObject object)
+  private void registerNew(Map map, InternalCDOObject object)
   {
     Object old = map.put(object.cdoID(), object);
     if (old != null)

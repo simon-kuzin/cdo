@@ -7,7 +7,6 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
- *    Simon McDuff - http://bugs.eclipse.org/201266
  **************************************************************************/
 package org.eclipse.emf.internal.cdo;
 
@@ -18,9 +17,11 @@ import org.eclipse.emf.cdo.common.model.CDOClass;
 import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.eresource.impl.CDOResourceImpl;
 import org.eclipse.emf.cdo.spi.common.InternalCDORevision;
+import org.eclipse.emf.cdo.util.CDOPackageRegistry;
 
 import org.eclipse.emf.internal.cdo.bundle.OM;
 import org.eclipse.emf.internal.cdo.util.GenUtil;
@@ -28,16 +29,14 @@ import org.eclipse.emf.internal.cdo.util.ModelUtil;
 
 import org.eclipse.net4j.util.ImplementationError;
 import org.eclipse.net4j.util.ReflectUtil;
-import org.eclipse.net4j.util.WrappedException;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.emf.common.notify.Adapter;
-import org.eclipse.emf.common.notify.Notifier;
+import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
-import org.eclipse.emf.ecore.impl.BasicEObjectImpl;
 import org.eclipse.emf.ecore.impl.EAttributeImpl;
 import org.eclipse.emf.ecore.impl.EClassImpl;
 import org.eclipse.emf.ecore.impl.EDataTypeImpl;
@@ -48,17 +47,17 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.InternalEList;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.List;
 
 /**
  * @author Eike Stepper
+ * @since 2.0
  */
-public abstract class CDOLegacyImpl extends CDOWrapperImpl implements Adapter.Internal
+public final class CDOLegacyWrapper extends CDOObjectWrapper implements InternalEObject.EReadListener,
+    InternalEObject.EWriteListener
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_OBJECT, CDOLegacyImpl.class);
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_OBJECT, CDOLegacyWrapper.class);
 
   private CDOState state;
 
@@ -66,9 +65,15 @@ public abstract class CDOLegacyImpl extends CDOWrapperImpl implements Adapter.In
 
   private InternalCDORevision revision;
 
-  public CDOLegacyImpl()
+  public CDOLegacyWrapper(InternalEObject instance)
   {
+    this.instance = instance;
     state = CDOState.TRANSIENT;
+  }
+
+  public CDOClass cdoClass()
+  {
+    return CDOObjectImpl.getCDOClass(this);
   }
 
   public CDOState cdoState()
@@ -86,19 +91,9 @@ public abstract class CDOLegacyImpl extends CDOWrapperImpl implements Adapter.In
     return resource;
   }
 
-  public CDOClass cdoClass()
-  {
-    return CDOObjectImpl.getCDOClass(this);
-  }
-
   public void cdoReload()
   {
     CDOStateMachine.INSTANCE.reload(this);
-  }
-
-  public boolean isAdapterForType(Object type)
-  {
-    return false;
   }
 
   public CDOState cdoInternalSetState(CDOState state)
@@ -146,7 +141,11 @@ public abstract class CDOLegacyImpl extends CDOWrapperImpl implements Adapter.In
 
   public void cdoInternalPostAttach()
   {
-    // Do nothing
+    // TODO Avoid if no adapters in list (eBasicAdapters?)
+    for (Adapter adapter : eAdapters())
+    {
+      view.subscribe(this, adapter);
+    }
   }
 
   public void cdoInternalPostDetach()
@@ -156,66 +155,44 @@ public abstract class CDOLegacyImpl extends CDOWrapperImpl implements Adapter.In
 
   public void cdoInternalPreCommit()
   {
-    transferInstanceToRevision();
-
-    CDORevisionManagerImpl revisionManager = view.getSession().getRevisionManager();
-    InternalCDORevision revision = cdoRevision();
-    InternalCDORevision originRevision = revisionManager.getRevisionByVersion(revision.getID(), CDORevision.UNCHUNKED,
-        revision.getVersion() - 1, false);
-
-    CDOTransactionImpl transaction = cdoView().toTransaction();
-    transaction.registerRevisionDelta(cdoRevision().compare(originRevision));
+    instanceToRevision();
+    if (cdoState() == CDOState.DIRTY) // NEW is handled in PrepareTransition
+    {
+      CDORevisionManagerImpl revisionManager = (CDORevisionManagerImpl)revision.getRevisionResolver();
+      InternalCDORevision originRevision = revisionManager.getRevisionByVersion(revision.getID(),
+          CDORevision.UNCHUNKED, revision.getVersion() - 1, false);
+      CDORevisionDelta delta = revision.compare(originRevision);
+      cdoView().toTransaction().registerRevisionDelta(delta);
+    }
   }
 
   public void cdoInternalPostLoad()
   {
-    transferRevisionToInstance();
+    revisionToInstance();
+  }
+
+  public void handleRead(InternalEObject object, int featureID)
+  {
+    CDOStateMachine.INSTANCE.read(this);
+  }
+
+  public void handleWrite(InternalEObject object, int featureID)
+  {
+    CDOStateMachine.INSTANCE.write(this);
   }
 
   @Override
-  public String toString()
+  public NotificationChain eSetResource(Resource.Internal resource, NotificationChain notifications)
   {
-    if (id == null)
+    if (resource.getClass() == CDOResourceImpl.class)
     {
-      return eClass().getName() + "?";
+      this.resource = (CDOResourceImpl)resource;
     }
 
-    return eClass().getName() + "@" + id;
+    return super.eSetResource(resource, notifications);
   }
 
-  public InternalEObject getTarget()
-  {
-    return instance;
-  }
-
-  public void setTarget(Notifier newTarget)
-  {
-    if (newTarget instanceof InternalEObject)
-    {
-      instance = (InternalEObject)newTarget;
-    }
-    else
-    {
-      throw new IllegalArgumentException("Not an InternalEObject: " + newTarget.getClass().getName());
-    }
-  }
-
-  public void unsetTarget(Notifier oldTarget)
-  {
-    if (oldTarget instanceof InternalEObject)
-    {
-      if (instance == oldTarget)
-      {
-        instance = null;
-      }
-    }
-    else
-    {
-      throw new IllegalArgumentException("Not an InternalEObject: " + oldTarget.getClass().getName());
-    }
-  }
-
-  protected void transferInstanceToRevision()
+  private void instanceToRevision()
   {
     if (TRACER.isEnabled())
     {
@@ -229,6 +206,19 @@ public abstract class CDOLegacyImpl extends CDOWrapperImpl implements Adapter.In
     }
 
     // Handle containment
+    instanceToRevisionContainment(view);
+
+    // Handle values
+    CDOPackageRegistry packageRegistry = cdoView().getSession().getPackageRegistry();
+    CDOClass cdoClass = revision.getCDOClass();
+    for (CDOFeature feature : cdoClass.getAllFeatures())
+    {
+      instanceToRevisionFeature(view, feature, packageRegistry);
+    }
+  }
+
+  private void instanceToRevisionContainment(CDOViewImpl view) throws ImplementationError
+  {
     EObject container = instance.eContainer();
     if (container != null)
     {
@@ -248,62 +238,59 @@ public abstract class CDOLegacyImpl extends CDOWrapperImpl implements Adapter.In
           throw new ImplementationError("containerID.isNull()");
         }
 
-        int containerFeatureID = instance.eContainerFeatureID();// containER???
+        int containerFeatureID = instance.eContainerFeatureID();// container???
         revision.setContainerID(containerID);
         revision.setContainingFeatureID(containerFeatureID);
       }
     }
+  }
 
-    // Handle values
-    CDOClass cdoClass = revision.getCDOClass();
-    CDOFeature[] features = cdoClass.getAllFeatures();
-    for (int i = 0; i < features.length; i++)
+  private void instanceToRevisionFeature(CDOViewImpl view, CDOFeature feature, CDOPackageRegistry packageRegistry)
+      throws ImplementationError
+  {
+    Object instanceValue = getInstanceValue(instance, feature, packageRegistry);
+    if (feature.isMany())
     {
-      CDOFeature feature = features[i];
-      Object instanceValue = getInstanceValue(instance, feature);
-      if (feature.isMany())
+      List<Object> revisionList = revision.getList(feature); // TODO lazy?
+      revisionList.clear();
+
+      if (instanceValue != null)
       {
-        List<Object> revisionList = revision.getList(feature); // TODO lazy?
-        revisionList.clear();
-
-        if (instanceValue != null)
+        if (instanceValue instanceof InternalEList)
         {
-          if (instanceValue instanceof InternalEList)
+          InternalEList<?> instanceList = (InternalEList<?>)instanceValue;
+          if (!instanceList.isEmpty())
           {
-            InternalEList<?> instanceList = (InternalEList<?>)instanceValue;
-            if (instanceList != null)
+            for (Iterator<?> it = instanceList.basicIterator(); it.hasNext();)
             {
-              for (Iterator<?> it = instanceList.basicIterator(); it.hasNext();)
+              Object instanceElement = it.next();
+              if (instanceElement != null && feature.isReference())
               {
-                Object instanceElement = it.next();
-                if (instanceElement != null && feature.isReference())
-                {
-                  instanceElement = view.convertObjectToID(instanceElement);
-                }
-
-                revisionList.add(instanceElement);
+                instanceElement = view.convertObjectToID(instanceElement);
               }
+
+              revisionList.add(instanceElement);
             }
           }
-          else
-          {
-            throw new ImplementationError("Not an InternalEList: " + instanceValue.getClass().getName());
-          }
         }
-      }
-      else
-      {
-        if (instanceValue != null && feature.isReference())
+        else
         {
-          instanceValue = view.convertObjectToID(instanceValue);
+          throw new ImplementationError("Not an InternalEList: " + instanceValue.getClass().getName());
         }
-
-        revision.setValue(feature, instanceValue);
       }
+    }
+    else
+    {
+      if (instanceValue != null && feature.isReference())
+      {
+        instanceValue = view.convertObjectToID(instanceValue);
+      }
+
+      revision.setValue(feature, instanceValue);
     }
   }
 
-  protected void transferRevisionToInstance()
+  private void revisionToInstance()
   {
     if (TRACER.isEnabled())
     {
@@ -325,14 +312,14 @@ public abstract class CDOLegacyImpl extends CDOWrapperImpl implements Adapter.In
     try
     {
       // Handle containment
-      transferContainmentToInstance(view);
+      revisionToInstanceContainment(view);
 
       // Handle values
+      CDOPackageRegistry packageRegistry = cdoView().getSession().getPackageRegistry();
       CDOClass cdoClass = revision.getCDOClass();
-      CDOFeature[] features = cdoClass.getAllFeatures();
-      for (CDOFeature feature : features)
+      for (CDOFeature feature : cdoClass.getAllFeatures())
       {
-        transferFeatureToInstance(view, feature);
+        revisionToInstanceFeature(view, feature, packageRegistry);
       }
     }
     finally
@@ -344,7 +331,7 @@ public abstract class CDOLegacyImpl extends CDOWrapperImpl implements Adapter.In
     }
   }
 
-  protected void transferContainmentToInstance(CDOViewImpl view)
+  private void revisionToInstanceContainment(CDOViewImpl view)
   {
     // Not supported anymore
     // Object containerID = revision.getContainerID();
@@ -362,41 +349,47 @@ public abstract class CDOLegacyImpl extends CDOWrapperImpl implements Adapter.In
     // }
   }
 
-  public void transferResourceToInstance(Resource.Internal resource)
-  {
-    Method method = ReflectUtil.getMethod(BasicEObjectImpl.class, "eSetDirectResource", Resource.Internal.class);
-
-    try
-    {
-      ReflectUtil.invokeMethod(method, instance, resource);
-    }
-    catch (InvocationTargetException ex)
-    {
-      throw WrappedException.wrap(ex);
-    }
-  }
+  // private void transferRevisionToInstanceResource(Resource.Internal resource)
+  // {
+  // Method method = ReflectUtil.getMethod(BasicEObjectImpl.class, "eSetDirectResource", Resource.Internal.class);
+  //
+  // try
+  // {
+  // ReflectUtil.invokeMethod(method, instance, resource);
+  // }
+  // catch (InvocationTargetException ex)
+  // {
+  // throw WrappedException.wrap(ex);
+  // }
+  // }
 
   @SuppressWarnings("unchecked")
-  protected void transferFeatureToInstance(CDOViewImpl view, CDOFeature feature)
+  private void revisionToInstanceFeature(CDOViewImpl view, CDOFeature feature, CDOPackageRegistry packageRegistry)
   {
     Object value = revision.getValue(feature);
     if (feature.isMany())
     {
-      InternalEList<Object> instanceList = (InternalEList<Object>)getInstanceValue(instance, feature);
+      InternalEList<Object> instanceList = (InternalEList<Object>)getInstanceValue(instance, feature, packageRegistry);
       if (instanceList != null)
       {
         clearEList(instanceList);
         if (value != null)
         {
           List<?> revisionList = (List<?>)value;
-          for (Object element : revisionList)
+          if (feature.isReference())
           {
-            if (feature.isReference())
+            for (Object element : revisionList)
             {
-              element = convertPotentialID(view, element);
+              element = getEObjectFromPotentialID(view, element);
+              instanceList.basicAdd(element, null);
             }
-
-            instanceList.basicAdd(element, null);
+          }
+          else
+          {
+            for (Object element : revisionList)
+            {
+              instanceList.basicAdd(element, null);
+            }
           }
         }
       }
@@ -405,14 +398,14 @@ public abstract class CDOLegacyImpl extends CDOWrapperImpl implements Adapter.In
     {
       if (feature.isReference())
       {
-        value = convertPotentialID(view, value);
+        value = getEObjectFromPotentialID(view, value);
       }
 
       setInstanceValue(instance, feature, value);
     }
   }
 
-  protected InternalEObject convertPotentialID(CDOViewImpl view, Object potentialID)
+  private InternalEObject getEObjectFromPotentialID(CDOViewImpl view, Object potentialID)
   {
     if (potentialID instanceof CDOID)
     {
@@ -422,7 +415,7 @@ public abstract class CDOLegacyImpl extends CDOWrapperImpl implements Adapter.In
         return null;
       }
 
-      potentialID = view.getObject(id, false);
+      potentialID = createProxy(view, id);
     }
 
     if (potentialID instanceof InternalCDOObject)
@@ -438,13 +431,18 @@ public abstract class CDOLegacyImpl extends CDOWrapperImpl implements Adapter.In
     throw new ImplementationError();
   }
 
-  protected Object getInstanceValue(InternalEObject instance, CDOFeature feature)
+  private InternalCDOObject createProxy(CDOViewImpl view, CDOID id)
   {
-    EStructuralFeature eFeature = ModelUtil.getEFeature(feature, cdoView().getSession().getPackageRegistry());
+    return view.getObject(id, false);
+  }
+
+  private Object getInstanceValue(InternalEObject instance, CDOFeature feature, CDOPackageRegistry packageRegistry)
+  {
+    EStructuralFeature eFeature = ModelUtil.getEFeature(feature, packageRegistry);
     return instance.eGet(eFeature);
   }
 
-  protected void setInstanceValue(InternalEObject instance, CDOFeature feature, Object value)
+  private void setInstanceValue(InternalEObject instance, CDOFeature feature, Object value)
   {
     // TODO Don't use Java reflection
     Class<?> instanceClass = instance.getClass();
@@ -508,7 +506,7 @@ public abstract class CDOLegacyImpl extends CDOWrapperImpl implements Adapter.In
     ReflectUtil.setValue(field, instance, value);
   }
 
-  protected void adjustEProxy()
+  private void adjustEProxy()
   {
     // Setting eProxyURI is necessary to prevent content adapters from
     // loading the whole content tree.
@@ -540,7 +538,7 @@ public abstract class CDOLegacyImpl extends CDOWrapperImpl implements Adapter.In
     }
   }
 
-  protected void clearEList(InternalEList<Object> list)
+  private void clearEList(InternalEList<Object> list)
   {
     while (!list.isEmpty())
     {
@@ -549,7 +547,7 @@ public abstract class CDOLegacyImpl extends CDOWrapperImpl implements Adapter.In
     }
   }
 
-  protected static int getEFlagMask(Class<?> instanceClass, String flagName)
+  private static int getEFlagMask(Class<?> instanceClass, String flagName)
   {
     Field field = ReflectUtil.getField(instanceClass, flagName);
     if (!field.isAccessible())

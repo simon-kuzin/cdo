@@ -11,6 +11,7 @@
  **************************************************************************/
 package org.eclipse.emf.cdo.util;
 
+import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.CDOSessionConfiguration;
 import org.eclipse.emf.cdo.CDOView;
 import org.eclipse.emf.cdo.CDOViewSet;
@@ -37,10 +38,14 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
+import org.eclipse.emf.ecore.EGenericType;
+import org.eclipse.emf.ecore.EModelElement;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EcoreFactory;
+import org.eclipse.emf.ecore.InternalEObject;
+import org.eclipse.emf.ecore.impl.EStringToStringMapEntryImpl;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
@@ -221,5 +226,42 @@ public final class CDOUtil
       InternalCDOObject content = it.next();
       load(content, view);
     }
+  }
+
+  /**
+   * @since 2.0
+   */
+  public static CDOObject adaptLegacy(EObject object)
+  {
+    if (object instanceof CDOObject)
+    {
+      return (CDOObject)object;
+    }
+
+    return FSMUtil.adaptLegacy((InternalEObject)object);
+  }
+
+  /**
+   * @since 2.0
+   */
+  public static CDOObject adaptMeta(EModelElement object, CDOView view)
+  {
+    return FSMUtil.adaptMeta((InternalEObject)object, view);
+  }
+
+  /**
+   * @since 2.0
+   */
+  public static CDOObject adaptMeta(EGenericType object, CDOView view)
+  {
+    return FSMUtil.adaptMeta((InternalEObject)object, view);
+  }
+
+  /**
+   * @since 2.0
+   */
+  public static CDOObject adaptMeta(EStringToStringMapEntryImpl object, CDOView view)
+  {
+    return FSMUtil.adaptMeta(object, view);
   }
 }

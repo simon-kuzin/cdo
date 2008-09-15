@@ -19,10 +19,10 @@ import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.util.CDOURIUtil;
-import org.eclipse.emf.cdo.util.LegacySystemNotAvailableException;
 
 import org.eclipse.emf.internal.cdo.CDOObjectImpl;
 import org.eclipse.emf.internal.cdo.CDOStateMachine;
+import org.eclipse.emf.internal.cdo.CDOTransactionImpl;
 import org.eclipse.emf.internal.cdo.InternalCDOObject;
 import org.eclipse.emf.internal.cdo.util.FSMUtil;
 
@@ -431,7 +431,15 @@ public class CDOResourceImpl extends CDOObjectImpl implements CDOResource
   public void attached(EObject object)
   {
     InternalCDOObject cdoObject = FSMUtil.adapt(object, cdoView());
-    CDOStateMachine.INSTANCE.attach(cdoObject, cdoView().toTransaction());
+    attached(cdoObject, cdoView().toTransaction());
+  }
+
+  /**
+   * @ADDED
+   */
+  private void attached(InternalCDOObject cdoObject, CDOTransactionImpl transaction)
+  {
+    CDOStateMachine.INSTANCE.attach(cdoObject, transaction);
   }
 
   /**
@@ -552,20 +560,27 @@ public class CDOResourceImpl extends CDOObjectImpl implements CDOResource
     @Override
     public NotificationChain inverseAdd(Object object, NotificationChain notifications)
     {
-      if (object instanceof InternalCDOObject)
-      {
-        InternalCDOObject eObject = (InternalCDOObject)object;
-        notifications = eObject.eSetResource(CDOResourceImpl.this, notifications);
-        // It is possible that a attached objects gets add to the resource.
-        if (FSMUtil.isTransient(eObject))
-        {
-          attached(eObject);
-        }
-      }
-      else
-      {
-        throw new LegacySystemNotAvailableException();
-      }
+      CDOTransactionImpl transaction = cdoView().toTransaction();
+      InternalCDOObject cdoObject = FSMUtil.adapt(object, transaction);
+      notifications = cdoObject.eSetResource(CDOResourceImpl.this, notifications);
+      attached(cdoObject, transaction);
+
+      // if (object instanceof InternalCDOObject)
+      // {
+      // InternalCDOObject eObject = (InternalCDOObject)object;
+      // notifications = eObject.eSetResource(CDOResourceImpl.this, notifications);
+      // // It is possible that a attached objects gets add to the resource.
+      // if (FSMUtil.isTransient(eObject))
+      // {
+      // attached(eObject);
+      // }
+      // }
+      // else
+      // {
+      // // throw new LegacySystemNotAvailableException();
+      // throw new IllegalArgumentException();
+      // }
+
       return notifications;
     }
 

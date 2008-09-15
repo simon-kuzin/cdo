@@ -15,7 +15,6 @@ import org.eclipse.emf.cdo.CDOState;
 import org.eclipse.emf.cdo.CDOTransaction;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.tests.mango.MangoFactory;
-import org.eclipse.emf.cdo.tests.mango.MangoPackage;
 import org.eclipse.emf.cdo.tests.mango.Value;
 import org.eclipse.emf.cdo.tests.mango.ValueList;
 
@@ -24,13 +23,6 @@ import org.eclipse.emf.cdo.tests.mango.ValueList;
  */
 public class MangoTest extends AbstractCDOTest
 {
-  private CDOSession openMangoSession()
-  {
-    CDOSession session = openSession();
-    session.getPackageRegistry().putEPackage(MangoPackage.eINSTANCE);
-    return session;
-  }
-
   public void testCommitNew() throws Exception
   {
     CDOSession session = openMangoSession();

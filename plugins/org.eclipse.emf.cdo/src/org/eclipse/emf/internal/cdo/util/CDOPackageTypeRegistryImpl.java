@@ -14,8 +14,8 @@ import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.util.CDOPackageType;
 import org.eclipse.emf.cdo.util.CDOPackageTypeRegistry;
-import org.eclipse.emf.cdo.util.CDOUtil;
 
+import org.eclipse.emf.internal.cdo.CDOObjectImpl;
 import org.eclipse.emf.internal.cdo.bundle.OM;
 
 import org.eclipse.net4j.util.StringUtil;
@@ -38,7 +38,6 @@ import org.eclipse.core.runtime.dynamichelpers.IExtensionTracker;
 import org.eclipse.core.runtime.dynamichelpers.IFilter;
 
 import org.osgi.framework.Bundle;
-import org.osgi.framework.Constants;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -68,6 +67,7 @@ public final class CDOPackageTypeRegistryImpl extends HashMapRegistry<String, CD
     if (ePackage.getClass() == EPackageImpl.class)
     {
       // Dynamic packages can be considered native
+      // TODO Check EFactory type!
       return CDOPackageType.NATIVE;
     }
 
@@ -78,21 +78,13 @@ public final class CDOPackageTypeRegistryImpl extends HashMapRegistry<String, CD
       throw new IllegalArgumentException("ePackage does not contain classes");
     }
 
-    try
-    {
-      if (isConverted(eClass))
-      {
-        return CDOPackageType.CONVERTED;
-      }
-    }
-    catch (Throwable ignore)
-    {
-      // Legacy system might not be available
-    }
-
-    // TODO This might not work if the model interface don't extend CDOObject
     Class<?> instanceClass = eClass.getInstanceClass();
     if (CDOObject.class.isAssignableFrom(instanceClass))
+    {
+      return CDOPackageType.NATIVE;
+    }
+
+    if (CDOObjectImpl.class.isAssignableFrom(instanceClass))
     {
       return CDOPackageType.NATIVE;
     }
@@ -113,11 +105,6 @@ public final class CDOPackageTypeRegistryImpl extends HashMapRegistry<String, CD
   public void registerNative(String uri)
   {
     put(uri, CDOPackageType.NATIVE);
-  }
-
-  public void registerConverted(String uri)
-  {
-    put(uri, CDOPackageType.CONVERTED);
   }
 
   @Override
@@ -191,18 +178,8 @@ public final class CDOPackageTypeRegistryImpl extends HashMapRegistry<String, CD
     {
       return CDOPackageType.NATIVE;
     }
-    else
-    {
-      String version = (String)bundle.getHeaders().get(Constants.BUNDLE_VERSION);
-      if (version.endsWith(CDOUtil.CDO_VERSION_SUFFIX))
-      {
-        return CDOPackageType.CONVERTED;
-      }
-      else
-      {
-        return CDOPackageType.LEGACY;
-      }
-    }
+
+    return CDOPackageType.LEGACY;
   }
 
   private EClass getAnyEClass(EPackage ePackage)
@@ -225,12 +202,6 @@ public final class CDOPackageTypeRegistryImpl extends HashMapRegistry<String, CD
     }
 
     return null;
-  }
-
-  private boolean isConverted(EClass eClass)
-  {
-    Class<?> instanceClass = eClass.getInstanceClass();
-    return org.eclipse.emf.ecore.impl.CDOAware.class.isAssignableFrom(instanceClass);
   }
 
   private void connectExtensionTracker()

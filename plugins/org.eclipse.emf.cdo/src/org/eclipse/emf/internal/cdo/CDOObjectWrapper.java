@@ -33,10 +33,11 @@ import org.eclipse.emf.ecore.resource.Resource;
 
 /**
  * @author Eike Stepper
+ * @since 2.0
  */
-public abstract class CDOWrapperImpl implements InternalCDOObject
+public abstract class CDOObjectWrapper implements InternalCDOObject
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_OBJECT, CDOWrapperImpl.class);
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_OBJECT, CDOObjectWrapper.class);
 
   protected CDOID id;
 
@@ -44,7 +45,7 @@ public abstract class CDOWrapperImpl implements InternalCDOObject
 
   protected InternalEObject instance;
 
-  public CDOWrapperImpl()
+  public CDOObjectWrapper()
   {
     super();
   }
@@ -93,6 +94,38 @@ public abstract class CDOWrapperImpl implements InternalCDOObject
   {
     // TODO Implement method CDOWrapperImpl.cdoInternalDynamicFeature()
     throw new UnsupportedOperationException("Not yet implemented");
+  }
+
+  /**
+   * @since 2.0
+   */
+  public void eFireRead(int featureID)
+  {
+    // Do nothing
+  }
+
+  /**
+   * @since 2.0
+   */
+  public void eFireWrite(int featureID)
+  {
+    // Do nothing
+  }
+
+  /**
+   * @since 2.0
+   */
+  public EList<EReadListener> eReadListeners()
+  {
+    return instance.eReadListeners();
+  }
+
+  /**
+   * @since 2.0
+   */
+  public EList<EWriteListener> eWriteListeners()
+  {
+    return instance.eWriteListeners();
   }
 
   public EList<Adapter> eAdapters()

@@ -38,7 +38,6 @@ import org.eclipse.emf.cdo.common.util.TransportException;
 import org.eclipse.emf.cdo.spi.common.InternalCDORevision;
 import org.eclipse.emf.cdo.util.CDOPackageRegistry;
 import org.eclipse.emf.cdo.util.CDOUtil;
-import org.eclipse.emf.cdo.util.LegacySystemNotAvailableException;
 
 import org.eclipse.emf.internal.cdo.bundle.OM;
 import org.eclipse.emf.internal.cdo.protocol.LoadLibrariesRequest;
@@ -49,7 +48,6 @@ import org.eclipse.emf.internal.cdo.protocol.QueryObjectTypesRequest;
 import org.eclipse.emf.internal.cdo.protocol.SyncRevisionRequest;
 import org.eclipse.emf.internal.cdo.protocol.ViewsChangedRequest;
 import org.eclipse.emf.internal.cdo.util.CDOPackageRegistryImpl;
-import org.eclipse.emf.internal.cdo.util.FSMUtil;
 import org.eclipse.emf.internal.cdo.util.ModelUtil;
 
 import org.eclipse.net4j.channel.IChannel;
@@ -205,13 +203,6 @@ public class CDOSessionImpl extends Container<CDOView> implements CDOSession, CD
   public void setLegacySupportEnabled(boolean legacySupportEnabled)
   {
     checkInactive();
-    // TODO Adjust this when legacy system is working again:
-    // if (legacySupportEnabled && !FSMUtil.isLegacySystemAvailable())
-    if (legacySupportEnabled)
-    {
-      throw new LegacySystemNotAvailableException();
-    }
-
     this.legacySupportEnabled = legacySupportEnabled;
   }
 
@@ -734,11 +725,6 @@ public class CDOSessionImpl extends Container<CDOView> implements CDOSession, CD
   protected void doBeforeActivate() throws Exception
   {
     super.doBeforeActivate();
-    if (legacySupportEnabled && !FSMUtil.isLegacySystemAvailable())
-    {
-      throw new LegacySystemNotAvailableException();
-    }
-
     if (channel == null && connector == null)
     {
       throw new IllegalStateException("channel == null && connector == null");
