@@ -40,6 +40,7 @@ public class LegacyTest extends AbstractCDOTest
     transaction.commit();
 
     CDOObject cdoHook = CDOUtil.adaptLegacy(hook);
+    assertEquals(false, CDOLegacyWrapper.isLegacyProxy(cdoHook));
     assertEquals(CDOState.CLEAN, cdoHook.cdoState());
     assertEquals(CDOState.CLEAN, resource.cdoState());
     session.close();
@@ -63,7 +64,8 @@ public class LegacyTest extends AbstractCDOTest
 
     Hook hook = (Hook)contents.get(0);
     CDOObject cdoHook = CDOUtil.adaptLegacy(hook);
-    assertEquals(CDOState.PROXY, cdoHook.cdoState());
+    assertEquals(false, CDOLegacyWrapper.isLegacyProxy(cdoHook));
+    assertEquals(CDOState.CLEAN, cdoHook.cdoState());
     assertEquals(CDOState.CLEAN, resource.cdoState());
 
     String name = hook.getName();
@@ -88,6 +90,7 @@ public class LegacyTest extends AbstractCDOTest
       transaction.commit();
 
       CDOObject cdoHook = CDOUtil.adaptLegacy(hook);
+      assertEquals(false, CDOLegacyWrapper.isLegacyProxy(cdoHook));
       assertEquals(CDOState.CLEAN, cdoHook.cdoState());
       assertEquals(CDOState.CLEAN, resource.cdoState());
       session.close();

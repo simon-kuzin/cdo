@@ -43,6 +43,6 @@ public class Bugzilla_243310_Test extends AbstractCDOTest
     CDOTransaction transaction2 = session.openTransaction();
     CDOID cdoID = companyTx1.cdoID();
     Company companyTx2 = (Company)transaction2.getObject(cdoID, loadOnDemand);
-    assertNotNull(companyTx2);
+    assertNull(companyTx2);
   }
 }
