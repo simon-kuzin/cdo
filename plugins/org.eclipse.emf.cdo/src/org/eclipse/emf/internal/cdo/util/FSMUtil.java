@@ -109,6 +109,10 @@ public final class FSMUtil
     return null;
   }
 
+  /*
+   * Important: Compile errors in this method might indicate an old version of EMF. Legacy support is only enabled for
+   * EMF with fixed bug #247130. These compile errors do not affect native models!
+   */
   public static InternalCDOObject adaptLegacy(InternalEObject object)
   {
     EList<InternalEObject.EReadListener> readListeners = object.eReadListeners();
@@ -135,6 +139,15 @@ public final class FSMUtil
     }
 
     return null;
+  }
+
+  /*
+   * Important: Compile errors in this method might indicate an old version of EMF. Legacy support is only enabled for
+   * EMF with fixed bug #247130. These compile errors do not affect native models!
+   */
+  public static Object getLegacyWrapper(InternalEObject object)
+  {
+    return getLegacyWrapper(object.eReadListeners());
   }
 
   /**

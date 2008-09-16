@@ -115,6 +115,10 @@ public abstract class CDOObjectWrapper implements InternalCDOObject
   /**
    * @since 2.0
    */
+  /*
+   * Important: Compile errors in this method might indicate an old version of EMF. Legacy support is only enabled for
+   * EMF with fixed bug #247130. These compile errors do not affect native models!
+   */
   public EList<EReadListener> eReadListeners()
   {
     return instance.eReadListeners();
@@ -122,6 +126,10 @@ public abstract class CDOObjectWrapper implements InternalCDOObject
 
   /**
    * @since 2.0
+   */
+  /*
+   * Important: Compile errors in this method might indicate an old version of EMF. Legacy support is only enabled for
+   * EMF with fixed bug #247130. These compile errors do not affect native models!
    */
   public EList<EWriteListener> eWriteListeners()
   {

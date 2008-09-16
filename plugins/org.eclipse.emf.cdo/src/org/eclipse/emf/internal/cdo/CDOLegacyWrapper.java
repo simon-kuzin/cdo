@@ -48,7 +48,6 @@ import org.eclipse.emf.ecore.impl.EReferenceImpl;
 import org.eclipse.emf.ecore.impl.EStructuralFeatureImpl;
 import org.eclipse.emf.ecore.impl.ETypedElementImpl;
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.util.DelegatingInternalEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 
 import java.lang.reflect.Field;
@@ -61,6 +60,10 @@ import java.util.List;
 /**
  * @author Eike Stepper
  * @since 2.0
+ */
+/*
+ * Important: Compile errors in this class might indicate an old version of EMF. Legacy support is only enabled for EMF
+ * with fixed bug #247130. These compile errors do not affect native models!
  */
 public final class CDOLegacyWrapper extends CDOObjectWrapper implements InternalEObject.EReadListener,
     InternalEObject.EWriteListener

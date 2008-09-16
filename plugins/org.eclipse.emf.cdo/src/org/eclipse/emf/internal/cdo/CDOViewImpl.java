@@ -624,11 +624,18 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
 
     if (potentialObject instanceof InternalEObject && !(potentialObject instanceof InternalCDOObject))
     {
-      InternalEObject eObject = (InternalEObject)potentialObject;
-      CDOLegacyWrapper legacyListener = FSMUtil.getLegacyWrapper(eObject.eReadListeners());
-      if (legacyListener != null)
+      try
       {
-        potentialObject = legacyListener;
+        InternalEObject eObject = (InternalEObject)potentialObject;
+        Object legacyListener = FSMUtil.getLegacyWrapper(eObject);
+        if (legacyListener != null)
+        {
+          potentialObject = legacyListener;
+        }
+      }
+      catch (Throwable ex)
+      {
+        OM.LOG.warn(ex);
       }
     }
 
