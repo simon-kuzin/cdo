@@ -100,11 +100,11 @@ public class LegacyTest extends AbstractCDOTest
 
     Hook hook = (Hook)contents.get(0);
     CDOObject cdoHook = CDOUtil.adaptLegacy(hook);
-//    assertEquals(CDOState.PROXY, cdoHook.cdoState());
+    assertEquals(CDOState.CLEAN, cdoHook.cdoState());
 
     EList<Hook> children = hook.getChildren();
-//    assertEquals(CDOState.PROXY, cdoHook.cdoState());
-//    assertEquals(CDOState.CLEAN, resource.cdoState());
+    assertEquals(CDOState.CLEAN, cdoHook.cdoState());
+    assertEquals(CDOState.CLEAN, resource.cdoState());
 
     Hook h = children.get(0);
     URI proxyURI = ((InternalEObject)h).eProxyURI();

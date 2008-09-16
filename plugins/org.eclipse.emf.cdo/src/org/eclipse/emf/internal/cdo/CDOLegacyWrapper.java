@@ -25,24 +25,24 @@ import org.eclipse.emf.cdo.spi.common.InternalCDORevision;
 import org.eclipse.emf.cdo.util.CDOPackageRegistry;
 
 import org.eclipse.emf.internal.cdo.bundle.OM;
+import org.eclipse.emf.internal.cdo.util.FSMUtil;
 import org.eclipse.emf.internal.cdo.util.GenUtil;
 import org.eclipse.emf.internal.cdo.util.ModelUtil;
 
 import org.eclipse.net4j.util.ImplementationError;
 import org.eclipse.net4j.util.ReflectUtil;
-import org.eclipse.net4j.util.WrappedException;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.emf.common.notify.Adapter;
-import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClassifier;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
-import org.eclipse.emf.ecore.impl.BasicEObjectImpl;
 import org.eclipse.emf.ecore.impl.EAttributeImpl;
 import org.eclipse.emf.ecore.impl.EClassImpl;
 import org.eclipse.emf.ecore.impl.EDataTypeImpl;
+import org.eclipse.emf.ecore.impl.EObjectImpl;
 import org.eclipse.emf.ecore.impl.EReferenceImpl;
 import org.eclipse.emf.ecore.impl.EStructuralFeatureImpl;
 import org.eclipse.emf.ecore.impl.ETypedElementImpl;
@@ -65,17 +65,19 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_OBJECT, CDOLegacyWrapper.class);
 
-  private static final Method cdoIDMethod = ReflectUtil.getMethod(InternalCDOObject.class, "cdoID");
+  private static final Method cdoIDMethod = ReflectUtil.getMethod(CDOObject.class, "cdoID");
 
-  private static final Method eIsProxyMethod = ReflectUtil.getMethod(InternalEObject.class, "eIsProxy");
+  private static final Method cdoStateMethod = ReflectUtil.getMethod(CDOObject.class, "cdoState");
+
+  private static final Method eIsProxyMethod = ReflectUtil.getMethod(EObject.class, "eIsProxy");
 
   private static final Method eProxyURIMethod = ReflectUtil.getMethod(InternalEObject.class, "eProxyURI");
 
-  private static final Method eSetDirectResourceMethod = ReflectUtil.getMethod(BasicEObjectImpl.class,
-      "eSetDirectResource", Resource.Internal.class);
+  private static final Method eSetDirectResourceMethod = ReflectUtil.getMethod(EObjectImpl.class, "eSetDirectResource",
+      Resource.Internal.class);
 
-  private static final Method eBasicSetContainerMethod = ReflectUtil.getMethod(BasicEObjectImpl.class,
-      "eBasicSetContainer", InternalEObject.class, Integer.class);
+  private static final Method eBasicSetContainerMethod = ReflectUtil.getMethod(EObjectImpl.class, "eBasicSetContainer",
+      InternalEObject.class, int.class);
 
   private CDOState state;
 
@@ -203,22 +205,6 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
     CDOStateMachine.INSTANCE.write(this);
   }
 
-  @Override
-  public NotificationChain eSetResource(Resource.Internal resource, NotificationChain notifications)
-  {
-    // TODO LEGACY Consider moving this to postAttach or so to catch eSetContainer
-    // if (resource == null)
-    // {
-    // this.resource = null;
-    // }
-    // else if (resource.getClass() == CDOResourceImpl.class)
-    // {
-    // this.resource = (CDOResourceImpl)resource;
-    // }
-
-    return super.eSetResource(resource, notifications);
-  }
-
   private void instanceToRevision()
   {
     if (TRACER.isEnabled())
@@ -249,16 +235,17 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
     CDOResource resource = (CDOResource)getInstanceResource(instance);
     revision.setResourceID(resource == null ? CDOID.NULL : resource.cdoID());
 
-    CDOObject container = (CDOObject)getInstanceContainer(instance);
-    if (container == null)
+    InternalEObject eContainer = getInstanceContainer(instance);
+    if (eContainer == null)
     {
       revision.setContainerID(CDOID.NULL);
       revision.setContainingFeatureID(0);
     }
     else
     {
-      revision.setContainerID(container.cdoID());
-      revision.setContainingFeatureID(instance.eContainerFeatureID());
+      CDOObject cdoContainer = FSMUtil.adapt(eContainer, view);
+      revision.setContainerID(cdoContainer.cdoID());
+      revision.setContainingFeatureID(getInstanceContainerFeatureID(instance));
     }
   }
 
@@ -441,13 +428,15 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
    * that can be made is that the following methods are callable and will behave in the expected way:
    * <ul>
    * <li>{@link CDOObject#cdoID()} will return the {@link CDOID} of the target object
+   * <li>{@link CDOObject#cdoState()} will return {@link CDOState#PROXY PROXY}
    * <li>{@link InternalEObject#eIsProxy()} will return <code>true</code>
    * <li>{@link InternalEObject#eProxyURI()} will return the EMF proxy URI of the target object
-   * <li>TODO {@link InternalEObject#eResolveProxy(InternalEObject) Calling any other method on the proxy object will
-   * result in an {@link UnsupportedOperationException} being thrown at runtime. Note also that the proxy object might
-   * even not be cast to the concrete type of the target object. The proxy can only guaranteed to be of <em>any</em>
-   * concrete subtype of the declared type of the given feature.
+   * </ul>
+   * Calling any other method on the proxy object will result in an {@link UnsupportedOperationException} being thrown
+   * at runtime. Note also that the proxy object might even not be cast to the concrete type of the target object. The
+   * proxy can only guaranteed to be of <em>any</em> concrete subtype of the declared type of the given feature.
    * <p>
+   * TODO {@link InternalEObject#eResolveProxy(InternalEObject) 
    */
   private InternalEObject createProxy(CDOViewImpl view, CDOFeature feature, CDOID id)
   {
@@ -485,30 +474,16 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
 
   private void setInstanceResource(Resource.Internal resource)
   {
-    try
-    {
-      eSetDirectResourceMethod.invoke(instance, resource);
-    }
-    catch (Exception ex)
-    {
-      throw WrappedException.wrap(ex);
-    }
+    ReflectUtil.invokeMethod(eSetDirectResourceMethod, instance, resource);
   }
 
   private void setInstanceContainer(InternalEObject container, int containerFeatureID)
   {
-    try
-    {
-      eBasicSetContainerMethod.invoke(instance, container, containerFeatureID);
-    }
-    catch (Exception ex)
-    {
-      throw WrappedException.wrap(ex);
-    }
+    ReflectUtil.invokeMethod(eBasicSetContainerMethod, instance, container, containerFeatureID);
   }
 
   /**
-   * TODO Ed: Fix whole mess ;-)
+   * TODO Ed: Help to fix whole mess (avoid inverse updates)
    */
   private void setInstanceValue(InternalEObject instance, CDOFeature feature, Object value)
   {
@@ -654,6 +629,11 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
       if (method.equals(cdoIDMethod))
       {
         return id;
+      }
+
+      if (method.equals(cdoStateMethod))
+      {
+        return CDOState.PROXY;
       }
 
       if (method.equals(eIsProxyMethod))
