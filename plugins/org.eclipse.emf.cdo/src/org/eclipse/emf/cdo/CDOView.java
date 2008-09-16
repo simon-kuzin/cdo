@@ -137,6 +137,11 @@ public interface CDOView extends CDOProtocolView, INotifier
    */
   public CDOObject getObject(CDOID id, boolean loadOnDemand);
 
+  /**
+   * Returns the object for the given CDOID.
+   * <p>
+   * Same as <code>getObject(id, true)</code>.
+   */
   public CDOObject getObject(CDOID id);
 
   /**

@@ -10,6 +10,7 @@
  **************************************************************************/
 package org.eclipse.emf.internal.cdo;
 
+import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.CDOState;
 import org.eclipse.emf.cdo.common.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.id.CDOID;
@@ -36,9 +37,9 @@ import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClassifier;
-import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
+import org.eclipse.emf.ecore.impl.BasicEObjectImpl;
 import org.eclipse.emf.ecore.impl.EAttributeImpl;
 import org.eclipse.emf.ecore.impl.EClassImpl;
 import org.eclipse.emf.ecore.impl.EDataTypeImpl;
@@ -63,6 +64,18 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
     InternalEObject.EWriteListener
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_OBJECT, CDOLegacyWrapper.class);
+
+  private static final Method cdoIDMethod = ReflectUtil.getMethod(InternalCDOObject.class, "cdoID");
+
+  private static final Method eIsProxyMethod = ReflectUtil.getMethod(InternalEObject.class, "eIsProxy");
+
+  private static final Method eProxyURIMethod = ReflectUtil.getMethod(InternalEObject.class, "eProxyURI");
+
+  private static final Method eSetDirectResourceMethod = ReflectUtil.getMethod(BasicEObjectImpl.class,
+      "eSetDirectResource", Resource.Internal.class);
+
+  private static final Method eBasicSetContainerMethod = ReflectUtil.getMethod(BasicEObjectImpl.class,
+      "eBasicSetContainer", InternalEObject.class, Integer.class);
 
   private CDOState state;
 
@@ -231,39 +244,25 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
     }
   }
 
-  /**
-   * TODO Simon: Fix this whole mess ;-)
-   */
-  private void instanceToRevisionContainment(CDOViewImpl view) throws ImplementationError
+  private void instanceToRevisionContainment(CDOViewImpl view)
   {
-    EObject container = instance.eContainer();
-    if (container != null)
-    {
-      if (container instanceof CDOResource)
-      {
-        revision.setResourceID(((CDOResource)container).cdoID());
-        revision.setContainerID(CDOID.NULL);
-        revision.setContainingFeatureID(0);
-      }
-      else
-      {
-        revision.setResourceID(CDOID.NULL);
-        // TODO is as CDOIDProvider call ok here?
-        CDOID containerID = view.provideCDOID(container);
-        if (containerID.isNull())
-        {
-          throw new ImplementationError("containerID.isNull()");
-        }
+    CDOResource resource = (CDOResource)getInstanceResource(instance);
+    revision.setResourceID(resource == null ? CDOID.NULL : resource.cdoID());
 
-        int containerFeatureID = instance.eContainerFeatureID();// container???
-        revision.setContainerID(containerID);
-        revision.setContainingFeatureID(containerFeatureID);
-      }
+    CDOObject container = (CDOObject)getInstanceContainer(instance);
+    if (container == null)
+    {
+      revision.setContainerID(CDOID.NULL);
+      revision.setContainingFeatureID(0);
+    }
+    else
+    {
+      revision.setContainerID(container.cdoID());
+      revision.setContainingFeatureID(instance.eContainerFeatureID());
     }
   }
 
   private void instanceToRevisionFeature(CDOViewImpl view, CDOFeature feature, CDOPackageRegistry packageRegistry)
-      throws ImplementationError
   {
     Object instanceValue = getInstanceValue(instance, feature, packageRegistry);
     if (feature.isMany())
@@ -353,35 +352,14 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
 
   private void revisionToInstanceContainment(CDOViewImpl view)
   {
-    // Not supported anymore
-    // Object containerID = revision.getContainerID();
-    // if (containerID.isNull())
-    // {
-    // CDOID resourceID = revision.getResourceID();
-    // Resource.Internal resource = (Resource.Internal)view.getObject(resourceID);
-    // transferResourceToInstance(resource);
-    // }
-    // else
-    // {
-    // int containingFeatureID = revision.getContainingFeatureID();
-    // InternalEObject container = convertPotentialID(view, containerID);
-    // ((BasicEObjectImpl)instance).eBasicSetContainer(container, containingFeatureID, null);
-    // }
-  }
+    CDOID resourceID = revision.getResourceID();
+    InternalEObject resource = getEObjectFromPotentialID(view, null, resourceID);
+    setInstanceResource((Resource.Internal)resource);
 
-  // private void transferRevisionToInstanceResource(Resource.Internal resource)
-  // {
-  // Method method = ReflectUtil.getMethod(BasicEObjectImpl.class, "eSetDirectResource", Resource.Internal.class);
-  //
-  // try
-  // {
-  // ReflectUtil.invokeMethod(method, instance, resource);
-  // }
-  // catch (InvocationTargetException ex)
-  // {
-  // throw WrappedException.wrap(ex);
-  // }
-  // }
+    Object containerID = revision.getContainerID();
+    InternalEObject container = getEObjectFromPotentialID(view, null, containerID);
+    setInstanceContainer(container, revision.getContainingFeatureID());
+  }
 
   @SuppressWarnings("unchecked")
   private void revisionToInstanceFeature(CDOViewImpl view, CDOFeature feature, CDOPackageRegistry packageRegistry)
@@ -426,6 +404,12 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
     }
   }
 
+  /**
+   * @param feature
+   *          in case that a proxy has to be created the feature that will determine the interface type of the proxy and
+   *          that will be used later to resolve the proxy. <code>null</code> indicates that proxy creation will be
+   *          avoided!
+   */
   private InternalEObject getEObjectFromPotentialID(CDOViewImpl view, CDOFeature feature, Object potentialID)
   {
     if (potentialID instanceof CDOID)
@@ -436,8 +420,9 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
         return null;
       }
 
-      potentialID = view.getObject(id, false);
-      if (potentialID == null)
+      boolean loadOnDemand = feature == null;
+      potentialID = view.getObject(id, loadOnDemand);
+      if (potentialID == null && !loadOnDemand)
       {
         return createProxy(view, feature, id);
       }
@@ -451,60 +436,58 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
     return (InternalEObject)potentialID;
   }
 
-  private InternalEObject createProxy(CDOViewImpl view, CDOFeature feature, final CDOID id)
+  /**
+   * Creates and returns a <em>proxy</em> object. The usage of a proxy object is strongly limited. The only guarantee
+   * that can be made is that the following methods are callable and will behave in the expected way:
+   * <ul>
+   * <li>{@link CDOObject#cdoID()} will return the {@link CDOID} of the target object
+   * <li>{@link InternalEObject#eIsProxy()} will return <code>true</code>
+   * <li>{@link InternalEObject#eProxyURI()} will return the EMF proxy URI of the target object
+   * <li>TODO {@link InternalEObject#eResolveProxy(InternalEObject) Calling any other method on the proxy object will
+   * result in an {@link UnsupportedOperationException} being thrown at runtime. Note also that the proxy object might
+   * even not be cast to the concrete type of the target object. The proxy can only guaranteed to be of <em>any</em>
+   * concrete subtype of the declared type of the given feature.
+   * <p>
+   */
+  private InternalEObject createProxy(CDOViewImpl view, CDOFeature feature, CDOID id)
+  {
+    CDOPackageRegistry packageRegistry = view.getSession().getPackageRegistry();
+    EStructuralFeature eFeature = ModelUtil.getEFeature(feature, packageRegistry);
+    EClassifier eType = eFeature.getEType();
+    Class<?> instanceClass = eType.getInstanceClass();
+
+    Class<?>[] interfaces = { instanceClass, InternalCDOObject.class };
+    ClassLoader classLoader = CDOLegacyWrapper.class.getClassLoader();
+    LegacyProxyInvocationHandler handler = new LegacyProxyInvocationHandler(id);
+    return (InternalEObject)Proxy.newProxyInstance(classLoader, interfaces, handler);
+  }
+
+  private Resource.Internal getInstanceResource(InternalEObject instance)
+  {
+    return instance.eDirectResource();
+  }
+
+  private InternalEObject getInstanceContainer(InternalEObject instance)
+  {
+    return instance.eInternalContainer();
+  }
+
+  private int getInstanceContainerFeatureID(InternalEObject instance)
+  {
+    return instance.eContainerFeatureID();
+  }
+
+  private Object getInstanceValue(InternalEObject instance, CDOFeature feature, CDOPackageRegistry packageRegistry)
+  {
+    EStructuralFeature eFeature = ModelUtil.getEFeature(feature, packageRegistry);
+    return instance.eGet(eFeature);
+  }
+
+  private void setInstanceResource(Resource.Internal resource)
   {
     try
     {
-      CDOPackageRegistry packageRegistry = view.getSession().getPackageRegistry();
-      EStructuralFeature eFeature = ModelUtil.getEFeature(feature, packageRegistry);
-      EClassifier eType = eFeature.getEType();
-      Class<?> instanceClass = eType.getInstanceClass();
-
-      final Class<?>[] interfaces = { instanceClass, InternalCDOObject.class };
-      final Method cdoIDMethod = InternalCDOObject.class.getMethod("cdoID", ReflectUtil.NO_PARAMETERS);
-      if (cdoIDMethod == null)
-      {
-        throw new RuntimeException("no cdoIDMethod");
-      }
-      final Method eIsProxyMethod = InternalEObject.class.getMethod("eIsProxy", ReflectUtil.NO_PARAMETERS);
-      if (eIsProxyMethod == null)
-      {
-        throw new RuntimeException("no eIsProxyMethod");
-      }
-      final Method eProxyURIMethod = InternalEObject.class.getMethod("eProxyURI", ReflectUtil.NO_PARAMETERS);
-      if (eProxyURIMethod == null)
-      {
-        throw new RuntimeException("no eProxyURIMethod");
-      }
-
-      return (InternalEObject)Proxy.newProxyInstance(CDOLegacyWrapper.class.getClassLoader(), interfaces,
-          new InvocationHandler()
-          {
-            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
-            {
-              if (method.equals(cdoIDMethod))
-              {
-                return id;
-              }
-
-              if (method.equals(eIsProxyMethod))
-              {
-                return true;
-              }
-
-              if (method.equals(eProxyURIMethod))
-              {
-                // Use the resource of the container because it's guaranteed to be in the same CDOView as the resource
-                // of the target!
-                Resource resource = eResource();
-
-                // TODO Consider using a "fake" Resource implementation. See Resource.getEObject(...)
-                return resource.getURI().appendFragment(id.toURIFragment());
-              }
-
-              throw new UnsupportedOperationException(method.getName());
-            }
-          });
+      eSetDirectResourceMethod.invoke(instance, resource);
     }
     catch (Exception ex)
     {
@@ -512,10 +495,16 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
     }
   }
 
-  private Object getInstanceValue(InternalEObject instance, CDOFeature feature, CDOPackageRegistry packageRegistry)
+  private void setInstanceContainer(InternalEObject container, int containerFeatureID)
   {
-    EStructuralFeature eFeature = ModelUtil.getEFeature(feature, packageRegistry);
-    return instance.eGet(eFeature);
+    try
+    {
+      eBasicSetContainerMethod.invoke(instance, container, containerFeatureID);
+    }
+    catch (Exception ex)
+    {
+      throw WrappedException.wrap(ex);
+    }
   }
 
   /**
@@ -645,6 +634,44 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
     catch (IllegalAccessException ex)
     {
       throw new ImplementationError(ex);
+    }
+  }
+
+  /**
+   * @author Eike Stepper
+   */
+  private final class LegacyProxyInvocationHandler implements InvocationHandler
+  {
+    private CDOID id;
+
+    private LegacyProxyInvocationHandler(CDOID id)
+    {
+      this.id = id;
+    }
+
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
+    {
+      if (method.equals(cdoIDMethod))
+      {
+        return id;
+      }
+
+      if (method.equals(eIsProxyMethod))
+      {
+        return true;
+      }
+
+      if (method.equals(eProxyURIMethod))
+      {
+        // Use the resource of the container because it's guaranteed to be in the same CDOView as the resource
+        // of the target!
+        Resource resource = eResource();
+
+        // TODO Consider using a "fake" Resource implementation. See Resource.getEObject(...)
+        return resource.getURI().appendFragment(id.toURIFragment());
+      }
+
+      throw new UnsupportedOperationException(method.getName());
     }
   }
 }
