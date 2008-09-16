@@ -391,66 +391,6 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
     }
   }
 
-  /**
-   * @param feature
-   *          in case that a proxy has to be created the feature that will determine the interface type of the proxy and
-   *          that will be used later to resolve the proxy. <code>null</code> indicates that proxy creation will be
-   *          avoided!
-   */
-  private InternalEObject getEObjectFromPotentialID(CDOViewImpl view, CDOFeature feature, Object potentialID)
-  {
-    if (potentialID instanceof CDOID)
-    {
-      CDOID id = (CDOID)potentialID;
-      if (id.isNull())
-      {
-        return null;
-      }
-
-      boolean loadOnDemand = feature == null;
-      potentialID = view.getObject(id, loadOnDemand);
-      if (potentialID == null && !loadOnDemand)
-      {
-        return createProxy(view, feature, id);
-      }
-    }
-
-    if (potentialID instanceof InternalCDOObject)
-    {
-      return ((InternalCDOObject)potentialID).cdoInternalInstance();
-    }
-
-    return (InternalEObject)potentialID;
-  }
-
-  /**
-   * Creates and returns a <em>proxy</em> object. The usage of a proxy object is strongly limited. The only guarantee
-   * that can be made is that the following methods are callable and will behave in the expected way:
-   * <ul>
-   * <li>{@link CDOObject#cdoID()} will return the {@link CDOID} of the target object
-   * <li>{@link CDOObject#cdoState()} will return {@link CDOState#PROXY PROXY}
-   * <li>{@link InternalEObject#eIsProxy()} will return <code>true</code>
-   * <li>{@link InternalEObject#eProxyURI()} will return the EMF proxy URI of the target object
-   * </ul>
-   * Calling any other method on the proxy object will result in an {@link UnsupportedOperationException} being thrown
-   * at runtime. Note also that the proxy object might even not be cast to the concrete type of the target object. The
-   * proxy can only guaranteed to be of <em>any</em> concrete subtype of the declared type of the given feature.
-   * <p>
-   * TODO {@link InternalEObject#eResolveProxy(InternalEObject) 
-   */
-  private InternalEObject createProxy(CDOViewImpl view, CDOFeature feature, CDOID id)
-  {
-    CDOPackageRegistry packageRegistry = view.getSession().getPackageRegistry();
-    EStructuralFeature eFeature = ModelUtil.getEFeature(feature, packageRegistry);
-    EClassifier eType = eFeature.getEType();
-    Class<?> instanceClass = eType.getInstanceClass();
-
-    Class<?>[] interfaces = { instanceClass, InternalCDOObject.class };
-    ClassLoader classLoader = CDOLegacyWrapper.class.getClassLoader();
-    LegacyProxyInvocationHandler handler = new LegacyProxyInvocationHandler(id);
-    return (InternalEObject)Proxy.newProxyInstance(classLoader, interfaces, handler);
-  }
-
   private Resource.Internal getInstanceResource(InternalEObject instance)
   {
     return instance.eDirectResource();
@@ -550,6 +490,66 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
     ReflectUtil.setValue(field, instance, value);
   }
 
+  /**
+   * @param feature
+   *          in case that a proxy has to be created the feature that will determine the interface type of the proxy and
+   *          that will be used later to resolve the proxy. <code>null</code> indicates that proxy creation will be
+   *          avoided!
+   */
+  private InternalEObject getEObjectFromPotentialID(CDOViewImpl view, CDOFeature feature, Object potentialID)
+  {
+    if (potentialID instanceof CDOID)
+    {
+      CDOID id = (CDOID)potentialID;
+      if (id.isNull())
+      {
+        return null;
+      }
+  
+      boolean loadOnDemand = feature == null;
+      potentialID = view.getObject(id, loadOnDemand);
+      if (potentialID == null && !loadOnDemand)
+      {
+        return createProxy(view, feature, id);
+      }
+    }
+  
+    if (potentialID instanceof InternalCDOObject)
+    {
+      return ((InternalCDOObject)potentialID).cdoInternalInstance();
+    }
+  
+    return (InternalEObject)potentialID;
+  }
+
+  /**
+   * Creates and returns a <em>proxy</em> object. The usage of a proxy object is strongly limited. The only guarantee
+   * that can be made is that the following methods are callable and will behave in the expected way:
+   * <ul>
+   * <li>{@link CDOObject#cdoID()} will return the {@link CDOID} of the target object
+   * <li>{@link CDOObject#cdoState()} will return {@link CDOState#PROXY PROXY}
+   * <li>{@link InternalEObject#eIsProxy()} will return <code>true</code>
+   * <li>{@link InternalEObject#eProxyURI()} will return the EMF proxy URI of the target object
+   * </ul>
+   * Calling any other method on the proxy object will result in an {@link UnsupportedOperationException} being thrown
+   * at runtime. Note also that the proxy object might even not be cast to the concrete type of the target object. The
+   * proxy can only guaranteed to be of <em>any</em> concrete subtype of the declared type of the given feature.
+   * <p>
+   * TODO {@link InternalEObject#eResolveProxy(InternalEObject) 
+   */
+  private InternalEObject createProxy(CDOViewImpl view, CDOFeature feature, CDOID id)
+  {
+    CDOPackageRegistry packageRegistry = view.getSession().getPackageRegistry();
+    EStructuralFeature eFeature = ModelUtil.getEFeature(feature, packageRegistry);
+    EClassifier eType = eFeature.getEType();
+    Class<?> instanceClass = eType.getInstanceClass();
+  
+    Class<?>[] interfaces = { instanceClass, InternalCDOObject.class };
+    ClassLoader classLoader = CDOLegacyWrapper.class.getClassLoader();
+    LegacyProxyInvocationHandler handler = new LegacyProxyInvocationHandler(id);
+    return (InternalEObject)Proxy.newProxyInstance(classLoader, interfaces, handler);
+  }
+
   private void adjustEProxy()
   {
     // Setting eProxyURI is necessary to prevent content adapters from
@@ -564,7 +564,7 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
         {
           TRACER.format("Setting proxyURI {0} for {1}", uri, instance);
         }
-
+  
         instance.eSetProxyURI(uri);
       }
     }
@@ -576,7 +576,7 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
         {
           TRACER.format("Unsetting proxyURI for {0}", instance);
         }
-
+  
         instance.eSetProxyURI(null);
       }
     }
