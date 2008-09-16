@@ -651,6 +651,7 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
         return resource.getURI().appendFragment(id.toURIFragment());
       }
 
+      // A client must have invoked the proxy while being told not to do so!
       throw new UnsupportedOperationException(method.getName());
     }
   }
