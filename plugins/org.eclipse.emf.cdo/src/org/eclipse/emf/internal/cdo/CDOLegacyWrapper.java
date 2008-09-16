@@ -65,10 +65,6 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_OBJECT, CDOLegacyWrapper.class);
 
-  private static final Method eIsProxyMethod = ReflectUtil.getMethod(EObject.class, "eIsProxy");
-
-  private static final Method eProxyURIMethod = ReflectUtil.getMethod(InternalEObject.class, "eProxyURI");
-
   private static final Method eSetDirectResourceMethod = ReflectUtil.getMethod(EObjectImpl.class, "eSetDirectResource",
       Resource.Internal.class);
 
@@ -557,7 +553,7 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
 
     Class<?>[] interfaces = { instanceClass, InternalEObject.class, LegacyProxy.class };
     ClassLoader classLoader = CDOLegacyWrapper.class.getClassLoader();
-    LegacyProxyInvocationHandler handler = new LegacyProxyInvocationHandler(id);
+    LegacyProxyInvocationHandler handler = new LegacyProxyInvocationHandler(this, id);
     return (InternalEObject)Proxy.newProxyInstance(classLoader, interfaces, handler);
   }
 
@@ -568,9 +564,6 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
   {
     if (!allProxiesResolved)
     {
-      // Important guard here to protect against infinite recursion!
-      allProxiesResolved = true;
-
       CDOPackageRegistry packageRegistry = cdoView().getSession().getPackageRegistry();
       CDOClass cdoClass = revision.getCDOClass();
       for (CDOFeature feature : cdoClass.getAllFeatures())
@@ -580,6 +573,8 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
           resolveProxies(feature, packageRegistry);
         }
       }
+
+      // allProxiesResolved = true;
     }
   }
 
@@ -696,12 +691,21 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
   /**
    * @author Eike Stepper
    */
-  private final class LegacyProxyInvocationHandler implements InvocationHandler, LegacyProxy
+  private static final class LegacyProxyInvocationHandler implements InvocationHandler, LegacyProxy
   {
+    private static final Method getIDMethod = ReflectUtil.getMethod(LegacyProxy.class, "getID");
+
+    private static final Method eIsProxyMethod = ReflectUtil.getMethod(EObject.class, "eIsProxy");
+
+    private static final Method eProxyURIMethod = ReflectUtil.getMethod(InternalEObject.class, "eProxyURI");
+
+    private CDOLegacyWrapper wrapper;
+
     private CDOID id;
 
-    private LegacyProxyInvocationHandler(CDOID id)
+    public LegacyProxyInvocationHandler(CDOLegacyWrapper wrapper, CDOID id)
     {
+      this.wrapper = wrapper;
       this.id = id;
     }
 
@@ -712,6 +716,11 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
 
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
     {
+      if (method.equals(getIDMethod))
+      {
+        return id;
+      }
+
       if (method.equals(eIsProxyMethod))
       {
         return true;
@@ -721,7 +730,7 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
       {
         // Use the resource of the container because it's guaranteed to be in the same CDOView as the resource
         // of the target!
-        Resource resource = eResource();
+        Resource resource = wrapper.eResource();
 
         // TODO Consider using a "fake" Resource implementation. See Resource.getEObject(...)
         return resource.getURI().appendFragment(id.toURIFragment());
