@@ -65,10 +65,6 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_OBJECT, CDOLegacyWrapper.class);
 
-  private static final Method cdoIDMethod = ReflectUtil.getMethod(CDOObject.class, "cdoID");
-
-  private static final Method cdoStateMethod = ReflectUtil.getMethod(CDOObject.class, "cdoState");
-
   private static final Method eIsProxyMethod = ReflectUtil.getMethod(EObject.class, "eIsProxy");
 
   private static final Method eProxyURIMethod = ReflectUtil.getMethod(InternalEObject.class, "eProxyURI");
@@ -84,6 +80,10 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
   private CDOResourceImpl resource;
 
   private InternalCDORevision revision;
+
+  private boolean allProxiesResolved;
+
+  private boolean handlingCallback;
 
   public CDOLegacyWrapper(InternalEObject instance)
   {
@@ -153,10 +153,6 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
     }
 
     this.resource = (CDOResourceImpl)resource;
-    // if (resource != null)
-    // {
-    // transferResourceToInstance(resource);
-    // }
   }
 
   public void cdoInternalPostAttach()
@@ -191,18 +187,52 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
 
   public void cdoInternalPostLoad()
   {
-    // TODO Consider not remebering the revisin after copying it to the instance (spare 1/2 of the space)
+    // TODO Consider not remembering the revisin after copying it to the instance (spare 1/2 of the space)
     revisionToInstance();
   }
 
   public void handleRead(InternalEObject object, int featureID)
   {
-    CDOStateMachine.INSTANCE.read(this);
+    if (!handlingCallback)
+    {
+      try
+      {
+        handlingCallback = true;
+        CDOStateMachine.INSTANCE.read(this);
+
+        // TODO Optimize this when the list position index is added to the new callbacks
+        resolveAllProxies();
+      }
+      finally
+      {
+        handlingCallback = false;
+      }
+    }
   }
 
   public void handleWrite(InternalEObject object, int featureID)
   {
-    CDOStateMachine.INSTANCE.write(this);
+    if (!handlingCallback)
+    {
+      try
+      {
+        handlingCallback = true;
+        CDOStateMachine.INSTANCE.write(this);
+
+        // TODO Optimize this when the list position index is added to the new callbacks
+        resolveAllProxies();
+      }
+      finally
+      {
+        handlingCallback = false;
+      }
+    }
+  }
+
+  @Override
+  public String toString()
+  {
+    return "CDOLegacyWrapper[" + id + "]";
   }
 
   private void instanceToRevision()
@@ -212,25 +242,19 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
       TRACER.format("Transfering instance to revision: {0} --> {1}", instance, revision);
     }
 
-    CDOViewImpl view = cdoView();
-    if (view == null)
-    {
-      throw new ImplementationError("view == null");
-    }
-
     // Handle containment
-    instanceToRevisionContainment(view);
+    instanceToRevisionContainment();
 
     // Handle values
     CDOPackageRegistry packageRegistry = cdoView().getSession().getPackageRegistry();
     CDOClass cdoClass = revision.getCDOClass();
     for (CDOFeature feature : cdoClass.getAllFeatures())
     {
-      instanceToRevisionFeature(view, feature, packageRegistry);
+      instanceToRevisionFeature(feature, packageRegistry);
     }
   }
 
-  private void instanceToRevisionContainment(CDOViewImpl view)
+  private void instanceToRevisionContainment()
   {
     CDOResource resource = (CDOResource)getInstanceResource(instance);
     revision.setResourceID(resource == null ? CDOID.NULL : resource.cdoID());
@@ -249,7 +273,7 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
     }
   }
 
-  private void instanceToRevisionFeature(CDOViewImpl view, CDOFeature feature, CDOPackageRegistry packageRegistry)
+  private void instanceToRevisionFeature(CDOFeature feature, CDOPackageRegistry packageRegistry)
   {
     Object instanceValue = getInstanceValue(instance, feature, packageRegistry);
     if (feature.isMany())
@@ -259,26 +283,19 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
 
       if (instanceValue != null)
       {
-        if (instanceValue instanceof InternalEList)
+        InternalEList<?> instanceList = (InternalEList<?>)instanceValue;
+        if (!instanceList.isEmpty())
         {
-          InternalEList<?> instanceList = (InternalEList<?>)instanceValue;
-          if (!instanceList.isEmpty())
+          for (Iterator<?> it = instanceList.basicIterator(); it.hasNext();)
           {
-            for (Iterator<?> it = instanceList.basicIterator(); it.hasNext();)
+            Object instanceElement = it.next();
+            if (instanceElement != null && feature.isReference())
             {
-              Object instanceElement = it.next();
-              if (instanceElement != null && feature.isReference())
-              {
-                instanceElement = view.convertObjectToID(instanceElement);
-              }
-
-              revisionList.add(instanceElement);
+              instanceElement = view.convertObjectToID(instanceElement);
             }
+
+            revisionList.add(instanceElement);
           }
-        }
-        else
-        {
-          throw new ImplementationError("Not an InternalEList: " + instanceValue.getClass().getName());
         }
       }
     }
@@ -303,12 +320,6 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
       TRACER.format("Transfering revision to instance: {0} --> {1}", revision, instance);
     }
 
-    CDOViewImpl view = cdoView();
-    if (view == null)
-    {
-      throw new ImplementationError("view == null");
-    }
-
     boolean deliver = instance.eDeliver();
     if (deliver)
     {
@@ -318,14 +329,14 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
     try
     {
       // Handle containment
-      revisionToInstanceContainment(view);
+      revisionToInstanceContainment();
 
       // Handle values
       CDOPackageRegistry packageRegistry = cdoView().getSession().getPackageRegistry();
       CDOClass cdoClass = revision.getCDOClass();
       for (CDOFeature feature : cdoClass.getAllFeatures())
       {
-        revisionToInstanceFeature(view, feature, packageRegistry);
+        revisionToInstanceFeature(feature, packageRegistry);
       }
     }
     finally
@@ -337,7 +348,7 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
     }
   }
 
-  private void revisionToInstanceContainment(CDOViewImpl view)
+  private void revisionToInstanceContainment()
   {
     CDOID resourceID = revision.getResourceID();
     InternalEObject resource = getEObjectFromPotentialID(view, null, resourceID);
@@ -349,7 +360,7 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
   }
 
   @SuppressWarnings("unchecked")
-  private void revisionToInstanceFeature(CDOViewImpl view, CDOFeature feature, CDOPackageRegistry packageRegistry)
+  private void revisionToInstanceFeature(CDOFeature feature, CDOPackageRegistry packageRegistry)
   {
     Object value = revision.getValue(feature);
     if (feature.isMany())
@@ -505,7 +516,7 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
       {
         return null;
       }
-  
+
       boolean loadOnDemand = feature == null;
       potentialID = view.getObject(id, loadOnDemand);
       if (potentialID == null && !loadOnDemand)
@@ -513,12 +524,12 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
         return createProxy(view, feature, id);
       }
     }
-  
+
     if (potentialID instanceof InternalCDOObject)
     {
       return ((InternalCDOObject)potentialID).cdoInternalInstance();
     }
-  
+
     return (InternalEObject)potentialID;
   }
 
@@ -543,11 +554,68 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
     EStructuralFeature eFeature = ModelUtil.getEFeature(feature, packageRegistry);
     EClassifier eType = eFeature.getEType();
     Class<?> instanceClass = eType.getInstanceClass();
-  
-    Class<?>[] interfaces = { instanceClass, InternalCDOObject.class };
+
+    Class<?>[] interfaces = { instanceClass, InternalEObject.class, LegacyProxy.class };
     ClassLoader classLoader = CDOLegacyWrapper.class.getClassLoader();
     LegacyProxyInvocationHandler handler = new LegacyProxyInvocationHandler(id);
     return (InternalEObject)Proxy.newProxyInstance(classLoader, interfaces, handler);
+  }
+
+  /**
+   * TODO Consider using only EMF concepts for resolving proxies!
+   */
+  private void resolveAllProxies()
+  {
+    if (!allProxiesResolved)
+    {
+      // Important guard here to protect against infinite recursion!
+      allProxiesResolved = true;
+
+      CDOPackageRegistry packageRegistry = cdoView().getSession().getPackageRegistry();
+      CDOClass cdoClass = revision.getCDOClass();
+      for (CDOFeature feature : cdoClass.getAllFeatures())
+      {
+        if (feature.isReference())
+        {
+          resolveProxies(feature, packageRegistry);
+        }
+      }
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private void resolveProxies(CDOFeature feature, CDOPackageRegistry packageRegistry)
+  {
+    Object value = getInstanceValue(instance, feature, packageRegistry);
+    if (value != null)
+    {
+      if (feature.isMany())
+      {
+        InternalEList<Object> list = (InternalEList<Object>)value;
+        int size = list.size();
+        for (int i = 0; i < size; i++)
+        {
+          Object element = list.get(i);
+          if (element instanceof LegacyProxy)
+          {
+            CDOID id = ((LegacyProxy)element).getID();
+            InternalCDOObject resolved = view.getObject(id);
+
+            // TODO Is InternalEList.basicSet() needed???
+            list.set(i, resolved.cdoInternalInstance());
+          }
+        }
+      }
+      else
+      {
+        if (value instanceof LegacyProxy)
+        {
+          CDOID id = ((LegacyProxy)value).getID();
+          InternalCDOObject resolved = view.getObject(id);
+          setInstanceValue(instance, feature, resolved.cdoInternalInstance());
+        }
+      }
+    }
   }
 
   private void adjustEProxy()
@@ -564,7 +632,7 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
         {
           TRACER.format("Setting proxyURI {0} for {1}", uri, instance);
         }
-  
+
         instance.eSetProxyURI(uri);
       }
     }
@@ -576,7 +644,7 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
         {
           TRACER.format("Unsetting proxyURI for {0}", instance);
         }
-  
+
         instance.eSetProxyURI(null);
       }
     }
@@ -612,10 +680,23 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
     }
   }
 
+  public static boolean isLegacyProxy(Object object)
+  {
+    return object instanceof LegacyProxy;
+  }
+
   /**
    * @author Eike Stepper
    */
-  private final class LegacyProxyInvocationHandler implements InvocationHandler
+  private static interface LegacyProxy
+  {
+    public CDOID getID();
+  }
+
+  /**
+   * @author Eike Stepper
+   */
+  private final class LegacyProxyInvocationHandler implements InvocationHandler, LegacyProxy
   {
     private CDOID id;
 
@@ -624,18 +705,13 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
       this.id = id;
     }
 
+    public CDOID getID()
+    {
+      return id;
+    }
+
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
     {
-      if (method.equals(cdoIDMethod))
-      {
-        return id;
-      }
-
-      if (method.equals(cdoStateMethod))
-      {
-        return CDOState.PROXY;
-      }
-
       if (method.equals(eIsProxyMethod))
       {
         return true;

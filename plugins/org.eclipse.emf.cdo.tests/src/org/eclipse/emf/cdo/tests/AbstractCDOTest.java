@@ -26,6 +26,7 @@ import org.eclipse.emf.cdo.tests.model2.Model2Package;
 import org.eclipse.emf.cdo.tests.model3.Model3Package;
 import org.eclipse.emf.cdo.util.CDOUtil;
 
+import org.eclipse.emf.internal.cdo.CDOLegacyWrapper;
 import org.eclipse.emf.internal.cdo.util.FSMUtil;
 
 import org.eclipse.net4j.tests.AbstractTransportTest;
@@ -137,6 +138,7 @@ public abstract class AbstractCDOTest extends AbstractTransportTest
     session.getPackageRegistry().putEPackage(Model3Package.eINSTANCE);
     return session;
   }
+
   protected CDOSession openMangoSession()
   {
     CDOSession session = openSession();
@@ -150,7 +152,6 @@ public abstract class AbstractCDOTest extends AbstractTransportTest
     session.getPackageRegistry().putEPackage(LegacyPackage.eINSTANCE);
     return session;
   }
-  
 
   protected static void assertTransient(CDOObject object)
   {
@@ -218,6 +219,11 @@ public abstract class AbstractCDOTest extends AbstractTransportTest
     {
       assertEquals(container, contained.eContainer());
     }
+  }
+
+  protected static void assertNotProxy(Object object)
+  {
+    assertEquals(false, CDOLegacyWrapper.isLegacyProxy(object));
   }
 
   /**

@@ -19,10 +19,10 @@ import org.eclipse.emf.cdo.tests.legacy.Hook;
 import org.eclipse.emf.cdo.tests.legacy.LegacyFactory;
 import org.eclipse.emf.cdo.util.CDOUtil;
 
+import org.eclipse.emf.internal.cdo.CDOLegacyWrapper;
+
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.InternalEObject;
 
 /**
  * @author Eike Stepper
@@ -99,7 +99,10 @@ public class LegacyTest extends AbstractCDOTest
     EList<EObject> contents = resource.getContents();
 
     Hook hook = (Hook)contents.get(0);
+    assertNotProxy(hook);
+
     CDOObject cdoHook = CDOUtil.adaptLegacy(hook);
+    assertEquals(false, CDOLegacyWrapper.isLegacyProxy(cdoHook));
     assertEquals(CDOState.CLEAN, cdoHook.cdoState());
 
     EList<Hook> children = hook.getChildren();
@@ -116,18 +119,22 @@ public class LegacyTest extends AbstractCDOTest
     assertEquals(CDOState.CLEAN, cdoHook.cdoState());
 
     Hook h0 = children.get(0);
+    assertNotProxy(h0);
     assertEquals("Hook 1", h0.getName());
     assertEquals(CDOState.CLEAN, CDOUtil.adaptLegacy(h0).cdoState());
 
     Hook h1 = children.get(1);
+    assertNotProxy(h1);
     assertEquals("Hook 1", h1.getName());
     assertEquals(CDOState.CLEAN, CDOUtil.adaptLegacy(h1).cdoState());
 
     Hook h2 = children.get(2);
+    assertNotProxy(h2);
     assertEquals("Hook 2", h2.getName());
     assertEquals(CDOState.CLEAN, CDOUtil.adaptLegacy(h2).cdoState());
     session.close();
   }
+
 
   private Hook createHook(String name)
   {
