@@ -34,6 +34,7 @@ import org.eclipse.net4j.util.ReflectUtil;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.emf.common.notify.Adapter;
+import org.eclipse.emf.common.notify.impl.NotifyingListImpl;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EObject;
@@ -47,6 +48,7 @@ import org.eclipse.emf.ecore.impl.EReferenceImpl;
 import org.eclipse.emf.ecore.impl.EStructuralFeatureImpl;
 import org.eclipse.emf.ecore.impl.ETypedElementImpl;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.util.DelegatingInternalEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 
 import java.lang.reflect.Field;
@@ -595,9 +597,22 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
           {
             CDOID id = ((LegacyProxy)element).getID();
             InternalCDOObject resolved = view.getObject(id);
+            InternalEObject instance = resolved.cdoInternalInstance();
 
             // TODO Is InternalEList.basicSet() needed???
-            list.set(i, resolved.cdoInternalInstance());
+            if (list instanceof DelegatingInternalEList)
+            {
+              list = ((DelegatingInternalEList)list).getDelegateInternalEList();
+            }
+
+            if (list instanceof NotifyingListImpl)
+            {
+              ((NotifyingListImpl)list).basicSet(i, instance, null);
+            }
+            else
+            {
+              list.set(i, instance);
+            }
           }
         }
       }
@@ -607,7 +622,8 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
         {
           CDOID id = ((LegacyProxy)value).getID();
           InternalCDOObject resolved = view.getObject(id);
-          setInstanceValue(instance, feature, resolved.cdoInternalInstance());
+          InternalEObject instance = resolved.cdoInternalInstance();
+          setInstanceValue(instance, feature, instance);
         }
       }
     }

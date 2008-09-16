@@ -125,12 +125,12 @@ public class LegacyTest extends AbstractCDOTest
 
     Hook h1 = children.get(1);
     assertNotProxy(h1);
-    assertEquals("Hook 1", h1.getName());
+    assertEquals("Hook 2", h1.getName());
     assertEquals(CDOState.CLEAN, CDOUtil.adaptLegacy(h1).cdoState());
 
     Hook h2 = children.get(2);
     assertNotProxy(h2);
-    assertEquals("Hook 2", h2.getName());
+    assertEquals("Hook 3", h2.getName());
     assertEquals(CDOState.CLEAN, CDOUtil.adaptLegacy(h2).cdoState());
     session.close();
   }
