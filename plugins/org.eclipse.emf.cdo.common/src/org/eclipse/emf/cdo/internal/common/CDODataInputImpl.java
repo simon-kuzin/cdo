@@ -229,7 +229,7 @@ public abstract class CDODataInputImpl implements CDODataInput
     return new CDOFeatureImpl(containingClass, this);
   }
 
-  public CDOID readCDOID(boolean asLegacy) throws IOException
+  public CDOID readCDOID() throws IOException
   {
     byte ordinal = readByte();
     if (TRACER.isEnabled())
@@ -248,31 +248,6 @@ public abstract class CDODataInputImpl implements CDODataInput
     }
 
     Type type = Type.values()[ordinal];
-    if (asLegacy)
-    {
-      switch (type)
-      {
-      case NULL:
-      case TEMP_OBJECT:
-      case TEMP_META:
-      case META:
-      case OBJECT:
-        throw new IllegalStateException("Missing classRef");
-
-      case LEGACY_OBJECT:
-      {
-        CDOIDObject id = getIDFactory().createCDOIDObject(this);
-        ((AbstractCDOID)id).read(this);
-        CDOClassRef classRef = readCDOClassRef();
-        return id.asLegacy(classRef);
-      }
-
-      default:
-        throw new ImplementationError();
-      }
-    }
-
-    // Not asLegacy
     switch (type)
     {
     case NULL:
@@ -300,33 +275,16 @@ public abstract class CDODataInputImpl implements CDODataInput
       return id;
     }
 
-    case LEGACY_OBJECT:
-    {
-      CDOIDObject id = getIDFactory().createCDOIDObject(this);
-      ((AbstractCDOID)id).read(this);
-      readCDOClassRef(); // Discard classRef from stream
-      return id;
-    }
-
     default:
       throw new ImplementationError();
     }
   }
 
-  public CDOID readCDOID() throws IOException
-  {
-    return readCDOID(false);
-  }
-
-  public CDOIDAndVersion readCDOIDAndVersion(boolean asLegacy) throws IOException
-  {
-    return new CDOIDAndVersionImpl(this, asLegacy);
-  }
-
   public CDOIDAndVersion readCDOIDAndVersion() throws IOException
   {
-    return readCDOIDAndVersion(false);
+    return new CDOIDAndVersionImpl(this);
   }
+
 
   public CDOIDMetaRange readCDOIDMetaRange() throws IOException
   {

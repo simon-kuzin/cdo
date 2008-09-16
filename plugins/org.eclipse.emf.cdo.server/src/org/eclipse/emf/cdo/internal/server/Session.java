@@ -17,7 +17,6 @@ package org.eclipse.emf.cdo.internal.server;
 import org.eclipse.emf.cdo.common.CDOProtocolView;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
-import org.eclipse.emf.cdo.common.id.CDOIDObject;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.model.CDOClass;
 import org.eclipse.emf.cdo.common.model.CDOClassRef;
@@ -222,20 +221,7 @@ public class Session extends Container<IView> implements ISession, CDOIDProvider
 
   public CDOID provideCDOID(Object idObject)
   {
-    CDOID id = (CDOID)idObject;
-    if (!legacySupportEnabled || id.isNull() || id.isMeta())
-    {
-      return id;
-    }
-
-    CDOIDObject objectID = (CDOIDObject)id;
-    if (objectID.getClassRef() == null)
-    {
-      CDOClassRef classRef = getClassRef(objectID);
-      objectID = objectID.asLegacy(classRef);
-    }
-
-    return objectID;
+    return (CDOID)idObject;
   }
 
   public CDOClassRef getClassRef(CDOID id)

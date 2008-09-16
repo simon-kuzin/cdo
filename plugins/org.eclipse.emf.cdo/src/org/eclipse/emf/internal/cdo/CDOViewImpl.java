@@ -30,11 +30,9 @@ import org.eclipse.emf.cdo.common.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDMeta;
-import org.eclipse.emf.cdo.common.id.CDOIDObject;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
 import org.eclipse.emf.cdo.common.revision.CDORevisionResolver;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.common.util.CDOException;
@@ -572,14 +570,6 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
     CDOClass type = session.getObjectType(id);
     if (type != null)
     {
-      return type;
-    }
-
-    if (id.isLegacy())
-    {
-      CDOClassRef typeRef = ((CDOIDObject)id).getClassRef();
-      type = typeRef.resolve(session.getPackageManager());
-      session.registerObjectType(id, type);
       return type;
     }
 

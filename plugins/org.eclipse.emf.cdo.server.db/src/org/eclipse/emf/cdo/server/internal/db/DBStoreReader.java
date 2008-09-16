@@ -194,14 +194,14 @@ public class DBStoreReader extends DBStoreAccessor implements IDBStoreReader
     return (String)uri[0];
   }
 
-  public CloseableIterator<CDOID> readObjectIDs(boolean withTypes)
+  public CloseableIterator<CDOID> readObjectIDs()
   {
     if (TRACER.isEnabled())
     {
       TRACER.trace("Selecting object IDs");
     }
 
-    return getStore().getMappingStrategy().readObjectIDs(this, withTypes);
+    return getStore().getMappingStrategy().readObjectIDs(this);
   }
 
   public CDOClassRef readObjectType(CDOID id)
