@@ -29,7 +29,7 @@ import org.eclipse.emf.ecore.EObject;
  */
 public class LegacyTest extends AbstractCDOTest
 {
-  public void _testCommit() throws Exception
+  public void testCommit() throws Exception
   {
     Hook hook = createHook("Mr. Hook");
 
@@ -45,7 +45,7 @@ public class LegacyTest extends AbstractCDOTest
     session.close();
   }
 
-  public void _testLoad() throws Exception
+  public void testLoad() throws Exception
   {
     {
       CDOSession session = openLegacySession();
