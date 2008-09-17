@@ -584,7 +584,7 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
    */
   private void resolveAllProxies()
   {
-    if (!allProxiesResolved)
+    // if (!allProxiesResolved)
     {
       CDOPackageRegistry packageRegistry = cdoView().getSession().getPackageRegistry();
       CDOClass cdoClass = revision.getCDOClass();

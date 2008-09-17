@@ -2,11 +2,11 @@
  * <copyright>
  * </copyright>
  *
- * $Id: MangoSwitch.java,v 1.5.4.2 2008-09-17 13:18:17 estepper Exp $
+ * $Id: MangoSwitch.java,v 1.1.2.1 2008-09-17 13:23:30 estepper Exp $
  */
-package org.eclipse.emf.cdo.tests.mango.util;
+package org.eclipse.emf.cdo.tests.legacy.mango.util;
 
-import org.eclipse.emf.cdo.tests.mango.MangoPackage;
+import org.eclipse.emf.cdo.tests.legacy.mango.MangoPackage;
 import org.eclipse.emf.cdo.tests.mango.Parameter;
 import org.eclipse.emf.cdo.tests.mango.Value;
 import org.eclipse.emf.cdo.tests.mango.ValueList;
@@ -22,7 +22,7 @@ import java.util.List;
  * starting with the actual class of the object and proceeding up the inheritance hierarchy until a non-null result is
  * returned, which is the result of the switch. <!-- end-user-doc -->
  * 
- * @see org.eclipse.emf.cdo.tests.mango.MangoPackage
+ * @see org.eclipse.emf.cdo.tests.legacy.mango.MangoPackage
  * @generated
  */
 public class MangoSwitch<T>

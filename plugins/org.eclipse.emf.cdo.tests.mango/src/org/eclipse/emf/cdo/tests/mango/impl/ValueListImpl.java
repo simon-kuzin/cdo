@@ -2,7 +2,7 @@
  * <copyright>
  * </copyright>
  *
- * $Id: ValueListImpl.java,v 1.3.12.1 2008-09-17 08:58:07 estepper Exp $
+ * $Id: ValueListImpl.java,v 1.3.12.2 2008-09-17 13:18:17 estepper Exp $
  */
 package org.eclipse.emf.cdo.tests.mango.impl;
 
@@ -20,17 +20,18 @@ import org.eclipse.emf.ecore.EClass;
  * <p>
  * The following features are implemented:
  * <ul>
- *   <li>{@link org.eclipse.emf.cdo.tests.mango.impl.ValueListImpl#getName <em>Name</em>}</li>
- *   <li>{@link org.eclipse.emf.cdo.tests.mango.impl.ValueListImpl#getValues <em>Values</em>}</li>
+ * <li>{@link org.eclipse.emf.cdo.tests.mango.impl.ValueListImpl#getName <em>Name</em>}</li>
+ * <li>{@link org.eclipse.emf.cdo.tests.mango.impl.ValueListImpl#getValues <em>Values</em>}</li>
  * </ul>
  * </p>
- *
+ * 
  * @generated
  */
 public class ValueListImpl extends CDOObjectImpl implements ValueList
 {
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   protected ValueListImpl()
@@ -40,6 +41,7 @@ public class ValueListImpl extends CDOObjectImpl implements ValueList
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -50,6 +52,7 @@ public class ValueListImpl extends CDOObjectImpl implements ValueList
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -60,6 +63,7 @@ public class ValueListImpl extends CDOObjectImpl implements ValueList
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public String getName()
@@ -69,6 +73,7 @@ public class ValueListImpl extends CDOObjectImpl implements ValueList
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public void setName(String newName)
@@ -78,6 +83,7 @@ public class ValueListImpl extends CDOObjectImpl implements ValueList
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @SuppressWarnings("unchecked")

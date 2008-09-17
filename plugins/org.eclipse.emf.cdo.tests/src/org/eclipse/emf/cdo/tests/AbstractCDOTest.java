@@ -54,7 +54,7 @@ public abstract class AbstractCDOTest extends AbstractTransportTest
 {
   public static final String REPOSITORY_NAME = "repo1";
 
-  protected static boolean legacyTesting = true;
+  protected static boolean legacyTesting = false;
 
   @Override
   protected IManagedContainer createContainer()

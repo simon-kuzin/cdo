@@ -2,11 +2,11 @@
  * <copyright>
  * </copyright>
  *
- * $Id: MangoAdapterFactory.java,v 1.4.10.2 2008-09-17 13:18:17 estepper Exp $
+ * $Id: MangoAdapterFactory.java,v 1.1.2.1 2008-09-17 13:23:30 estepper Exp $
  */
-package org.eclipse.emf.cdo.tests.mango.util;
+package org.eclipse.emf.cdo.tests.legacy.mango.util;
 
-import org.eclipse.emf.cdo.tests.mango.MangoPackage;
+import org.eclipse.emf.cdo.tests.legacy.mango.MangoPackage;
 import org.eclipse.emf.cdo.tests.mango.Parameter;
 import org.eclipse.emf.cdo.tests.mango.Value;
 import org.eclipse.emf.cdo.tests.mango.ValueList;
@@ -20,7 +20,7 @@ import org.eclipse.emf.ecore.EObject;
  * <!-- begin-user-doc --> The <b>Adapter Factory</b> for the model. It provides an adapter <code>createXXX</code>
  * method for each class of the model. <!-- end-user-doc -->
  * 
- * @see org.eclipse.emf.cdo.tests.mango.MangoPackage
+ * @see org.eclipse.emf.cdo.tests.legacy.mango.MangoPackage
  * @generated
  */
 public class MangoAdapterFactory extends AdapterFactoryImpl
@@ -114,12 +114,12 @@ public class MangoAdapterFactory extends AdapterFactoryImpl
   }
 
   /**
-   * Creates a new adapter for an object of class '{@link org.eclipse.emf.cdo.tests.mango.ValueList <em>Value List</em>}
-   * '. <!-- begin-user-doc --> This default implementation returns null so that we can easily ignore cases; it's useful
-   * to ignore a case when inheritance will catch all the cases anyway. <!-- end-user-doc -->
+   * Creates a new adapter for an object of class '{@link org.eclipse.emf.cdo.tests.legacy.mango.ValueList
+   * <em>Value List</em>}'. <!-- begin-user-doc --> This default implementation returns null so that we can easily
+   * ignore cases; it's useful to ignore a case when inheritance will catch all the cases anyway. <!-- end-user-doc -->
    * 
    * @return the new adapter.
-   * @see org.eclipse.emf.cdo.tests.mango.ValueList
+   * @see org.eclipse.emf.cdo.tests.legacy.mango.ValueList
    * @generated
    */
   public Adapter createValueListAdapter()
@@ -128,12 +128,12 @@ public class MangoAdapterFactory extends AdapterFactoryImpl
   }
 
   /**
-   * Creates a new adapter for an object of class '{@link org.eclipse.emf.cdo.tests.mango.Value <em>Value</em>}'. <!--
-   * begin-user-doc --> This default implementation returns null so that we can easily ignore cases; it's useful to
+   * Creates a new adapter for an object of class '{@link org.eclipse.emf.cdo.tests.legacy.mango.Value <em>Value</em>}'.
+   * <!-- begin-user-doc --> This default implementation returns null so that we can easily ignore cases; it's useful to
    * ignore a case when inheritance will catch all the cases anyway. <!-- end-user-doc -->
    * 
    * @return the new adapter.
-   * @see org.eclipse.emf.cdo.tests.mango.Value
+   * @see org.eclipse.emf.cdo.tests.legacy.mango.Value
    * @generated
    */
   public Adapter createValueAdapter()
@@ -142,12 +142,12 @@ public class MangoAdapterFactory extends AdapterFactoryImpl
   }
 
   /**
-   * Creates a new adapter for an object of class '{@link org.eclipse.emf.cdo.tests.mango.Parameter <em>Parameter</em>}
-   * '. <!-- begin-user-doc --> This default implementation returns null so that we can easily ignore cases; it's useful
-   * to ignore a case when inheritance will catch all the cases anyway. <!-- end-user-doc -->
+   * Creates a new adapter for an object of class '{@link org.eclipse.emf.cdo.tests.legacy.mango.Parameter
+   * <em>Parameter</em>}'. <!-- begin-user-doc --> This default implementation returns null so that we can easily ignore
+   * cases; it's useful to ignore a case when inheritance will catch all the cases anyway. <!-- end-user-doc -->
    * 
    * @return the new adapter.
-   * @see org.eclipse.emf.cdo.tests.mango.Parameter
+   * @see org.eclipse.emf.cdo.tests.legacy.mango.Parameter
    * @generated
    */
   public Adapter createParameterAdapter()

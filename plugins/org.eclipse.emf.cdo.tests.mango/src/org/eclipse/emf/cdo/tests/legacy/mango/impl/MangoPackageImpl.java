@@ -2,12 +2,12 @@
  * <copyright>
  * </copyright>
  *
- * $Id: MangoPackageImpl.java,v 1.5.4.2 2008-09-17 13:18:17 estepper Exp $
+ * $Id: MangoPackageImpl.java,v 1.1.2.1 2008-09-17 13:23:30 estepper Exp $
  */
-package org.eclipse.emf.cdo.tests.mango.impl;
+package org.eclipse.emf.cdo.tests.legacy.mango.impl;
 
-import org.eclipse.emf.cdo.tests.mango.MangoFactory;
-import org.eclipse.emf.cdo.tests.mango.MangoPackage;
+import org.eclipse.emf.cdo.tests.legacy.mango.MangoFactory;
+import org.eclipse.emf.cdo.tests.legacy.mango.MangoPackage;
 import org.eclipse.emf.cdo.tests.mango.Parameter;
 import org.eclipse.emf.cdo.tests.mango.ParameterPassing;
 import org.eclipse.emf.cdo.tests.mango.Value;
@@ -64,7 +64,7 @@ public class MangoPackageImpl extends EPackageImpl implements MangoPackage
    * begin-user-doc --> <!-- end-user-doc -->
    * 
    * @see org.eclipse.emf.ecore.EPackage.Registry
-   * @see org.eclipse.emf.cdo.tests.mango.MangoPackage#eNS_URI
+   * @see org.eclipse.emf.cdo.tests.legacy.mango.MangoPackage#eNS_URI
    * @see #init()
    * @generated
    */

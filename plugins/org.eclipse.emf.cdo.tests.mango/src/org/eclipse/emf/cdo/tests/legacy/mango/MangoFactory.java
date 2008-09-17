@@ -2,27 +2,29 @@
  * <copyright>
  * </copyright>
  *
- * $Id: MangoFactory.java,v 1.3.10.2 2008-09-17 13:18:17 estepper Exp $
+ * $Id: MangoFactory.java,v 1.1.2.1 2008-09-17 13:23:30 estepper Exp $
  */
-package org.eclipse.emf.cdo.tests.mango;
+package org.eclipse.emf.cdo.tests.legacy.mango;
 
-import org.eclipse.emf.ecore.EFactory;
+import org.eclipse.emf.cdo.tests.mango.Parameter;
+import org.eclipse.emf.cdo.tests.mango.Value;
+import org.eclipse.emf.cdo.tests.mango.ValueList;
 
 /**
  * <!-- begin-user-doc --> The <b>Factory</b> for the model. It provides a create method for each non-abstract class of
  * the model. <!-- end-user-doc -->
  * 
- * @see org.eclipse.emf.cdo.tests.mango.MangoPackage
- * @generated
+ * @see org.eclipse.emf.cdo.tests.legacy.mango.MangoPackage
+ * @generated NOT
  */
-public interface MangoFactory extends EFactory
+public interface MangoFactory extends org.eclipse.emf.cdo.tests.mango.MangoFactory
 {
   /**
    * The singleton instance of the factory. <!-- begin-user-doc --> <!-- end-user-doc -->
    * 
    * @generated
    */
-  MangoFactory eINSTANCE = org.eclipse.emf.cdo.tests.mango.impl.MangoFactoryImpl.init();
+  MangoFactory eINSTANCE = org.eclipse.emf.cdo.tests.legacy.mango.impl.MangoFactoryImpl.init();
 
   /**
    * Returns a new object of class '<em>Value List</em>'. <!-- begin-user-doc --> <!-- end-user-doc -->
