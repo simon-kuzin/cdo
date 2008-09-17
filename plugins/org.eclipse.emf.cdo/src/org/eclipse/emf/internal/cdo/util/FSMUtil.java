@@ -110,7 +110,7 @@ public final class FSMUtil
   }
 
   /*
-   * Important: Compile errors in this method might indicate an old version of EMF. Legacy support is only enabled for
+   * IMPORTANT: Compile errors in this method might indicate an old version of EMF. Legacy support is only enabled for
    * EMF with fixed bug #247130. These compile errors do not affect native models!
    */
   public static InternalCDOObject adaptLegacy(InternalEObject object)
@@ -142,7 +142,7 @@ public final class FSMUtil
   }
 
   /*
-   * Important: Compile errors in this method might indicate an old version of EMF. Legacy support is only enabled for
+   * IMPORTANT: Compile errors in this method might indicate an old version of EMF. Legacy support is only enabled for
    * EMF with fixed bug #247130. These compile errors do not affect native models!
    */
   public static Object getLegacyWrapper(InternalEObject object)

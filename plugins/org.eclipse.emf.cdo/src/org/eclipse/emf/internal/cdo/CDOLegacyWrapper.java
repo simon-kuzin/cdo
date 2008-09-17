@@ -48,7 +48,6 @@ import org.eclipse.emf.ecore.impl.EReferenceImpl;
 import org.eclipse.emf.ecore.impl.EStructuralFeatureImpl;
 import org.eclipse.emf.ecore.impl.ETypedElementImpl;
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.util.DelegatingInternalEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 
 import java.lang.reflect.Field;
@@ -63,7 +62,7 @@ import java.util.List;
  * @since 2.0
  */
 /*
- * Important: Compile errors in this class might indicate an old version of EMF. Legacy support is only enabled for EMF
+ * IMPORTANT: Compile errors in this class might indicate an old version of EMF. Legacy support is only enabled for EMF
  * with fixed bug #247130. These compile errors do not affect native models!
  */
 public final class CDOLegacyWrapper extends CDOObjectWrapper implements InternalEObject.EReadListener,
@@ -584,6 +583,10 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
     }
   }
 
+  /*
+   * IMPORTANT: Compile errors in this method might indicate an old version of EMF. Legacy support is only enabled for
+   * EMF with fixed bug #247130. These compile errors do not affect native models!
+   */
   @SuppressWarnings("unchecked")
   private void resolveProxies(CDOFeature feature, CDOPackageRegistry packageRegistry)
   {
@@ -604,9 +607,9 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
             InternalEObject instance = resolved.cdoInternalInstance();
 
             // TODO Is InternalEList.basicSet() needed???
-            if (list instanceof DelegatingInternalEList)
+            if (list instanceof org.eclipse.emf.ecore.util.DelegatingInternalEList)
             {
-              list = ((DelegatingInternalEList)list).getDelegateInternalEList();
+              list = ((org.eclipse.emf.ecore.util.DelegatingInternalEList)list).getDelegateInternalEList();
             }
 
             if (list instanceof NotifyingListImpl)
