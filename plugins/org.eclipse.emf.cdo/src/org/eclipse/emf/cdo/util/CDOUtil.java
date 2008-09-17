@@ -23,7 +23,6 @@ import org.eclipse.emf.internal.cdo.CDOViewImpl;
 import org.eclipse.emf.internal.cdo.CDOViewSetImpl;
 import org.eclipse.emf.internal.cdo.CDOXATransactionImpl;
 import org.eclipse.emf.internal.cdo.InternalCDOObject;
-import org.eclipse.emf.internal.cdo.LegacySupportEnabler;
 import org.eclipse.emf.internal.cdo.protocol.CDOClientProtocolFactory;
 import org.eclipse.emf.internal.cdo.util.CDOPackageRegistryImpl;
 import org.eclipse.emf.internal.cdo.util.FSMUtil;
@@ -170,10 +169,12 @@ public final class CDOUtil
     return viewSet;
   }
 
-  public static void prepareContainer(IManagedContainer container, boolean legacySupportEnabled)
+  /**
+   * @since 2.0
+   */
+  public static void prepareContainer(IManagedContainer container)
   {
     container.registerFactory(new CDOClientProtocolFactory());
-    container.addPostProcessor(new LegacySupportEnabler(legacySupportEnabled));
   }
 
   public static EPackage createEPackage(String name, String nsPrefix, String nsURI)

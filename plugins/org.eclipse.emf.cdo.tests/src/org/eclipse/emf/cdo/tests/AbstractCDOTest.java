@@ -51,7 +51,7 @@ public abstract class AbstractCDOTest extends AbstractTransportTest
   {
     LifecycleUtil.deactivate(container);
     IManagedContainer container = super.createContainer();
-    CDOUtil.prepareContainer(container, false);
+    CDOUtil.prepareContainer(container);
     CDOServerUtil.prepareContainer(container);
     CDOServerUtil.addRepository(container, createRepository());
     return container;
@@ -98,7 +98,6 @@ public abstract class AbstractCDOTest extends AbstractTransportTest
     CDOSessionConfiguration configuration = CDOUtil.createSessionConfiguration();
     configuration.setConnector(getConnector());
     configuration.setRepositoryName(repoName);
-    configuration.setLegacySupportEnabled(false);
     return configuration.openSession();
   }
 
@@ -114,7 +113,6 @@ public abstract class AbstractCDOTest extends AbstractTransportTest
     CDOSessionConfiguration configuration = CDOUtil.createSessionConfiguration();
     configuration.setConnector(getConnector());
     configuration.setRepositoryName(REPOSITORY_NAME);
-    configuration.setLegacySupportEnabled(false);
     return configuration.openSession();
   }
 

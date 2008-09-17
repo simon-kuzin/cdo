@@ -545,37 +545,6 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
     object.cdoInternalPostLoad();
   }
 
-  private InternalCDOObject createProxy(CDOID id)
-  {
-    if (TRACER.isEnabled())
-    {
-      TRACER.format("Creating proxy for " + id);
-    }
-
-    CDOClass cdoClass = getObjectType(id);
-    InternalCDOObject object = newInstance(cdoClass);
-    if (object instanceof CDOResourceImpl)
-    {
-      object.cdoInternalSetResource((CDOResourceImpl)object);
-    }
-
-    object.cdoInternalSetView(this);
-    object.cdoInternalSetID(id);
-    object.cdoInternalSetState(CDOState.PROXY);
-    return object;
-  }
-
-  private CDOClass getObjectType(CDOID id)
-  {
-    CDOClass type = session.getObjectType(id);
-    if (type != null)
-    {
-      return type;
-    }
-
-    return session.requestObjectType(id);
-  }
-
   public CDOID provideCDOID(Object idOrObject)
   {
     Object shouldBeCDOID = convertObjectToID(idOrObject);

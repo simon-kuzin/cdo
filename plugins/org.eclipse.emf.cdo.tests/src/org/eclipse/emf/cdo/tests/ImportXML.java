@@ -54,7 +54,7 @@ public class ImportXML
     Net4jUtil.prepareContainer(container); // Prepare the Net4j kernel
     JVMUtil.prepareContainer(container); // Prepare the JVM transport
     CDOServerUtil.prepareContainer(container); // Prepare the CDO server
-    CDOUtil.prepareContainer(container, false); // Prepare the CDO client
+    CDOUtil.prepareContainer(container); // Prepare the CDO client
 
     // Start the transport and create a repository
     JVMUtil.getAcceptor(container, "default"); // Start the JVM transport
@@ -115,7 +115,6 @@ public class ImportXML
     CDOSessionConfiguration configuration = CDOUtil.createSessionConfiguration();
     configuration.setConnector(connector);
     configuration.setRepositoryName(REPOSITORY_NAME);
-    configuration.setLegacySupportEnabled(false);
     return configuration.openSession();
   }
 }

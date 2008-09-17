@@ -48,6 +48,7 @@ import org.eclipse.emf.ecore.impl.EReferenceImpl;
 import org.eclipse.emf.ecore.impl.EStructuralFeatureImpl;
 import org.eclipse.emf.ecore.impl.ETypedElementImpl;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.util.DelegatingInternalEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 
 import java.lang.reflect.Field;

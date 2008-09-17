@@ -28,13 +28,10 @@ import org.eclipse.emf.cdo.common.id.CDOIDObjectFactory;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDTempMeta;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
 import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.common.model.CDOPackageURICompressor;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
-import org.eclipse.emf.cdo.common.util.TransportException;
 import org.eclipse.emf.cdo.spi.common.InternalCDORevision;
 import org.eclipse.emf.cdo.util.CDOPackageRegistry;
 import org.eclipse.emf.cdo.util.CDOUtil;
@@ -44,7 +41,6 @@ import org.eclipse.emf.internal.cdo.protocol.LoadLibrariesRequest;
 import org.eclipse.emf.internal.cdo.protocol.OpenSessionRequest;
 import org.eclipse.emf.internal.cdo.protocol.OpenSessionResult;
 import org.eclipse.emf.internal.cdo.protocol.PassiveUpdateRequest;
-import org.eclipse.emf.internal.cdo.protocol.QueryObjectTypesRequest;
 import org.eclipse.emf.internal.cdo.protocol.SyncRevisionRequest;
 import org.eclipse.emf.internal.cdo.protocol.ViewsChangedRequest;
 import org.eclipse.emf.internal.cdo.util.CDOPackageRegistryImpl;
@@ -88,8 +84,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author Eike Stepper
@@ -100,8 +94,6 @@ public class CDOSessionImpl extends Container<CDOView> implements CDOSession, CD
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_SESSION, CDOSessionImpl.class);
 
   private int sessionID;
-
-  private boolean legacySupportEnabled;
 
   private boolean passiveUpdateEnabled = true;
 
@@ -145,8 +137,6 @@ public class CDOSessionImpl extends Container<CDOView> implements CDOSession, CD
   private CDOSessionPackageManagerImpl packageManager;
 
   private CDORevisionManagerImpl revisionManager;
-
-  private ConcurrentMap<CDOID, CDOClass> types = new ConcurrentHashMap<CDOID, CDOClass>();
 
   private Set<CDOViewImpl> views = new HashSet<CDOViewImpl>();
 
@@ -193,17 +183,6 @@ public class CDOSessionImpl extends Container<CDOView> implements CDOSession, CD
   public CDOIDObject createCDOIDObject(String in)
   {
     return cdoidObjectFactory.createCDOIDObject(in);
-  }
-
-  public boolean isLegacySupportEnabled()
-  {
-    return legacySupportEnabled;
-  }
-
-  public void setLegacySupportEnabled(boolean legacySupportEnabled)
-  {
-    checkInactive();
-    this.legacySupportEnabled = legacySupportEnabled;
   }
 
   public int getReferenceChunkSize()
@@ -531,32 +510,6 @@ public class CDOSessionImpl extends Container<CDOView> implements CDOSession, CD
     metaInstanceToIDMap.put(metaInstance, newID);
   }
 
-  public CDOClass getObjectType(CDOID id)
-  {
-    return types.get(id);
-  }
-
-  public CDOClass requestObjectType(CDOID id)
-  {
-    try
-    {
-      QueryObjectTypesRequest request = new QueryObjectTypesRequest(channel, Collections.singletonList(id));
-      CDOClassRef[] typeRefs = getFailOverStrategy().send(request);
-      CDOClass type = typeRefs[0].resolve(packageManager);
-      registerObjectType(id, type);
-      return type;
-    }
-    catch (Exception ex)
-    {
-      throw new TransportException(ex);
-    }
-  }
-
-  public void registerObjectType(CDOID id, CDOClass type)
-  {
-    types.put(id, type);
-  }
-
   /**
    * @since 2.0
    */
@@ -752,8 +705,7 @@ public class CDOSessionImpl extends Container<CDOView> implements CDOSession, CD
       channel = connector.openChannel(CDOProtocolConstants.PROTOCOL_NAME, this);
     }
 
-    OpenSessionRequest request = new OpenSessionRequest(channel, repositoryName, legacySupportEnabled,
-        passiveUpdateEnabled);
+    OpenSessionRequest request = new OpenSessionRequest(channel, repositoryName, passiveUpdateEnabled);
     OpenSessionResult result = getFailOverStrategy().send(request);
 
     sessionID = result.getSessionID();

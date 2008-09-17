@@ -75,9 +75,8 @@ public class CDOSessionFactory extends Factory
       }
 
       String repositoryName = result.get("repositoryName");
-      boolean legacySupportEnabled = TRUE.equals(result.get("legacySupportEnabled"));
       boolean automaticPackageRegistry = TRUE.equals(result.get("automaticPackageRegistry"));
-      return createSession(repositoryName, legacySupportEnabled, automaticPackageRegistry, null);
+      return createSession(repositoryName, automaticPackageRegistry, null);
     }
     catch (URISyntaxException ex)
     {
@@ -90,8 +89,11 @@ public class CDOSessionFactory extends Factory
     return (CDOSession)container.getElement(PRODUCT_GROUP, TYPE, description);
   }
 
-  public static CDOSessionImpl createSession(String repositoryName, boolean legacySupportEnabled,
-      boolean automaticPackageRegistry, IFailOverStrategy failOverStrategy)
+  /**
+   * @since 2.0
+   */
+  public static CDOSessionImpl createSession(String repositoryName, boolean automaticPackageRegistry,
+      IFailOverStrategy failOverStrategy)
   {
     CDOSessionImpl session = new CDOSessionImpl();
     if (automaticPackageRegistry)
@@ -102,7 +104,6 @@ public class CDOSessionFactory extends Factory
     }
 
     session.setRepositoryName(repositoryName);
-    session.setLegacySupportEnabled(legacySupportEnabled);
     session.setFailOverStrategy(failOverStrategy);
     return session;
   }

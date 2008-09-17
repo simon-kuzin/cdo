@@ -45,19 +45,6 @@ public interface CDOSessionConfiguration
   public void setRepositoryName(String repositoryName);
 
   /**
-   * @see CDOSession#isLegacySupportEnabled()
-   */
-  public boolean isLegacySupportEnabled();
-
-  /**
-   * The choice whether to enable legacy support for a {@link CDOSession session} or not must be met <b>before</b> the
-   * session is opened and can not be changed thereafter.
-   * 
-   * @see CDOSession#isLegacySupportEnabled()
-   */
-  public void setLegacySupportEnabled(boolean enabled);
-
-  /**
    * @see CDOSession#getFailOverStrategy()
    */
   public IFailOverStrategy getFailOverStrategy();

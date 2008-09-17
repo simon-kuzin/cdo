@@ -300,12 +300,13 @@ public class DBStoreReader extends DBStoreAccessor implements IDBStoreReader
    */
   public void executeQuery(CDOQueryInfo info, IQueryContext context)
   {
-    // TODO: implement HibernateStoreReader.executeQuery(info, context)
+    // TODO: implement DBStoreReader.executeQuery(info, context)
     throw new UnsupportedOperationException();
   }
 
   protected CDOClass getObjectType(CDOID id)
   {
+    // TODO Replace calls to getObjectType by optimized calls to RevisionManager.getObjectType (cache!)
     IRepository repository = getStore().getRepository();
     IPackageManager packageManager = repository.getPackageManager();
     CDOClassRef type = readObjectType(id);

@@ -52,20 +52,11 @@ public class OpenSessionDialog extends TitleAreaDialog
 
   private PreferenceButton automaticButton;
 
-  private PreferenceButton legacyButton;
-
   private String serverDescription;
 
   private String repositoryName;
 
   private boolean automaticPackageRegistry;
-
-  private boolean legacyModelSupport;
-
-  static
-  {
-    OM.PREF_LEGACY_MODEL_SUPPORT.setValue(true);
-  }
 
   public OpenSessionDialog(IWorkbenchPage page)
   {
@@ -92,11 +83,6 @@ public class OpenSessionDialog extends TitleAreaDialog
   public boolean isAutomaticPackageRegistry()
   {
     return automaticPackageRegistry;
-  }
-
-  public boolean isLegacyModelSupport()
-  {
-    return legacyModelSupport;
   }
 
   @Override
@@ -136,9 +122,6 @@ public class OpenSessionDialog extends TitleAreaDialog
     automaticButton = new PreferenceButton(composite, SWT.CHECK, "Automatic Package Registry",
         OM.PREF_AUTOMATIC_PACKAGE_REGISTY);
 
-    new Label(composite, SWT.NONE);
-    legacyButton = new PreferenceButton(composite, SWT.CHECK, "Legacy Model Support", OM.PREF_LEGACY_MODEL_SUPPORT);
-
     connectorText.setFocus();
     connectorText.getCombo().addFocusListener(new FocusListener()
     {
@@ -168,7 +151,6 @@ public class OpenSessionDialog extends TitleAreaDialog
     serverDescription = connectorText.getText(true);
     repositoryName = repositoryText.getText(true);
     automaticPackageRegistry = automaticButton.getSelection(true);
-    legacyModelSupport = legacyButton.getSelection(true);
     super.okPressed();
   }
 

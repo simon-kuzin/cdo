@@ -285,7 +285,6 @@ public abstract class CDODataInputImpl implements CDODataInput
     return new CDOIDAndVersionImpl(this);
   }
 
-
   public CDOIDMetaRange readCDOIDMetaRange() throws IOException
   {
     boolean exist = readBoolean();

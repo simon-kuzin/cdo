@@ -138,7 +138,6 @@ public class LegacyTest extends AbstractCDOTest
     session.close();
   }
 
-
   private Hook createHook(String name)
   {
     Hook hook = LegacyFactory.eINSTANCE.createHook();

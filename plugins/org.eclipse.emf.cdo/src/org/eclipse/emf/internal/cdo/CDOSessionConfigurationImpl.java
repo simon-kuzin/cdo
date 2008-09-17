@@ -30,8 +30,6 @@ public class CDOSessionConfigurationImpl implements CDOSessionConfiguration
 
   private String repositoryName;
 
-  private boolean legacySupportEnabled;
-
   private IFailOverStrategy failOverStrategy;
 
   private CDOPackageRegistry packageRegistry;
@@ -64,17 +62,6 @@ public class CDOSessionConfigurationImpl implements CDOSessionConfiguration
   {
     checkNotOpen();
     this.repositoryName = repositoryName;
-  }
-
-  public boolean isLegacySupportEnabled()
-  {
-    return legacySupportEnabled;
-  }
-
-  public void setLegacySupportEnabled(boolean enabled)
-  {
-    checkNotOpen();
-    legacySupportEnabled = enabled;
   }
 
   public IFailOverStrategy getFailOverStrategy()
@@ -150,7 +137,6 @@ public class CDOSessionConfigurationImpl implements CDOSessionConfiguration
       session = new CDOSessionImpl();
       session.setConnector(connector);
       session.setRepositoryName(repositoryName);
-      session.setLegacySupportEnabled(legacySupportEnabled);
       session.setFailOverStrategy(failOverStrategy);
       session.setPackageRegistry(packageRegistry);
       session.getRevisionManager().setCache(revisionCache);

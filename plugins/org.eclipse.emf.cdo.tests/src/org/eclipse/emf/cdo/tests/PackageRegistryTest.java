@@ -253,7 +253,6 @@ public class PackageRegistryTest extends AbstractCDOTest
       CDOSessionConfiguration configuration = CDOUtil.createSessionConfiguration();
       configuration.setConnector(getConnector());
       configuration.setRepositoryName(REPOSITORY_NAME);
-      configuration.setLegacySupportEnabled(false);
       configuration.setSelfPopulatingPackageRegistry();
 
       CDOSession session = configuration.openSession();
@@ -286,7 +285,6 @@ public class PackageRegistryTest extends AbstractCDOTest
       CDOSessionConfiguration configuration = CDOUtil.createSessionConfiguration();
       configuration.setConnector(getConnector());
       configuration.setRepositoryName(REPOSITORY_NAME);
-      configuration.setLegacySupportEnabled(false);
       configuration.setDemandPopulatingPackageRegistry();
 
       CDOSession session = configuration.openSession();
