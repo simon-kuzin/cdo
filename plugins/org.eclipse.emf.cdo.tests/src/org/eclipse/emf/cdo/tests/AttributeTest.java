@@ -14,7 +14,6 @@ import org.eclipse.emf.cdo.CDOSession;
 import org.eclipse.emf.cdo.CDOTransaction;
 import org.eclipse.emf.cdo.CDOView;
 import org.eclipse.emf.cdo.eresource.CDOResource;
-import org.eclipse.emf.cdo.tests.model1.Model1Factory;
 import org.eclipse.emf.cdo.tests.model1.Product1;
 import org.eclipse.emf.cdo.tests.model1.Supplier;
 import org.eclipse.emf.cdo.tests.model1.VAT;
@@ -27,7 +26,7 @@ public class AttributeTest extends AbstractCDOTest
   public void testPrimitiveDefaults() throws Exception
   {
     {
-      Supplier supplier = Model1Factory.eINSTANCE.createSupplier();
+      Supplier supplier = getModel1Factory().createSupplier();
       supplier.setName("Preferred Supplier");
       assertEquals(true, supplier.isPreferred());
 
@@ -55,7 +54,7 @@ public class AttributeTest extends AbstractCDOTest
   public void testEnumDefaults() throws Exception
   {
     {
-      Product1 product = Model1Factory.eINSTANCE.createProduct1();
+      Product1 product = getModel1Factory().createProduct1();
       product.setName("Test Product");
       assertEquals(VAT.VAT15, product.getVat());
 

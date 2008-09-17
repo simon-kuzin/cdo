@@ -15,7 +15,6 @@ import org.eclipse.emf.cdo.CDOTransaction;
 import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.tests.AbstractCDOTest;
-import org.eclipse.emf.cdo.tests.model1.Model1Factory;
 import org.eclipse.emf.cdo.tests.model1.Model1Package;
 import org.eclipse.emf.cdo.tests.model1.Order;
 import org.eclipse.emf.cdo.tests.model1.OrderDetail;
@@ -38,8 +37,8 @@ public class Bugzilla_246622_Test extends AbstractCDOTest
 
     CDOTransaction transaction1 = session.openTransaction();
     CDOResource res = transaction1.createResource("/test1");
-    Order order = Model1Factory.eINSTANCE.createOrder();
-    OrderDetail orderDetail = Model1Factory.eINSTANCE.createOrderDetail();
+    Order order = getModel1Factory().createOrder();
+    OrderDetail orderDetail = getModel1Factory().createOrderDetail();
 
     res.getContents().add(order);
     order.getOrderDetails().add(orderDetail);
@@ -49,8 +48,8 @@ public class Bugzilla_246622_Test extends AbstractCDOTest
 
     assertEquals(order, CDOUtil.adaptObject(orderDetail).cdoRevision().getData().getContainerID());
 
-    Order order2 = Model1Factory.eINSTANCE.createOrder();
-    OrderDetail orderDetail2 = Model1Factory.eINSTANCE.createOrderDetail();
+    Order order2 = getModel1Factory().createOrder();
+    OrderDetail orderDetail2 = getModel1Factory().createOrderDetail();
 
     order2.getOrderDetails().add(orderDetail2);
     res.getContents().add(order2);
@@ -71,7 +70,7 @@ public class Bugzilla_246622_Test extends AbstractCDOTest
     assertEquals(CDOUtil.adaptObject(order2).cdoID(), CDOUtil.adaptObject(orderDetail2).cdoRevision().getData()
         .getContainerID());
 
-    Order order3 = Model1Factory.eINSTANCE.createOrder();
+    Order order3 = getModel1Factory().createOrder();
 
     res.getContents().add(order3);
     order3.getOrderDetails().add(orderDetail2);
@@ -93,8 +92,8 @@ public class Bugzilla_246622_Test extends AbstractCDOTest
     CDOResource res = transaction1.createResource("/test1");
 
     msg("Test set with link before");
-    PurchaseOrder purchaseOrder = Model1Factory.eINSTANCE.createPurchaseOrder();
-    Supplier supplier = Model1Factory.eINSTANCE.createSupplier();
+    PurchaseOrder purchaseOrder = getModel1Factory().createPurchaseOrder();
+    Supplier supplier = getModel1Factory().createSupplier();
 
     purchaseOrder.setSupplier(supplier);
 
@@ -110,8 +109,8 @@ public class Bugzilla_246622_Test extends AbstractCDOTest
     assertEquals(purchaseOrder, CDOUtil.adaptObject(supplier).cdoRevision().getData().get(supplier_PurchaseOrder, 0));
 
     msg("Test set with link after");
-    PurchaseOrder purchaseOrder2 = Model1Factory.eINSTANCE.createPurchaseOrder();
-    Supplier supplier2 = Model1Factory.eINSTANCE.createSupplier();
+    PurchaseOrder purchaseOrder2 = getModel1Factory().createPurchaseOrder();
+    Supplier supplier2 = getModel1Factory().createSupplier();
 
     res.getContents().add(purchaseOrder2);
     res.getContents().add(supplier2);
@@ -134,7 +133,7 @@ public class Bugzilla_246622_Test extends AbstractCDOTest
         supplier_PurchaseOrder, 0));
 
     msg("Test set with persisted CDOID");
-    PurchaseOrder purchaseOrder3 = Model1Factory.eINSTANCE.createPurchaseOrder();
+    PurchaseOrder purchaseOrder3 = getModel1Factory().createPurchaseOrder();
     purchaseOrder3.setSupplier(supplier2);
     res.getContents().add(purchaseOrder3);
 

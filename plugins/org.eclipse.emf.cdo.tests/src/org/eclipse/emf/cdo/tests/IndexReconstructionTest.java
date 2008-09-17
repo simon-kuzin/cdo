@@ -20,7 +20,6 @@ import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.internal.common.revision.delta.CDOListFeatureDeltaImpl;
 import org.eclipse.emf.cdo.tests.model1.Customer;
-import org.eclipse.emf.cdo.tests.model1.Model1Factory;
 import org.eclipse.emf.cdo.tests.model1.Model1Package;
 import org.eclipse.emf.cdo.tests.model1.SalesOrder;
 import org.eclipse.emf.cdo.util.CDOUtil;
@@ -70,7 +69,7 @@ public class IndexReconstructionTest extends AbstractCDOTest
 
   public void testAddBefore1() throws Exception
   {
-    Customer customer = Model1Factory.eINSTANCE.createCustomer();
+    Customer customer = getModel1Factory().createCustomer();
     resource.getContents().add(customer);
     customer.getSalesOrders().add(createSalesOrder());
     transaction.commit();
@@ -94,7 +93,7 @@ public class IndexReconstructionTest extends AbstractCDOTest
 
   public void testAddBefore4() throws Exception
   {
-    Customer customer = Model1Factory.eINSTANCE.createCustomer();
+    Customer customer = getModel1Factory().createCustomer();
     resource.getContents().add(customer);
     customer.getSalesOrders().add(createSalesOrder());
     customer.getSalesOrders().add(createSalesOrder());
@@ -121,7 +120,7 @@ public class IndexReconstructionTest extends AbstractCDOTest
 
   public void testAddAfter1() throws Exception
   {
-    Customer customer = Model1Factory.eINSTANCE.createCustomer();
+    Customer customer = getModel1Factory().createCustomer();
     resource.getContents().add(customer);
     customer.getSalesOrders().add(createSalesOrder());
     transaction.commit();
@@ -145,7 +144,7 @@ public class IndexReconstructionTest extends AbstractCDOTest
 
   public void testAddAfter4() throws Exception
   {
-    Customer customer = Model1Factory.eINSTANCE.createCustomer();
+    Customer customer = getModel1Factory().createCustomer();
     resource.getContents().add(customer);
     customer.getSalesOrders().add(createSalesOrder());
     customer.getSalesOrders().add(createSalesOrder());
@@ -172,7 +171,7 @@ public class IndexReconstructionTest extends AbstractCDOTest
 
   public void testRemove1() throws Exception
   {
-    Customer customer = Model1Factory.eINSTANCE.createCustomer();
+    Customer customer = getModel1Factory().createCustomer();
     resource.getContents().add(customer);
     customer.getSalesOrders().add(createSalesOrder());
     customer.getSalesOrders().add(createSalesOrder());
@@ -200,7 +199,7 @@ public class IndexReconstructionTest extends AbstractCDOTest
 
   public void testRemove4() throws Exception
   {
-    Customer customer = Model1Factory.eINSTANCE.createCustomer();
+    Customer customer = getModel1Factory().createCustomer();
     resource.getContents().add(customer);
     customer.getSalesOrders().add(createSalesOrder());
     customer.getSalesOrders().add(createSalesOrder());
@@ -231,7 +230,7 @@ public class IndexReconstructionTest extends AbstractCDOTest
 
   public void testRemoveAdded() throws Exception
   {
-    Customer customer = Model1Factory.eINSTANCE.createCustomer();
+    Customer customer = getModel1Factory().createCustomer();
     resource.getContents().add(customer);
     customer.getSalesOrders().add(createSalesOrder());
     customer.getSalesOrders().add(createSalesOrder());
@@ -260,7 +259,7 @@ public class IndexReconstructionTest extends AbstractCDOTest
 
   public void testRemoveLastAdded() throws Exception
   {
-    Customer customer = Model1Factory.eINSTANCE.createCustomer();
+    Customer customer = getModel1Factory().createCustomer();
     resource.getContents().add(customer);
     customer.getSalesOrders().add(createSalesOrder());
     customer.getSalesOrders().add(createSalesOrder());
@@ -289,7 +288,7 @@ public class IndexReconstructionTest extends AbstractCDOTest
 
   public void testReAdded() throws Exception
   {
-    Customer customer = Model1Factory.eINSTANCE.createCustomer();
+    Customer customer = getModel1Factory().createCustomer();
     resource.getContents().add(customer);
     customer.getSalesOrders().add(createSalesOrder());
     customer.getSalesOrders().add(createSalesOrder());
@@ -330,7 +329,7 @@ public class IndexReconstructionTest extends AbstractCDOTest
 
   public void testMoveBehindEnd() throws Exception
   {
-    Customer customer = Model1Factory.eINSTANCE.createCustomer();
+    Customer customer = getModel1Factory().createCustomer();
     resource.getContents().add(customer);
     customer.getSalesOrders().add(createSalesOrder());
     customer.getSalesOrders().add(createSalesOrder());
@@ -359,7 +358,7 @@ public class IndexReconstructionTest extends AbstractCDOTest
 
   public void testMoveBackward() throws Exception
   {
-    Customer customer = Model1Factory.eINSTANCE.createCustomer();
+    Customer customer = getModel1Factory().createCustomer();
     resource.getContents().add(customer);
     customer.getSalesOrders().add(createSalesOrder());
     customer.getSalesOrders().add(createSalesOrder());
@@ -388,7 +387,7 @@ public class IndexReconstructionTest extends AbstractCDOTest
 
   public void testMoveForward() throws Exception
   {
-    Customer customer = Model1Factory.eINSTANCE.createCustomer();
+    Customer customer = getModel1Factory().createCustomer();
     resource.getContents().add(customer);
     customer.getSalesOrders().add(createSalesOrder());
     customer.getSalesOrders().add(createSalesOrder());
@@ -417,7 +416,7 @@ public class IndexReconstructionTest extends AbstractCDOTest
 
   private SalesOrder createSalesOrder()
   {
-    SalesOrder salesOrder = Model1Factory.eINSTANCE.createSalesOrder();
+    SalesOrder salesOrder = getModel1Factory().createSalesOrder();
     resource.getContents().add(salesOrder);
     return salesOrder;
   }

@@ -15,7 +15,6 @@ import org.eclipse.emf.cdo.CDOSession;
 import org.eclipse.emf.cdo.CDOTransaction;
 import org.eclipse.emf.cdo.CDOXATransaction;
 import org.eclipse.emf.cdo.eresource.CDOResource;
-import org.eclipse.emf.cdo.tests.model1.Model1Factory;
 import org.eclipse.emf.cdo.tests.model1.Model1Package;
 import org.eclipse.emf.cdo.tests.model1.PurchaseOrder;
 import org.eclipse.emf.cdo.tests.model1.Supplier;
@@ -62,8 +61,8 @@ public class XATransactionTest extends AbstractCDOTest
     CDOResource resA = transactionA1.createResource("/resA");
     CDOResource resB = transactionB1.createResource("/resB");
 
-    Supplier supplier = Model1Factory.eINSTANCE.createSupplier();
-    PurchaseOrder purchaseOrder = Model1Factory.eINSTANCE.createPurchaseOrder();
+    Supplier supplier = getModel1Factory().createSupplier();
+    PurchaseOrder purchaseOrder = getModel1Factory().createPurchaseOrder();
 
     supplier.getPurchaseOrders().add(purchaseOrder);
     resB.getContents().add(supplier);
@@ -102,8 +101,8 @@ public class XATransactionTest extends AbstractCDOTest
     CDOResource resA = transactionA1.createResource("/resA");
     CDOResource resB = transactionB1.createResource("/resB");
 
-    Supplier supplier = Model1Factory.eINSTANCE.createSupplier();
-    PurchaseOrder purchaseOrder = Model1Factory.eINSTANCE.createPurchaseOrder();
+    Supplier supplier = getModel1Factory().createSupplier();
+    PurchaseOrder purchaseOrder = getModel1Factory().createPurchaseOrder();
 
     supplier.getPurchaseOrders().add(purchaseOrder);
     resB.getContents().add(supplier);

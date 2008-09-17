@@ -16,7 +16,6 @@ import org.eclipse.emf.cdo.CDOViewSet;
 import org.eclipse.emf.cdo.CDOXATransaction;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.tests.model1.Company;
-import org.eclipse.emf.cdo.tests.model1.Model1Factory;
 import org.eclipse.emf.cdo.tests.model1.Model1Package;
 import org.eclipse.emf.cdo.tests.model1.PurchaseOrder;
 import org.eclipse.emf.cdo.tests.model1.Supplier;
@@ -178,21 +177,21 @@ public class ExternalReferenceTest extends AbstractCDOTest
       assertEquals(4, resourceSet.getResources().size());
       assertEquals(false, resD instanceof CDOResource);
 
-      Company companyA = Model1Factory.eINSTANCE.createCompany();
+      Company companyA = getModel1Factory().createCompany();
       companyA.setName("VALUEA");
 
-      Company companyB = Model1Factory.eINSTANCE.createCompany();
+      Company companyB = getModel1Factory().createCompany();
       companyB.setName("VALUEB");
 
-      Company companyD = Model1Factory.eINSTANCE.createCompany();
+      Company companyD = getModel1Factory().createCompany();
       companyD.setName("VALUED");
 
       resD.getContents().add(companyD);
       resA.getContents().add(companyA);
       resB.getContents().add(companyB);
 
-      Supplier supplier = Model1Factory.eINSTANCE.createSupplier();
-      PurchaseOrder purchaseOrder = Model1Factory.eINSTANCE.createPurchaseOrder();
+      Supplier supplier = getModel1Factory().createSupplier();
+      PurchaseOrder purchaseOrder = getModel1Factory().createPurchaseOrder();
 
       supplier.getPurchaseOrders().add(purchaseOrder);
       resD.getContents().add(supplier);
@@ -268,8 +267,8 @@ public class ExternalReferenceTest extends AbstractCDOTest
       CDOResource resA = transactionA1.createResource("/resA");
       CDOResource resB = transactionB1.createResource("/resB");
 
-      Supplier supplier = Model1Factory.eINSTANCE.createSupplier();
-      PurchaseOrder purchaseOrder = Model1Factory.eINSTANCE.createPurchaseOrder();
+      Supplier supplier = getModel1Factory().createSupplier();
+      PurchaseOrder purchaseOrder = getModel1Factory().createPurchaseOrder();
 
       supplier.getPurchaseOrders().add(purchaseOrder);
       resB.getContents().add(supplier);

@@ -18,7 +18,6 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.tests.model1.Category;
 import org.eclipse.emf.cdo.tests.model1.Company;
-import org.eclipse.emf.cdo.tests.model1.Model1Factory;
 import org.eclipse.emf.cdo.tests.model1.Model1Package;
 import org.eclipse.emf.cdo.util.CDOUtil;
 
@@ -59,11 +58,11 @@ public class ChangeSubscriptionTest extends AbstractCDOTest
     // ************************************************************* //
 
     msg("Creating category1");
-    final Category category1A = Model1Factory.eINSTANCE.createCategory();
+    final Category category1A = getModel1Factory().createCategory();
     category1A.setName("category1");
 
     msg("Creating company");
-    final Company companyA = Model1Factory.eINSTANCE.createCompany();
+    final Company companyA = getModel1Factory().createCompany();
 
     msg("Adding categories");
     companyA.getCategories().add(category1A);
@@ -163,11 +162,11 @@ public class ChangeSubscriptionTest extends AbstractCDOTest
     // ************************************************************* //
 
     msg("Creating category1");
-    final Category category1A = Model1Factory.eINSTANCE.createCategory();
+    final Category category1A = getModel1Factory().createCategory();
     category1A.setName("category1");
 
     msg("Creating company");
-    final Company companyA = Model1Factory.eINSTANCE.createCompany();
+    final Company companyA = getModel1Factory().createCompany();
 
     msg("Adding categories");
     companyA.getCategories().add(category1A);
@@ -259,11 +258,11 @@ public class ChangeSubscriptionTest extends AbstractCDOTest
     // ************************************************************* //
 
     msg("Creating category1");
-    final Category category1A = Model1Factory.eINSTANCE.createCategory();
+    final Category category1A = getModel1Factory().createCategory();
     category1A.setName("category1");
 
     msg("Creating company");
-    final Company companyA = Model1Factory.eINSTANCE.createCompany();
+    final Company companyA = getModel1Factory().createCompany();
 
     msg("Adding categories");
     companyA.getCategories().add(category1A);
@@ -329,11 +328,11 @@ public class ChangeSubscriptionTest extends AbstractCDOTest
     // ************************************************************* //
 
     msg("Creating category1");
-    final Category category1A = Model1Factory.eINSTANCE.createCategory();
+    final Category category1A = getModel1Factory().createCategory();
     category1A.setName("category1");
 
     msg("Creating company");
-    final Company companyA = Model1Factory.eINSTANCE.createCompany();
+    final Company companyA = getModel1Factory().createCompany();
 
     msg("Adding categories");
     companyA.getCategories().add(category1A);
@@ -429,11 +428,11 @@ public class ChangeSubscriptionTest extends AbstractCDOTest
     // ************************************************************* //
 
     msg("Creating category1");
-    final Category category1A = Model1Factory.eINSTANCE.createCategory();
+    final Category category1A = getModel1Factory().createCategory();
     category1A.setName("category1");
 
     msg("Creating company");
-    final Company companyA = Model1Factory.eINSTANCE.createCompany();
+    final Company companyA = getModel1Factory().createCompany();
 
     msg("Adding categories");
     companyA.getCategories().add(category1A);
@@ -470,7 +469,7 @@ public class ChangeSubscriptionTest extends AbstractCDOTest
     company1B.setName("TEST1");
     company1B.setCity("CITY1");
 
-    final Category category2B = Model1Factory.eINSTANCE.createCategory();
+    final Category category2B = getModel1Factory().createCategory();
     company1B.getCategories().add(category2B);
 
     assertEquals(0, adapter.getNotifications().size());

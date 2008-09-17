@@ -16,7 +16,6 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.tests.AbstractCDOTest;
 import org.eclipse.emf.cdo.tests.model1.Company;
-import org.eclipse.emf.cdo.tests.model1.Model1Factory;
 import org.eclipse.emf.cdo.util.CDOUtil;
 
 /**
@@ -34,7 +33,7 @@ public class Bugzilla_243310_Test extends AbstractCDOTest
 
     CDOTransaction transaction1 = session.openTransaction();
     CDOResource res = transaction1.createResource("/test1");
-    Company companyTx1 = Model1Factory.eINSTANCE.createCompany();
+    Company companyTx1 = getModel1Factory().createCompany();
     companyTx1.setName("Company ABC");
     res.getContents().add(companyTx1);
     transaction1.commit();

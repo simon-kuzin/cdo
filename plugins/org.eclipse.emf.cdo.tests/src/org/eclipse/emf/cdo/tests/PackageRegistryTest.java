@@ -20,7 +20,6 @@ import org.eclipse.emf.cdo.tests.mango.MangoFactory;
 import org.eclipse.emf.cdo.tests.mango.MangoPackage;
 import org.eclipse.emf.cdo.tests.mango.Value;
 import org.eclipse.emf.cdo.tests.model1.Company;
-import org.eclipse.emf.cdo.tests.model1.Model1Factory;
 import org.eclipse.emf.cdo.tests.model1.Model1Package;
 import org.eclipse.emf.cdo.tests.model1.PurchaseOrder;
 import org.eclipse.emf.cdo.tests.model2.Model2Factory;
@@ -61,7 +60,7 @@ public class PackageRegistryTest extends AbstractCDOTest
       CDOTransaction transaction = session.openTransaction();
       CDOResource res = transaction.createResource("/res");
 
-      Company company = Model1Factory.eINSTANCE.createCompany();
+      Company company = getModel1Factory().createCompany();
       company.setName("Eike");
       res.getContents().add(company);
       transaction.commit();
@@ -110,7 +109,7 @@ public class PackageRegistryTest extends AbstractCDOTest
       CDOTransaction transaction = session.openTransaction();
       CDOResource res = transaction.createResource("/res");
 
-      PurchaseOrder purchaseOrder = Model1Factory.eINSTANCE.createPurchaseOrder();
+      PurchaseOrder purchaseOrder = getModel1Factory().createPurchaseOrder();
       res.getContents().add(purchaseOrder);
 
       transaction.commit();
@@ -259,7 +258,7 @@ public class PackageRegistryTest extends AbstractCDOTest
       CDOTransaction transaction = session.openTransaction();
       CDOResource res = transaction.createResource("/res");
 
-      Company company = Model1Factory.eINSTANCE.createCompany();
+      Company company = getModel1Factory().createCompany();
       company.setName("Eike");
       res.getContents().add(company);
       transaction.commit();
@@ -291,7 +290,7 @@ public class PackageRegistryTest extends AbstractCDOTest
       CDOTransaction transaction = session.openTransaction();
       CDOResource res = transaction.createResource("/res");
 
-      Company company = Model1Factory.eINSTANCE.createCompany();
+      Company company = getModel1Factory().createCompany();
       company.setName("Eike");
       res.getContents().add(company);
       transaction.commit();

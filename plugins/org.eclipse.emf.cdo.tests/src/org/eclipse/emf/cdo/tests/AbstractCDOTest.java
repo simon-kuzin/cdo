@@ -21,6 +21,7 @@ import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.IStore;
 import org.eclipse.emf.cdo.tests.legacy.LegacyPackage;
 import org.eclipse.emf.cdo.tests.mango.MangoPackage;
+import org.eclipse.emf.cdo.tests.model1.Model1Factory;
 import org.eclipse.emf.cdo.tests.model1.Model1Package;
 import org.eclipse.emf.cdo.tests.model2.Model2Package;
 import org.eclipse.emf.cdo.tests.model3.Model3Package;
@@ -103,19 +104,19 @@ public abstract class AbstractCDOTest extends AbstractTransportTest
     return configuration.openSession();
   }
 
-  protected CDOSession openModel1Session(String repoName)
-  {
-    CDOSession session = openSession(repoName);
-    session.getPackageRegistry().putEPackage(Model1Package.eINSTANCE);
-    return session;
-  }
-
   protected CDOSession openSession()
   {
     CDOSessionConfiguration configuration = CDOUtil.createSessionConfiguration();
     configuration.setConnector(getConnector());
     configuration.setRepositoryName(REPOSITORY_NAME);
     return configuration.openSession();
+  }
+
+  protected CDOSession openModel1Session(String repoName)
+  {
+    CDOSession session = openSession(repoName);
+    session.getPackageRegistry().putEPackage(Model1Package.eINSTANCE);
+    return session;
   }
 
   protected CDOSession openModel1Session()
@@ -160,6 +161,11 @@ public abstract class AbstractCDOTest extends AbstractTransportTest
     {
       assertEquals(true, FSMUtil.isTransient(object));
     }
+  }
+
+  protected static Model1Factory getModel1Factory()
+  {
+    return Model1Factory.eINSTANCE;
   }
 
   protected static void assertNotTransient(EObject eObject, CDOView view)

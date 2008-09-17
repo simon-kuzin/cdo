@@ -17,7 +17,6 @@ import org.eclipse.emf.cdo.CDOTransaction;
 import org.eclipse.emf.cdo.common.analyzer.CDOFetchRule;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.tests.model1.Company;
-import org.eclipse.emf.cdo.tests.model1.Model1Factory;
 import org.eclipse.emf.cdo.tests.model1.Model1Package;
 import org.eclipse.emf.cdo.tests.model1.PurchaseOrder;
 import org.eclipse.emf.cdo.tests.model1.SalesOrder;
@@ -59,22 +58,22 @@ public class FetchRuleAnalyzerTest extends AbstractCDOTest
       msg("Creating supplier");
       for (int i = 0; i < 10; i++)
       {
-        Company company = Model1Factory.eINSTANCE.createCompany();
+        Company company = getModel1Factory().createCompany();
         company.setCity("CITY" + String.valueOf(i));
 
         for (int j = 0; j < 10; j++)
         {
-          PurchaseOrder purchaseOrder = Model1Factory.eINSTANCE.createPurchaseOrder();
+          PurchaseOrder purchaseOrder = getModel1Factory().createPurchaseOrder();
           company.getPurchaseOrders().add(purchaseOrder);
 
-          Supplier supplier = Model1Factory.eINSTANCE.createSupplier();
+          Supplier supplier = getModel1Factory().createSupplier();
 
           // Should it detect supplier to make it persistent...
 
           resource.getContents().add(supplier);
           purchaseOrder.setSupplier(supplier);
 
-          SalesOrder salesOrder = Model1Factory.eINSTANCE.createSalesOrder();
+          SalesOrder salesOrder = getModel1Factory().createSalesOrder();
           company.getSalesOrders().add(salesOrder);
         }
 

@@ -19,7 +19,6 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.tests.model1.Category;
 import org.eclipse.emf.cdo.tests.model1.Company;
-import org.eclipse.emf.cdo.tests.model1.Model1Factory;
 import org.eclipse.emf.cdo.util.CDOUtil;
 
 import org.eclipse.emf.internal.cdo.CDOTransactionImpl;
@@ -54,19 +53,19 @@ public class InvalidationTest extends AbstractCDOTest
     // ************************************************************* //
 
     msg("Creating category1");
-    final Category category1A = Model1Factory.eINSTANCE.createCategory();
+    final Category category1A = getModel1Factory().createCategory();
     category1A.setName("category1");
 
     msg("Creating category2");
-    final Category category2A = Model1Factory.eINSTANCE.createCategory();
+    final Category category2A = getModel1Factory().createCategory();
     category2A.setName("category2");
 
     msg("Creating category3");
-    final Category category3A = Model1Factory.eINSTANCE.createCategory();
+    final Category category3A = getModel1Factory().createCategory();
     category3A.setName("category3");
 
     msg("Creating company");
-    final Company companyA = Model1Factory.eINSTANCE.createCompany();
+    final Company companyA = getModel1Factory().createCompany();
 
     msg("Adding categories");
     companyA.getCategories().add(category1A);
@@ -150,19 +149,19 @@ public class InvalidationTest extends AbstractCDOTest
     // ************************************************************* //
 
     msg("Creating category1");
-    final Category category1A = Model1Factory.eINSTANCE.createCategory();
+    final Category category1A = getModel1Factory().createCategory();
     category1A.setName("category1");
 
     msg("Creating category2");
-    final Category category2A = Model1Factory.eINSTANCE.createCategory();
+    final Category category2A = getModel1Factory().createCategory();
     category2A.setName("category2");
 
     msg("Creating category3");
-    final Category category3A = Model1Factory.eINSTANCE.createCategory();
+    final Category category3A = getModel1Factory().createCategory();
     category3A.setName("category3");
 
     msg("Creating company");
-    final Company companyA = Model1Factory.eINSTANCE.createCompany();
+    final Company companyA = getModel1Factory().createCompany();
 
     msg("Adding categories");
     companyA.getCategories().add(category1A);
@@ -258,19 +257,19 @@ public class InvalidationTest extends AbstractCDOTest
   public void testSeparateSession() throws Exception
   {
     msg("Creating category1");
-    final Category category1A = Model1Factory.eINSTANCE.createCategory();
+    final Category category1A = getModel1Factory().createCategory();
     category1A.setName("category1");
 
     msg("Creating category2");
-    final Category category2A = Model1Factory.eINSTANCE.createCategory();
+    final Category category2A = getModel1Factory().createCategory();
     category2A.setName("category2");
 
     msg("Creating category3");
-    final Category category3A = Model1Factory.eINSTANCE.createCategory();
+    final Category category3A = getModel1Factory().createCategory();
     category3A.setName("category3");
 
     msg("Creating company");
-    final Company companyA = Model1Factory.eINSTANCE.createCompany();
+    final Company companyA = getModel1Factory().createCompany();
 
     msg("Adding categories");
     companyA.getCategories().add(category1A);
@@ -365,11 +364,11 @@ public class InvalidationTest extends AbstractCDOTest
     // *************************************************************
     {
       msg("Creating categoryA");
-      Category categoryA = Model1Factory.eINSTANCE.createCategory();
+      Category categoryA = getModel1Factory().createCategory();
       categoryA.setName("categoryA");
 
       msg("Creating companyA");
-      Company companyA = Model1Factory.eINSTANCE.createCompany();
+      Company companyA = getModel1Factory().createCompany();
 
       msg("Adding categories");
       companyA.getCategories().add(categoryA);
@@ -427,19 +426,19 @@ public class InvalidationTest extends AbstractCDOTest
   public void testSeparateSession_PassiveUpdateDisable() throws Exception
   {
     msg("Creating category1");
-    final Category category1A = Model1Factory.eINSTANCE.createCategory();
+    final Category category1A = getModel1Factory().createCategory();
     category1A.setName("category1");
 
     msg("Creating category2");
-    final Category category2A = Model1Factory.eINSTANCE.createCategory();
+    final Category category2A = getModel1Factory().createCategory();
     category2A.setName("category2");
 
     msg("Creating category3");
-    final Category category3A = Model1Factory.eINSTANCE.createCategory();
+    final Category category3A = getModel1Factory().createCategory();
     category3A.setName("category3");
 
     msg("Creating company");
-    final Company companyA = Model1Factory.eINSTANCE.createCompany();
+    final Company companyA = getModel1Factory().createCompany();
 
     msg("Adding categories");
     companyA.getCategories().add(category1A);
@@ -508,19 +507,19 @@ public class InvalidationTest extends AbstractCDOTest
   public void testPassiveUpdateOnAndOff() throws Exception
   {
     msg("Creating category1");
-    final Category category1A = Model1Factory.eINSTANCE.createCategory();
+    final Category category1A = getModel1Factory().createCategory();
     category1A.setName("category1");
 
     msg("Creating category2");
-    final Category category2A = Model1Factory.eINSTANCE.createCategory();
+    final Category category2A = getModel1Factory().createCategory();
     category2A.setName("category2");
 
     msg("Creating category3");
-    final Category category3A = Model1Factory.eINSTANCE.createCategory();
+    final Category category3A = getModel1Factory().createCategory();
     category3A.setName("category3");
 
     msg("Creating company");
-    final Company companyA = Model1Factory.eINSTANCE.createCompany();
+    final Company companyA = getModel1Factory().createCompany();
 
     msg("Adding categories");
     companyA.getCategories().add(category1A);
@@ -639,7 +638,7 @@ public class InvalidationTest extends AbstractCDOTest
   public void testDetach() throws Exception
   {
     msg("Creating category1");
-    final Category categoryA = Model1Factory.eINSTANCE.createCategory();
+    final Category categoryA = getModel1Factory().createCategory();
     categoryA.setName("category1");
 
     msg("Opening sessionA");

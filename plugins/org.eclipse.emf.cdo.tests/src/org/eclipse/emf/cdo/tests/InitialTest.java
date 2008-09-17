@@ -15,7 +15,6 @@ import org.eclipse.emf.cdo.CDOState;
 import org.eclipse.emf.cdo.CDOTransaction;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.tests.model1.Category;
-import org.eclipse.emf.cdo.tests.model1.Model1Factory;
 import org.eclipse.emf.cdo.tests.model1.Model1Package;
 import org.eclipse.emf.cdo.tests.model1.OrderAddress;
 import org.eclipse.emf.cdo.tests.model1.OrderDetail;
@@ -52,7 +51,7 @@ public class InitialTest extends AbstractCDOTest
     final Date date = new Date();
 
     msg("Creating supplier");
-    Supplier supplier = Model1Factory.eINSTANCE.createSupplier();
+    Supplier supplier = getModel1Factory().createSupplier();
     assertTransient(supplier);
 
     msg("Setting name");
@@ -64,7 +63,7 @@ public class InitialTest extends AbstractCDOTest
     assertTransient(supplier);
 
     msg("Creating purchaseOrder");
-    PurchaseOrder purchaseOrder = Model1Factory.eINSTANCE.createPurchaseOrder();
+    PurchaseOrder purchaseOrder = getModel1Factory().createPurchaseOrder();
     assertTransient(purchaseOrder);
 
     msg("Setting date");
@@ -99,7 +98,7 @@ public class InitialTest extends AbstractCDOTest
     assertTransient(resource);
 
     msg("Creating supplier");
-    Supplier supplier = Model1Factory.eINSTANCE.createSupplier();
+    Supplier supplier = getModel1Factory().createSupplier();
     assertTransient(supplier);
     assertEquals(null, supplier.eContainer());
 
@@ -198,7 +197,7 @@ public class InitialTest extends AbstractCDOTest
     assertTransient(resource);
 
     msg("Creating supplier");
-    Supplier supplier = Model1Factory.eINSTANCE.createSupplier();
+    Supplier supplier = getModel1Factory().createSupplier();
     assertTransient(supplier);
 
     msg("Setting name");
@@ -249,7 +248,7 @@ public class InitialTest extends AbstractCDOTest
   public void testAttachObject() throws Exception
   {
     msg("Creating supplier");
-    Supplier supplier = Model1Factory.eINSTANCE.createSupplier();
+    Supplier supplier = getModel1Factory().createSupplier();
 
     msg("Setting name");
     supplier.setName("Stepper");
@@ -287,7 +286,7 @@ public class InitialTest extends AbstractCDOTest
     CDOResource resource = transaction.createResource("/test1");
 
     msg("Creating supplier");
-    Supplier supplier = Model1Factory.eINSTANCE.createSupplier();
+    Supplier supplier = getModel1Factory().createSupplier();
 
     msg("Setting name");
     supplier.setName("Stepper");
@@ -313,7 +312,7 @@ public class InitialTest extends AbstractCDOTest
     CDOResource resource = transaction.createResource("/test1");
 
     msg("Creating supplier");
-    Supplier supplier = Model1Factory.eINSTANCE.createSupplier();
+    Supplier supplier = getModel1Factory().createSupplier();
 
     msg("Setting name");
     supplier.setName("Stepper");
@@ -342,7 +341,7 @@ public class InitialTest extends AbstractCDOTest
     CDOResource resource = transaction.createResource("/test1");
 
     msg("Creating supplier");
-    Supplier supplier = Model1Factory.eINSTANCE.createSupplier();
+    Supplier supplier = getModel1Factory().createSupplier();
 
     msg("Setting name");
     supplier.setName("Stepper");
@@ -372,7 +371,7 @@ public class InitialTest extends AbstractCDOTest
     CDOResource resource = transaction.createResource("/test1");
 
     msg("Creating supplier");
-    Supplier supplier = Model1Factory.eINSTANCE.createSupplier();
+    Supplier supplier = getModel1Factory().createSupplier();
 
     msg("Setting name");
     supplier.setName("Stepper");
@@ -405,7 +404,7 @@ public class InitialTest extends AbstractCDOTest
     CDOResource resource = transaction.createResource("/test1");
 
     msg("Creating supplier");
-    Supplier supplier = Model1Factory.eINSTANCE.createSupplier();
+    Supplier supplier = getModel1Factory().createSupplier();
 
     msg("Setting name");
     supplier.setName("Stepper");
@@ -439,7 +438,7 @@ public class InitialTest extends AbstractCDOTest
       CDOResource resource = transaction.createResource("/test1");
 
       msg("Creating supplier");
-      Supplier supplier = Model1Factory.eINSTANCE.createSupplier();
+      Supplier supplier = getModel1Factory().createSupplier();
 
       msg("Setting name");
       supplier.setName("Stepper");
@@ -496,7 +495,7 @@ public class InitialTest extends AbstractCDOTest
       CDOResource resource = transaction.createResource("/test1");
 
       msg("Creating supplier");
-      Supplier supplier = Model1Factory.eINSTANCE.createSupplier();
+      Supplier supplier = getModel1Factory().createSupplier();
 
       msg("Setting name");
       supplier.setName("Stepper");
@@ -534,7 +533,7 @@ public class InitialTest extends AbstractCDOTest
       CDOResource resource = transaction.createResource("/test1");
 
       msg("Creating supplier");
-      Supplier supplier = Model1Factory.eINSTANCE.createSupplier();
+      Supplier supplier = getModel1Factory().createSupplier();
 
       msg("Setting name");
       supplier.setName("Stepper");
@@ -578,7 +577,7 @@ public class InitialTest extends AbstractCDOTest
       CDOResource resource = transaction.createResource("/test1");
 
       msg("Creating supplier");
-      Supplier supplier = Model1Factory.eINSTANCE.createSupplier();
+      Supplier supplier = getModel1Factory().createSupplier();
 
       msg("Setting name");
       supplier.setName("Stepper");
@@ -622,7 +621,7 @@ public class InitialTest extends AbstractCDOTest
       CDOResource resource = transaction.createResource("/test1");
 
       msg("Creating supplier");
-      Supplier supplier = Model1Factory.eINSTANCE.createSupplier();
+      Supplier supplier = getModel1Factory().createSupplier();
 
       msg("Setting name");
       supplier.setName("Stepper");
@@ -664,7 +663,7 @@ public class InitialTest extends AbstractCDOTest
     CDOSession session = openModel1Session();
     CDOTransaction transaction = session.openTransaction();
     CDOResource resource = transaction.createResource("/test1");
-    OrderAddress orderAddress = Model1Factory.eINSTANCE.createOrderAddress();
+    OrderAddress orderAddress = getModel1Factory().createOrderAddress();
     resource.getContents().add(orderAddress);
 
     assertEquals(Model1Package.eINSTANCE.getAddress_City().getFeatureID(), Model1Package.eINSTANCE
@@ -677,7 +676,7 @@ public class InitialTest extends AbstractCDOTest
     assertEquals(2.8f, orderAddress.getPrice());
     assertEquals("ALLO", orderAddress.getCity());
 
-    OrderDetail orderDetail = Model1Factory.eINSTANCE.createOrderDetail();
+    OrderDetail orderDetail = getModel1Factory().createOrderDetail();
     resource.getContents().add(orderDetail);
     orderDetail.setPrice(3f);
 
@@ -727,7 +726,7 @@ public class InitialTest extends AbstractCDOTest
       CDOResource resource = transaction.createResource("/test1");
 
       msg("Creating orderDetail");
-      OrderDetail orderDetail = Model1Factory.eINSTANCE.createOrderDetail();
+      OrderDetail orderDetail = getModel1Factory().createOrderDetail();
 
       msg("Setting price");
       orderDetail.setPrice(4.75f);
@@ -785,10 +784,10 @@ public class InitialTest extends AbstractCDOTest
     CDOResource resource1 = transaction.getOrCreateResource("/test1");
     // Resource resource1 = new XMIResourceImpl();
 
-    Category cat1 = Model1Factory.eINSTANCE.createCategory();
+    Category cat1 = getModel1Factory().createCategory();
     assertTransient(cat1);
 
-    Category cat2 = Model1Factory.eINSTANCE.createCategory();
+    Category cat2 = getModel1Factory().createCategory();
     assertTransient(cat2);
 
     // resource1.getContents().add(cat2);
@@ -816,7 +815,7 @@ public class InitialTest extends AbstractCDOTest
     CDOResource resource = transaction.createResource("/test1");
 
     msg("Creating supplier");
-    Supplier supplier = Model1Factory.eINSTANCE.createSupplier();
+    Supplier supplier = getModel1Factory().createSupplier();
 
     msg("Setting name");
     supplier.setName("Stepper");
