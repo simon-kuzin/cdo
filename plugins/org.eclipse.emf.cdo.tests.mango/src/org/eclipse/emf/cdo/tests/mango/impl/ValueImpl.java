@@ -2,7 +2,7 @@
  * <copyright>
  * </copyright>
  *
- * $Id: ValueImpl.java,v 1.2 2008-02-23 10:00:34 estepper Exp $
+ * $Id: ValueImpl.java,v 1.2.12.1 2008-09-17 08:58:07 estepper Exp $
  */
 package org.eclipse.emf.cdo.tests.mango.impl;
 
@@ -18,17 +18,16 @@ import org.eclipse.emf.ecore.EClass;
  * <p>
  * The following features are implemented:
  * <ul>
- * <li>{@link org.eclipse.emf.cdo.tests.mango.impl.ValueImpl#getName <em>Name</em>}</li>
+ *   <li>{@link org.eclipse.emf.cdo.tests.mango.impl.ValueImpl#getName <em>Name</em>}</li>
  * </ul>
  * </p>
- * 
+ *
  * @generated
  */
 public class ValueImpl extends CDOObjectImpl implements Value
 {
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
    * @generated
    */
   protected ValueImpl()
@@ -38,7 +37,6 @@ public class ValueImpl extends CDOObjectImpl implements Value
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
    * @generated
    */
   @Override
@@ -49,7 +47,6 @@ public class ValueImpl extends CDOObjectImpl implements Value
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
    * @generated
    */
   @Override
@@ -60,7 +57,6 @@ public class ValueImpl extends CDOObjectImpl implements Value
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
    * @generated
    */
   public String getName()
@@ -70,7 +66,6 @@ public class ValueImpl extends CDOObjectImpl implements Value
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
    * @generated
    */
   public void setName(String newName)

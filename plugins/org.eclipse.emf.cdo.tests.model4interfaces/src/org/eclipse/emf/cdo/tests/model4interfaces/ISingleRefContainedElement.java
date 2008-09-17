@@ -2,28 +2,28 @@
  * <copyright>
  * </copyright>
  *
- * $Id: ISingleRefContainedElement.java,v 1.2 2008-07-10 15:57:45 estepper Exp $
+ * $Id: ISingleRefContainedElement.java,v 1.2.8.1 2008-09-17 08:57:49 estepper Exp $
  */
 package org.eclipse.emf.cdo.tests.model4interfaces;
 
-import org.eclipse.emf.cdo.CDOObject;
+import org.eclipse.emf.ecore.EObject;
 
 /**
  * <!-- begin-user-doc --> A representation of the model object '<em><b>ISingle Ref Contained Element</b></em>'. <!--
  * end-user-doc -->
+ *
  * <p>
  * The following features are supported:
  * <ul>
- * <li>{@link org.eclipse.emf.cdo.tests.model4interfaces.ISingleRefContainedElement#getParent <em>Parent</em>}</li>
+ *   <li>{@link org.eclipse.emf.cdo.tests.model4interfaces.ISingleRefContainedElement#getParent <em>Parent</em>}</li>
  * </ul>
  * </p>
- * 
+ *
  * @see org.eclipse.emf.cdo.tests.model4interfaces.model4interfacesPackage#getISingleRefContainedElement()
  * @model interface="true" abstract="true"
- * @extends CDOObject
  * @generated
  */
-public interface ISingleRefContainedElement extends CDOObject
+public interface ISingleRefContainedElement extends EObject
 {
   /**
    * Returns the value of the '<em><b>Parent</b></em>' container reference. It is bidirectional and its opposite is '
@@ -45,11 +45,9 @@ public interface ISingleRefContainedElement extends CDOObject
   ISingleRefContainer getParent();
 
   /**
-   * Sets the value of the '{@link org.eclipse.emf.cdo.tests.model4interfaces.ISingleRefContainedElement#getParent
-   * <em>Parent</em>}' container reference. <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
-   * @param value
-   *          the new value of the '<em>Parent</em>' container reference.
+   * Sets the value of the '{@link org.eclipse.emf.cdo.tests.model4interfaces.ISingleRefContainedElement#getParent <em>Parent</em>}' container reference.
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * @param value the new value of the '<em>Parent</em>' container reference.
    * @see #getParent()
    * @generated
    */

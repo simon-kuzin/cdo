@@ -2,7 +2,7 @@
  * <copyright>
  * </copyright>
  *
- * $Id: SpecialPurchaseOrderImpl.java,v 1.4 2008-06-03 06:41:28 estepper Exp $
+ * $Id: SpecialPurchaseOrderImpl.java,v 1.4.12.1 2008-09-17 08:58:01 estepper Exp $
  */
 package org.eclipse.emf.cdo.tests.model2.impl;
 
@@ -19,19 +19,17 @@ import org.eclipse.emf.ecore.EClass;
  * <p>
  * The following features are implemented:
  * <ul>
- * <li>{@link org.eclipse.emf.cdo.tests.model2.impl.SpecialPurchaseOrderImpl#getDiscountCode <em>Discount Code</em>}</li>
- * <li>{@link org.eclipse.emf.cdo.tests.model2.impl.SpecialPurchaseOrderImpl#getShippingAddress <em>Shipping Address
- * </em>}</li>
+ *   <li>{@link org.eclipse.emf.cdo.tests.model2.impl.SpecialPurchaseOrderImpl#getDiscountCode <em>Discount Code</em>}</li>
+ *   <li>{@link org.eclipse.emf.cdo.tests.model2.impl.SpecialPurchaseOrderImpl#getShippingAddress <em>Shipping Address</em>}</li>
  * </ul>
  * </p>
- * 
+ *
  * @generated
  */
 public class SpecialPurchaseOrderImpl extends PurchaseOrderImpl implements SpecialPurchaseOrder
 {
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
    * @generated
    */
   protected SpecialPurchaseOrderImpl()
@@ -41,7 +39,6 @@ public class SpecialPurchaseOrderImpl extends PurchaseOrderImpl implements Speci
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
    * @generated
    */
   @Override
@@ -52,7 +49,6 @@ public class SpecialPurchaseOrderImpl extends PurchaseOrderImpl implements Speci
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
    * @generated
    */
   public String getDiscountCode()
@@ -62,7 +58,6 @@ public class SpecialPurchaseOrderImpl extends PurchaseOrderImpl implements Speci
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
    * @generated
    */
   public void setDiscountCode(String newDiscountCode)
@@ -72,7 +67,6 @@ public class SpecialPurchaseOrderImpl extends PurchaseOrderImpl implements Speci
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
    * @generated
    */
   public Address getShippingAddress()
@@ -82,7 +76,6 @@ public class SpecialPurchaseOrderImpl extends PurchaseOrderImpl implements Speci
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
    * @generated
    */
   public void setShippingAddress(Address newShippingAddress)

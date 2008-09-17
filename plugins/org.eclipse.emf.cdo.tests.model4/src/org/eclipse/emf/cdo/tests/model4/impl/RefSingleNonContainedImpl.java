@@ -2,7 +2,7 @@
  * <copyright>
  * </copyright>
  *
- * $Id: RefSingleNonContainedImpl.java,v 1.2 2008-07-10 15:57:40 estepper Exp $
+ * $Id: RefSingleNonContainedImpl.java,v 1.2.8.1 2008-09-17 08:57:43 estepper Exp $
  */
 package org.eclipse.emf.cdo.tests.model4.impl;
 
@@ -20,17 +20,16 @@ import org.eclipse.emf.ecore.EClass;
  * <p>
  * The following features are implemented:
  * <ul>
- * <li>{@link org.eclipse.emf.cdo.tests.model4.impl.RefSingleNonContainedImpl#getElement <em>Element</em>}</li>
+ *   <li>{@link org.eclipse.emf.cdo.tests.model4.impl.RefSingleNonContainedImpl#getElement <em>Element</em>}</li>
  * </ul>
  * </p>
- * 
+ *
  * @generated
  */
 public class RefSingleNonContainedImpl extends CDOObjectImpl implements RefSingleNonContained
 {
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
    * @generated
    */
   protected RefSingleNonContainedImpl()
@@ -40,7 +39,6 @@ public class RefSingleNonContainedImpl extends CDOObjectImpl implements RefSingl
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
    * @generated
    */
   @Override
@@ -51,7 +49,6 @@ public class RefSingleNonContainedImpl extends CDOObjectImpl implements RefSingl
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
    * @generated
    */
   @Override
@@ -62,7 +59,6 @@ public class RefSingleNonContainedImpl extends CDOObjectImpl implements RefSingl
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
    * @generated
    */
   public SingleNonContainedElement getElement()
@@ -72,7 +68,6 @@ public class RefSingleNonContainedImpl extends CDOObjectImpl implements RefSingl
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
    * @generated
    */
   public void setElement(SingleNonContainedElement newElement)

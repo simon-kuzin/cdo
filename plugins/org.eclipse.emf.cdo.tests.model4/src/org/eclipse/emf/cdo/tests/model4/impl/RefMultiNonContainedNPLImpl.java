@@ -2,7 +2,7 @@
  * <copyright>
  * </copyright>
  *
- * $Id: RefMultiNonContainedNPLImpl.java,v 1.2 2008-07-10 15:57:40 estepper Exp $
+ * $Id: RefMultiNonContainedNPLImpl.java,v 1.2.8.1 2008-09-17 08:57:43 estepper Exp $
  */
 package org.eclipse.emf.cdo.tests.model4.impl;
 
@@ -21,17 +21,16 @@ import org.eclipse.emf.ecore.EClass;
  * <p>
  * The following features are implemented:
  * <ul>
- * <li>{@link org.eclipse.emf.cdo.tests.model4.impl.RefMultiNonContainedNPLImpl#getElements <em>Elements</em>}</li>
+ *   <li>{@link org.eclipse.emf.cdo.tests.model4.impl.RefMultiNonContainedNPLImpl#getElements <em>Elements</em>}</li>
  * </ul>
  * </p>
- * 
+ *
  * @generated
  */
 public class RefMultiNonContainedNPLImpl extends CDOObjectImpl implements RefMultiNonContainedNPL
 {
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
    * @generated
    */
   protected RefMultiNonContainedNPLImpl()
@@ -41,7 +40,6 @@ public class RefMultiNonContainedNPLImpl extends CDOObjectImpl implements RefMul
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
    * @generated
    */
   @Override
@@ -52,7 +50,6 @@ public class RefMultiNonContainedNPLImpl extends CDOObjectImpl implements RefMul
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
    * @generated
    */
   @Override
@@ -63,7 +60,6 @@ public class RefMultiNonContainedNPLImpl extends CDOObjectImpl implements RefMul
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
    * @generated
    */
   @SuppressWarnings("unchecked")

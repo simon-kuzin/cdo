@@ -2,28 +2,28 @@
  * <copyright>
  * </copyright>
  *
- * $Id: ISingleRefNonContainer.java,v 1.2 2008-07-10 15:57:45 estepper Exp $
+ * $Id: ISingleRefNonContainer.java,v 1.2.8.1 2008-09-17 08:57:48 estepper Exp $
  */
 package org.eclipse.emf.cdo.tests.model4interfaces;
 
-import org.eclipse.emf.cdo.CDOObject;
+import org.eclipse.emf.ecore.EObject;
 
 /**
  * <!-- begin-user-doc --> A representation of the model object '<em><b>ISingle Ref Non Container</b></em>'. <!--
  * end-user-doc -->
+ *
  * <p>
  * The following features are supported:
  * <ul>
- * <li>{@link org.eclipse.emf.cdo.tests.model4interfaces.ISingleRefNonContainer#getElement <em>Element</em>}</li>
+ *   <li>{@link org.eclipse.emf.cdo.tests.model4interfaces.ISingleRefNonContainer#getElement <em>Element</em>}</li>
  * </ul>
  * </p>
- * 
+ *
  * @see org.eclipse.emf.cdo.tests.model4interfaces.model4interfacesPackage#getISingleRefNonContainer()
  * @model interface="true" abstract="true"
- * @extends CDOObject
  * @generated
  */
-public interface ISingleRefNonContainer extends CDOObject
+public interface ISingleRefNonContainer extends EObject
 {
   /**
    * Returns the value of the '<em><b>Element</b></em>' reference. It is bidirectional and its opposite is '
@@ -45,11 +45,9 @@ public interface ISingleRefNonContainer extends CDOObject
   ISingleRefNonContainedElement getElement();
 
   /**
-   * Sets the value of the '{@link org.eclipse.emf.cdo.tests.model4interfaces.ISingleRefNonContainer#getElement
-   * <em>Element</em>}' reference. <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
-   * @param value
-   *          the new value of the '<em>Element</em>' reference.
+   * Sets the value of the '{@link org.eclipse.emf.cdo.tests.model4interfaces.ISingleRefNonContainer#getElement <em>Element</em>}' reference.
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * @param value the new value of the '<em>Element</em>' reference.
    * @see #getElement()
    * @generated
    */

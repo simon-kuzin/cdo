@@ -168,6 +168,7 @@ public class CDOResourceImpl extends CDOObjectImpl implements CDOResource
       {
         transientContents = new TransientContents<EObject>();
         eSettings[EresourcePackage.CDO_RESOURCE__CONTENTS] = transientContents;
+        // throw new ImplementationError();
       }
 
       return transientContents;
@@ -650,6 +651,18 @@ public class CDOResourceImpl extends CDOObjectImpl implements CDOResource
     protected boolean isUnique()
     {
       return true;
+    }
+
+    /**
+     * @since 2.0
+     */
+    /*
+     * IMPORTANT: Compile errors in this method might indicate an old version of EMF. Legacy support is only enabled for
+     * EMF with fixed bug #247130. These compile errors do not affect native models!
+     */
+    public InternalEList<E> readWriteFiringList()
+    {
+      return this;
     }
 
     @Override

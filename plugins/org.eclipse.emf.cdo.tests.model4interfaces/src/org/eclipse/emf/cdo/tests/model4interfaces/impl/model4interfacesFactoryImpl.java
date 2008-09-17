@@ -2,7 +2,7 @@
  * <copyright>
  * </copyright>
  *
- * $Id: model4interfacesFactoryImpl.java,v 1.2 2008-07-10 15:57:45 estepper Exp $
+ * $Id: model4interfacesFactoryImpl.java,v 1.2.8.1 2008-09-17 08:57:49 estepper Exp $
  */
 package org.eclipse.emf.cdo.tests.model4interfaces.impl;
 
@@ -17,14 +17,13 @@ import org.eclipse.emf.ecore.plugin.EcorePlugin;
 
 /**
  * <!-- begin-user-doc --> An implementation of the model <b>Factory</b>. <!-- end-user-doc -->
- * 
  * @generated
  */
 public class model4interfacesFactoryImpl extends EFactoryImpl implements model4interfacesFactory
 {
   /**
-   * Creates the default factory implementation. <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
+   * Creates the default factory implementation.
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
    * @generated
    */
   public static model4interfacesFactory init()
@@ -46,8 +45,8 @@ public class model4interfacesFactoryImpl extends EFactoryImpl implements model4i
   }
 
   /**
-   * Creates an instance of the factory. <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
+   * Creates an instance of the factory.
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
    * @generated
    */
   public model4interfacesFactoryImpl()
@@ -57,7 +56,6 @@ public class model4interfacesFactoryImpl extends EFactoryImpl implements model4i
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
    * @generated
    */
   @Override
@@ -72,7 +70,6 @@ public class model4interfacesFactoryImpl extends EFactoryImpl implements model4i
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
    * @generated
    */
   public model4interfacesPackage getmodel4interfacesPackage()
@@ -82,7 +79,6 @@ public class model4interfacesFactoryImpl extends EFactoryImpl implements model4i
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
    * @deprecated
    * @generated
    */

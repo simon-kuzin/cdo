@@ -2,12 +2,13 @@
  * <copyright>
  * </copyright>
  *
- * $Id: MetaRef.java,v 1.1 2008-09-08 06:55:57 estepper Exp $
+ * $Id: MetaRef.java,v 1.1.2.1 2008-09-17 08:58:15 estepper Exp $
  */
 package org.eclipse.emf.cdo.tests.model3;
 
 import org.eclipse.emf.cdo.CDOObject;
 
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 
 /**
@@ -23,7 +24,7 @@ import org.eclipse.emf.ecore.EPackage;
  * @extends CDOObject
  * @generated
  */
-public interface MetaRef extends CDOObject
+public interface MetaRef extends EObject, CDOObject
 {
   /**
    * Returns the value of the '<em><b>EPackage Ref</b></em>' reference. ' reference. <!-- begin-user-doc --> he meaning

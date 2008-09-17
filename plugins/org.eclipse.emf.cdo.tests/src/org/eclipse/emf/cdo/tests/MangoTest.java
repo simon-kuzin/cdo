@@ -17,6 +17,7 @@ import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.tests.mango.MangoFactory;
 import org.eclipse.emf.cdo.tests.mango.Value;
 import org.eclipse.emf.cdo.tests.mango.ValueList;
+import org.eclipse.emf.cdo.util.CDOUtil;
 
 /**
  * @author Eike Stepper
@@ -45,9 +46,9 @@ public class MangoTest extends AbstractCDOTest
 
     transaction.commit();
     assertEquals(CDOState.CLEAN, resource.cdoState());
-    assertEquals(CDOState.CLEAN, list.cdoState());
-    assertEquals(CDOState.CLEAN, v1.cdoState());
-    assertEquals(CDOState.CLEAN, v2.cdoState());
+    assertEquals(CDOState.CLEAN, CDOUtil.adaptObject(list).cdoState());
+    assertEquals(CDOState.CLEAN, CDOUtil.adaptObject(v1).cdoState());
+    assertEquals(CDOState.CLEAN, CDOUtil.adaptObject(v2).cdoState());
     session.close();
   }
 }
