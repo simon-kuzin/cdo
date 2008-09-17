@@ -15,7 +15,6 @@ import org.eclipse.emf.cdo.CDOTransaction;
 import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.tests.AbstractCDOTest;
-import org.eclipse.emf.cdo.tests.model1.Model1Package;
 import org.eclipse.emf.cdo.tests.model1.Order;
 import org.eclipse.emf.cdo.tests.model1.OrderDetail;
 import org.eclipse.emf.cdo.tests.model1.PurchaseOrder;
@@ -43,7 +42,7 @@ public class Bugzilla_246622_Test extends AbstractCDOTest
     res.getContents().add(order);
     order.getOrderDetails().add(orderDetail);
     CDOFeature order_OrderDetailFeature = session.getPackageManager().convert(
-        Model1Package.eINSTANCE.getOrder_OrderDetails());
+        getModel1Package().getOrder_OrderDetails());
     assertEquals(orderDetail, CDOUtil.getCDOObject(order).cdoRevision().getData().get(order_OrderDetailFeature, 0));
 
     assertEquals(order, CDOUtil.getCDOObject(orderDetail).cdoRevision().getData().getContainerID());
@@ -101,9 +100,9 @@ public class Bugzilla_246622_Test extends AbstractCDOTest
     res.getContents().add(supplier);
 
     CDOFeature supplier_PurchaseOrder = session.getPackageManager().convert(
-        Model1Package.eINSTANCE.getSupplier_PurchaseOrders());
+        getModel1Package().getSupplier_PurchaseOrders());
     CDOFeature purchaseOrder_Supplier = session.getPackageManager().convert(
-        Model1Package.eINSTANCE.getPurchaseOrder_Supplier());
+        getModel1Package().getPurchaseOrder_Supplier());
 
     assertEquals(supplier, CDOUtil.getCDOObject(purchaseOrder).cdoRevision().getData().get(purchaseOrder_Supplier, 0));
     assertEquals(purchaseOrder, CDOUtil.getCDOObject(supplier).cdoRevision().getData().get(supplier_PurchaseOrder, 0));

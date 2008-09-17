@@ -16,12 +16,10 @@ import org.eclipse.emf.cdo.CDOViewSet;
 import org.eclipse.emf.cdo.CDOXATransaction;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.tests.model1.Company;
-import org.eclipse.emf.cdo.tests.model1.Model1Package;
 import org.eclipse.emf.cdo.tests.model1.PurchaseOrder;
 import org.eclipse.emf.cdo.tests.model1.Supplier;
 import org.eclipse.emf.cdo.tests.model2.Model2Package;
 import org.eclipse.emf.cdo.tests.model4.GenRefSingleNonContained;
-import org.eclipse.emf.cdo.tests.model4.model4Factory;
 import org.eclipse.emf.cdo.tests.model4.model4Package;
 import org.eclipse.emf.cdo.util.CDOUtil;
 
@@ -65,7 +63,7 @@ public class ExternalReferenceTest extends AbstractCDOTest
       CDOResource resA = transactionA1.createResource("/resA");
       Resource resD = resourceSet.createResource(URI.createURI("test://1"));
 
-      GenRefSingleNonContained objectFromResA = model4Factory.eINSTANCE.createGenRefSingleNonContained();
+      GenRefSingleNonContained objectFromResA = getModel4Factory().createGenRefSingleNonContained();
       objectFromResA.setElement(schoolbook);
       resD.getContents().add(schoolbook);
 
@@ -86,8 +84,8 @@ public class ExternalReferenceTest extends AbstractCDOTest
 
       CDOTransaction transactionA1 = sessionA.openTransaction(resourceSet);
       CDOResource resA = transactionA1.createResource("/resA");
-      GenRefSingleNonContained objectFromResA = model4Factory.eINSTANCE.createGenRefSingleNonContained();
-      objectFromResA.setElement(Model1Package.eINSTANCE.getAddress());
+      GenRefSingleNonContained objectFromResA = getModel4Factory().createGenRefSingleNonContained();
+      objectFromResA.setElement(getModel1Package().getAddress());
       resA.getContents().add(objectFromResA);
       transactionA1.commit();
     }
@@ -96,13 +94,13 @@ public class ExternalReferenceTest extends AbstractCDOTest
       CDOSession sessionA = openSession();
 
       ResourceSet resourceSet = new ResourceSetImpl();
-      resourceSet.getPackageRegistry().put(Model1Package.eINSTANCE.getNsURI(), Model1Package.eINSTANCE);
+      resourceSet.getPackageRegistry().put(getModel1Package().getNsURI(), getModel1Package());
 
       CDOTransaction transactionA1 = sessionA.openTransaction(resourceSet);
       CDOResource resA = transactionA1.getResource("/resA");
 
       GenRefSingleNonContained objectFromResA = (GenRefSingleNonContained)resA.getContents().get(0);
-      assertEquals(Model1Package.eINSTANCE.getAddress(), objectFromResA.getElement());
+      assertEquals(getModel1Package().getAddress(), objectFromResA.getElement());
       transactionA1.commit();
     }
   }
@@ -118,8 +116,8 @@ public class ExternalReferenceTest extends AbstractCDOTest
 
       CDOTransaction transactionA1 = sessionA.openTransaction(resourceSet);
       CDOResource resA = transactionA1.createResource("/resA");
-      GenRefSingleNonContained objectFromResA = model4Factory.eINSTANCE.createGenRefSingleNonContained();
-      objectFromResA.setElement(Model1Package.eINSTANCE);
+      GenRefSingleNonContained objectFromResA = getModel4Factory().createGenRefSingleNonContained();
+      objectFromResA.setElement(getModel1Package());
       resA.getContents().add(objectFromResA);
       transactionA1.commit();
     }
@@ -128,13 +126,13 @@ public class ExternalReferenceTest extends AbstractCDOTest
       CDOSession sessionA = openSession();
 
       ResourceSet resourceSet = new ResourceSetImpl();
-      resourceSet.getPackageRegistry().put(Model1Package.eINSTANCE.getNsURI(), Model1Package.eINSTANCE);
+      resourceSet.getPackageRegistry().put(getModel1Package().getNsURI(), getModel1Package());
 
       CDOTransaction transactionA1 = sessionA.openTransaction(resourceSet);
       CDOResource resA = transactionA1.getResource("/resA");
 
       GenRefSingleNonContained objectFromResA = (GenRefSingleNonContained)resA.getContents().get(0);
-      assertEquals(Model1Package.eINSTANCE, objectFromResA.getElement());
+      assertEquals(getModel1Package(), objectFromResA.getElement());
       transactionA1.commit();
     }
   }
@@ -149,9 +147,9 @@ public class ExternalReferenceTest extends AbstractCDOTest
       ResourceSet resourceSet = new ResourceSetImpl();
       resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap().put("test", new XMIResourceFactoryImpl());
 
-      sessionA.getPackageRegistry().putEPackage(Model1Package.eINSTANCE);
+      sessionA.getPackageRegistry().putEPackage(getModel1Package());
       sessionA.getPackageRegistry().putEPackage(Model2Package.eINSTANCE);
-      sessionB.getPackageRegistry().putEPackage(Model1Package.eINSTANCE);
+      sessionB.getPackageRegistry().putEPackage(getModel1Package());
       sessionB.getPackageRegistry().putEPackage(Model2Package.eINSTANCE);
 
       CDOTransaction transactionA1 = sessionA.openTransaction(resourceSet);
@@ -220,7 +218,7 @@ public class ExternalReferenceTest extends AbstractCDOTest
       CDOViewSet set = CDOUtil.getViewSet(resourceSet);
       assertNotNull(set);
 
-      resourceSet.getPackageRegistry().put(Model1Package.eINSTANCE.getNsURI(), Model1Package.eINSTANCE);
+      resourceSet.getPackageRegistry().put(getModel1Package().getNsURI(), getModel1Package());
       resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap().put("test", new XMIResourceFactoryImpl());
 
       Resource resD = resourceSet.createResource(URI.createURI("test://1"));
@@ -258,8 +256,8 @@ public class ExternalReferenceTest extends AbstractCDOTest
 
       ResourceSet resourceSet = new ResourceSetImpl();
 
-      sessionA.getPackageRegistry().putEPackage(Model1Package.eINSTANCE);
-      sessionB.getPackageRegistry().putEPackage(Model1Package.eINSTANCE);
+      sessionA.getPackageRegistry().putEPackage(getModel1Package());
+      sessionB.getPackageRegistry().putEPackage(getModel1Package());
 
       CDOTransaction transactionA1 = sessionA.openTransaction(resourceSet);
       CDOTransaction transactionB1 = sessionB.openTransaction(resourceSet);

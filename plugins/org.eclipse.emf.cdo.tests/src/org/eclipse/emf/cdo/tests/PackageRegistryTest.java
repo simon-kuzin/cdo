@@ -20,13 +20,10 @@ import org.eclipse.emf.cdo.tests.mango.MangoFactory;
 import org.eclipse.emf.cdo.tests.mango.MangoPackage;
 import org.eclipse.emf.cdo.tests.mango.Value;
 import org.eclipse.emf.cdo.tests.model1.Company;
-import org.eclipse.emf.cdo.tests.model1.Model1Package;
 import org.eclipse.emf.cdo.tests.model1.PurchaseOrder;
-import org.eclipse.emf.cdo.tests.model2.Model2Factory;
 import org.eclipse.emf.cdo.tests.model2.Model2Package;
 import org.eclipse.emf.cdo.tests.model2.SpecialPurchaseOrder;
 import org.eclipse.emf.cdo.tests.model3.Class1;
-import org.eclipse.emf.cdo.tests.model3.Model3Factory;
 import org.eclipse.emf.cdo.tests.model3.Model3Package;
 import org.eclipse.emf.cdo.tests.model3.subpackage.Class2;
 import org.eclipse.emf.cdo.tests.model3.subpackage.SubpackageFactory;
@@ -81,12 +78,12 @@ public class PackageRegistryTest extends AbstractCDOTest
   {
     {
       CDOSession session = openSession();
-      session.getPackageRegistry().putEPackage(Model1Package.eINSTANCE);
+      session.getPackageRegistry().putEPackage(getModel1Package());
       session.getPackageRegistry().putEPackage(Model2Package.eINSTANCE);
       CDOTransaction transaction = session.openTransaction();
       CDOResource res = transaction.createResource("/res");
 
-      SpecialPurchaseOrder specialPurchaseOrder = Model2Factory.eINSTANCE.createSpecialPurchaseOrder();
+      SpecialPurchaseOrder specialPurchaseOrder = getModel2Factory().createSpecialPurchaseOrder();
       specialPurchaseOrder.setDiscountCode("12345");
       res.getContents().add(specialPurchaseOrder);
       transaction.commit();
@@ -159,7 +156,7 @@ public class PackageRegistryTest extends AbstractCDOTest
     CDOTransaction transaction = session.openTransaction();
     CDOResource res = transaction.createResource("/res");
 
-    Class1 class1 = Model3Factory.eINSTANCE.createClass1();
+    Class1 class1 = getModel3Factory().createClass1();
     res.getContents().add(class1);
     transaction.commit();
 
@@ -182,7 +179,7 @@ public class PackageRegistryTest extends AbstractCDOTest
       CDOTransaction transaction = session.openTransaction();
       CDOResource res = transaction.createResource("/res");
 
-      Class1 class1 = Model3Factory.eINSTANCE.createClass1();
+      Class1 class1 = getModel3Factory().createClass1();
       res.getContents().add(class1);
       transaction.commit();
       session.close();
@@ -210,7 +207,7 @@ public class PackageRegistryTest extends AbstractCDOTest
       CDOResource res1 = transaction.createResource("/res1");
       CDOResource res2 = transaction.createResource("/res2");
 
-      Class1 class1 = Model3Factory.eINSTANCE.createClass1();
+      Class1 class1 = getModel3Factory().createClass1();
       Class2 class2 = SubpackageFactory.eINSTANCE.createClass2();
       class1.getClass2().add(class2);
 
@@ -245,7 +242,7 @@ public class PackageRegistryTest extends AbstractCDOTest
 
   public void testEagerPackageRegistry() throws Exception
   {
-    CDOPackageTypeRegistry.INSTANCE.register(Model1Package.eINSTANCE);
+    CDOPackageTypeRegistry.INSTANCE.register(getModel1Package());
 
     {
       // Create resource in session 1
@@ -277,7 +274,7 @@ public class PackageRegistryTest extends AbstractCDOTest
 
   public void testLazyPackageRegistry() throws Exception
   {
-    CDOPackageTypeRegistry.INSTANCE.register(Model1Package.eINSTANCE);
+    CDOPackageTypeRegistry.INSTANCE.register(getModel1Package());
 
     {
       // Create resource in session 1

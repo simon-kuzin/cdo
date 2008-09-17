@@ -30,7 +30,6 @@ import org.eclipse.emf.cdo.spi.common.InternalCDORevision;
 import org.eclipse.emf.cdo.tests.model1.Category;
 import org.eclipse.emf.cdo.tests.model1.Company;
 import org.eclipse.emf.cdo.tests.model1.Customer;
-import org.eclipse.emf.cdo.tests.model1.Model1Package;
 import org.eclipse.emf.cdo.tests.model1.SalesOrder;
 import org.eclipse.emf.cdo.util.CDOUtil;
 
@@ -128,7 +127,7 @@ public abstract class RevisionDeltaTest extends AbstractCDOTest
     CDOTransaction transaction2 = session.openTransaction();
     SalesOrder salesOrder2 = (SalesOrder)transaction2.getObject(CDOUtil.getCDOObject(salesOrder).cdoID(), true);
     CDORevision salesRevision = CDOUtil.getCDOObject(salesOrder2).cdoRevision();
-    CDOFeature customerFeature = session.getPackageManager().convert(Model1Package.eINSTANCE.getSalesOrder_Customer());
+    CDOFeature customerFeature = session.getPackageManager().convert(getModel1Package().getSalesOrder_Customer());
 
     Object value = salesRevision.getData().get(customerFeature, 0);
     Assert.assertEquals(true, value instanceof CDOID);

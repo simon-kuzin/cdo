@@ -17,7 +17,6 @@ import org.eclipse.emf.cdo.internal.server.Repository;
 import org.eclipse.emf.cdo.query.CDOQuery;
 import org.eclipse.emf.cdo.tests.model1.Category;
 import org.eclipse.emf.cdo.tests.model1.Company;
-import org.eclipse.emf.cdo.tests.model1.Model1Package;
 
 import org.eclipse.emf.internal.cdo.query.CDOQueryResultIteratorImpl;
 
@@ -90,7 +89,7 @@ public class QueryTest extends AbstractCDOTest
     System.out.println(category1.eClass().getEPackage().getNsURI());
 
     CDOQuery cdoQuery = transaction.createQuery(LANGUAGE, "QUERYSTRING");
-    cdoQuery.setParameter("context", Model1Package.eINSTANCE.getCategory());
+    cdoQuery.setParameter("context", getModel1Package().getCategory());
 
     List<Category> queryResult = cdoQuery.getResult(Category.class);
     assertEquals(1, queryResult.size());

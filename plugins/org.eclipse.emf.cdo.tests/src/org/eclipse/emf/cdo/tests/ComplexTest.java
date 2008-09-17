@@ -61,7 +61,7 @@ public class ComplexTest extends AbstractCDOTest
 {
   private static long uniqueCounter = System.currentTimeMillis();
 
-  private model4Factory factory = model4Factory.eINSTANCE;
+  private model4Factory factory = getModel4Factory();
 
   private CDOResource resource1 = null;
 
@@ -641,11 +641,11 @@ public class ComplexTest extends AbstractCDOTest
     assertTrue(CDOUtil.getCDOObject(elementB).cdoResource() == null);
     assertTrue(elementB.eResource() == resource1);
 
-    assertTrue(container1.cdoResource() == resource1);
+    assertTrue(CDOUtil.getCDOObject(container1).cdoResource() == resource1);
     assertEquals(1, container1.getElements().size());
     assertEquals(elementB, container1.getElements().get(0));
 
-    assertTrue(container2.cdoResource() == resource2);
+    assertTrue(CDOUtil.getCDOObject(container2).cdoResource() == resource2);
     assertEquals(1, container2.getElements().size());
     assertEquals(elementA, container2.getElements().get(0));
   }

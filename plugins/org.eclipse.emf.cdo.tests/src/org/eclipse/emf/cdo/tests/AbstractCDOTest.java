@@ -23,8 +23,13 @@ import org.eclipse.emf.cdo.tests.legacy.LegacyPackage;
 import org.eclipse.emf.cdo.tests.mango.MangoPackage;
 import org.eclipse.emf.cdo.tests.model1.Model1Factory;
 import org.eclipse.emf.cdo.tests.model1.Model1Package;
+import org.eclipse.emf.cdo.tests.model2.Model2Factory;
 import org.eclipse.emf.cdo.tests.model2.Model2Package;
+import org.eclipse.emf.cdo.tests.model3.Model3Factory;
 import org.eclipse.emf.cdo.tests.model3.Model3Package;
+import org.eclipse.emf.cdo.tests.model4.model4Factory;
+import org.eclipse.emf.cdo.tests.model4.model4Package;
+import org.eclipse.emf.cdo.tests.model4interfaces.model4interfacesPackage;
 import org.eclipse.emf.cdo.util.CDOUtil;
 
 import org.eclipse.emf.internal.cdo.CDOLegacyWrapper;
@@ -49,7 +54,7 @@ public abstract class AbstractCDOTest extends AbstractTransportTest
 {
   public static final String REPOSITORY_NAME = "repo1";
 
-  protected static boolean legacyTesting;
+  protected static boolean legacyTesting = false;
 
   @Override
   protected IManagedContainer createContainer()
@@ -117,28 +122,28 @@ public abstract class AbstractCDOTest extends AbstractTransportTest
   protected CDOSession openModel1Session(String repoName)
   {
     CDOSession session = openSession(repoName);
-    session.getPackageRegistry().putEPackage(Model1Package.eINSTANCE);
+    session.getPackageRegistry().putEPackage(getModel1Package());
     return session;
   }
 
   protected CDOSession openModel1Session()
   {
     CDOSession session = openSession();
-    session.getPackageRegistry().putEPackage(Model1Package.eINSTANCE);
+    session.getPackageRegistry().putEPackage(getModel1Package());
     return session;
   }
 
   protected CDOSession openModel2Session()
   {
     CDOSession session = openModel1Session();
-    session.getPackageRegistry().putEPackage(Model2Package.eINSTANCE);
+    session.getPackageRegistry().putEPackage(getModel2Package());
     return session;
   }
 
   protected CDOSession openModel3Session()
   {
     CDOSession session = openSession();
-    session.getPackageRegistry().putEPackage(Model3Package.eINSTANCE);
+    session.getPackageRegistry().putEPackage(getModel3Package());
     return session;
   }
 
@@ -173,6 +178,86 @@ public abstract class AbstractCDOTest extends AbstractTransportTest
     }
 
     return org.eclipse.emf.cdo.tests.model1.Model1Factory.eINSTANCE;
+  }
+
+  protected static Model1Package getModel1Package()
+  {
+    if (legacyTesting)
+    {
+      return org.eclipse.emf.cdo.tests.legacy.model1.Model1Package.eINSTANCE;
+    }
+
+    return org.eclipse.emf.cdo.tests.model1.Model1Package.eINSTANCE;
+  }
+
+  protected static Model2Factory getModel2Factory()
+  {
+    if (legacyTesting)
+    {
+      return org.eclipse.emf.cdo.tests.legacy.model2.Model2Factory.eINSTANCE;
+    }
+
+    return org.eclipse.emf.cdo.tests.model2.Model2Factory.eINSTANCE;
+  }
+
+  protected static Model2Package getModel2Package()
+  {
+    if (legacyTesting)
+    {
+      return org.eclipse.emf.cdo.tests.legacy.model2.Model2Package.eINSTANCE;
+    }
+
+    return org.eclipse.emf.cdo.tests.model2.Model2Package.eINSTANCE;
+  }
+
+  protected static Model3Factory getModel3Factory()
+  {
+    if (legacyTesting)
+    {
+      return org.eclipse.emf.cdo.tests.legacy.model3.Model3Factory.eINSTANCE;
+    }
+
+    return org.eclipse.emf.cdo.tests.model3.Model3Factory.eINSTANCE;
+  }
+
+  protected static Model3Package getModel3Package()
+  {
+    if (legacyTesting)
+    {
+      return org.eclipse.emf.cdo.tests.legacy.model3.Model3Package.eINSTANCE;
+    }
+
+    return org.eclipse.emf.cdo.tests.model3.Model3Package.eINSTANCE;
+  }
+
+  protected static model4Factory getModel4Factory()
+  {
+    if (legacyTesting)
+    {
+      return org.eclipse.emf.cdo.tests.legacy.model4.model4Factory.eINSTANCE;
+    }
+
+    return org.eclipse.emf.cdo.tests.model4.model4Factory.eINSTANCE;
+  }
+
+  protected static model4Package getModel4Package()
+  {
+    if (legacyTesting)
+    {
+      return org.eclipse.emf.cdo.tests.legacy.model4.model4Package.eINSTANCE;
+    }
+
+    return org.eclipse.emf.cdo.tests.model4.model4Package.eINSTANCE;
+  }
+
+  protected static model4interfacesPackage getModel4InterfacesPackage()
+  {
+    if (legacyTesting)
+    {
+      return org.eclipse.emf.cdo.tests.legacy.model4interfaces.model4interfacesPackage.eINSTANCE;
+    }
+
+    return org.eclipse.emf.cdo.tests.model4interfaces.model4interfacesPackage.eINSTANCE;
   }
 
   public static void assertEquals(Object expected, Object actual)

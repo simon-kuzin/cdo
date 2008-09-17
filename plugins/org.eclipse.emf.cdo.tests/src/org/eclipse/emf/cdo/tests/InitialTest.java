@@ -15,7 +15,6 @@ import org.eclipse.emf.cdo.CDOState;
 import org.eclipse.emf.cdo.CDOTransaction;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.tests.model1.Category;
-import org.eclipse.emf.cdo.tests.model1.Model1Package;
 import org.eclipse.emf.cdo.tests.model1.OrderAddress;
 import org.eclipse.emf.cdo.tests.model1.OrderDetail;
 import org.eclipse.emf.cdo.tests.model1.PurchaseOrder;
@@ -666,7 +665,7 @@ public class InitialTest extends AbstractCDOTest
     OrderAddress orderAddress = getModel1Factory().createOrderAddress();
     resource.getContents().add(orderAddress);
 
-    assertEquals(Model1Package.eINSTANCE.getAddress_City().getFeatureID(), Model1Package.eINSTANCE
+    assertEquals(getModel1Package().getAddress_City().getFeatureID(), getModel1Package()
         .getOrderDetail_Price().getFeatureID());
 
     orderAddress.setCity("ALLO");

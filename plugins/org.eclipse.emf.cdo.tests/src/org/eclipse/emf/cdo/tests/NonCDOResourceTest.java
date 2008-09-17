@@ -29,17 +29,12 @@ public class NonCDOResourceTest extends TestCase
 {
   public void testNonCDOResource() throws Exception
   {
-    Supplier supplier = getModel1Factory().createSupplier();
+    Supplier supplier = Model1Factory.eINSTANCE.createSupplier();
 
     Resource resource = new ResourceImpl();
     resource.setURI(URI.createFileURI("/res1"));
     resource.getContents().add(supplier);
 
     assertEquals(resource, supplier.eResource());
-  }
-
-  protected static Model1Factory getModel1Factory()
-  {
-    return Model1Factory.eINSTANCE;
   }
 }

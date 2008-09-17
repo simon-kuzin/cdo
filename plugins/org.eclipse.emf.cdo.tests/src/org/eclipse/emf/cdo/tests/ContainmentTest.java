@@ -16,10 +16,8 @@ import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.tests.model1.Address;
 import org.eclipse.emf.cdo.tests.model1.Category;
 import org.eclipse.emf.cdo.tests.model1.Company;
-import org.eclipse.emf.cdo.tests.model1.Model1Package;
 import org.eclipse.emf.cdo.tests.model1.Order;
 import org.eclipse.emf.cdo.tests.model1.Supplier;
-import org.eclipse.emf.cdo.tests.model2.Model2Factory;
 import org.eclipse.emf.cdo.tests.model2.SpecialPurchaseOrder;
 
 import org.eclipse.emf.common.util.EList;
@@ -296,7 +294,7 @@ public class ContainmentTest extends AbstractCDOTest
     address.setStreet("Home Ave. 007");
     address.setCity("Berlin");
 
-    SpecialPurchaseOrder order = Model2Factory.eINSTANCE.createSpecialPurchaseOrder();
+    SpecialPurchaseOrder order = getModel2Factory().createSpecialPurchaseOrder();
     order.setShippingAddress(address);
 
     CDOSession session = openModel2Session();
@@ -321,7 +319,7 @@ public class ContainmentTest extends AbstractCDOTest
     address.setStreet("Home Ave. 007");
     address.setCity("Berlin");
 
-    SpecialPurchaseOrder order = Model2Factory.eINSTANCE.createSpecialPurchaseOrder();
+    SpecialPurchaseOrder order = getModel2Factory().createSpecialPurchaseOrder();
     order.setShippingAddress(address);
 
     CDOSession session = openModel2Session();
@@ -354,7 +352,7 @@ public class ContainmentTest extends AbstractCDOTest
 
       resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap().put("test", new XMIResourceFactoryImpl());
 
-      session.getPackageRegistry().putEPackage(Model1Package.eINSTANCE);
+      session.getPackageRegistry().putEPackage(getModel1Package());
       Resource resource1 = resourceSet.createResource(URI.createURI("test://1"));
       Resource resource2 = transaction.createResource("test");
 

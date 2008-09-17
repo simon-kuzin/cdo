@@ -18,7 +18,6 @@ import org.eclipse.emf.cdo.CDOTransaction;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.tests.model1.Category;
 import org.eclipse.emf.cdo.tests.model1.Company;
-import org.eclipse.emf.cdo.tests.model1.Model1Package;
 import org.eclipse.emf.cdo.util.CDOUtil;
 
 import org.eclipse.emf.internal.cdo.CDOTransactionImpl;
@@ -32,7 +31,7 @@ public class SavepointTest extends AbstractCDOTest
   public void testRollbackWithNewObject_Collection() throws Exception
   {
     CDOSession session = openModel1Session();
-    session.getPackageRegistry().putEPackage(Model1Package.eINSTANCE);
+    session.getPackageRegistry().putEPackage(getModel1Package());
 
     CDOTransaction transaction1 = session.openTransaction();
     // Client1
@@ -83,7 +82,7 @@ public class SavepointTest extends AbstractCDOTest
   public void testWrongSavePoint() throws Exception
   {
     CDOSession session = openModel1Session();
-    session.getPackageRegistry().putEPackage(Model1Package.eINSTANCE);
+    session.getPackageRegistry().putEPackage(getModel1Package());
 
     CDOTransactionImpl transaction1 = (CDOTransactionImpl)session.openTransaction();
     // Client1
@@ -119,7 +118,7 @@ public class SavepointTest extends AbstractCDOTest
   public void testisDirty() throws Exception
   {
     CDOSession session = openModel1Session();
-    session.getPackageRegistry().putEPackage(Model1Package.eINSTANCE);
+    session.getPackageRegistry().putEPackage(getModel1Package());
 
     CDOTransactionImpl transaction1 = (CDOTransactionImpl)session.openTransaction();
     CDOSavepoint savePoint0 = transaction1.setSavepoint();
@@ -160,7 +159,7 @@ public class SavepointTest extends AbstractCDOTest
   public void flow1(boolean commitBegin, boolean commitEnd) throws Exception
   {
     CDOSession session = openModel1Session();
-    session.getPackageRegistry().putEPackage(Model1Package.eINSTANCE);
+    session.getPackageRegistry().putEPackage(getModel1Package());
 
     CDOTransactionImpl transaction1 = (CDOTransactionImpl)session.openTransaction();
 

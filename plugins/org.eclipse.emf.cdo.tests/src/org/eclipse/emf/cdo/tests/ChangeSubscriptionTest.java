@@ -18,7 +18,6 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.tests.model1.Category;
 import org.eclipse.emf.cdo.tests.model1.Company;
-import org.eclipse.emf.cdo.tests.model1.Model1Package;
 import org.eclipse.emf.cdo.util.CDOUtil;
 
 import org.eclipse.emf.internal.cdo.InternalCDOObject;
@@ -502,17 +501,17 @@ public class ChangeSubscriptionTest extends AbstractCDOTest
         assertEquals(true, cdoNotification.hasNext());
       }
 
-      if (notification.getFeature() == Model1Package.eINSTANCE.getCategory_Name())
+      if (notification.getFeature() == getModel1Package().getCategory_Name())
       {
         assertEquals(Notification.SET, notification.getEventType());
         assertEquals("TEST1", notification.getNewStringValue());
       }
-      else if (notification.getFeature() == Model1Package.eINSTANCE.getAddress_City())
+      else if (notification.getFeature() == getModel1Package().getAddress_City())
       {
         assertEquals(Notification.SET, notification.getEventType());
         assertEquals("CITY1", notification.getNewStringValue());
       }
-      else if (notification.getFeature() == Model1Package.eINSTANCE.getCompany_Categories())
+      else if (notification.getFeature() == getModel1Package().getCompany_Categories())
       {
         assertEquals(Notification.ADD, notification.getEventType());
         assertEquals(1, notification.getPosition());

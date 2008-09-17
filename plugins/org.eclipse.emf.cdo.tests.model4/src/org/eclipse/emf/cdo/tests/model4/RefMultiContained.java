@@ -2,11 +2,9 @@
  * <copyright>
  * </copyright>
  *
- * $Id: RefMultiContained.java,v 1.2.8.2 2008-09-17 12:15:07 estepper Exp $
+ * $Id: RefMultiContained.java,v 1.2.8.3 2008-09-17 13:04:14 estepper Exp $
  */
 package org.eclipse.emf.cdo.tests.model4;
-
-import org.eclipse.emf.cdo.CDOObject;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
@@ -23,10 +21,9 @@ import org.eclipse.emf.ecore.EObject;
  * 
  * @see org.eclipse.emf.cdo.tests.model4.model4Package#getRefMultiContained()
  * @model
- * @extends CDOObject
  * @generated
  */
-public interface RefMultiContained extends EObject, CDOObject
+public interface RefMultiContained extends EObject
 {
   /**
    * Returns the value of the '<em><b>Elements</b></em>' containment reference list. The list contents are of type

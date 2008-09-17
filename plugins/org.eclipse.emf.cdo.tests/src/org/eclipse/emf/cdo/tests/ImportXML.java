@@ -93,18 +93,18 @@ public class ImportXML
 
   private static EObject getInputModel()
   {
-    Category cat1 = getModel1Factory().createCategory();
+    Category cat1 = Model1Factory.eINSTANCE.createCategory();
     cat1.setName("CAT1");
-    Category cat2 = getModel1Factory().createCategory();
+    Category cat2 = Model1Factory.eINSTANCE.createCategory();
     cat2.setName("CAT2");
     cat1.getCategories().add(cat2);
-    Product1 p1 = getModel1Factory().createProduct1();
+    Product1 p1 = Model1Factory.eINSTANCE.createProduct1();
     p1.setName("P1");
     cat1.getProducts().add(p1);
-    Product1 p2 = getModel1Factory().createProduct1();
+    Product1 p2 = Model1Factory.eINSTANCE.createProduct1();
     p2.setName("P2");
     cat1.getProducts().add(p2);
-    Product1 p3 = getModel1Factory().createProduct1();
+    Product1 p3 = Model1Factory.eINSTANCE.createProduct1();
     p3.setName("P3");
     cat2.getProducts().add(p3);
     return cat1;
@@ -116,10 +116,5 @@ public class ImportXML
     configuration.setConnector(connector);
     configuration.setRepositoryName(REPOSITORY_NAME);
     return configuration.openSession();
-  }
-
-  protected static Model1Factory getModel1Factory()
-  {
-    return Model1Factory.eINSTANCE;
   }
 }
