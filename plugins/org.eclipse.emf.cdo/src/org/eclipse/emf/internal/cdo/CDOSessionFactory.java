@@ -98,7 +98,7 @@ public class CDOSessionFactory extends Factory
     CDOSessionImpl session = new CDOSessionImpl();
     if (automaticPackageRegistry)
     {
-      CDOPackageRegistryImpl.SelfPopulating packageRegistry = new CDOPackageRegistryImpl.SelfPopulating();
+      CDOPackageRegistryImpl.Eager packageRegistry = new CDOPackageRegistryImpl.Eager();
       packageRegistry.setSession(session);
       session.setPackageRegistry(packageRegistry);
     }

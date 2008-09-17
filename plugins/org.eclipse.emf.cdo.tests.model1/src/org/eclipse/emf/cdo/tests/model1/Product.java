@@ -6,9 +6,8 @@
  */
 package org.eclipse.emf.cdo.tests.model1;
 
-import org.eclipse.emf.cdo.CDOObject;
-
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.EObject;
 
 /**
  * <!-- begin-user-doc --> A representation of the model object '<em><b>Product</b></em>'. <!-- end-user-doc -->
@@ -23,10 +22,9 @@ import org.eclipse.emf.common.util.EList;
  * 
  * @see org.eclipse.emf.cdo.tests.model1.Model1Package#getProduct()
  * @model
- * @extends CDOObject
  * @generated
  */
-public interface Product extends CDOObject
+public interface Product extends EObject
 {
   /**
    * Returns the value of the '<em><b>Name</b></em>' attribute. <!-- begin-user-doc -->

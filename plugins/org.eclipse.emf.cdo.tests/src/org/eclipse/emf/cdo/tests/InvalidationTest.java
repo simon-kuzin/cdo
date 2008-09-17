@@ -20,6 +20,7 @@ import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.tests.model1.Category;
 import org.eclipse.emf.cdo.tests.model1.Company;
 import org.eclipse.emf.cdo.tests.model1.Model1Factory;
+import org.eclipse.emf.cdo.util.CDOUtil;
 
 import org.eclipse.emf.internal.cdo.CDOTransactionImpl;
 import org.eclipse.emf.internal.cdo.util.FSMUtil;
@@ -382,7 +383,7 @@ public class InvalidationTest extends AbstractCDOTest
       msg("Committing");
       transactionA.commit();
 
-      cdoidA = categoryA.cdoID();
+      cdoidA = CDOUtil.adaptObject(categoryA).cdoID();
       transactionA.removeObject(cdoidA);
     }
 
@@ -682,7 +683,7 @@ public class InvalidationTest extends AbstractCDOTest
       @Override
       protected boolean successful()
       {
-        return FSMUtil.isTransient(categoryB);
+        return FSMUtil.isTransient(CDOUtil.adaptObject(categoryB));
       }
     };
 

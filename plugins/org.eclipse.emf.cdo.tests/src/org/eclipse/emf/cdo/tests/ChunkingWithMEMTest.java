@@ -21,6 +21,7 @@ import org.eclipse.emf.cdo.server.IStore;
 import org.eclipse.emf.cdo.tests.model1.Customer;
 import org.eclipse.emf.cdo.tests.model1.Model1Factory;
 import org.eclipse.emf.cdo.tests.model1.SalesOrder;
+import org.eclipse.emf.cdo.util.CDOUtil;
 
 import org.eclipse.emf.common.util.EList;
 
@@ -51,7 +52,7 @@ public class ChunkingWithMEMTest extends AbstractCDOTest
       Customer customer = Model1Factory.eINSTANCE.createCustomer();
       customer.setName("customer");
       resource.getContents().add(customer);
-      revisionToRemove = customer.cdoRevision();
+      revisionToRemove = CDOUtil.adaptObject(customer).cdoRevision();
       for (int i = 0; i < 100; i++)
       {
         msg("Creating salesOrder" + i);
@@ -121,7 +122,7 @@ public class ChunkingWithMEMTest extends AbstractCDOTest
 
       msg("Committing");
       transaction.commit();
-      revisionToRemove = customer.cdoRevision();
+      revisionToRemove = CDOUtil.adaptObject(customer).cdoRevision();
       session.close();
     }
 

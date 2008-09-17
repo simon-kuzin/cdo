@@ -17,6 +17,7 @@ import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.tests.AbstractCDOTest;
 import org.eclipse.emf.cdo.tests.model1.Company;
 import org.eclipse.emf.cdo.tests.model1.Model1Factory;
+import org.eclipse.emf.cdo.util.CDOUtil;
 
 /**
  * NPE during Transaction.getObject(id, false)
@@ -41,7 +42,7 @@ public class Bugzilla_243310_Test extends AbstractCDOTest
     boolean loadOnDemand = false;
 
     CDOTransaction transaction2 = session.openTransaction();
-    CDOID cdoID = companyTx1.cdoID();
+    CDOID cdoID = CDOUtil.adaptObject(companyTx1).cdoID();
     Company companyTx2 = (Company)transaction2.getObject(cdoID, loadOnDemand);
     assertNull(companyTx2);
   }

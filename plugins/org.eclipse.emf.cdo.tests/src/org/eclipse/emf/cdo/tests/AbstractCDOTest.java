@@ -33,6 +33,8 @@ import org.eclipse.net4j.tests.AbstractTransportTest;
 import org.eclipse.net4j.util.container.IManagedContainer;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 
+import org.eclipse.emf.ecore.EObject;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -151,71 +153,81 @@ public abstract class AbstractCDOTest extends AbstractTransportTest
     return session;
   }
 
-  protected static void assertTransient(CDOObject object)
+  protected static void assertTransient(EObject eObject)
   {
-    assertTrue(FSMUtil.isTransient(object));
-    // assertEquals(null, object.cdoID());
-    // assertEquals(null, object.cdoRevision());
-    // assertEquals(null, object.cdoView());
-    // assertEquals(bject.eResource(), object.cdoResource());
-    // assertEquals(null, object.cdoResource());
+    CDOObject object = CDOUtil.adaptObject(eObject);
+    if (object != null)
+    {
+      assertEquals(true, FSMUtil.isTransient(object));
+    }
   }
 
-  protected static void assertNotTransient(CDOObject object, CDOView view)
+  protected static void assertNotTransient(EObject eObject, CDOView view)
   {
-    assertFalse(FSMUtil.isTransient(object));
+    CDOObject object = FSMUtil.adapt(eObject, view);
+    assertEquals(false, FSMUtil.isTransient(object));
     assertNotNull(object.cdoID());
     assertNotNull(object.cdoRevision());
     assertNotNull(object.cdoView());
-    // assertNotNull(object.cdoResource());
     assertNotNull(object.eResource());
-    // assertEquals(object.eResource(), object.cdoResource());
     assertEquals(view, object.cdoView());
     assertEquals(object, view.getObject(object.cdoID(), false));
   }
 
-  protected static void assertNew(CDOObject object, CDOView view)
+  protected static void assertNew(EObject eObject, CDOView view)
   {
+    CDOObject object = FSMUtil.adapt(eObject, view);
     assertNotTransient(object, view);
     assertEquals(CDOState.NEW, object.cdoState());
   }
 
-  protected static void assertDirty(CDOObject object, CDOView view)
+  protected static void assertDirty(EObject eObject, CDOView view)
   {
+    CDOObject object = FSMUtil.adapt(eObject, view);
     assertNotTransient(object, view);
     assertEquals(CDOState.DIRTY, object.cdoState());
   }
 
-  protected static void assertClean(CDOObject object, CDOView view)
+  protected static void assertClean(EObject eObject, CDOView view)
   {
+    CDOObject object = FSMUtil.adapt(eObject, view);
     assertNotTransient(object, view);
     assertEquals(CDOState.CLEAN, object.cdoState());
   }
 
-  protected static void assertProxy(CDOObject object)
+  protected static void assertProxy(EObject eObject)
   {
-    assertFalse(FSMUtil.isTransient(object));
-    assertNotNull(object.cdoID());
-    assertNotNull(object.cdoView());
-    assertNotNull(object.cdoResource());
-    assertNotNull(object.eResource());
-    assertEquals(object.eResource(), object.cdoResource());
-    assertEquals(CDOState.PROXY, object.cdoState());
+    CDOObject object = CDOUtil.adaptObject(eObject);
+    if (object != null)
+    {
+      assertEquals(false, FSMUtil.isTransient(object));
+      assertNotNull(object.cdoID());
+      assertNotNull(object.cdoView());
+      assertNotNull(object.cdoResource());
+      assertNotNull(object.eResource());
+      assertEquals(object.eResource(), object.cdoResource());
+      assertEquals(CDOState.PROXY, object.cdoState());
+    }
   }
 
-  protected static void assertContent(CDOObject container, CDOObject contained)
+  protected static void assertContent(EObject eContainer, EObject eContained)
   {
-    assertEquals(container.eResource(), contained.eResource());
-    assertTrue(container.eContents().contains(contained));
-    if (container instanceof CDOResource)
+    CDOObject container = CDOUtil.adaptObject(eContainer);
+    CDOObject contained = CDOUtil.adaptObject(eContained);
+    if (container != null && contained != null)
     {
-      assertEquals(container.eResource(), container.cdoResource());
-      assertEquals(null, contained.eContainer());
-      assertTrue(((CDOResource)container).getContents().contains(contained));
-    }
-    else
-    {
-      assertEquals(container, contained.eContainer());
+      assertEquals(container.eResource(), contained.eResource());
+      assertEquals(true, container.eContents().contains(contained));
+      if (container instanceof CDOResource)
+      {
+        assertEquals(container.eResource(), container.cdoResource());
+        assertEquals(null, contained.eContainer());
+        assertEquals(true, ((CDOResource)container).getContents().contains(contained));
+      }
+      else
+      {
+        assertEquals(container, contained.eContainer());
+      }
     }
   }
 

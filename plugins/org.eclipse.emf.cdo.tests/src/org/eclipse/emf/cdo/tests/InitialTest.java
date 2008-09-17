@@ -242,7 +242,7 @@ public class InitialTest extends AbstractCDOTest
     assertNew(supplier, transaction);
     assertNew(resource, transaction);
     assertEquals(supplier, s);
-    assertEquals(resource, s.cdoResource());
+    assertEquals(resource, CDOUtil.adaptObject(s).cdoResource());
     assertEquals(null, s.eContainer());
   }
 
@@ -269,8 +269,8 @@ public class InitialTest extends AbstractCDOTest
     msg("Adding supplier");
     contents.add(supplier);
     assertNew(supplier, transaction);
-    assertEquals(transaction, supplier.cdoView());
-    assertEquals(resource, supplier.cdoResource());
+    assertEquals(transaction, CDOUtil.adaptObject(supplier).cdoView());
+    assertEquals(resource, CDOUtil.adaptObject(supplier).cdoResource());
     assertEquals(resource, supplier.eResource());
     assertEquals(null, supplier.eContainer());
   }
@@ -298,7 +298,7 @@ public class InitialTest extends AbstractCDOTest
     msg("Committing");
     transaction.commit();
     assertEquals(CDOState.CLEAN, resource.cdoState());
-    assertEquals(CDOState.CLEAN, supplier.cdoState());
+    assertEquals(CDOState.CLEAN, CDOUtil.adaptObject(supplier).cdoState());
   }
 
   public void testReadResourceClean() throws Exception
@@ -389,7 +389,7 @@ public class InitialTest extends AbstractCDOTest
     msg("Setting name");
     s.setName("Eike");
     assertEquals("Eike", s.getName());
-    assertEquals(CDOState.DIRTY, supplier.cdoState());
+    assertEquals(CDOState.DIRTY, CDOUtil.adaptObject(supplier).cdoState());
     assertEquals(CDOState.CLEAN, resource.cdoState());
   }
 
@@ -422,7 +422,7 @@ public class InitialTest extends AbstractCDOTest
     msg("Committing");
     transaction.commit();
     assertEquals(CDOState.CLEAN, resource.cdoState());
-    assertEquals(CDOState.CLEAN, supplier.cdoState());
+    assertEquals(CDOState.CLEAN, CDOUtil.adaptObject(supplier).cdoState());
   }
 
   public void testGetResource() throws Exception
@@ -692,7 +692,7 @@ public class InitialTest extends AbstractCDOTest
 
     msg("Opening transaction");
     transaction = session.openTransaction();
-    orderAddress = (OrderAddress)transaction.getObject(orderAddress.cdoID(), true);
+    orderAddress = (OrderAddress)transaction.getObject(CDOUtil.adaptObject(orderAddress).cdoID(), true);
 
     assertEquals(2.8f, orderAddress.getPrice());
     assertEquals("ALLO", orderAddress.getCity());
@@ -704,7 +704,7 @@ public class InitialTest extends AbstractCDOTest
     session = openModel1Session();
 
     transaction = session.openTransaction();
-    orderAddress = (OrderAddress)transaction.getObject(orderAddress.cdoID(), true);
+    orderAddress = (OrderAddress)transaction.getObject(CDOUtil.adaptObject(orderAddress).cdoID(), true);
 
     assertEquals(2.8f, orderAddress.getPrice());
     assertEquals("ALLO", orderAddress.getCity());
@@ -795,8 +795,8 @@ public class InitialTest extends AbstractCDOTest
     resource1.getContents().add(cat1);
     cat1.getCategories().add(cat2);
 
-    assertEquals(null, cat2.cdoResource());
-    assertEquals(resource1, cat1.cdoResource());
+    assertEquals(null, CDOUtil.adaptObject(cat2).cdoResource());
+    assertEquals(resource1, CDOUtil.adaptObject(cat1).cdoResource());
     assertEquals(null, ((InternalEObject)cat2).eDirectResource());
     assertEquals(resource1, ((InternalEObject)cat1).eDirectResource());
 

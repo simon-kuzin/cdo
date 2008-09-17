@@ -20,6 +20,7 @@ import org.eclipse.emf.cdo.tests.model1.Category;
 import org.eclipse.emf.cdo.tests.model1.Model1Factory;
 import org.eclipse.emf.cdo.tests.model1.Product;
 import org.eclipse.emf.cdo.tests.model1.Supplier;
+import org.eclipse.emf.cdo.util.CDOUtil;
 
 import org.eclipse.emf.internal.cdo.CDOStateMachine;
 import org.eclipse.emf.internal.cdo.InternalCDOObject;
@@ -55,8 +56,8 @@ public class StateMachineTest extends AbstractCDOTest
     assertTransient(supplier);
     resource.getContents().add(supplier);
     assertNew(supplier, transaction);
-    assertEquals(transaction, supplier.cdoView());
-    assertEquals(resource, supplier.cdoResource());
+    assertEquals(transaction, CDOUtil.adaptObject(supplier).cdoView());
+    assertEquals(resource, CDOUtil.adaptObject(supplier).cdoResource());
     assertEquals(resource, supplier.eResource());
     assertEquals(null, supplier.eContainer());
 
@@ -199,7 +200,7 @@ public class StateMachineTest extends AbstractCDOTest
     ((InternalCDOObject)supplier).cdoInternalSetState(CDOState.PREPARED);
     try
     {
-      attach(supplier);
+      attach(CDOUtil.adaptObject(supplier));
       fail("Expected NullPointerException due to revision==null");
     }
     catch (NullPointerException ex)
@@ -229,7 +230,7 @@ public class StateMachineTest extends AbstractCDOTest
     supplier.setName("Stepper");
     ((InternalCDOObject)supplier).cdoInternalSetState(CDOState.PREPARED);
     CDOStateMachine.INSTANCE.read((InternalCDOObject)supplier);
-    assertEquals(CDOState.PREPARED, supplier.cdoState());
+    assertEquals(CDOState.PREPARED, CDOUtil.adaptObject(supplier).cdoState());
   }
 
   public void test_PREPARED_with_WRITE() throws Exception
@@ -271,7 +272,7 @@ public class StateMachineTest extends AbstractCDOTest
     ((InternalCDOObject)supplier).cdoInternalSetState(CDOState.PREPARED);
     try
     {
-      reload(supplier);
+      reload(CDOUtil.adaptObject(supplier));
       fail("Expected IllegalStateException");
     }
     catch (IllegalStateException ex)
@@ -401,10 +402,10 @@ public class StateMachineTest extends AbstractCDOTest
     System.out.println();
     System.out.println();
 
-    CDOID id = p1.cdoID();
+    CDOID id = CDOUtil.adaptObject(p1).cdoID();
     cat2.getProducts().add(p1);
     assertNew(p1, transaction);
-    assertEquals(id, p1.cdoID());
+    assertEquals(id, CDOUtil.adaptObject(p1).cdoID());
   }
 
   public void test_NEW_with_READ() throws Exception

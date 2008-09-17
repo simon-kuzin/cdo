@@ -244,7 +244,7 @@ public class PackageRegistryTest extends AbstractCDOTest
     }
   }
 
-  public void testSelfPopulating() throws Exception
+  public void testEagerPackageRegistry() throws Exception
   {
     CDOPackageTypeRegistry.INSTANCE.register(Model1Package.eINSTANCE);
 
@@ -253,7 +253,7 @@ public class PackageRegistryTest extends AbstractCDOTest
       CDOSessionConfiguration configuration = CDOUtil.createSessionConfiguration();
       configuration.setConnector(getConnector());
       configuration.setRepositoryName(REPOSITORY_NAME);
-      configuration.setSelfPopulatingPackageRegistry();
+      configuration.setEagerPackageRegistry();
 
       CDOSession session = configuration.openSession();
       CDOTransaction transaction = session.openTransaction();
@@ -276,7 +276,7 @@ public class PackageRegistryTest extends AbstractCDOTest
     }
   }
 
-  public void testDemandPopulating() throws Exception
+  public void testLazyPackageRegistry() throws Exception
   {
     CDOPackageTypeRegistry.INSTANCE.register(Model1Package.eINSTANCE);
 
@@ -285,7 +285,7 @@ public class PackageRegistryTest extends AbstractCDOTest
       CDOSessionConfiguration configuration = CDOUtil.createSessionConfiguration();
       configuration.setConnector(getConnector());
       configuration.setRepositoryName(REPOSITORY_NAME);
-      configuration.setDemandPopulatingPackageRegistry();
+      configuration.setLazyPackageRegistry();
 
       CDOSession session = configuration.openSession();
       CDOTransaction transaction = session.openTransaction();

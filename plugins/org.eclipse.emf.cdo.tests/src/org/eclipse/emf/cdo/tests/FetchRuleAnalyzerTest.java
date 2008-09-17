@@ -22,6 +22,7 @@ import org.eclipse.emf.cdo.tests.model1.Model1Package;
 import org.eclipse.emf.cdo.tests.model1.PurchaseOrder;
 import org.eclipse.emf.cdo.tests.model1.SalesOrder;
 import org.eclipse.emf.cdo.tests.model1.Supplier;
+import org.eclipse.emf.cdo.util.CDOUtil;
 
 import org.eclipse.emf.internal.cdo.CDOSessionImpl;
 import org.eclipse.emf.internal.cdo.CDOTransactionImpl;
@@ -78,7 +79,7 @@ public class FetchRuleAnalyzerTest extends AbstractCDOTest
         }
 
         resource.getContents().add(company);
-        listOfCompany.add(company);
+        listOfCompany.add(CDOUtil.adaptObject(company));
       }
 
       transaction.commit();

@@ -92,14 +92,20 @@ public class CDOSessionConfigurationImpl implements CDOSessionConfiguration
     this.packageRegistry = packageRegistry;
   }
 
-  public void setSelfPopulatingPackageRegistry()
+  /**
+   * @since 2.0
+   */
+  public void setEagerPackageRegistry()
   {
-    setPackageRegistry(CDOUtil.createSelfPopulatingPackageRegistry());
+    setPackageRegistry(CDOUtil.createEagerPackageRegistry());
   }
 
-  public void setDemandPopulatingPackageRegistry()
+  /**
+   * @since 2.0
+   */
+  public void setLazyPackageRegistry()
   {
-    setPackageRegistry(CDOUtil.createDemandPopulatingPackageRegistry());
+    setPackageRegistry(CDOUtil.createLazyPackageRegistry());
   }
 
   /**

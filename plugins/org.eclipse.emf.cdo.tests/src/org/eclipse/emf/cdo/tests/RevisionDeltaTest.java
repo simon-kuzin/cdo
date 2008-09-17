@@ -33,6 +33,7 @@ import org.eclipse.emf.cdo.tests.model1.Customer;
 import org.eclipse.emf.cdo.tests.model1.Model1Factory;
 import org.eclipse.emf.cdo.tests.model1.Model1Package;
 import org.eclipse.emf.cdo.tests.model1.SalesOrder;
+import org.eclipse.emf.cdo.util.CDOUtil;
 
 import org.eclipse.emf.internal.cdo.CDOTransactionImpl;
 
@@ -126,8 +127,8 @@ public abstract class RevisionDeltaTest extends AbstractCDOTest
     transaction.close();
 
     CDOTransaction transaction2 = session.openTransaction();
-    SalesOrder salesOrder2 = (SalesOrder)transaction2.getObject(salesOrder.cdoID(), true);
-    CDORevision salesRevision = salesOrder2.cdoRevision();
+    SalesOrder salesOrder2 = (SalesOrder)transaction2.getObject(CDOUtil.adaptObject(salesOrder).cdoID(), true);
+    CDORevision salesRevision = CDOUtil.adaptObject(salesOrder2).cdoRevision();
     CDOFeature customerFeature = session.getPackageManager().convert(Model1Package.eINSTANCE.getSalesOrder_Customer());
 
     Object value = salesRevision.getData().get(customerFeature, 0);
@@ -152,8 +153,10 @@ public abstract class RevisionDeltaTest extends AbstractCDOTest
     transaction.commit();
 
     salesOrder.setId(4711);
-    assertNotSame(salesOrder.cdoRevision(), transaction.getRevision(salesOrder.cdoID(), true));
-    assertEquals(salesOrder.cdoRevision(), transaction.getDirtyObjects().get(salesOrder.cdoID()).cdoRevision());
+    assertNotSame(CDOUtil.adaptObject(salesOrder).cdoRevision(), transaction.getRevision(CDOUtil
+        .adaptObject(salesOrder).cdoID(), true));
+    assertEquals(CDOUtil.adaptObject(salesOrder).cdoRevision(), transaction.getDirtyObjects().get(
+        CDOUtil.adaptObject(salesOrder).cdoID()).cdoRevision());
     transaction.close();
     session.close();
   }
@@ -205,7 +208,7 @@ public abstract class RevisionDeltaTest extends AbstractCDOTest
     transaction.commit();
 
     TestRevisionManager revisionManager = (TestRevisionManager)getRepository().getRevisionManager();
-    revisionManager.removeCachedRevision(customer.cdoRevision());
+    revisionManager.removeCachedRevision(CDOUtil.adaptObject(customer).cdoRevision());
 
     SalesOrder salesOrder = Model1Factory.eINSTANCE.createSalesOrder();
     resource.getContents().add(salesOrder);

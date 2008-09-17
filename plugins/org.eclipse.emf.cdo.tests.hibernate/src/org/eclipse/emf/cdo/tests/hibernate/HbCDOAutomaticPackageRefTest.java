@@ -30,7 +30,7 @@ public class HbCDOAutomaticPackageRefTest extends AbstractCDOTest
     CDOSessionConfiguration configuration = CDOUtil.createSessionConfiguration();
     configuration.setConnector(getConnector());
     configuration.setRepositoryName(REPOSITORY_NAME);
-    configuration.setDemandPopulatingPackageRegistry();
+    configuration.setLazyPackageRegistry();
     return configuration.openSession();
   }
 

@@ -210,7 +210,8 @@ public abstract class CDODataInputImpl implements CDODataInput
   public CDOClass readCDOClassRefAndResolve() throws IOException
   {
     CDOClassRef classRef = readCDOClassRef();
-    CDOClass cdoClass = classRef.resolve(getPackageManager());
+    CDOPackageManager packageManager = getPackageManager();
+    CDOClass cdoClass = classRef.resolve(packageManager);
     if (cdoClass == null)
     {
       throw new IllegalStateException("ClassRef unresolveable: " + classRef);

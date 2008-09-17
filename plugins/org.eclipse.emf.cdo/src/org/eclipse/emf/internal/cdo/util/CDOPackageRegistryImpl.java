@@ -240,93 +240,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements CDOP
   /**
    * @author Eike Stepper
    */
-  public static class TransactionBound extends SessionBound implements CDOTransactionHandler
-  {
-    private static final long serialVersionUID = 1L;
-
-    private List<CDOTransaction> transactions = new ArrayList<CDOTransaction>();
-
-    private IListener sessionContainerListener = new ContainerEventAdapter<CDOView>()
-    {
-      @Override
-      protected void onAdded(IContainer<CDOView> session, CDOView view)
-      {
-        if (view instanceof CDOTransaction)
-        {
-          CDOTransaction transaction = (CDOTransaction)view;
-          transaction.addHandler(TransactionBound.this);
-          synchronized (transactions)
-          {
-            transactions.add(transaction);
-          }
-        }
-      }
-
-      @Override
-      protected void onRemoved(IContainer<CDOView> session, CDOView view)
-      {
-        if (view instanceof CDOTransaction)
-        {
-          CDOTransaction transaction = (CDOTransaction)view;
-          transaction.removeHandler(TransactionBound.this);
-          synchronized (transactions)
-          {
-            transactions.remove(transaction);
-          }
-        }
-      }
-    };
-
-    public TransactionBound()
-    {
-    }
-
-    @Override
-    protected void sessionActivated()
-    {
-      getSession().addListener(sessionContainerListener);
-    }
-
-    @Override
-    protected void sessionAboutToDeactivate()
-    {
-      getSession().removeListener(sessionContainerListener);
-      synchronized (transactions)
-      {
-        for (CDOTransaction transaction : transactions)
-        {
-          transaction.removeHandler(this);
-        }
-
-        transactions.clear();
-      }
-    }
-
-    public void attachingObject(CDOTransaction transaction, CDOObject object)
-    {
-    }
-
-    public void modifyingObject(CDOTransaction transaction, CDOObject object, CDOFeatureDelta featureDelta)
-    {
-    }
-
-    public void committingTransaction(CDOTransaction transaction)
-    {
-    }
-
-    public void rolledBackTransaction(CDOTransaction transaction)
-    {
-    }
-
-    public void detachingObject(CDOTransaction transaction, CDOObject object)
-    {
-    }
-  }
-
-  /**
-   * @author Eike Stepper
-   */
-  public static class SelfPopulating extends SessionBound
+  public static class Eager extends SessionBound
   {
     private static final long serialVersionUID = 1L;
 
@@ -340,7 +254,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements CDOP
       }
     };
 
-    public SelfPopulating()
+    public Eager()
     {
     }
 
@@ -386,13 +300,99 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements CDOP
   /**
    * @author Eike Stepper
    */
-  public static class DemandPopulating extends TransactionBound
+  public static class TransactionBound extends SessionBound implements CDOTransactionHandler
+  {
+    private static final long serialVersionUID = 1L;
+  
+    private List<CDOTransaction> transactions = new ArrayList<CDOTransaction>();
+  
+    private IListener sessionContainerListener = new ContainerEventAdapter<CDOView>()
+    {
+      @Override
+      protected void onAdded(IContainer<CDOView> session, CDOView view)
+      {
+        if (view instanceof CDOTransaction)
+        {
+          CDOTransaction transaction = (CDOTransaction)view;
+          transaction.addHandler(TransactionBound.this);
+          synchronized (transactions)
+          {
+            transactions.add(transaction);
+          }
+        }
+      }
+  
+      @Override
+      protected void onRemoved(IContainer<CDOView> session, CDOView view)
+      {
+        if (view instanceof CDOTransaction)
+        {
+          CDOTransaction transaction = (CDOTransaction)view;
+          transaction.removeHandler(TransactionBound.this);
+          synchronized (transactions)
+          {
+            transactions.remove(transaction);
+          }
+        }
+      }
+    };
+  
+    public TransactionBound()
+    {
+    }
+  
+    @Override
+    protected void sessionActivated()
+    {
+      getSession().addListener(sessionContainerListener);
+    }
+  
+    @Override
+    protected void sessionAboutToDeactivate()
+    {
+      getSession().removeListener(sessionContainerListener);
+      synchronized (transactions)
+      {
+        for (CDOTransaction transaction : transactions)
+        {
+          transaction.removeHandler(this);
+        }
+  
+        transactions.clear();
+      }
+    }
+  
+    public void attachingObject(CDOTransaction transaction, CDOObject object)
+    {
+    }
+  
+    public void modifyingObject(CDOTransaction transaction, CDOObject object, CDOFeatureDelta featureDelta)
+    {
+    }
+  
+    public void committingTransaction(CDOTransaction transaction)
+    {
+    }
+  
+    public void rolledBackTransaction(CDOTransaction transaction)
+    {
+    }
+  
+    public void detachingObject(CDOTransaction transaction, CDOObject object)
+    {
+    }
+  }
+
+  /**
+   * @author Eike Stepper
+   */
+  public static class Lazy extends TransactionBound
   {
     private static final long serialVersionUID = 1L;
 
     private Set<EClass> usedClasses = new HashSet<EClass>();
 
-    public DemandPopulating()
+    public Lazy()
     {
     }
 

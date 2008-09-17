@@ -71,17 +71,17 @@ public final class CDOUtil
   /**
    * @since 2.0
    */
-  public static CDOPackageRegistry createSelfPopulatingPackageRegistry()
+  public static CDOPackageRegistry createEagerPackageRegistry()
   {
-    return new CDOPackageRegistryImpl.SelfPopulating();
+    return new CDOPackageRegistryImpl.Eager();
   }
 
   /**
    * @since 2.0
    */
-  public static CDOPackageRegistry createDemandPopulatingPackageRegistry()
+  public static CDOPackageRegistry createLazyPackageRegistry()
   {
-    return new CDOPackageRegistryImpl.DemandPopulating();
+    return new CDOPackageRegistryImpl.Lazy();
   }
 
   /**
@@ -239,7 +239,7 @@ public final class CDOUtil
       return (CDOObject)object;
     }
 
-    return FSMUtil.adaptLegacy((InternalEObject)object);
+    return (CDOObject)FSMUtil.getLegacyWrapper((InternalEObject)object);
   }
 
   /**

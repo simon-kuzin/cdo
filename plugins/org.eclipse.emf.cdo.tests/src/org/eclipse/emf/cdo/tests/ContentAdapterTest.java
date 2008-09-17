@@ -18,6 +18,7 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.tests.model1.Model1Factory;
 import org.eclipse.emf.cdo.tests.model1.Supplier;
+import org.eclipse.emf.cdo.util.CDOUtil;
 
 import org.eclipse.emf.internal.cdo.CDOSessionImpl;
 import org.eclipse.emf.internal.cdo.CDOTransactionImpl;
@@ -74,7 +75,7 @@ public class ContentAdapterTest extends AbstractCDOTest
 
       // assertEquals(true, notified[0]);
       transaction.commit();
-      supplierID = supplier.cdoID();
+      supplierID = CDOUtil.adaptObject(supplier).cdoID();
 
       transaction.close();
       session.close();

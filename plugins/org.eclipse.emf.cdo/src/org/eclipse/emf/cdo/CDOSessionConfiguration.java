@@ -76,7 +76,7 @@ public interface CDOSessionConfiguration
    * @see CDOSession#getPackageRegistry()
    * @since 2.0
    */
-  public void setSelfPopulatingPackageRegistry();
+  public void setEagerPackageRegistry();
 
   /**
    * The package registry must be set <b>before</b> the session is opened and can not be changed thereafter.
@@ -84,7 +84,7 @@ public interface CDOSessionConfiguration
    * @see CDOSession#getPackageRegistry()
    * @since 2.0
    */
-  public void setDemandPopulatingPackageRegistry();
+  public void setLazyPackageRegistry();
 
   /**
    * @see CDORevisionManagerImpl#getCache()
