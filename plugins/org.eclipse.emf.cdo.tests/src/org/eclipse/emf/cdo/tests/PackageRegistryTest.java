@@ -16,7 +16,6 @@ import org.eclipse.emf.cdo.CDOSessionConfiguration;
 import org.eclipse.emf.cdo.CDOTransaction;
 import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.eresource.CDOResource;
-import org.eclipse.emf.cdo.tests.mango.MangoPackage;
 import org.eclipse.emf.cdo.tests.mango.Value;
 import org.eclipse.emf.cdo.tests.model1.Company;
 import org.eclipse.emf.cdo.tests.model1.PurchaseOrder;
@@ -113,8 +112,7 @@ public class PackageRegistryTest extends AbstractCDOTest
     }
 
     {
-      CDOSession session = openSession();
-      session.getPackageRegistry().putEPackage(MangoPackage.eINSTANCE);
+      CDOSession session = openMangoSession();
       CDOTransaction transaction = session.openTransaction();
       CDOResource res = transaction.getResource("/res");
 
