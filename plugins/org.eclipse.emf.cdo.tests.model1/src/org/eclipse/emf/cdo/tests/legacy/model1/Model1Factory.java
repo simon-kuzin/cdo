@@ -2,7 +2,7 @@
  * <copyright>
  * </copyright>
  *
- * $Id: Model1Factory.java,v 1.1.2.2 2008-09-17 10:35:46 estepper Exp $
+ * $Id: Model1Factory.java,v 1.1.2.3 2008-09-17 10:46:00 estepper Exp $
  */
 package org.eclipse.emf.cdo.tests.legacy.model1;
 
@@ -25,9 +25,9 @@ import org.eclipse.emf.ecore.EFactory;
  * the model. <!-- end-user-doc -->
  * 
  * @see org.eclipse.emf.cdo.tests.legacy.model1.Model1Package
- * @generated
+ * @generated NOT
  */
-public interface Model1Factory extends EFactory
+public interface Model1Factory extends EFactory, org.eclipse.emf.cdo.tests.model1.Model1Factory
 {
   /**
    * The singleton instance of the factory. <!-- begin-user-doc --> <!-- end-user-doc -->

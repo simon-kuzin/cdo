@@ -2,7 +2,7 @@
  * <copyright>
  * </copyright>
  *
- * $Id: Model1Package.java,v 1.1.2.2 2008-09-17 10:35:46 estepper Exp $
+ * $Id: Model1Package.java,v 1.1.2.3 2008-09-17 10:46:00 estepper Exp $
  */
 package org.eclipse.emf.cdo.tests.legacy.model1;
 
@@ -24,9 +24,9 @@ import org.eclipse.emf.ecore.EReference;
  * 
  * @see org.eclipse.emf.cdo.tests.legacy.model1.Model1Factory
  * @model kind="package"
- * @generated
+ * @generated NOT
  */
-public interface Model1Package extends EPackage
+public interface Model1Package extends EPackage, org.eclipse.emf.cdo.tests.model1.Model1Package
 {
   /**
    * The package name. <!-- begin-user-doc --> <!-- end-user-doc -->

@@ -165,7 +165,7 @@ public abstract class AbstractCDOTest extends AbstractTransportTest
 
   protected static Model1Factory getModel1Factory()
   {
-    return Model1Factory.eINSTANCE;
+    return org.eclipse.emf.cdo.tests.legacy.model1.Model1Factory.eINSTANCE;
   }
 
   protected static void assertNotTransient(EObject eObject, CDOView view)
