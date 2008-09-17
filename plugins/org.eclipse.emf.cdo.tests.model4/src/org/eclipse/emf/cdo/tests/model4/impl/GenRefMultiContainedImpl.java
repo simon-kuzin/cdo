@@ -2,7 +2,7 @@
  * <copyright>
  * </copyright>
  *
- * $Id: GenRefMultiContainedImpl.java,v 1.2.8.1 2008-09-17 08:57:43 estepper Exp $
+ * $Id: GenRefMultiContainedImpl.java,v 1.2.8.2 2008-09-17 12:15:11 estepper Exp $
  */
 package org.eclipse.emf.cdo.tests.model4.impl;
 
@@ -21,16 +21,17 @@ import org.eclipse.emf.ecore.EObject;
  * <p>
  * The following features are implemented:
  * <ul>
- *   <li>{@link org.eclipse.emf.cdo.tests.model4.impl.GenRefMultiContainedImpl#getElements <em>Elements</em>}</li>
+ * <li>{@link org.eclipse.emf.cdo.tests.model4.impl.GenRefMultiContainedImpl#getElements <em>Elements</em>}</li>
  * </ul>
  * </p>
- *
+ * 
  * @generated
  */
 public class GenRefMultiContainedImpl extends CDOObjectImpl implements GenRefMultiContained
 {
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   protected GenRefMultiContainedImpl()
@@ -40,6 +41,7 @@ public class GenRefMultiContainedImpl extends CDOObjectImpl implements GenRefMul
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -50,6 +52,7 @@ public class GenRefMultiContainedImpl extends CDOObjectImpl implements GenRefMul
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -60,6 +63,7 @@ public class GenRefMultiContainedImpl extends CDOObjectImpl implements GenRefMul
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @SuppressWarnings("unchecked")

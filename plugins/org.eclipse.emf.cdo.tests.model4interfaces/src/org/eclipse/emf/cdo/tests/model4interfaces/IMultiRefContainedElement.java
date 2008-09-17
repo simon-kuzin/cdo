@@ -2,7 +2,7 @@
  * <copyright>
  * </copyright>
  *
- * $Id: IMultiRefContainedElement.java,v 1.2.8.1 2008-09-17 08:57:48 estepper Exp $
+ * $Id: IMultiRefContainedElement.java,v 1.2.8.2 2008-09-17 12:14:43 estepper Exp $
  */
 package org.eclipse.emf.cdo.tests.model4interfaces;
 
@@ -11,14 +11,13 @@ import org.eclipse.emf.ecore.EObject;
 /**
  * <!-- begin-user-doc --> A representation of the model object '<em><b>IMulti Ref Contained Element</b></em>'. <!--
  * end-user-doc -->
- *
  * <p>
  * The following features are supported:
  * <ul>
- *   <li>{@link org.eclipse.emf.cdo.tests.model4interfaces.IMultiRefContainedElement#getParent <em>Parent</em>}</li>
+ * <li>{@link org.eclipse.emf.cdo.tests.model4interfaces.IMultiRefContainedElement#getParent <em>Parent</em>}</li>
  * </ul>
  * </p>
- *
+ * 
  * @see org.eclipse.emf.cdo.tests.model4interfaces.model4interfacesPackage#getIMultiRefContainedElement()
  * @model interface="true" abstract="true"
  * @generated
@@ -45,9 +44,11 @@ public interface IMultiRefContainedElement extends EObject
   IMultiRefContainer getParent();
 
   /**
-   * Sets the value of the '{@link org.eclipse.emf.cdo.tests.model4interfaces.IMultiRefContainedElement#getParent <em>Parent</em>}' container reference.
-   * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * @param value the new value of the '<em>Parent</em>' container reference.
+   * Sets the value of the '{@link org.eclipse.emf.cdo.tests.model4interfaces.IMultiRefContainedElement#getParent
+   * <em>Parent</em>}' container reference. <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
+   * @param value
+   *          the new value of the '<em>Parent</em>' container reference.
    * @see #getParent()
    * @generated
    */

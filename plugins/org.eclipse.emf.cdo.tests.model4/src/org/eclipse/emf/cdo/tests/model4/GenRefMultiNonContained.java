@@ -2,7 +2,7 @@
  * <copyright>
  * </copyright>
  *
- * $Id: GenRefMultiNonContained.java,v 1.2.8.1 2008-09-17 08:57:42 estepper Exp $
+ * $Id: GenRefMultiNonContained.java,v 1.2.8.2 2008-09-17 12:15:08 estepper Exp $
  */
 package org.eclipse.emf.cdo.tests.model4;
 
@@ -12,14 +12,13 @@ import org.eclipse.emf.ecore.EObject;
 /**
  * <!-- begin-user-doc --> A representation of the model object '<em><b>Gen Ref Multi Non Contained</b></em>'. <!--
  * end-user-doc -->
- *
  * <p>
  * The following features are supported:
  * <ul>
- *   <li>{@link org.eclipse.emf.cdo.tests.model4.GenRefMultiNonContained#getElements <em>Elements</em>}</li>
+ * <li>{@link org.eclipse.emf.cdo.tests.model4.GenRefMultiNonContained#getElements <em>Elements</em>}</li>
  * </ul>
  * </p>
- *
+ * 
  * @see org.eclipse.emf.cdo.tests.model4.model4Package#getGenRefMultiNonContained()
  * @model
  * @generated
@@ -27,14 +26,14 @@ import org.eclipse.emf.ecore.EObject;
 public interface GenRefMultiNonContained extends EObject
 {
   /**
-   * Returns the value of the '<em><b>Elements</b></em>' reference list.
-   * The list contents are of type {@link org.eclipse.emf.ecore.EObject}.
-   * <!-- begin-user-doc -->
+   * Returns the value of the '<em><b>Elements</b></em>' reference list. The list contents are of type
+   * {@link org.eclipse.emf.ecore.EObject}. <!-- begin-user-doc -->
    * <p>
    * If the meaning of the '<em>Elements</em>' reference list isn't clear, there really should be more of a description
    * here...
    * </p>
    * <!-- end-user-doc -->
+   * 
    * @return the value of the '<em>Elements</em>' reference list.
    * @see org.eclipse.emf.cdo.tests.model4.model4Package#getGenRefMultiNonContained_Elements()
    * @model

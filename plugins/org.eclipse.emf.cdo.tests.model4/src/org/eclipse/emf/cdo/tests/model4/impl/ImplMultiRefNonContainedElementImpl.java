@@ -2,7 +2,7 @@
  * <copyright>
  * </copyright>
  *
- * $Id: ImplMultiRefNonContainedElementImpl.java,v 1.2.8.1 2008-09-17 08:57:43 estepper Exp $
+ * $Id: ImplMultiRefNonContainedElementImpl.java,v 1.2.8.2 2008-09-17 12:15:13 estepper Exp $
  */
 package org.eclipse.emf.cdo.tests.model4.impl;
 
@@ -21,17 +21,18 @@ import org.eclipse.emf.ecore.EClass;
  * <p>
  * The following features are implemented:
  * <ul>
- *   <li>{@link org.eclipse.emf.cdo.tests.model4.impl.ImplMultiRefNonContainedElementImpl#getParent <em>Parent</em>}</li>
- *   <li>{@link org.eclipse.emf.cdo.tests.model4.impl.ImplMultiRefNonContainedElementImpl#getName <em>Name</em>}</li>
+ * <li>{@link org.eclipse.emf.cdo.tests.model4.impl.ImplMultiRefNonContainedElementImpl#getParent <em>Parent</em>}</li>
+ * <li>{@link org.eclipse.emf.cdo.tests.model4.impl.ImplMultiRefNonContainedElementImpl#getName <em>Name</em>}</li>
  * </ul>
  * </p>
- *
+ * 
  * @generated
  */
 public class ImplMultiRefNonContainedElementImpl extends CDOObjectImpl implements ImplMultiRefNonContainedElement
 {
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   protected ImplMultiRefNonContainedElementImpl()
@@ -41,6 +42,7 @@ public class ImplMultiRefNonContainedElementImpl extends CDOObjectImpl implement
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -51,6 +53,7 @@ public class ImplMultiRefNonContainedElementImpl extends CDOObjectImpl implement
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -61,6 +64,7 @@ public class ImplMultiRefNonContainedElementImpl extends CDOObjectImpl implement
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public IMultiRefNonContainer getParent()
@@ -70,6 +74,7 @@ public class ImplMultiRefNonContainedElementImpl extends CDOObjectImpl implement
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public void setParent(IMultiRefNonContainer newParent)
@@ -79,6 +84,7 @@ public class ImplMultiRefNonContainedElementImpl extends CDOObjectImpl implement
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public String getName()
@@ -88,6 +94,7 @@ public class ImplMultiRefNonContainedElementImpl extends CDOObjectImpl implement
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public void setName(String newName)

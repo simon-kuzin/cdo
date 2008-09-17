@@ -2,7 +2,7 @@
  * <copyright>
  * </copyright>
  *
- * $Id: model4PackageImpl.java,v 1.3.4.1 2008-09-17 08:57:43 estepper Exp $
+ * $Id: model4PackageImpl.java,v 1.3.4.2 2008-09-17 12:15:12 estepper Exp $
  */
 package org.eclipse.emf.cdo.tests.model4.impl;
 
@@ -48,186 +48,217 @@ import org.eclipse.emf.ecore.impl.EPackageImpl;
 
 /**
  * <!-- begin-user-doc --> An implementation of the model <b>Package</b>. <!-- end-user-doc -->
+ * 
  * @generated
  */
 public class model4PackageImpl extends EPackageImpl implements model4Package
 {
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private EClass refSingleContainedEClass = null;
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private EClass singleContainedElementEClass = null;
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private EClass refSingleNonContainedEClass = null;
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private EClass singleNonContainedElementEClass = null;
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private EClass refMultiContainedEClass = null;
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private EClass multiContainedElementEClass = null;
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private EClass refMultiNonContainedEClass = null;
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private EClass multiNonContainedElementEClass = null;
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private EClass refSingleContainedNPLEClass = null;
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private EClass refSingleNonContainedNPLEClass = null;
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private EClass refMultiContainedNPLEClass = null;
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private EClass refMultiNonContainedNPLEClass = null;
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private EClass containedElementNoOppositeEClass = null;
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private EClass genRefSingleContainedEClass = null;
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private EClass genRefSingleNonContainedEClass = null;
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private EClass genRefMultiContainedEClass = null;
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private EClass genRefMultiNonContainedEClass = null;
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private EClass implSingleRefContainerEClass = null;
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private EClass implSingleRefContainedElementEClass = null;
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private EClass implSingleRefNonContainerEClass = null;
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private EClass implSingleRefNonContainedElementEClass = null;
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private EClass implMultiRefNonContainerEClass = null;
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private EClass implMultiRefNonContainedElementEClass = null;
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private EClass implMultiRefContainerEClass = null;
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private EClass implMultiRefContainedElementEClass = null;
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private EClass implSingleRefContainerNPLEClass = null;
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private EClass implSingleRefNonContainerNPLEClass = null;
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private EClass implMultiRefContainerNPLEClass = null;
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private EClass implMultiRefNonContainerNPLEClass = null;
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private EClass implContainedElementNPLEClass = null;
@@ -252,27 +283,24 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private static boolean isInited = false;
 
   /**
-   * Creates, registers, and initializes the <b>Package</b> for this
-   * model, and for any others upon which it depends.  Simple
-   * dependencies are satisfied by calling this method on all
-   * dependent packages before doing anything else.  This method drives
-   * initialization for interdependent packages directly, in parallel
-   * with this package, itself.
-   * <p>Of this package and its interdependencies, all packages which
-   * have not yet been registered by their URI values are first created
-   * and registered.  The packages are then initialized in two steps:
-   * meta-model objects for all of the packages are created before any
-   * are initialized, since one package's meta-model objects may refer to
-   * those of another.
-   * <p>Invocation of this method will not affect any packages that have
-   * already been initialized.
-   * <!-- begin-user-doc -->
+   * Creates, registers, and initializes the <b>Package</b> for this model, and for any others upon which it depends.
+   * Simple dependencies are satisfied by calling this method on all dependent packages before doing anything else. This
+   * method drives initialization for interdependent packages directly, in parallel with this package, itself.
+   * <p>
+   * Of this package and its interdependencies, all packages which have not yet been registered by their URI values are
+   * first created and registered. The packages are then initialized in two steps: meta-model objects for all of the
+   * packages are created before any are initialized, since one package's meta-model objects may refer to those of
+   * another.
+   * <p>
+   * Invocation of this method will not affect any packages that have already been initialized. <!-- begin-user-doc -->
    * <!-- end-user-doc -->
+   * 
    * @see #eNS_URI
    * @see #createPackageContents()
    * @see #initializePackageContents()
@@ -307,6 +335,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EClass getRefSingleContained()
@@ -316,6 +345,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EReference getRefSingleContained_Element()
@@ -325,6 +355,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EClass getSingleContainedElement()
@@ -334,6 +365,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EAttribute getSingleContainedElement_Name()
@@ -343,6 +375,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EReference getSingleContainedElement_Parent()
@@ -352,6 +385,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EClass getRefSingleNonContained()
@@ -361,6 +395,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EReference getRefSingleNonContained_Element()
@@ -370,6 +405,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EClass getSingleNonContainedElement()
@@ -379,6 +415,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EAttribute getSingleNonContainedElement_Name()
@@ -388,6 +425,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EReference getSingleNonContainedElement_Parent()
@@ -397,6 +435,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EClass getRefMultiContained()
@@ -406,6 +445,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EReference getRefMultiContained_Elements()
@@ -415,6 +455,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EClass getMultiContainedElement()
@@ -424,6 +465,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EAttribute getMultiContainedElement_Name()
@@ -433,6 +475,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EReference getMultiContainedElement_Parent()
@@ -442,6 +485,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EClass getRefMultiNonContained()
@@ -451,6 +495,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EReference getRefMultiNonContained_Elements()
@@ -460,6 +505,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EClass getMultiNonContainedElement()
@@ -469,6 +515,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EAttribute getMultiNonContainedElement_Name()
@@ -478,6 +525,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EReference getMultiNonContainedElement_Parent()
@@ -487,6 +535,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EClass getRefSingleContainedNPL()
@@ -496,6 +545,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EReference getRefSingleContainedNPL_Element()
@@ -505,6 +555,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EClass getRefSingleNonContainedNPL()
@@ -514,6 +565,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EReference getRefSingleNonContainedNPL_Element()
@@ -523,6 +575,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EClass getRefMultiContainedNPL()
@@ -532,6 +585,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EReference getRefMultiContainedNPL_Elements()
@@ -541,6 +595,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EClass getRefMultiNonContainedNPL()
@@ -550,6 +605,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EReference getRefMultiNonContainedNPL_Elements()
@@ -559,6 +615,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EClass getContainedElementNoOpposite()
@@ -568,6 +625,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EAttribute getContainedElementNoOpposite_Name()
@@ -577,6 +635,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EClass getGenRefSingleContained()
@@ -586,6 +645,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EReference getGenRefSingleContained_Element()
@@ -595,6 +655,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EClass getGenRefSingleNonContained()
@@ -604,6 +665,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EReference getGenRefSingleNonContained_Element()
@@ -613,6 +675,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EClass getGenRefMultiContained()
@@ -622,6 +685,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EReference getGenRefMultiContained_Elements()
@@ -631,6 +695,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EClass getGenRefMultiNonContained()
@@ -640,6 +705,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EReference getGenRefMultiNonContained_Elements()
@@ -649,6 +715,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EClass getImplSingleRefContainer()
@@ -658,6 +725,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EClass getImplSingleRefContainedElement()
@@ -667,6 +735,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EAttribute getImplSingleRefContainedElement_Name()
@@ -676,6 +745,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EClass getImplSingleRefNonContainer()
@@ -685,6 +755,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EClass getImplSingleRefNonContainedElement()
@@ -694,6 +765,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EAttribute getImplSingleRefNonContainedElement_Name()
@@ -703,6 +775,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EClass getImplMultiRefNonContainer()
@@ -712,6 +785,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EClass getImplMultiRefNonContainedElement()
@@ -721,6 +795,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EAttribute getImplMultiRefNonContainedElement_Name()
@@ -730,6 +805,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EClass getImplMultiRefContainer()
@@ -739,6 +815,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EClass getImplMultiRefContainedElement()
@@ -748,6 +825,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EAttribute getImplMultiRefContainedElement_Name()
@@ -757,6 +835,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EClass getImplSingleRefContainerNPL()
@@ -766,6 +845,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EClass getImplSingleRefNonContainerNPL()
@@ -775,6 +855,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EClass getImplMultiRefContainerNPL()
@@ -784,6 +865,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EClass getImplMultiRefNonContainerNPL()
@@ -793,6 +875,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EClass getImplContainedElementNPL()
@@ -802,6 +885,7 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public model4Factory getmodel4Factory()
@@ -811,14 +895,15 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private boolean isCreated = false;
 
   /**
-   * Creates the meta-model objects for the package.  This method is
-   * guarded to have no affect on any invocation but its first.
-   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * Creates the meta-model objects for the package. This method is guarded to have no affect on any invocation but its
+   * first. <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public void createPackageContents()
@@ -916,14 +1001,15 @@ public class model4PackageImpl extends EPackageImpl implements model4Package
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   private boolean isInitialized = false;
 
   /**
-   * Complete the initialization of the package and its meta-model.  This
-   * method is guarded to have no affect on any invocation but its first.
-   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * Complete the initialization of the package and its meta-model. This method is guarded to have no affect on any
+   * invocation but its first. <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public void initializePackageContents()

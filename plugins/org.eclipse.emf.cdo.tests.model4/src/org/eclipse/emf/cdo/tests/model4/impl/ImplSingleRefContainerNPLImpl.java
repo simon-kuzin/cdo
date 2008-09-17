@@ -2,7 +2,7 @@
  * <copyright>
  * </copyright>
  *
- * $Id: ImplSingleRefContainerNPLImpl.java,v 1.2.8.1 2008-09-17 08:57:43 estepper Exp $
+ * $Id: ImplSingleRefContainerNPLImpl.java,v 1.2.8.2 2008-09-17 12:15:14 estepper Exp $
  */
 package org.eclipse.emf.cdo.tests.model4.impl;
 
@@ -21,16 +21,17 @@ import org.eclipse.emf.ecore.EClass;
  * <p>
  * The following features are implemented:
  * <ul>
- *   <li>{@link org.eclipse.emf.cdo.tests.model4.impl.ImplSingleRefContainerNPLImpl#getElement <em>Element</em>}</li>
+ * <li>{@link org.eclipse.emf.cdo.tests.model4.impl.ImplSingleRefContainerNPLImpl#getElement <em>Element</em>}</li>
  * </ul>
  * </p>
- *
+ * 
  * @generated
  */
 public class ImplSingleRefContainerNPLImpl extends CDOObjectImpl implements ImplSingleRefContainerNPL
 {
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   protected ImplSingleRefContainerNPLImpl()
@@ -40,6 +41,7 @@ public class ImplSingleRefContainerNPLImpl extends CDOObjectImpl implements Impl
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -50,6 +52,7 @@ public class ImplSingleRefContainerNPLImpl extends CDOObjectImpl implements Impl
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -60,6 +63,7 @@ public class ImplSingleRefContainerNPLImpl extends CDOObjectImpl implements Impl
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public IContainedElementNoParentLink getElement()
@@ -70,6 +74,7 @@ public class ImplSingleRefContainerNPLImpl extends CDOObjectImpl implements Impl
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public void setElement(IContainedElementNoParentLink newElement)

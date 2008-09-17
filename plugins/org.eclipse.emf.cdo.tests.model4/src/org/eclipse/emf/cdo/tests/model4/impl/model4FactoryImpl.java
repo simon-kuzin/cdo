@@ -2,7 +2,7 @@
  * <copyright>
  * </copyright>
  *
- * $Id: model4FactoryImpl.java,v 1.3.4.1 2008-09-17 08:57:43 estepper Exp $
+ * $Id: model4FactoryImpl.java,v 1.3.4.2 2008-09-17 12:15:08 estepper Exp $
  */
 package org.eclipse.emf.cdo.tests.model4.impl;
 
@@ -47,13 +47,14 @@ import org.eclipse.emf.ecore.plugin.EcorePlugin;
 
 /**
  * <!-- begin-user-doc --> An implementation of the model <b>Factory</b>. <!-- end-user-doc -->
+ * 
  * @generated
  */
 public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 {
   /**
-   * Creates the default factory implementation.
-   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * Creates the default factory implementation. <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public static model4Factory init()
@@ -75,8 +76,8 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
   }
 
   /**
-   * Creates an instance of the factory.
-   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * Creates an instance of the factory. <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public model4FactoryImpl()
@@ -86,6 +87,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -160,6 +162,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public RefSingleContained createRefSingleContained()
@@ -170,6 +173,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public SingleContainedElement createSingleContainedElement()
@@ -180,6 +184,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public RefSingleNonContained createRefSingleNonContained()
@@ -190,6 +195,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public SingleNonContainedElement createSingleNonContainedElement()
@@ -200,6 +206,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public RefMultiContained createRefMultiContained()
@@ -210,6 +217,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public MultiContainedElement createMultiContainedElement()
@@ -220,6 +228,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public RefMultiNonContained createRefMultiNonContained()
@@ -230,6 +239,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public MultiNonContainedElement createMultiNonContainedElement()
@@ -240,6 +250,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public RefSingleContainedNPL createRefSingleContainedNPL()
@@ -250,6 +261,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public RefSingleNonContainedNPL createRefSingleNonContainedNPL()
@@ -260,6 +272,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public RefMultiContainedNPL createRefMultiContainedNPL()
@@ -270,6 +283,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public RefMultiNonContainedNPL createRefMultiNonContainedNPL()
@@ -280,6 +294,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public ContainedElementNoOpposite createContainedElementNoOpposite()
@@ -290,6 +305,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public GenRefSingleContained createGenRefSingleContained()
@@ -300,6 +316,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public GenRefSingleNonContained createGenRefSingleNonContained()
@@ -310,6 +327,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public GenRefMultiContained createGenRefMultiContained()
@@ -320,6 +338,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public GenRefMultiNonContained createGenRefMultiNonContained()
@@ -330,6 +349,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public ImplSingleRefContainer createImplSingleRefContainer()
@@ -340,6 +360,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public ImplSingleRefContainedElement createImplSingleRefContainedElement()
@@ -350,6 +371,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public ImplSingleRefNonContainer createImplSingleRefNonContainer()
@@ -360,6 +382,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public ImplSingleRefNonContainedElement createImplSingleRefNonContainedElement()
@@ -370,6 +393,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public ImplMultiRefNonContainer createImplMultiRefNonContainer()
@@ -380,6 +404,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public ImplMultiRefNonContainedElement createImplMultiRefNonContainedElement()
@@ -390,6 +415,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public ImplMultiRefContainer createImplMultiRefContainer()
@@ -400,6 +426,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public ImplMultiRefContainedElement createImplMultiRefContainedElement()
@@ -410,6 +437,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public ImplSingleRefContainerNPL createImplSingleRefContainerNPL()
@@ -420,6 +448,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public ImplSingleRefNonContainerNPL createImplSingleRefNonContainerNPL()
@@ -430,6 +459,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public ImplMultiRefContainerNPL createImplMultiRefContainerNPL()
@@ -440,6 +470,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public ImplMultiRefNonContainerNPL createImplMultiRefNonContainerNPL()
@@ -450,6 +481,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public ImplContainedElementNPL createImplContainedElementNPL()
@@ -460,6 +492,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public model4Package getmodel4Package()
@@ -469,6 +502,7 @@ public class model4FactoryImpl extends EFactoryImpl implements model4Factory
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @deprecated
    * @generated
    */

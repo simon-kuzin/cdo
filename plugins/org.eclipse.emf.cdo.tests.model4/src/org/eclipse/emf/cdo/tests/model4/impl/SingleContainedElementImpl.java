@@ -2,7 +2,7 @@
  * <copyright>
  * </copyright>
  *
- * $Id: SingleContainedElementImpl.java,v 1.2.8.1 2008-09-17 08:57:43 estepper Exp $
+ * $Id: SingleContainedElementImpl.java,v 1.2.8.2 2008-09-17 12:15:10 estepper Exp $
  */
 package org.eclipse.emf.cdo.tests.model4.impl;
 
@@ -20,17 +20,18 @@ import org.eclipse.emf.ecore.EClass;
  * <p>
  * The following features are implemented:
  * <ul>
- *   <li>{@link org.eclipse.emf.cdo.tests.model4.impl.SingleContainedElementImpl#getName <em>Name</em>}</li>
- *   <li>{@link org.eclipse.emf.cdo.tests.model4.impl.SingleContainedElementImpl#getParent <em>Parent</em>}</li>
+ * <li>{@link org.eclipse.emf.cdo.tests.model4.impl.SingleContainedElementImpl#getName <em>Name</em>}</li>
+ * <li>{@link org.eclipse.emf.cdo.tests.model4.impl.SingleContainedElementImpl#getParent <em>Parent</em>}</li>
  * </ul>
  * </p>
- *
+ * 
  * @generated
  */
 public class SingleContainedElementImpl extends CDOObjectImpl implements SingleContainedElement
 {
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   protected SingleContainedElementImpl()
@@ -40,6 +41,7 @@ public class SingleContainedElementImpl extends CDOObjectImpl implements SingleC
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -50,6 +52,7 @@ public class SingleContainedElementImpl extends CDOObjectImpl implements SingleC
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -60,6 +63,7 @@ public class SingleContainedElementImpl extends CDOObjectImpl implements SingleC
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public String getName()
@@ -69,6 +73,7 @@ public class SingleContainedElementImpl extends CDOObjectImpl implements SingleC
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public void setName(String newName)
@@ -78,6 +83,7 @@ public class SingleContainedElementImpl extends CDOObjectImpl implements SingleC
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public RefSingleContained getParent()
@@ -87,6 +93,7 @@ public class SingleContainedElementImpl extends CDOObjectImpl implements SingleC
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public void setParent(RefSingleContained newParent)

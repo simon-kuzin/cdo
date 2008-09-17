@@ -2,7 +2,7 @@
  * <copyright>
  * </copyright>
  *
- * $Id: RefMultiContained.java,v 1.2.8.1 2008-09-17 08:57:42 estepper Exp $
+ * $Id: RefMultiContained.java,v 1.2.8.2 2008-09-17 12:15:07 estepper Exp $
  */
 package org.eclipse.emf.cdo.tests.model4;
 
@@ -29,15 +29,15 @@ import org.eclipse.emf.ecore.EObject;
 public interface RefMultiContained extends EObject, CDOObject
 {
   /**
-   * Returns the value of the '<em><b>Elements</b></em>' containment reference list.
-   * The list contents are of type {@link org.eclipse.emf.cdo.tests.model4.MultiContainedElement}.
-   * It is bidirectional and its opposite is '{@link org.eclipse.emf.cdo.tests.model4.MultiContainedElement#getParent <em>Parent</em>}'.
-   * <!-- begin-user-doc -->
+   * Returns the value of the '<em><b>Elements</b></em>' containment reference list. The list contents are of type
+   * {@link org.eclipse.emf.cdo.tests.model4.MultiContainedElement}. It is bidirectional and its opposite is '
+   * {@link org.eclipse.emf.cdo.tests.model4.MultiContainedElement#getParent <em>Parent</em>}'. <!-- begin-user-doc -->
    * <p>
    * If the meaning of the '<em>Elements</em>' containment reference list isn't clear, there really should be more of a
    * description here...
    * </p>
    * <!-- end-user-doc -->
+   * 
    * @return the value of the '<em>Elements</em>' containment reference list.
    * @see org.eclipse.emf.cdo.tests.model4.model4Package#getRefMultiContained_Elements()
    * @see org.eclipse.emf.cdo.tests.model4.MultiContainedElement#getParent

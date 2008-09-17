@@ -2,7 +2,7 @@
  * <copyright>
  * </copyright>
  *
- * $Id: Class1Impl.java,v 1.1.12.1 2008-09-17 08:58:15 estepper Exp $
+ * $Id: Class1Impl.java,v 1.1.12.2 2008-09-17 12:14:38 estepper Exp $
  */
 package org.eclipse.emf.cdo.tests.model3.impl;
 
@@ -20,16 +20,17 @@ import org.eclipse.emf.ecore.EClass;
  * <p>
  * The following features are implemented:
  * <ul>
- *   <li>{@link org.eclipse.emf.cdo.tests.model3.impl.Class1Impl#getClass2 <em>Class2</em>}</li>
+ * <li>{@link org.eclipse.emf.cdo.tests.model3.impl.Class1Impl#getClass2 <em>Class2</em>}</li>
  * </ul>
  * </p>
- *
+ * 
  * @generated
  */
 public class Class1Impl extends CDOObjectImpl implements Class1
 {
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   protected Class1Impl()
@@ -39,6 +40,7 @@ public class Class1Impl extends CDOObjectImpl implements Class1
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -49,6 +51,7 @@ public class Class1Impl extends CDOObjectImpl implements Class1
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -59,6 +62,7 @@ public class Class1Impl extends CDOObjectImpl implements Class1
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @SuppressWarnings("unchecked")

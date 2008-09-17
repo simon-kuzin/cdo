@@ -49,6 +49,8 @@ public abstract class AbstractCDOTest extends AbstractTransportTest
 {
   public static final String REPOSITORY_NAME = "repo1";
 
+  protected static boolean legacyTesting;
+
   @Override
   protected IManagedContainer createContainer()
   {
@@ -165,12 +167,12 @@ public abstract class AbstractCDOTest extends AbstractTransportTest
 
   protected static Model1Factory getModel1Factory()
   {
-    if (true)
+    if (legacyTesting)
     {
-      return org.eclipse.emf.cdo.tests.model1.Model1Factory.eINSTANCE;
+      return org.eclipse.emf.cdo.tests.legacy.model1.Model1Factory.eINSTANCE;
     }
 
-    return org.eclipse.emf.cdo.tests.legacy.model1.Model1Factory.eINSTANCE;
+    return org.eclipse.emf.cdo.tests.model1.Model1Factory.eINSTANCE;
   }
 
   public static void assertEquals(Object expected, Object actual)

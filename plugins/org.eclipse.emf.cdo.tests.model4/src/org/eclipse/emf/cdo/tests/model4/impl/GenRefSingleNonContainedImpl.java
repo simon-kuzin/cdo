@@ -2,7 +2,7 @@
  * <copyright>
  * </copyright>
  *
- * $Id: GenRefSingleNonContainedImpl.java,v 1.2.8.1 2008-09-17 08:57:43 estepper Exp $
+ * $Id: GenRefSingleNonContainedImpl.java,v 1.2.8.2 2008-09-17 12:15:12 estepper Exp $
  */
 package org.eclipse.emf.cdo.tests.model4.impl;
 
@@ -20,16 +20,17 @@ import org.eclipse.emf.ecore.EObject;
  * <p>
  * The following features are implemented:
  * <ul>
- *   <li>{@link org.eclipse.emf.cdo.tests.model4.impl.GenRefSingleNonContainedImpl#getElement <em>Element</em>}</li>
+ * <li>{@link org.eclipse.emf.cdo.tests.model4.impl.GenRefSingleNonContainedImpl#getElement <em>Element</em>}</li>
  * </ul>
  * </p>
- *
+ * 
  * @generated
  */
 public class GenRefSingleNonContainedImpl extends CDOObjectImpl implements GenRefSingleNonContained
 {
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   protected GenRefSingleNonContainedImpl()
@@ -39,6 +40,7 @@ public class GenRefSingleNonContainedImpl extends CDOObjectImpl implements GenRe
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -49,6 +51,7 @@ public class GenRefSingleNonContainedImpl extends CDOObjectImpl implements GenRe
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -59,6 +62,7 @@ public class GenRefSingleNonContainedImpl extends CDOObjectImpl implements GenRe
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EObject getElement()
@@ -68,6 +72,7 @@ public class GenRefSingleNonContainedImpl extends CDOObjectImpl implements GenRe
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public void setElement(EObject newElement)
