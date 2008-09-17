@@ -34,7 +34,7 @@ public class AllTests
     suite.addTestSuite(ComplexTest.class);
     suite.addTestSuite(AttributeTest.class);
     suite.addTestSuite(EnumTest.class);
-    // suite.addTestSuite(StateMachineTest.class);
+    suite.addTestSuite(StateMachineTest.class);
     suite.addTestSuite(ViewTest.class);
     suite.addTestSuite(ResourceTest.class);
     suite.addTestSuite(NonCDOResourceTest.class);

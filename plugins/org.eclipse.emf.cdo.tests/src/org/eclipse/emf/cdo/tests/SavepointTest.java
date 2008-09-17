@@ -220,18 +220,18 @@ public class SavepointTest extends AbstractCDOTest
     assertEquals(true, transaction1.isDirty());
 
     // Test NEW TO NEW
-    assertEquals(false, FSMUtil.isTransient(CDOUtil.adaptObject(company1)));
+    assertEquals(false, FSMUtil.isTransient(CDOUtil.getCDOObject(company1)));
 
     // Test NEW TO TRANSIENT (2 step back)
-    assertEquals(true, FSMUtil.isTransient(CDOUtil.adaptObject(category3)));
+    assertEquals(true, FSMUtil.isTransient(CDOUtil.getCDOObject(category3)));
     assertEquals(false, transaction1.getNewObjects().containsKey(((CDOObject)category3).cdoID()));
 
     // Test NEW TO TRANSIENT (1 step back)
-    assertEquals(true, FSMUtil.isTransient(CDOUtil.adaptObject(category4)));
+    assertEquals(true, FSMUtil.isTransient(CDOUtil.getCDOObject(category4)));
     assertEquals(false, transaction1.getNewObjects().containsKey(((CDOObject)category4).cdoID()));
 
     // Test NEW TO NEW
-    assertEquals(false, FSMUtil.isTransient(CDOUtil.adaptObject(category2)));
+    assertEquals(false, FSMUtil.isTransient(CDOUtil.getCDOObject(category2)));
     assertEquals(true, transaction1.getNewObjects().containsKey(((CDOObject)category2).cdoID()));
 
     // Test rollback NEW
@@ -252,7 +252,7 @@ public class SavepointTest extends AbstractCDOTest
       assertEquals(false, transaction1.isDirty());
       assertEquals(null, transaction1.getLastSavepoint().getNextSavepoint());
       assertEquals(null, transaction1.getLastSavepoint().getPreviousSavepoint());
-      assertEquals(commitBegin, !FSMUtil.isTransient(CDOUtil.adaptObject(company1)));
+      assertEquals(commitBegin, !FSMUtil.isTransient(CDOUtil.getCDOObject(company1)));
       assertEquals(commitBegin, !FSMUtil.isTransient(resource1));
     }
   }

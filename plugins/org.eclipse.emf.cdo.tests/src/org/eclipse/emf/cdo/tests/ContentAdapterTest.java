@@ -74,7 +74,7 @@ public class ContentAdapterTest extends AbstractCDOTest
 
       // assertEquals(true, notified[0]);
       transaction.commit();
-      supplierID = CDOUtil.adaptObject(supplier).cdoID();
+      supplierID = CDOUtil.getCDOObject(supplier).cdoID();
 
       transaction.close();
       session.close();

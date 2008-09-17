@@ -244,7 +244,7 @@ public class ExternalReferenceTest extends AbstractCDOTest
 
       Supplier supplierD = (Supplier)resD.getContents().get(1);
       PurchaseOrder pO = supplierD.getPurchaseOrders().get(0);
-      assertEquals(transaction, CDOUtil.adaptObject(pO).cdoView());
+      assertEquals(transaction, CDOUtil.getCDOObject(pO).cdoView());
       assertEquals(supplierD, pO.getSupplier());
     }
   }
@@ -297,9 +297,9 @@ public class ExternalReferenceTest extends AbstractCDOTest
       Supplier supplierB = (Supplier)resB.getContents().get(0);
       PurchaseOrder pO = supplierB.getPurchaseOrders().get(0);
 
-      assertEquals(transactionA, CDOUtil.adaptObject(pO).cdoView());
+      assertEquals(transactionA, CDOUtil.getCDOObject(pO).cdoView());
 
-      assertEquals(transactionB, CDOUtil.adaptObject(supplierB).cdoView());
+      assertEquals(transactionB, CDOUtil.getCDOObject(supplierB).cdoView());
 
       assertEquals(supplierB, pO.getSupplier());
       assertEquals(supplierB.getPurchaseOrders().get(0), pO);

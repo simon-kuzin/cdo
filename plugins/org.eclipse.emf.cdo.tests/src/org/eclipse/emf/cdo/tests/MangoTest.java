@@ -46,9 +46,9 @@ public class MangoTest extends AbstractCDOTest
 
     transaction.commit();
     assertEquals(CDOState.CLEAN, resource.cdoState());
-    assertEquals(CDOState.CLEAN, CDOUtil.adaptObject(list).cdoState());
-    assertEquals(CDOState.CLEAN, CDOUtil.adaptObject(v1).cdoState());
-    assertEquals(CDOState.CLEAN, CDOUtil.adaptObject(v2).cdoState());
+    assertEquals(CDOState.CLEAN, CDOUtil.getCDOObject(list).cdoState());
+    assertEquals(CDOState.CLEAN, CDOUtil.getCDOObject(v1).cdoState());
+    assertEquals(CDOState.CLEAN, CDOUtil.getCDOObject(v2).cdoState());
     session.close();
   }
 }

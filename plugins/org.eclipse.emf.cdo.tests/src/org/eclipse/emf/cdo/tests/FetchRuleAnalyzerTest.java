@@ -78,7 +78,7 @@ public class FetchRuleAnalyzerTest extends AbstractCDOTest
         }
 
         resource.getContents().add(company);
-        listOfCompany.add(CDOUtil.adaptObject(company));
+        listOfCompany.add(CDOUtil.getCDOObject(company));
       }
 
       transaction.commit();

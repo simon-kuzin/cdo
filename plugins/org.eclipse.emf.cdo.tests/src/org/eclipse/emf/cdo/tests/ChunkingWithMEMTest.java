@@ -51,7 +51,7 @@ public class ChunkingWithMEMTest extends AbstractCDOTest
       Customer customer = getModel1Factory().createCustomer();
       customer.setName("customer");
       resource.getContents().add(customer);
-      revisionToRemove = CDOUtil.adaptObject(customer).cdoRevision();
+      revisionToRemove = CDOUtil.getCDOObject(customer).cdoRevision();
       for (int i = 0; i < 100; i++)
       {
         msg("Creating salesOrder" + i);
@@ -121,7 +121,7 @@ public class ChunkingWithMEMTest extends AbstractCDOTest
 
       msg("Committing");
       transaction.commit();
-      revisionToRemove = CDOUtil.adaptObject(customer).cdoRevision();
+      revisionToRemove = CDOUtil.getCDOObject(customer).cdoRevision();
       session.close();
     }
 

@@ -44,9 +44,9 @@ public class Bugzilla_246622_Test extends AbstractCDOTest
     order.getOrderDetails().add(orderDetail);
     CDOFeature order_OrderDetailFeature = session.getPackageManager().convert(
         Model1Package.eINSTANCE.getOrder_OrderDetails());
-    assertEquals(orderDetail, CDOUtil.adaptObject(order).cdoRevision().getData().get(order_OrderDetailFeature, 0));
+    assertEquals(orderDetail, CDOUtil.getCDOObject(order).cdoRevision().getData().get(order_OrderDetailFeature, 0));
 
-    assertEquals(order, CDOUtil.adaptObject(orderDetail).cdoRevision().getData().getContainerID());
+    assertEquals(order, CDOUtil.getCDOObject(orderDetail).cdoRevision().getData().getContainerID());
 
     Order order2 = getModel1Factory().createOrder();
     OrderDetail orderDetail2 = getModel1Factory().createOrderDetail();
@@ -54,20 +54,20 @@ public class Bugzilla_246622_Test extends AbstractCDOTest
     order2.getOrderDetails().add(orderDetail2);
     res.getContents().add(order2);
 
-    assertEquals(orderDetail2, CDOUtil.adaptObject(order2).cdoRevision().getData().get(order_OrderDetailFeature, 0));
-    assertEquals(order2, CDOUtil.adaptObject(orderDetail2).cdoRevision().getData().getContainerID());
+    assertEquals(orderDetail2, CDOUtil.getCDOObject(order2).cdoRevision().getData().get(order_OrderDetailFeature, 0));
+    assertEquals(order2, CDOUtil.getCDOObject(orderDetail2).cdoRevision().getData().getContainerID());
 
     msg("Committing");
     transaction1.commit();
 
-    assertEquals(CDOUtil.adaptObject(orderDetail).cdoID(), CDOUtil.adaptObject(order).cdoRevision().getData().get(
+    assertEquals(CDOUtil.getCDOObject(orderDetail).cdoID(), CDOUtil.getCDOObject(order).cdoRevision().getData().get(
         order_OrderDetailFeature, 0));
-    assertEquals(CDOUtil.adaptObject(orderDetail2).cdoID(), CDOUtil.adaptObject(order2).cdoRevision().getData().get(
+    assertEquals(CDOUtil.getCDOObject(orderDetail2).cdoID(), CDOUtil.getCDOObject(order2).cdoRevision().getData().get(
         order_OrderDetailFeature, 0));
 
-    assertEquals(CDOUtil.adaptObject(order).cdoID(), CDOUtil.adaptObject(orderDetail).cdoRevision().getData()
+    assertEquals(CDOUtil.getCDOObject(order).cdoID(), CDOUtil.getCDOObject(orderDetail).cdoRevision().getData()
         .getContainerID());
-    assertEquals(CDOUtil.adaptObject(order2).cdoID(), CDOUtil.adaptObject(orderDetail2).cdoRevision().getData()
+    assertEquals(CDOUtil.getCDOObject(order2).cdoID(), CDOUtil.getCDOObject(orderDetail2).cdoRevision().getData()
         .getContainerID());
 
     Order order3 = getModel1Factory().createOrder();
@@ -75,9 +75,9 @@ public class Bugzilla_246622_Test extends AbstractCDOTest
     res.getContents().add(order3);
     order3.getOrderDetails().add(orderDetail2);
 
-    assertEquals(CDOUtil.adaptObject(orderDetail2).cdoID(), CDOUtil.adaptObject(order3).cdoRevision().getData().get(
+    assertEquals(CDOUtil.getCDOObject(orderDetail2).cdoID(), CDOUtil.getCDOObject(order3).cdoRevision().getData().get(
         order_OrderDetailFeature, 0));
-    assertEquals(CDOUtil.adaptObject(order3), CDOUtil.adaptObject(orderDetail2).cdoRevision().getData()
+    assertEquals(CDOUtil.getCDOObject(order3), CDOUtil.getCDOObject(orderDetail2).cdoRevision().getData()
         .getContainerID());
 
     msg("Committing");
@@ -105,8 +105,8 @@ public class Bugzilla_246622_Test extends AbstractCDOTest
     CDOFeature purchaseOrder_Supplier = session.getPackageManager().convert(
         Model1Package.eINSTANCE.getPurchaseOrder_Supplier());
 
-    assertEquals(supplier, CDOUtil.adaptObject(purchaseOrder).cdoRevision().getData().get(purchaseOrder_Supplier, 0));
-    assertEquals(purchaseOrder, CDOUtil.adaptObject(supplier).cdoRevision().getData().get(supplier_PurchaseOrder, 0));
+    assertEquals(supplier, CDOUtil.getCDOObject(purchaseOrder).cdoRevision().getData().get(purchaseOrder_Supplier, 0));
+    assertEquals(purchaseOrder, CDOUtil.getCDOObject(supplier).cdoRevision().getData().get(supplier_PurchaseOrder, 0));
 
     msg("Test set with link after");
     PurchaseOrder purchaseOrder2 = getModel1Factory().createPurchaseOrder();
@@ -116,20 +116,20 @@ public class Bugzilla_246622_Test extends AbstractCDOTest
     res.getContents().add(supplier2);
     purchaseOrder2.setSupplier(supplier2);
 
-    assertEquals(supplier2, CDOUtil.adaptObject(purchaseOrder2).cdoRevision().getData().get(purchaseOrder_Supplier, 0));
-    assertEquals(purchaseOrder2, CDOUtil.adaptObject(supplier2).cdoRevision().getData().get(supplier_PurchaseOrder, 0));
+    assertEquals(supplier2, CDOUtil.getCDOObject(purchaseOrder2).cdoRevision().getData().get(purchaseOrder_Supplier, 0));
+    assertEquals(purchaseOrder2, CDOUtil.getCDOObject(supplier2).cdoRevision().getData().get(supplier_PurchaseOrder, 0));
 
     msg("Committing");
     transaction1.commit();
 
-    assertEquals(CDOUtil.adaptObject(supplier2).cdoID(), CDOUtil.adaptObject(purchaseOrder2).cdoRevision().getData()
+    assertEquals(CDOUtil.getCDOObject(supplier2).cdoID(), CDOUtil.getCDOObject(purchaseOrder2).cdoRevision().getData()
         .get(purchaseOrder_Supplier, 0));
-    assertEquals(CDOUtil.adaptObject(purchaseOrder2).cdoID(), CDOUtil.adaptObject(supplier2).cdoRevision().getData()
+    assertEquals(CDOUtil.getCDOObject(purchaseOrder2).cdoID(), CDOUtil.getCDOObject(supplier2).cdoRevision().getData()
         .get(supplier_PurchaseOrder, 0));
 
-    assertEquals(CDOUtil.adaptObject(supplier).cdoID(), CDOUtil.adaptObject(purchaseOrder).cdoRevision().getData().get(
+    assertEquals(CDOUtil.getCDOObject(supplier).cdoID(), CDOUtil.getCDOObject(purchaseOrder).cdoRevision().getData().get(
         purchaseOrder_Supplier, 0));
-    assertEquals(CDOUtil.adaptObject(purchaseOrder).cdoID(), CDOUtil.adaptObject(supplier).cdoRevision().getData().get(
+    assertEquals(CDOUtil.getCDOObject(purchaseOrder).cdoID(), CDOUtil.getCDOObject(supplier).cdoRevision().getData().get(
         supplier_PurchaseOrder, 0));
 
     msg("Test set with persisted CDOID");
@@ -137,9 +137,9 @@ public class Bugzilla_246622_Test extends AbstractCDOTest
     purchaseOrder3.setSupplier(supplier2);
     res.getContents().add(purchaseOrder3);
 
-    assertEquals(CDOUtil.adaptObject(supplier2).cdoID(), CDOUtil.adaptObject(purchaseOrder3).cdoRevision().getData()
+    assertEquals(CDOUtil.getCDOObject(supplier2).cdoID(), CDOUtil.getCDOObject(purchaseOrder3).cdoRevision().getData()
         .get(purchaseOrder_Supplier, 0));
-    assertEquals(purchaseOrder3, CDOUtil.adaptObject(supplier2).cdoRevision().getData().get(supplier_PurchaseOrder, 1));
+    assertEquals(purchaseOrder3, CDOUtil.getCDOObject(supplier2).cdoRevision().getData().get(supplier_PurchaseOrder, 1));
 
     msg("Committing");
     transaction1.commit();

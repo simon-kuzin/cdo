@@ -126,8 +126,8 @@ public abstract class RevisionDeltaTest extends AbstractCDOTest
     transaction.close();
 
     CDOTransaction transaction2 = session.openTransaction();
-    SalesOrder salesOrder2 = (SalesOrder)transaction2.getObject(CDOUtil.adaptObject(salesOrder).cdoID(), true);
-    CDORevision salesRevision = CDOUtil.adaptObject(salesOrder2).cdoRevision();
+    SalesOrder salesOrder2 = (SalesOrder)transaction2.getObject(CDOUtil.getCDOObject(salesOrder).cdoID(), true);
+    CDORevision salesRevision = CDOUtil.getCDOObject(salesOrder2).cdoRevision();
     CDOFeature customerFeature = session.getPackageManager().convert(Model1Package.eINSTANCE.getSalesOrder_Customer());
 
     Object value = salesRevision.getData().get(customerFeature, 0);
@@ -152,10 +152,10 @@ public abstract class RevisionDeltaTest extends AbstractCDOTest
     transaction.commit();
 
     salesOrder.setId(4711);
-    assertNotSame(CDOUtil.adaptObject(salesOrder).cdoRevision(), transaction.getRevision(CDOUtil
-        .adaptObject(salesOrder).cdoID(), true));
-    assertEquals(CDOUtil.adaptObject(salesOrder).cdoRevision(), transaction.getDirtyObjects().get(
-        CDOUtil.adaptObject(salesOrder).cdoID()).cdoRevision());
+    assertNotSame(CDOUtil.getCDOObject(salesOrder).cdoRevision(), transaction.getRevision(CDOUtil
+        .getCDOObject(salesOrder).cdoID(), true));
+    assertEquals(CDOUtil.getCDOObject(salesOrder).cdoRevision(), transaction.getDirtyObjects().get(
+        CDOUtil.getCDOObject(salesOrder).cdoID()).cdoRevision());
     transaction.close();
     session.close();
   }
@@ -207,7 +207,7 @@ public abstract class RevisionDeltaTest extends AbstractCDOTest
     transaction.commit();
 
     TestRevisionManager revisionManager = (TestRevisionManager)getRepository().getRevisionManager();
-    revisionManager.removeCachedRevision(CDOUtil.adaptObject(customer).cdoRevision());
+    revisionManager.removeCachedRevision(CDOUtil.getCDOObject(customer).cdoRevision());
 
     SalesOrder salesOrder = getModel1Factory().createSalesOrder();
     resource.getContents().add(salesOrder);

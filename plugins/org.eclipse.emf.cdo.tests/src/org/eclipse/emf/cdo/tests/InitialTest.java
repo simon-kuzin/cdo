@@ -237,11 +237,11 @@ public class InitialTest extends AbstractCDOTest
     assertEquals(1, contents.size());
 
     msg("Verifying supplier");
-    Supplier s = (Supplier)contents.get(0);
+    Supplier s = (Supplier)CDOUtil.getEObject(contents.get(0));
     assertNew(supplier, transaction);
     assertNew(resource, transaction);
     assertEquals(supplier, s);
-    assertEquals(resource, CDOUtil.adaptObject(s).cdoResource());
+    assertEquals(resource, CDOUtil.getCDOObject(s).cdoResource());
     assertEquals(null, s.eContainer());
   }
 
@@ -268,8 +268,8 @@ public class InitialTest extends AbstractCDOTest
     msg("Adding supplier");
     contents.add(supplier);
     assertNew(supplier, transaction);
-    assertEquals(transaction, CDOUtil.adaptObject(supplier).cdoView());
-    assertEquals(resource, CDOUtil.adaptObject(supplier).cdoResource());
+    assertEquals(transaction, CDOUtil.getCDOObject(supplier).cdoView());
+    assertEquals(resource, CDOUtil.getCDOObject(supplier).cdoResource());
     assertEquals(resource, supplier.eResource());
     assertEquals(null, supplier.eContainer());
   }
@@ -297,7 +297,7 @@ public class InitialTest extends AbstractCDOTest
     msg("Committing");
     transaction.commit();
     assertEquals(CDOState.CLEAN, resource.cdoState());
-    assertEquals(CDOState.CLEAN, CDOUtil.adaptObject(supplier).cdoState());
+    assertEquals(CDOState.CLEAN, CDOUtil.getCDOObject(supplier).cdoState());
   }
 
   public void testReadResourceClean() throws Exception
@@ -388,7 +388,7 @@ public class InitialTest extends AbstractCDOTest
     msg("Setting name");
     s.setName("Eike");
     assertEquals("Eike", s.getName());
-    assertEquals(CDOState.DIRTY, CDOUtil.adaptObject(supplier).cdoState());
+    assertEquals(CDOState.DIRTY, CDOUtil.getCDOObject(supplier).cdoState());
     assertEquals(CDOState.CLEAN, resource.cdoState());
   }
 
@@ -421,7 +421,7 @@ public class InitialTest extends AbstractCDOTest
     msg("Committing");
     transaction.commit();
     assertEquals(CDOState.CLEAN, resource.cdoState());
-    assertEquals(CDOState.CLEAN, CDOUtil.adaptObject(supplier).cdoState());
+    assertEquals(CDOState.CLEAN, CDOUtil.getCDOObject(supplier).cdoState());
   }
 
   public void testGetResource() throws Exception
@@ -691,7 +691,7 @@ public class InitialTest extends AbstractCDOTest
 
     msg("Opening transaction");
     transaction = session.openTransaction();
-    orderAddress = (OrderAddress)transaction.getObject(CDOUtil.adaptObject(orderAddress).cdoID(), true);
+    orderAddress = (OrderAddress)transaction.getObject(CDOUtil.getCDOObject(orderAddress).cdoID(), true);
 
     assertEquals(2.8f, orderAddress.getPrice());
     assertEquals("ALLO", orderAddress.getCity());
@@ -703,7 +703,7 @@ public class InitialTest extends AbstractCDOTest
     session = openModel1Session();
 
     transaction = session.openTransaction();
-    orderAddress = (OrderAddress)transaction.getObject(CDOUtil.adaptObject(orderAddress).cdoID(), true);
+    orderAddress = (OrderAddress)transaction.getObject(CDOUtil.getCDOObject(orderAddress).cdoID(), true);
 
     assertEquals(2.8f, orderAddress.getPrice());
     assertEquals("ALLO", orderAddress.getCity());
@@ -794,8 +794,8 @@ public class InitialTest extends AbstractCDOTest
     resource1.getContents().add(cat1);
     cat1.getCategories().add(cat2);
 
-    assertEquals(null, CDOUtil.adaptObject(cat2).cdoResource());
-    assertEquals(resource1, CDOUtil.adaptObject(cat1).cdoResource());
+    assertEquals(null, CDOUtil.getCDOObject(cat2).cdoResource());
+    assertEquals(resource1, CDOUtil.getCDOObject(cat1).cdoResource());
     assertEquals(null, ((InternalEObject)cat2).eDirectResource());
     assertEquals(resource1, ((InternalEObject)cat1).eDirectResource());
 
@@ -828,7 +828,7 @@ public class InitialTest extends AbstractCDOTest
     msg("Retrieving supplier from URI before commit");
     EObject supplier1 = transaction.getResourceSet().getEObject(supplierTempURI, true);
 
-    assertEquals(supplier, supplier1);
+    assertEquals(supplier, CDOUtil.getEObject(supplier1));
 
     msg("Committing");
     transaction.commit();
@@ -838,7 +838,7 @@ public class InitialTest extends AbstractCDOTest
     msg("Retrieving supplier from URI after commit");
     EObject supplierFromURI = transaction.getResourceSet().getEObject(supplierURI, true);
 
-    assertEquals(supplier, supplierFromURI);
+    assertEquals(supplier, CDOUtil.getEObject(supplierFromURI));
 
     try
     {

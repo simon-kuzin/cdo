@@ -382,7 +382,7 @@ public class InvalidationTest extends AbstractCDOTest
       msg("Committing");
       transactionA.commit();
 
-      cdoidA = CDOUtil.adaptObject(categoryA).cdoID();
+      cdoidA = CDOUtil.getCDOObject(categoryA).cdoID();
       transactionA.removeObject(cdoidA);
     }
 
@@ -682,7 +682,7 @@ public class InvalidationTest extends AbstractCDOTest
       @Override
       protected boolean successful()
       {
-        return FSMUtil.isTransient(CDOUtil.adaptObject(categoryB));
+        return FSMUtil.isTransient(CDOUtil.getCDOObject(categoryB));
       }
     };
 
