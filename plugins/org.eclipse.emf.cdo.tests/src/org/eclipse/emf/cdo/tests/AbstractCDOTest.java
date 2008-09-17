@@ -156,7 +156,7 @@ public abstract class AbstractCDOTest extends AbstractTransportTest
 
   protected static void assertTransient(EObject eObject)
   {
-    CDOObject object = CDOUtil.adaptObject(eObject);
+    CDOObject object = CDOUtil.getCDOObject(eObject);
     if (object != null)
     {
       assertEquals(true, FSMUtil.isTransient(object));
@@ -165,7 +165,44 @@ public abstract class AbstractCDOTest extends AbstractTransportTest
 
   protected static Model1Factory getModel1Factory()
   {
+    if (true)
+    {
+      return org.eclipse.emf.cdo.tests.model1.Model1Factory.eINSTANCE;
+    }
+
     return org.eclipse.emf.cdo.tests.legacy.model1.Model1Factory.eINSTANCE;
+  }
+
+  public static void assertEquals(Object expected, Object actual)
+  {
+    // IMPORTANT: Give possible CDOLegacyWrapper a chance for actual, too
+    if (actual != null && actual.equals(expected))
+    {
+      return;
+    }
+
+    AbstractTransportTest.assertEquals(expected, actual);
+  }
+
+  public static void assertEquals(String message, Object expected, Object actual)
+  {
+    if (expected == null && actual == null)
+    {
+      return;
+    }
+
+    if (expected != null && expected.equals(actual))
+    {
+      return;
+    }
+
+    // IMPORTANT: Give possible CDOLegacyWrapper a chance for actual, too
+    if (actual != null && actual.equals(expected))
+    {
+      return;
+    }
+
+    failNotEquals(message, expected, actual);
   }
 
   protected static void assertNotTransient(EObject eObject, CDOView view)
@@ -203,7 +240,7 @@ public abstract class AbstractCDOTest extends AbstractTransportTest
 
   protected static void assertProxy(EObject eObject)
   {
-    CDOObject object = CDOUtil.adaptObject(eObject);
+    CDOObject object = CDOUtil.getCDOObject(eObject);
     if (object != null)
     {
       assertEquals(false, FSMUtil.isTransient(object));
@@ -218,8 +255,8 @@ public abstract class AbstractCDOTest extends AbstractTransportTest
 
   protected static void assertContent(EObject eContainer, EObject eContained)
   {
-    CDOObject container = CDOUtil.adaptObject(eContainer);
-    CDOObject contained = CDOUtil.adaptObject(eContained);
+    CDOObject container = CDOUtil.getCDOObject(eContainer);
+    CDOObject contained = CDOUtil.getCDOObject(eContained);
     if (container != null && contained != null)
     {
       assertEquals(container.eResource(), contained.eResource());

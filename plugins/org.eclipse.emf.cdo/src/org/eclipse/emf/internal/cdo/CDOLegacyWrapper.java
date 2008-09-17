@@ -231,6 +231,23 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
   }
 
   @Override
+  public boolean equals(Object obj)
+  {
+    return obj == this || obj == instance;
+  }
+
+  @Override
+  public int hashCode()
+  {
+    if (instance != null)
+    {
+      return instance.hashCode();
+    }
+
+    return super.hashCode();
+  }
+
+  @Override
   public String toString()
   {
     return "CDOLegacyWrapper[" + id + "]";

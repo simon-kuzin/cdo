@@ -695,10 +695,17 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
       TRACER.format("Registering dirty object {0}", object);
     }
 
-    registerFeatureDelta(object, featureDelta);
+    if (featureDelta != null)
+    {
+      registerFeatureDelta(object, featureDelta);
+    }
+
     registerNew(lastSavepoint.getDirtyObjects(), object);
   }
 
+  /**
+   * TODO Simon: Should this method go to CDOSavePointImpl?
+   */
   @SuppressWarnings("unchecked")
   private void registerNew(Map map, InternalCDOObject object)
   {

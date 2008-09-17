@@ -232,7 +232,20 @@ public final class CDOUtil
   /**
    * @since 2.0
    */
-  public static CDOObject adaptObject(EObject object)
+  public static EObject getEObject(EObject object)
+  {
+    if (object instanceof InternalCDOObject)
+    {
+      return ((InternalCDOObject)object).cdoInternalInstance();
+    }
+
+    return object;
+  }
+
+  /**
+   * @since 2.0
+   */
+  public static CDOObject getCDOObject(EObject object)
   {
     if (object instanceof CDOObject)
     {
@@ -245,7 +258,7 @@ public final class CDOUtil
   /**
    * @since 2.0
    */
-  public static CDOObject adaptMeta(EModelElement object, CDOView view)
+  public static CDOObject getCDOObject(EModelElement object, CDOView view)
   {
     return FSMUtil.adaptMeta((InternalEObject)object, view);
   }
@@ -253,7 +266,7 @@ public final class CDOUtil
   /**
    * @since 2.0
    */
-  public static CDOObject adaptMeta(EGenericType object, CDOView view)
+  public static CDOObject getCDOObject(EGenericType object, CDOView view)
   {
     return FSMUtil.adaptMeta((InternalEObject)object, view);
   }
@@ -261,7 +274,7 @@ public final class CDOUtil
   /**
    * @since 2.0
    */
-  public static CDOObject adaptMeta(EStringToStringMapEntryImpl object, CDOView view)
+  public static CDOObject getCDOObject(EStringToStringMapEntryImpl object, CDOView view)
   {
     return FSMUtil.adaptMeta(object, view);
   }
