@@ -192,7 +192,7 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
     revisionToInstance();
   }
 
-  public void handleRead(InternalEObject object, int featureID)
+  public synchronized void handleRead(InternalEObject object, int featureID)
   {
     if (!handlingCallback)
     {
@@ -211,7 +211,7 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper implements Internal
     }
   }
 
-  public void handleWrite(InternalEObject object, int featureID)
+  public synchronized void handleWrite(InternalEObject object, int featureID)
   {
     if (!handlingCallback)
     {
