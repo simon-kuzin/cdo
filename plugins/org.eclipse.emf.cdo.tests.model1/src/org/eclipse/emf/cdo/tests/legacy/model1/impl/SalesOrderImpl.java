@@ -2,7 +2,7 @@
  * <copyright>
  * </copyright>
  *
- * $Id: SalesOrderImpl.java,v 1.1.2.1 2008-09-17 10:00:47 estepper Exp $
+ * $Id: SalesOrderImpl.java,v 1.1.2.2 2008-09-17 10:35:46 estepper Exp $
  */
 package org.eclipse.emf.cdo.tests.legacy.model1.impl;
 
@@ -17,25 +17,22 @@ import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 
 /**
- * <!-- begin-user-doc -->
- * An implementation of the model object '<em><b>Sales Order</b></em>'.
- * <!-- end-user-doc -->
+ * <!-- begin-user-doc --> An implementation of the model object '<em><b>Sales Order</b></em>'. <!-- end-user-doc -->
  * <p>
  * The following features are implemented:
  * <ul>
- *   <li>{@link org.eclipse.emf.cdo.tests.legacy.model1.impl.SalesOrderImpl#getId <em>Id</em>}</li>
- *   <li>{@link org.eclipse.emf.cdo.tests.legacy.model1.impl.SalesOrderImpl#getCustomer <em>Customer</em>}</li>
+ * <li>{@link org.eclipse.emf.cdo.tests.legacy.model1.impl.SalesOrderImpl#getId <em>Id</em>}</li>
+ * <li>{@link org.eclipse.emf.cdo.tests.legacy.model1.impl.SalesOrderImpl#getCustomer <em>Customer</em>}</li>
  * </ul>
  * </p>
- *
+ * 
  * @generated
  */
 public class SalesOrderImpl extends OrderImpl implements SalesOrder
 {
   /**
-   * The default value of the '{@link #getId() <em>Id</em>}' attribute.
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * The default value of the '{@link #getId() <em>Id</em>}' attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @see #getId()
    * @generated
    * @ordered
@@ -43,9 +40,8 @@ public class SalesOrderImpl extends OrderImpl implements SalesOrder
   protected static final int ID_EDEFAULT = 0;
 
   /**
-   * The cached value of the '{@link #getId() <em>Id</em>}' attribute.
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * The cached value of the '{@link #getId() <em>Id</em>}' attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @see #getId()
    * @generated
    * @ordered
@@ -53,9 +49,9 @@ public class SalesOrderImpl extends OrderImpl implements SalesOrder
   protected int id = ID_EDEFAULT;
 
   /**
-   * The cached value of the '{@link #getCustomer() <em>Customer</em>}' reference.
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * The cached value of the '{@link #getCustomer() <em>Customer</em>}' reference. <!-- begin-user-doc --> <!--
+   * end-user-doc -->
+   * 
    * @see #getCustomer()
    * @generated
    * @ordered
@@ -63,8 +59,8 @@ public class SalesOrderImpl extends OrderImpl implements SalesOrder
   protected Customer customer;
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   protected SalesOrderImpl()
@@ -73,8 +69,8 @@ public class SalesOrderImpl extends OrderImpl implements SalesOrder
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -84,22 +80,24 @@ public class SalesOrderImpl extends OrderImpl implements SalesOrder
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public int getId()
   {
+    eFireRead(Model1Package.SALES_ORDER__ID);
     return id;
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public void setId(int newId)
   {
+    eFireWrite(Model1Package.SALES_ORDER__ID);
     int oldId = id;
     id = newId;
     if (eNotificationRequired())
@@ -107,12 +105,13 @@ public class SalesOrderImpl extends OrderImpl implements SalesOrder
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public Customer getCustomer()
   {
+    eFireRead(Model1Package.SALES_ORDER__CUSTOMER);
     if (customer != null && customer.eIsProxy())
     {
       InternalEObject oldCustomer = (InternalEObject)customer;
@@ -128,22 +127,24 @@ public class SalesOrderImpl extends OrderImpl implements SalesOrder
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public Customer basicGetCustomer()
   {
+    eFireRead(Model1Package.SALES_ORDER__CUSTOMER);
     return customer;
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public NotificationChain basicSetCustomer(Customer newCustomer, NotificationChain msgs)
   {
+    eFireWrite(Model1Package.SALES_ORDER__CUSTOMER);
     Customer oldCustomer = customer;
     customer = newCustomer;
     if (eNotificationRequired())
@@ -159,12 +160,13 @@ public class SalesOrderImpl extends OrderImpl implements SalesOrder
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public void setCustomer(Customer newCustomer)
   {
+    eFireWrite(Model1Package.SALES_ORDER__CUSTOMER);
     if (newCustomer != customer)
     {
       NotificationChain msgs = null;
@@ -184,8 +186,8 @@ public class SalesOrderImpl extends OrderImpl implements SalesOrder
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -203,8 +205,8 @@ public class SalesOrderImpl extends OrderImpl implements SalesOrder
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -219,8 +221,8 @@ public class SalesOrderImpl extends OrderImpl implements SalesOrder
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -239,8 +241,8 @@ public class SalesOrderImpl extends OrderImpl implements SalesOrder
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -259,8 +261,8 @@ public class SalesOrderImpl extends OrderImpl implements SalesOrder
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -279,8 +281,8 @@ public class SalesOrderImpl extends OrderImpl implements SalesOrder
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -297,8 +299,8 @@ public class SalesOrderImpl extends OrderImpl implements SalesOrder
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -314,4 +316,4 @@ public class SalesOrderImpl extends OrderImpl implements SalesOrder
     return result.toString();
   }
 
-} //SalesOrderImpl
+} // SalesOrderImpl

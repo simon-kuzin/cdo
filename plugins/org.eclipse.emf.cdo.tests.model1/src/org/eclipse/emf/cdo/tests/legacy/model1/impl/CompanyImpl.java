@@ -2,7 +2,7 @@
  * <copyright>
  * </copyright>
  *
- * $Id: CompanyImpl.java,v 1.1.2.1 2008-09-17 10:00:48 estepper Exp $
+ * $Id: CompanyImpl.java,v 1.1.2.2 2008-09-17 10:35:46 estepper Exp $
  */
 package org.eclipse.emf.cdo.tests.legacy.model1.impl;
 
@@ -24,28 +24,26 @@ import org.eclipse.emf.ecore.util.InternalEList;
 import java.util.Collection;
 
 /**
- * <!-- begin-user-doc -->
- * An implementation of the model object '<em><b>Company</b></em>'.
- * <!-- end-user-doc -->
+ * <!-- begin-user-doc --> An implementation of the model object '<em><b>Company</b></em>'. <!-- end-user-doc -->
  * <p>
  * The following features are implemented:
  * <ul>
- *   <li>{@link org.eclipse.emf.cdo.tests.legacy.model1.impl.CompanyImpl#getCategories <em>Categories</em>}</li>
- *   <li>{@link org.eclipse.emf.cdo.tests.legacy.model1.impl.CompanyImpl#getSuppliers <em>Suppliers</em>}</li>
- *   <li>{@link org.eclipse.emf.cdo.tests.legacy.model1.impl.CompanyImpl#getCustomers <em>Customers</em>}</li>
- *   <li>{@link org.eclipse.emf.cdo.tests.legacy.model1.impl.CompanyImpl#getPurchaseOrders <em>Purchase Orders</em>}</li>
- *   <li>{@link org.eclipse.emf.cdo.tests.legacy.model1.impl.CompanyImpl#getSalesOrders <em>Sales Orders</em>}</li>
+ * <li>{@link org.eclipse.emf.cdo.tests.legacy.model1.impl.CompanyImpl#getCategories <em>Categories</em>}</li>
+ * <li>{@link org.eclipse.emf.cdo.tests.legacy.model1.impl.CompanyImpl#getSuppliers <em>Suppliers</em>}</li>
+ * <li>{@link org.eclipse.emf.cdo.tests.legacy.model1.impl.CompanyImpl#getCustomers <em>Customers</em>}</li>
+ * <li>{@link org.eclipse.emf.cdo.tests.legacy.model1.impl.CompanyImpl#getPurchaseOrders <em>Purchase Orders</em>}</li>
+ * <li>{@link org.eclipse.emf.cdo.tests.legacy.model1.impl.CompanyImpl#getSalesOrders <em>Sales Orders</em>}</li>
  * </ul>
  * </p>
- *
+ * 
  * @generated
  */
 public class CompanyImpl extends AddressImpl implements Company
 {
   /**
-   * The cached value of the '{@link #getCategories() <em>Categories</em>}' containment reference list.
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * The cached value of the '{@link #getCategories() <em>Categories</em>}' containment reference list. <!--
+   * begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @see #getCategories()
    * @generated
    * @ordered
@@ -53,9 +51,9 @@ public class CompanyImpl extends AddressImpl implements Company
   protected EList<Category> categories;
 
   /**
-   * The cached value of the '{@link #getSuppliers() <em>Suppliers</em>}' containment reference list.
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * The cached value of the '{@link #getSuppliers() <em>Suppliers</em>}' containment reference list. <!--
+   * begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @see #getSuppliers()
    * @generated
    * @ordered
@@ -63,9 +61,9 @@ public class CompanyImpl extends AddressImpl implements Company
   protected EList<Supplier> suppliers;
 
   /**
-   * The cached value of the '{@link #getCustomers() <em>Customers</em>}' containment reference list.
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * The cached value of the '{@link #getCustomers() <em>Customers</em>}' containment reference list. <!--
+   * begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @see #getCustomers()
    * @generated
    * @ordered
@@ -73,9 +71,9 @@ public class CompanyImpl extends AddressImpl implements Company
   protected EList<Customer> customers;
 
   /**
-   * The cached value of the '{@link #getPurchaseOrders() <em>Purchase Orders</em>}' containment reference list.
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * The cached value of the '{@link #getPurchaseOrders() <em>Purchase Orders</em>}' containment reference list. <!--
+   * begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @see #getPurchaseOrders()
    * @generated
    * @ordered
@@ -83,9 +81,9 @@ public class CompanyImpl extends AddressImpl implements Company
   protected EList<PurchaseOrder> purchaseOrders;
 
   /**
-   * The cached value of the '{@link #getSalesOrders() <em>Sales Orders</em>}' containment reference list.
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * The cached value of the '{@link #getSalesOrders() <em>Sales Orders</em>}' containment reference list. <!--
+   * begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @see #getSalesOrders()
    * @generated
    * @ordered
@@ -93,8 +91,8 @@ public class CompanyImpl extends AddressImpl implements Company
   protected EList<SalesOrder> salesOrders;
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   protected CompanyImpl()
@@ -103,8 +101,8 @@ public class CompanyImpl extends AddressImpl implements Company
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -114,50 +112,53 @@ public class CompanyImpl extends AddressImpl implements Company
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EList<Category> getCategories()
   {
     if (categories == null)
     {
-      categories = new EObjectContainmentEList<Category>(Category.class, this, Model1Package.COMPANY__CATEGORIES);
+      categories = new EObjectContainmentEList<Category>(Category.class, this, Model1Package.COMPANY__CATEGORIES)
+          .readWriteFiringList();
     }
     return categories;
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EList<Supplier> getSuppliers()
   {
     if (suppliers == null)
     {
-      suppliers = new EObjectContainmentEList<Supplier>(Supplier.class, this, Model1Package.COMPANY__SUPPLIERS);
+      suppliers = new EObjectContainmentEList<Supplier>(Supplier.class, this, Model1Package.COMPANY__SUPPLIERS)
+          .readWriteFiringList();
     }
     return suppliers;
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EList<Customer> getCustomers()
   {
     if (customers == null)
     {
-      customers = new EObjectContainmentEList<Customer>(Customer.class, this, Model1Package.COMPANY__CUSTOMERS);
+      customers = new EObjectContainmentEList<Customer>(Customer.class, this, Model1Package.COMPANY__CUSTOMERS)
+          .readWriteFiringList();
     }
     return customers;
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EList<PurchaseOrder> getPurchaseOrders()
@@ -165,28 +166,29 @@ public class CompanyImpl extends AddressImpl implements Company
     if (purchaseOrders == null)
     {
       purchaseOrders = new EObjectContainmentEList<PurchaseOrder>(PurchaseOrder.class, this,
-          Model1Package.COMPANY__PURCHASE_ORDERS);
+          Model1Package.COMPANY__PURCHASE_ORDERS).readWriteFiringList();
     }
     return purchaseOrders;
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EList<SalesOrder> getSalesOrders()
   {
     if (salesOrders == null)
     {
-      salesOrders = new EObjectContainmentEList<SalesOrder>(SalesOrder.class, this, Model1Package.COMPANY__SALES_ORDERS);
+      salesOrders = new EObjectContainmentEList<SalesOrder>(SalesOrder.class, this, Model1Package.COMPANY__SALES_ORDERS)
+          .readWriteFiringList();
     }
     return salesOrders;
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -209,8 +211,8 @@ public class CompanyImpl extends AddressImpl implements Company
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -233,8 +235,8 @@ public class CompanyImpl extends AddressImpl implements Company
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @SuppressWarnings("unchecked")
@@ -268,8 +270,8 @@ public class CompanyImpl extends AddressImpl implements Company
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -297,8 +299,8 @@ public class CompanyImpl extends AddressImpl implements Company
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -320,4 +322,4 @@ public class CompanyImpl extends AddressImpl implements Company
     return super.eIsSet(featureID);
   }
 
-} //CompanyImpl
+} // CompanyImpl

@@ -2,7 +2,7 @@
  * <copyright>
  * </copyright>
  *
- * $Id: AddressImpl.java,v 1.1.2.1 2008-09-17 10:00:47 estepper Exp $
+ * $Id: AddressImpl.java,v 1.1.2.2 2008-09-17 10:35:46 estepper Exp $
  */
 package org.eclipse.emf.cdo.tests.legacy.model1.impl;
 
@@ -15,26 +15,24 @@ import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
 
 /**
- * <!-- begin-user-doc -->
- * An implementation of the model object '<em><b>Address</b></em>'.
- * <!-- end-user-doc -->
+ * <!-- begin-user-doc --> An implementation of the model object '<em><b>Address</b></em>'. <!-- end-user-doc -->
  * <p>
  * The following features are implemented:
  * <ul>
- *   <li>{@link org.eclipse.emf.cdo.tests.legacy.model1.impl.AddressImpl#getName <em>Name</em>}</li>
- *   <li>{@link org.eclipse.emf.cdo.tests.legacy.model1.impl.AddressImpl#getStreet <em>Street</em>}</li>
- *   <li>{@link org.eclipse.emf.cdo.tests.legacy.model1.impl.AddressImpl#getCity <em>City</em>}</li>
+ * <li>{@link org.eclipse.emf.cdo.tests.legacy.model1.impl.AddressImpl#getName <em>Name</em>}</li>
+ * <li>{@link org.eclipse.emf.cdo.tests.legacy.model1.impl.AddressImpl#getStreet <em>Street</em>}</li>
+ * <li>{@link org.eclipse.emf.cdo.tests.legacy.model1.impl.AddressImpl#getCity <em>City</em>}</li>
  * </ul>
  * </p>
- *
+ * 
  * @generated
  */
 public class AddressImpl extends EObjectImpl implements Address
 {
   /**
-   * The default value of the '{@link #getName() <em>Name</em>}' attribute.
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * The default value of the '{@link #getName() <em>Name</em>}' attribute. <!-- begin-user-doc --> <!-- end-user-doc
+   * -->
+   * 
    * @see #getName()
    * @generated
    * @ordered
@@ -42,9 +40,8 @@ public class AddressImpl extends EObjectImpl implements Address
   protected static final String NAME_EDEFAULT = null;
 
   /**
-   * The cached value of the '{@link #getName() <em>Name</em>}' attribute.
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * The cached value of the '{@link #getName() <em>Name</em>}' attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @see #getName()
    * @generated
    * @ordered
@@ -52,9 +49,9 @@ public class AddressImpl extends EObjectImpl implements Address
   protected String name = NAME_EDEFAULT;
 
   /**
-   * The default value of the '{@link #getStreet() <em>Street</em>}' attribute.
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * The default value of the '{@link #getStreet() <em>Street</em>}' attribute. <!-- begin-user-doc --> <!--
+   * end-user-doc -->
+   * 
    * @see #getStreet()
    * @generated
    * @ordered
@@ -62,9 +59,9 @@ public class AddressImpl extends EObjectImpl implements Address
   protected static final String STREET_EDEFAULT = null;
 
   /**
-   * The cached value of the '{@link #getStreet() <em>Street</em>}' attribute.
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * The cached value of the '{@link #getStreet() <em>Street</em>}' attribute. <!-- begin-user-doc --> <!-- end-user-doc
+   * -->
+   * 
    * @see #getStreet()
    * @generated
    * @ordered
@@ -72,9 +69,9 @@ public class AddressImpl extends EObjectImpl implements Address
   protected String street = STREET_EDEFAULT;
 
   /**
-   * The default value of the '{@link #getCity() <em>City</em>}' attribute.
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * The default value of the '{@link #getCity() <em>City</em>}' attribute. <!-- begin-user-doc --> <!-- end-user-doc
+   * -->
+   * 
    * @see #getCity()
    * @generated
    * @ordered
@@ -82,9 +79,8 @@ public class AddressImpl extends EObjectImpl implements Address
   protected static final String CITY_EDEFAULT = null;
 
   /**
-   * The cached value of the '{@link #getCity() <em>City</em>}' attribute.
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * The cached value of the '{@link #getCity() <em>City</em>}' attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @see #getCity()
    * @generated
    * @ordered
@@ -92,8 +88,8 @@ public class AddressImpl extends EObjectImpl implements Address
   protected String city = CITY_EDEFAULT;
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   protected AddressImpl()
@@ -102,8 +98,8 @@ public class AddressImpl extends EObjectImpl implements Address
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -113,22 +109,24 @@ public class AddressImpl extends EObjectImpl implements Address
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public String getName()
   {
+    eFireRead(Model1Package.ADDRESS__NAME);
     return name;
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public void setName(String newName)
   {
+    eFireWrite(Model1Package.ADDRESS__NAME);
     String oldName = name;
     name = newName;
     if (eNotificationRequired())
@@ -136,22 +134,24 @@ public class AddressImpl extends EObjectImpl implements Address
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public String getStreet()
   {
+    eFireRead(Model1Package.ADDRESS__STREET);
     return street;
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public void setStreet(String newStreet)
   {
+    eFireWrite(Model1Package.ADDRESS__STREET);
     String oldStreet = street;
     street = newStreet;
     if (eNotificationRequired())
@@ -159,22 +159,24 @@ public class AddressImpl extends EObjectImpl implements Address
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public String getCity()
   {
+    eFireRead(Model1Package.ADDRESS__CITY);
     return city;
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public void setCity(String newCity)
   {
+    eFireWrite(Model1Package.ADDRESS__CITY);
     String oldCity = city;
     city = newCity;
     if (eNotificationRequired())
@@ -182,8 +184,8 @@ public class AddressImpl extends EObjectImpl implements Address
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -202,8 +204,8 @@ public class AddressImpl extends EObjectImpl implements Address
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -225,8 +227,8 @@ public class AddressImpl extends EObjectImpl implements Address
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -248,8 +250,8 @@ public class AddressImpl extends EObjectImpl implements Address
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -268,8 +270,8 @@ public class AddressImpl extends EObjectImpl implements Address
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -289,4 +291,4 @@ public class AddressImpl extends EObjectImpl implements Address
     return result.toString();
   }
 
-} //AddressImpl
+} // AddressImpl

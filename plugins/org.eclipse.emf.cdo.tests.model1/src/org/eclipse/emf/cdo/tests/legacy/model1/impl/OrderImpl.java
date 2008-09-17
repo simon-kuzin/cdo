@@ -2,7 +2,7 @@
  * <copyright>
  * </copyright>
  *
- * $Id: OrderImpl.java,v 1.1.2.1 2008-09-17 10:00:48 estepper Exp $
+ * $Id: OrderImpl.java,v 1.1.2.2 2008-09-17 10:35:46 estepper Exp $
  */
 package org.eclipse.emf.cdo.tests.legacy.model1.impl;
 
@@ -21,24 +21,22 @@ import org.eclipse.emf.ecore.util.InternalEList;
 import java.util.Collection;
 
 /**
- * <!-- begin-user-doc -->
- * An implementation of the model object '<em><b>Order</b></em>'.
- * <!-- end-user-doc -->
+ * <!-- begin-user-doc --> An implementation of the model object '<em><b>Order</b></em>'. <!-- end-user-doc -->
  * <p>
  * The following features are implemented:
  * <ul>
- *   <li>{@link org.eclipse.emf.cdo.tests.legacy.model1.impl.OrderImpl#getOrderDetails <em>Order Details</em>}</li>
+ * <li>{@link org.eclipse.emf.cdo.tests.legacy.model1.impl.OrderImpl#getOrderDetails <em>Order Details</em>}</li>
  * </ul>
  * </p>
- *
+ * 
  * @generated
  */
 public class OrderImpl extends EObjectImpl implements Order
 {
   /**
-   * The cached value of the '{@link #getOrderDetails() <em>Order Details</em>}' containment reference list.
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * The cached value of the '{@link #getOrderDetails() <em>Order Details</em>}' containment reference list. <!--
+   * begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @see #getOrderDetails()
    * @generated
    * @ordered
@@ -46,8 +44,8 @@ public class OrderImpl extends EObjectImpl implements Order
   protected EList<OrderDetail> orderDetails;
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   protected OrderImpl()
@@ -56,8 +54,8 @@ public class OrderImpl extends EObjectImpl implements Order
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -67,8 +65,8 @@ public class OrderImpl extends EObjectImpl implements Order
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EList<OrderDetail> getOrderDetails()
@@ -76,14 +74,14 @@ public class OrderImpl extends EObjectImpl implements Order
     if (orderDetails == null)
     {
       orderDetails = new EObjectContainmentWithInverseEList<OrderDetail>(OrderDetail.class, this,
-          Model1Package.ORDER__ORDER_DETAILS, Model1Package.ORDER_DETAIL__ORDER);
+          Model1Package.ORDER__ORDER_DETAILS, Model1Package.ORDER_DETAIL__ORDER).readWriteFiringList();
     }
     return orderDetails;
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @SuppressWarnings("unchecked")
@@ -99,8 +97,8 @@ public class OrderImpl extends EObjectImpl implements Order
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -115,8 +113,8 @@ public class OrderImpl extends EObjectImpl implements Order
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -131,8 +129,8 @@ public class OrderImpl extends EObjectImpl implements Order
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @SuppressWarnings("unchecked")
@@ -150,8 +148,8 @@ public class OrderImpl extends EObjectImpl implements Order
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -167,8 +165,8 @@ public class OrderImpl extends EObjectImpl implements Order
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -182,4 +180,4 @@ public class OrderImpl extends EObjectImpl implements Order
     return super.eIsSet(featureID);
   }
 
-} //OrderImpl
+} // OrderImpl

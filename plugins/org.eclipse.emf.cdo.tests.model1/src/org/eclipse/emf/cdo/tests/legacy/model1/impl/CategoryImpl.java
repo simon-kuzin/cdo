@@ -2,7 +2,7 @@
  * <copyright>
  * </copyright>
  *
- * $Id: CategoryImpl.java,v 1.1.2.1 2008-09-17 10:00:48 estepper Exp $
+ * $Id: CategoryImpl.java,v 1.1.2.2 2008-09-17 10:35:46 estepper Exp $
  */
 package org.eclipse.emf.cdo.tests.legacy.model1.impl;
 
@@ -23,26 +23,24 @@ import org.eclipse.emf.ecore.util.InternalEList;
 import java.util.Collection;
 
 /**
- * <!-- begin-user-doc -->
- * An implementation of the model object '<em><b>Category</b></em>'.
- * <!-- end-user-doc -->
+ * <!-- begin-user-doc --> An implementation of the model object '<em><b>Category</b></em>'. <!-- end-user-doc -->
  * <p>
  * The following features are implemented:
  * <ul>
- *   <li>{@link org.eclipse.emf.cdo.tests.legacy.model1.impl.CategoryImpl#getName <em>Name</em>}</li>
- *   <li>{@link org.eclipse.emf.cdo.tests.legacy.model1.impl.CategoryImpl#getCategories <em>Categories</em>}</li>
- *   <li>{@link org.eclipse.emf.cdo.tests.legacy.model1.impl.CategoryImpl#getProducts <em>Products</em>}</li>
+ * <li>{@link org.eclipse.emf.cdo.tests.legacy.model1.impl.CategoryImpl#getName <em>Name</em>}</li>
+ * <li>{@link org.eclipse.emf.cdo.tests.legacy.model1.impl.CategoryImpl#getCategories <em>Categories</em>}</li>
+ * <li>{@link org.eclipse.emf.cdo.tests.legacy.model1.impl.CategoryImpl#getProducts <em>Products</em>}</li>
  * </ul>
  * </p>
- *
+ * 
  * @generated
  */
 public class CategoryImpl extends EObjectImpl implements Category
 {
   /**
-   * The default value of the '{@link #getName() <em>Name</em>}' attribute.
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * The default value of the '{@link #getName() <em>Name</em>}' attribute. <!-- begin-user-doc --> <!-- end-user-doc
+   * -->
+   * 
    * @see #getName()
    * @generated
    * @ordered
@@ -50,9 +48,8 @@ public class CategoryImpl extends EObjectImpl implements Category
   protected static final String NAME_EDEFAULT = null;
 
   /**
-   * The cached value of the '{@link #getName() <em>Name</em>}' attribute.
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * The cached value of the '{@link #getName() <em>Name</em>}' attribute. <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @see #getName()
    * @generated
    * @ordered
@@ -60,9 +57,9 @@ public class CategoryImpl extends EObjectImpl implements Category
   protected String name = NAME_EDEFAULT;
 
   /**
-   * The cached value of the '{@link #getCategories() <em>Categories</em>}' containment reference list.
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * The cached value of the '{@link #getCategories() <em>Categories</em>}' containment reference list. <!--
+   * begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @see #getCategories()
    * @generated
    * @ordered
@@ -70,9 +67,9 @@ public class CategoryImpl extends EObjectImpl implements Category
   protected EList<Category> categories;
 
   /**
-   * The cached value of the '{@link #getProducts() <em>Products</em>}' containment reference list.
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * The cached value of the '{@link #getProducts() <em>Products</em>}' containment reference list. <!-- begin-user-doc
+   * --> <!-- end-user-doc -->
+   * 
    * @see #getProducts()
    * @generated
    * @ordered
@@ -80,8 +77,8 @@ public class CategoryImpl extends EObjectImpl implements Category
   protected EList<Product1> products;
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   protected CategoryImpl()
@@ -90,8 +87,8 @@ public class CategoryImpl extends EObjectImpl implements Category
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -101,22 +98,24 @@ public class CategoryImpl extends EObjectImpl implements Category
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public String getName()
   {
+    eFireRead(Model1Package.CATEGORY__NAME);
     return name;
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public void setName(String newName)
   {
+    eFireWrite(Model1Package.CATEGORY__NAME);
     String oldName = name;
     name = newName;
     if (eNotificationRequired())
@@ -124,36 +123,38 @@ public class CategoryImpl extends EObjectImpl implements Category
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EList<Category> getCategories()
   {
     if (categories == null)
     {
-      categories = new EObjectContainmentEList<Category>(Category.class, this, Model1Package.CATEGORY__CATEGORIES);
+      categories = new EObjectContainmentEList<Category>(Category.class, this, Model1Package.CATEGORY__CATEGORIES)
+          .readWriteFiringList();
     }
     return categories;
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   public EList<Product1> getProducts()
   {
     if (products == null)
     {
-      products = new EObjectContainmentEList<Product1>(Product1.class, this, Model1Package.CATEGORY__PRODUCTS);
+      products = new EObjectContainmentEList<Product1>(Product1.class, this, Model1Package.CATEGORY__PRODUCTS)
+          .readWriteFiringList();
     }
     return products;
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -170,8 +171,8 @@ public class CategoryImpl extends EObjectImpl implements Category
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -190,8 +191,8 @@ public class CategoryImpl extends EObjectImpl implements Category
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @SuppressWarnings("unchecked")
@@ -216,8 +217,8 @@ public class CategoryImpl extends EObjectImpl implements Category
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -239,8 +240,8 @@ public class CategoryImpl extends EObjectImpl implements Category
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -259,8 +260,8 @@ public class CategoryImpl extends EObjectImpl implements Category
   }
 
   /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
    * @generated
    */
   @Override
@@ -276,4 +277,4 @@ public class CategoryImpl extends EObjectImpl implements Category
     return result.toString();
   }
 
-} //CategoryImpl
+} // CategoryImpl
