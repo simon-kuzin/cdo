@@ -20,6 +20,7 @@ import org.eclipse.emf.cdo.server.CDOServerUtil;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.IStore;
 import org.eclipse.emf.cdo.tests.legacy.LegacyPackage;
+import org.eclipse.emf.cdo.tests.mango.MangoFactory;
 import org.eclipse.emf.cdo.tests.mango.MangoPackage;
 import org.eclipse.emf.cdo.tests.model1.Model1Factory;
 import org.eclipse.emf.cdo.tests.model1.Model1Package;
@@ -150,7 +151,7 @@ public abstract class AbstractCDOTest extends AbstractTransportTest
   protected CDOSession openMangoSession()
   {
     CDOSession session = openSession();
-    session.getPackageRegistry().putEPackage(MangoPackage.eINSTANCE);
+    session.getPackageRegistry().putEPackage(getMangoPackage());
     return session;
   }
 
@@ -168,6 +169,26 @@ public abstract class AbstractCDOTest extends AbstractTransportTest
     {
       assertEquals(true, FSMUtil.isTransient(object));
     }
+  }
+
+  protected static MangoFactory getMangoFactory()
+  {
+    if (legacyTesting)
+    {
+      return org.eclipse.emf.cdo.tests.legacy.mango.MangoFactory.eINSTANCE;
+    }
+
+    return org.eclipse.emf.cdo.tests.mango.MangoFactory.eINSTANCE;
+  }
+
+  protected static MangoPackage getMangoPackage()
+  {
+    if (legacyTesting)
+    {
+      return org.eclipse.emf.cdo.tests.legacy.mango.MangoPackage.eINSTANCE;
+    }
+
+    return org.eclipse.emf.cdo.tests.mango.MangoPackage.eINSTANCE;
   }
 
   protected static Model1Factory getModel1Factory()
