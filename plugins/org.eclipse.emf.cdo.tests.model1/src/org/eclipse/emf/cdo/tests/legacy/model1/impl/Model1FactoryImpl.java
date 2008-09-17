@@ -2,16 +2,16 @@
  * <copyright>
  * </copyright>
  *
- * $Id$
+ * $Id: Model1FactoryImpl.java,v 1.1.2.1 2008-09-17 10:00:47 estepper Exp $
  */
-package org.eclipse.emf.cdo.tests.model1.impl;
+package org.eclipse.emf.cdo.tests.legacy.model1.impl;
 
+import org.eclipse.emf.cdo.tests.legacy.model1.Model1Factory;
+import org.eclipse.emf.cdo.tests.legacy.model1.Model1Package;
 import org.eclipse.emf.cdo.tests.model1.Address;
 import org.eclipse.emf.cdo.tests.model1.Category;
 import org.eclipse.emf.cdo.tests.model1.Company;
 import org.eclipse.emf.cdo.tests.model1.Customer;
-import org.eclipse.emf.cdo.tests.model1.Model1Factory;
-import org.eclipse.emf.cdo.tests.model1.Model1Package;
 import org.eclipse.emf.cdo.tests.model1.Order;
 import org.eclipse.emf.cdo.tests.model1.OrderAddress;
 import org.eclipse.emf.cdo.tests.model1.OrderDetail;
@@ -29,15 +29,17 @@ import org.eclipse.emf.ecore.impl.EFactoryImpl;
 import org.eclipse.emf.ecore.plugin.EcorePlugin;
 
 /**
- * <!-- begin-user-doc --> An implementation of the model <b>Factory</b>. <!-- end-user-doc -->
- * 
+ * <!-- begin-user-doc -->
+ * An implementation of the model <b>Factory</b>.
+ * <!-- end-user-doc -->
  * @generated
  */
 public class Model1FactoryImpl extends EFactoryImpl implements Model1Factory
 {
   /**
-   * Creates the default factory implementation. <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
+   * Creates the default factory implementation.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
    * @generated
    */
   public static Model1Factory init()
@@ -59,8 +61,9 @@ public class Model1FactoryImpl extends EFactoryImpl implements Model1Factory
   }
 
   /**
-   * Creates an instance of the factory. <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
+   * Creates an instance of the factory.
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
    * @generated
    */
   public Model1FactoryImpl()
@@ -69,8 +72,8 @@ public class Model1FactoryImpl extends EFactoryImpl implements Model1Factory
   }
 
   /**
-   * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
    * @generated
    */
   @Override
@@ -106,8 +109,8 @@ public class Model1FactoryImpl extends EFactoryImpl implements Model1Factory
   }
 
   /**
-   * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
    * @generated
    */
   @Override
@@ -123,8 +126,8 @@ public class Model1FactoryImpl extends EFactoryImpl implements Model1Factory
   }
 
   /**
-   * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
    * @generated
    */
   @Override
@@ -140,8 +143,8 @@ public class Model1FactoryImpl extends EFactoryImpl implements Model1Factory
   }
 
   /**
-   * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
    * @generated
    */
   public Address createAddress()
@@ -151,8 +154,19 @@ public class Model1FactoryImpl extends EFactoryImpl implements Model1Factory
   }
 
   /**
-   * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  public Company createCompany()
+  {
+    CompanyImpl company = new CompanyImpl();
+    return company;
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
    * @generated
    */
   public Supplier createSupplier()
@@ -162,19 +176,30 @@ public class Model1FactoryImpl extends EFactoryImpl implements Model1Factory
   }
 
   /**
-   * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
    * @generated
    */
-  public PurchaseOrder createPurchaseOrder()
+  public Customer createCustomer()
   {
-    PurchaseOrderImpl purchaseOrder = new PurchaseOrderImpl();
-    return purchaseOrder;
+    CustomerImpl customer = new CustomerImpl();
+    return customer;
   }
 
   /**
-   * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  public Order createOrder()
+  {
+    OrderImpl order = new OrderImpl();
+    return order;
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
    * @generated
    */
   public OrderDetail createOrderDetail()
@@ -184,8 +209,52 @@ public class Model1FactoryImpl extends EFactoryImpl implements Model1Factory
   }
 
   /**
-   * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  public PurchaseOrder createPurchaseOrder()
+  {
+    PurchaseOrderImpl purchaseOrder = new PurchaseOrderImpl();
+    return purchaseOrder;
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  public SalesOrder createSalesOrder()
+  {
+    SalesOrderImpl salesOrder = new SalesOrderImpl();
+    return salesOrder;
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  public Category createCategory()
+  {
+    CategoryImpl category = new CategoryImpl();
+    return category;
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  public Product1 createProduct1()
+  {
+    Product1Impl product1 = new Product1Impl();
+    return product1;
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
    * @generated
    */
   public OrderAddress createOrderAddress()
@@ -195,8 +264,8 @@ public class Model1FactoryImpl extends EFactoryImpl implements Model1Factory
   }
 
   /**
-   * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
    * @generated
    */
   public VAT createVATFromString(EDataType eDataType, String initialValue)
@@ -209,8 +278,8 @@ public class Model1FactoryImpl extends EFactoryImpl implements Model1Factory
   }
 
   /**
-   * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
    * @generated
    */
   public String convertVATToString(EDataType eDataType, Object instanceValue)
@@ -219,74 +288,8 @@ public class Model1FactoryImpl extends EFactoryImpl implements Model1Factory
   }
 
   /**
-   * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
-   * @generated
-   */
-  public Category createCategory()
-  {
-    CategoryImpl category = new CategoryImpl();
-    return category;
-  }
-
-  /**
-   * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
-   * @generated
-   */
-  public Product1 createProduct1()
-  {
-    Product1Impl product1 = new Product1Impl();
-    return product1;
-  }
-
-  /**
-   * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
-   * @generated
-   */
-  public Company createCompany()
-  {
-    CompanyImpl company = new CompanyImpl();
-    return company;
-  }
-
-  /**
-   * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
-   * @generated
-   */
-  public Customer createCustomer()
-  {
-    CustomerImpl customer = new CustomerImpl();
-    return customer;
-  }
-
-  /**
-   * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
-   * @generated
-   */
-  public Order createOrder()
-  {
-    OrderImpl order = new OrderImpl();
-    return order;
-  }
-
-  /**
-   * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
-   * @generated
-   */
-  public SalesOrder createSalesOrder()
-  {
-    SalesOrderImpl salesOrder = new SalesOrderImpl();
-    return salesOrder;
-  }
-
-  /**
-   * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
    * @generated
    */
   public Model1Package getModel1Package()
@@ -295,8 +298,8 @@ public class Model1FactoryImpl extends EFactoryImpl implements Model1Factory
   }
 
   /**
-   * <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
    * @deprecated
    * @generated
    */
@@ -306,4 +309,4 @@ public class Model1FactoryImpl extends EFactoryImpl implements Model1Factory
     return Model1Package.eINSTANCE;
   }
 
-} // Model1FactoryImpl
+} //Model1FactoryImpl

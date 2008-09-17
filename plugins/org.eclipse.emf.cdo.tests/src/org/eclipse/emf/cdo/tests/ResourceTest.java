@@ -8,7 +8,7 @@ import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.internal.server.MEMStore;
 import org.eclipse.emf.cdo.server.IStore;
 import org.eclipse.emf.cdo.tests.model1.Model1Factory;
-import org.eclipse.emf.cdo.tests.model1.Product;
+import org.eclipse.emf.cdo.tests.model1.Product1;
 import org.eclipse.emf.cdo.tests.model1.VAT;
 import org.eclipse.emf.cdo.util.CDOURIUtil;
 import org.eclipse.emf.cdo.util.CDOUtil;
@@ -37,7 +37,7 @@ public class ResourceTest extends AbstractCDOTest
       CDOTransaction transaction = session.openTransaction();
       CDOResource resource = transaction.createResource("/my/resource");
 
-      Product p = Model1Factory.eINSTANCE.createProduct();
+      Product1 p = Model1Factory.eINSTANCE.createProduct1();
       p.setName("test");
       p.setVat(VAT.VAT0);
 
@@ -319,7 +319,7 @@ public class ResourceTest extends AbstractCDOTest
 
   private CDOResource createResource(CDOTransaction transaction, String path)
   {
-    Product p = Model1Factory.eINSTANCE.createProduct();
+    Product1 p = Model1Factory.eINSTANCE.createProduct1();
     p.setName("test-" + path);
     p.setVat(VAT.VAT0);
 
@@ -330,7 +330,7 @@ public class ResourceTest extends AbstractCDOTest
 
   private CDOResource modifyResource(CDOTransaction transaction, String path)
   {
-    Product p = Model1Factory.eINSTANCE.createProduct();
+    Product1 p = Model1Factory.eINSTANCE.createProduct1();
     p.setName("test-" + path + "-modified");
     p.setVat(VAT.VAT0);
 

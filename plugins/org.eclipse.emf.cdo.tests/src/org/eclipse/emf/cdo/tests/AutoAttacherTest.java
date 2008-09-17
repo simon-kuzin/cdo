@@ -15,7 +15,7 @@ import org.eclipse.emf.cdo.CDOSession;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.tests.model1.Model1Factory;
 import org.eclipse.emf.cdo.tests.model1.OrderDetail;
-import org.eclipse.emf.cdo.tests.model1.Product;
+import org.eclipse.emf.cdo.tests.model1.Product1;
 import org.eclipse.emf.cdo.tests.model1.PurchaseOrder;
 import org.eclipse.emf.cdo.tests.model1.Supplier;
 import org.eclipse.emf.cdo.util.CDOAutoAttacher;
@@ -37,7 +37,7 @@ public class AutoAttacherTest extends AbstractCDOTest
     CDOTransactionImpl transaction = (CDOTransactionImpl)session.openTransaction();
     new CDOAutoAttacher(transaction);
     CDOResource resource1 = transaction.getOrCreateResource("/test1");
-    Product product = Model1Factory.eINSTANCE.createProduct();
+    Product1 product = Model1Factory.eINSTANCE.createProduct1();
 
     {
       assertTransient(product);

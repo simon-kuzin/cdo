@@ -2,13 +2,13 @@
  * <copyright>
  * </copyright>
  *
- * $Id$
+ * $Id: Product1Impl.java,v 1.1.2.1 2008-09-17 10:00:47 estepper Exp $
  */
 package org.eclipse.emf.cdo.tests.model1.impl;
 
 import org.eclipse.emf.cdo.tests.model1.Model1Package;
 import org.eclipse.emf.cdo.tests.model1.OrderDetail;
-import org.eclipse.emf.cdo.tests.model1.Product;
+import org.eclipse.emf.cdo.tests.model1.Product1;
 import org.eclipse.emf.cdo.tests.model1.VAT;
 
 import org.eclipse.emf.internal.cdo.CDOObjectImpl;
@@ -21,22 +21,22 @@ import org.eclipse.emf.ecore.EClass;
  * <p>
  * The following features are implemented:
  * <ul>
- * <li>{@link org.eclipse.emf.cdo.tests.model1.impl.ProductImpl#getName <em>Name</em>}</li>
- * <li>{@link org.eclipse.emf.cdo.tests.model1.impl.ProductImpl#getOrderDetails <em>Order Details</em>}</li>
- * <li>{@link org.eclipse.emf.cdo.tests.model1.impl.ProductImpl#getVat <em>Vat</em>}</li>
+ * <li>{@link org.eclipse.emf.cdo.tests.model1.impl.Product1Impl#getName <em>Name</em>}</li>
+ * <li>{@link org.eclipse.emf.cdo.tests.model1.impl.Product1Impl#getOrderDetails <em>Order Details</em>}</li>
+ * <li>{@link org.eclipse.emf.cdo.tests.model1.impl.Product1Impl#getVat <em>Vat</em>}</li>
  * </ul>
  * </p>
  * 
  * @generated
  */
-public class ProductImpl extends CDOObjectImpl implements Product
+public class Product1Impl extends CDOObjectImpl implements Product1
 {
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
    * 
    * @generated
    */
-  protected ProductImpl()
+  protected Product1Impl()
   {
     super();
   }
@@ -49,7 +49,7 @@ public class ProductImpl extends CDOObjectImpl implements Product
   @Override
   protected EClass eStaticClass()
   {
-    return Model1Package.Literals.PRODUCT;
+    return Model1Package.Literals.PRODUCT1;
   }
 
   /**
@@ -70,7 +70,7 @@ public class ProductImpl extends CDOObjectImpl implements Product
    */
   public String getName()
   {
-    return (String)eGet(Model1Package.Literals.PRODUCT__NAME, true);
+    return (String)eGet(Model1Package.Literals.PRODUCT1__NAME, true);
   }
 
   /**
@@ -80,7 +80,7 @@ public class ProductImpl extends CDOObjectImpl implements Product
    */
   public void setName(String newName)
   {
-    eSet(Model1Package.Literals.PRODUCT__NAME, newName);
+    eSet(Model1Package.Literals.PRODUCT1__NAME, newName);
   }
 
   /**
@@ -91,7 +91,7 @@ public class ProductImpl extends CDOObjectImpl implements Product
   @SuppressWarnings("unchecked")
   public EList<OrderDetail> getOrderDetails()
   {
-    return (EList<OrderDetail>)eGet(Model1Package.Literals.PRODUCT__ORDER_DETAILS, true);
+    return (EList<OrderDetail>)eGet(Model1Package.Literals.PRODUCT1__ORDER_DETAILS, true);
   }
 
   /**
@@ -101,7 +101,7 @@ public class ProductImpl extends CDOObjectImpl implements Product
    */
   public VAT getVat()
   {
-    return (VAT)eGet(Model1Package.Literals.PRODUCT__VAT, true);
+    return (VAT)eGet(Model1Package.Literals.PRODUCT1__VAT, true);
   }
 
   /**
@@ -111,7 +111,7 @@ public class ProductImpl extends CDOObjectImpl implements Product
    */
   public void setVat(VAT newVat)
   {
-    eSet(Model1Package.Literals.PRODUCT__VAT, newVat);
+    eSet(Model1Package.Literals.PRODUCT1__VAT, newVat);
   }
 
 } // ProductImpl

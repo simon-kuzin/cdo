@@ -21,7 +21,7 @@ import org.eclipse.emf.cdo.server.IRepository.Props;
 import org.eclipse.emf.cdo.tests.model1.Category;
 import org.eclipse.emf.cdo.tests.model1.Model1Factory;
 import org.eclipse.emf.cdo.tests.model1.Model1Package;
-import org.eclipse.emf.cdo.tests.model1.Product;
+import org.eclipse.emf.cdo.tests.model1.Product1;
 import org.eclipse.emf.cdo.util.CDOUtil;
 
 import org.eclipse.net4j.Net4jUtil;
@@ -98,13 +98,13 @@ public class ImportXML
     Category cat2 = Model1Factory.eINSTANCE.createCategory();
     cat2.setName("CAT2");
     cat1.getCategories().add(cat2);
-    Product p1 = Model1Factory.eINSTANCE.createProduct();
+    Product1 p1 = Model1Factory.eINSTANCE.createProduct1();
     p1.setName("P1");
     cat1.getProducts().add(p1);
-    Product p2 = Model1Factory.eINSTANCE.createProduct();
+    Product1 p2 = Model1Factory.eINSTANCE.createProduct1();
     p2.setName("P2");
     cat1.getProducts().add(p2);
-    Product p3 = Model1Factory.eINSTANCE.createProduct();
+    Product1 p3 = Model1Factory.eINSTANCE.createProduct1();
     p3.setName("P3");
     cat2.getProducts().add(p3);
     return cat1;
