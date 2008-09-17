@@ -232,7 +232,7 @@ public final class CDOUtil
   /**
    * @since 2.0
    */
-  public static CDOObject adaptLegacy(EObject object)
+  public static CDOObject adaptObject(EObject object)
   {
     if (object instanceof CDOObject)
     {

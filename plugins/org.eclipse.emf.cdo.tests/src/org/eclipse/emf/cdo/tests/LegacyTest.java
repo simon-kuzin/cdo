@@ -39,7 +39,7 @@ public class LegacyTest extends AbstractCDOTest
     resource.getContents().add(hook);
     transaction.commit();
 
-    CDOObject cdoHook = CDOUtil.adaptLegacy(hook);
+    CDOObject cdoHook = CDOUtil.adaptObject(hook);
     assertEquals(false, CDOLegacyWrapper.isLegacyProxy(cdoHook));
     assertEquals(CDOState.CLEAN, cdoHook.cdoState());
     assertEquals(CDOState.CLEAN, resource.cdoState());
@@ -63,7 +63,7 @@ public class LegacyTest extends AbstractCDOTest
     EList<EObject> contents = resource.getContents();
 
     Hook hook = (Hook)contents.get(0);
-    CDOObject cdoHook = CDOUtil.adaptLegacy(hook);
+    CDOObject cdoHook = CDOUtil.adaptObject(hook);
     assertEquals(false, CDOLegacyWrapper.isLegacyProxy(cdoHook));
     assertEquals(CDOState.CLEAN, cdoHook.cdoState());
     assertEquals(CDOState.CLEAN, resource.cdoState());
@@ -89,7 +89,7 @@ public class LegacyTest extends AbstractCDOTest
       resource.getContents().add(hook);
       transaction.commit();
 
-      CDOObject cdoHook = CDOUtil.adaptLegacy(hook);
+      CDOObject cdoHook = CDOUtil.adaptObject(hook);
       assertEquals(false, CDOLegacyWrapper.isLegacyProxy(cdoHook));
       assertEquals(CDOState.CLEAN, cdoHook.cdoState());
       assertEquals(CDOState.CLEAN, resource.cdoState());
@@ -104,7 +104,7 @@ public class LegacyTest extends AbstractCDOTest
     Hook hook = (Hook)contents.get(0);
     assertNotProxy(hook);
 
-    CDOObject cdoHook = CDOUtil.adaptLegacy(hook);
+    CDOObject cdoHook = CDOUtil.adaptObject(hook);
     assertEquals(false, CDOLegacyWrapper.isLegacyProxy(cdoHook));
     assertEquals(CDOState.CLEAN, cdoHook.cdoState());
 
@@ -124,17 +124,17 @@ public class LegacyTest extends AbstractCDOTest
     Hook h0 = children.get(0);
     assertNotProxy(h0);
     assertEquals("Hook 1", h0.getName());
-    assertEquals(CDOState.CLEAN, CDOUtil.adaptLegacy(h0).cdoState());
+    assertEquals(CDOState.CLEAN, CDOUtil.adaptObject(h0).cdoState());
 
     Hook h1 = children.get(1);
     assertNotProxy(h1);
     assertEquals("Hook 2", h1.getName());
-    assertEquals(CDOState.CLEAN, CDOUtil.adaptLegacy(h1).cdoState());
+    assertEquals(CDOState.CLEAN, CDOUtil.adaptObject(h1).cdoState());
 
     Hook h2 = children.get(2);
     assertNotProxy(h2);
     assertEquals("Hook 3", h2.getName());
-    assertEquals(CDOState.CLEAN, CDOUtil.adaptLegacy(h2).cdoState());
+    assertEquals(CDOState.CLEAN, CDOUtil.adaptObject(h2).cdoState());
     session.close();
   }
 
