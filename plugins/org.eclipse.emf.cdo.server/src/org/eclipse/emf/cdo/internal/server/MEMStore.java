@@ -13,12 +13,16 @@
 package org.eclipse.emf.cdo.internal.server;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.model.CDOFeature;
+import org.eclipse.emf.cdo.common.model.resource.CDOResourceNodeClass;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.IMEMStore;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.IView;
 import org.eclipse.emf.cdo.server.IStoreReader.QueryResourcesContext;
 import org.eclipse.emf.cdo.spi.common.InternalCDORevision;
+
+import org.eclipse.net4j.util.ObjectUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -169,10 +173,11 @@ public class MEMStore extends LongIDStore implements IMEMStore
 
     if (revision.isResource())
     {
-      String revisionPath = (String)revision.getData().get(getResourcePathFeature(), 0);
-      if (getResourceID(revisionPath, revision.getCreated()) != null)
+      CDOID revisionFolder = (CDOID)revision.getData().get(getResourceFolderFeature(), 0);
+      String revisionName = (String)revision.getData().get(getResourceNameFeature(), 0);
+      if (getResourceID(revisionFolder, revisionName, revision.getCreated()) != null)
       {
-        throw new IllegalStateException("Duplicate resource path: " + revisionPath);
+        throw new IllegalStateException("Duplicate resource: " + revisionName + " (folderID=" + revisionFolder + ")");
       }
     }
 
@@ -181,6 +186,21 @@ public class MEMStore extends LongIDStore implements IMEMStore
     {
       enforceListLimit(list);
     }
+  }
+
+  private CDOResourceNodeClass getResourceNodeClass()
+  {
+    return getRepository().getPackageManager().getCDOResourcePackage().getCDOResourceNodeClass();
+  }
+
+  private CDOFeature getResourceFolderFeature()
+  {
+    return getResourceNodeClass().getCDOFolderFeature();
+  }
+
+  private CDOFeature getResourceNameFeature()
+  {
+    return getResourceNodeClass().getCDONameFeature();
   }
 
   /**
@@ -224,7 +244,7 @@ public class MEMStore extends LongIDStore implements IMEMStore
   /**
    * @since 2.0
    */
-  public CDOID getResourceID(final String path, final long timeStamp)
+  public CDOID getResourceID(CDOID folderID, final String name, final long timeStamp)
   {
     final CDOID[] result = new CDOID[1];
     queryResources(new QueryResourcesContext()
@@ -234,9 +254,9 @@ public class MEMStore extends LongIDStore implements IMEMStore
         return timeStamp;
       }
 
-      public String getPathPrefix()
+      public String getNamePrefix()
       {
-        return path;
+        return name;
       }
 
       public int getMaxResults()
@@ -249,7 +269,7 @@ public class MEMStore extends LongIDStore implements IMEMStore
         result[0] = resourceID;
         return false;
       }
-    }, true);
+    }, folderID, true);
 
     return result[0];
   }
@@ -257,9 +277,9 @@ public class MEMStore extends LongIDStore implements IMEMStore
   /**
    * @since 2.0
    */
-  public synchronized void queryResources(QueryResourcesContext context, boolean exactMatch)
+  public synchronized void queryResources(QueryResourcesContext context, CDOID folderID, boolean exactMatch)
   {
-    String pathPrefix = context.getPathPrefix();
+    String namePrefix = context.getNamePrefix();
     for (List<CDORevision> list : revisions.values())
     {
       if (!list.isEmpty())
@@ -270,14 +290,18 @@ public class MEMStore extends LongIDStore implements IMEMStore
           revision = getRevisionByTime(list, context.getTimeStamp());
           if (revision != null)
           {
-            String path = (String)revision.getData().get(getResourcePathFeature(), 0);
-            boolean match = exactMatch ? path.equals(pathPrefix) : path.startsWith(pathPrefix);
-            if (match)
+            CDOID revisionFolder = (CDOID)revision.getData().get(getResourceFolderFeature(), 0);
+            if (ObjectUtil.equals(revisionFolder, folderID))
             {
-              if (!context.addResource(revision.getID()))
+              String revisionName = (String)revision.getData().get(getResourceNameFeature(), 0);
+              boolean match = exactMatch ? revisionName.equals(namePrefix) : revisionName.startsWith(namePrefix);
+              if (match)
               {
-                // No more results allowed
-                break;
+                if (!context.addResource(revision.getID()))
+                {
+                  // No more results allowed
+                  break;
+                }
               }
             }
           }

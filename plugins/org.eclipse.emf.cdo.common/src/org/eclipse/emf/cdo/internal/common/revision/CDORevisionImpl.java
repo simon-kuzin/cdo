@@ -253,6 +253,16 @@ public class CDORevisionImpl implements InternalCDORevision
     return (revised == UNSPECIFIED_DATE || revised >= timeStamp) && timeStamp >= created;
   }
 
+  public boolean isResourceNode()
+  {
+    return cdoClass.isResourceNode();
+  }
+
+  public boolean isResourceFolder()
+  {
+    return cdoClass.isResourceFolder();
+  }
+
   public boolean isResource()
   {
     return cdoClass.isResource();

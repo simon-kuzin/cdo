@@ -13,16 +13,18 @@ package org.eclipse.emf.cdo.internal.server;
 
 import org.eclipse.emf.cdo.common.CDOProtocolView;
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.model.resource.CDOPathFeature;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.IStoreReader;
 import org.eclipse.emf.cdo.server.IView;
 import org.eclipse.emf.cdo.server.StoreThreadLocal;
 import org.eclipse.emf.cdo.spi.common.InternalCDORevision;
 
+import org.eclipse.net4j.util.StringUtil;
+
 import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 /**
  * @author Eike Stepper
@@ -35,8 +37,6 @@ public class View implements IView
 
   private IRepository repository;
 
-  private CDOPathFeature resourcePathFeature;
-
   private Set<CDOID> changeSubscriptionIDs = new HashSet<CDOID>();
 
   /**
@@ -46,10 +46,7 @@ public class View implements IView
   {
     this.session = session;
     this.viewID = viewID;
-
     repository = session.getSessionManager().getRepository();
-    resourcePathFeature = repository.getPackageManager().getCDOResourcePackage().getCDOResourceClass()
-        .getCDOPathFeature();
   }
 
   public Session getSession()
@@ -83,11 +80,32 @@ public class View implements IView
   {
     checkOpen();
     long timeStamp = getTimeStamp();
-    CDOID id = repository.getRevisionManager().getResourceID(path, timeStamp);
+    CDOID resourceID = null;
+
+    StringTokenizer tokenizer = new StringTokenizer(path, "/");
+    while (tokenizer.hasMoreTokens())
+    {
+      String token = tokenizer.nextToken();
+      if (!StringUtil.isEmpty(token))
+      {
+        resourceID = getResourceID(resourceID, token, timeStamp);
+        if (resourceID == null)
+        {
+          return null;
+        }
+      }
+    }
+
+    return resourceID;
+  }
+
+  private CDOID getResourceID(CDOID folderID, String name, long timeStamp)
+  {
+    CDOID id = repository.getRevisionManager().getResourceID(folderID, name, timeStamp);
     if (id == null)
     {
       IStoreReader storeReader = StoreThreadLocal.getStoreReader();
-      id = storeReader.readResourceID(path, timeStamp);
+      id = storeReader.readResourceID(folderID, name, timeStamp);
     }
 
     return id;
@@ -186,7 +204,6 @@ public class View implements IView
     clearChangeSubscription();
     session = null;
     repository = null;
-    resourcePathFeature = null;
     changeSubscriptionIDs = null;
   }
 

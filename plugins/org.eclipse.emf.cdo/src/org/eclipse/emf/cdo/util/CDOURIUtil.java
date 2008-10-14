@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *    Simon McDuff - initial API and implementation
+ *    Eike Stepper - maintenance
  **************************************************************************/
 package org.eclipse.emf.cdo.util;
 
@@ -19,49 +20,74 @@ import org.eclipse.emf.cdo.internal.common.id.CDOIDExternalImpl;
 
 import org.eclipse.emf.common.util.URI;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
+
 /**
  * @author Simon McDuff
  * @since 2.0
  */
 public class CDOURIUtil
 {
-  private static final char SEGMENT_SEPARATOR = '/';
+  public static final char SEGMENT_SEPARATOR_CHAR = '/';
 
-  public static boolean validateURI(URI uri)
+  public static final String SEGMENT_SEPARATOR = new String(new char[] { SEGMENT_SEPARATOR_CHAR });
+
+  public static void validateURI(URI uri) throws InvalidURIException
   {
     if (!CDOProtocolConstants.PROTOCOL_NAME.equals(uri.scheme()))
     {
-      return false;
+      throw new InvalidURIException(uri);
     }
 
     if (!uri.isHierarchical())
     {
-      return false;
+      throw new InvalidURIException(uri);
     }
 
     if (!uri.hasAbsolutePath())
     {
-      return false;
+      throw new InvalidURIException(uri);
     }
-    return true;
-  }
-
-  public static String extractResourcePath(URI uri)
-  {
-    if (!validateURI(uri))
-    {
-      return null;
-    }
-    return uri.path();
   }
 
   public static String extractRepositoryUUID(URI uri)
   {
-    if (!validateURI(uri) || !uri.hasAuthority())
+    try
+    {
+      validateURI(uri);
+      if (!uri.hasAuthority())
+      {
+        throw new InvalidURIException(uri);
+      }
+
+      return uri.authority();
+    }
+    catch (InvalidURIException ex)
     {
       return null;
     }
-    return uri.authority();
+  }
+
+  public static String[] extractResourceFolderAndName(URI uri) throws InvalidURIException
+  {
+    String path = extractResourcePath(uri);
+    int lastSeparator = path.lastIndexOf(SEGMENT_SEPARATOR_CHAR);
+    if (lastSeparator == -1)
+    {
+      return new String[] { null, path };
+    }
+
+    String folder = path.substring(0, lastSeparator);
+    String name = path.substring(lastSeparator + 1);
+    return new String[] { folder, name };
+  }
+
+  public static String extractResourcePath(URI uri) throws InvalidURIException
+  {
+    validateURI(uri);
+    return uri.path();
   }
 
   /**
@@ -86,10 +112,11 @@ public class CDOURIUtil
       stringBuilder.append(repositoryUUID);
     }
 
-    if (path.charAt(0) != SEGMENT_SEPARATOR)
+    if (path.charAt(0) != SEGMENT_SEPARATOR_CHAR)
     {
-      stringBuilder.append(SEGMENT_SEPARATOR);
+      stringBuilder.append(SEGMENT_SEPARATOR_CHAR);
     }
+
     stringBuilder.append(path);
     return URI.createURI(stringBuilder.toString());
   }
@@ -113,13 +140,31 @@ public class CDOURIUtil
    */
   public static CDOID convertExternalCDOID(URI baseURI, CDOID newCDOID)
   {
-    baseURI = baseURI.trimFragment();
-
     StringBuilder builder = new StringBuilder();
-
     CDOIDUtil.write(builder, newCDOID);
-    baseURI = baseURI.appendFragment(builder.toString());
 
+    baseURI = baseURI.trimFragment().appendFragment(builder.toString());
     return new CDOIDExternalImpl(baseURI.toString());
+  }
+
+  public static List<String> analyzePath(URI uri)
+  {
+    return analyzePath(extractResourcePath(uri));
+  }
+
+  public static List<String> analyzePath(String path)
+  {
+    List<String> segments = new ArrayList<String>();
+    StringTokenizer tokenizer = new StringTokenizer(path, CDOURIUtil.SEGMENT_SEPARATOR);
+    while (tokenizer.hasMoreTokens())
+    {
+      String name = tokenizer.nextToken();
+      if (name != null)
+      {
+        segments.add(name);
+      }
+    }
+
+    return segments;
   }
 }

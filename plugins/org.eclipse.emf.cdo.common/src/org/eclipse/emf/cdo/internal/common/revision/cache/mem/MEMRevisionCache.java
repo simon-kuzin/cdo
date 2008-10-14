@@ -16,7 +16,10 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
+import org.eclipse.emf.cdo.common.model.CDOPackageManager;
+import org.eclipse.emf.cdo.common.model.resource.CDOFolderFeature;
+import org.eclipse.emf.cdo.common.model.resource.CDONameFeature;
+import org.eclipse.emf.cdo.common.model.resource.CDOResourceNodeClass;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
@@ -50,11 +53,15 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_REVISION, MEMRevisionCache.class);
 
-  private CDOFeature resourcePathFeature;
+  private CDOPackageManager packageManager;
 
   private Map<CDOID, CacheList> cacheLists = new HashMap<CDOID, CacheList>();
 
   private ReferenceType referenceType;
+
+  private transient CDOFolderFeature cdoFolderFeature;
+
+  private transient CDONameFeature cdoNameFeature;
 
   public MEMRevisionCache(ReferenceType referenceType)
   {
@@ -66,14 +73,20 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
     this(ReferenceType.SOFT);
   }
 
-  public CDOFeature getResourcePathFeature()
+  public CDOPackageManager getPackageManager()
   {
-    return resourcePathFeature;
+    return packageManager;
   }
 
-  public void setResourcePathFeature(CDOFeature resourcePathFeature)
+  public void setPackageManager(CDOPackageManager packageManager)
   {
-    this.resourcePathFeature = resourcePathFeature;
+    this.packageManager = packageManager;
+    if (packageManager != null)
+    {
+      CDOResourceNodeClass resourceNodeClass = packageManager.getCDOResourcePackage().getCDOResourceNodeClass();
+      cdoFolderFeature = resourceNodeClass.getCDOFolderFeature();
+      cdoNameFeature = resourceNodeClass.getCDONameFeature();
+    }
   }
 
   public ReferenceType getReferenceType()
@@ -190,7 +203,7 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
     return null;
   }
 
-  public CDOID getResourceID(String path, long timeStamp)
+  public CDOID getResourceID(CDOID folderID, String name, long timeStamp)
   {
     CDOID[] ids = getRevisionIDs();
     for (CDOID id : ids)
@@ -200,7 +213,7 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
         CacheList list = cacheLists.get(id);
         if (list != null)
         {
-          return list.getResourceID(path, timeStamp);
+          return list.getResourceID(folderID, name, timeStamp);
         }
       }
     }
@@ -331,15 +344,19 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
       return getRevisionByTime(timeStamp, false);
     }
 
-    public CDOID getResourceID(String path, long timeStamp)
+    public CDOID getResourceID(CDOID folderID, String name, long timeStamp)
     {
       InternalCDORevision revision = getRevisionByTime(timeStamp, true);
       if (revision != null)
       {
-        String revisionPath = (String)revision.getValue(resourcePathFeature);
-        if (ObjectUtil.equals(revisionPath, path))
+        CDOID revisionFolderID = (CDOID)revision.getValue(cdoFolderFeature);
+        if (ObjectUtil.equals(revisionFolderID, folderID))
         {
-          return revision.getID();
+          String revisionName = (String)revision.getValue(cdoNameFeature);
+          if (ObjectUtil.equals(revisionName, name))
+          {
+            return revision.getID();
+          }
         }
       }
 

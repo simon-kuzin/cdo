@@ -22,6 +22,15 @@ public interface CDOResourcePackage extends CDOPackage
 
   public static final String NAME = "cdoresource";
 
-  public CDOResourceClass getCDOResourceClass();
+  /**
+   * @since 2.0
+   */
+  public CDOResourceNodeClass getCDOResourceNodeClass();
 
+  /**
+   * @since 2.0
+   */
+  public CDOResourceFolderClass getCDOResourceFolderClass();
+
+  public CDOResourceClass getCDOResourceClass();
 }

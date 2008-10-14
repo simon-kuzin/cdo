@@ -27,28 +27,34 @@ import org.eclipse.emf.cdo.common.id.CDOIDMeta;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOClass;
+import org.eclipse.emf.cdo.common.model.resource.CDOFolderFeature;
+import org.eclipse.emf.cdo.common.model.resource.CDONameFeature;
+import org.eclipse.emf.cdo.common.model.resource.CDOResourceNodeClass;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionResolver;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.common.util.CDOException;
 import org.eclipse.emf.cdo.common.util.TransportException;
 import org.eclipse.emf.cdo.eresource.CDOResource;
+import org.eclipse.emf.cdo.eresource.CDOResourceFolder;
+import org.eclipse.emf.cdo.eresource.CDOResourceNode;
 import org.eclipse.emf.cdo.eresource.impl.CDOResourceImpl;
 import org.eclipse.emf.cdo.query.CDOQuery;
 import org.eclipse.emf.cdo.spi.common.InternalCDORevision;
 import org.eclipse.emf.cdo.util.CDOURIUtil;
 import org.eclipse.emf.cdo.util.CDOUtil;
+import org.eclipse.emf.cdo.util.InvalidURIException;
 import org.eclipse.emf.cdo.util.ReadOnlyException;
 
 import org.eclipse.emf.internal.cdo.bundle.OM;
 import org.eclipse.emf.internal.cdo.protocol.ChangeSubscriptionRequest;
-import org.eclipse.emf.internal.cdo.protocol.ResourceIDRequest;
 import org.eclipse.emf.internal.cdo.protocol.ResourcePathRequest;
 import org.eclipse.emf.internal.cdo.query.CDOQueryImpl;
 import org.eclipse.emf.internal.cdo.util.FSMUtil;
 import org.eclipse.emf.internal.cdo.util.ModelUtil;
 
 import org.eclipse.net4j.util.ImplementationError;
+import org.eclipse.net4j.util.StringUtil;
 import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
 import org.eclipse.net4j.util.collection.CloseableIterator;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
@@ -73,6 +79,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
@@ -89,6 +96,8 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
   private CDOSessionImpl session;
 
   private CDOViewSet viewSet;
+
+  private CDOURIHandler uriHandler = new CDOURIHandler(this);
 
   private boolean uniqueResourceContents = true;
 
@@ -163,6 +172,14 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
   public CDOStore getStore()
   {
     return store;
+  }
+
+  /**
+   * @since 2.0
+   */
+  public CDOURIHandler getURIHandler()
+  {
+    return uriHandler;
   }
 
   /**
@@ -277,8 +294,16 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
   public boolean hasResource(String path)
   {
     checkOpen();
-    CDOID id = getResourceID(path);
-    return id != null && !id.isNull();
+
+    try
+    {
+      getResourceID(path);
+      return true;
+    }
+    catch (Exception ex)
+    {
+      return false;
+    }
   }
 
   /**
@@ -290,23 +315,86 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
     return new CDOQueryImpl(this, language, queryString);
   }
 
-  public CDOID getResourceID(String path)
+  protected CDOID getResourceID(String path)
   {
-    try
+    if (StringUtil.isEmpty(path))
     {
-      CDOResource resource = getResource(path, false);
-      if (resource != null && resource.cdoID() != null)
+      throw new IllegalArgumentException("path");
+    }
+
+    CDOResourceNode node = null;
+    CDOID folderID = null;
+    StringTokenizer tokenizer = new StringTokenizer(path, CDOURIUtil.SEGMENT_SEPARATOR);
+    while (tokenizer.hasMoreTokens())
+    {
+      String name = tokenizer.nextToken();
+      if (name != null)
       {
-        return resource.cdoID();
+        node = getResourceNode(folderID, name);
+        folderID = node.cdoID();
+      }
+    }
+
+    if (node instanceof CDOResource)
+    {
+      return folderID;
+    }
+
+    throw new CDOException("Path does not denote a resource: " + path);
+  }
+
+  /**
+   * @return never <code>null</code>
+   * @since 2.0
+   */
+  protected CDOResourceNode getResourceNode(CDOID folderID, String name)
+  {
+    if (name == null)
+    {
+      throw new IllegalArgumentException("name");
+    }
+
+    if (folderID == null)
+    {
+      return getRootResourceNode(name);
+    }
+
+    InternalCDOObject object = getObject(folderID, true);
+    if (object instanceof CDOResourceFolder)
+    {
+      CDOResourceFolder folder = (CDOResourceFolder)object;
+      for (CDOResourceNode node : folder.getNodes())
+      {
+        if (name.equals(node.getName()))
+        {
+          return node;
+        }
       }
 
-      ResourceIDRequest request = new ResourceIDRequest(session.getProtocol(), viewID, path);
-      return session.getFailOverStrategy().send(request);
+      throw new CDOException("ResourceNode " + name + " not found in folder " + folder.getPath());
     }
-    catch (Exception ex)
+
+    throw new CDOException("ResourceNode " + name + " expected in folder " + folderID + " which is not a folder");
+  }
+
+  /**
+   * @return never <code>null</code>
+   * @since 2.0
+   */
+  protected CDOResourceNode getRootResourceNode(String name)
+  {
+    List<CDOResourceNode> nodes = queryResources((CDOID)null, name);
+    if (nodes.isEmpty())
     {
-      throw new TransactionException(ex);
+      throw new CDOException("No root ResourceNode with the name " + name);
     }
+
+    if (nodes.size() > 1)
+    {
+      throw new ImplementationError("Duplicate root ResourceNodes with the same name");
+    }
+
+    return nodes.get(0);
   }
 
   /**
@@ -323,9 +411,37 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
   /**
    * @since 2.0
    */
+  public CDOResourceFolder getResourceFolder(String path)
+  {
+    if (path == null)
+    {
+      return null;
+    }
+
+    CDOResourceFolder folder = null;
+    StringTokenizer tokenizer = new StringTokenizer(path, CDOURIUtil.SEGMENT_SEPARATOR);
+    while (tokenizer.hasMoreTokens())
+    {
+      String segment = tokenizer.nextToken();
+      if (segment != null)
+      {
+        if (folder == null)
+        {
+        }
+        else
+        {
+        }
+      }
+    }
+
+    return folder;
+  }
+
+  /**
+   * @since 2.0
+   */
   public CDOResource getResource(String path)
   {
-    checkOpen();
     return getResource(path, true);
   }
 
@@ -342,19 +458,31 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
   /**
    * @since 2.0
    */
-  public List<CDOResource> queryResources(String pathPrefix)
+  public List<CDOResourceNode> queryResources(CDOResourceFolder folder, String namePrefix)
   {
-    CDOQuery resourceQuery = createResourcesQuery(pathPrefix);
-    return resourceQuery.getResult(CDOResource.class);
+    CDOID folderID = folder == null ? null : folder.cdoID();
+    return queryResources(folderID, namePrefix);
   }
 
   /**
    * @since 2.0
    */
-  public CloseableIterator<CDOResource> queryResourcesAsync(String pathPrefix)
+  public CloseableIterator<CDOResourceNode> queryResourcesAsync(CDOResourceFolder folder, String namePrefix)
   {
-    CDOQuery resourceQuery = createResourcesQuery(pathPrefix);
-    return resourceQuery.getResultAsync(CDOResource.class);
+    CDOID folderID = folder == null ? null : folder.cdoID();
+    return queryResourcesAsync(folderID, namePrefix);
+  }
+
+  private List<CDOResourceNode> queryResources(CDOID folderID, String namePrefix)
+  {
+    CDOQuery resourceQuery = createResourcesQuery(namePrefix);
+    return resourceQuery.getResult(CDOResourceNode.class);
+  }
+
+  private CloseableIterator<CDOResourceNode> queryResourcesAsync(CDOID folderID, String namePrefix)
+  {
+    CDOQuery resourceQuery = createResourcesQuery(namePrefix);
+    return resourceQuery.getResultAsync(CDOResourceNode.class);
   }
 
   private CDOQuery createResourcesQuery(String pathPrefix)
@@ -572,9 +700,51 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
     FSMUtil.validate(id, revision);
 
     CDOClass cdoClass = revision.getCDOClass();
-    InternalCDOObject object = newInstance(cdoClass);
+    InternalCDOObject object;
+    if (cdoClass.isResource())
+    {
+      object = (InternalCDOObject)newResourceInstance(revision);
+      // object is PROXY
+    }
+    else
+    {
+      object = newInstance(cdoClass);
+      // object is TRANSIENT
+    }
+
     cleanObject(object, revision);
     return object;
+  }
+
+  private CDOResource newResourceInstance(InternalCDORevision revision)
+  {
+    String path = getResourcePath(revision);
+    return getResource(path, true);
+  }
+
+  private String getResourcePath(InternalCDORevision revision)
+  {
+    CDOResourceNodeClass resourceNodeClass = session.getPackageManager().getCDOResourcePackage()
+        .getCDOResourceNodeClass();
+    CDOFolderFeature folderFeature = resourceNodeClass.getCDOFolderFeature();
+    CDONameFeature nameFeature = resourceNodeClass.getCDONameFeature();
+
+    CDOID folderID = (CDOID)revision.getData().get(folderFeature, 0);
+    String name = (String)revision.getData().get(nameFeature, 0);
+    if (folderID == null)
+    {
+      return name;
+    }
+
+    InternalCDOObject object = getObject(folderID, true);
+    if (object instanceof CDOResourceFolder)
+    {
+      CDOResourceFolder folder = (CDOResourceFolder)object;
+      String path = folder.getPath();
+      return path + CDOURIUtil.SEGMENT_SEPARATOR + name;
+    }
+
+    throw new ImplementationError("Not a ResourceFolder: " + object);
   }
 
   /**
@@ -601,7 +771,6 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
     object.cdoInternalSetRevision(revision);
     object.cdoInternalSetID(revision.getID());
     object.cdoInternalSetState(CDOState.CLEAN);
-
     object.cdoInternalPostLoad();
   }
 
@@ -716,21 +885,37 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
   /**
    * @since 2.0
    */
-  public boolean registerProxyResource(CDOResourceImpl resource)
+  public void attachResource(CDOResourceImpl resource)
   {
-    CDOID id = getResourceID(resource.getPath());
-
-    boolean exists = id != null && !id.isNull();
-    if (exists)
+    if (!resource.isExisting())
     {
-      resource.cdoInternalSetResource(resource);
-      resource.cdoInternalSetView(this);
-      resource.cdoInternalSetID(id);
-      resource.cdoInternalSetState(CDOState.PROXY);
-      registerObject(resource);
+      throw new ReadOnlyException("CDO view is read-only: " + this);
     }
 
-    return exists;
+    // ResourceSet.getResource(uri, true) was called!!
+    resource.cdoInternalSetView(this);
+    resource.cdoInternalSetState(CDOState.PROXY);
+  }
+
+  /**
+   * @since 2.0
+   */
+  public void registerProxyResource(CDOResourceImpl resource)
+  {
+    URI uri = resource.getURI();
+    String path = CDOURIUtil.extractResourcePath(uri);
+
+    try
+    {
+      CDOID id = getResourceID(path);
+      resource.cdoInternalSetID(id);
+      resource.cdoInternalSetResource(resource);
+      registerObject(resource);
+    }
+    catch (Exception ex)
+    {
+      throw new InvalidURIException(uri, ex);
+    }
   }
 
   public void registerObject(InternalCDOObject object)
@@ -1000,6 +1185,10 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
   public void setViewSet(CDOViewSet viewSet)
   {
     this.viewSet = viewSet;
+    if (viewSet != null)
+    {
+      viewSet.getResourceSet().getURIConverter().getURIHandlers().add(getURIHandler());
+    }
   }
 
   private void checkOpen()

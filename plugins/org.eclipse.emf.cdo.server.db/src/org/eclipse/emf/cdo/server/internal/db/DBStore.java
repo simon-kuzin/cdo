@@ -232,7 +232,7 @@ public class DBStore extends LongIDStore implements IDBStore
 
         MappingStrategy mappingStrategy = (MappingStrategy)getMappingStrategy();
 
-        IClassMapping resourceClassMapping = mappingStrategy.getResourceClassMapping();
+        IClassMapping resourceClassMapping = mappingStrategy.getResourceNodeClassMapping();
         Set<IDBTable> tables = resourceClassMapping.getAffectedTables();
         if (dbAdapter.createTables(tables, connection).size() != tables.size())
         {

@@ -16,8 +16,10 @@ import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOClass;
 import org.eclipse.emf.cdo.common.model.CDOClassRef;
 import org.eclipse.emf.cdo.common.model.CDOPackage;
-import org.eclipse.emf.cdo.common.model.resource.CDOPathFeature;
+import org.eclipse.emf.cdo.common.model.resource.CDOFolderFeature;
+import org.eclipse.emf.cdo.common.model.resource.CDONameFeature;
 import org.eclipse.emf.cdo.common.model.resource.CDOResourceClass;
+import org.eclipse.emf.cdo.common.model.resource.CDOResourceNodeClass;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.IPackageManager;
 import org.eclipse.emf.cdo.server.IStoreReader.QueryResourcesContext;
@@ -25,6 +27,7 @@ import org.eclipse.emf.cdo.server.db.IAttributeMapping;
 import org.eclipse.emf.cdo.server.db.IClassMapping;
 import org.eclipse.emf.cdo.server.db.IDBStore;
 import org.eclipse.emf.cdo.server.db.IDBStoreReader;
+import org.eclipse.emf.cdo.server.db.IFeatureMapping;
 import org.eclipse.emf.cdo.server.db.IMappingStrategy;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
 
@@ -59,15 +62,19 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
 
   private Map<Integer, CDOClassRef> classRefs = new HashMap<Integer, CDOClassRef>();
 
-  private IClassMapping resourceClassMapping;
+  private IClassMapping resourceNodeClassMapping;
 
-  private IAttributeMapping resourcePathMapping;
+  private IAttributeMapping resourceFolderFeatureMapping;
 
-  private IDBTable resourceTable;
+  private IAttributeMapping resourceNameFeatureMapping;
+
+  private IDBTable resourceNodeTable;
 
   private IDBField resourceIDField;
 
-  private IDBField resourcePathField;
+  private IDBField resourceFolderField;
+
+  private IDBField resourceNameField;
 
   public MappingStrategy()
   {
@@ -160,34 +167,44 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
     return mapping;
   }
 
-  public IClassMapping getResourceClassMapping()
+  public IClassMapping getResourceNodeClassMapping()
   {
-    if (resourceClassMapping == null)
+    if (resourceNodeClassMapping == null)
     {
       initResourceInfos();
     }
 
-    return resourceClassMapping;
+    return resourceNodeClassMapping;
   }
 
-  public IAttributeMapping getResourcePathMapping()
+  public IFeatureMapping getResourceFolderFeatureMapping()
   {
-    if (resourcePathMapping == null)
+    if (resourceFolderFeatureMapping == null)
     {
       initResourceInfos();
     }
 
-    return resourcePathMapping;
+    return resourceFolderFeatureMapping;
   }
 
-  public IDBTable getResourceTable()
+  public IAttributeMapping getResourceNameFeatureMapping()
   {
-    if (resourceTable == null)
+    if (resourceNameFeatureMapping == null)
     {
       initResourceInfos();
     }
 
-    return resourceTable;
+    return resourceNameFeatureMapping;
+  }
+
+  public IDBTable getResourceNodeTable()
+  {
+    if (resourceNodeTable == null)
+    {
+      initResourceInfos();
+    }
+
+    return resourceNodeTable;
   }
 
   public IDBField getResourceIDField()
@@ -200,28 +217,41 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
     return resourceIDField;
   }
 
-  public IDBField getResourcePathField()
+  public IDBField getResourceFolderField()
   {
-    if (resourcePathField == null)
+    if (resourceFolderField == null)
     {
       initResourceInfos();
     }
 
-    return resourcePathField;
+    return resourceFolderField;
+  }
+
+  public IDBField getResourceNameField()
+  {
+    if (resourceNameField == null)
+    {
+      initResourceInfos();
+    }
+
+    return resourceNameField;
   }
 
   protected void initResourceInfos()
   {
     IPackageManager packageManager = getStore().getRepository().getPackageManager();
-    CDOResourceClass resourceClass = packageManager.getCDOResourcePackage().getCDOResourceClass();
-    CDOPathFeature pathFeature = packageManager.getCDOResourcePackage().getCDOResourceClass().getCDOPathFeature();
+    CDOResourceNodeClass resourceNodeClass = packageManager.getCDOResourcePackage().getCDOResourceNodeClass();
+    CDOFolderFeature folderFeature = resourceNodeClass.getCDOFolderFeature();
+    CDONameFeature nameFeature = resourceNodeClass.getCDONameFeature();
 
-    resourceClassMapping = getClassMapping(resourceClass);
-    resourcePathMapping = resourceClassMapping.getAttributeMapping(pathFeature);
+    resourceNodeClassMapping = getClassMapping(resourceNodeClass);
+    resourceFolderFeatureMapping = resourceNodeClassMapping.getAttributeMapping(folderFeature);
+    resourceNameFeatureMapping = resourceNodeClassMapping.getAttributeMapping(nameFeature);
 
-    resourceTable = resourceClassMapping.getTable();
-    resourceIDField = resourceTable.getField(CDODBSchema.ATTRIBUTES_ID);
-    resourcePathField = resourcePathMapping.getField();
+    resourceNodeTable = resourceNodeClassMapping.getTable();
+    resourceIDField = resourceNodeTable.getField(CDODBSchema.ATTRIBUTES_ID);
+    resourceFolderField = resourceFolderFeatureMapping.getField();
+    resourceNameField = resourceNameFeatureMapping.getField();
   }
 
   public String getTableName(CDOPackage cdoPackage)
@@ -311,7 +341,7 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
     };
   }
 
-  public CDOID readResourceID(IDBStoreReader storeReader, final String path, final long timeStamp)
+  public CDOID readResourceID(IDBStoreReader storeReader, CDOID folderID, final String name, final long timeStamp)
   {
     final CDOID[] result = new CDOID[1];
     queryResources(storeReader, new QueryResourcesContext()
@@ -321,9 +351,9 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
         return timeStamp;
       }
 
-      public String getPathPrefix()
+      public String getNamePrefix()
       {
-        return path;
+        return name;
       }
 
       public int getMaxResults()
@@ -336,22 +366,23 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
         result[0] = resourceID;
         return false;
       }
-    }, true);
+    }, folderID, true);
 
     return result[0];
   }
 
   public void queryResources(IDBStoreReader storeReader, QueryResourcesContext context)
   {
-    queryResources(storeReader, context, false);
+    queryResources(storeReader, context, CDOID.NULL, false);
   }
 
-  private void queryResources(IDBStoreReader storeReader, QueryResourcesContext context, boolean exactMatch)
+  private void queryResources(IDBStoreReader storeReader, QueryResourcesContext context, CDOID folderID,
+      boolean exactMatch)
   {
-    IClassMapping mapping = getResourceClassMapping();
-    IDBTable resourceTable = mapping.getTable();
-    IDBField pathField = getResourcePathField();
-    String pathPrefix = context.getPathPrefix();
+    IDBTable resourceTable = getResourceNodeTable();
+    IDBField folderField = getResourceFolderField();
+    IDBField nameField = getResourceNameField();
+    String namePrefix = context.getNamePrefix();
 
     StringBuilder builder = new StringBuilder();
     builder.append("SELECT ");
@@ -359,17 +390,21 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
     builder.append(" FROM ");
     builder.append(resourceTable);
     builder.append(" WHERE ");
-    builder.append(pathField);
+    builder.append(folderField);
+    builder.append("=");
+    builder.append(CDOIDUtil.getLong(folderID));
+    builder.append(" AND ");
+    builder.append(nameField);
     if (exactMatch)
     {
       builder.append("=\'");
-      builder.append(pathPrefix);
+      builder.append(namePrefix);
       builder.append("\'");
     }
     else
     {
       builder.append(" LIKE \'");
-      builder.append(pathPrefix);
+      builder.append(namePrefix);
       builder.append("%\'");
     }
 

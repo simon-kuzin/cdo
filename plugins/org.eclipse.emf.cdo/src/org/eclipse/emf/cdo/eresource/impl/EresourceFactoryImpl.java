@@ -11,6 +11,7 @@
 package org.eclipse.emf.cdo.eresource.impl;
 
 import org.eclipse.emf.cdo.eresource.CDOResource;
+import org.eclipse.emf.cdo.eresource.CDOResourceFolder;
 import org.eclipse.emf.cdo.eresource.EresourceFactory;
 import org.eclipse.emf.cdo.eresource.EresourcePackage;
 
@@ -111,6 +112,18 @@ public class EresourceFactoryImpl extends EFactoryImpl implements EresourceFacto
     default:
       throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
     }
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * 
+   * @since 2.0 <!-- end-user-doc -->
+   * @generated
+   */
+  public CDOResourceFolder createCDOResourceFolder()
+  {
+    CDOResourceFolderImpl cdoResourceFolder = new CDOResourceFolderImpl();
+    return cdoResourceFolder;
   }
 
   /**

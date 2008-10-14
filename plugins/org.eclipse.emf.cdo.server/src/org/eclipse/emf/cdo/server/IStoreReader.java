@@ -76,12 +76,12 @@ public interface IStoreReader extends IStoreAccessor, IQueryHandler
   public CDORevision readRevisionByTime(CDOID id, int referenceChunk, long timeStamp);
 
   /**
-   * Returns the <code>CDOID</code> of the resource with the given path if a resource with this path exists in the
-   * store, <code>null</code> otherwise.
+   * Returns the <code>CDOID</code> of the resource node with the given folderID and name if a resource with this
+   * folderID and name exists in the store, <code>null</code> otherwise.
    * 
    * @since 2.0
    */
-  public CDOID readResourceID(String path, long timeStamp);
+  public CDOID readResourceID(CDOID folderID, String name, long timeStamp);
 
   public CDORevision verifyRevision(CDORevision revision);
 
@@ -109,7 +109,7 @@ public interface IStoreReader extends IStoreAccessor, IQueryHandler
      */
     public long getTimeStamp();
 
-    public String getPathPrefix();
+    public String getNamePrefix();
 
     /**
      * Returns the maximum number of results expected by the client or {@link CDOQueryInfo#UNLIMITED_RESULTS} for no

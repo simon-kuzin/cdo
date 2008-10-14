@@ -46,41 +46,27 @@ public class CDOResourceFactoryImpl implements Resource.Factory, CDOResourceFact
 
   public Resource createResource(URI uri)
   {
-    // URI can be invalid or incomplete.
-    // Extract repo + resource path and build a new URI.
-
-    String repoUUID = CDOURIUtil.extractRepositoryUUID(uri);
+    CDOResourceImpl resource = (CDOResourceImpl)EresourceFactory.eINSTANCE.createCDOResource();
+    // URI can be invalid or incomplete. Extract repo + resource path and build a new URI.
+    String repositoryUUID = CDOURIUtil.extractRepositoryUUID(uri);
 
     // repoUUID can be null but can be null
-    CDOViewImpl view = viewSet.resolveUUID(repoUUID);
-
-    // Extract path
-    String path = uri.path();
+    CDOViewImpl view = viewSet.resolveView(repositoryUUID);
+    String path = CDOURIUtil.extractResourcePath(uri);
 
     // Build a new URI with the view and the path
     URI newURI = CDOURIUtil.createResourceURI(view, path);
 
-    CDOResourceImpl resource = (CDOResourceImpl)EresourceFactory.eINSTANCE.createCDOResource();
+    // Important: Set URI *after* registration with the view!
     resource.setURI(newURI);
-    resource.setExisting(isExistingResource());
-
-    if (resource.isExisting())
-    {
-      // Doesn't have any resource for that path!
-      if (!view.registerProxyResource(resource))
-      {
-        // TODO Should fill getErrors here !!
-        resource.setExisting(false);
-      }
-    }
-
+    resource.setExisting(isGetResource());
     return resource;
   }
 
   /**
    * TODO Add TCs to ensure that Ecore internally doesn't change the way the stack is used!!!
    */
-  private boolean isExistingResource()
+  private boolean isGetResource()
   {
     boolean inResourceSet = false;
     StackTraceElement[] elements = Thread.currentThread().getStackTrace();

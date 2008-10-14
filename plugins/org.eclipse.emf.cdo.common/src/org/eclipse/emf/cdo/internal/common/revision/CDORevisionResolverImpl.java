@@ -15,6 +15,7 @@ package org.eclipse.emf.cdo.internal.common.revision;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.model.CDOClass;
 import org.eclipse.emf.cdo.common.model.CDOFeature;
+import org.eclipse.emf.cdo.common.model.CDOPackageManager;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionResolver;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
@@ -214,9 +215,9 @@ public abstract class CDORevisionResolverImpl extends Lifecycle implements CDORe
     return revisions;
   }
 
-  public CDOID getResourceID(String path, long timeStamp)
+  public CDOID getResourceID(CDOID folderID, String name, long timeStamp)
   {
-    return cache.getResourceID(path, timeStamp);
+    return cache.getResourceID(folderID, name, timeStamp);
   }
 
   public String getResourcePath(CDOID id, long timeStamp)
@@ -232,7 +233,7 @@ public abstract class CDORevisionResolverImpl extends Lifecycle implements CDORe
       throw new IllegalStateException("Revision is not a resource: " + revision);
     }
 
-    CDOFeature pathFeature = getResourcePathFeature();
+    CDOFeature pathFeature = getResourceFolderFeature();
     return (String)revision.getValue(pathFeature);
   }
 
@@ -285,7 +286,7 @@ public abstract class CDORevisionResolverImpl extends Lifecycle implements CDORe
   protected abstract List<InternalCDORevision> loadRevisionsByTime(Collection<CDOID> ids, int referenceChunk,
       long timeStamp);
 
-  protected abstract CDOFeature getResourcePathFeature();
+  protected abstract CDOPackageManager getPackageManager();
 
   @Override
   protected void doBeforeActivate() throws Exception
@@ -301,7 +302,7 @@ public abstract class CDORevisionResolverImpl extends Lifecycle implements CDORe
   protected void doActivate() throws Exception
   {
     super.doActivate();
-    cache.setResourcePathFeature(getResourcePathFeature());
+    cache.setPackageManager(getPackageManager());
     LifecycleUtil.activate(cache);
   }
 

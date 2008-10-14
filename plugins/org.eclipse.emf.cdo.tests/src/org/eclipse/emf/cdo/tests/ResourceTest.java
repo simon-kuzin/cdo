@@ -17,6 +17,7 @@ import org.eclipse.emf.cdo.CDOState;
 import org.eclipse.emf.cdo.CDOTransaction;
 import org.eclipse.emf.cdo.CDOView;
 import org.eclipse.emf.cdo.eresource.CDOResource;
+import org.eclipse.emf.cdo.eresource.CDOResourceFolder;
 import org.eclipse.emf.cdo.tests.model1.Product1;
 import org.eclipse.emf.cdo.tests.model1.VAT;
 import org.eclipse.emf.cdo.util.CDOURIUtil;
@@ -44,25 +45,38 @@ public class ResourceTest extends AbstractCDOTest
 {
   public void testCreateResource_FromResourceSet() throws Exception
   {
-    final URI uri = URI.createURI("cdo:/test1");
-
-    msg("Creating resourceSet");
-    ResourceSet resourceSet = new ResourceSetImpl();
-
-    msg("Opening session");
     CDOSession session = openModel1Session();
-
-    msg("Opening transaction");
+    ResourceSet resourceSet = new ResourceSetImpl();
     CDOTransaction transaction = session.openTransaction(resourceSet);
 
-    msg("Creating resource");
+    final URI uri = URI.createURI("cdo:/test1");
     CDOResource resource = (CDOResource)resourceSet.createResource(uri);
     assertActive(resource);
-
-    msg("Verifying resource");
     assertNew(resource, transaction);
-    assertEquals(CDOURIUtil.createResourceURI(session, "test1"), resource.getURI());
     assertEquals(transaction.getResourceSet(), resource.getResourceSet());
+    assertEquals(CDOURIUtil.createResourceURI(session, "test1"), resource.getURI());
+    assertEquals("test1", resource.getName());
+    assertEquals(null, resource.getFolder());
+  }
+
+  public void testCreateNestedResource_FromResourceSet() throws Exception
+  {
+    CDOSession session = openModel1Session();
+    ResourceSet resourceSet = new ResourceSetImpl();
+    CDOTransaction transaction = session.openTransaction(resourceSet);
+
+    final URI uri = URI.createURI("cdo:/folder/test1");
+    CDOResource resource = (CDOResource)resourceSet.createResource(uri);
+    assertActive(resource);
+    assertNew(resource, transaction);
+    assertEquals(transaction.getResourceSet(), resource.getResourceSet());
+    assertEquals(CDOURIUtil.createResourceURI(session, "folder/test1"), resource.getURI());
+    assertEquals("test1", resource.getName());
+
+    CDOResourceFolder folder = resource.getFolder();
+    assertNotNull(folder);
+    assertEquals("folder", folder.getName());
+    assertEquals(null, folder.getFolder());
   }
 
   public void testCreateResource_FromTransaction() throws Exception

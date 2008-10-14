@@ -62,7 +62,7 @@ public interface IMappingStrategy
   /**
    * @since 2.0
    */
-  public CDOID readResourceID(IDBStoreReader storeReader, String path, long timeStamp);
+  public CDOID readResourceID(IDBStoreReader storeReader, CDOID folderID, String name, long timeStamp);
 
   /**
    * @since 2.0
@@ -70,7 +70,7 @@ public interface IMappingStrategy
   public void queryResources(IDBStoreReader storeReader, QueryResourcesContext context);
 
   /**
-   * Must return the maximum CDOID value .
+   * Returns the maximum CDOID value.
    */
   public long repairAfterCrash(Connection connection);
 }

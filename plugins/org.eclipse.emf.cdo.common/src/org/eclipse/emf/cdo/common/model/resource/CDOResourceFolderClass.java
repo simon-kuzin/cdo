@@ -10,15 +10,18 @@
  **************************************************************************/
 package org.eclipse.emf.cdo.common.model.resource;
 
-import org.eclipse.emf.cdo.common.model.CDOFeature;
+import org.eclipse.emf.cdo.common.model.CDOClass;
 
 /**
  * @author Eike Stepper
  * @noimplement This interface is not intended to be implemented by clients.
+ * @since 2.0
  */
-public interface CDOPathFeature extends CDOFeature
+public interface CDOResourceFolderClass extends CDOClass
 {
-  public static final int FEATURE_ID = 9;
+  public static final int CLASSIFIER_ID = 1;
 
-  public static final String NAME = "path";
+  public static final String NAME = "CDOResourceFolder";
+
+  public CDONodesFeature getCDONodesFeature();
 }

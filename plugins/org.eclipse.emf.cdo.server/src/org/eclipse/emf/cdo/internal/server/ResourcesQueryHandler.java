@@ -41,7 +41,7 @@ public class ResourcesQueryHandler implements IQueryHandler
         return context.getTimeStamp();
       }
 
-      public String getPathPrefix()
+      public String getNamePrefix()
       {
         return info.getQueryString();
       }

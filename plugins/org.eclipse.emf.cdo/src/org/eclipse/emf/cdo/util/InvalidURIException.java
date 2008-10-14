@@ -8,19 +8,35 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  **************************************************************************/
-package org.eclipse.emf.cdo.eresource;
+package org.eclipse.emf.cdo.util;
 
-import org.eclipse.emf.cdo.CDOObject;
+import org.eclipse.emf.cdo.common.util.CDOException;
 
-import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.common.util.URI;
 
 /**
  * @author Eike Stepper
+ * @since 2.0
  */
-public interface EresourceObject extends CDOObject, Resource.Internal
+public class InvalidURIException extends CDOException
 {
-  /**
-   * @since 2.0
-   */
-  public boolean isExisting();
+  private static final long serialVersionUID = 1L;
+
+  private URI uri;
+
+  public InvalidURIException(URI uri, Throwable cause)
+  {
+    super("Invalid URI: " + uri, cause);
+    this.uri = uri;
+  }
+
+  public InvalidURIException(URI uri)
+  {
+    this(uri, null);
+  }
+
+  public URI getURI()
+  {
+    return uri;
+  }
 }

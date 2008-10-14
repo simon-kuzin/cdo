@@ -72,7 +72,7 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
 
   private CDOState state;
 
-  private CDOViewImpl cdoView;
+  private CDOViewImpl view;
 
   // TODO Consider removal because it's only an optimization (proof that revision.resourceID could be used in all cases
   // as well)
@@ -108,7 +108,7 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
 
   public CDOViewImpl cdoView()
   {
-    return cdoView;
+    return view;
   }
 
   public CDOResourceImpl cdoResource()
@@ -171,10 +171,10 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
 
   public void cdoInternalSetView(CDOView view)
   {
-    cdoView = (CDOViewImpl)view;
-    if (cdoView != null)
+    this.view = (CDOViewImpl)view;
+    if (this.view != null)
     {
-      eSetStore(cdoView.getStore());
+      eSetStore(this.view.getStore());
     }
     else
     {
@@ -591,7 +591,6 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
     }
     else if (resource instanceof CDOResourceImpl || resource == null)
     {
-
       this.resource = (CDOResourceImpl)resource;
       getStore().setContainer(this, cdoResource(), eInternalContainer(), eContainerFeatureID());
     }
@@ -767,7 +766,8 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
         newResource = newContainer.eInternalResource();
       }
     }
-    CDOView oldView = cdoView;
+
+    CDOView oldView = view;
     CDOView newView = newResource != null && newResource instanceof CDOResource ? ((CDOResource)newResource).cdoView()
         : null;
 
@@ -829,7 +829,7 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
   {
     Resource.Internal oldResource = eDirectResource();
 
-    CDOView oldView = cdoView;
+    CDOView oldView = view;
     CDOView newView = resource != null && resource instanceof CDOResource ? ((CDOResource)resource).cdoView() : null;
 
     boolean isSameView = oldView != null && oldView == newView;

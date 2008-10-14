@@ -22,6 +22,7 @@ import org.eclipse.emf.cdo.internal.common.id.CDOIDMetaRangeImpl;
 import org.eclipse.emf.cdo.internal.common.id.CDOIDTempMetaImpl;
 import org.eclipse.emf.cdo.internal.common.id.CDOIDTempObjectImpl;
 import org.eclipse.emf.cdo.spi.common.AbstractCDOID;
+import org.eclipse.emf.cdo.spi.common.AbstractCDOIDLong;
 import org.eclipse.emf.cdo.spi.common.CDOIDLibraryDescriptorImpl;
 import org.eclipse.emf.cdo.spi.common.CDOIDLongImpl;
 
@@ -47,13 +48,13 @@ public final class CDOIDUtil
   {
     if (id == null)
     {
-      return 0L;
+      return AbstractCDOIDLong.NULL_VALUE;
     }
 
     switch (id.getType())
     {
     case NULL:
-      return 0L;
+      return AbstractCDOIDLong.NULL_VALUE;
 
     case OBJECT:
       if (id instanceof CDOIDLongImpl)

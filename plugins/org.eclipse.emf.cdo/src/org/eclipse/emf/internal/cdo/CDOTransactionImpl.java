@@ -29,7 +29,11 @@ import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDeltaUtil;
+import org.eclipse.emf.cdo.common.util.CDOException;
 import org.eclipse.emf.cdo.eresource.CDOResource;
+import org.eclipse.emf.cdo.eresource.CDOResourceFolder;
+import org.eclipse.emf.cdo.eresource.CDOResourceNode;
+import org.eclipse.emf.cdo.eresource.EresourceFactory;
 import org.eclipse.emf.cdo.eresource.impl.CDOResourceImpl;
 import org.eclipse.emf.cdo.spi.common.InternalCDOPackage;
 import org.eclipse.emf.cdo.spi.common.InternalCDORevision;
@@ -199,38 +203,71 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     return createResource(path);
   }
 
-  /**
-   * @since 2.0
-   */
-
-  public void attach(CDOResourceImpl cdoResource)
+  @Override
+  public void attachResource(CDOResourceImpl resource)
   {
-    try
+    if (resource.isExisting())
     {
-      CDOStateMachine.INSTANCE.attach(cdoResource, this);
-      fireEvent(new ResourcesEvent(cdoResource.getPath(), ResourcesEvent.Kind.ADDED));
+      super.attachResource(resource);
     }
-    catch (RuntimeException ex)
+    else
     {
-      OM.LOG.error(ex);
+      // ResourceSet.createResource(uri) was called!!
+      attachNewResource(resource);
+    }
+  }
+
+  private void attachNewResource(CDOResourceImpl resource)
+  {
+    URI uri = resource.getURI();
+    List<String> names = CDOURIUtil.analyzePath(uri);
+    String resourceName = names.remove(names.size() - 1);
+
+    CDOResourceFolder folder = null;
+    for (String name : names)
+    {
+      CDOResourceNode node;
 
       try
       {
-        ((InternalCDOObject)cdoResource).cdoInternalSetState(CDOState.NEW);
-        getResourceSet().getResources().remove(cdoResource);
+        CDOID folderID = folder == null ? null : folder.cdoID();
+        node = getResourceNode(folderID, name);
       }
-      catch (RuntimeException ignore)
+      catch (CDOException ex)
       {
+        node = EresourceFactory.eINSTANCE.createCDOResourceFolder();
+        attachNewResourceNode(folder, name, node);
       }
 
-      throw ex;
+      if (node instanceof CDOResourceFolder)
+      {
+        folder = (CDOResourceFolder)node;
+      }
+      else
+      {
+        throw new CDOException("Not a ResourceFolder: " + node);
+      }
+    }
+
+    attachNewResourceNode(folder, resourceName, resource);
+  }
+
+  private void attachNewResourceNode(CDOResourceFolder folder, String name, CDOResourceNode newNode)
+  {
+    newNode.setName(name);
+    if (folder == null)
+    {
+      CDOStateMachine.INSTANCE.attach((InternalCDOObject)newNode, this);
+    }
+    else
+    {
+      newNode.setFolder(folder);
     }
   }
 
   /**
    * @since 2.0
    */
-
   public void detach(CDOResourceImpl cdoResource)
   {
     CDOStateMachine.INSTANCE.detach(cdoResource);
@@ -271,21 +308,54 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     }
 
     this.transactionStrategy = transactionStrategy;
-
     if (this.transactionStrategy != null)
     {
       this.transactionStrategy.setTarget(this);
     }
   }
 
-  /**
-   * @since 2.0
-   */
   @Override
-  public CDOID getResourceID(String path)
+  protected CDOResourceNode getRootResourceNode(String name)
   {
-    CDOID id = super.getResourceID(path);
-    return isDetached(id) ? CDOID.NULL : id;
+    if (dirty)
+    {
+      CDOResourceNode node = getRootResourceNode(name, getDirtyObjects().values());
+      if (node != null)
+      {
+        return node;
+      }
+
+      node = getRootResourceNode(name, getNewObjects().values());
+      if (node != null)
+      {
+        return node;
+      }
+
+      node = getRootResourceNode(name, getNewResources().values());
+      if (node != null)
+      {
+        return node;
+      }
+    }
+
+    return super.getRootResourceNode(name);
+  }
+
+  private CDOResourceNode getRootResourceNode(String name, Collection<? extends CDOObject> objects)
+  {
+    for (CDOObject object : objects)
+    {
+      if (object instanceof CDOResourceNode)
+      {
+        CDOResourceNode node = (CDOResourceNode)object;
+        if (name.equals(node.getName()))
+        {
+          return node;
+        }
+      }
+    }
+
+    return null;
   }
 
   private boolean isDetached(CDOID id)
@@ -300,7 +370,6 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
   public InternalCDOObject getObject(CDOID id, boolean loadOnDemand)
   {
     checkOpen();
-
     if (id == null || id.isNull())
     {
       return null;
