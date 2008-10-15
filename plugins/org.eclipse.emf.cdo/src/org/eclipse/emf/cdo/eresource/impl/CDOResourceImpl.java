@@ -665,15 +665,30 @@ public class CDOResourceImpl extends CDOResourceNodeImpl implements CDOResource,
    */
   public void delete(Map<?, ?> defaultDeleteOptions) throws IOException
   {
+    if (isRoot())
+    {
+      throw new UnsupportedOperationException();
+    }
+
+    if (getFolder() == null)
+    {
+      CDOViewImpl view = cdoView();
+      view.getRootResource().getContents().remove(this);
+    }
+    else
+    {
+      setFolder(null);
+    }
+  }
+
+  @Override
+  public void cdoInternalPostDetach()
+  {
+    super.cdoInternalPostDetach();
     ResourceSet resourceSet = getResourceSet();
     if (resourceSet != null)
     {
       resourceSet.getResources().remove(this);
-    }
-
-    if (!FSMUtil.isTransient(this))
-    {
-      cdoView().toTransaction().detach(this);
     }
   }
 

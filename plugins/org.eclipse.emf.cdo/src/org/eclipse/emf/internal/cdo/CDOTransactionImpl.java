@@ -202,9 +202,9 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
         return (CDOResource)getObject(id);
       }
     }
-    catch (Exception expected)
+    catch (Exception ignore)
     {
-      TRACER.trace(expected);
+      // Just create the missing resource
     }
 
     return createResource(path);
