@@ -51,7 +51,7 @@ public class QueryTest extends AbstractCDOTest
 
     objects.add(company1);
     objects.add(category1);
-
+    objects.add(transaction.getRootResource());
     company1.setName("TEST");
 
     transaction.commit();

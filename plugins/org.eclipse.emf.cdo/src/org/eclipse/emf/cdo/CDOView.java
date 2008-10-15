@@ -190,6 +190,11 @@ public interface CDOView extends CDOProtocolView, INotifier
   public boolean hasResource(String path);
 
   /**
+   * @since 2.0
+   */
+  public CDOResource getRootResource();
+
+  /**
    * @see ResourceSet#getResource(URI, boolean)
    * @since 2.0
    */

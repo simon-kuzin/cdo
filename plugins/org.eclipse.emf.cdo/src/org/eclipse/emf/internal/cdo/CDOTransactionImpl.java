@@ -177,6 +177,9 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     return CDOIDUtil.createTempObject(++lastTemporaryID);
   }
 
+  /**
+   * @since 2.0
+   */
   @Override
   protected CDOResourceImpl createRootResource()
   {
