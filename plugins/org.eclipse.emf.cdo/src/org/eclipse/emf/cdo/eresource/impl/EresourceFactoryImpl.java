@@ -73,10 +73,10 @@ public class EresourceFactoryImpl extends EFactoryImpl implements EresourceFacto
   {
     switch (eClass.getClassifierID())
     {
-    case EresourcePackage.CDO_RESOURCE:
-      return createCDOResource();
     case EresourcePackage.CDO_RESOURCE_FOLDER:
       return createCDOResourceFolder();
+    case EresourcePackage.CDO_RESOURCE:
+      return createCDOResource();
     default:
       throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
     }
@@ -142,7 +142,7 @@ public class EresourceFactoryImpl extends EFactoryImpl implements EresourceFacto
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
    * 
-   * @generated
+   * @generated NOT
    */
   public URI createURIFromString(EDataType eDataType, String initialValue)
   {
@@ -152,7 +152,7 @@ public class EresourceFactoryImpl extends EFactoryImpl implements EresourceFacto
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
    * 
-   * @generated
+   * @generated NOT
    */
   public String convertURIToString(EDataType eDataType, Object instanceValue)
   {
