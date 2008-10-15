@@ -249,7 +249,6 @@ public class DetachTest extends AbstractCDOTest
 
     msg("Opening transaction");
     CDOTransaction transaction = session.openTransaction();
-
     ResourceSet rset = transaction.getResourceSet();
 
     msg("Creating resource");

@@ -58,7 +58,7 @@ public class QueryTest extends AbstractCDOTest
 
     CDOQuery cdoQuery = transaction.createQuery(LANGUAGE, "QUERYSTRING");
     List<Object> queryResult = cdoQuery.getResult(Object.class);
-    assertEquals(3, queryResult.size());
+    assertEquals(4, queryResult.size());
     for (Object object : queryResult)
     {
       assertEquals(true, objects.contains(object));
