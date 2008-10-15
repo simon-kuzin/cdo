@@ -48,6 +48,7 @@ import org.eclipse.emf.internal.cdo.util.IPackageClosure;
 import org.eclipse.emf.internal.cdo.util.ModelUtil;
 
 import org.eclipse.net4j.util.ImplementationError;
+import org.eclipse.net4j.util.ObjectUtil;
 import org.eclipse.net4j.util.event.Notifier;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 import org.eclipse.net4j.util.transaction.TransactionException;
@@ -366,36 +367,6 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     return id;
   }
 
-  // /**
-  // * @since 2.0
-  // */
-  // @Override
-  // protected CDOResourceNode getRootResourceNode(String name)
-  // {
-  // if (dirty)
-  // {
-  // CDOResourceNode node = getRootResourceNode(name, getDirtyObjects().values());
-  // if (node != null)
-  // {
-  // return node;
-  // }
-  //
-  // node = getRootResourceNode(name, getNewObjects().values());
-  // if (node != null)
-  // {
-  // return node;
-  // }
-  //
-  // node = getRootResourceNode(name, getNewResources().values());
-  // if (node != null)
-  // {
-  // return node;
-  // }
-  // }
-  //
-  // return super.getRootResourceNode(name);
-  // }
-
   private CDOResourceNode getRootResourceNode(String name, Collection<? extends CDOObject> objects)
   {
     for (CDOObject object : objects)
@@ -403,7 +374,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
       if (object instanceof CDOResourceNode)
       {
         CDOResourceNode node = (CDOResourceNode)object;
-        if (node.getFolder() == null && name.equals(node.getName()))
+        if (node.getFolder() == null && ObjectUtil.equals(name, node.getName()))
         {
           return node;
         }

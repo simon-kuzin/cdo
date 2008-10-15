@@ -13,6 +13,7 @@
 package org.eclipse.emf.cdo.internal.common.revision.cache.lru;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOClass;
 import org.eclipse.emf.cdo.common.model.CDOPackageManager;
 import org.eclipse.emf.cdo.common.model.resource.CDOFolderFeature;
@@ -273,7 +274,7 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
           if (revision != null)
           {
             CDOID revisionFolderID = (CDOID)revision.getValue(cdoFolderFeature);
-            if (ObjectUtil.equals(revisionFolderID, folderID))
+            if (CDOIDUtil.equals(revisionFolderID, folderID))
             {
               String revisionName = (String)revision.getValue(cdoNameFeature);
               if (ObjectUtil.equals(revisionName, name))

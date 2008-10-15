@@ -350,7 +350,7 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
       if (revision != null)
       {
         CDOID revisionFolderID = (CDOID)revision.getValue(cdoFolderFeature);
-        if (ObjectUtil.equals(revisionFolderID, folderID))
+        if (CDOIDUtil.equals(revisionFolderID, folderID))
         {
           String revisionName = (String)revision.getValue(cdoNameFeature);
           if (ObjectUtil.equals(revisionName, name))

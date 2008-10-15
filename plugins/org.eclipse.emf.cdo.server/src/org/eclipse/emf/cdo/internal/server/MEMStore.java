@@ -13,6 +13,7 @@
 package org.eclipse.emf.cdo.internal.server;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.common.model.resource.CDOResourceNodeClass;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
@@ -175,10 +176,10 @@ public class MEMStore extends LongIDStore implements IMEMStore
 
     if (revision.isResource())
     {
-      // CDOID revisionFolder = (CDOID)revision.getData().get(getResourceFolderFeature(), 0);
       CDOID revisionFolder = (CDOID)revision.getData().getContainerID();
       String revisionName = (String)revision.getData().get(getResourceNameFeature(), 0);
-      if (getResourceID(revisionFolder, revisionName, revision.getCreated()) != null)
+      CDOID resourceID = getResourceID(revisionFolder, revisionName, revision.getCreated());
+      if (resourceID != null)
       {
         throw new IllegalStateException("Duplicate resource: " + revisionName + " (folderID=" + revisionFolder + ")");
       }
@@ -268,7 +269,8 @@ public class MEMStore extends LongIDStore implements IMEMStore
           if (revision != null)
           {
             CDOID revisionFolder = (CDOID)revision.getData().getContainerID();
-            if (ObjectUtil.equals(revisionFolder, folderID))
+            // TODO Don't use ObjectUtil.equals for CDOIDs
+            if (CDOIDUtil.equals(revisionFolder, folderID))
             {
               String revisionName = (String)revision.getData().get(getResourceNameFeature(), 0);
               boolean match = exactMatch || name == null ? ObjectUtil.equals(revisionName, name) : revisionName
