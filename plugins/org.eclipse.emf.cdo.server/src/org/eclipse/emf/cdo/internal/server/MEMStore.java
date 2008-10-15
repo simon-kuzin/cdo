@@ -269,7 +269,6 @@ public class MEMStore extends LongIDStore implements IMEMStore
           if (revision != null)
           {
             CDOID revisionFolder = (CDOID)revision.getData().getContainerID();
-            // TODO Don't use ObjectUtil.equals for CDOIDs
             if (CDOIDUtil.equals(revisionFolder, folderID))
             {
               String revisionName = (String)revision.getData().get(getResourceNameFeature(), 0);
