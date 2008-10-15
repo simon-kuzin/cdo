@@ -13,6 +13,7 @@
  **************************************************************************/
 package org.eclipse.emf.cdo.eresource.impl;
 
+import org.eclipse.emf.cdo.CDOState;
 import org.eclipse.emf.cdo.CDOTransaction;
 import org.eclipse.emf.cdo.CDOView;
 import org.eclipse.emf.cdo.common.id.CDOID;
@@ -505,8 +506,27 @@ public class CDOResourceImpl extends CDOResourceNodeImpl implements CDOResource,
   {
     if (!isLoaded())
     {
+
       CDOViewImpl view = cdoView();
-      view.registerProxyResource(this);
+      if (!FSMUtil.isTransient(this))
+      {
+        CDOID id = cdoID();
+        if (id == null || id != null && !view.isObjectRegistered(id))
+        {
+          try
+          {
+            view.registerProxyResource(this);
+          }
+          catch (Exception ex)
+          {
+            setExisting(false);
+            cdoInternalSetState(CDOState.TRANSIENT);
+            throw new IOWrappedException(ex);
+          }
+        }
+      }
+
+      setLoaded(true);
 
       // URIConverter uriConverter = getURIConverter();
       //

@@ -7,12 +7,10 @@
  * 
  * Contributors:
  *    Simon McDuff  - initial API and implementation
- *    Eike Stepper - maintenance
  **************************************************************************/
 package org.eclipse.emf.internal.cdo.query;
 
 import org.eclipse.emf.cdo.CDOView;
-import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.query.CDOQueryInfo;
 
 import java.util.ArrayList;
@@ -21,44 +19,22 @@ import java.util.List;
 /**
  * @author Simon McDuff
  */
-public class CDOQueryResultIteratorImpl<T> extends CDOAbstractQueryIteratorImpl<T>
+public class CDOQueryCDOIDIteratorImpl<CDOID> extends CDOAbstractQueryIteratorImpl<CDOID>
 {
-  public CDOQueryResultIteratorImpl(CDOView view, CDOQueryInfo queryInfo)
+  public CDOQueryCDOIDIteratorImpl(CDOView view, CDOQueryInfo queryInfo)
   {
     super(view, queryInfo);
   }
 
   @Override
-  public T next()
+  public List<CDOID> asList()
   {
-    return adapt(super.next());
-  }
-
-  @SuppressWarnings("unchecked")
-  protected T adapt(Object object)
-  {
-    if (object instanceof CDOID)
+    ArrayList<CDOID> result = new ArrayList<CDOID>();
+    while (hasNext())
     {
-      if (((CDOID)object).isNull())
-      {
-        return null;
-      }
-
-      return (T)getView().getObject((CDOID)object, true);
+      result.add(next());
     }
 
-    return (T)object;
-  }
-
-  @Override
-  public List<T> asList()
-  {
-    List<Object> result = new ArrayList<Object>();
-    while (super.hasNext())
-    {
-      result.add(super.next());
-    }
-
-    return new CDOEList<T>(getView(), result);
+    return result;
   }
 }

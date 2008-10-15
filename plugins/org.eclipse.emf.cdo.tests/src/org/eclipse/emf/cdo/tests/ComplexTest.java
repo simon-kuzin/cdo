@@ -482,10 +482,12 @@ public class ComplexTest extends AbstractCDOTest
     CDOTransaction transaction1 = session.openTransaction();
     String resource1path = "/resources/3/" + uniqueCounter;
     CDOResource resource1 = transaction1.createResource(resource1path);
+    transaction1.commit();
 
     CDOTransaction transaction2 = session.openTransaction();
     String resource2path = "/resources/4/" + uniqueCounter++;
     CDOResource resource2 = transaction2.createResource(resource2path);
+    transaction2.commit();
 
     MultiContainedElement element0 = factory.createMultiContainedElement();
     element0.setName("MultipleTransactions-Element-0");
@@ -534,10 +536,12 @@ public class ComplexTest extends AbstractCDOTest
     CDOTransaction transaction1 = session.openTransaction();
     String resource1path = "/resources/3/" + uniqueCounter;
     CDOResource resource1 = transaction1.createResource(resource1path);
+    transaction1.commit();
 
     CDOTransaction transaction2 = session.openTransaction();
     String resource2path = "/resources/4/" + uniqueCounter++;
     CDOResource resource2 = transaction2.createResource(resource2path);
+    transaction2.commit();
 
     MultiContainedElement element0 = factory.createMultiContainedElement();
     element0.setName("MultipleTransactions-Element-0");

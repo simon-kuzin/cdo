@@ -64,7 +64,7 @@ public class EresourceFactoryImpl extends EFactoryImpl implements EresourceFacto
   }
 
   /**
-   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * <!-- begin-user-doc --> TODO Simon: Can you remember why this is generated NOT? <!-- end-user-doc -->
    * 
    * @generated NOT
    */
@@ -75,6 +75,8 @@ public class EresourceFactoryImpl extends EFactoryImpl implements EresourceFacto
     {
     case EresourcePackage.CDO_RESOURCE:
       return createCDOResource();
+    case EresourcePackage.CDO_RESOURCE_FOLDER:
+      return createCDOResourceFolder();
     default:
       throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
     }

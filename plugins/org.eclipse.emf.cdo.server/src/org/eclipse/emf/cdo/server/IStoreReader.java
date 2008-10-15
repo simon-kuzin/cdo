@@ -109,7 +109,11 @@ public interface IStoreReader extends IStoreAccessor, IQueryHandler
      */
     public long getTimeStamp();
 
-    public String getNamePrefix();
+    public CDOID getFolderID();
+
+    public String getName();
+
+    public boolean exactMatch();
 
     /**
      * Returns the maximum number of results expected by the client or {@link CDOQueryInfo#UNLIMITED_RESULTS} for no
@@ -124,5 +128,14 @@ public interface IStoreReader extends IStoreAccessor, IQueryHandler
      *         (i.e. maxResults has been reached or an asynchronous query has been canceled).
      */
     public boolean addResource(CDOID resourceID);
+
+    /**
+     * @author Eike Stepper
+     * @since 2.0
+     */
+    public interface ExactMatch extends QueryResourcesContext
+    {
+      public CDOID getResourceID();
+    }
   }
 }

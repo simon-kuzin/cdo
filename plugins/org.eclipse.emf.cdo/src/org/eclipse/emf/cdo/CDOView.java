@@ -205,7 +205,8 @@ public interface CDOView extends CDOProtocolView, INotifier
    * 
    * @param loadOnDemand
    *          whether to create and load the object, if it doesn't already exist.
-   * @return the object resolved by the CDOID, or <code>null</code> if there isn't one.
+   * @return the object resolved by the CDOID if the id is not <code>null</code>, or <code>null</code> if there isn't
+   *         one and loadOnDemand is <code>false</code>.
    */
   public CDOObject getObject(CDOID id, boolean loadOnDemand);
 
@@ -241,21 +242,33 @@ public interface CDOView extends CDOProtocolView, INotifier
   public CDOQuery createQuery(String language, String queryString);
 
   /**
-   * Returns a list of those resources whose path starts with the value of the pathPrefix parameter.
+   * Returns a list of the resources in the given folder with a name equal to or starting with the value of the name
+   * parameter.
    * 
-   * @param namePrefix
-   *          the prefix of the resources' path
+   * @param folder
+   *          The folder to search in, or <code>null</code> for root resource nodes.
+   * @param name
+   *          the name or prefix of the resource nodes to return.
+   * @param exactMatch
+   *          <code>true</code> if the complete name of the resource must match, <code>false</code> if only a common
+   *          prefix of the name must match.
    * @since 2.0
    */
-  public List<CDOResourceNode> queryResources(CDOResourceFolder folder, String namePrefix);
+  public List<CDOResourceNode> queryResources(CDOResourceFolder folder, String name, boolean exactMatch);
 
   /**
-   * Returns an iterator over those resources whose path starts with the value of the pathPrefix parameter. The
-   * underlying query will be executed asynchronously.
+   * Returns an iterator over the resources in the given folder with a name equal to or starting with the value of the
+   * name parameter. The underlying query will be executed asynchronously.
    * 
-   * @param namePrefix
-   *          the prefix of the resources' path
+   * @param folder
+   *          The folder to search in, or <code>null</code> for root resource nodes.
+   * @param name
+   *          the name or prefix of the resource nodes to return.
+   * @param exactMatch
+   *          <code>true</code> if the complete name of the resource must match, <code>false</code> if only a common
+   *          prefix of the name must match.
    * @since 2.0
    */
-  public CloseableIterator<CDOResourceNode> queryResourcesAsync(CDOResourceFolder folder, String namePrefix);
+  public CloseableIterator<CDOResourceNode> queryResourcesAsync(CDOResourceFolder folder, String name,
+      boolean exactMatch);
 }

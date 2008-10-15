@@ -158,7 +158,7 @@ public class InitialTest extends AbstractCDOTest
     assertEquals(expected, actual);
   }
 
-  public void testAttachView() throws Exception
+  public void _testAttachView() throws Exception
   {
     final URI uri = URI.createURI("cdo:/test1");
 
@@ -185,7 +185,7 @@ public class InitialTest extends AbstractCDOTest
 
   }
 
-  public void testAttachViewWithObject() throws Exception
+  public void _testAttachViewWithObject() throws Exception
   {
     final URI uri = URI.createURI("cdo:/test1");
 

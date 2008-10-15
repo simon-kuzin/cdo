@@ -22,7 +22,9 @@ import org.eclipse.emf.cdo.common.model.resource.CDOResourceClass;
 import org.eclipse.emf.cdo.common.model.resource.CDOResourceNodeClass;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.IPackageManager;
+import org.eclipse.emf.cdo.server.StoreUtil;
 import org.eclipse.emf.cdo.server.IStoreReader.QueryResourcesContext;
+import org.eclipse.emf.cdo.server.IStoreReader.QueryResourcesContext.ExactMatch;
 import org.eclipse.emf.cdo.server.db.IAttributeMapping;
 import org.eclipse.emf.cdo.server.db.IClassMapping;
 import org.eclipse.emf.cdo.server.db.IDBStore;
@@ -341,48 +343,22 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
     };
   }
 
-  public CDOID readResourceID(IDBStoreReader storeReader, CDOID folderID, final String name, final long timeStamp)
+  public CDOID readResourceID(IDBStoreReader storeReader, CDOID folderID, String name, long timeStamp)
   {
-    final CDOID[] result = new CDOID[1];
-    queryResources(storeReader, new QueryResourcesContext()
-    {
-      public long getTimeStamp()
-      {
-        return timeStamp;
-      }
-
-      public String getNamePrefix()
-      {
-        return name;
-      }
-
-      public int getMaxResults()
-      {
-        return 1;
-      }
-
-      public boolean addResource(CDOID resourceID)
-      {
-        result[0] = resourceID;
-        return false;
-      }
-    }, folderID, true);
-
-    return result[0];
+    ExactMatch context = StoreUtil.createExactMatchContext(folderID, name, timeStamp);
+    queryResources(storeReader, context);
+    return context.getResourceID();
   }
 
   public void queryResources(IDBStoreReader storeReader, QueryResourcesContext context)
   {
-    queryResources(storeReader, context, CDOID.NULL, false);
-  }
-
-  private void queryResources(IDBStoreReader storeReader, QueryResourcesContext context, CDOID folderID,
-      boolean exactMatch)
-  {
     IDBTable resourceTable = getResourceNodeTable();
     IDBField folderField = getResourceFolderField();
     IDBField nameField = getResourceNameField();
-    String namePrefix = context.getNamePrefix();
+
+    CDOID folderID = context.getFolderID();
+    String name = context.getName();
+    boolean exactMatch = context.exactMatch();
 
     StringBuilder builder = new StringBuilder();
     builder.append("SELECT ");
@@ -398,13 +374,13 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
     if (exactMatch)
     {
       builder.append("=\'");
-      builder.append(namePrefix);
+      builder.append(name);
       builder.append("\'");
     }
     else
     {
       builder.append(" LIKE \'");
-      builder.append(namePrefix);
+      builder.append(name);
       builder.append("%\'");
     }
 

@@ -18,6 +18,7 @@ import org.eclipse.emf.cdo.CDOTransaction;
 import org.eclipse.emf.cdo.CDOView;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.eresource.CDOResourceFolder;
+import org.eclipse.emf.cdo.eresource.CDOResourceNode;
 import org.eclipse.emf.cdo.tests.model1.Product1;
 import org.eclipse.emf.cdo.tests.model1.VAT;
 import org.eclipse.emf.cdo.util.CDOURIUtil;
@@ -354,39 +355,39 @@ public class ResourceTest extends AbstractCDOTest
     {
       CDOSession session = openModel1Session();
       CDOTransaction transaction = session.openTransaction();
-      createResource(transaction, "/a/resource");
-      createResource(transaction, "/a/a/resource");
-      createResource(transaction, "/a/b/resource");
-      createResource(transaction, "/a/c/resource");
-      createResource(transaction, "/a/d/resource");
-      createResource(transaction, "/a/e/resource");
-      createResource(transaction, "/b/resource");
-      createResource(transaction, "/b/a/resource");
-      createResource(transaction, "/b/b/resource");
-      createResource(transaction, "/b/c/resource");
-      createResource(transaction, "/b/d/resource");
-      createResource(transaction, "/b/e/resource");
-      createResource(transaction, "/b/e/a/resource");
-      createResource(transaction, "/b/e/b/resource");
-      createResource(transaction, "/c/resource");
-      createResource(transaction, "/c/a/resource");
-      createResource(transaction, "/c/a/resource2");
-      createResource(transaction, "/c/a/resource3");
-      createResource(transaction, "/c/b/resource");
-      createResource(transaction, "/c/c/resource");
-      createResource(transaction, "/c/d/resource");
-      createResource(transaction, "/c/e/resource");
+      createResource(transaction, "/aresource");
+      createResource(transaction, "/aaresource");
+      createResource(transaction, "/abresource");
+      createResource(transaction, "/acresource");
+      createResource(transaction, "/adresource");
+      createResource(transaction, "/aeresource");
+      createResource(transaction, "/bresource");
+      createResource(transaction, "/baresource");
+      createResource(transaction, "/bbresource");
+      createResource(transaction, "/bcresource");
+      createResource(transaction, "/bdresource");
+      createResource(transaction, "/beresource");
+      createResource(transaction, "/bearesource");
+      createResource(transaction, "/bebresource");
+      createResource(transaction, "/cresource");
+      createResource(transaction, "/caresource");
+      createResource(transaction, "/caresource2");
+      createResource(transaction, "/caresource3");
+      createResource(transaction, "/cbresource");
+      createResource(transaction, "/ccresource");
+      createResource(transaction, "/cdresource");
+      createResource(transaction, "/ceresource");
       transaction.commit();
       session.close();
     }
 
     CDOSession session = openModel1Session();
     CDOView view = session.openView();
-    queryResources(view, "/a", 6);
-    queryResources(view, "/b", 8);
-    queryResources(view, "/c", 8);
-    queryResources(view, "/b/e", 3);
-    queryResources(view, "/c/a", 3);
+    queryResources(view, "a", 6);
+    queryResources(view, "b", 8);
+    queryResources(view, "c", 8);
+    queryResources(view, "be", 3);
+    queryResources(view, "ca", 3);
     session.close();
   }
 
@@ -398,62 +399,62 @@ public class ResourceTest extends AbstractCDOTest
     {
       CDOSession session = openModel1Session();
       CDOTransaction transaction = session.openTransaction();
-      createResource(transaction, "/a/resource");
-      createResource(transaction, "/a/a/resource");
-      createResource(transaction, "/a/b/resource");
-      createResource(transaction, "/a/c/resource");
-      createResource(transaction, "/a/d/resource");
-      createResource(transaction, "/a/e/resource");
-      createResource(transaction, "/b/resource");
-      createResource(transaction, "/b/a/resource");
-      createResource(transaction, "/b/b/resource");
-      createResource(transaction, "/b/c/resource");
-      createResource(transaction, "/b/d/resource");
-      createResource(transaction, "/b/e/resource");
-      createResource(transaction, "/b/e/a/resource");
-      createResource(transaction, "/b/e/b/resource");
-      createResource(transaction, "/c/resource");
-      createResource(transaction, "/c/a/resource");
-      createResource(transaction, "/c/a/resource2");
-      createResource(transaction, "/c/a/resource3");
-      createResource(transaction, "/c/b/resource");
-      createResource(transaction, "/c/c/resource");
-      createResource(transaction, "/c/d/resource");
-      createResource(transaction, "/c/e/resource");
+      createResource(transaction, "/aresource");
+      createResource(transaction, "/aaresource");
+      createResource(transaction, "/abresource");
+      createResource(transaction, "/acresource");
+      createResource(transaction, "/adresource");
+      createResource(transaction, "/aeresource");
+      createResource(transaction, "/bresource");
+      createResource(transaction, "/baresource");
+      createResource(transaction, "/bbresource");
+      createResource(transaction, "/bcresource");
+      createResource(transaction, "/bdresource");
+      createResource(transaction, "/beresource");
+      createResource(transaction, "/bearesource");
+      createResource(transaction, "/bebresource");
+      createResource(transaction, "/cresource");
+      createResource(transaction, "/caresource");
+      createResource(transaction, "/caresource2");
+      createResource(transaction, "/caresource3");
+      createResource(transaction, "/cbresource");
+      createResource(transaction, "/ccresource");
+      createResource(transaction, "/cdresource");
+      createResource(transaction, "/ceresource");
       transaction.commit();
-      modifyResource(transaction, "/a/resource");
-      modifyResource(transaction, "/a/a/resource");
-      modifyResource(transaction, "/a/b/resource");
-      modifyResource(transaction, "/a/c/resource");
-      modifyResource(transaction, "/a/d/resource");
-      modifyResource(transaction, "/a/e/resource");
-      modifyResource(transaction, "/b/resource");
-      modifyResource(transaction, "/b/a/resource");
-      modifyResource(transaction, "/b/b/resource");
-      modifyResource(transaction, "/b/c/resource");
-      modifyResource(transaction, "/b/d/resource");
-      modifyResource(transaction, "/b/e/resource");
-      modifyResource(transaction, "/b/e/a/resource");
-      modifyResource(transaction, "/b/e/b/resource");
-      modifyResource(transaction, "/c/resource");
-      modifyResource(transaction, "/c/a/resource");
-      modifyResource(transaction, "/c/a/resource2");
-      modifyResource(transaction, "/c/a/resource3");
-      modifyResource(transaction, "/c/b/resource");
-      modifyResource(transaction, "/c/c/resource");
-      modifyResource(transaction, "/c/d/resource");
-      modifyResource(transaction, "/c/e/resource");
+      modifyResource(transaction, "/aresource");
+      modifyResource(transaction, "/aaresource");
+      modifyResource(transaction, "/abresource");
+      modifyResource(transaction, "/acresource");
+      modifyResource(transaction, "/adresource");
+      modifyResource(transaction, "/aeresource");
+      modifyResource(transaction, "/bresource");
+      modifyResource(transaction, "/baresource");
+      modifyResource(transaction, "/bbresource");
+      modifyResource(transaction, "/bcresource");
+      modifyResource(transaction, "/bdresource");
+      modifyResource(transaction, "/beresource");
+      modifyResource(transaction, "/bearesource");
+      modifyResource(transaction, "/bebresource");
+      modifyResource(transaction, "/cresource");
+      modifyResource(transaction, "/caresource");
+      modifyResource(transaction, "/caresource2");
+      modifyResource(transaction, "/caresource3");
+      modifyResource(transaction, "/cbresource");
+      modifyResource(transaction, "/ccresource");
+      modifyResource(transaction, "/cdresource");
+      modifyResource(transaction, "/ceresource");
       transaction.commit();
       session.close();
     }
 
     CDOSession session = openModel1Session();
     CDOView view = session.openView();
-    queryResources(view, "/a", 6);
-    queryResources(view, "/b", 8);
-    queryResources(view, "/c", 8);
-    queryResources(view, "/b/e", 3);
-    queryResources(view, "/c/a", 3);
+    queryResources(view, "a", 6);
+    queryResources(view, "b", 8);
+    queryResources(view, "c", 8);
+    queryResources(view, "be", 3);
+    queryResources(view, "ca", 3);
     session.close();
   }
 
@@ -482,13 +483,13 @@ public class ResourceTest extends AbstractCDOTest
   private void queryResources(CDOView view, String pathPrefix, int expected)
   {
     msg("Path prefix: " + pathPrefix);
-    List<CDOResource> resources = view.queryResources(pathPrefix);
-    for (CDOResource resource : resources)
+    List<CDOResourceNode> nodes = view.queryResources(null, pathPrefix, false);
+    for (CDOResourceNode node : nodes)
     {
-      msg("Result: " + resource.getPath());
+      msg("Result: " + node.getPath());
     }
 
-    assertEquals(expected, resources.size());
+    assertEquals(expected, nodes.size());
   }
 
   static class TestAdapter extends AdapterImpl

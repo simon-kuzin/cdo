@@ -604,9 +604,9 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
    * @since 2.0
    */
   @Override
-  public Internal eDirectResource()
+  public Resource.Internal eDirectResource()
   {
-    if (this instanceof Internal)
+    if (this instanceof Resource.Internal)
     {
       return (Internal)this;
     }
@@ -739,6 +739,7 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
   public NotificationChain eBasicSetContainer(InternalEObject newContainer, int newContainerFeatureID,
       NotificationChain msgs)
   {
+    boolean isResource = this instanceof CDOResource;
     InternalEObject oldContainer = eInternalContainer();
     Resource.Internal oldResource = eDirectResource();
     Resource.Internal newResource = null;
@@ -746,8 +747,12 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
     {
       if (newContainer != null && !eContainmentFeature(this, newContainer, newContainerFeatureID).isResolveProxies())
       {
-        msgs = ((InternalEList<?>)oldResource.getContents()).basicRemove(this, msgs);
-        eSetDirectResource(null);
+        if (!isResource)
+        {
+          msgs = ((InternalEList<?>)oldResource.getContents()).basicRemove(this, msgs);
+          eSetDirectResource(null);
+        }
+
         newResource = newContainer.eInternalResource();
       }
       else
@@ -761,6 +766,7 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
       {
         oldResource = oldContainer.eInternalResource();
       }
+
       if (newContainer != null)
       {
         newResource = newContainer.eInternalResource();
@@ -772,8 +778,7 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
         : null;
 
     boolean moved = oldView != null && oldView == newView;
-
-    if (!moved && oldResource != null)
+    if (!moved && oldResource != null && !isResource)
     {
       oldResource.detached(this);
     }
@@ -801,6 +806,7 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
           msgs.add(notification);
         }
       }
+
       if (newContainerFeatureID >= 0)
       {
         ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, newContainerFeatureID,
@@ -815,6 +821,7 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
         }
       }
     }
+
     return msgs;
   }
 

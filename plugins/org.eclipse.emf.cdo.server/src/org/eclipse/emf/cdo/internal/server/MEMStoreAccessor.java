@@ -223,7 +223,7 @@ public class MEMStoreAccessor extends StoreAccessor implements IStoreReader, ISt
    */
   public void queryResources(QueryResourcesContext context)
   {
-    getStore().queryResources(context, CDOID.NULL, false);
+    getStore().queryResources(context);
   }
 
   /**

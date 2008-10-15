@@ -189,7 +189,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
 
     try
     {
-      CDOID id = getResourceID(path);
+      CDOID id = getResourceIDByRevision(path);
       if (id != null && !id.isNull())
       {
         return (CDOResource)getObject(id);
@@ -203,6 +203,9 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     return createResource(path);
   }
 
+  /**
+   * @since 2.0
+   */
   @Override
   public void attachResource(CDOResourceImpl resource)
   {
@@ -314,32 +317,71 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     }
   }
 
+  /**
+   * @since 2.0
+   */
   @Override
-  protected CDOResourceNode getRootResourceNode(String name)
+  protected CDOID getRootResourceNodeByRevision(String name)
   {
     if (dirty)
     {
       CDOResourceNode node = getRootResourceNode(name, getDirtyObjects().values());
       if (node != null)
       {
-        return node;
+        return node.cdoID();
       }
 
       node = getRootResourceNode(name, getNewObjects().values());
       if (node != null)
       {
-        return node;
+        return node.cdoID();
       }
 
       node = getRootResourceNode(name, getNewResources().values());
       if (node != null)
       {
-        return node;
+        return node.cdoID();
       }
     }
 
-    return super.getRootResourceNode(name);
+    CDOID id = super.getRootResourceNodeByRevision(name);
+    if (getLastSavepoint().getAllDetachedObjects().containsKey(id))
+    {
+      throw new CDOException("Root resource node " + name + " doesn't exist");
+    }
+
+    return id;
   }
+
+  // /**
+  // * @since 2.0
+  // */
+  // @Override
+  // protected CDOResourceNode getRootResourceNode(String name)
+  // {
+  // if (dirty)
+  // {
+  // CDOResourceNode node = getRootResourceNode(name, getDirtyObjects().values());
+  // if (node != null)
+  // {
+  // return node;
+  // }
+  //
+  // node = getRootResourceNode(name, getNewObjects().values());
+  // if (node != null)
+  // {
+  // return node;
+  // }
+  //
+  // node = getRootResourceNode(name, getNewResources().values());
+  // if (node != null)
+  // {
+  // return node;
+  // }
+  // }
+  //
+  // return super.getRootResourceNode(name);
+  // }
 
   private CDOResourceNode getRootResourceNode(String name, Collection<? extends CDOObject> objects)
   {
@@ -348,7 +390,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
       if (object instanceof CDOResourceNode)
       {
         CDOResourceNode node = (CDOResourceNode)object;
-        if (name.equals(node.getName()))
+        if (node.getFolder() == null && name.equals(node.getName()))
         {
           return node;
         }

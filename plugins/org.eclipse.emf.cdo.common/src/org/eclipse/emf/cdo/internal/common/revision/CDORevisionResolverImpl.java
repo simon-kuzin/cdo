@@ -14,7 +14,6 @@ package org.eclipse.emf.cdo.internal.common.revision;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.common.model.CDOPackageManager;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionResolver;
@@ -218,23 +217,6 @@ public abstract class CDORevisionResolverImpl extends Lifecycle implements CDORe
   public CDOID getResourceID(CDOID folderID, String name, long timeStamp)
   {
     return cache.getResourceID(folderID, name, timeStamp);
-  }
-
-  public String getResourcePath(CDOID id, long timeStamp)
-  {
-    InternalCDORevision revision = getRevisionByTime(id, CDORevision.UNCHUNKED, timeStamp, false);
-    if (revision == null)
-    {
-      return null;
-    }
-
-    if (!revision.isResource())
-    {
-      throw new IllegalStateException("Revision is not a resource: " + revision);
-    }
-
-    CDOFeature pathFeature = getResourceFolderFeature();
-    return (String)revision.getValue(pathFeature);
   }
 
   public List<CDORevision> getCachedRevisions()

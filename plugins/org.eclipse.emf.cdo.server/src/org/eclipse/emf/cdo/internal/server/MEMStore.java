@@ -19,7 +19,9 @@ import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.IMEMStore;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.IView;
+import org.eclipse.emf.cdo.server.StoreUtil;
 import org.eclipse.emf.cdo.server.IStoreReader.QueryResourcesContext;
+import org.eclipse.emf.cdo.server.IStoreReader.QueryResourcesContext.ExactMatch;
 import org.eclipse.emf.cdo.spi.common.InternalCDORevision;
 
 import org.eclipse.net4j.util.ObjectUtil;
@@ -173,7 +175,8 @@ public class MEMStore extends LongIDStore implements IMEMStore
 
     if (revision.isResource())
     {
-      CDOID revisionFolder = (CDOID)revision.getData().get(getResourceFolderFeature(), 0);
+      // CDOID revisionFolder = (CDOID)revision.getData().get(getResourceFolderFeature(), 0);
+      CDOID revisionFolder = (CDOID)revision.getData().getContainerID();
       String revisionName = (String)revision.getData().get(getResourceNameFeature(), 0);
       if (getResourceID(revisionFolder, revisionName, revision.getCreated()) != null)
       {
@@ -244,57 +247,37 @@ public class MEMStore extends LongIDStore implements IMEMStore
   /**
    * @since 2.0
    */
-  public CDOID getResourceID(CDOID folderID, final String name, final long timeStamp)
+  public CDOID getResourceID(CDOID folderID, String name, long timeStamp)
   {
-    final CDOID[] result = new CDOID[1];
-    queryResources(new QueryResourcesContext()
-    {
-      public long getTimeStamp()
-      {
-        return timeStamp;
-      }
-
-      public String getNamePrefix()
-      {
-        return name;
-      }
-
-      public int getMaxResults()
-      {
-        return 1;
-      }
-
-      public boolean addResource(CDOID resourceID)
-      {
-        result[0] = resourceID;
-        return false;
-      }
-    }, folderID, true);
-
-    return result[0];
+    ExactMatch context = StoreUtil.createExactMatchContext(folderID, name, timeStamp);
+    queryResources(context);
+    return context.getResourceID();
   }
 
   /**
    * @since 2.0
    */
-  public synchronized void queryResources(QueryResourcesContext context, CDOID folderID, boolean exactMatch)
+  public synchronized void queryResources(QueryResourcesContext context)
   {
-    String namePrefix = context.getNamePrefix();
+    CDOID folderID = context.getFolderID();
+    String name = context.getName();
+    boolean exactMatch = context.exactMatch();
     for (List<CDORevision> list : revisions.values())
     {
       if (!list.isEmpty())
       {
         CDORevision revision = list.get(0);
-        if (revision.isResource())
+        if (revision.isResourceNode())
         {
           revision = getRevisionByTime(list, context.getTimeStamp());
           if (revision != null)
           {
-            CDOID revisionFolder = (CDOID)revision.getData().get(getResourceFolderFeature(), 0);
+            CDOID revisionFolder = (CDOID)revision.getData().getContainerID();
             if (ObjectUtil.equals(revisionFolder, folderID))
             {
               String revisionName = (String)revision.getData().get(getResourceNameFeature(), 0);
-              boolean match = exactMatch ? revisionName.equals(namePrefix) : revisionName.startsWith(namePrefix);
+              boolean match = exactMatch ? revisionName.equals(name) : revisionName.startsWith(name);
+
               if (match)
               {
                 if (!context.addResource(revision.getID()))
@@ -335,6 +318,9 @@ public class MEMStore extends LongIDStore implements IMEMStore
     return creationTime;
   }
 
+  /**
+   * @since 2.0
+   */
   @Override
   protected void doActivate() throws Exception
   {

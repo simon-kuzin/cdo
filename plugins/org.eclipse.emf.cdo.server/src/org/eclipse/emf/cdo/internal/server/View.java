@@ -17,7 +17,6 @@ import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.IStoreReader;
 import org.eclipse.emf.cdo.server.IView;
 import org.eclipse.emf.cdo.server.StoreThreadLocal;
-import org.eclipse.emf.cdo.spi.common.InternalCDORevision;
 
 import org.eclipse.net4j.util.StringUtil;
 
@@ -109,27 +108,6 @@ public class View implements IView
     }
 
     return id;
-  }
-
-  /**
-   * @since 2.0
-   */
-  public String getResourcePath(CDOID id)
-  {
-    checkOpen();
-    long timeStamp = getTimeStamp();
-    String path = repository.getRevisionManager().getResourcePath(id, timeStamp);
-    if (path == null)
-    {
-      IStoreReader storeReader = StoreThreadLocal.getStoreReader();
-      InternalCDORevision revision = (InternalCDORevision)storeReader.readRevisionByTime(id, 0, timeStamp);
-      if (revision != null && revision.isResource())
-      {
-        path = (String)revision.getValue(resourcePathFeature);
-      }
-    }
-
-    return path;
   }
 
   /**

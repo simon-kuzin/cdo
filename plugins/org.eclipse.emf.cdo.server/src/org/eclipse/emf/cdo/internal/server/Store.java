@@ -56,9 +56,6 @@ public abstract class Store extends Lifecycle implements IStore
   @ExcludeFromDump
   private transient long lastMetaID;
 
-  @ExcludeFromDump
-  private transient CDOPathFeature resourcePathFeature;
-
   /**
    * @since 2.0
    */
