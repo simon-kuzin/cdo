@@ -37,7 +37,6 @@ import org.eclipse.emf.cdo.common.revision.CDORevisionResolver;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.common.util.CDOException;
 import org.eclipse.emf.cdo.eresource.CDOResource;
-import org.eclipse.emf.cdo.eresource.CDOResourceFactory;
 import org.eclipse.emf.cdo.eresource.CDOResourceFolder;
 import org.eclipse.emf.cdo.eresource.CDOResourceNode;
 import org.eclipse.emf.cdo.eresource.impl.CDOResourceImpl;
@@ -69,7 +68,6 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.InternalEObject;
-import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 
@@ -115,7 +113,7 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
 
   private ReentrantLock lock = new ReentrantLock(true);
 
-  private Resource.Internal resourceView;
+  private CDOResourceImpl rootResource;
 
   @ExcludeFromDump
   private transient CDOID lastLookupID;
@@ -181,17 +179,23 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
   /**
    * @since 2.0
    */
-  public synchronized Resource.Internal getResourceView()
+  public synchronized CDOResourceImpl getRootResource()
   {
-    if (resourceView == null)
+    if (rootResource == null)
     {
-      CDOResourceFactory factory = getViewSet().getResourceFactory();
-      resourceView = (CDOResourceImpl)factory.createResource(CDOURIUtil.createResourceURI(this, "VIEW"));
-      ((InternalCDOObject)resourceView).cdoInternalSetView(this);
-      ((InternalCDOObject)resourceView).cdoInternalSetState(CDOState.NEW);
+      rootResource = createRootResource();
     }
 
-    return resourceView;
+    return rootResource;
+  }
+
+  /**
+   * @return
+   * @since 2.0
+   */
+  protected CDOResourceImpl createRootResource()
+  {
+    return (CDOResourceImpl)getResource(CDOResourceNode.ROOT_PATH);
   }
 
   /**
@@ -373,7 +377,7 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
     List<String> names = CDOURIUtil.analyzePath(path);
     for (String name : names)
     {
-      folderID = getResourceNodeByRevision(folderID, name);
+      folderID = getResourceNodeID(folderID, name);
       if (folderID == null)
       {
         throw new CDOException("CAnnot find " + name);
@@ -391,7 +395,7 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
   {
     try
     {
-      CDOID id = getResourceNodeByRevision(folderID, name);
+      CDOID id = getResourceNodeID(folderID, name);
       return (CDOResourceNode)getObject(id);
     }
     catch (CDOException ex)
@@ -407,7 +411,7 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
   /**
    * @since 2.0
    */
-  protected CDOID getResourceNodeByRevision(CDOID folderID, String name)
+  protected CDOID getResourceNodeID(CDOID folderID, String name)
   {
     if (name == null)
     {
@@ -416,7 +420,7 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
 
     if (folderID == null)
     {
-      return getRootResourceNodeByRevision(name);
+      return getRootOrTopLevelResourceNodeID(name);
     }
 
     InternalCDORevision folderRevision = getLocalRevision(folderID);
@@ -446,30 +450,10 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
     throw new CDOException("Node " + name + " not found");
   }
 
-  // /**
-  // * @return never <code>null</code>
-  // * @since 2.0
-  // */
-  // protected CDOResourceNode getRootResourceNode(String name)
-  // {
-  // List<CDOResourceNode> nodes = queryResources(null, name, true);
-  // if (nodes.isEmpty())
-  // {
-  // throw new CDOException("No root ResourceNode with the name " + name);
-  // }
-  //
-  // if (nodes.size() > 1)
-  // {
-  // throw new ImplementationError("Duplicate root ResourceNodes with the same name");
-  // }
-  //
-  // return nodes.get(0);
-  // }
-
   /**
    * @since 2.0
    */
-  protected CDOID getRootResourceNodeByRevision(String name)
+  protected CDOID getRootOrTopLevelResourceNodeID(String name)
   {
     CDOQuery resourceQuery = createResourcesQuery(null, name, true);
     resourceQuery.setMaxResults(1);

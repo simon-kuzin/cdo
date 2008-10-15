@@ -271,7 +271,8 @@ public class MEMStore extends LongIDStore implements IMEMStore
             if (ObjectUtil.equals(revisionFolder, folderID))
             {
               String revisionName = (String)revision.getData().get(getResourceNameFeature(), 0);
-              boolean match = exactMatch ? revisionName.equals(name) : revisionName.startsWith(name);
+              boolean match = exactMatch || name == null ? ObjectUtil.equals(revisionName, name) : revisionName
+                  .startsWith(name);
 
               if (match)
               {

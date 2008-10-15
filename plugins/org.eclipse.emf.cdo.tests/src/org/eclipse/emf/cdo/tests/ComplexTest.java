@@ -478,7 +478,6 @@ public class ComplexTest extends AbstractCDOTest
 
   public void testMultipleTransactions3()
   {
-
     CDOTransaction transaction1 = session.openTransaction();
     String resource1path = "/resources/3/" + uniqueCounter;
     CDOResource resource1 = transaction1.createResource(resource1path);

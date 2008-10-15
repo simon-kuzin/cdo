@@ -59,6 +59,7 @@ public class CDOResourceFactoryImpl implements Resource.Factory, CDOResourceFact
 
     // Important: Set URI *after* registration with the view!
     resource.setURI(newURI);
+    resource.setRoot(CDOURIUtil.SEGMENT_SEPARATOR.equals(path));
     resource.setExisting(isGetResource());
     return resource;
   }

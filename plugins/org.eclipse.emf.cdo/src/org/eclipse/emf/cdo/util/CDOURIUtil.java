@@ -45,11 +45,6 @@ public class CDOURIUtil
     {
       throw new InvalidURIException(uri);
     }
-
-    if (!uri.hasAbsolutePath())
-    {
-      throw new InvalidURIException(uri);
-    }
   }
 
   public static String extractRepositoryUUID(URI uri)
@@ -87,7 +82,13 @@ public class CDOURIUtil
   public static String extractResourcePath(URI uri) throws InvalidURIException
   {
     validateURI(uri);
-    return uri.path();
+    String path = uri.path();
+    if (path == null)
+    {
+      return SEGMENT_SEPARATOR;
+    }
+
+    return path;
   }
 
   /**
@@ -112,12 +113,16 @@ public class CDOURIUtil
       stringBuilder.append(repositoryUUID);
     }
 
-    if (path.charAt(0) != SEGMENT_SEPARATOR_CHAR)
+    if (!SEGMENT_SEPARATOR.equals(path))
     {
-      stringBuilder.append(SEGMENT_SEPARATOR_CHAR);
+      if (path.charAt(0) != SEGMENT_SEPARATOR_CHAR)
+      {
+        stringBuilder.append(SEGMENT_SEPARATOR_CHAR);
+      }
+
+      stringBuilder.append(path);
     }
 
-    stringBuilder.append(path);
     return URI.createURI(stringBuilder.toString());
   }
 
@@ -149,7 +154,8 @@ public class CDOURIUtil
 
   public static List<String> analyzePath(URI uri)
   {
-    return analyzePath(extractResourcePath(uri));
+    String path = extractResourcePath(uri);
+    return analyzePath(path);
   }
 
   public static List<String> analyzePath(String path)

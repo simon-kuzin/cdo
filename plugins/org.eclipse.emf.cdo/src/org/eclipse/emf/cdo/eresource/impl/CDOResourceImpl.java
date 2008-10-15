@@ -51,14 +51,13 @@ import org.eclipse.emf.ecore.resource.URIConverter;
 import org.eclipse.emf.ecore.resource.impl.ExtensibleURIConverterImpl;
 import org.eclipse.emf.ecore.resource.impl.ResourceImpl;
 import org.eclipse.emf.ecore.util.InternalEList;
+import org.eclipse.emf.ecore.util.NotifyingInternalEListImpl;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
 /**
@@ -90,6 +89,11 @@ public class CDOResourceImpl extends CDOResourceNodeImpl implements CDOResource,
    * @ADDED
    */
   private static URIConverter defaultURIConverter;
+
+  /**
+   * @ADDED
+   */
+  private boolean root;
 
   /**
    * @ADDED
@@ -135,6 +139,19 @@ public class CDOResourceImpl extends CDOResourceNodeImpl implements CDOResource,
   protected EClass eStaticClass()
   {
     return EresourcePackage.Literals.CDO_RESOURCE;
+  }
+
+  /**
+   * @since 2.0
+   */
+  public boolean isRoot()
+  {
+    return root;
+  }
+
+  void setRoot(boolean root)
+  {
+    this.root = root;
   }
 
   /**
@@ -832,14 +849,14 @@ public class CDOResourceImpl extends CDOResourceNodeImpl implements CDOResource,
   }
 
   /**
-   * TODO Change superclass to NotifyingInternalEListImpl when EMF 2.3 is out of maintenance TODO Reuse
-   * {@link ResourceImpl.ContentsEList}!!! --> Bugzilla!
+   * TODO Change superclass to NotifyingInternalEListImpl when EMF 2.3 is out of maintenance
+   * <p>
+   * TODO Reuse {@link ResourceImpl.ContentsEList}!!! --> Bugzilla!
    * 
    * @ADDED
    * @author Eike Stepper
    */
-  protected class TransientContents<E extends Object & EObject> extends NotifyingListImpl<E> implements
-      InternalEList<E>
+  protected class TransientContents<E extends Object & EObject> extends NotifyingInternalEListImpl<E>
   {
     private static final long serialVersionUID = 1L;
 
@@ -934,66 +951,6 @@ public class CDOResourceImpl extends CDOResourceNodeImpl implements CDOResource,
       return eObject.eSetResource(null, notifications);
     }
 
-    public boolean basicContains(Object object)
-    {
-      return super.contains(object);
-    }
-
-    public boolean basicContainsAll(Collection<?> collection)
-    {
-      return super.containsAll(collection);
-    }
-
-    public int basicIndexOf(Object object)
-    {
-      return super.indexOf(object);
-    }
-
-    public int basicLastIndexOf(Object object)
-    {
-      return super.lastIndexOf(object);
-    }
-
-    public Object[] basicToArray()
-    {
-      return super.toArray();
-    }
-
-    public <T> T[] basicToArray(T[] array)
-    {
-      return super.toArray(array);
-    }
-
-    @Override
-    public Iterator<E> basicIterator()
-    {
-      return super.basicIterator();
-    }
-
-    @Override
-    public ListIterator<E> basicListIterator()
-    {
-      return super.basicListIterator();
-    }
-
-    @Override
-    public ListIterator<E> basicListIterator(int index)
-    {
-      return super.basicListIterator(index);
-    }
-
-    @Override
-    public List<E> basicList()
-    {
-      return super.basicList();
-    }
-
-    @Override
-    protected Object[] newData(int capacity)
-    {
-      return new EObject[capacity];
-    }
-
     @Override
     protected void didAdd(int index, E object)
     {
@@ -1018,8 +975,29 @@ public class CDOResourceImpl extends CDOResourceNodeImpl implements CDOResource,
     @Override
     protected void didClear(int oldSize, Object[] oldData)
     {
-      super.didClear(oldSize, oldData);
-      // modified();
+      if (oldSize == 0)
+      {
+        loaded();
+      }
+      else
+      {
+        super.didClear(oldSize, oldData);
+      }
+    }
+
+    /**
+     * @since 2.0
+     */
+    protected void loaded()
+    {
+      if (!isLoaded())
+      {
+        Notification notification = setLoaded(true);
+        if (notification != null)
+        {
+          eNotify(notification);
+        }
+      }
     }
 
     protected void modified()

@@ -176,6 +176,12 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     return CDOIDUtil.createTempObject(++lastTemporaryID);
   }
 
+  @Override
+  protected CDOResourceImpl createRootResource()
+  {
+    return (CDOResourceImpl)getOrCreateResource(CDOResourceNode.ROOT_PATH);
+  }
+
   public CDOResource createResource(String path)
   {
     checkOpen();
@@ -224,7 +230,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
   {
     URI uri = resource.getURI();
     List<String> names = CDOURIUtil.analyzePath(uri);
-    String resourceName = names.remove(names.size() - 1);
+    String resourceName = names.isEmpty() ? null : names.remove(names.size() - 1);
 
     CDOResourceFolder folder = null;
     for (String name : names)
@@ -260,7 +266,14 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     newNode.setName(name);
     if (folder == null)
     {
-      CDOStateMachine.INSTANCE.attach((InternalCDOObject)newNode, this);
+      if (newNode.isRoot())
+      {
+        CDOStateMachine.INSTANCE.attach((InternalCDOObject)newNode, this);
+      }
+      else
+      {
+        getRootResource().getContents().add(newNode);
+      }
     }
     else
     {
@@ -321,7 +334,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
    * @since 2.0
    */
   @Override
-  protected CDOID getRootResourceNodeByRevision(String name)
+  protected CDOID getRootOrTopLevelResourceNodeID(String name)
   {
     if (dirty)
     {
@@ -344,7 +357,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
       }
     }
 
-    CDOID id = super.getRootResourceNodeByRevision(name);
+    CDOID id = super.getRootOrTopLevelResourceNodeID(name);
     if (getLastSavepoint().getAllDetachedObjects().containsKey(id))
     {
       throw new CDOException("Root resource node " + name + " doesn't exist");

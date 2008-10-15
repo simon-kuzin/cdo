@@ -2,7 +2,7 @@
  * <copyright>
  * </copyright>
  *
- * $Id: CDOResourceNode.java,v 1.1.2.1 2008-10-14 20:39:30 estepper Exp $
+ * $Id: CDOResourceNode.java,v 1.1.2.2 2008-10-15 19:35:04 estepper Exp $
  */
 package org.eclipse.emf.cdo.eresource;
 
@@ -27,6 +27,24 @@ import org.eclipse.emf.cdo.CDOObject;
  */
 public interface CDOResourceNode extends CDOObject
 {
+  /**
+   * @ADDED
+   * @since 2.0
+   */
+  public static final String ROOT_PATH = "/";
+
+  /**
+   * @ADDED
+   * @since 2.0
+   */
+  public static final String ROOT_NAME = null;
+
+  /**
+   * @ADDED
+   * @since 2.0
+   */
+  public boolean isRoot();
+
   /**
    * Returns the value of the '<em><b>Folder</b></em>' container reference. It is bidirectional and its opposite is '
    * {@link org.eclipse.emf.cdo.eresource.CDOResourceFolder#getNodes <em>Nodes</em>}'. <!-- begin-user-doc -->
