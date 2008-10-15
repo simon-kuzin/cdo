@@ -321,7 +321,7 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
 
     try
     {
-      getResourceIDByRevision(path);
+      getResourceID(path);
       return true;
     }
     catch (Exception ex)
@@ -339,34 +339,10 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
     return new CDOQueryImpl(this, language, queryString);
   }
 
-  // protected CDOID getResourceID(String path)
-  // {
-  // if (StringUtil.isEmpty(path))
-  // {
-  // throw new IllegalArgumentException("path");
-  // }
-  //
-  // CDOResourceNode node = null;
-  // CDOID folderID = null;
-  // List<String> names = CDOURIUtil.analyzePath(path);
-  // for (String name : names)
-  // {
-  // node = getResourceNode(folderID, name);
-  // folderID = node.cdoID();
-  // }
-  //
-  // if (node instanceof CDOResource)
-  // {
-  // return folderID;
-  // }
-  //
-  // throw new CDOException("Path does not denote a resource: " + path);
-  // }
-
   /**
    * @since 2.0
    */
-  protected CDOID getResourceIDByRevision(String path)
+  protected CDOID getResourceID(String path)
   {
     if (StringUtil.isEmpty(path))
     {
@@ -374,16 +350,29 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
     }
 
     CDOID folderID = null;
-    List<String> names = CDOURIUtil.analyzePath(path);
-    for (String name : names)
+    if (CDOURIUtil.SEGMENT_SEPARATOR.equals(path))
     {
-      folderID = getResourceNodeID(folderID, name);
-      if (folderID == null)
+      folderID = getResourceID(null, null);
+    }
+    else
+    {
+      List<String> names = CDOURIUtil.analyzePath(path);
+      for (String name : names)
       {
-        throw new CDOException("CAnnot find " + name);
+        folderID = getResourceID(folderID, name);
       }
     }
 
+    return folderID;
+  }
+
+  private CDOID getResourceID(CDOID folderID, String name)
+  {
+    folderID = getResourceNodeID(folderID, name);
+    if (folderID == null)
+    {
+      throw new CDOException("Can not find " + name);
+    }
     return folderID;
   }
 
@@ -413,14 +402,13 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
    */
   protected CDOID getResourceNodeID(CDOID folderID, String name)
   {
-    if (name == null)
-    {
-      throw new IllegalArgumentException("name");
-    }
-
     if (folderID == null)
     {
       return getRootOrTopLevelResourceNodeID(name);
+    }
+    else if (name == null)
+    {
+      throw new IllegalArgumentException("name");
     }
 
     InternalCDORevision folderRevision = getLocalRevision(folderID);
@@ -805,11 +793,15 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
     CDOResourceNodeClass resourceNodeClass = resourcePackage.getCDOResourceNodeClass();
     CDONameFeature nameFeature = resourceNodeClass.getCDONameFeature();
 
-    // CDOID folderID = (CDOID)revision.getData().get(folderFeature, 0);
     CDOID folderID = (CDOID)revision.getData().getContainerID();
     String name = (String)revision.getData().get(nameFeature, 0);
     if (folderID == null || folderID.isNull())
     {
+      if (name == null)
+      {
+        return CDOURIUtil.SEGMENT_SEPARATOR;
+      }
+
       return name;
     }
 
@@ -984,7 +976,7 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
 
     try
     {
-      CDOID id = getResourceIDByRevision(path);
+      CDOID id = getResourceID(path);
       resource.cdoInternalSetID(id);
       resource.cdoInternalSetResource(resource);
       registerObject(resource);

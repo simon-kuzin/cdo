@@ -118,7 +118,7 @@ public class ResourceTest extends AbstractCDOTest
       assertActive(resource);
       transaction.commit();
 
-      Assert.assertEquals(1, rset.getResources().size());
+      Assert.assertEquals(2, rset.getResources().size());
       Assert.assertEquals(1, CDOUtil.getViewSet(rset).getViews().length);
 
       transaction.close();
@@ -158,18 +158,18 @@ public class ResourceTest extends AbstractCDOTest
     tobeRemoved.add(resource1);
     tobeRemoved.add(resource3);
 
-    assertEquals(3, transaction.getResourceSet().getResources().size());
+    assertEquals(4, transaction.getResourceSet().getResources().size());
 
     transaction.getResourceSet().getResources().removeAll(tobeRemoved);
 
-    assertEquals(1, transaction.getResourceSet().getResources().size());
+    assertEquals(2, transaction.getResourceSet().getResources().size());
     assertEquals(null, transaction.getResourceSet().getResource(resource1.getURI(), false));
     assertEquals(resource2, transaction.getResourceSet().getResource(resource2.getURI(), false));
     assertEquals(null, transaction.getResourceSet().getResource(resource3.getURI(), false));
 
     transaction.getResourceSet().getResources().addAll(tobeRemoved);
 
-    assertEquals(3, transaction.getResourceSet().getResources().size());
+    assertEquals(4, transaction.getResourceSet().getResources().size());
     assertEquals(resource1, transaction.getResourceSet().getResource(resource1.getURI(), false));
     assertEquals(resource2, transaction.getResourceSet().getResource(resource2.getURI(), false));
     assertEquals(resource3, transaction.getResourceSet().getResource(resource3.getURI(), false));
@@ -192,11 +192,11 @@ public class ResourceTest extends AbstractCDOTest
     tobeRemoved.add(resource1);
     tobeRemoved.add(resource3);
 
-    assertEquals(3, transaction.getResourceSet().getResources().size());
+    assertEquals(4, transaction.getResourceSet().getResources().size());
 
     transaction.getResourceSet().getResources().removeAll(tobeRemoved);
 
-    assertEquals(1, transaction.getResourceSet().getResources().size());
+    assertEquals(2, transaction.getResourceSet().getResources().size());
     assertEquals(null, transaction.getResourceSet().getResource(resource1.getURI(), false));
     assertEquals(resource2, transaction.getResourceSet().getResource(resource2.getURI(), false));
     assertEquals(null, transaction.getResourceSet().getResource(resource3.getURI(), false));
