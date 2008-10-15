@@ -448,7 +448,7 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
     List<CDOID> ids = resourceQuery.getResult(CDOID.class);
     if (ids.isEmpty())
     {
-      throw new CDOException("No root ResourceNode with the name " + name);
+      throw new CDOException("No top level ResourceNode with the name " + name);
     }
 
     if (ids.size() > 1)
