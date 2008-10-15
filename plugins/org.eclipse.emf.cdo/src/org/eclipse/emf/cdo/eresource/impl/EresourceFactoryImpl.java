@@ -64,9 +64,9 @@ public class EresourceFactoryImpl extends EFactoryImpl implements EresourceFacto
   }
 
   /**
-   * <!-- begin-user-doc --> TODO Simon: Can you remember why this is generated NOT? <!-- end-user-doc -->
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
    * 
-   * @generated NOT
+   * @generated
    */
   @Override
   public EObject create(EClass eClass)
@@ -142,7 +142,7 @@ public class EresourceFactoryImpl extends EFactoryImpl implements EresourceFacto
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
    * 
-   * @generated NOT
+   * @generated
    */
   public URI createURIFromString(EDataType eDataType, String initialValue)
   {
@@ -152,7 +152,7 @@ public class EresourceFactoryImpl extends EFactoryImpl implements EresourceFacto
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
    * 
-   * @generated NOT
+   * @generated
    */
   public String convertURIToString(EDataType eDataType, Object instanceValue)
   {

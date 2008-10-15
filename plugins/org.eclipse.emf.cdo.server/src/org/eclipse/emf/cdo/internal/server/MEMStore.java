@@ -196,11 +196,6 @@ public class MEMStore extends LongIDStore implements IMEMStore
     return getRepository().getPackageManager().getCDOResourcePackage().getCDOResourceNodeClass();
   }
 
-  private CDOFeature getResourceFolderFeature()
-  {
-    return getResourceNodeClass().getCDOFolderFeature();
-  }
-
   private CDOFeature getResourceNameFeature()
   {
     return getResourceNodeClass().getCDONameFeature();
