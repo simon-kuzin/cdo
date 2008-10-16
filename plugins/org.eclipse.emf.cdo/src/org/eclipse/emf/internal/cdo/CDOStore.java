@@ -127,6 +127,21 @@ public final class CDOStore implements EStore
     return revision.getContainingFeatureID();
   }
 
+  /**
+   * @since 2.0
+   */
+  public InternalEObject getResource(InternalEObject eObject)
+  {
+    InternalCDOObject cdoObject = getCDOObject(eObject);
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("getContainer({0})", cdoObject);
+    }
+
+    InternalCDORevision revision = getRevisionForReading(cdoObject);
+    return (InternalEObject)((CDOViewImpl)cdoObject.cdoView()).convertIDToObject(revision.getResourceID());
+  }
+
   @Deprecated
   public EStructuralFeature getContainingFeature(InternalEObject eObject)
   {

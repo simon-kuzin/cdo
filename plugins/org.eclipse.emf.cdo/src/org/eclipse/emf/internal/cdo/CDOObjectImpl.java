@@ -74,10 +74,6 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
 
   private CDOViewImpl view;
 
-  // TODO Consider removal because it's only an optimization (proof that revision.resourceID could be used in all cases
-  // as well)
-  private CDOResourceImpl resource;
-
   private InternalCDORevision revision;
 
   public CDOObjectImpl()
@@ -113,12 +109,27 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
 
   public CDOResourceImpl cdoResource()
   {
-    if (this instanceof CDOResourceImpl)
+    Resource resource = eResource();
+    if (resource instanceof CDOResourceImpl)
     {
-      resource = (CDOResourceImpl)this;
+      return (CDOResourceImpl)resource;
     }
 
-    return resource;
+    return null;
+  }
+
+  /**
+   * @since 2.0
+   */
+  public CDOResourceImpl cdoDirectResource()
+  {
+    Resource.Internal resource = eDirectResource();
+    if (resource instanceof CDOResourceImpl)
+    {
+      return (CDOResourceImpl)resource;
+    }
+
+    return null;
   }
 
   public void cdoReload()
@@ -184,17 +195,7 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
 
   public void cdoInternalSetResource(CDOResource resource)
   {
-    if (this instanceof CDOResourceImpl)
-    {
-      return;
-    }
-
-    if (TRACER.isEnabled())
-    {
-      TRACER.format("Setting resource: {0}", resource);
-    }
-
-    this.resource = (CDOResourceImpl)resource;
+    throw new UnsupportedOperationException();
   }
 
   public void cdoInternalPostLoad()
@@ -250,7 +251,6 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
     if (directResource instanceof CDOResource)
     {
       CDOResource cdoResource = (CDOResource)directResource;
-      cdoInternalSetResource(cdoResource);
       revision.setResourceID(cdoResource.cdoID());
     }
 
@@ -345,7 +345,7 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
     }
 
     CDOViewImpl view = cdoView();
-    super.eSetDirectResource(cdoResource());
+    super.eSetDirectResource(cdoDirectResource());
     eContainer = eStore().getContainer(this);
     eContainerFeatureID = getStore().getContainingFeatureID(this);
 
@@ -591,8 +591,7 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
     }
     else if (resource instanceof CDOResourceImpl || resource == null)
     {
-      this.resource = (CDOResourceImpl)resource;
-      getStore().setContainer(this, cdoResource(), eInternalContainer(), eContainerFeatureID());
+      getStore().setContainer(this, (CDOResourceImpl)resource, eInternalContainer(), eContainerFeatureID());
     }
     else
     {
@@ -606,17 +605,12 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
   @Override
   public Resource.Internal eDirectResource()
   {
-    if (this instanceof Resource.Internal)
-    {
-      return (Internal)this;
-    }
-
     if (FSMUtil.isTransient(this))
     {
       return super.eDirectResource();
     }
 
-    return cdoResource();
+    return (Resource.Internal)getStore().getResource(this);
   }
 
   /**
@@ -739,7 +733,8 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
   public NotificationChain eBasicSetContainer(InternalEObject newContainer, int newContainerFeatureID,
       NotificationChain msgs)
   {
-    boolean isResource = this instanceof CDOResource;
+    boolean isResourceRoot = this instanceof CDOResource && ((CDOResource)this).isRoot();
+
     InternalEObject oldContainer = eInternalContainer();
     Resource.Internal oldResource = eDirectResource();
     Resource.Internal newResource = null;
@@ -747,12 +742,8 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
     {
       if (newContainer != null && !eContainmentFeature(this, newContainer, newContainerFeatureID).isResolveProxies())
       {
-        if (!isResource)
-        {
-          msgs = ((InternalEList<?>)oldResource.getContents()).basicRemove(this, msgs);
-          eSetDirectResource(null);
-        }
-
+        msgs = ((InternalEList<?>)oldResource.getContents()).basicRemove(this, msgs);
+        eSetDirectResource(null);
         newResource = newContainer.eInternalResource();
       }
       else
@@ -778,7 +769,7 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
         : null;
 
     boolean moved = oldView != null && oldView == newView;
-    if (!moved && oldResource != null && !isResource)
+    if (!moved && oldResource != null && !isResourceRoot)
     {
       oldResource.detached(this);
     }
@@ -901,7 +892,7 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
     }
     else
     {
-      getStore().setContainer(this, cdoResource(), newEContainer, newContainerFeatureID);
+      getStore().setContainer(this, cdoDirectResource(), newEContainer, newContainerFeatureID);
     }
   }
 

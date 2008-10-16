@@ -12,10 +12,12 @@
 package org.eclipse.emf.cdo.tests;
 
 import org.eclipse.emf.cdo.CDOAudit;
+import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.CDOSession;
 import org.eclipse.emf.cdo.CDOState;
 import org.eclipse.emf.cdo.CDOTransaction;
 import org.eclipse.emf.cdo.CDOView;
+import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.eresource.CDOResourceFolder;
 import org.eclipse.emf.cdo.eresource.CDOResourceNode;
@@ -44,6 +46,150 @@ import junit.framework.Assert;
  */
 public class ResourceTest extends AbstractCDOTest
 {
+  public void testAttachDetachResourceDepth1_Delete() throws Exception
+  {
+    testAttachDetachResourceDepth1(1, true, 0);
+  }
+
+  public void testAttachDetachResourceDepth1_Remove() throws Exception
+  {
+    testAttachDetachResourceDepth1(1, false, 0);
+  }
+
+  public void testAttachDetachResourceDepth2_Delete() throws Exception
+  {
+    testAttachDetachResourceDepth1(2, true, 1);
+  }
+
+  public void testAttachDetachResourceDepth2_Remove() throws Exception
+  {
+    testAttachDetachResourceDepth1(2, false, 1);
+  }
+
+  public void testAttachDetachResourceDepth3_Delete() throws Exception
+  {
+    testAttachDetachResourceDepth1(3, true, 2);
+  }
+
+  public void testAttachDetachResourceDepth3_Remove() throws Exception
+  {
+    testAttachDetachResourceDepth1(3, false, 2);
+  }
+
+  public void testAttachDetachResourceDepth3_Remove_Tree() throws Exception
+  {
+    testAttachDetachResourceDepth1(3, false, 1);
+  }
+
+  /**
+   * Create resource with the following pattern /test1/test2/test3 for a depth 3. <br>
+   * After it will remove the resource with the following rule:<br>
+   * if calldelete is true <code>resource.delete(null)</code> <br>
+   * if calldelete is false it will use the depthtoRemove to call <code>object.remove(resource)</code><br>
+   * deptToRemove = /0/1/2/...<br>
+   * It will remove it from parent folder (depthtoRemove - 1);
+   */
+  public void testAttachDetachResourceDepth1(int depth, boolean callDelete, int depthtoRemove) throws Exception
+  {
+    CDOSession session = openModel1Session();
+    ResourceSet resourceSet = new ResourceSetImpl();
+    CDOTransaction transaction = session.openTransaction(resourceSet);
+    CDOResource rootResource = transaction.getRootResource();
+    String path = "";
+    List<String> names = new ArrayList<String>();
+    for (int i = 0; i < depth; i++)
+    {
+      String name = "test" + String.valueOf(i + 1);
+      names.add(name);
+      path += "/" + name;
+    }
+    final URI uri = URI.createURI("cdo:" + path);
+    CDOResource resource = (CDOResource)resourceSet.createResource(uri);
+    assertEquals(names.get(names.size() - 1), resource.getName());
+
+    transaction.commit();
+    List<CDOResourceNode> nodesList = new ArrayList<CDOResourceNode>();
+    CDOResource resourceByLookup = null;
+    CDOResourceNode next = null;
+    for (int i = 0; i < depth; i++)
+    {
+      if (i == 0)
+      {
+        next = (CDOResourceNode)rootResource.getContents().get(0);
+      }
+      else
+      {
+        next = ((CDOResourceFolder)next).getNodes().get(0);
+      }
+      nodesList.add(next);
+    }
+    resourceByLookup = (CDOResource)next;
+    assertSame(resource, resourceByLookup);
+    assertClean(resourceByLookup, transaction);
+    assertEquals(true, resourceSet.getResources().contains(resourceByLookup));
+
+    CDOObject cdoParent = null;
+    CDOObject cdoRootResource = CDOUtil.getCDOObject(rootResource);
+    for (int i = 0; i < depth; i++)
+    {
+      CDOResourceNode resourceNode = nodesList.get(i);
+      CDOObject cdoResourceNode = CDOUtil.getCDOObject(resourceNode);
+
+      if (i == 0)
+      {
+        assertEquals(cdoRootResource.cdoID(), cdoResourceNode.cdoRevision().getData().getResourceID());
+        assertEquals(CDOID.NULL, cdoResourceNode.cdoRevision().getData().getContainerID());
+      }
+      else
+      {
+        assertEquals(CDOID.NULL, cdoResourceNode.cdoRevision().getData().getResourceID());
+        assertEquals(cdoParent.cdoID(), cdoResourceNode.cdoRevision().getData().getContainerID());
+      }
+      cdoParent = cdoResourceNode;
+    }
+
+    if (callDelete)
+    {
+      resource.delete(null);
+      depthtoRemove = depth;
+    }
+    else
+    {
+      CDOResourceNode node = nodesList.get(depthtoRemove);
+      if (depthtoRemove == 0)
+      {
+        rootResource.getContents().remove(node);
+      }
+      else
+      {
+        CDOResourceFolder parentFolder = (CDOResourceFolder)nodesList.get(depthtoRemove - 1);
+        assertEquals(parentFolder, node.getFolder());
+        parentFolder.getNodes().remove(node);
+      }
+    }
+    for (int i = depthtoRemove; i < depth; i++)
+    {
+      CDOResourceNode transientNode = nodesList.get(i);
+      assertTransient(transientNode);
+      if (transientNode instanceof CDOResource)
+      {
+        assertEquals(false, resourceSet.getResources().contains(transientNode));
+      }
+      assertEquals(null, transientNode.eResource());
+      if (i == depthtoRemove)
+      {
+        assertEquals(null, transientNode.eContainer());
+      }
+      else
+      {
+        assertEquals(cdoParent, transientNode.eContainer());
+      }
+      cdoParent = transientNode;
+    }
+
+    transaction.commit();
+  }
+
   public void testCreateResource_FromResourceSet() throws Exception
   {
     CDOSession session = openModel1Session();
@@ -58,6 +204,26 @@ public class ResourceTest extends AbstractCDOTest
     assertEquals(CDOURIUtil.createResourceURI(session, "test1"), resource.getURI());
     assertEquals("test1", resource.getName());
     assertEquals(null, resource.getFolder());
+    transaction.getRootResource().getContents().contains(resource);
+    transaction.commit();
+
+    CDOObject cdoResource = CDOUtil.getCDOObject(resource);
+    CDOObject cdoRootResource = CDOUtil.getCDOObject(transaction.getRootResource());
+
+    assertClean(cdoResource, transaction);
+    assertClean(cdoRootResource, transaction);
+    assertEquals(CDOID.NULL, cdoResource.cdoRevision().getData().getContainerID());
+    assertEquals(cdoRootResource.cdoID(), cdoResource.cdoRevision().getData().getResourceID());
+    assertEquals(CDOID.NULL, cdoRootResource.cdoRevision().getData().getResourceID());
+
+    assertEquals(true, transaction.getResourceSet().getResources().contains(resource));
+    assertEquals(true, transaction.getResourceSet().getResources().contains(transaction.getRootResource()));
+
+    transaction.getRootResource().getContents().remove(resource);
+
+    assertEquals(false, transaction.getResourceSet().getResources().contains(resource));
+    assertEquals(true, transaction.getResourceSet().getResources().contains(transaction.getRootResource()));
+
   }
 
   public void testCreateNestedResource_FromResourceSet() throws Exception

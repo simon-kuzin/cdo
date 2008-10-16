@@ -362,7 +362,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     }
 
     CDOID id = super.getRootOrTopLevelResourceNodeID(name);
-    if (getLastSavepoint().getAllDetachedObjects().containsKey(id))
+    if (getLastSavepoint().getAllDetachedObjects().containsKey(id) || getDirtyObjects().containsKey(id))
     {
       throw new CDOException("Root resource node " + name + " doesn't exist");
     }

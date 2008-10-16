@@ -580,23 +580,6 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
     return (CDOResourceImpl)getObject(resourceID);
   }
 
-  public CDOResourceImpl addResource(CDOID id, String path)
-  {
-    URI createURI = CDOURIUtil.createResourceURI(this, path);
-    CDOResourceImpl resource = (CDOResourceImpl)viewSet.getResourceFactory().createResource(createURI);
-    resource.setURI(createURI);
-
-    InternalCDOObject resourceObject = resource;
-    resourceObject.cdoInternalSetID(id);
-    resourceObject.cdoInternalSetView(this);
-    resourceObject.cdoInternalSetResource(resource);
-    resourceObject.cdoInternalSetState(CDOState.PROXY);
-
-    ResourceSet resourceSet = getResourceSet();
-    resourceSet.getResources().add(resource);
-    return resource;
-  }
-
   public InternalCDOObject newInstance(EClass eClass)
   {
     EObject eObject = EcoreUtil.create(eClass);
@@ -822,20 +805,7 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
   protected void cleanObject(InternalCDOObject object, InternalCDORevision revision)
   {
     object.cdoInternalCleanup();
-    if (object instanceof CDOResourceImpl)
-    {
-      object.cdoInternalSetResource((CDOResourceImpl)object);
-    }
-    else
-    {
-      CDOID resourceID = revision.getResourceID();
-      if (!resourceID.isNull())
-      {
-        CDOResourceImpl resource = getResource(resourceID);
-        object.cdoInternalSetResource(resource);
-      }
-    }
-
+    
     object.cdoInternalSetView(this);
     object.cdoInternalSetRevision(revision);
     object.cdoInternalSetID(revision.getID());
@@ -978,7 +948,6 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
     {
       CDOID id = getResourceID(path);
       resource.cdoInternalSetID(id);
-      resource.cdoInternalSetResource(resource);
       registerObject(resource);
     }
     catch (Exception ex)

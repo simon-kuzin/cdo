@@ -242,7 +242,7 @@ public class InitialTest extends AbstractCDOTest
     assertNew(supplier, transaction);
     assertNew(resource, transaction);
     assertEquals(supplier, s);
-    assertEquals(resource, CDOUtil.getCDOObject(s).cdoResource());
+    assertEquals(resource, CDOUtil.getCDOObject(s).cdoDirectResource());
     assertEquals(null, s.eContainer());
   }
 
@@ -270,7 +270,7 @@ public class InitialTest extends AbstractCDOTest
     contents.add(supplier);
     assertNew(supplier, transaction);
     assertEquals(transaction, CDOUtil.getCDOObject(supplier).cdoView());
-    assertEquals(resource, CDOUtil.getCDOObject(supplier).cdoResource());
+    assertEquals(resource, CDOUtil.getCDOObject(supplier).cdoDirectResource());
     assertEquals(resource, supplier.eResource());
     assertEquals(null, supplier.eContainer());
   }
@@ -858,8 +858,8 @@ public class InitialTest extends AbstractCDOTest
     resource1.getContents().add(cat1);
     cat1.getCategories().add(cat2);
 
-    assertEquals(null, CDOUtil.getCDOObject(cat2).cdoResource());
-    assertEquals(resource1, CDOUtil.getCDOObject(cat1).cdoResource());
+    assertEquals(null, CDOUtil.getCDOObject(cat2).cdoDirectResource());
+    assertEquals(resource1, CDOUtil.getCDOObject(cat1).cdoDirectResource());
     assertEquals(null, ((InternalEObject)cat2).eDirectResource());
     assertEquals(resource1, ((InternalEObject)cat1).eDirectResource());
 
