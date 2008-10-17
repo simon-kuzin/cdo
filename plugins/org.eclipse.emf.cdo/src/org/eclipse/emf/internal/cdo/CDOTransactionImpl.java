@@ -35,6 +35,7 @@ import org.eclipse.emf.cdo.eresource.CDOResourceFolder;
 import org.eclipse.emf.cdo.eresource.CDOResourceNode;
 import org.eclipse.emf.cdo.eresource.EresourceFactory;
 import org.eclipse.emf.cdo.eresource.impl.CDOResourceImpl;
+import org.eclipse.emf.cdo.eresource.impl.CDOResourceNodeImpl;
 import org.eclipse.emf.cdo.spi.common.InternalCDOPackage;
 import org.eclipse.emf.cdo.spi.common.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.InternalCDORevisionDelta;
@@ -236,6 +237,16 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     List<String> names = CDOURIUtil.analyzePath(uri);
     String resourceName = names.isEmpty() ? null : names.remove(names.size() - 1);
 
+    CDOResourceFolder folder = getOrCreateResourceFolder(names);
+    attachNewResourceNode(folder, resourceName, resource);
+  }
+
+  /**
+   * @return never <code>null</code>;
+   * @since 2.0
+   */
+  public CDOResourceFolder getOrCreateResourceFolder(List<String> names)
+  {
     CDOResourceFolder folder = null;
     for (String name : names)
     {
@@ -262,26 +273,27 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
       }
     }
 
-    attachNewResourceNode(folder, resourceName, resource);
+    return folder;
   }
 
   private void attachNewResourceNode(CDOResourceFolder folder, String name, CDOResourceNode newNode)
   {
-    newNode.setName(name);
+    CDOResourceNodeImpl node = (CDOResourceNodeImpl)newNode;
+    node.basicSetName(name, false);
     if (folder == null)
     {
-      if (newNode.isRoot())
+      if (node.isRoot())
       {
-        CDOStateMachine.INSTANCE.attach((InternalCDOObject)newNode, this);
+        CDOStateMachine.INSTANCE.attach(node, this);
       }
       else
       {
-        getRootResource().getContents().add(newNode);
+        getRootResource().getContents().add(node);
       }
     }
     else
     {
-      newNode.setFolder(folder);
+      node.basicSetFolder(folder, false);
     }
   }
 

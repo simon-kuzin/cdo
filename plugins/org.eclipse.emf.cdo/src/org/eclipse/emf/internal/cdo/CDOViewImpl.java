@@ -340,9 +340,10 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
   }
 
   /**
+   * @return never <code>null</code>
    * @since 2.0
    */
-  protected CDOID getResourceID(String path)
+  public CDOID getResourceID(String path)
   {
     if (StringUtil.isEmpty(path))
     {
@@ -366,6 +367,9 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
     return folderID;
   }
 
+  /**
+   * @retrn never <code>null</code>
+   */
   private CDOID getResourceID(CDOID folderID, String name)
   {
     folderID = getResourceNodeID(folderID, name);
@@ -373,6 +377,7 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
     {
       throw new CDOException("Can not find " + name);
     }
+
     return folderID;
   }
 
@@ -496,8 +501,11 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
   }
 
   /**
+   * TODO Remove me
+   * 
    * @since 2.0
    */
+  @Deprecated
   public CDOResourceFolder getResourceFolder(String path)
   {
     if (path == null)
@@ -805,7 +813,7 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
   protected void cleanObject(InternalCDOObject object, InternalCDORevision revision)
   {
     object.cdoInternalCleanup();
-    
+
     object.cdoInternalSetView(this);
     object.cdoInternalSetRevision(revision);
     object.cdoInternalSetID(revision.getID());

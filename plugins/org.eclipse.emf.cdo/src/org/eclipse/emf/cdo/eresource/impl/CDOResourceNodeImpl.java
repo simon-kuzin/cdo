@@ -2,17 +2,24 @@
  * <copyright>
  * </copyright>
  *
- * $Id: CDOResourceNodeImpl.java,v 1.1.2.1 2008-10-14 20:39:30 estepper Exp $
+ * $Id: CDOResourceNodeImpl.java,v 1.1.2.2 2008-10-17 19:07:51 estepper Exp $
  */
 package org.eclipse.emf.cdo.eresource.impl;
 
+import org.eclipse.emf.cdo.common.util.CDOException;
 import org.eclipse.emf.cdo.eresource.CDOResourceFolder;
 import org.eclipse.emf.cdo.eresource.CDOResourceNode;
 import org.eclipse.emf.cdo.eresource.EresourcePackage;
+import org.eclipse.emf.cdo.util.CDOURIUtil;
 
 import org.eclipse.emf.internal.cdo.CDOObjectImpl;
+import org.eclipse.emf.internal.cdo.CDOTransactionImpl;
+
+import org.eclipse.net4j.util.ObjectUtil;
 
 import org.eclipse.emf.ecore.EClass;
+
+import java.util.List;
 
 /**
  * <!-- begin-user-doc --> An implementation of the model object '<em><b>CDO Resource Node</b></em>'. <!-- end-user-doc
@@ -78,9 +85,39 @@ public abstract class CDOResourceNodeImpl extends CDOObjectImpl implements CDORe
    * 
    * @generated
    */
-  public void setFolder(CDOResourceFolder newFolder)
+  public void setFolderGen(CDOResourceFolder newFolder)
   {
     eSet(EresourcePackage.Literals.CDO_RESOURCE_NODE__FOLDER, newFolder);
+  }
+
+  /**
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
+   * @generated NOT
+   */
+  public void setFolder(CDOResourceFolder newFolder)
+  {
+    String oldPath = getPath();
+    basicSetFolder(newFolder, true);
+    adjustContainedResources(oldPath);
+  }
+
+  /**
+   * @ADDED
+   */
+  public void basicSetFolder(CDOResourceFolder newFolder, boolean checkDuplicates)
+  {
+    CDOResourceFolder oldFolder = getFolder();
+    if (!ObjectUtil.equals(oldFolder, newFolder))
+    {
+      if (checkDuplicates)
+      {
+        String newPath = (newFolder == null ? "" : newFolder.getPath()) + CDOURIUtil.SEGMENT_SEPARATOR + getName();
+        checkDuplicates(newPath);
+      }
+
+      setFolderGen(newFolder);
+    }
   }
 
   /**
@@ -98,9 +135,40 @@ public abstract class CDOResourceNodeImpl extends CDOObjectImpl implements CDORe
    * 
    * @generated
    */
-  public void setName(String newName)
+  public void setNameGen(String newName)
   {
     eSet(EresourcePackage.Literals.CDO_RESOURCE_NODE__NAME, newName);
+  }
+
+  /**
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
+   * @generated NOT
+   */
+  public void setName(String newName)
+  {
+    String oldPath = getPath();
+    basicSetName(newName, true);
+    adjustContainedResources(oldPath);
+  }
+
+  /**
+   * @ADDED
+   */
+  public void basicSetName(String newName, boolean checkDuplicates)
+  {
+    String oldName = getName();
+    if (!ObjectUtil.equals(oldName, newName))
+    {
+      if (checkDuplicates)
+      {
+        CDOResourceFolder parent = getFolder();
+        String newPath = (parent == null ? "" : parent.getPath()) + CDOURIUtil.SEGMENT_SEPARATOR + getName();
+        checkDuplicates(newPath);
+      }
+
+      setNameGen(newName);
+    }
   }
 
   /**
@@ -117,5 +185,78 @@ public abstract class CDOResourceNodeImpl extends CDOObjectImpl implements CDORe
     }
 
     return folder.getPath() + "/" + getName();
+  }
+
+  /**
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * 
+   * @generated NOT
+   */
+  public void setPath(String newPath)
+  {
+    CDOTransactionImpl transaction = cdoView().toTransaction();
+    if (newPath == null)
+    {
+      throw new CDOException("Null path is not allowed");
+    }
+
+    String oldPath = getPath();
+    if (!ObjectUtil.equals(oldPath, newPath))
+    {
+      // TODO check for duplicates
+      List<String> names = CDOURIUtil.analyzePath(newPath);
+      if (names.isEmpty())
+      {
+        throw new CDOException("Root path is not allowed");
+      }
+
+      String newName = names.remove(names.size() - 1);
+      CDOResourceFolder newFolder = transaction.getOrCreateResourceFolder(names);
+      basicSetFolder(newFolder, false);
+      basicSetName(newName, false);
+
+      adjustContainedResources(oldPath);
+    }
+  }
+
+  /**
+   * @ADDED
+   */
+  private void adjustContainedResources(String oldPath)
+  {
+    // ResourceSet resourceSet = cdoView().getViewSet().getResourceSet();
+    // EList<Resource> resources = resourceSet.getResources();
+    // for (Resource resource : resources.toArray(new Resource[resources.size()]))
+    // {
+    // if (resource instanceof CDOResource)
+    // {
+    // CDOResource cdoResource = (CDOResource)resource;
+    // String path = cdoResource.getPath();
+    // // if (ObjectUtil.equals(path, oldPath))
+    // // {
+    // // // Don't handle *this* node
+    // // continue;
+    // // }
+    //
+    // if (path.startsWith(oldPath))
+    // {
+    // }
+    // }
+    // }
+  }
+
+  /**
+   * @ADDED
+   */
+  private void checkDuplicates(String newPath)
+  {
+    try
+    {
+      cdoView().getResourceID(newPath);
+    }
+    catch (Exception ex)
+    {
+      throw new CDOException("Duplicate path: " + newPath);
+    }
   }
 } // CDOResourceNodeImpl

@@ -19,7 +19,6 @@ import org.eclipse.emf.cdo.CDOView;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.eresource.CDOResource;
-import org.eclipse.emf.cdo.eresource.CDOResourceFolder;
 import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.util.CDOURIUtil;
 import org.eclipse.emf.cdo.util.ObjectNotFoundException;
@@ -29,8 +28,6 @@ import org.eclipse.emf.internal.cdo.CDOTransactionImpl;
 import org.eclipse.emf.internal.cdo.CDOViewImpl;
 import org.eclipse.emf.internal.cdo.InternalCDOObject;
 import org.eclipse.emf.internal.cdo.util.FSMUtil;
-
-import org.eclipse.net4j.util.ObjectUtil;
 
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
@@ -98,6 +95,11 @@ public class CDOResourceImpl extends CDOResourceNodeImpl implements CDOResource,
   /**
    * @ADDED
    */
+  private URI initialURI;
+
+  /**
+   * @ADDED
+   */
   private boolean existing;
 
   /**
@@ -119,6 +121,15 @@ public class CDOResourceImpl extends CDOResourceNodeImpl implements CDOResource,
    * @ADDED
    */
   private EList<Diagnostic> warnings;
+
+  /**
+   * @ADDED
+   * @since 2.0
+   */
+  public CDOResourceImpl(URI initialURI)
+  {
+    this.initialURI = initialURI;
+  }
 
   /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
@@ -175,13 +186,29 @@ public class CDOResourceImpl extends CDOResourceNodeImpl implements CDOResource,
   }
 
   /**
+   * <!-- begin-user-doc -->
+   * 
+   * @since 2.0 <!-- end-user-doc -->
+   * @generated
+   */
+  public URI getURIGen()
+  {
+    return (URI)eGet(EresourcePackage.Literals.CDO_RESOURCE__URI, true);
+  }
+
+  /**
    * <!-- begin-user-doc --> <!-- end-user-doc -->
    * 
-   * @generated
+   * @generated NOT
    */
   public URI getURI()
   {
-    return (URI)eGet(EresourcePackage.Literals.CDO_RESOURCE__URI, true);
+    if (initialURI != null)
+    {
+      return initialURI;
+    }
+
+    return CDOURIUtil.createResourceURI(cdoView(), getPath());
   }
 
   /**
@@ -202,29 +229,8 @@ public class CDOResourceImpl extends CDOResourceNodeImpl implements CDOResource,
    */
   public void setURI(URI newURI)
   {
-    URI oldURI = getURI();
-    if (!ObjectUtil.equals(oldURI, newURI))
-    {
-      setURIGen(newURI);
-
-      CDOViewImpl view = cdoView();
-      if (view != null)
-      {
-        handleChangedURI(view, newURI);
-      }
-    }
-  }
-
-  /**
-   * @ADDED
-   * @since 2.0
-   */
-  public void handleChangedURI(CDOViewImpl view, URI newURI)
-  {
-    String[] folderAndName = CDOURIUtil.extractResourceFolderAndName(newURI);
-    CDOResourceFolder folder = view.getResourceFolder(folderAndName[0]);
-    setFolder(folder);
-    setName(folderAndName[1]);
+    String newPath = CDOURIUtil.extractResourcePath(newURI);
+    setPath(newPath);
   }
 
   /**
@@ -287,6 +293,11 @@ public class CDOResourceImpl extends CDOResourceNodeImpl implements CDOResource,
    */
   private Notification setLoaded(boolean isLoaded)
   {
+    if (isLoaded)
+    {
+      initialURI = null;
+    }
+
     boolean oldIsLoaded = loaded;
     loaded = isLoaded;
 
@@ -306,6 +317,7 @@ public class CDOResourceImpl extends CDOResourceNodeImpl implements CDOResource,
           return EresourcePackage.CDO_RESOURCE__LOADED;
         }
       };
+
       return notification;
     }
     else

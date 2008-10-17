@@ -2,7 +2,7 @@
  * <copyright>
  * </copyright>
  *
- * $Id: CDOResourceNode.java,v 1.1.2.2 2008-10-15 19:35:04 estepper Exp $
+ * $Id: CDOResourceNode.java,v 1.1.2.3 2008-10-17 19:07:50 estepper Exp $
  */
 package org.eclipse.emf.cdo.eresource;
 
@@ -46,14 +46,14 @@ public interface CDOResourceNode extends CDOObject
   public boolean isRoot();
 
   /**
-   * Returns the value of the '<em><b>Folder</b></em>' container reference. It is bidirectional and its opposite is '
-   * {@link org.eclipse.emf.cdo.eresource.CDOResourceFolder#getNodes <em>Nodes</em>}'. <!-- begin-user-doc -->
+   * Returns the value of the '<em><b>Folder</b></em>' container reference.
+   * It is bidirectional and its opposite is '{@link org.eclipse.emf.cdo.eresource.CDOResourceFolder#getNodes <em>Nodes</em>}'.
+   * <!-- begin-user-doc -->
    * <p>
    * If the meaning of the '<em>Folder</em>' container reference isn't clear, there really should be more of a
    * description here...
    * </p>
    * <!-- end-user-doc -->
-   * 
    * @return the value of the '<em>Folder</em>' container reference.
    * @see #setFolder(CDOResourceFolder)
    * @see org.eclipse.emf.cdo.eresource.EresourcePackage#getCDOResourceNode_Folder()
@@ -64,23 +64,21 @@ public interface CDOResourceNode extends CDOObject
   CDOResourceFolder getFolder();
 
   /**
-   * Sets the value of the '{@link org.eclipse.emf.cdo.eresource.CDOResourceNode#getFolder <em>Folder</em>}' container
-   * reference. <!-- begin-user-doc --> <!-- end-user-doc -->
-   * 
-   * @param value
-   *          the new value of the '<em>Folder</em>' container reference.
+   * Sets the value of the '{@link org.eclipse.emf.cdo.eresource.CDOResourceNode#getFolder <em>Folder</em>}' container reference.
+   * <!-- begin-user-doc --> <!-- end-user-doc -->
+   * @param value the new value of the '<em>Folder</em>' container reference.
    * @see #getFolder()
    * @generated
    */
   void setFolder(CDOResourceFolder value);
 
   /**
-   * Returns the value of the '<em><b>Name</b></em>' attribute. <!-- begin-user-doc -->
+   * Returns the value of the '<em><b>Name</b></em>' attribute.
+   * <!-- begin-user-doc -->
    * <p>
    * If the meaning of the '<em>Name</em>' attribute isn't clear, there really should be more of a description here...
    * </p>
    * <!-- end-user-doc -->
-   * 
    * @return the value of the '<em>Name</em>' attribute.
    * @see #setName(String)
    * @see org.eclipse.emf.cdo.eresource.EresourcePackage#getCDOResourceNode_Name()
@@ -101,17 +99,29 @@ public interface CDOResourceNode extends CDOObject
   void setName(String value);
 
   /**
-   * Returns the value of the '<em><b>Path</b></em>' attribute. <!-- begin-user-doc -->
+   * Returns the value of the '<em><b>Path</b></em>' attribute.
+   * <!-- begin-user-doc -->
    * <p>
    * If the meaning of the '<em>Path</em>' attribute isn't clear, there really should be more of a description here...
    * </p>
    * <!-- end-user-doc -->
-   * 
    * @return the value of the '<em>Path</em>' attribute.
+   * @see #setPath(String)
    * @see org.eclipse.emf.cdo.eresource.EresourcePackage#getCDOResourceNode_Path()
-   * @model transient="true" changeable="false" volatile="true" derived="true"
+   * @model transient="true" volatile="true" derived="true"
    * @generated
    */
   String getPath();
+
+  /**
+   * Sets the value of the '{@link org.eclipse.emf.cdo.eresource.CDOResourceNode#getPath <em>Path</em>}' attribute. <!--
+   * begin-user-doc --> <!-- end-user-doc -->
+   * 
+   * @param value
+   *          the new value of the '<em>Path</em>' attribute.
+   * @see #getPath()
+   * @generated
+   */
+  void setPath(String value);
 
 } // CDOResourceNode

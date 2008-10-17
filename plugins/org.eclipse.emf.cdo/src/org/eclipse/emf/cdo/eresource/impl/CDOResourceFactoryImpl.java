@@ -14,7 +14,6 @@ package org.eclipse.emf.cdo.eresource.impl;
 
 import org.eclipse.emf.cdo.CDOViewSet;
 import org.eclipse.emf.cdo.eresource.CDOResourceFactory;
-import org.eclipse.emf.cdo.eresource.EresourceFactory;
 import org.eclipse.emf.cdo.util.CDOURIUtil;
 
 import org.eclipse.emf.internal.cdo.CDOViewImpl;
@@ -46,7 +45,6 @@ public class CDOResourceFactoryImpl implements Resource.Factory, CDOResourceFact
 
   public Resource createResource(URI uri)
   {
-    CDOResourceImpl resource = (CDOResourceImpl)EresourceFactory.eINSTANCE.createCDOResource();
     // URI can be invalid or incomplete. Extract repo + resource path and build a new URI.
     String repositoryUUID = CDOURIUtil.extractRepositoryUUID(uri);
 
@@ -58,7 +56,7 @@ public class CDOResourceFactoryImpl implements Resource.Factory, CDOResourceFact
     URI newURI = CDOURIUtil.createResourceURI(view, path);
 
     // Important: Set URI *after* registration with the view!
-    resource.setURI(newURI);
+    CDOResourceImpl resource = new CDOResourceImpl(newURI);
     resource.setRoot(CDOURIUtil.SEGMENT_SEPARATOR.equals(path));
     resource.setExisting(isGetResource());
     return resource;

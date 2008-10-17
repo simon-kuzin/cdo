@@ -8,7 +8,7 @@
         eOpposite="#//CDOResourceFolder/nodes"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="path" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
-        changeable="false" volatile="true" transient="true" derived="true"/>
+        volatile="true" transient="true" derived="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="CDOResourceFolder" eSuperTypes="#//CDOResourceNode">
     <eStructuralFeatures xsi:type="ecore:EReference" name="nodes" upperBound="-1"
@@ -17,7 +17,8 @@
   <eClassifiers xsi:type="ecore:EClass" name="CDOResource" eSuperTypes="#//CDOResourceNode">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="resourceSet" eType="#//ResourceSet"
         transient="true"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="uRI" eType="#//URI" transient="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="uRI" eType="#//URI" volatile="true"
+        transient="true" derived="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="contents" upperBound="-1"
         eType="ecore:EClass platform:/plugin/org.eclipse.emf.ecore/model/Ecore.ecore#//EObject"
         containment="true"/>
