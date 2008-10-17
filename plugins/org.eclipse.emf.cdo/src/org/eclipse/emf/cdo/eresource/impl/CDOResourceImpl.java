@@ -695,7 +695,7 @@ public class CDOResourceImpl extends CDOResourceNodeImpl implements CDOResource,
       }
       else
       {
-        setFolder(null);
+        basicSetFolder(null, false);
       }
     }
   }
