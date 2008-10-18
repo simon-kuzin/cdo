@@ -318,13 +318,23 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
     Set<IDBTable> tables = new HashSet<IDBTable>();
     CDOResourcePackage resourcePackage = getStore().getRepository().getPackageManager().getCDOResourcePackage();
 
-    tables.addAll(getClassMapping(resourcePackage.getCDOResourceNodeClass()).getAffectedTables());
-    tables.addAll(getClassMapping(resourcePackage.getCDOResourceFolderClass()).getAffectedTables());
-    tables.addAll(getClassMapping(resourcePackage.getCDOResourceClass()).getAffectedTables());
+    addResourceTables(resourcePackage.getCDOResourceNodeClass(), tables);
+    addResourceTables(resourcePackage.getCDOResourceFolderClass(), tables);
+    addResourceTables(resourcePackage.getCDOResourceClass(), tables);
 
     if (dbAdapter.createTables(tables, connection).size() != tables.size())
     {
       throw new DBException("Resource tables not completely created");
+    }
+  }
+
+  private void addResourceTables(CDOClass cdoClass, Set<IDBTable> tables)
+  {
+    IClassMapping mapping = getClassMapping(cdoClass);
+    if (mapping != null)
+    {
+      Set<IDBTable> affectedTables = mapping.getAffectedTables();
+      tables.addAll(affectedTables);
     }
   }
 

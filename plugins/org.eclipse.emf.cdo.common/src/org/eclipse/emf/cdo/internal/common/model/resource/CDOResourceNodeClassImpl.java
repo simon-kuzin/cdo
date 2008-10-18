@@ -26,7 +26,7 @@ public class CDOResourceNodeClassImpl extends CDOClassImpl implements CDOResourc
 
   public CDOResourceNodeClassImpl(CDOPackage containingPackage, CDOPackageManager packageManager)
   {
-    super(containingPackage, CLASSIFIER_ID, NAME, false);
+    super(containingPackage, CLASSIFIER_ID, NAME, true);
     addFeature(cdoFolderFeature = new CDOFolderFeatureImpl(this, packageManager));
     addFeature(cdoNameFeature = new CDONameFeatureImpl(this));
   }

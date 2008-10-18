@@ -11,6 +11,7 @@
 package org.eclipse.emf.cdo.ui;
 
 import org.eclipse.emf.cdo.CDOObject;
+import org.eclipse.emf.cdo.CDOSession;
 import org.eclipse.emf.cdo.CDOSessionInvalidationEvent;
 import org.eclipse.emf.cdo.CDOTransactionConflictEvent;
 import org.eclipse.emf.cdo.CDOTransactionFinishedEvent;
@@ -140,10 +141,19 @@ public class CDOEventHandler
 
   public void dispose()
   {
-    view.removeListener(viewListener);
-    view.getSession().removeListener(sessionListener);
+    if (view != null)
+    {
+      view.removeListener(viewListener);
+      view = null;
+
+      CDOSession session = view.getSession();
+      if (session != null)
+      {
+        session.removeListener(sessionListener);
+      }
+    }
+
     treeViewer = null;
-    view = null;
   }
 
   public CDOView getView()
