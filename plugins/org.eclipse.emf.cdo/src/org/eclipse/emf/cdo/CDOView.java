@@ -190,11 +190,6 @@ public interface CDOView extends CDOProtocolView, INotifier
   public boolean hasResource(String path);
 
   /**
-   * @since 2.0
-   */
-  public CDOResource getRootResource();
-
-  /**
    * @see ResourceSet#getResource(URI, boolean)
    * @since 2.0
    */
@@ -204,6 +199,42 @@ public interface CDOView extends CDOProtocolView, INotifier
    * @see ResourceSet#getResource(URI, boolean)
    */
   public CDOResource getResource(String path);
+
+  /**
+   * @since 2.0
+   */
+  public CDOResource getRootResource();
+
+  /**
+   * Returns a list of the resources in the given folder with a name equal to or starting with the value of the name
+   * parameter.
+   * 
+   * @param folder
+   *          The folder to search in, or <code>null</code> for top level resource nodes.
+   * @param name
+   *          the name or prefix of the resource nodes to return.
+   * @param exactMatch
+   *          <code>true</code> if the complete name of the resource must match, <code>false</code> if only a common
+   *          prefix of the name must match.
+   * @since 2.0
+   */
+  public List<CDOResourceNode> queryResources(CDOResourceFolder folder, String name, boolean exactMatch);
+
+  /**
+   * Returns an iterator over the resources in the given folder with a name equal to or starting with the value of the
+   * name parameter. The underlying query will be executed asynchronously.
+   * 
+   * @param folder
+   *          The folder to search in, or <code>null</code> for top level resource nodes.
+   * @param name
+   *          the name or prefix of the resource nodes to return.
+   * @param exactMatch
+   *          <code>true</code> if the complete name of the resource must match, <code>false</code> if only a common
+   *          prefix of the name must match.
+   * @since 2.0
+   */
+  public CloseableIterator<CDOResourceNode> queryResourcesAsync(CDOResourceFolder folder, String name,
+      boolean exactMatch);
 
   /**
    * Returns the object for the given CDOID.
@@ -245,35 +276,4 @@ public interface CDOView extends CDOProtocolView, INotifier
    * @since 2.0
    */
   public CDOQuery createQuery(String language, String queryString);
-
-  /**
-   * Returns a list of the resources in the given folder with a name equal to or starting with the value of the name
-   * parameter.
-   * 
-   * @param folder
-   *          The folder to search in, or <code>null</code> for root resource nodes.
-   * @param name
-   *          the name or prefix of the resource nodes to return.
-   * @param exactMatch
-   *          <code>true</code> if the complete name of the resource must match, <code>false</code> if only a common
-   *          prefix of the name must match.
-   * @since 2.0
-   */
-  public List<CDOResourceNode> queryResources(CDOResourceFolder folder, String name, boolean exactMatch);
-
-  /**
-   * Returns an iterator over the resources in the given folder with a name equal to or starting with the value of the
-   * name parameter. The underlying query will be executed asynchronously.
-   * 
-   * @param folder
-   *          The folder to search in, or <code>null</code> for root resource nodes.
-   * @param name
-   *          the name or prefix of the resource nodes to return.
-   * @param exactMatch
-   *          <code>true</code> if the complete name of the resource must match, <code>false</code> if only a common
-   *          prefix of the name must match.
-   * @since 2.0
-   */
-  public CloseableIterator<CDOResourceNode> queryResourcesAsync(CDOResourceFolder folder, String name,
-      boolean exactMatch);
 }
