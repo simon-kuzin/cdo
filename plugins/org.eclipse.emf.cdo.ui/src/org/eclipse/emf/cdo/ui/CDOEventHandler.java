@@ -144,8 +144,6 @@ public class CDOEventHandler
     if (view != null)
     {
       view.removeListener(viewListener);
-      view = null;
-
       CDOSession session = view.getSession();
       if (session != null)
       {
@@ -153,6 +151,7 @@ public class CDOEventHandler
       }
     }
 
+    view = null;
     treeViewer = null;
   }
 
