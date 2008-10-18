@@ -453,12 +453,20 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
     List<CDOID> ids = resourceQuery.getResult(CDOID.class);
     if (ids.isEmpty())
     {
-      throw new CDOException("No top level ResourceNode with the name " + name);
+      if (name == null)
+      {
+        throw new CDOException("No root ResourceNode");
+      }
+      else
+      {
+        throw new CDOException("No top level ResourceNode with the name " + name);
+      }
     }
 
     if (ids.size() > 1)
     {
-      throw new ImplementationError("Duplicate root ResourceNodes");
+      // TODO is this still needed since the is resourceQuery.setMaxResults(1) ??
+      throw new ImplementationError("Duplicate top-level ResourceNodes");
     }
 
     return ids.get(0);

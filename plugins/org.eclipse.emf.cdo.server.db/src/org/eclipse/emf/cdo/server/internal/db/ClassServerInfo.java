@@ -27,7 +27,7 @@ public final class ClassServerInfo extends ServerInfo
 
   public static final int CDO_RESOURCE_NODE_CLASS_DBID = -3;
 
-  public static final int CDO_RESOURCE_FOLDERCLASS_DBID = -4;
+  public static final int CDO_RESOURCE_FOLDER_CLASS_DBID = -4;
 
   private IClassMapping classMapping;
 
@@ -72,17 +72,18 @@ public final class ClassServerInfo extends ServerInfo
       {
         serverInfo = setDBID(cdoClass, CDO_OBJECT_CLASS_DBID);
       }
-      else if (cdoClass.isResourceNode())
-      {
-        serverInfo = setDBID(cdoClass, CDO_RESOURCE_NODE_CLASS_DBID);
-      }
-      else if (cdoClass.isResourceFolder())
-      {
-        serverInfo = setDBID(cdoClass, CDO_RESOURCE_FOLDERCLASS_DBID);
-      }
       else if (cdoClass.isResource())
       {
         serverInfo = setDBID(cdoClass, CDO_RESOURCE_CLASS_DBID);
+      }
+      else if (cdoClass.isResourceFolder())
+      {
+        serverInfo = setDBID(cdoClass, CDO_RESOURCE_FOLDER_CLASS_DBID);
+      }
+      else if (cdoClass.isResourceNode())
+      {
+        // Important to check the abstract class *after* the concrete ones!
+        serverInfo = setDBID(cdoClass, CDO_RESOURCE_NODE_CLASS_DBID);
       }
     }
 

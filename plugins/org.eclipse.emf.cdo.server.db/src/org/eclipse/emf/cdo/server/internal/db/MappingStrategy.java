@@ -127,7 +127,7 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
         break;
       }
 
-      case ClassServerInfo.CDO_RESOURCE_FOLDERCLASS_DBID:
+      case ClassServerInfo.CDO_RESOURCE_FOLDER_CLASS_DBID:
       {
         CDOResourcePackage resourcePackage = getStore().getRepository().getPackageManager().getCDOResourcePackage();
         classRef = resourcePackage.getCDOResourceFolderClass().createClassRef();

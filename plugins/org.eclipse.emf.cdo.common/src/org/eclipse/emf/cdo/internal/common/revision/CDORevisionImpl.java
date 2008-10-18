@@ -73,6 +73,16 @@ public class CDORevisionImpl implements InternalCDORevision
 
   public CDORevisionImpl(CDOClass cdoClass, CDOID id)
   {
+    if (cdoClass.isAbstract())
+    {
+      throw new IllegalArgumentException("CDOClass is abstract: " + cdoClass);
+    }
+
+    if (id == null || id.isNull())
+    {
+      throw new IllegalArgumentException("CDIID is null");
+    }
+
     this.cdoClass = cdoClass;
     this.id = id;
     version = 0;
