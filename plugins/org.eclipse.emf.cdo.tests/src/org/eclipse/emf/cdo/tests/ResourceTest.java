@@ -104,6 +104,7 @@ public class ResourceTest extends AbstractCDOTest
       names.add(name);
       path += "/" + name;
     }
+
     final URI uri = URI.createURI("cdo:" + path);
     CDOResource resource = (CDOResource)resourceSet.createResource(uri);
     assertEquals(names.get(names.size() - 1), resource.getName());
@@ -122,8 +123,10 @@ public class ResourceTest extends AbstractCDOTest
       {
         next = ((CDOResourceFolder)next).getNodes().get(0);
       }
+
       nodesList.add(next);
     }
+
     resourceByLookup = (CDOResource)next;
     assertSame(resource, resourceByLookup);
     assertClean(resourceByLookup, transaction);
@@ -146,6 +149,7 @@ public class ResourceTest extends AbstractCDOTest
         assertEquals(CDOID.NULL, cdoResourceNode.cdoRevision().getData().getResourceID());
         assertEquals(cdoParent.cdoID(), cdoResourceNode.cdoRevision().getData().getContainerID());
       }
+
       cdoParent = cdoResourceNode;
     }
 
@@ -176,6 +180,7 @@ public class ResourceTest extends AbstractCDOTest
       {
         assertEquals(false, resourceSet.getResources().contains(transientNode));
       }
+
       assertEquals(null, transientNode.eResource());
       if (i == depthtoRemove)
       {
@@ -185,6 +190,7 @@ public class ResourceTest extends AbstractCDOTest
       {
         assertEquals(cdoParent, transientNode.eContainer());
       }
+
       cdoParent = transientNode;
     }
 
@@ -205,23 +211,21 @@ public class ResourceTest extends AbstractCDOTest
     assertEquals(CDOURIUtil.createResourceURI(session, "test1"), resource.getURI());
     assertEquals("test1", resource.getName());
     assertEquals(null, resource.getFolder());
+
     transaction.getRootResource().getContents().contains(resource);
     transaction.commit();
 
     CDOObject cdoResource = CDOUtil.getCDOObject(resource);
     CDOObject cdoRootResource = CDOUtil.getCDOObject(transaction.getRootResource());
-
     assertClean(cdoResource, transaction);
     assertClean(cdoRootResource, transaction);
     assertEquals(CDOID.NULL, cdoResource.cdoRevision().getData().getContainerID());
     assertEquals(cdoRootResource.cdoID(), cdoResource.cdoRevision().getData().getResourceID());
     assertEquals(CDOID.NULL, cdoRootResource.cdoRevision().getData().getResourceID());
-
     assertEquals(true, transaction.getResourceSet().getResources().contains(resource));
     assertEquals(true, transaction.getResourceSet().getResources().contains(transaction.getRootResource()));
 
     transaction.getRootResource().getContents().remove(resource);
-
     assertEquals(false, transaction.getResourceSet().getResources().contains(resource));
     assertEquals(true, transaction.getResourceSet().getResources().contains(transaction.getRootResource()));
 
@@ -249,23 +253,18 @@ public class ResourceTest extends AbstractCDOTest
 
   public void testCreateResource_FromTransaction() throws Exception
   {
-    msg("Opening session");
     CDOSession session = openModel1Session();
-
-    msg("Opening transaction");
     CDOTransaction transaction = session.openTransaction();
 
     // Test if Resource is well-formed after CDOResourceFactoryImpl.
     // Adapter will be called right after and could be used!
     transaction.getResourceSet().eAdapters().add(new TestAdapter());
 
-    msg("Creating resource");
     CDOResource resource = transaction.createResource("/test1");
     assertActive(resource);
+
     CDOResource resourceCopy = transaction.getOrCreateResource("/test1");
     assertEquals(resource, resourceCopy);
-
-    msg("Verifying resource");
     assertNew(resource, transaction);
     assertEquals(CDOURIUtil.createResourceURI(session, "test1"), resource.getURI());
     assertEquals(transaction.getResourceSet(), resource.getResourceSet());
@@ -274,22 +273,17 @@ public class ResourceTest extends AbstractCDOTest
   public void testRemoveResourceWithCloseView() throws Exception
   {
     {
-      msg("Opening session");
       CDOSession session = openModel1Session();
-
-      msg("Opening transaction");
       CDOTransaction transaction = session.openTransaction();
       ResourceSet rset = transaction.getResourceSet();
-      msg("Creating resource");
       CDOResource resource = transaction.createResource("/test1");
       assertActive(resource);
-      transaction.commit();
 
+      transaction.commit();
       Assert.assertEquals(2, rset.getResources().size());
       Assert.assertEquals(1, CDOUtil.getViewSet(rset).getViews().length);
 
       transaction.close();
-
       Assert.assertEquals(0, CDOUtil.getViewSet(rset).getViews().length);
       Assert.assertEquals(0, rset.getResources().size());
       session.close();
@@ -297,10 +291,7 @@ public class ResourceTest extends AbstractCDOTest
 
     {
       CDOSession session = openModel1Session();
-      msg("Opening transaction");
       CDOTransaction transaction = session.openTransaction();
-
-      msg("Getting resource");
       CDOResource resource = (CDOResource)transaction.getResourceSet().getResource(
           CDOURIUtil.createResourceURI(transaction, "/test1"), true);
       assertNotNull(resource);
@@ -324,25 +315,21 @@ public class ResourceTest extends AbstractCDOTest
     List<Resource> tobeRemoved = new ArrayList<Resource>();
     tobeRemoved.add(resource1);
     tobeRemoved.add(resource3);
-
     assertEquals(4, transaction.getResourceSet().getResources().size());
 
     transaction.getResourceSet().getResources().removeAll(tobeRemoved);
-
     assertEquals(2, transaction.getResourceSet().getResources().size());
     assertEquals(null, transaction.getResourceSet().getResource(resource1.getURI(), false));
     assertEquals(resource2, transaction.getResourceSet().getResource(resource2.getURI(), false));
     assertEquals(null, transaction.getResourceSet().getResource(resource3.getURI(), false));
 
     transaction.getResourceSet().getResources().addAll(tobeRemoved);
-
     assertEquals(4, transaction.getResourceSet().getResources().size());
     assertEquals(resource1, transaction.getResourceSet().getResource(resource1.getURI(), false));
     assertEquals(resource2, transaction.getResourceSet().getResource(resource2.getURI(), false));
     assertEquals(resource3, transaction.getResourceSet().getResource(resource3.getURI(), false));
 
     transaction.commit();
-
     session.close();
   }
 
@@ -358,11 +345,9 @@ public class ResourceTest extends AbstractCDOTest
     List<Resource> tobeRemoved = new ArrayList<Resource>();
     tobeRemoved.add(resource1);
     tobeRemoved.add(resource3);
-
     assertEquals(4, transaction.getResourceSet().getResources().size());
 
     transaction.getResourceSet().getResources().removeAll(tobeRemoved);
-
     assertEquals(2, transaction.getResourceSet().getResources().size());
     assertEquals(null, transaction.getResourceSet().getResource(resource1.getURI(), false));
     assertEquals(resource2, transaction.getResourceSet().getResource(resource2.getURI(), false));
@@ -508,6 +493,7 @@ public class ResourceTest extends AbstractCDOTest
       assertClean(order, transaction);
       session.close();
     }
+
     CDOSession session = openModel1Session();
     CDOTransaction transaction = session.openTransaction();
 

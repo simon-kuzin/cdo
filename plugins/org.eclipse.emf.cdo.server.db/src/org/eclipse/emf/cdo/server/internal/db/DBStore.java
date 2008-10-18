@@ -16,7 +16,6 @@ import org.eclipse.emf.cdo.internal.server.StoreAccessorPool;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.IView;
 import org.eclipse.emf.cdo.server.StoreThreadLocal;
-import org.eclipse.emf.cdo.server.db.IClassMapping;
 import org.eclipse.emf.cdo.server.db.IDBStore;
 import org.eclipse.emf.cdo.server.db.IMappingStrategy;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
@@ -37,6 +36,7 @@ import javax.sql.DataSource;
 
 import java.sql.Connection;
 import java.text.MessageFormat;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -230,14 +230,7 @@ public class DBStore extends LongIDStore implements IDBStore
         DBUtil.insertRow(connection, dbAdapter, CDODBSchema.REPOSITORY, creationTime, 1, startupTime, 0, CRASHED,
             CRASHED);
 
-        MappingStrategy mappingStrategy = (MappingStrategy)getMappingStrategy();
-
-        IClassMapping resourceClassMapping = mappingStrategy.getResourceNodeClassMapping();
-        Set<IDBTable> tables = resourceClassMapping.getAffectedTables();
-        if (dbAdapter.createTables(tables, connection).size() != tables.size())
-        {
-          throw new DBException("CDOResource tables not completely created");
-        }
+        initResourceTables(connection);
       }
       else
       {
@@ -341,6 +334,21 @@ public class DBStore extends LongIDStore implements IDBStore
   {
     String name = getRepository().getName();
     return new DBSchema(name);
+  }
+
+  protected void initResourceTables(Connection connection)
+  {
+    IMappingStrategy mappingStrategy = getMappingStrategy();
+    Set<IDBTable> tables = new HashSet<IDBTable>();
+
+    tables.addAll(mappingStrategy.getResourceNodeClassMapping().getAffectedTables());
+    tables.addAll(mappingStrategy.getResourceFolderClassMapping().getAffectedTables());
+    tables.addAll(mappingStrategy.getResourceClassMapping().getAffectedTables());
+
+    if (dbAdapter.createTables(tables, connection).size() != tables.size())
+    {
+      throw new DBException("Resource tables not completely created");
+    }
   }
 
   protected long getStartupTime()

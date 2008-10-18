@@ -25,6 +25,10 @@ public final class ClassServerInfo extends ServerInfo
 
   public static final int CDO_RESOURCE_CLASS_DBID = -2;
 
+  public static final int CDO_RESOURCE_NODE_CLASS_DBID = -3;
+
+  public static final int CDO_RESOURCE_FOLDERCLASS_DBID = -4;
+
   private IClassMapping classMapping;
 
   private ClassServerInfo(int id)
@@ -39,8 +43,8 @@ public final class ClassServerInfo extends ServerInfo
     return serverInfo;
   }
 
-  /**
-   * Should only be called from {@link MappingStrategy#getClassMapping(CDOClass)}.
+  /*
+   * Should only be called from MappingStrategy#getClassMapping(CDOClass).
    */
   public static IClassMapping getClassMapping(CDOClass cdoClass)
   {
@@ -67,6 +71,14 @@ public final class ClassServerInfo extends ServerInfo
       if (cdoClass.isRoot())
       {
         serverInfo = setDBID(cdoClass, CDO_OBJECT_CLASS_DBID);
+      }
+      else if (cdoClass.isResourceNode())
+      {
+        serverInfo = setDBID(cdoClass, CDO_RESOURCE_NODE_CLASS_DBID);
+      }
+      else if (cdoClass.isResourceFolder())
+      {
+        serverInfo = setDBID(cdoClass, CDO_RESOURCE_FOLDERCLASS_DBID);
       }
       else if (cdoClass.isResource())
       {

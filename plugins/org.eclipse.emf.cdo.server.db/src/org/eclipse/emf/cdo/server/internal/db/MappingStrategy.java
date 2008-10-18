@@ -19,9 +19,10 @@ import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.common.model.resource.CDOFolderFeature;
 import org.eclipse.emf.cdo.common.model.resource.CDONameFeature;
 import org.eclipse.emf.cdo.common.model.resource.CDOResourceClass;
+import org.eclipse.emf.cdo.common.model.resource.CDOResourceFolderClass;
 import org.eclipse.emf.cdo.common.model.resource.CDOResourceNodeClass;
+import org.eclipse.emf.cdo.common.model.resource.CDOResourcePackage;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
-import org.eclipse.emf.cdo.server.IPackageManager;
 import org.eclipse.emf.cdo.server.StoreUtil;
 import org.eclipse.emf.cdo.server.IStoreReader.QueryResourcesContext;
 import org.eclipse.emf.cdo.server.IStoreReader.QueryResourcesContext.ExactMatch;
@@ -65,6 +66,10 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
   private Map<Integer, CDOClassRef> classRefs = new HashMap<Integer, CDOClassRef>();
 
   private IClassMapping resourceNodeClassMapping;
+
+  private IClassMapping resourceFolderClassMapping;
+
+  private IClassMapping resourceClassMapping;
 
   private IAttributeMapping resourceFolderFeatureMapping;
 
@@ -135,14 +140,30 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
     CDOClassRef classRef = classRefs.get(classID);
     if (classRef == null)
     {
-      if (classID == ClassServerInfo.CDO_RESOURCE_CLASS_DBID)
+      switch (classID)
       {
-        IPackageManager packageManager = getStore().getRepository().getPackageManager();
-        CDOResourceClass resourceClass = packageManager.getCDOResourcePackage().getCDOResourceClass();
-        classRef = resourceClass.createClassRef();
+      case ClassServerInfo.CDO_RESOURCE_NODE_CLASS_DBID:
+      {
+        CDOResourcePackage resourcePackage = getStore().getRepository().getPackageManager().getCDOResourcePackage();
+        classRef = resourcePackage.getCDOResourceNodeClass().createClassRef();
+        break;
       }
-      else
+
+      case ClassServerInfo.CDO_RESOURCE_FOLDERCLASS_DBID:
       {
+        CDOResourcePackage resourcePackage = getStore().getRepository().getPackageManager().getCDOResourcePackage();
+        classRef = resourcePackage.getCDOResourceFolderClass().createClassRef();
+        break;
+      }
+
+      case ClassServerInfo.CDO_RESOURCE_CLASS_DBID:
+      {
+        CDOResourcePackage resourcePackage = getStore().getRepository().getPackageManager().getCDOResourcePackage();
+        classRef = resourcePackage.getCDOResourceClass().createClassRef();
+        break;
+      }
+
+      default:
         classRef = storeReader.readClassRef(classID);
       }
 
@@ -177,6 +198,26 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
     }
 
     return resourceNodeClassMapping;
+  }
+
+  public IClassMapping getResourceFolderClassMapping()
+  {
+    if (resourceFolderClassMapping == null)
+    {
+      initResourceInfos();
+    }
+
+    return resourceFolderClassMapping;
+  }
+
+  public IClassMapping getResourceClassMapping()
+  {
+    if (resourceClassMapping == null)
+    {
+      initResourceInfos();
+    }
+
+    return resourceClassMapping;
   }
 
   public IFeatureMapping getResourceFolderFeatureMapping()
@@ -241,15 +282,26 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
 
   protected void initResourceInfos()
   {
-    IPackageManager packageManager = getStore().getRepository().getPackageManager();
-    CDOResourceNodeClass resourceNodeClass = packageManager.getCDOResourcePackage().getCDOResourceNodeClass();
+    // Package
+    CDOResourcePackage resourcePackage = getStore().getRepository().getPackageManager().getCDOResourcePackage();
+
+    // Classes
+    CDOResourceNodeClass resourceNodeClass = resourcePackage.getCDOResourceNodeClass();
+    CDOResourceFolderClass resourceFolderClass = resourcePackage.getCDOResourceFolderClass();
+    CDOResourceClass resourceClass = resourcePackage.getCDOResourceClass();
+
+    // Features
     CDOFolderFeature folderFeature = resourceNodeClass.getCDOFolderFeature();
     CDONameFeature nameFeature = resourceNodeClass.getCDONameFeature();
 
+    // Mappings
     resourceNodeClassMapping = getClassMapping(resourceNodeClass);
+    resourceFolderClassMapping = getClassMapping(resourceFolderClass);
+    resourceClassMapping = getClassMapping(resourceClass);
     resourceFolderFeatureMapping = resourceNodeClassMapping.getAttributeMapping(folderFeature);
     resourceNameFeatureMapping = resourceNodeClassMapping.getAttributeMapping(nameFeature);
 
+    // Schema
     resourceNodeTable = resourceNodeClassMapping.getTable();
     resourceIDField = resourceNodeTable.getField(CDODBSchema.ATTRIBUTES_ID);
     resourceFolderField = resourceFolderFeatureMapping.getField();
