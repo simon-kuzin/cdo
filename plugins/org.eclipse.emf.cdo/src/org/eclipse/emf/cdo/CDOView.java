@@ -18,6 +18,7 @@ import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.eresource.CDOResourceFolder;
 import org.eclipse.emf.cdo.eresource.CDOResourceNode;
 import org.eclipse.emf.cdo.query.CDOQuery;
+import org.eclipse.emf.cdo.util.ReadOnlyException;
 
 import org.eclipse.net4j.util.collection.CloseableIterator;
 import org.eclipse.net4j.util.event.INotifier;
@@ -31,7 +32,20 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * A read-only view to the <em>current</em> (i.e. latest) state of the object graph in the repository.
+ * A read-only view to the <em>current</em> (i.e. latest) state of the object graph in the repository of the underlying
+ * {@link CDOSession session}.
+ * <p>
+ * Objects that are accessed through this view are unchangeable for the client. Each attempt to call a mutator on one of
+ * these objects or one of their reference collections will result in a {@link ReadOnlyException} being thrown
+ * immediately.
+ * <p>
+ * A view is opened through API of the underlying session like this:
+ * 
+ * <pre>
+ *   CDOSession session = ...
+ *   CDOView view = session.openView();
+ *   ...
+ * </pre>
  * 
  * @author Eike Stepper
  * @noimplement This interface is not intended to be implemented by clients.

@@ -25,7 +25,6 @@ import org.eclipse.emf.cdo.util.CDOURIUtil;
 import org.eclipse.emf.cdo.util.CDOUtil;
 
 import org.eclipse.emf.internal.cdo.CDOSessionImpl;
-import org.eclipse.emf.internal.cdo.util.FSMUtil;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
@@ -92,7 +91,7 @@ public class InitialTest extends AbstractCDOTest
 
     msg("Creating resourceSet");
     ResourceSet resourceSet = new ResourceSetImpl();
-    FSMUtil.prepareResourceSet(resourceSet);
+    CDOSessionImpl.prepareResourceSet(resourceSet);
 
     msg("Creating resource");
     CDOResource resource = (CDOResource)resourceSet.createResource(uri);
@@ -158,13 +157,16 @@ public class InitialTest extends AbstractCDOTest
     assertEquals(expected, actual);
   }
 
+  /**
+   * TODO Revisit me
+   */
   public void _testAttachView() throws Exception
   {
     final URI uri = URI.createURI("cdo:/test1");
 
     msg("Creating resourceSet");
     ResourceSet resourceSet = new ResourceSetImpl();
-    FSMUtil.prepareResourceSet(resourceSet);
+    CDOSessionImpl.prepareResourceSet(resourceSet);
 
     msg("Creating resource");
     CDOResource resource = (CDOResource)resourceSet.createResource(uri);
@@ -185,13 +187,16 @@ public class InitialTest extends AbstractCDOTest
 
   }
 
+  /**
+   * TODO Revisit me
+   */
   public void _testAttachViewWithObject() throws Exception
   {
     final URI uri = URI.createURI("cdo:/test1");
 
     msg("Creating resourceSet");
     ResourceSet resourceSet = new ResourceSetImpl();
-    FSMUtil.prepareResourceSet(resourceSet);
+    CDOSessionImpl.prepareResourceSet(resourceSet);
 
     msg("Creating resource");
     CDOResource resource = (CDOResource)resourceSet.createResource(uri);
@@ -461,7 +466,7 @@ public class InitialTest extends AbstractCDOTest
       transaction.commit();
       enableConsole();
     }
-    
+
     {
       msg("Opening transaction");
       CDOTransaction transaction = session.openTransaction();
@@ -476,7 +481,7 @@ public class InitialTest extends AbstractCDOTest
       assertEquals(transaction, resource.cdoView());
       assertNotNull(resource.cdoRevision());
     }
-    
+
     {
       msg("Opening transaction");
       CDOTransaction transaction = session.openTransaction();
