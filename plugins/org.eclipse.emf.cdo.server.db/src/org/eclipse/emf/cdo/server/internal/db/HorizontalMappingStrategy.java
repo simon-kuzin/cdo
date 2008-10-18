@@ -175,7 +175,6 @@ public class HorizontalMappingStrategy extends MappingStrategy
     CDOResourceNodeClass resourceNodeClass = resourcePackage.getCDOResourceNodeClass();
 
     IDBTable table = classMapping.getTable();
-    IDBField folderField = classMapping.getAttributeMapping(resourceNodeClass.getCDOFolderFeature()).getField();
     IDBField nameField = classMapping.getAttributeMapping(resourceNodeClass.getCDONameFeature()).getField();
 
     StringBuilder builder = new StringBuilder();
@@ -184,7 +183,7 @@ public class HorizontalMappingStrategy extends MappingStrategy
     builder.append(" FROM ");
     builder.append(table);
     builder.append(" WHERE ");
-    builder.append(folderField);
+    builder.append(CDODBSchema.ATTRIBUTES_CONTAINER);
     builder.append("=");
     builder.append(CDOIDUtil.getLong(folderID));
     builder.append(" AND ");

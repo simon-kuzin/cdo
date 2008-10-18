@@ -375,6 +375,28 @@ public class ResourceTest extends AbstractCDOTest
     session.close();
   }
 
+  public void testCommitMultipleResources()
+  {
+    {
+      CDOSession session = openSession();
+      CDOTransaction transaction = session.openTransaction();
+      transaction.createResource("/level1/level2-A/level3");
+      transaction.createResource("/level1/level2-B/level3");
+      transaction.commit();
+      session.close();
+    }
+
+    // ((CDORevisionResolverImpl)getRepository().getRevisionManager()).clearCache();
+    //
+    // CDOSession session = openSession();
+    // CDOTransaction transaction = session.openTransaction();
+    // CDOResource resource1 = transaction.getResource("/level1/level2-A/level3");
+    // CDOResource resource2 = transaction.getResource("/level1/level2-B/level3");
+    // assertEquals("/level1/level2-A/level3", resource1.getPath());
+    // assertEquals("/level1/level2-B/level3", resource2.getPath());
+    // session.close();
+  }
+
   public void testDuplicatePath() throws Exception
   {
     CDOSession session = openModel1Session();
