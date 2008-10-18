@@ -205,8 +205,7 @@ public class DBStoreWriter extends DBStoreReader implements IDBStoreWriter
     }
 
     CDOClass cdoClass = revision.getCDOClass();
-    IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
-    IClassMapping mapping = mappingStrategy.getClassMapping(cdoClass);
+    IClassMapping mapping = getStore().getMappingStrategy().getClassMapping(cdoClass);
     mapping.writeRevision(this, revision);
   }
 
@@ -231,8 +230,7 @@ public class DBStoreWriter extends DBStoreReader implements IDBStoreWriter
     }
 
     CDOClass cdoClass = getObjectType(id);
-    IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
-    IClassMapping mapping = mappingStrategy.getClassMapping(cdoClass);
+    IClassMapping mapping = getStore().getMappingStrategy().getClassMapping(cdoClass);
     mapping.detachObject(this, id, revised);
   }
 }

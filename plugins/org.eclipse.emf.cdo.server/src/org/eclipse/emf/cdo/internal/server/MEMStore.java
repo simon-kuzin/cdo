@@ -55,6 +55,7 @@ public class MEMStore extends LongIDStore implements IMEMStore
   {
     super(TYPE, set(ChangeFormat.REVISION, ChangeFormat.DELTA), set(RevisionTemporality.NONE,
         RevisionTemporality.AUDITING), set(RevisionParallelism.NONE));
+    setRevisionTemporality(RevisionTemporality.AUDITING);
     this.listLimit = listLimit;
   }
 

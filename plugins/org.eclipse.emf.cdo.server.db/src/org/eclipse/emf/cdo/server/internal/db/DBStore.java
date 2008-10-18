@@ -36,7 +36,6 @@ import javax.sql.DataSource;
 
 import java.sql.Connection;
 import java.text.MessageFormat;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -185,7 +184,7 @@ public class DBStore extends LongIDStore implements IDBStore
       StoreThreadLocal.setStoreReader(storeWriter);
 
       Connection connection = storeWriter.getConnection();
-      long maxObjectID = mappingStrategy.repairAfterCrash(connection);
+      long maxObjectID = mappingStrategy.repairAfterCrash(dbAdapter, connection);
       long maxMetaID = DBUtil.selectMaximumLong(connection, CDODBSchema.PACKAGES_RANGE_UB);
 
       OM.LOG.info(MessageFormat.format("Repaired after crash: maxObjectID={0}, maxMetaID={1}", maxObjectID, maxMetaID));
@@ -230,7 +229,8 @@ public class DBStore extends LongIDStore implements IDBStore
         DBUtil.insertRow(connection, dbAdapter, CDODBSchema.REPOSITORY, creationTime, 1, startupTime, 0, CRASHED,
             CRASHED);
 
-        initResourceTables(connection);
+        IMappingStrategy mappingStrategy = getMappingStrategy();
+        mappingStrategy.createResourceTables(dbAdapter, connection);
       }
       else
       {
@@ -334,21 +334,6 @@ public class DBStore extends LongIDStore implements IDBStore
   {
     String name = getRepository().getName();
     return new DBSchema(name);
-  }
-
-  protected void initResourceTables(Connection connection)
-  {
-    IMappingStrategy mappingStrategy = getMappingStrategy();
-    Set<IDBTable> tables = new HashSet<IDBTable>();
-
-    tables.addAll(mappingStrategy.getResourceNodeClassMapping().getAffectedTables());
-    tables.addAll(mappingStrategy.getResourceFolderClassMapping().getAffectedTables());
-    tables.addAll(mappingStrategy.getResourceClassMapping().getAffectedTables());
-
-    if (dbAdapter.createTables(tables, connection).size() != tables.size())
-    {
-      throw new DBException("Resource tables not completely created");
-    }
   }
 
   protected long getStartupTime()

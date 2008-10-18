@@ -467,29 +467,14 @@ public abstract class ClassMapping implements IClassMapping
 
   public void writeRevision(IDBStoreWriter storeWriter, CDORevision revision)
   {
-    if (revision.getVersion() >= 2 && hasFullRevisionInfo())
+    if (revision.getVersion() > 1 && hasFullRevisionInfo())
     {
       writeRevisedRow(storeWriter, (InternalCDORevision)revision);
     }
 
-    if (revision.isResourceNode())
+    if (revision.isResourceFolder() || revision.isResource())
     {
-      // TODO Provide better design for store capabilities and repository support
-      // Example: Currently a store can not specify that it does not support non-auditing mode!
-      if (true || mappingStrategy.getStore().getRepository().isSupportingAudits())
-      {
-        // If auditing is not supported this is checked by a table index (see constructor)
-        CDOFeature resourceFolderFeature = mappingStrategy.getResourceFolderFeatureMapping().getFeature();
-        CDOID revisionFolder = (CDOID)revision.getData().get(resourceFolderFeature, 0);
-
-        CDOFeature resourceNameFeature = mappingStrategy.getResourceNameFeatureMapping().getFeature();
-        String revisionName = (String)revision.getData().get(resourceNameFeature, 0);
-
-        if (mappingStrategy.readResourceID(storeWriter, revisionFolder, revisionName, revision.getCreated()) != null)
-        {
-          throw new IllegalStateException("Duplicate resource: " + revisionName + " (folderID=" + revisionFolder + ")");
-        }
-      }
+      checkDuplicateResources(storeWriter, revision);
     }
 
     if (attributeMappings != null)
@@ -502,6 +487,9 @@ public abstract class ClassMapping implements IClassMapping
       writeReferences(storeWriter, (InternalCDORevision)revision);
     }
   }
+
+  protected abstract void checkDuplicateResources(IDBStoreReader storeReader, CDORevision revision)
+      throws IllegalStateException;
 
   public void detachObject(IDBStoreWriter storeWriter, CDOID id, long revised)
   {

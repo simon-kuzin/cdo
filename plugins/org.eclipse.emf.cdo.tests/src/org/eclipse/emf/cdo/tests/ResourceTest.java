@@ -49,37 +49,37 @@ public class ResourceTest extends AbstractCDOTest
 {
   public void testAttachDetachResourceDepth1_Delete() throws Exception
   {
-    testAttachDetachResourceDepth1(1, true, 0);
+    attachDetachResourceDepth1(1, true, 0);
   }
 
   public void testAttachDetachResourceDepth1_Remove() throws Exception
   {
-    testAttachDetachResourceDepth1(1, false, 0);
+    attachDetachResourceDepth1(1, false, 0);
   }
 
   public void testAttachDetachResourceDepth2_Delete() throws Exception
   {
-    testAttachDetachResourceDepth1(2, true, 1);
+    attachDetachResourceDepth1(2, true, 1);
   }
 
   public void testAttachDetachResourceDepth2_Remove() throws Exception
   {
-    testAttachDetachResourceDepth1(2, false, 1);
+    attachDetachResourceDepth1(2, false, 1);
   }
 
   public void testAttachDetachResourceDepth3_Delete() throws Exception
   {
-    testAttachDetachResourceDepth1(3, true, 2);
+    attachDetachResourceDepth1(3, true, 2);
   }
 
   public void testAttachDetachResourceDepth3_Remove() throws Exception
   {
-    testAttachDetachResourceDepth1(3, false, 2);
+    attachDetachResourceDepth1(3, false, 2);
   }
 
   public void testAttachDetachResourceDepth3_Remove_Tree() throws Exception
   {
-    testAttachDetachResourceDepth1(3, false, 1);
+    attachDetachResourceDepth1(3, false, 1);
   }
 
   /**
@@ -90,7 +90,7 @@ public class ResourceTest extends AbstractCDOTest
    * deptToRemove = /0/1/2/...<br>
    * It will remove it from parent folder (depthtoRemove - 1);
    */
-  public void testAttachDetachResourceDepth1(int depth, boolean callDelete, int depthtoRemove) throws Exception
+  private void attachDetachResourceDepth1(int depth, boolean callDelete, int depthtoRemove) throws Exception
   {
     CDOSession session = openModel1Session();
     ResourceSet resourceSet = new ResourceSetImpl();
@@ -270,6 +270,24 @@ public class ResourceTest extends AbstractCDOTest
     assertEquals(transaction.getResourceSet(), resource.getResourceSet());
   }
 
+  public void testCreateResource_WithDeepPath() throws Exception
+  {
+    {
+      CDOSession session = openModel1Session();
+      CDOTransaction transaction = session.openTransaction();
+      transaction.createResource("/org/eclipse/net4j/core");
+      transaction.commit();
+      session.close();
+    }
+
+    CDOSession session = openModel1Session();
+    CDOTransaction transaction = session.openTransaction();
+    CDOResource resource = transaction.getResource("/org/eclipse/net4j/core");
+    assertEquals(CDOURIUtil.createResourceURI(session, "/org/eclipse/net4j/core"), resource.getURI());
+    assertEquals(transaction.getResourceSet(), resource.getResourceSet());
+    session.close();
+  }
+
   public void testRemoveResourceWithCloseView() throws Exception
   {
     {
@@ -396,60 +414,47 @@ public class ResourceTest extends AbstractCDOTest
     session.close();
   }
 
-  private String createPath(String namePrefix, int depth, String name)
-  {
-    String path = "";
-    for (int i = 0; i < depth; i++)
-    {
-      String localName = namePrefix + String.valueOf(i + 1);
-      path += "/" + localName;
-    }
-
-    path += "/" + name;
-    return path;
-  }
-
   public void testChangePathFromDepth0ToDepth0() throws Exception
   {
-    testChangePath(0, 0);
+    changePath(0, 0);
   }
 
   public void testChangePathFromDepth0ToDepth1() throws Exception
   {
-    testChangePath(0, 1);
+    changePath(0, 1);
   }
 
   public void testChangePathFromDepth0ToDepth2() throws Exception
   {
-    testChangePath(0, 2);
+    changePath(0, 2);
   }
 
   public void testChangePathFromDepth0ToDepth3() throws Exception
   {
-    testChangePath(0, 3);
+    changePath(0, 3);
   }
 
   public void testChangePathFromDepth3ToDepth3() throws Exception
   {
-    testChangePath(3, 3);
+    changePath(3, 3);
   }
 
   public void testChangePathFromDepth3ToDepth2() throws Exception
   {
-    testChangePath(3, 2);
+    changePath(3, 2);
   }
 
   public void testChangePathFromDepth3ToDepth1() throws Exception
   {
-    testChangePath(3, 1);
+    changePath(3, 1);
   }
 
   public void testChangePathFromDepth3ToDepth0() throws Exception
   {
-    testChangePath(3, 0);
+    changePath(3, 0);
   }
 
-  public void testChangePath(int depthFrom, int depthTo) throws Exception
+  private void changePath(int depthFrom, int depthTo) throws Exception
   {
     String prefixA = "testA";
     String prefixB = "testB";
@@ -507,6 +512,19 @@ public class ResourceTest extends AbstractCDOTest
     }
     Resource resource = transaction.getResourceSet().getResource(CDOURIUtil.createResourceURI(session, newPath), true);
     assertNotNull(resource);
+  }
+
+  private String createPath(String namePrefix, int depth, String name)
+  {
+    String path = "";
+    for (int i = 0; i < depth; i++)
+    {
+      String localName = namePrefix + String.valueOf(i + 1);
+      path += "/" + localName;
+    }
+
+    path += "/" + name;
+    return path;
   }
 
   public void testChangePath() throws Exception
