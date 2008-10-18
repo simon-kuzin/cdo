@@ -83,8 +83,8 @@ public class ComplexTest extends AbstractCDOTest
 
     transaction = session.openTransaction();
 
-    String path1 = "/resources/1/" + uniqueCounter;
-    String path2 = "/resources/2/" + uniqueCounter;
+    String path1 = "/resources/folder1/" + uniqueCounter;
+    String path2 = "/resources/folder2/" + uniqueCounter;
     ++uniqueCounter;
 
     resource1 = transaction.createResource(path1);
