@@ -186,19 +186,30 @@ public class HorizontalMappingStrategy extends MappingStrategy
     builder.append(CDODBSchema.ATTRIBUTES_CONTAINER);
     builder.append("=");
     builder.append(CDOIDUtil.getLong(folderID));
-    builder.append(" AND ");
-    builder.append(nameField);
-    if (exactMatch)
+    if (exactMatch || name != null)
     {
-      builder.append("=\'");
-      builder.append(name);
-      builder.append("\'");
-    }
-    else
-    {
-      builder.append(" LIKE \'");
-      builder.append(name);
-      builder.append("%\'");
+      builder.append(" AND ");
+      builder.append(nameField);
+      if (exactMatch)
+      {
+        if (name == null)
+        {
+          builder.append(" IS NULL");
+        }
+        else
+        {
+          builder.append("=\'");
+          builder.append(name);
+          builder.append("\'");
+        }
+      }
+      else
+      {
+        // Here: name != null
+        builder.append(" LIKE \'");
+        builder.append(name);
+        builder.append("%\'");
+      }
     }
 
     String sql = builder.toString();
