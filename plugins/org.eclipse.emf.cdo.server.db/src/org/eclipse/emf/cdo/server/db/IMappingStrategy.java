@@ -55,6 +55,26 @@ public interface IMappingStrategy
   /**
    * @since 2.0
    */
+  public IClassMapping getResourceNodeClassMapping();
+
+  /**
+   * @since 2.0
+   */
+  public IClassMapping getResourceFolderClassMapping();
+
+  /**
+   * @since 2.0
+   */
+  public IClassMapping getResourceClassMapping();
+
+  /**
+   * @since 2.0
+   */
+  public CDOClassRef getClassRef(IDBStoreReader storeReader, int classID);
+
+  /**
+   * @since 2.0
+   */
   public CloseableIterator<CDOID> readObjectIDs(IDBStoreReader storeReader);
 
   public CDOClassRef readObjectType(IDBStoreReader storeReader, CDOID id);

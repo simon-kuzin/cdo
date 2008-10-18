@@ -419,6 +419,7 @@ public class ResourceTest extends AbstractCDOTest
       String localName = namePrefix + String.valueOf(i + 1);
       path += "/" + localName;
     }
+
     path += "/" + name;
     return path;
   }
