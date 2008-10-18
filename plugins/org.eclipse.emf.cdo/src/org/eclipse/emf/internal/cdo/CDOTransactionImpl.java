@@ -190,8 +190,8 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
   public CDOResource createResource(String path)
   {
     checkOpen();
-    URI createURI = CDOURIUtil.createResourceURI(this, path);
-    return (CDOResource)getResourceSet().createResource(createURI);
+    URI uri = CDOURIUtil.createResourceURI(this, path);
+    return (CDOResource)getResourceSet().createResource(uri);
   }
 
   public CDOResource getOrCreateResource(String path)
