@@ -57,11 +57,9 @@ public class HorizontalClassMapping extends ClassMapping
     {
       IPackageManager packageManager = mappingStrategy.getStore().getRepository().getPackageManager();
       CDOResourceNodeClass resourceNodeClass = packageManager.getCDOResourcePackage().getCDOResourceNodeClass();
-
-      CDOFeature resourceFolderFeature = resourceNodeClass.getCDOFolderFeature();
-      CDOID folderID = (CDOID)revision.getData().get(resourceFolderFeature, 0);
-
       CDOFeature resourceNameFeature = resourceNodeClass.getCDONameFeature();
+
+      CDOID folderID = (CDOID)revision.getData().getContainerID();
       String name = (String)revision.getData().get(resourceNameFeature, 0);
 
       if (mappingStrategy.readResourceID(storeReader, folderID, name, revision.getCreated()) != null)

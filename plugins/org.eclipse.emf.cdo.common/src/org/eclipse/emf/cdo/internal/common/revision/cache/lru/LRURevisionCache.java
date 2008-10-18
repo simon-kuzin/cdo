@@ -16,7 +16,6 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOClass;
 import org.eclipse.emf.cdo.common.model.CDOPackageManager;
-import org.eclipse.emf.cdo.common.model.resource.CDOFolderFeature;
 import org.eclipse.emf.cdo.common.model.resource.CDONameFeature;
 import org.eclipse.emf.cdo.common.model.resource.CDOResourceNodeClass;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
@@ -54,8 +53,6 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
 
   private LRU revisedLRU;
 
-  private transient CDOFolderFeature cdoFolderFeature;
-
   private transient CDONameFeature cdoNameFeature;
 
   public LRURevisionCache()
@@ -73,7 +70,6 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
     if (packageManager != null)
     {
       CDOResourceNodeClass resourceNodeClass = packageManager.getCDOResourcePackage().getCDOResourceNodeClass();
-      cdoFolderFeature = resourceNodeClass.getCDOFolderFeature();
       cdoNameFeature = resourceNodeClass.getCDONameFeature();
     }
   }
@@ -273,7 +269,7 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
           revision = getRevisionByTime(holder, timeStamp);
           if (revision != null)
           {
-            CDOID revisionFolderID = (CDOID)revision.getValue(cdoFolderFeature);
+            CDOID revisionFolderID = (CDOID)revision.getContainerID();
             if (CDOIDUtil.equals(revisionFolderID, folderID))
             {
               String revisionName = (String)revision.getValue(cdoNameFeature);

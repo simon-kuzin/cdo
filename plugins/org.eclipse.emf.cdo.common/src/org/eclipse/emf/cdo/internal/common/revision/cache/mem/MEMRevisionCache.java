@@ -17,7 +17,6 @@ import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOClass;
 import org.eclipse.emf.cdo.common.model.CDOPackageManager;
-import org.eclipse.emf.cdo.common.model.resource.CDOFolderFeature;
 import org.eclipse.emf.cdo.common.model.resource.CDONameFeature;
 import org.eclipse.emf.cdo.common.model.resource.CDOResourceNodeClass;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
@@ -59,8 +58,6 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
 
   private ReferenceType referenceType;
 
-  private transient CDOFolderFeature cdoFolderFeature;
-
   private transient CDONameFeature cdoNameFeature;
 
   public MEMRevisionCache(ReferenceType referenceType)
@@ -84,7 +81,6 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
     if (packageManager != null)
     {
       CDOResourceNodeClass resourceNodeClass = packageManager.getCDOResourcePackage().getCDOResourceNodeClass();
-      cdoFolderFeature = resourceNodeClass.getCDOFolderFeature();
       cdoNameFeature = resourceNodeClass.getCDONameFeature();
     }
   }
@@ -349,7 +345,7 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
       InternalCDORevision revision = getRevisionByTime(timeStamp, true);
       if (revision != null)
       {
-        CDOID revisionFolderID = (CDOID)revision.getValue(cdoFolderFeature);
+        CDOID revisionFolderID = (CDOID)revision.getContainerID();
         if (CDOIDUtil.equals(revisionFolderID, folderID))
         {
           String revisionName = (String)revision.getValue(cdoNameFeature);
