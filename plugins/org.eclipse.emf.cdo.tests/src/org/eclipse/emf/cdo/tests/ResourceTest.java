@@ -21,6 +21,7 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.eresource.CDOResourceFolder;
 import org.eclipse.emf.cdo.eresource.CDOResourceNode;
+import org.eclipse.emf.cdo.tests.model1.Order;
 import org.eclipse.emf.cdo.tests.model1.Product1;
 import org.eclipse.emf.cdo.tests.model1.VAT;
 import org.eclipse.emf.cdo.util.CDOURIUtil;
@@ -408,6 +409,117 @@ public class ResourceTest extends AbstractCDOTest
     transaction.createResource("/my/resource");
     transaction.commit();
     session.close();
+  }
+
+  private String createPath(String namePrefix, int depth, String name)
+  {
+    String path = "";
+    for (int i = 0; i < depth; i++)
+    {
+      String localName = namePrefix + String.valueOf(i + 1);
+      path += "/" + localName;
+    }
+    path += "/" + name;
+    return path;
+  }
+
+  public void testChangePathFromDepth0ToDepth0() throws Exception
+  {
+    testChangePath(0, 0);
+  }
+
+  public void testChangePathFromDepth0ToDepth1() throws Exception
+  {
+    testChangePath(0, 1);
+  }
+
+  public void testChangePathFromDepth0ToDepth2() throws Exception
+  {
+    testChangePath(0, 2);
+  }
+
+  public void testChangePathFromDepth0ToDepth3() throws Exception
+  {
+    testChangePath(0, 3);
+  }
+
+  public void testChangePathFromDepth3ToDepth3() throws Exception
+  {
+    testChangePath(3, 3);
+  }
+
+  public void testChangePathFromDepth3ToDepth2() throws Exception
+  {
+    testChangePath(3, 2);
+  }
+
+  public void testChangePathFromDepth3ToDepth1() throws Exception
+  {
+    testChangePath(3, 1);
+  }
+
+  public void testChangePathFromDepth3ToDepth0() throws Exception
+  {
+    testChangePath(3, 0);
+  }
+
+  public void testChangePath(int depthFrom, int depthTo) throws Exception
+  {
+    String prefixA = "testA";
+    String prefixB = "testB";
+
+    String oldPath = createPath(prefixA, depthFrom, "test");
+    String newPath = createPath(prefixB, depthTo, "test2");
+    {
+      CDOSession session = openModel1Session();
+      CDOTransaction transaction = session.openTransaction();
+      CDOResource resource = transaction.createResource(oldPath);
+      Order order = getModel1Factory().createOrder();
+      resource.getContents().add(order);
+
+      String path = CDOURIUtil.extractResourcePath(resource.getURI());
+      assertEquals(oldPath, path);
+      assertEquals(depthFrom, CDOURIUtil.analyzePath(resource.getURI()).size() - 1);
+
+      transaction.commit();
+
+      CDOID idBeforeChangePath = CDOUtil.getCDOObject(resource).cdoID();
+      CDOID idBeforeChangePathOrder = CDOUtil.getCDOObject(order).cdoID();
+
+      msg("New path");
+      resource.setPath(newPath);
+      path = CDOURIUtil.extractResourcePath(resource.getURI());
+      assertEquals(depthTo, CDOURIUtil.analyzePath(resource.getURI()).size() - 1);
+      assertEquals(newPath, path);
+      transaction.commit();
+
+      CDOID idAfterChangePath = CDOUtil.getCDOObject(resource).cdoID();
+      assertEquals(idBeforeChangePath, idAfterChangePath);
+
+      CDOID idAfterChangePathOrder = CDOUtil.getCDOObject(order).cdoID();
+      assertEquals(idBeforeChangePathOrder, idAfterChangePathOrder);
+
+      Resource resourceRenamed = transaction.getResourceSet().getResource(
+          CDOURIUtil.createResourceURI(session, newPath), false);
+
+      assertEquals(resource, resourceRenamed);
+      assertClean(resource, transaction);
+      assertClean(order, transaction);
+      session.close();
+    }
+    CDOSession session = openModel1Session();
+    CDOTransaction transaction = session.openTransaction();
+
+    try
+    {
+      transaction.getResourceSet().getResource(CDOURIUtil.createResourceURI(session, oldPath), true);
+      fail("Doesn't exist");
+    }
+    catch (Exception ex)
+    {
+    }
+    Resource resource = transaction.getResourceSet().getResource(CDOURIUtil.createResourceURI(session, newPath), true);
+    assertNotNull(resource);
   }
 
   public void testChangePath() throws Exception

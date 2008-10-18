@@ -461,20 +461,22 @@ public class InitialTest extends AbstractCDOTest
       transaction.commit();
       enableConsole();
     }
+    
     {
       msg("Opening transaction");
       CDOTransaction transaction = session.openTransaction();
 
       msg("Getting resource");
-      CDOResource resource = transaction.getResource("/test1");
+      CDOResource resource = transaction.getResource("/test1", true);
       assertNotNull(resource);
       assertEquals(URI.createURI("cdo://" + session.getRepositoryUUID() + "/test1"), resource.getURI());
       assertEquals(transaction.getResourceSet(), resource.getResourceSet());
       assertEquals(1, transaction.getResourceSet().getResources().size());
-      assertEquals(CDOState.PROXY, resource.cdoState());
+      assertEquals(CDOState.CLEAN, resource.cdoState());
       assertEquals(transaction, resource.cdoView());
-      assertNull(resource.cdoRevision());
+      assertNotNull(resource.cdoRevision());
     }
+    
     {
       msg("Opening transaction");
       CDOTransaction transaction = session.openTransaction();
@@ -486,9 +488,9 @@ public class InitialTest extends AbstractCDOTest
       assertEquals(URI.createURI("cdo://" + session.getRepositoryUUID() + "/test1"), resource.getURI());
       assertEquals(transaction.getResourceSet(), resource.getResourceSet());
       assertEquals(1, transaction.getResourceSet().getResources().size());
-      assertEquals(CDOState.PROXY, resource.cdoState());
+      assertEquals(CDOState.CLEAN, resource.cdoState());
       assertEquals(transaction, resource.cdoView());
-      assertNull(resource.cdoRevision());
+      assertNotNull(resource.cdoRevision());
     }
   }
 
@@ -666,9 +668,9 @@ public class InitialTest extends AbstractCDOTest
     assertNotNull(resource);
     assertEquals(URI.createURI("cdo://" + session.getRepositoryUUID() + "/test1"), resource.getURI());
     assertEquals(transaction.getResourceSet(), resource.getResourceSet());
-    assertEquals(CDOState.PROXY, resource.cdoState());
+    assertEquals(CDOState.CLEAN, resource.cdoState());
     assertEquals(transaction, resource.cdoView());
-    assertNull(resource.cdoRevision());
+    assertNotNull(resource.cdoRevision());
   }
 
   public void testLoadObject() throws Exception

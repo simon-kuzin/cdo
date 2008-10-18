@@ -2,7 +2,7 @@
  * <copyright>
  * </copyright>
  *
- * $Id: CDOResourceNodeImpl.java,v 1.1.2.2 2008-10-17 19:07:51 estepper Exp $
+ * $Id: CDOResourceNodeImpl.java,v 1.1.2.3 2008-10-18 06:11:52 estepper Exp $
  */
 package org.eclipse.emf.cdo.eresource.impl;
 
@@ -212,9 +212,13 @@ public abstract class CDOResourceNodeImpl extends CDOObjectImpl implements CDORe
 
       String newName = names.remove(names.size() - 1);
       CDOResourceFolder newFolder = transaction.getOrCreateResourceFolder(names);
+      if (newFolder == null)
+      {
+        transaction.getRootResource().getContents().add(this);
+      }
+      
       basicSetFolder(newFolder, false);
       basicSetName(newName, false);
-
       adjustContainedResources(oldPath);
     }
   }

@@ -203,7 +203,7 @@ public class CDOResourceImpl extends CDOResourceNodeImpl implements CDOResource,
    */
   public URI getURI()
   {
-    if (initialURI != null)
+    if (cdoID() == null && initialURI != null)
     {
       return initialURI;
     }
@@ -293,11 +293,6 @@ public class CDOResourceImpl extends CDOResourceNodeImpl implements CDOResource,
    */
   private Notification setLoaded(boolean isLoaded)
   {
-    if (isLoaded)
-    {
-      initialURI = null;
-    }
-
     boolean oldIsLoaded = loaded;
     loaded = isLoaded;
 
@@ -535,7 +530,6 @@ public class CDOResourceImpl extends CDOResourceNodeImpl implements CDOResource,
   {
     if (!isLoaded())
     {
-
       CDOViewImpl view = cdoView();
       if (!FSMUtil.isTransient(this))
       {
