@@ -393,6 +393,11 @@ public final class ModelUtil
     ((InternalCDOClass)corePackage.getCDOObjectClass()).setClientInfo(EcorePackage.eINSTANCE.getEObject());
 
     // Eresource
+    if (!ObjectUtil.equals(CDOResourcePackage.PACKAGE_URI, EresourcePackage.eNS_URI))
+    {
+      throw new ImplementationError();
+    }
+
     CDOResourcePackage resourcePackage = packageManager.getCDOResourcePackage();
     ((InternalCDOPackage)resourcePackage).setClientInfo(EresourcePackage.eINSTANCE);
 
