@@ -27,9 +27,12 @@ public interface InternalChannel extends IChannel, IBufferProvider, ILifecycle.I
   /**
    * @since 2.0
    */
-  public void setUserID(String userID);
+  public void setID(short id);
 
-  public void setChannelIndex(short channelIndex);
+  /**
+   * @since 2.0
+   */
+  public void setUserID(String userID);
 
   public ExecutorService getReceiveExecutor();
 

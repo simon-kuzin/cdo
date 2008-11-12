@@ -1423,9 +1423,7 @@ public class CDOViewImpl extends org.eclipse.net4j.util.event.Notifier implement
     {
       try
       {
-        ChangeSubscriptionRequest request = new ChangeSubscriptionRequest(getSession().getProtocol(), getViewID(),
-            cdoIDs, subscribeMode, clear);
-        session.getFailOverStrategy().send(request);
+        new ChangeSubscriptionRequest(getSession().getProtocol(), getViewID(), cdoIDs, subscribeMode, clear).send();
       }
       catch (Exception ex)
       {

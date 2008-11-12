@@ -23,6 +23,7 @@ import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.spi.common.InternalCDOPackage;
 
+import org.eclipse.net4j.signal.monitor.ISignalMonitor;
 import org.eclipse.net4j.util.collection.CloseableIterator;
 
 import java.util.Collection;
@@ -215,7 +216,7 @@ public interface IStoreAccessor extends IQueryHandler
    * 
    * @since 2.0
    */
-  public void write(CommitContext context);
+  public void write(CommitContext context, ISignalMonitor monitor);
 
   /**
    * It will flush to the backend and make available the data for others.
@@ -225,7 +226,7 @@ public interface IStoreAccessor extends IQueryHandler
    * 
    * @since 2.0
    */
-  public void commit();
+  public void commit(ISignalMonitor monitor);
 
   /**
    * <b>Note</b> : {@link IStoreAccessor#write(CommitContext)} and {@link IStoreAccessor#rollback()} could be called

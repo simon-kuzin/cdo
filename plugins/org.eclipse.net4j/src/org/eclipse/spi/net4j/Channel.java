@@ -8,7 +8,7 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  **************************************************************************/
-package org.eclipse.internal.net4j.channel;
+package org.eclipse.spi.net4j;
 
 import org.eclipse.net4j.buffer.BufferState;
 import org.eclipse.net4j.buffer.IBuffer;
@@ -24,9 +24,6 @@ import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.internal.net4j.bundle.OM;
 
-import org.eclipse.spi.net4j.InternalChannel;
-import org.eclipse.spi.net4j.InternalChannelMultiplexer;
-
 import java.text.MessageFormat;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -34,6 +31,7 @@ import java.util.concurrent.ExecutorService;
 
 /**
  * @author Eike Stepper
+ * @since 2.0
  */
 public class Channel extends Lifecycle implements InternalChannel
 {
@@ -43,7 +41,7 @@ public class Channel extends Lifecycle implements InternalChannel
 
   private InternalChannelMultiplexer channelMultiplexer;
 
-  private short channelIndex = IBuffer.NO_CHANNEL;
+  private short id = IBuffer.NO_CHANNEL;
 
   private ExecutorService receiveExecutor;
 
@@ -98,19 +96,15 @@ public class Channel extends Lifecycle implements InternalChannel
     this.channelMultiplexer = (InternalChannelMultiplexer)channelMultiplexer;
   }
 
-  public short getIndex()
+  public short getID()
   {
-    return channelIndex;
+    return id;
   }
 
-  public void setChannelIndex(short channelIndex)
+  public void setID(short id)
   {
-    if (channelIndex == IBuffer.NO_CHANNEL)
-    {
-      throw new IllegalArgumentException("channelIndex == INVALID_CHANNEL_ID"); //$NON-NLS-1$
-    }
-
-    this.channelIndex = channelIndex;
+    checkArg(id != IBuffer.NO_CHANNEL, "id == IBuffer.NO_CHANNEL"); //$NON-NLS-1$
+    this.id = id;
   }
 
   public ExecutorService getReceiveExecutor()
@@ -154,7 +148,7 @@ public class Channel extends Lifecycle implements InternalChannel
 
     if (TRACER.isEnabled())
     {
-      TRACER.format("Handling buffer from client: {0} --> {1}", buffer, this); //$NON-NLS-1$
+      TRACER.format("Handling buffer: {0} --> {1}", buffer, this); //$NON-NLS-1$
     }
 
     if (sendQueue == null)
@@ -214,14 +208,14 @@ public class Channel extends Lifecycle implements InternalChannel
   @Override
   public String toString()
   {
-    return MessageFormat.format("Channel[{0}, {1}]", channelIndex, getLocation()); //$NON-NLS-1$
+    return MessageFormat.format("Channel[{0}, {1}]", id, getLocation()); //$NON-NLS-1$
   }
 
   @Override
   protected void doBeforeActivate() throws Exception
   {
     super.doBeforeActivate();
-    checkState(channelIndex != IBuffer.NO_CHANNEL, "channelIndex == NO_CHANNEL"); //$NON-NLS-1$
+    checkState(id != IBuffer.NO_CHANNEL, "channelID == NO_CHANNEL"); //$NON-NLS-1$
     checkState(channelMultiplexer, "channelMultiplexer"); //$NON-NLS-1$
   }
 

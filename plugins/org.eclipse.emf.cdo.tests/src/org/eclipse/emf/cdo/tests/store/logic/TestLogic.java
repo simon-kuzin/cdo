@@ -40,6 +40,7 @@ import org.eclipse.emf.cdo.util.EMFUtil;
 import org.eclipse.emf.internal.cdo.CDOSessionImpl;
 import org.eclipse.emf.internal.cdo.util.ModelUtil;
 
+import org.eclipse.net4j.signal.monitor.SignalMonitor;
 import org.eclipse.net4j.tests.AbstractOMTest;
 
 import org.eclipse.emf.ecore.EClass;
@@ -224,8 +225,8 @@ public abstract class TestLogic extends AbstractOMTest
       transactionCommitContext.setNewObjects(getNewObjects());
       transactionCommitContext.setDirtyObjectDeltas(getDirtyObjectDeltas());
       transactionCommitContext.setDetachedObjects(getDetachedObjects());
-      transactionCommitContext.write();
-      transactionCommitContext.commit();
+      transactionCommitContext.write(new SignalMonitor());
+      transactionCommitContext.commit(new SignalMonitor());
       transactionCommitContext.postCommit(true);
       return transaction;
     }

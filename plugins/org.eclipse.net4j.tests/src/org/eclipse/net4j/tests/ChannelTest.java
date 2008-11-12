@@ -25,6 +25,7 @@ import org.eclipse.spi.net4j.InternalConnector;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -59,10 +60,10 @@ public abstract class ChannelTest extends AbstractProtocolTest
     assertActive(channel);
 
     InternalConnector serverConnector = (InternalConnector)getAcceptor().getAcceptedConnectors()[0];
-    List<IChannel> serverChannels = serverConnector.getChannels();
+    Collection<IChannel> serverChannels = serverConnector.getChannels();
     assertEquals(1, serverChannels.size());
 
-    IChannel serverChannel = serverChannels.get(0);
+    IChannel serverChannel = serverChannels.iterator().next();
     serverChannel.addListener(deactivationListener);
     assertActive(serverChannel);
 

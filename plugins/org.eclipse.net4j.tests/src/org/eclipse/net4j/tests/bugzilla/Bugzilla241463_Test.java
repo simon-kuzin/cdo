@@ -11,7 +11,6 @@
 package org.eclipse.net4j.tests.bugzilla;
 
 import org.eclipse.net4j.TransportInjector;
-import org.eclipse.net4j.connector.ConnectorException;
 import org.eclipse.net4j.connector.IConnector;
 import org.eclipse.net4j.internal.tcp.TCPAcceptor;
 import org.eclipse.net4j.internal.tcp.TCPAcceptorFactory;
@@ -23,7 +22,6 @@ import org.eclipse.net4j.tcp.ITCPAcceptor;
 import org.eclipse.net4j.tests.AbstractTransportTest;
 import org.eclipse.net4j.tests.signal.TestSignalProtocol;
 import org.eclipse.net4j.util.ImplementationError;
-import org.eclipse.net4j.util.concurrent.TimeoutRuntimeException;
 import org.eclipse.net4j.util.container.IManagedContainer;
 import org.eclipse.net4j.util.container.ManagedContainer;
 import org.eclipse.net4j.util.security.RandomizerFactory;
@@ -68,22 +66,10 @@ public class Bugzilla241463_Test extends AbstractTransportTest
     try
     {
       new TestSignalProtocol(connector);
-      fail("TimeoutRuntimeException expected");
+      fail("Exception expected");
     }
-    catch (ConnectorException expected)
+    catch (Exception expected)
     {
-      if (expected.getCause().getClass() != TimeoutRuntimeException.class)
-      {
-        fail("TimeoutRuntimeException expected");
-      }
-    }
-    catch (TimeoutRuntimeException expected)
-    {
-    }
-    catch (Throwable wrongException)
-    {
-      wrongException.printStackTrace();
-      fail("TimeoutRuntimeException expected");
     }
   }
 
@@ -103,7 +89,7 @@ public class Bugzilla241463_Test extends AbstractTransportTest
           return new TCPServerConnector(this)
           {
             @Override
-            public InternalChannel inverseOpenChannel(short channelIndex, String protocolID)
+            public InternalChannel inverseOpenChannel(short channelID, String protocolID)
             {
               throw new ImplementationError("Simulated problem");
             }

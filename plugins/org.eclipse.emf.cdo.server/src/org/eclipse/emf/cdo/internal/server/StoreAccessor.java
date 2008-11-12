@@ -31,6 +31,7 @@ import org.eclipse.emf.cdo.spi.common.InternalCDOFeature;
 import org.eclipse.emf.cdo.spi.common.InternalCDOPackage;
 import org.eclipse.emf.cdo.spi.common.InternalCDORevision;
 
+import org.eclipse.net4j.signal.monitor.ISignalMonitor;
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
@@ -125,7 +126,7 @@ public abstract class StoreAccessor extends Lifecycle implements IStoreAccessor
   /**
    * @since 2.0
    */
-  public void write(CommitContext context)
+  public void write(CommitContext context, ISignalMonitor monitor)
   {
     if (TRACER.isEnabled())
     {
@@ -135,22 +136,22 @@ public abstract class StoreAccessor extends Lifecycle implements IStoreAccessor
     commitContexts.add(context);
     long timeStamp = context.getTimeStamp();
 
-    writePackages(context.getNewPackages());
-    addIDMappings(context);
+    writePackages(context.getNewPackages(), monitor.fork(1));
+    addIDMappings(context, monitor.fork(1));
 
     context.applyIDMappings();
 
-    writeRevisions(context.getNewObjects());
+    writeRevisions(context.getNewObjects(), monitor.fork(1));
     if (store.getRepository().isSupportingRevisionDeltas())
     {
-      writeRevisionDeltas(context.getDirtyObjectDeltas(), timeStamp);
+      writeRevisionDeltas(context.getDirtyObjectDeltas(), timeStamp, monitor.fork(1));
     }
     else
     {
-      writeRevisions(context.getDirtyObjects());
+      writeRevisions(context.getDirtyObjects(), monitor.fork(1));
     }
 
-    detachObjects(context.getDetachedObjects(), timeStamp - 1);
+    detachObjects(context.getDetachedObjects(), timeStamp - 1, monitor.fork(1));
   }
 
   /**
@@ -180,38 +181,54 @@ public abstract class StoreAccessor extends Lifecycle implements IStoreAccessor
   /**
    * @since 2.0
    */
-  protected void addIDMappings(IStoreAccessor.CommitContext context)
+  protected void addIDMappings(IStoreAccessor.CommitContext context, ISignalMonitor monitor)
   {
-    if (store instanceof LongIDStore)
+    try
     {
-      LongIDStore longIDStore = (LongIDStore)getStore();
-      for (CDORevision revision : context.getNewObjects())
+      if (store instanceof LongIDStore)
       {
-        CDOIDTemp oldID = (CDOIDTemp)revision.getID();
-        CDOID newID = longIDStore.getNextCDOID();
-        if (CDOIDUtil.isNull(newID) || newID.isTemporary())
+        LongIDStore longIDStore = (LongIDStore)getStore();
+        CDORevision[] newObjects = context.getNewObjects();
+        monitor.begin(newObjects.length);
+        for (CDORevision revision : newObjects)
         {
-          throw new IllegalStateException("newID=" + newID);
-        }
+          CDOIDTemp oldID = (CDOIDTemp)revision.getID();
+          CDOID newID = longIDStore.getNextCDOID();
+          if (CDOIDUtil.isNull(newID) || newID.isTemporary())
+          {
+            throw new IllegalStateException("newID=" + newID);
+          }
 
-        context.addIDMapping(oldID, newID);
+          context.addIDMapping(oldID, newID);
+          monitor.worked(1);
+        }
       }
+    }
+    finally
+    {
+      monitor.done();
     }
   }
 
-  protected abstract void writePackages(CDOPackage[] cdoPackages);
-
-  protected abstract void writeRevisions(CDORevision[] revisions);
+  /**
+   * @since 2.0
+   */
+  protected abstract void writePackages(CDOPackage[] cdoPackages, ISignalMonitor monitor);
 
   /**
    * @since 2.0
    */
-  protected abstract void writeRevisionDeltas(CDORevisionDelta[] revisionDeltas, long created);
+  protected abstract void writeRevisions(CDORevision[] revisions, ISignalMonitor monitor);
 
   /**
    * @since 2.0
    */
-  protected abstract void detachObjects(CDOID[] detachedObjects, long revised);
+  protected abstract void writeRevisionDeltas(CDORevisionDelta[] revisionDeltas, long created, ISignalMonitor monitor);
+
+  /**
+   * @since 2.0
+   */
+  protected abstract void detachObjects(CDOID[] detachedObjects, long revised, ISignalMonitor monitor);
 
   /**
    * @since 2.0
@@ -243,9 +260,12 @@ public abstract class StoreAccessor extends Lifecycle implements IStoreAccessor
   {
     private CDOPackage[] cdoPackages;
 
-    public PackageWriter(CDOPackage[] cdoPackages)
+    private ISignalMonitor monitor;
+
+    public PackageWriter(CDOPackage[] cdoPackages, ISignalMonitor monitor)
     {
       this.cdoPackages = cdoPackages;
+      this.monitor = monitor;
     }
 
     public CDOPackage[] getCDOPackages()
@@ -253,34 +273,74 @@ public abstract class StoreAccessor extends Lifecycle implements IStoreAccessor
       return cdoPackages;
     }
 
+    public ISignalMonitor getMonitor()
+    {
+      return monitor;
+    }
+
     public void run()
     {
-      for (CDOPackage cdoPackage : cdoPackages)
+      try
       {
-        runPackage(cdoPackage);
+        monitor.begin(cdoPackages.length);
+        for (CDOPackage cdoPackage : cdoPackages)
+        {
+          runPackage(cdoPackage, monitor.fork(1));
+        }
+      }
+      finally
+      {
+        monitor.done();
       }
     }
 
-    protected void runPackage(CDOPackage cdoPackage)
+    protected void runPackage(CDOPackage cdoPackage, ISignalMonitor monitor)
     {
-      writePackage((InternalCDOPackage)cdoPackage);
-      for (CDOClass cdoClass : cdoPackage.getClasses())
+      try
       {
-        runClass((InternalCDOClass)cdoClass);
+        CDOClass[] classes = cdoPackage.getClasses();
+        monitor.begin(1 + cdoPackages.length);
+
+        writePackage((InternalCDOPackage)cdoPackage);
+        monitor.worked(1);
+
+        for (CDOClass cdoClass : classes)
+        {
+          runClass((InternalCDOClass)cdoClass, monitor.fork(1));
+        }
+      }
+      finally
+      {
+        monitor.done();
       }
     }
 
-    protected void runClass(InternalCDOClass cdoClass)
+    protected void runClass(InternalCDOClass cdoClass, ISignalMonitor signalMonitor)
     {
-      writeClass(cdoClass);
-      for (CDOClassProxy superType : cdoClass.getSuperTypeProxies())
+      try
       {
-        writeSuperType(cdoClass, superType);
-      }
+        List<CDOClassProxy> superTypeProxies = cdoClass.getSuperTypeProxies();
+        CDOFeature[] features = cdoClass.getFeatures();
+        monitor.begin(1 + superTypeProxies.size() + features.length);
 
-      for (CDOFeature feature : cdoClass.getFeatures())
+        writeClass(cdoClass);
+        monitor.worked(1);
+
+        for (CDOClassProxy superType : superTypeProxies)
+        {
+          writeSuperType(cdoClass, superType);
+          monitor.worked(1);
+        }
+
+        for (CDOFeature feature : features)
+        {
+          writeFeature((InternalCDOFeature)feature);
+          monitor.worked(1);
+        }
+      }
+      finally
       {
-        writeFeature((InternalCDOFeature)feature);
+        monitor.done();
       }
     }
 

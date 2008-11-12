@@ -22,6 +22,8 @@ import org.eclipse.emf.cdo.internal.server.TransactionCommitContextImpl.Transact
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.ITransaction;
 
+import org.eclipse.net4j.signal.monitor.ISignalMonitor;
+
 import java.text.MessageFormat;
 import java.util.List;
 
@@ -100,9 +102,9 @@ public class Transaction extends View implements ITransaction
 
     public void preCommit();
 
-    public void write();
+    public void write(ISignalMonitor monitor);
 
-    public void commit();
+    public void commit(ISignalMonitor monitor);
 
     public void postCommit(boolean success);
 

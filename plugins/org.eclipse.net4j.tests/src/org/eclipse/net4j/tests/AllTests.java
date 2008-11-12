@@ -44,6 +44,7 @@ public class AllTests
     suite.addTestSuite(TransportTest.JVM.class);
     suite.addTestSuite(TransportTest.TCP.class);
     suite.addTestSuite(SignalTest.class);
+    suite.addTestSuite(SignalMonitorTest.class);
     suite.addTestSuite(ExceptionTest.class);
     suite.addTestSuite(SecurityTest.class);
     return suite;

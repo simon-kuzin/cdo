@@ -31,6 +31,7 @@ import org.eclipse.emf.cdo.spi.common.InternalCDOPackageManager;
 import org.eclipse.emf.cdo.spi.common.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.InternalCDORevisionDelta;
 
+import org.eclipse.net4j.signal.monitor.ISignalMonitor;
 import org.eclipse.net4j.util.ObjectUtil;
 import org.eclipse.net4j.util.StringUtil;
 import org.eclipse.net4j.util.event.IListener;
@@ -199,12 +200,14 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
     this.detachedObjects = detachedObjects;
   }
 
-  public void commit()
+  public void commit(ISignalMonitor monitor)
   {
+    monitor.begin(5);
+
     try
     {
-      accessor.commit();
-      updateInfraStructure();
+      accessor.commit(monitor.fork(4));
+      updateInfraStructure(monitor.fork(1));
     }
     catch (RuntimeException ex)
     {
@@ -214,13 +217,19 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
     {
       handleException(ex);
     }
+    finally
+    {
+      monitor.done();
+    }
   }
 
   /**
    * @since 2.0
    */
-  public void write()
+  public void write(ISignalMonitor monitor)
   {
+    monitor.begin(10);
+
     try
     {
       // Could throw an exception
@@ -228,14 +237,22 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
       dirtyObjects = new CDORevision[dirtyObjectDeltas.length];
 
       adjustMetaRanges();
+      monitor.worked(1);
+
       adjustTimeStamps();
+      monitor.worked(1);
 
       Repository repository = (Repository)transaction.getRepository();
       computeDirtyObjects(!repository.isSupportingRevisionDeltas());
+      monitor.worked(1);
 
       repository.notifyWriteAccessHandlers(transaction, this);
+      monitor.worked(1);
+
       detachObjects();
-      accessor.write(this);
+      monitor.worked(1);
+
+      accessor.write(this, monitor.fork(5));
     }
     catch (RuntimeException ex)
     {
@@ -244,6 +261,10 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
     catch (Error ex)
     {
       handleException(ex);
+    }
+    finally
+    {
+      monitor.done();
     }
   }
 
@@ -396,19 +417,32 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
     }
   }
 
-  private void updateInfraStructure()
+  private void updateInfraStructure(ISignalMonitor monitor)
   {
+    monitor.begin(4);
+
     try
     {
       addNewPackages();
+      monitor.worked(1);
+
       addRevisions(newObjects);
+      monitor.worked(1);
+
       addRevisions(dirtyObjects);
+      monitor.worked(1);
+
       revisedDetachObjects();
+      monitor.worked(1);
     }
     catch (RuntimeException ex)
     {
       // TODO Rethink this case
       OM.LOG.error("FATAL: Memory infrastructure corrupted after successful commit operation of the store");
+    }
+    finally
+    {
+      monitor.done();
     }
   }
 

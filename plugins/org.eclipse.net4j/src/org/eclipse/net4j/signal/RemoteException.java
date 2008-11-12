@@ -8,19 +8,32 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  **************************************************************************/
-package org.eclipse.net4j.protocol;
-
-import org.eclipse.net4j.util.factory.Factory;
+package org.eclipse.net4j.signal;
 
 /**
  * @author Eike Stepper
+ * @since 2.0
  */
-public abstract class ServerProtocolFactory extends Factory
+public class RemoteException extends RuntimeException
 {
-  public static final String PRODUCT_GROUP = "org.eclipse.net4j.serverProtocols";
+  private static final long serialVersionUID = 1L;
 
-  public ServerProtocolFactory(String type)
+  private boolean whileResponding;
+
+  public RemoteException(Throwable cause, boolean whileResponding)
   {
-    super(PRODUCT_GROUP, type);
+    super(cause);
+    this.whileResponding = whileResponding;
+  }
+
+  public RemoteException(String message, boolean whileResponding)
+  {
+    super(message);
+    this.whileResponding = whileResponding;
+  }
+
+  public boolean whileResponding()
+  {
+    return whileResponding;
   }
 }

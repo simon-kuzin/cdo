@@ -22,6 +22,7 @@ import org.eclipse.emf.cdo.server.db.IMappingStrategy;
 import org.eclipse.emf.cdo.server.db.IReferenceMapping;
 
 import org.eclipse.net4j.db.ddl.IDBTable;
+import org.eclipse.net4j.signal.monitor.ISignalMonitor;
 
 import java.util.Collections;
 import java.util.List;
@@ -88,11 +89,11 @@ public class NoClassMapping implements IClassMapping
     return null;
   }
 
-  public void writeRevision(IDBStoreAccessor accessor, CDORevision revision)
+  public void writeRevision(IDBStoreAccessor accessor, CDORevision revision, ISignalMonitor monitor)
   {
   }
 
-  public void detachObject(IDBStoreAccessor accessor, CDOID id, long revised)
+  public void detachObject(IDBStoreAccessor accessor, CDOID id, long revised, ISignalMonitor monitor)
   {
   }
 

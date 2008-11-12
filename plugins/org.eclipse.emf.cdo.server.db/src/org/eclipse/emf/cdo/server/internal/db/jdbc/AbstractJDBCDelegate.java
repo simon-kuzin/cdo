@@ -25,6 +25,7 @@ import org.eclipse.emf.cdo.spi.common.InternalCDORevision;
 import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.db.DBUtil;
 import org.eclipse.net4j.db.IDBConnectionProvider;
+import org.eclipse.net4j.signal.monitor.ISignalMonitor;
 import org.eclipse.net4j.util.collection.MoveableList;
 
 import java.sql.Connection;
@@ -57,7 +58,7 @@ public abstract class AbstractJDBCDelegate implements IJDBCDelegate
     return connection;
   }
 
-  public final void commit()
+  public final void commit(ISignalMonitor monitor)
   {
     try
     {
