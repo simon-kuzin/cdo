@@ -14,12 +14,10 @@ import org.eclipse.net4j.buffer.BufferState;
 import org.eclipse.net4j.buffer.IBuffer;
 import org.eclipse.net4j.buffer.IBufferHandler;
 import org.eclipse.net4j.channel.IChannelMultiplexer;
-import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
 import org.eclipse.net4j.util.concurrent.IWorkSerializer;
 import org.eclipse.net4j.util.concurrent.QueueWorkerWorkSerializer;
 import org.eclipse.net4j.util.concurrent.SynchronousWorkSerializer;
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
-import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.internal.net4j.bundle.OM;
@@ -53,9 +51,6 @@ public class Channel extends Lifecycle implements InternalChannel
   private IWorkSerializer receiveSerializer;
 
   private transient Queue<IBuffer> sendQueue;
-
-  @ExcludeFromDump
-  private transient boolean inverseClosed;
 
   public Channel()
   {
@@ -251,24 +246,7 @@ public class Channel extends Lifecycle implements InternalChannel
   @Override
   protected void doDeactivate() throws Exception
   {
-    if (!inverseClosed)
-    {
-      channelMultiplexer.closeChannel(this);
-    }
-
-    super.doDeactivate();
-  }
-
-  public void finishDeactivate(boolean inverse)
-  {
-    inverseClosed = inverse;
-    if (inverse)
-    {
-      LifecycleUtil.deactivate(receiveHandler);
-      deactivate();
-    }
-
-    receiveHandler = null;
+    channelMultiplexer.closeChannel(this);
     if (receiveSerializer != null)
     {
       receiveSerializer.dispose();
@@ -280,6 +258,8 @@ public class Channel extends Lifecycle implements InternalChannel
       sendQueue.clear();
       sendQueue = null;
     }
+
+    super.doDeactivate();
   }
 
   public void close()

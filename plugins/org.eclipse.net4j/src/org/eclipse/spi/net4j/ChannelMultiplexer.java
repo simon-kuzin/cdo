@@ -178,16 +178,13 @@ public abstract class ChannelMultiplexer extends Container<IChannel> implements 
   {
     InternalChannel internalChannel = channel;
     deregisterChannelFromPeer(internalChannel, getChannelTimeout());
-    removeChannel(internalChannel, false);
+    removeChannel(internalChannel);
   }
 
   public void inverseCloseChannel(short channelID) throws ChannelException
   {
     InternalChannel channel = getChannel(channelID);
-    if (channel != null && channel.isActive())
-    {
-      removeChannel(channel, true);
-    }
+    LifecycleUtil.deactivate(channel);
   }
 
   protected InternalChannel createChannel()
@@ -334,7 +331,7 @@ public abstract class ChannelMultiplexer extends Container<IChannel> implements 
     fireElementAddedEvent(channel);
   }
 
-  private void removeChannel(InternalChannel channel, boolean inverse)
+  private void removeChannel(InternalChannel channel)
   {
     try
     {
@@ -351,7 +348,6 @@ public abstract class ChannelMultiplexer extends Container<IChannel> implements 
 
       if (removed)
       {
-        channel.finishDeactivate(inverse);
         fireElementRemovedEvent(channel);
       }
     }

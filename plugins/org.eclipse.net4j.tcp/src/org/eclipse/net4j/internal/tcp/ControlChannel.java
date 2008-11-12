@@ -46,8 +46,6 @@ public class ControlChannel extends Channel
 
   public static final byte OPCODE_DEREGISTRATION = 4;
 
-  public static final byte OPCODE_DEREGISTRATION_ACK = 5;
-
   public static final byte SUCCESS = 1;
 
   public static final byte FAILURE = 0;
@@ -95,7 +93,7 @@ public class ControlChannel extends Channel
     return acknowledged;
   }
 
-  public boolean deregisterChannel(short channelID, long timeout)
+  public void deregisterChannel(short channelID, long timeout)
   {
     if (TRACER.isEnabled())
     {
@@ -103,21 +101,11 @@ public class ControlChannel extends Channel
     }
 
     assertValidChannelID(channelID);
-    ISynchronizer<Boolean> acknowledgement = acknowledgements.correlate(channelID);
-
     IBuffer buffer = provideBuffer();
     ByteBuffer byteBuffer = buffer.startPutting(CONTROL_CHANNEL_INDEX);
     byteBuffer.put(OPCODE_DEREGISTRATION);
     byteBuffer.putShort(channelID);
     handleBuffer(buffer);
-
-    Boolean acknowledged = acknowledgement.get(timeout);
-    if (acknowledged == null)
-    {
-      throw new TimeoutRuntimeException("Deregistration timeout after " + timeout + " milliseconds");
-    }
-
-    return acknowledged;
   }
 
   @Override
@@ -174,7 +162,6 @@ public class ControlChannel extends Channel
       case OPCODE_DEREGISTRATION:
       {
         assertConnected();
-        boolean success = true;
         short channelID = byteBuffer.getShort();
         if (channelID == CONTROL_CHANNEL_INDEX)
         {
@@ -188,15 +175,12 @@ public class ControlChannel extends Channel
         catch (Exception ex)
         {
           OM.LOG.error(ex);
-          success = false;
         }
 
-        sendStatus(OPCODE_DEREGISTRATION_ACK, channelID, success);
         break;
       }
 
       case OPCODE_REGISTRATION_ACK:
-      case OPCODE_DEREGISTRATION_ACK:
       {
         assertConnected();
         short channelID = byteBuffer.getShort();
@@ -225,7 +209,7 @@ public class ControlChannel extends Channel
   @Override
   protected void doDeactivate() throws Exception
   {
-    finishDeactivate(true);
+    // Do nothing
   }
 
   private void sendStatus(byte opcode, short channelID, boolean status)

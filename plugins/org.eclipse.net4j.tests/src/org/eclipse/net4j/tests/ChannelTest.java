@@ -73,9 +73,10 @@ public abstract class ChannelTest extends AbstractProtocolTest
 
     protocol.close();
     assertInactive(protocol);
-    assertEquals(0, serverConnector.getChannels().size());
     assertInactive(channel);
-    assertInactive(protocol);
+
+    sleep(50);
+    assertEquals(0, serverConnector.getChannels().size());
     assertInactive(serverChannel);
     assertInactive(serverProtocol);
 
@@ -91,10 +92,10 @@ public abstract class ChannelTest extends AbstractProtocolTest
     }
   }
 
-  public void testSingleThreadNoData1000() throws Exception
+  public void testSingleThreadNoData100() throws Exception
   {
     disableConsole();
-    for (int i = 0; i < 1000; i++)
+    for (int i = 0; i < 100; i++)
     {
       IOUtil.OUT().println(Thread.currentThread().getName() + ": " + i);
       testSingleThreadNoData();
@@ -114,10 +115,10 @@ public abstract class ChannelTest extends AbstractProtocolTest
     assertInactive(protocol);
   }
 
-  public void testSingleThreadTinyData1000() throws Exception
+  public void testSingleThreadTinyData100() throws Exception
   {
     disableConsole();
-    for (int i = 0; i < 1000; i++)
+    for (int i = 0; i < 100; i++)
     {
       IOUtil.OUT().println(Thread.currentThread().getName() + ": " + i);
       testSingleThreadTinyData();
