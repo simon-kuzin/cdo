@@ -14,10 +14,8 @@ package org.eclipse.emf.cdo.common.model;
  * @author Eike Stepper
  * @noimplement This interface is not intended to be implemented by clients.
  */
-public interface CDOClass extends CDOModelElement, Comparable<CDOClass>
+public interface CDOClass extends CDOClassifier, Comparable<CDOClass>
 {
-  public int getClassifierID();
-
   public boolean isAbstract();
 
   /**

@@ -16,7 +16,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
  * @author Eike Stepper
  * @noimplement This interface is not intended to be implemented by clients.
  */
-public interface CDOPackage extends CDOModelElement, Comparable<CDOPackage>
+public interface CDOPackage extends CDONamedElement, Comparable<CDOPackage>
 {
   public CDOPackageManager getPackageManager();
 

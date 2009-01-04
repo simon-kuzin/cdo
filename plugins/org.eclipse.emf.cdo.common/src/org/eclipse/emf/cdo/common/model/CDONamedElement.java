@@ -13,21 +13,11 @@ package org.eclipse.emf.cdo.common.model;
 /**
  * @author Eike Stepper
  * @noimplement This interface is not intended to be implemented by clients.
+ * @since 2.0
  */
-public interface CDOFeature extends CDOTypedElement
+public interface CDONamedElement extends CDOModelElement
 {
-  public int getFeatureID();
+  public String getName();
 
-  public int getFeatureIndex();
-
-  public boolean isContainment();
-
-  /**
-   * @since 2.0
-   */
-  public Object getDefaultValue();
-
-  public CDOClass getContainingClass();
-
-  public CDOPackage getContainingPackage();
+  public String getQualifiedName();
 }
