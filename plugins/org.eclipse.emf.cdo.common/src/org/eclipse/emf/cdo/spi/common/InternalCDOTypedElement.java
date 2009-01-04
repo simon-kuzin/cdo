@@ -10,31 +10,32 @@
  **************************************************************************/
 package org.eclipse.emf.cdo.spi.common;
 
+import org.eclipse.emf.cdo.common.CDODataInput;
 import org.eclipse.emf.cdo.common.CDODataOutput;
-import org.eclipse.emf.cdo.common.model.CDOModelElement;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
+import org.eclipse.emf.cdo.common.model.CDOClassProxy;
+import org.eclipse.emf.cdo.common.model.CDOClassRef;
+import org.eclipse.emf.cdo.common.model.CDOTypedElement;
 
 import java.io.IOException;
 
 /**
  * @author Eike Stepper
  * @noimplement This interface is not intended to be implemented by clients.
+ * @since 2.0
  */
-public interface InternalCDOModelElement extends CDOModelElement
+public interface InternalCDOTypedElement extends CDOTypedElement, InternalCDONamedElement
 {
-  /**
-   * @since 2.0
-   */
-  public void setContainingPackage(CDOPackage containingPackage);
+  public CDOClassProxy getReferenceTypeProxy();
 
-  public void setName(String name);
-
-  public void setClientInfo(Object clientInfo);
-
-  public void setServerInfo(Object serverInfo);
+  public void setReferenceType(CDOClassRef cdoClassRef);
 
   /**
    * @since 2.0
    */
-  public void write(CDODataOutput out) throws IOException;
+  public void writeValue(CDODataOutput out, Object value) throws IOException;
+
+  /**
+   * @since 2.0
+   */
+  public Object readValue(CDODataInput in) throws IOException;
 }

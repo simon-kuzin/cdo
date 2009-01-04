@@ -198,6 +198,7 @@ public abstract class CDODataInputImpl implements CDODataInput
 
   public void readCDOPackage(CDOPackage cdoPackage) throws IOException
   {
+    ((InternalCDOPackage)cdoPackage).setName(in.readString());
     ((InternalCDOPackage)cdoPackage).read(this);
   }
 

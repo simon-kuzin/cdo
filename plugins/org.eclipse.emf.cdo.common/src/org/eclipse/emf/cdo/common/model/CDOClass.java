@@ -59,6 +59,4 @@ public interface CDOClass extends CDOClassifier, Comparable<CDOClass>
   public CDOFeature[] getAllFeatures();
 
   public CDOClassRef createClassRef();
-
-  public CDOPackage getContainingPackage();
 }

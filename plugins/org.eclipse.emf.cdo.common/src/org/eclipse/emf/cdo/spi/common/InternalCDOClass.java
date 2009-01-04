@@ -14,7 +14,6 @@ import org.eclipse.emf.cdo.common.model.CDOClass;
 import org.eclipse.emf.cdo.common.model.CDOClassProxy;
 import org.eclipse.emf.cdo.common.model.CDOClassRef;
 import org.eclipse.emf.cdo.common.model.CDOFeature;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
 
 import java.util.List;
 
@@ -22,10 +21,8 @@ import java.util.List;
  * @author Eike Stepper
  * @noimplement This interface is not intended to be implemented by clients.
  */
-public interface InternalCDOClass extends CDOClass, InternalCDOModelElement
+public interface InternalCDOClass extends CDOClass, InternalCDOClassifier
 {
-  public void setContainingPackage(CDOPackage containingPackage);
-
   public void addSuperType(CDOClassRef classRef);
 
   public void addFeature(CDOFeature cdoFeature);

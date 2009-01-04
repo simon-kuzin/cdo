@@ -33,7 +33,7 @@ import java.util.List;
 /**
  * @author Eike Stepper
  */
-public class CDOPackageImpl extends CDOModelElementImpl implements InternalCDOPackage
+public class CDOPackageImpl extends CDONamedElementImpl implements InternalCDOPackage
 {
   private static final ContextTracer MODEL_TRACER = new ContextTracer(OM.DEBUG_MODEL, CDOPackageImpl.class);
 
@@ -66,7 +66,7 @@ public class CDOPackageImpl extends CDOModelElementImpl implements InternalCDOPa
   public CDOPackageImpl(CDOPackageManager packageManager, String packageURI, String name, String ecore,
       boolean dynamic, CDOIDMetaRange metaIDRange, String parentURI)
   {
-    super(name);
+    super(null, name);
     this.packageManager = packageManager;
     this.packageURI = packageURI;
     this.dynamic = dynamic;
@@ -79,13 +79,6 @@ public class CDOPackageImpl extends CDOModelElementImpl implements InternalCDOPa
 
     setEcore(ecore);
     createLists();
-  }
-
-  public CDOPackageImpl(CDOPackageManager packageManager, CDODataInput in) throws IOException
-  {
-    this.packageManager = packageManager;
-    createLists();
-    read(in);
   }
 
   /**
@@ -106,10 +99,25 @@ public class CDOPackageImpl extends CDOModelElementImpl implements InternalCDOPa
     }
   }
 
-  @Override
+  public CDOPackageImpl(CDOPackageManager packageManager, CDODataInput in) throws IOException
+  {
+    super(null, in);
+    this.packageManager = packageManager;
+    createLists();
+    read(in);
+  }
+
+  /**
+   * If not called through {@link #CDOPackageImpl(CDOPackageManager, CDODataInput)} the following must becalled
+   * <b>before</b>:
+   * <p>
+   * 
+   * <pre>
+   * setName(in.readString());
+   * </pre>
+   */
   public void read(CDODataInput in) throws IOException
   {
-    super.read(in);
     packageURI = in.readCDOPackageURI();
     dynamic = in.readBoolean();
     metaIDRange = in.readCDOIDMetaRange();
@@ -162,14 +170,15 @@ public class CDOPackageImpl extends CDOModelElementImpl implements InternalCDOPa
     }
   }
 
-  public void setPackageManager(CDOPackageManager packageManager)
-  {
-    this.packageManager = packageManager;
-  }
-
+  @Override
   public CDOPackageManager getPackageManager()
   {
     return packageManager;
+  }
+
+  public void setPackageManager(CDOPackageManager packageManager)
+  {
+    this.packageManager = packageManager;
   }
 
   public String getParentURI()

@@ -55,7 +55,7 @@ public abstract class CDOSingleValueFeatureDeltaImpl extends CDOFeatureDeltaImpl
     {
       valueToWrite = out.getIDProvider().provideCDOID(newValue);
     }
-    
+
     ((InternalCDOFeature)getFeature()).writeValue(out, valueToWrite);
   }
 

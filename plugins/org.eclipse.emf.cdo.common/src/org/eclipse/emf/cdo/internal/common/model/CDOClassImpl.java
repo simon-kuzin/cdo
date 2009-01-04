@@ -18,7 +18,6 @@ import org.eclipse.emf.cdo.common.model.CDOClassRef;
 import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackage;
-import org.eclipse.emf.cdo.common.model.CDOPackageManager;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.InternalCDOClass;
 import org.eclipse.emf.cdo.spi.common.InternalCDOFeature;
@@ -35,15 +34,11 @@ import java.util.List;
 /**
  * @author Eike Stepper
  */
-public class CDOClassImpl extends CDOModelElementImpl implements InternalCDOClass
+public class CDOClassImpl extends CDOClassifierImpl implements InternalCDOClass
 {
   private static final ContextTracer MODEL_TRACER = new ContextTracer(OM.DEBUG_MODEL, CDOClassImpl.class);
 
   private static final ContextTracer PROTOCOL_TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, CDOClassImpl.class);
-
-  private CDOPackage containingPackage;
-
-  private int classifierID;
 
   private boolean isAbstract;
 
@@ -63,9 +58,7 @@ public class CDOClassImpl extends CDOModelElementImpl implements InternalCDOClas
 
   public CDOClassImpl(CDOPackage containingPackage, int classifierID, String name, boolean isAbstract)
   {
-    super(name);
-    this.containingPackage = containingPackage;
-    this.classifierID = classifierID;
+    super(containingPackage, classifierID, name);
     this.isAbstract = isAbstract;
     if (MODEL_TRACER.isEnabled())
     {
@@ -75,22 +68,14 @@ public class CDOClassImpl extends CDOModelElementImpl implements InternalCDOClas
 
   public CDOClassImpl(CDOPackage containingPackage, CDODataInput in) throws IOException
   {
-    this.containingPackage = containingPackage;
-    read(in);
-  }
-
-  @Override
-  public void read(CDODataInput in) throws IOException
-  {
-    super.read(in);
-    classifierID = in.readInt();
+    super(containingPackage, in);
     isAbstract = in.readBoolean();
     readSuperTypes(in);
     readFeatures(in);
 
     if (PROTOCOL_TRACER.isEnabled())
     {
-      PROTOCOL_TRACER.format("Read class: ID={0}, name={1}, abstract={2}", classifierID, getName(), isAbstract);
+      PROTOCOL_TRACER.format("Read class: ID={0}, name={1}, abstract={2}", getClassifierID(), getName(), isAbstract);
     }
   }
 
@@ -99,11 +84,10 @@ public class CDOClassImpl extends CDOModelElementImpl implements InternalCDOClas
   {
     if (PROTOCOL_TRACER.isEnabled())
     {
-      PROTOCOL_TRACER.format("Writing class: ID={0}, name={1}, abstract={2}", classifierID, getName(), isAbstract);
+      PROTOCOL_TRACER.format("Writing class: ID={0}, name={1}, abstract={2}", getClassifierID(), getName(), isAbstract);
     }
 
     super.write(out);
-    out.writeInt(classifierID);
     out.writeBoolean(isAbstract);
     writeSuperTypes(out);
     writeFeatures(out);
@@ -127,36 +111,6 @@ public class CDOClassImpl extends CDOModelElementImpl implements InternalCDOClas
     }
 
     return -1;
-  }
-
-  public CDOPackageManager getPackageManager()
-  {
-    return containingPackage.getPackageManager();
-  }
-
-  public CDOPackage getContainingPackage()
-  {
-    return containingPackage;
-  }
-
-  public void setContainingPackage(CDOPackage containingPackage)
-  {
-    this.containingPackage = containingPackage;
-  }
-
-  public int getClassifierID()
-  {
-    return classifierID;
-  }
-
-  public void setClassifierID(int classifierID)
-  {
-    this.classifierID = classifierID;
-  }
-
-  public String getQualifiedName()
-  {
-    return getContainingPackage().getQualifiedName() + "." + getName();
   }
 
   public boolean isAbstract()
@@ -265,7 +219,7 @@ public class CDOClassImpl extends CDOModelElementImpl implements InternalCDOClas
 
   public CDOClassRef createClassRef()
   {
-    return CDOModelUtil.createClassRef(containingPackage.getPackageURI(), classifierID);
+    return CDOModelUtil.createClassRef(getContainingPackage().getPackageURI(), getClassifierID());
   }
 
   public CDOClass[] getAllSuperTypes()
@@ -337,7 +291,7 @@ public class CDOClassImpl extends CDOModelElementImpl implements InternalCDOClas
       MODEL_TRACER.format("Adding super type: {0}", classRef);
     }
 
-    superTypes.add(new CDOClassProxy(classRef, containingPackage.getPackageManager()));
+    superTypes.add(new CDOClassProxy(classRef, getPackageManager()));
   }
 
   public void addFeature(CDOFeature cdoFeature)
@@ -358,7 +312,7 @@ public class CDOClassImpl extends CDOModelElementImpl implements InternalCDOClas
   @Override
   public String toString()
   {
-    return MessageFormat.format("CDOClass(ID={0}, name={1})", classifierID, getName());
+    return MessageFormat.format("CDOClass(ID={0}, name={1})", getClassifierID(), getName());
   }
 
   private void setIndex(int featureID, int index)
@@ -384,10 +338,10 @@ public class CDOClassImpl extends CDOModelElementImpl implements InternalCDOClas
       CDOClassRef classRef = in.readCDOClassRef();
       if (PROTOCOL_TRACER.isEnabled())
       {
-        PROTOCOL_TRACER.format("Read super type: classRef={0}", classRef, classifierID);
+        PROTOCOL_TRACER.format("Read super type: classRef={0}", classRef, getClassifierID());
       }
 
-      superTypes.add(new CDOClassProxy(classRef, containingPackage.getPackageManager()));
+      superTypes.add(new CDOClassProxy(classRef, getPackageManager()));
     }
   }
 

@@ -10,14 +10,12 @@
  **************************************************************************/
 package org.eclipse.emf.cdo.internal.common.model;
 
-import org.eclipse.emf.cdo.common.CDODataInput;
-import org.eclipse.emf.cdo.common.CDODataOutput;
+import org.eclipse.emf.cdo.common.model.CDOPackage;
+import org.eclipse.emf.cdo.common.model.CDOPackageManager;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.InternalCDOModelElement;
 
 import org.eclipse.net4j.util.om.trace.ContextTracer;
-
-import java.io.IOException;
 
 /**
  * @author Eike Stepper
@@ -26,39 +24,34 @@ public abstract class CDOModelElementImpl implements InternalCDOModelElement
 {
   private static final ContextTracer MODEL_TRACER = new ContextTracer(OM.DEBUG_MODEL, CDOModelElementImpl.class);
 
-  private String name;
+  private CDOPackage containingPackage;
 
-  private Object clientInfo;
+  private transient Object clientInfo;
 
-  private Object serverInfo;
-
-  protected CDOModelElementImpl(String name)
-  {
-    this.name = name;
-  }
+  private transient Object serverInfo;
 
   protected CDOModelElementImpl()
   {
   }
 
-  public void read(CDODataInput in) throws IOException
+  protected CDOModelElementImpl(CDOPackage containingPackage)
   {
-    name = in.readString();
+    this.containingPackage = containingPackage;
   }
 
-  public void write(CDODataOutput out) throws IOException
+  public CDOPackage getContainingPackage()
   {
-    out.writeString(name);
+    return containingPackage;
   }
 
-  public String getName()
+  public void setContainingPackage(CDOPackage containingPackage)
   {
-    return name;
+    this.containingPackage = containingPackage;
   }
 
-  public void setName(String name)
+  public CDOPackageManager getPackageManager()
   {
-    this.name = name;
+    return containingPackage.getPackageManager();
   }
 
   public Object getClientInfo()

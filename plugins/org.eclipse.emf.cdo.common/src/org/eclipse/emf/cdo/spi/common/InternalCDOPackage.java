@@ -10,18 +10,20 @@
  **************************************************************************/
 package org.eclipse.emf.cdo.spi.common;
 
+import org.eclipse.emf.cdo.common.CDODataInput;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.model.CDOClass;
 import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.common.model.CDOPackageManager;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
  * @author Eike Stepper
  * @noimplement This interface is not intended to be implemented by clients.
  */
-public interface InternalCDOPackage extends CDOPackage, InternalCDOModelElement
+public interface InternalCDOPackage extends CDOPackage, InternalCDONamedElement
 {
   public void setPackageManager(CDOPackageManager packageManager);
 
@@ -39,4 +41,11 @@ public interface InternalCDOPackage extends CDOPackage, InternalCDOModelElement
   public void addClass(CDOClass cdoClass);
 
   public void setClasses(List<CDOClass> classes);
+
+  /**
+   * Fill a proxy package with data from a stream.
+   * 
+   * @since 2.0
+   */
+  public void read(CDODataInput in) throws IOException;
 }
