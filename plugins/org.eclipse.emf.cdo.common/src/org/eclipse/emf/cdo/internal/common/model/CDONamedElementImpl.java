@@ -12,8 +12,7 @@ package org.eclipse.emf.cdo.internal.common.model;
 
 import org.eclipse.emf.cdo.common.CDODataInput;
 import org.eclipse.emf.cdo.common.CDODataOutput;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
-import org.eclipse.emf.cdo.spi.common.InternalCDONamedElement;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDONamedElement;
 
 import java.io.IOException;
 
@@ -28,23 +27,6 @@ public abstract class CDONamedElementImpl extends CDOModelElementImpl implements
   {
   }
 
-  protected CDONamedElementImpl(CDOPackage containingPackage, String name)
-  {
-    super(containingPackage);
-    this.name = name;
-  }
-
-  protected CDONamedElementImpl(CDOPackage containingPackage, CDODataInput in) throws IOException
-  {
-    super(containingPackage);
-    name = in.readString();
-  }
-
-  public void write(CDODataOutput out) throws IOException
-  {
-    out.writeString(name);
-  }
-
   public String getName()
   {
     return name;
@@ -53,5 +35,15 @@ public abstract class CDONamedElementImpl extends CDOModelElementImpl implements
   public void setName(String name)
   {
     this.name = name;
+  }
+
+  public void read(CDODataInput in, boolean proxy) throws IOException
+  {
+    name = in.readString();
+  }
+
+  public void write(CDODataOutput out, boolean proxy) throws IOException
+  {
+    out.writeString(name);
   }
 }

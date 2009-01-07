@@ -17,12 +17,12 @@ import org.eclipse.emf.cdo.common.model.CDOPackageManager;
 import org.eclipse.emf.cdo.common.model.resource.CDOFolderFeature;
 import org.eclipse.emf.cdo.common.model.resource.CDOResourceFolderClass;
 import org.eclipse.emf.cdo.common.model.resource.CDOResourcePackage;
-import org.eclipse.emf.cdo.internal.common.model.CDOFeatureImpl;
+import org.eclipse.emf.cdo.internal.common.model.CDOReferenceImpl;
 
 /**
  * @author Eike Stepper
  */
-public class CDOFolderFeatureImpl extends CDOFeatureImpl implements CDOFolderFeature
+public class CDOFolderFeatureImpl extends CDOReferenceImpl implements CDOFolderFeature
 {
   public CDOFolderFeatureImpl(CDOClass containingClass, CDOPackageManager packageManager)
   {

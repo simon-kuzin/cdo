@@ -8,13 +8,11 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  **************************************************************************/
-package org.eclipse.emf.cdo.spi.common;
+package org.eclipse.emf.cdo.spi.common.model;
 
 import org.eclipse.emf.cdo.common.CDODataInput;
 import org.eclipse.emf.cdo.common.CDODataOutput;
-import org.eclipse.emf.cdo.common.model.CDOClassProxy;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
-import org.eclipse.emf.cdo.common.model.CDOTypedElement;
+import org.eclipse.emf.cdo.common.model.CDOModelElement;
 
 import java.io.IOException;
 
@@ -23,19 +21,13 @@ import java.io.IOException;
  * @noimplement This interface is not intended to be implemented by clients.
  * @since 2.0
  */
-public interface InternalCDOTypedElement extends CDOTypedElement, InternalCDONamedElement
+public interface InternalCDOModelElement extends CDOModelElement
 {
-  public CDOClassProxy getReferenceTypeProxy();
+  public void setClientInfo(Object clientInfo);
 
-  public void setReferenceType(CDOClassRef cdoClassRef);
+  public void setServerInfo(Object serverInfo);
 
-  /**
-   * @since 2.0
-   */
-  public void writeValue(CDODataOutput out, Object value) throws IOException;
+  public void read(CDODataInput in, boolean proxy) throws IOException;
 
-  /**
-   * @since 2.0
-   */
-  public Object readValue(CDODataInput in) throws IOException;
+  public void write(CDODataOutput out, boolean proxy) throws IOException;
 }

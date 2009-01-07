@@ -13,7 +13,7 @@ package org.eclipse.emf.cdo.server;
 import org.eclipse.emf.cdo.common.CDOProtocolView;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
+import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
@@ -21,7 +21,7 @@ import org.eclipse.emf.cdo.common.model.CDOPackageManager;
 import org.eclipse.emf.cdo.common.query.CDOQueryInfo;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
-import org.eclipse.emf.cdo.spi.common.InternalCDOPackage;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackage;
 
 import org.eclipse.net4j.util.collection.CloseableIterator;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
@@ -102,7 +102,7 @@ public interface IStoreAccessor extends IQueryHandler
    * 
    * @since 2.0
    */
-  public CDOClassRef readObjectType(CDOID id);
+  public CDOClassifierRef readObjectType(CDOID id);
 
   /**
    * Reads a current revision (i.e. one with revised == 0) from the back-end. Returns <code>null</code> if the id is

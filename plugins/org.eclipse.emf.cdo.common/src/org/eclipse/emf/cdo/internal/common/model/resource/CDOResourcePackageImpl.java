@@ -28,9 +28,9 @@ public final class CDOResourcePackageImpl extends CDOPackageImpl implements CDOR
   public CDOResourcePackageImpl(CDOPackageManagerImpl packageManager)
   {
     super(packageManager, PACKAGE_URI, NAME, null, false, null, null);
-    addClass(cdoResourceNodeClass = new CDOResourceNodeClassImpl(this, packageManager));
-    addClass(cdoResourceFolderClass = new CDOResourceFolderClassImpl(this, packageManager));
-    addClass(cdoResourceClass = new CDOResourceClassImpl(this, packageManager));
+    addClassifier(cdoResourceNodeClass = new CDOResourceNodeClassImpl(this, packageManager));
+    addClassifier(cdoResourceFolderClass = new CDOResourceFolderClassImpl(this, packageManager));
+    addClassifier(cdoResourceClass = new CDOResourceClassImpl(this, packageManager));
   }
 
   public CDOResourceFolderClassImpl getCDOResourceFolderClass()

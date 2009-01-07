@@ -31,4 +31,11 @@
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>org.eclipse.pde.api.tools.apiAnalysisNature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>baseline</name>
+			<type>2</type>
+			<location>C:/develop/ws/cdo/.metadata/.baseline</location>
+		</link>
+	</linkedResources>
 </projectDescription>

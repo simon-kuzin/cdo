@@ -11,7 +11,7 @@
  *    Simon McDuff - http://bugs.eclipse.org/212958
  *    Simon McDuff - http://bugs.eclipse.org/213402
  **************************************************************************/
-package org.eclipse.emf.cdo.spi.common;
+package org.eclipse.emf.cdo.spi.common.revision;
 
 import org.eclipse.emf.cdo.common.CDODataInput;
 import org.eclipse.emf.cdo.common.CDODataOutput;
@@ -19,7 +19,7 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
+import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDOListFactory;
@@ -30,6 +30,7 @@ import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDeltaUtil;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.internal.common.revision.delta.CDORevisionMerger;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOFeature;
 
 import org.eclipse.net4j.util.ImplementationError;
 import org.eclipse.net4j.util.collection.MoveableList;
@@ -132,7 +133,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
 
   public void write(CDODataOutput out, int referenceChunk) throws IOException
   {
-    CDOClassRef classRef = cdoClass.createClassRef();
+    CDOClassifierRef classRef = cdoClass.createClassRef();
     if (TRACER.isEnabled())
     {
       TRACER
@@ -143,7 +144,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     }
 
     WRITING.start(this);
-    out.writeCDOClassRef(classRef);
+    out.writeCDOClassifierRef(classRef);
     out.writeCDOID(id);
     out.writeInt(getVersion());
     if (!id.isTemporary())

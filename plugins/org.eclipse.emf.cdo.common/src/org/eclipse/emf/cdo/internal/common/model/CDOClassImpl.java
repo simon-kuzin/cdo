@@ -14,16 +14,15 @@ import org.eclipse.emf.cdo.common.CDODataInput;
 import org.eclipse.emf.cdo.common.CDODataOutput;
 import org.eclipse.emf.cdo.common.model.CDOClass;
 import org.eclipse.emf.cdo.common.model.CDOClassProxy;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
+import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackage;
-import org.eclipse.emf.cdo.internal.common.bundle.OM;
-import org.eclipse.emf.cdo.spi.common.InternalCDOClass;
-import org.eclipse.emf.cdo.spi.common.InternalCDOFeature;
+import org.eclipse.emf.cdo.common.model.CDOPackageManager;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOClass;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOFeature;
 
 import org.eclipse.net4j.util.ObjectUtil;
-import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -36,10 +35,6 @@ import java.util.List;
  */
 public class CDOClassImpl extends CDOClassifierImpl implements InternalCDOClass
 {
-  private static final ContextTracer MODEL_TRACER = new ContextTracer(OM.DEBUG_MODEL, CDOClassImpl.class);
-
-  private static final ContextTracer PROTOCOL_TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, CDOClassImpl.class);
-
   private boolean isAbstract;
 
   private List<CDOClassProxy> superTypes = new ArrayList<CDOClassProxy>(0);
@@ -56,61 +51,9 @@ public class CDOClassImpl extends CDOClassifierImpl implements InternalCDOClass
   {
   }
 
-  public CDOClassImpl(CDOPackage containingPackage, int classifierID, String name, boolean isAbstract)
+  public Kind getClassifierKind()
   {
-    super(containingPackage, classifierID, name);
-    this.isAbstract = isAbstract;
-    if (MODEL_TRACER.isEnabled())
-    {
-      MODEL_TRACER.format("Created {0}", this);
-    }
-  }
-
-  public CDOClassImpl(CDOPackage containingPackage, CDODataInput in) throws IOException
-  {
-    super(containingPackage, in);
-    isAbstract = in.readBoolean();
-    readSuperTypes(in);
-    readFeatures(in);
-
-    if (PROTOCOL_TRACER.isEnabled())
-    {
-      PROTOCOL_TRACER.format("Read class: ID={0}, name={1}, abstract={2}", getClassifierID(), getName(), isAbstract);
-    }
-  }
-
-  @Override
-  public void write(CDODataOutput out) throws IOException
-  {
-    if (PROTOCOL_TRACER.isEnabled())
-    {
-      PROTOCOL_TRACER.format("Writing class: ID={0}, name={1}, abstract={2}", getClassifierID(), getName(), isAbstract);
-    }
-
-    super.write(out);
-    out.writeBoolean(isAbstract);
-    writeSuperTypes(out);
-    writeFeatures(out);
-  }
-
-  public int getFeatureID(CDOFeature feature)
-  {
-    int index = feature.getFeatureIndex();
-    if (index != -1)
-    {
-      CDOFeature[] features = getAllFeatures();
-      while (index < features.length)
-      {
-        if (features[index] == feature)
-        {
-          return index;
-        }
-
-        ++index;
-      }
-    }
-
-    return -1;
+    return Kind.CLASS;
   }
 
   public boolean isAbstract()
@@ -121,26 +64,6 @@ public class CDOClassImpl extends CDOClassifierImpl implements InternalCDOClass
   public void setAbstract(boolean isAbstract)
   {
     this.isAbstract = isAbstract;
-  }
-
-  public boolean isResourceNode()
-  {
-    return false;
-  }
-
-  public boolean isResourceFolder()
-  {
-    return false;
-  }
-
-  public boolean isResource()
-  {
-    return false;
-  }
-
-  public boolean isRoot()
-  {
-    return false;
   }
 
   public int getSuperTypeCount()
@@ -217,7 +140,47 @@ public class CDOClassImpl extends CDOClassifierImpl implements InternalCDOClass
     return null;
   }
 
-  public CDOClassRef createClassRef()
+  public int getFeatureID(CDOFeature feature)
+  {
+    int index = ((InternalCDOFeature)feature).getFeatureIndex();
+    if (index != -1)
+    {
+      CDOFeature[] features = getAllFeatures();
+      while (index < features.length)
+      {
+        if (features[index] == feature)
+        {
+          return index;
+        }
+
+        ++index;
+      }
+    }
+
+    return -1;
+  }
+
+  public boolean isResourceNode()
+  {
+    return false;
+  }
+
+  public boolean isResourceFolder()
+  {
+    return false;
+  }
+
+  public boolean isResource()
+  {
+    return false;
+  }
+
+  public boolean isRoot()
+  {
+    return false;
+  }
+
+  public CDOClassifierRef createClassRef()
   {
     return CDOModelUtil.createClassRef(getContainingPackage().getPackageURI(), getClassifierID());
   }
@@ -284,23 +247,13 @@ public class CDOClassImpl extends CDOClassifierImpl implements InternalCDOClass
     return allFeatures;
   }
 
-  public void addSuperType(CDOClassRef classRef)
+  public void addSuperType(CDOClassifierRef classRef)
   {
-    if (MODEL_TRACER.isEnabled())
-    {
-      MODEL_TRACER.format("Adding super type: {0}", classRef);
-    }
-
     superTypes.add(new CDOClassProxy(classRef, getPackageManager()));
   }
 
   public void addFeature(CDOFeature cdoFeature)
   {
-    if (MODEL_TRACER.isEnabled())
-    {
-      MODEL_TRACER.format("Adding feature: {0}", cdoFeature);
-    }
-
     features.add(cdoFeature);
   }
 
@@ -310,9 +263,28 @@ public class CDOClassImpl extends CDOClassifierImpl implements InternalCDOClass
   }
 
   @Override
+  public void read(CDODataInput in, boolean proxy) throws IOException
+  {
+    super.read(in, proxy);
+    isAbstract = in.readBoolean();
+    readSuperTypes(in);
+    readFeatures(in);
+  }
+
+  @Override
+  public void write(CDODataOutput out, boolean proxy) throws IOException
+  {
+    super.write(out, proxy);
+    out.writeBoolean(isAbstract);
+    writeSuperTypes(out);
+    writeFeatures(out);
+  }
+
+  @Override
   public String toString()
   {
-    return MessageFormat.format("CDOClass(ID={0}, name={1})", getClassifierID(), getName());
+    return MessageFormat.format("CDOClass[classifierID={0}, name={1}, abstract={2}]", getClassifierID(), getName(),
+        isAbstract);
   }
 
   private void setIndex(int featureID, int index)
@@ -328,19 +300,9 @@ public class CDOClassImpl extends CDOClassifierImpl implements InternalCDOClass
   private void readSuperTypes(CDODataInput in) throws IOException
   {
     int size = in.readInt();
-    if (PROTOCOL_TRACER.isEnabled())
-    {
-      PROTOCOL_TRACER.format("Reading {0} super types", size);
-    }
-
     for (int i = 0; i < size; i++)
     {
-      CDOClassRef classRef = in.readCDOClassRef();
-      if (PROTOCOL_TRACER.isEnabled())
-      {
-        PROTOCOL_TRACER.format("Read super type: classRef={0}", classRef, getClassifierID());
-      }
-
+      CDOClassifierRef classRef = in.readCDOClassRef();
       superTypes.add(new CDOClassProxy(classRef, getPackageManager()));
     }
   }
@@ -348,11 +310,6 @@ public class CDOClassImpl extends CDOClassifierImpl implements InternalCDOClass
   private void readFeatures(CDODataInput in) throws IOException
   {
     int size = in.readInt();
-    if (PROTOCOL_TRACER.isEnabled())
-    {
-      PROTOCOL_TRACER.format("Reading {0} features", size);
-    }
-
     for (int i = 0; i < size; i++)
     {
       CDOFeature cdoFeature = in.readCDOFeature(this);
@@ -363,32 +320,17 @@ public class CDOClassImpl extends CDOClassifierImpl implements InternalCDOClass
   private void writeSuperTypes(CDODataOutput out) throws IOException
   {
     int size = superTypes.size();
-    if (PROTOCOL_TRACER.isEnabled())
-    {
-      PROTOCOL_TRACER.format("Writing {0} super types", size);
-    }
-
     out.writeInt(size);
     for (CDOClassProxy proxy : superTypes)
     {
-      CDOClassRef classRef = proxy.getClassRef();
-      if (PROTOCOL_TRACER.isEnabled())
-      {
-        PROTOCOL_TRACER.format("Writing super type: classRef={0}", classRef);
-      }
-
-      out.writeCDOClassRef(classRef);
+      CDOClassifierRef classRef = proxy.getClassRef();
+      out.writeCDOClassifierRef(classRef);
     }
   }
 
   private void writeFeatures(CDODataOutput out) throws IOException
   {
     int size = features.size();
-    if (PROTOCOL_TRACER.isEnabled())
-    {
-      PROTOCOL_TRACER.format("Writing {0} features", size);
-    }
-
     out.writeInt(size);
     for (CDOFeature cdoFeature : features)
     {
@@ -410,6 +352,166 @@ public class CDOClassImpl extends CDOClassifierImpl implements InternalCDOClass
     if (!result.contains(object))
     {
       result.add(object);
+    }
+  }
+
+  /**
+   * @author Eike Stepper
+   */
+  public static final class Ref extends CDOClassifierImpl.Ref implements CDOClass
+  {
+    public Ref(CDOPackageManager packageManager, String packageURI, int classifierID)
+    {
+      super(packageManager, packageURI, classifierID);
+    }
+
+    public Kind getClassifierKind()
+    {
+      return Kind.CLASS;
+    }
+
+    @Override
+    public CDOClass resolve()
+    {
+      return (CDOClass)super.resolve();
+    }
+
+    @Override
+    public String toString()
+    {
+      if (isResolved())
+      {
+        resolve().toString();
+      }
+
+      return MessageFormat.format("CDOClassRef[packageURI={0}, classifierID={1}]", getPackageURI(), getClassifierID());
+    }
+
+    public int compareTo(CDOClass o)
+    {
+      return resolve().compareTo(o);
+    }
+
+    public CDOClassifierRef createClassRef()
+    {
+      return resolve().createClassRef();
+    }
+
+    public CDOFeature[] getAllFeatures()
+    {
+      return resolve().getAllFeatures();
+    }
+
+    public CDOClass[] getAllSuperTypes()
+    {
+      return resolve().getAllSuperTypes();
+    }
+
+    @Override
+    public int getClassifierID()
+    {
+      return resolve().getClassifierID();
+    }
+
+    @Override
+    public Object getClientInfo()
+    {
+      return resolve().getClientInfo();
+    }
+
+    @Override
+    public CDOPackage getContainingPackage()
+    {
+      return resolve().getContainingPackage();
+    }
+
+    public int getFeatureCount()
+    {
+      return resolve().getFeatureCount();
+    }
+
+    public int getFeatureID(CDOFeature feature)
+    {
+      return resolve().getFeatureID(feature);
+    }
+
+    public CDOFeature[] getFeatures()
+    {
+      return resolve().getFeatures();
+    }
+
+    @Override
+    public String getName()
+    {
+      return resolve().getName();
+    }
+
+    @Override
+    public CDOPackageManager getPackageManager()
+    {
+      return resolve().getPackageManager();
+    }
+
+    @Override
+    public String getQualifiedName()
+    {
+      return resolve().getQualifiedName();
+    }
+
+    @Override
+    public Object getServerInfo()
+    {
+      return resolve().getServerInfo();
+    }
+
+    public CDOClass getSuperType(int index)
+    {
+      return resolve().getSuperType(index);
+    }
+
+    public int getSuperTypeCount()
+    {
+      return resolve().getSuperTypeCount();
+    }
+
+    public CDOClass[] getSuperTypes()
+    {
+      return resolve().getSuperTypes();
+    }
+
+    public boolean isAbstract()
+    {
+      return resolve().isAbstract();
+    }
+
+    public boolean isResource()
+    {
+      return resolve().isResource();
+    }
+
+    public boolean isResourceFolder()
+    {
+      return resolve().isResourceFolder();
+    }
+
+    public boolean isResourceNode()
+    {
+      return resolve().isResourceNode();
+    }
+
+    public boolean isRoot()
+    {
+      return resolve().isRoot();
+    }
+
+    public CDOFeature lookupFeature(int featureId)
+    {
+      return resolve().lookupFeature(featureId);
+    }
+
+    public CDOFeature lookupFeature(String name)
+    {
+      return resolve().lookupFeature(name);
     }
   }
 }

@@ -19,13 +19,15 @@ import org.eclipse.emf.cdo.common.id.CDOIDObject;
 import org.eclipse.emf.cdo.common.id.CDOIDObjectFactory;
 import org.eclipse.emf.cdo.common.id.CDOID.Type;
 import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
+import org.eclipse.emf.cdo.common.model.CDOClassifier;
+import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.common.model.CDOPackageManager;
 import org.eclipse.emf.cdo.common.model.CDOPackageURICompressor;
 import org.eclipse.emf.cdo.common.model.CDOType;
+import org.eclipse.emf.cdo.common.model.CDOClassifier.Kind;
 import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDOListFactory;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
@@ -42,9 +44,9 @@ import org.eclipse.emf.cdo.internal.common.id.CDOIDMetaRangeImpl;
 import org.eclipse.emf.cdo.internal.common.id.CDOIDTempMetaImpl;
 import org.eclipse.emf.cdo.internal.common.id.CDOIDTempObjectImpl;
 import org.eclipse.emf.cdo.internal.common.model.CDOClassImpl;
-import org.eclipse.emf.cdo.internal.common.model.CDOClassRefImpl;
 import org.eclipse.emf.cdo.internal.common.model.CDOFeatureImpl;
 import org.eclipse.emf.cdo.internal.common.model.CDOPackageImpl;
+import org.eclipse.emf.cdo.internal.common.model.CDOTypeImpl;
 import org.eclipse.emf.cdo.internal.common.revision.delta.CDOAddFeatureDeltaImpl;
 import org.eclipse.emf.cdo.internal.common.revision.delta.CDOClearFeatureDeltaImpl;
 import org.eclipse.emf.cdo.internal.common.revision.delta.CDOContainerFeatureDeltaImpl;
@@ -54,9 +56,9 @@ import org.eclipse.emf.cdo.internal.common.revision.delta.CDORemoveFeatureDeltaI
 import org.eclipse.emf.cdo.internal.common.revision.delta.CDORevisionDeltaImpl;
 import org.eclipse.emf.cdo.internal.common.revision.delta.CDOSetFeatureDeltaImpl;
 import org.eclipse.emf.cdo.internal.common.revision.delta.CDOUnsetFeatureDeltaImpl;
-import org.eclipse.emf.cdo.spi.common.AbstractCDOID;
-import org.eclipse.emf.cdo.spi.common.InternalCDOList;
-import org.eclipse.emf.cdo.spi.common.InternalCDOPackage;
+import org.eclipse.emf.cdo.spi.common.id.AbstractCDOID;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackage;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDOList;
 
 import org.eclipse.net4j.util.ImplementationError;
 import org.eclipse.net4j.util.concurrent.RWLockManager;
@@ -199,7 +201,7 @@ public abstract class CDODataInputImpl implements CDODataInput
   public void readCDOPackage(CDOPackage cdoPackage) throws IOException
   {
     ((InternalCDOPackage)cdoPackage).setName(in.readString());
-    ((InternalCDOPackage)cdoPackage).read(this);
+    ((InternalCDOPackage)cdoPackage).read(this, null);
   }
 
   public CDOPackage readCDOPackage() throws IOException
@@ -207,14 +209,18 @@ public abstract class CDODataInputImpl implements CDODataInput
     return new CDOPackageImpl(getPackageManager(), this);
   }
 
-  public CDOClassRef readCDOClassRef() throws IOException
+  public CDOClassifier readCDOClassifierRef(CDOPackageManager packageManager) throws IOException
   {
-    return new CDOClassRefImpl(this);
+    byte ordinal = in.readByte();
+    CDOClassifier.Kind kind = CDOClassifier.Kind.values()[ordinal];
+    CDOClassifier cdoClassifier = CDOModelUtil.createClassifierRef(kind, packageManager);
+    cdoClassifier.readRef(this);
+    return cdoClassifier;
   }
 
   public CDOClass readCDOClassRefAndResolve() throws IOException
   {
-    CDOClassRef classRef = readCDOClassRef();
+    CDOClassifierRef classRef = readCDOClassRef();
     CDOPackageManager packageManager = getPackageManager();
     CDOClass cdoClass = classRef.resolve(packageManager);
     if (cdoClass == null)
@@ -225,9 +231,21 @@ public abstract class CDODataInputImpl implements CDODataInput
     return cdoClass;
   }
 
-  public CDOClass readCDOClass(CDOPackage containingPackage) throws IOException
+  public CDOClassifier readCDOClassifier(CDOPackage containingPackage) throws IOException
   {
-    return new CDOClassImpl(containingPackage, this);
+    int ordinal = readByte();
+    Kind kind = CDOClassifier.Kind.values()[ordinal];
+    switch (kind)
+    {
+    case CLASS:
+      return new CDOClassImpl(containingPackage, this);
+
+    case TYPE:
+      return new CDOTypeImpl(containingPackage, this);
+
+    default:
+      throw new IOException("Invalid kind: " + kind);
+    }
   }
 
   public CDOFeature readCDOFeature(CDOClass containingClass) throws IOException

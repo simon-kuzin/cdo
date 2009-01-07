@@ -16,11 +16,6 @@ package org.eclipse.emf.cdo.common.model;
  */
 public interface CDOModelElement
 {
-  /**
-   * @since 2.0
-   */
-  public CDOPackage getContainingPackage();
-
   public CDOPackageManager getPackageManager();
 
   public Object getClientInfo();

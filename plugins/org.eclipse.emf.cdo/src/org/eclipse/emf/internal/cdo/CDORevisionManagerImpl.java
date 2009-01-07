@@ -20,7 +20,8 @@ import org.eclipse.emf.cdo.common.model.CDOPackageManager;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.util.TransportException;
 import org.eclipse.emf.cdo.internal.common.revision.CDORevisionResolverImpl;
-import org.eclipse.emf.cdo.spi.common.InternalCDORevision;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOFeature;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.emf.internal.cdo.bundle.OM;
 import org.eclipse.emf.internal.cdo.protocol.CDOClientProtocol;
@@ -85,8 +86,8 @@ public class CDORevisionManagerImpl extends CDORevisionResolverImpl implements C
     try
     {
       CDOClientProtocol protocol = (CDOClientProtocol)session.getProtocol();
-      return new LoadChunkRequest(protocol, (InternalCDORevision)revision, feature, accessIndex, fetchIndex, fromIndex,
-          toIndex).send();
+      return new LoadChunkRequest(protocol, (InternalCDORevision)revision, (InternalCDOFeature)feature, accessIndex,
+          fetchIndex, fromIndex, toIndex).send();
     }
     catch (RuntimeException ex)
     {

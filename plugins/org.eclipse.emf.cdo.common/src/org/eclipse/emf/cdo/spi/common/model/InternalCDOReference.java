@@ -8,14 +8,16 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  **************************************************************************/
-package org.eclipse.emf.cdo.spi.common;
+package org.eclipse.emf.cdo.spi.common.model;
+
+import org.eclipse.emf.cdo.common.model.CDOReference;
 
 /**
  * @author Eike Stepper
  * @noimplement This interface is not intended to be implemented by clients.
  * @since 2.0
  */
-public interface InternalCDONamedElement extends InternalCDOModelElement
+public interface InternalCDOReference extends CDOReference, InternalCDOFeature
 {
-  public void setName(String name);
+  public void setContainment(boolean containment);
 }

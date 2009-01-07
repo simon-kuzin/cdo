@@ -16,7 +16,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
+import org.eclipse.emf.cdo.common.model.CDOClassifier;
 import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.common.model.CDOType;
@@ -44,13 +44,13 @@ public interface CDODataOutput extends ExtendedDataOutput
 
   public void writeCDOType(CDOType cdoType) throws IOException;
 
-  public void writeCDOClassRef(CDOClassRef cdoClassRef) throws IOException;
+  public void writeCDOClassifierRef(CDOClassifier cdoClassifier) throws IOException;
 
   public void writeCDOClassRef(CDOClass cdoClass) throws IOException;
 
   public void writeCDOPackage(CDOPackage cdoPackage) throws IOException;
 
-  public void writeCDOClass(CDOClass cdoClass) throws IOException;
+  public void writeCDOClassifier(CDOClassifier cdoClassifier) throws IOException;
 
   public void writeCDOFeature(CDOFeature cdoFeature) throws IOException;
 

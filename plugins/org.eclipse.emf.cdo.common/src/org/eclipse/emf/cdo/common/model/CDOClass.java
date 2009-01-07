@@ -10,6 +10,7 @@
  **************************************************************************/
 package org.eclipse.emf.cdo.common.model;
 
+
 /**
  * @author Eike Stepper
  * @noimplement This interface is not intended to be implemented by clients.
@@ -58,5 +59,8 @@ public interface CDOClass extends CDOClassifier, Comparable<CDOClass>
    */
   public CDOFeature[] getAllFeatures();
 
-  public CDOClassRef createClassRef();
+  /**
+   * @since 2.0
+   */
+  public CDOClassifierRef createClassRef();
 }

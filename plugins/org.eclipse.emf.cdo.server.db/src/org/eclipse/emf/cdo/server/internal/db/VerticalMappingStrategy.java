@@ -12,7 +12,7 @@ package org.eclipse.emf.cdo.server.internal.db;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
+import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.server.db.IClassMapping;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 
@@ -46,7 +46,7 @@ public class VerticalMappingStrategy extends MappingStrategy
     return rootClassMapping;
   }
 
-  public CDOClassRef readObjectType(IDBStoreAccessor accessor, CDOID id)
+  public CDOClassifierRef readObjectType(IDBStoreAccessor accessor, CDOID id)
   {
     throw new UnsupportedOperationException();
   }

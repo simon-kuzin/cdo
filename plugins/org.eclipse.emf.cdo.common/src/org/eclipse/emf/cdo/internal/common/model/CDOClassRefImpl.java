@@ -12,8 +12,8 @@ package org.eclipse.emf.cdo.internal.common.model;
 
 import org.eclipse.emf.cdo.common.CDODataInput;
 import org.eclipse.emf.cdo.common.CDODataOutput;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
+import org.eclipse.emf.cdo.common.model.CDOClassifier;
+import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.common.model.CDOPackageManager;
 
@@ -21,11 +21,11 @@ import java.io.IOException;
 import java.text.MessageFormat;
 
 /**
- * TODO Optimize transfer of CDOClassRef instances
+ * TODO Optimize transfer of CDOClassifierRef instances
  * 
  * @author Eike Stepper
  */
-public final class CDOClassRefImpl implements CDOClassRef
+public final class CDOClassRefImpl implements CDOClassifierRef
 {
   private String packageURI;
 
@@ -63,7 +63,7 @@ public final class CDOClassRefImpl implements CDOClassRef
     return classifierID;
   }
 
-  public CDOClass resolve(CDOPackageManager packageManager)
+  public CDOClassifier resolve(CDOPackageManager packageManager)
   {
     CDOPackage cdoPackage = packageManager.lookupPackage(packageURI);
     if (cdoPackage != null)
@@ -77,6 +77,6 @@ public final class CDOClassRefImpl implements CDOClassRef
   @Override
   public String toString()
   {
-    return MessageFormat.format("CDOClassRef({0}, {1})", packageURI, classifierID);
+    return MessageFormat.format("CDOClassifierRef({0}, {1})", packageURI, classifierID);
   }
 }

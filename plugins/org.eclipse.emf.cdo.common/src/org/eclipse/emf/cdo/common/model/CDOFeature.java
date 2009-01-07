@@ -16,18 +16,17 @@ package org.eclipse.emf.cdo.common.model;
  */
 public interface CDOFeature extends CDOTypedElement
 {
+  public CDOClass getContainingClass();
+
   public int getFeatureID();
-
-  public int getFeatureIndex();
-
-  public boolean isContainment();
 
   /**
    * @since 2.0
    */
   public Object getDefaultValue();
 
-  public CDOClass getContainingClass();
-
-  public CDOPackage getContainingPackage();
+  /**
+   * @since 2.0
+   */
+  public boolean isUnsettable();
 }

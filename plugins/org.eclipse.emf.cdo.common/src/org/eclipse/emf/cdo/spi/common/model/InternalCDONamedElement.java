@@ -8,32 +8,16 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  **************************************************************************/
-package org.eclipse.emf.cdo.spi.common;
+package org.eclipse.emf.cdo.spi.common.model;
 
-import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
-import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
-import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
+import org.eclipse.emf.cdo.common.model.CDONamedElement;
 
 /**
  * @author Eike Stepper
  * @noimplement This interface is not intended to be implemented by clients.
+ * @since 2.0
  */
-public interface InternalCDORevisionDelta extends CDORevisionDelta
+public interface InternalCDONamedElement extends CDONamedElement, InternalCDOModelElement
 {
-  public void addFeatureDelta(CDOFeatureDelta delta);
-
-  /**
-   * @since 2.0
-   */
-  public void adjustReferences(CDOReferenceAdjuster idMappings);
-
-  /**
-   * @since 2.0
-   */
-  public void setOriginVersion(int originVersion);
-
-  /**
-   * @since 2.0
-   */
-  public void setDirtyVersion(int dirtyVersion);
+  public void setName(String name);
 }

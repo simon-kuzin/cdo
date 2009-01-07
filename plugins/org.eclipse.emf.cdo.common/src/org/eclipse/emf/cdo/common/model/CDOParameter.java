@@ -8,26 +8,14 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  **************************************************************************/
-package org.eclipse.emf.cdo.spi.common;
-
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOClassProxy;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
-
-import java.util.List;
+package org.eclipse.emf.cdo.common.model;
 
 /**
  * @author Eike Stepper
  * @noimplement This interface is not intended to be implemented by clients.
+ * @since 2.0
  */
-public interface InternalCDOClass extends CDOClass, InternalCDOClassifier
+public interface CDOParameter extends CDOTypedElement
 {
-  public void addSuperType(CDOClassRef classRef);
-
-  public void addFeature(CDOFeature cdoFeature);
-
-  public int getFeatureIndex(int featureID);
-
-  public List<CDOClassProxy> getSuperTypeProxies();
+  public CDOOperation getContainingOperation();
 }

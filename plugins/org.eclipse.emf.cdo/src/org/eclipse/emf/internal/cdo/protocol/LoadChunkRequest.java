@@ -14,8 +14,8 @@ import org.eclipse.emf.cdo.common.CDODataInput;
 import org.eclipse.emf.cdo.common.CDODataOutput;
 import org.eclipse.emf.cdo.common.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
-import org.eclipse.emf.cdo.spi.common.InternalCDORevision;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOFeature;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.emf.internal.cdo.bundle.OM;
 
@@ -33,7 +33,7 @@ public class LoadChunkRequest extends CDOClientRequest<Object>
 
   private InternalCDORevision revision;
 
-  private CDOFeature feature;
+  private InternalCDOFeature feature;
 
   private int accessIndex;
 
@@ -43,7 +43,7 @@ public class LoadChunkRequest extends CDOClientRequest<Object>
 
   private int fetchIndex;
 
-  public LoadChunkRequest(CDOClientProtocol protocol, InternalCDORevision revision, CDOFeature feature,
+  public LoadChunkRequest(CDOClientProtocol protocol, InternalCDORevision revision, InternalCDOFeature feature,
       int accessIndex, int fetchIndex, int fromIndex, int toIndex)
   {
     super(protocol, CDOProtocolConstants.SIGNAL_LOAD_CHUNK);

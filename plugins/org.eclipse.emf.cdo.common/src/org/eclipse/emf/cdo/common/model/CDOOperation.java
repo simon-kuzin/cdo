@@ -8,23 +8,14 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  **************************************************************************/
-package org.eclipse.emf.cdo.spi.common;
-
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
+package org.eclipse.emf.cdo.common.model;
 
 /**
  * @author Eike Stepper
  * @noimplement This interface is not intended to be implemented by clients.
+ * @since 2.0
  */
-public interface InternalCDOFeature extends CDOFeature, InternalCDOTypedElement
+public interface CDOOperation extends CDOTypedElement
 {
-  public void setContainingClass(CDOClass containingClass);
-
-  public void setFeatureIndex(int featureIndex);
-
-  /**
-   * @since 2.0
-   */
-  public void setDefaultValue(Object defaultValue);
+  public CDOClass getContainingClass();
 }

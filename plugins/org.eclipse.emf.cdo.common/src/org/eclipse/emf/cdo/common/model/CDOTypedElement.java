@@ -10,6 +10,7 @@
  **************************************************************************/
 package org.eclipse.emf.cdo.common.model;
 
+
 /**
  * @author Eike Stepper
  * @noimplement This interface is not intended to be implemented by clients.
@@ -17,11 +18,13 @@ package org.eclipse.emf.cdo.common.model;
  */
 public interface CDOTypedElement extends CDONamedElement
 {
-  public CDOType getType();
+  public CDOClassifier getType();
+
+  public int getLowerBound();
+
+  public int getUpperBound();
+
+  public boolean isRequired();
 
   public boolean isMany();
-
-  public boolean isReference();
-
-  public CDOClass getReferenceType();
 }

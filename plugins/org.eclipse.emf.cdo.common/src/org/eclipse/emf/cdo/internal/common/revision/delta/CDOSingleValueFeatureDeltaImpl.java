@@ -18,7 +18,7 @@ import org.eclipse.emf.cdo.common.model.CDOClass;
 import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
-import org.eclipse.emf.cdo.spi.common.InternalCDOFeature;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOFeature;
 
 import java.io.IOException;
 

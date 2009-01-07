@@ -15,9 +15,10 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
+import org.eclipse.emf.cdo.common.model.CDOClassifier;
 import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.common.model.CDOPackage;
+import org.eclipse.emf.cdo.common.model.CDOPackageManager;
 import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
@@ -41,7 +42,7 @@ public interface CDODataInput extends ExtendedDataInput
 
   public CDOType readCDOType() throws IOException;
 
-  public CDOClassRef readCDOClassRef() throws IOException;
+  public CDOClassifier readCDOClassifierRef(CDOPackageManager packageManager) throws IOException;
 
   public CDOClass readCDOClassRefAndResolve() throws IOException;
 
@@ -49,7 +50,7 @@ public interface CDODataInput extends ExtendedDataInput
 
   public CDOPackage readCDOPackage() throws IOException;
 
-  public CDOClass readCDOClass(CDOPackage containingPackage) throws IOException;
+  public CDOClassifier readCDOClassifier(CDOPackage containingPackage) throws IOException;
 
   public CDOFeature readCDOFeature(CDOClass containingClass) throws IOException;
 

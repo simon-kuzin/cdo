@@ -17,5 +17,17 @@ package org.eclipse.emf.cdo.common.model;
  */
 public interface CDOClassifier extends CDONamedElement
 {
+  public CDOPackage getContainingPackage();
+
   public int getClassifierID();
+
+  public Kind getClassifierKind();
+
+  /**
+   * @author Eike Stepper
+   */
+  public enum Kind
+  {
+    CLASS, TYPE, ENUM
+  }
 }

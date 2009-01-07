@@ -10,14 +10,16 @@
  **************************************************************************/
 package org.eclipse.emf.cdo.common.model;
 
+
 /**
  * @author Eike Stepper
+ * @since 2.0
  */
 public final class CDOClassProxy
 {
   private CDOPackageManager packageManager;
 
-  private CDOClassRef classRef;
+  private CDOClassifierRef classRef;
 
   private CDOClass cdoClass;
 
@@ -25,7 +27,7 @@ public final class CDOClassProxy
   {
   }
 
-  public CDOClassProxy(CDOClassRef classRef, CDOPackageManager packageManager)
+  public CDOClassProxy(CDOClassifierRef classRef, CDOPackageManager packageManager)
   {
     this.classRef = classRef;
     this.packageManager = packageManager;
@@ -82,7 +84,7 @@ public final class CDOClassProxy
     this.cdoClass = cdoClass;
   }
 
-  public CDOClassRef getClassRef()
+  public CDOClassifierRef getClassRef()
   {
     if (classRef == null)
     {

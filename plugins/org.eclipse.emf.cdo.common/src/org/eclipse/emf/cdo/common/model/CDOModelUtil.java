@@ -11,6 +11,7 @@
 package org.eclipse.emf.cdo.common.model;
 
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
+import org.eclipse.emf.cdo.common.model.CDOClassifier.Kind;
 import org.eclipse.emf.cdo.internal.common.model.CDOClassImpl;
 import org.eclipse.emf.cdo.internal.common.model.CDOClassRefImpl;
 import org.eclipse.emf.cdo.internal.common.model.CDOFeatureImpl;
@@ -19,6 +20,7 @@ import org.eclipse.emf.cdo.internal.common.model.CDOTypeImpl;
 
 /**
  * @author Eike Stepper
+ * @since 2.0
  */
 public final class CDOModelUtil
 {
@@ -71,8 +73,25 @@ public final class CDOModelUtil
     return new CDOFeatureImpl(containingClass, featureID, name, referenceType, many, containment);
   }
 
-  public static CDOClassRef createClassRef(String packageURI, int classifierID)
+  public static CDOClassifierRef createClassRef(String packageURI, int classifierID)
   {
     return new CDOClassRefImpl(packageURI, classifierID);
+  }
+
+  /**
+   * @since 2.0
+   */
+  public static CDOClassifier createClassifierRef(Kind kind, CDOPackageManager packageManager)
+  {
+    switch (kind)
+    {
+    case CLASS:
+      return new CDOClassRef(packageManager);
+    case TYPE:
+    case ENUM:
+
+    default:
+      throw new IllegalArgumentException("kind: " + kind);
+    }
   }
 }

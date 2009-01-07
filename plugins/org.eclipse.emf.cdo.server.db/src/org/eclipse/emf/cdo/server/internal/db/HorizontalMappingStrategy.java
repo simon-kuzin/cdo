@@ -13,7 +13,7 @@ package org.eclipse.emf.cdo.server.internal.db;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
+import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.common.model.resource.CDOResourceNodeClass;
 import org.eclipse.emf.cdo.common.model.resource.CDOResourcePackage;
@@ -64,12 +64,12 @@ public class HorizontalMappingStrategy extends MappingStrategy
     this.objectTypeCache = objectTypeCache;
   }
 
-  public CDOClassRef readObjectType(IDBStoreAccessor accessor, CDOID id)
+  public CDOClassifierRef readObjectType(IDBStoreAccessor accessor, CDOID id)
   {
     return objectTypeCache.getObjectType(accessor, id);
   }
 
-  protected final CDOClassRef readObjectTypeFromClassesWithObjectInfo(IDBStoreAccessor accessor, CDOID id)
+  protected final CDOClassifierRef readObjectTypeFromClassesWithObjectInfo(IDBStoreAccessor accessor, CDOID id)
   {
     String prefix = "SELECT DISTINCT " + CDODBSchema.ATTRIBUTES_CLASS + " FROM ";
     String suffix = " WHERE " + CDODBSchema.ATTRIBUTES_ID + "=" + id;

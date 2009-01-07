@@ -12,7 +12,7 @@ package org.eclipse.emf.cdo.server.db;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
+import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.internal.db.ServerInfo;
 
@@ -91,7 +91,7 @@ public interface IMappingStrategy
   /**
    * @since 2.0
    */
-  public CDOClassRef getClassRef(IDBStoreAccessor accessor, int classID);
+  public CDOClassifierRef getClassRef(IDBStoreAccessor accessor, int classID);
 
   /**
    * @since 2.0
@@ -101,7 +101,7 @@ public interface IMappingStrategy
   /**
    * @since 2.0
    */
-  public CDOClassRef readObjectType(IDBStoreAccessor accessor, CDOID id);
+  public CDOClassifierRef readObjectType(IDBStoreAccessor accessor, CDOID id);
 
   /**
    * @since 2.0

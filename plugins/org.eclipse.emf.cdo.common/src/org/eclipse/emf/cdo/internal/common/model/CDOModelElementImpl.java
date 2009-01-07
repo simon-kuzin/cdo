@@ -10,10 +10,8 @@
  **************************************************************************/
 package org.eclipse.emf.cdo.internal.common.model;
 
-import org.eclipse.emf.cdo.common.model.CDOPackage;
-import org.eclipse.emf.cdo.common.model.CDOPackageManager;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
-import org.eclipse.emf.cdo.spi.common.InternalCDOModelElement;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOModelElement;
 
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
@@ -24,34 +22,12 @@ public abstract class CDOModelElementImpl implements InternalCDOModelElement
 {
   private static final ContextTracer MODEL_TRACER = new ContextTracer(OM.DEBUG_MODEL, CDOModelElementImpl.class);
 
-  private CDOPackage containingPackage;
-
   private transient Object clientInfo;
 
   private transient Object serverInfo;
 
   protected CDOModelElementImpl()
   {
-  }
-
-  protected CDOModelElementImpl(CDOPackage containingPackage)
-  {
-    this.containingPackage = containingPackage;
-  }
-
-  public CDOPackage getContainingPackage()
-  {
-    return containingPackage;
-  }
-
-  public void setContainingPackage(CDOPackage containingPackage)
-  {
-    this.containingPackage = containingPackage;
-  }
-
-  public CDOPackageManager getPackageManager()
-  {
-    return containingPackage.getPackageManager();
   }
 
   public Object getClientInfo()

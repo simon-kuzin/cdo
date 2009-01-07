@@ -16,7 +16,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOClass;
 import org.eclipse.emf.cdo.common.model.CDOClassProxy;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
+import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackage;
@@ -37,10 +37,10 @@ import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IJDBCDelegate;
 import org.eclipse.emf.cdo.server.db.IMappingStrategy;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
-import org.eclipse.emf.cdo.spi.common.InternalCDOClass;
-import org.eclipse.emf.cdo.spi.common.InternalCDOFeature;
-import org.eclipse.emf.cdo.spi.common.InternalCDOPackage;
-import org.eclipse.emf.cdo.spi.common.InternalCDORevision;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOClass;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOFeature;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackage;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.db.DBUtil;
@@ -170,7 +170,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
         boolean isAbstract = getBoolean(values[3]);
         CDOClass cdoClass = CDOModelUtil.createClass(cdoPackage, classifierID, name, isAbstract);
         ClassServerInfo.setDBID(cdoClass, classID);
-        ((InternalCDOPackage)cdoPackage).addClass(cdoClass);
+        ((InternalCDOPackage)cdoPackage).addClassifier(cdoClass);
         readSuperTypes(cdoClass, classID);
         readFeatures(cdoClass, classID);
         return true;
@@ -217,7 +217,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
           String packageURI = (String)values[4];
           int classifierID = (Integer)values[5];
           boolean containment = getBoolean(values[7]);
-          CDOClassRef classRef = CDOModelUtil.createClassRef(packageURI, classifierID);
+          CDOClassifierRef classRef = CDOModelUtil.createClassRef(packageURI, classifierID);
           CDOClassProxy referenceType = new CDOClassProxy(classRef, cdoClass.getPackageManager());
           feature = CDOModelUtil.createReference(cdoClass, featureID, name, referenceType, many, containment);
         }
@@ -263,7 +263,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     return getStore().getMappingStrategy().readObjectIDs(this);
   }
 
-  public CDOClassRef readObjectType(CDOID id)
+  public CDOClassifierRef readObjectType(CDOID id)
   {
     if (TRACER.isEnabled())
     {
@@ -273,7 +273,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     return getStore().getMappingStrategy().readObjectType(this, id);
   }
 
-  public final CDOClassRef readClassRef(int classID)
+  public final CDOClassifierRef readClassRef(int classID)
   {
     String where = CDODBSchema.CLASSES_ID.getName() + "=" + classID;
     Object[] res = DBUtil.select(jdbcDelegate.getConnection(), where, CDODBSchema.CLASSES_CLASSIFIER,
@@ -354,7 +354,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     // TODO Replace calls to getObjectType by optimized calls to RevisionManager.getObjectType (cache!)
     IRepository repository = getStore().getRepository();
     IPackageManager packageManager = repository.getPackageManager();
-    CDOClassRef type = readObjectType(id);
+    CDOClassifierRef type = readObjectType(id);
     return type.resolve(packageManager);
   }
 

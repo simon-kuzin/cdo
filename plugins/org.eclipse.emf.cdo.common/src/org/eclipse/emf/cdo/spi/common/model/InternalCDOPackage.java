@@ -8,44 +8,49 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  **************************************************************************/
-package org.eclipse.emf.cdo.spi.common;
+package org.eclipse.emf.cdo.spi.common.model;
 
-import org.eclipse.emf.cdo.common.CDODataInput;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
-import org.eclipse.emf.cdo.common.model.CDOClass;
+import org.eclipse.emf.cdo.common.model.CDOClassifier;
 import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.common.model.CDOPackageManager;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
  * @author Eike Stepper
  * @noimplement This interface is not intended to be implemented by clients.
+ * @since 2.0
  */
 public interface InternalCDOPackage extends CDOPackage, InternalCDONamedElement
 {
+  public State getState();
+
+  public void setState(State state);
+
   public void setPackageManager(CDOPackageManager packageManager);
 
-  public void setPersistent(boolean persistent);
+  public void setPackageURI(String packageURI);
+
+  public void setParentURI(String parentURI);
+
+  public void setDynamic(boolean dynamic);
 
   public void setMetaIDRange(CDOIDMetaRange metaIDRange);
 
   public void setEcore(String ecore);
 
-  /**
-   * @since 2.0
-   */
   public String basicGetEcore();
 
-  public void addClass(CDOClass cdoClass);
+  public void setClassifiers(List<CDOClassifier> classifiers);
 
-  public void setClasses(List<CDOClass> classes);
+  public void addClassifier(CDOClassifier cdoClassifier);
 
   /**
-   * Fill a proxy package with data from a stream.
-   * 
-   * @since 2.0
+   * @author Eike Stepper
    */
-  public void read(CDODataInput in) throws IOException;
+  public enum State
+  {
+    NEW, CLEAN, PROXY
+  }
 }

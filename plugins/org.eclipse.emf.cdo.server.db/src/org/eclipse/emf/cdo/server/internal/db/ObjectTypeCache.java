@@ -13,7 +13,7 @@ package org.eclipse.emf.cdo.server.internal.db;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
+import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IMappingStrategy;
 import org.eclipse.emf.cdo.server.db.IObjectTypeCache;
@@ -61,7 +61,7 @@ public class ObjectTypeCache extends Lifecycle implements IObjectTypeCache
     this.mappingStrategy = mappingStrategy;
   }
 
-  public final CDOClassRef getObjectType(IDBStoreAccessor accessor, CDOID id)
+  public final CDOClassifierRef getObjectType(IDBStoreAccessor accessor, CDOID id)
   {
     Statement statement = accessor.getJDBCDelegate().getStatement();
     initialize(statement);

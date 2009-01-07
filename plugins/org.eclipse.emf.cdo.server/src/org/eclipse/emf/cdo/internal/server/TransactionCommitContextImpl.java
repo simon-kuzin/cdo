@@ -25,10 +25,10 @@ import org.eclipse.emf.cdo.internal.common.revision.CDOIDMapper;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.StoreThreadLocal;
-import org.eclipse.emf.cdo.spi.common.InternalCDOPackage;
-import org.eclipse.emf.cdo.spi.common.InternalCDOPackageManager;
-import org.eclipse.emf.cdo.spi.common.InternalCDORevision;
-import org.eclipse.emf.cdo.spi.common.InternalCDORevisionDelta;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackage;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageManager;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
 
 import org.eclipse.net4j.util.ObjectUtil;
 import org.eclipse.net4j.util.StringUtil;

@@ -17,12 +17,12 @@ import org.eclipse.emf.cdo.common.model.CDOPackageManager;
 import org.eclipse.emf.cdo.common.model.resource.CDONodesFeature;
 import org.eclipse.emf.cdo.common.model.resource.CDOResourceNodeClass;
 import org.eclipse.emf.cdo.common.model.resource.CDOResourcePackage;
-import org.eclipse.emf.cdo.internal.common.model.CDOFeatureImpl;
+import org.eclipse.emf.cdo.internal.common.model.CDOReferenceImpl;
 
 /**
  * @author Eike Stepper
  */
-public class CDONodesFeatureImpl extends CDOFeatureImpl implements CDONodesFeature
+public class CDONodesFeatureImpl extends CDOReferenceImpl implements CDONodesFeature
 {
   public CDONodesFeatureImpl(CDOClass containingClass, CDOPackageManager packageManager)
   {

@@ -8,16 +8,13 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  **************************************************************************/
-package org.eclipse.emf.cdo.spi.common;
-
-import org.eclipse.emf.cdo.common.model.CDOClassifier;
+package org.eclipse.emf.cdo.common.model;
 
 /**
  * @author Eike Stepper
  * @noimplement This interface is not intended to be implemented by clients.
  * @since 2.0
  */
-public interface InternalCDOClassifier extends CDOClassifier, InternalCDONamedElement
+public interface CDOEnumLiteral extends CDONamedElement
 {
-  public void setClassifierID(int classifierID);
 }

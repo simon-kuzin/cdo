@@ -12,7 +12,7 @@ package org.eclipse.emf.cdo.server.db;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
+import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 
 /**
  * @author Eike Stepper
@@ -22,7 +22,7 @@ public interface IObjectTypeCache
   /**
    * @since 2.0
    */
-  public CDOClassRef getObjectType(IDBStoreAccessor accessor, CDOID id);
+  public CDOClassifierRef getObjectType(IDBStoreAccessor accessor, CDOID id);
 
   /**
    * @since 2.0

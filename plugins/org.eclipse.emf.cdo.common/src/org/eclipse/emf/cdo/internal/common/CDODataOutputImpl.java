@@ -16,7 +16,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOID.Type;
 import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
+import org.eclipse.emf.cdo.common.model.CDOClassifier;
 import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.common.model.CDOPackageURICompressor;
@@ -28,15 +28,14 @@ import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.internal.common.id.CDOIDAndVersionImpl;
-import org.eclipse.emf.cdo.internal.common.model.CDOClassRefImpl;
 import org.eclipse.emf.cdo.internal.common.model.CDOTypeImpl;
 import org.eclipse.emf.cdo.internal.common.revision.delta.CDOFeatureDeltaImpl;
 import org.eclipse.emf.cdo.internal.common.revision.delta.CDORevisionDeltaImpl;
-import org.eclipse.emf.cdo.spi.common.AbstractCDOID;
-import org.eclipse.emf.cdo.spi.common.InternalCDOClass;
-import org.eclipse.emf.cdo.spi.common.InternalCDOFeature;
-import org.eclipse.emf.cdo.spi.common.InternalCDOPackage;
-import org.eclipse.emf.cdo.spi.common.InternalCDORevision;
+import org.eclipse.emf.cdo.spi.common.id.AbstractCDOID;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOClass;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOFeature;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackage;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.util.concurrent.RWLockManager;
 import org.eclipse.net4j.util.io.ExtendedDataOutput;
@@ -168,7 +167,7 @@ public abstract class CDODataOutputImpl implements CDODataOutput
 
   public void writeCDOType(CDOType cdoType) throws IOException
   {
-    ((CDOTypeImpl)cdoType).write(this);
+    ((CDOTypeImpl)cdoType).write(this, null);
   }
 
   public void writeCDOPackageURI(String uri) throws IOException
@@ -176,29 +175,31 @@ public abstract class CDODataOutputImpl implements CDODataOutput
     getPackageURICompressor().writePackageURI(this, uri);
   }
 
-  public void writeCDOClassRef(CDOClassRef cdoClassRef) throws IOException
+  public void writeCDOClassifierRef(CDOClassifier cdoClassifier) throws IOException
   {
-    ((CDOClassRefImpl)cdoClassRef).write(this);
+    writeByte(cdoClassifier.getClassifierKind().ordinal());
+    cdoClassifier.writeRef(this);
   }
 
   public void writeCDOClassRef(CDOClass cdoClass) throws IOException
   {
-    writeCDOClassRef(cdoClass.createClassRef());
+    writeCDOClassifierRef(cdoClass.createClassRef());
   }
 
   public void writeCDOPackage(CDOPackage cdoPackage) throws IOException
   {
-    ((InternalCDOPackage)cdoPackage).write(this);
+    ((InternalCDOPackage)cdoPackage).write(this, null);
   }
 
-  public void writeCDOClass(CDOClass cdoClass) throws IOException
+  public void writeCDOClassifier(CDOClassifier cdoClassifier) throws IOException
   {
-    ((InternalCDOClass)cdoClass).write(this);
+    writeByte(cdoClassifier.getClassifierKind().ordinal());
+    ((InternalCDOClass)cdoClassifier).write(this, null);
   }
 
   public void writeCDOFeature(CDOFeature cdoFeature) throws IOException
   {
-    ((InternalCDOFeature)cdoFeature).write(this);
+    ((InternalCDOFeature)cdoFeature).write(this, null);
   }
 
   public void writeCDOID(CDOID id) throws IOException
@@ -360,7 +361,7 @@ public abstract class CDODataOutputImpl implements CDODataOutput
     if (value instanceof CDOClass)
     {
       writeBoolean(true);
-      writeCDOClassRef(((CDOClass)value).createClassRef());
+      writeCDOClassifierRef(((CDOClass)value).createClassRef());
     }
     else
     {

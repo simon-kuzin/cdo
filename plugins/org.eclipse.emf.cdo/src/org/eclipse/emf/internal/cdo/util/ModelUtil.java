@@ -14,7 +14,7 @@ package org.eclipse.emf.internal.cdo.util;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.model.CDOClass;
 import org.eclipse.emf.cdo.common.model.CDOClassProxy;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
+import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackage;
@@ -27,9 +27,9 @@ import org.eclipse.emf.cdo.common.model.resource.CDOResourceNodeClass;
 import org.eclipse.emf.cdo.common.model.resource.CDOResourcePackage;
 import org.eclipse.emf.cdo.common.util.CDOException;
 import org.eclipse.emf.cdo.eresource.EresourcePackage;
-import org.eclipse.emf.cdo.spi.common.InternalCDOClass;
-import org.eclipse.emf.cdo.spi.common.InternalCDOFeature;
-import org.eclipse.emf.cdo.spi.common.InternalCDOPackage;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOClass;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOFeature;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackage;
 import org.eclipse.emf.cdo.util.CDOPackageRegistry;
 import org.eclipse.emf.cdo.util.EMFUtil;
 
@@ -135,7 +135,7 @@ public final class ModelUtil
     for (EClass eClass : EMFUtil.getPersistentClasses(ePackage))
     {
       CDOClass cdoClass = createCDOClass(eClass, cdoPackage);
-      ((InternalCDOPackage)cdoPackage).addClass(cdoClass);
+      ((InternalCDOPackage)cdoPackage).addClassifier(cdoClass);
     }
   }
 
@@ -222,7 +222,7 @@ public final class ModelUtil
 
     for (EClass superType : eClass.getESuperTypes())
     {
-      CDOClassRef classRef = createClassRef(superType);
+      CDOClassifierRef classRef = createClassRef(superType);
       cdoClass.addSuperType(classRef);
     }
 
@@ -251,7 +251,7 @@ public final class ModelUtil
     CDOPackageManager packageManager = containingClass.getPackageManager();
     int featureID = eFeature.getFeatureID();
     String name = eFeature.getName();
-    CDOClassRef classRef = createClassRef(eFeature.getEType());
+    CDOClassifierRef classRef = createClassRef(eFeature.getEType());
     boolean many = eFeature.isMany();
     boolean containment = EMFUtil.isContainment(eFeature);
     CDOFeature cdoFeature = CDOModelUtil.createReference(containingClass, featureID, name, new CDOClassProxy(classRef,
@@ -380,7 +380,7 @@ public final class ModelUtil
     return result;
   }
 
-  public static CDOClassRef createClassRef(EClassifier classifier)
+  public static CDOClassifierRef createClassRef(EClassifier classifier)
   {
     if (classifier instanceof EClass)
     {

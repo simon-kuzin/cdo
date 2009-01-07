@@ -18,27 +18,13 @@ import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
  */
 public interface CDOPackage extends CDONamedElement, Comparable<CDOPackage>
 {
-  public CDOPackageManager getPackageManager();
-
   public String getPackageURI();
-
-  public int getClassCount();
-
-  public CDOClass[] getClasses();
-
-  public CDOClass[] getConcreteClasses();
-
-  public CDOClass lookupClass(int classifierID);
-
-  public String getEcore();
 
   public boolean isSystem();
 
   public boolean isDynamic();
 
-  public boolean isProxy();
-
-  public boolean isPersistent();
+  public String getEcore();
 
   public CDOIDMetaRange getMetaIDRange();
 
@@ -49,4 +35,27 @@ public interface CDOPackage extends CDONamedElement, Comparable<CDOPackage>
   public CDOPackage getTopLevelPackage();
 
   public CDOPackage[] getSubPackages(boolean recursive);
+
+  /**
+   * @since 2.0
+   */
+  public CDOClassifier lookupClassifier(int classifierID);
+
+  /**
+   * @since 2.0
+   */
+  public int getClassifierCount();
+
+  /**
+   * @since 2.0
+   */
+  public CDOClassifier[] getClassifiers();
+
+  public CDOClass lookupClass(int classifierID);
+
+  public int getClassCount();
+
+  public CDOClass[] getClasses();
+
+  public CDOClass[] getConcreteClasses();
 }

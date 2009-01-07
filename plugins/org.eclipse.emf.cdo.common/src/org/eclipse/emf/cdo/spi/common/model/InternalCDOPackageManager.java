@@ -8,34 +8,26 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  **************************************************************************/
-package org.eclipse.emf.cdo.spi.common;
+package org.eclipse.emf.cdo.spi.common.model;
 
-import org.eclipse.emf.cdo.common.id.CDOIDObject;
+import org.eclipse.emf.cdo.common.model.CDOPackage;
+import org.eclipse.emf.cdo.common.model.CDOPackageManager;
 
 /**
  * @author Eike Stepper
+ * @since 2.0
  */
-public class CDOIDLongImpl extends AbstractCDOIDLong implements CDOIDObject
+public interface InternalCDOPackageManager extends CDOPackageManager
 {
-  private static final long serialVersionUID = 1L;
+  /**
+   * @param cdoPackage
+   *          A proxy CDO package.
+   */
+  public void loadPackage(CDOPackage cdoPackage);
 
-  public CDOIDLongImpl()
-  {
-  }
-
-  public CDOIDLongImpl(long value)
-  {
-    super(value);
-  }
-
-  public Type getType()
-  {
-    return Type.OBJECT;
-  }
-
-  @Override
-  public String toString()
-  {
-    return "OID" + getLongValue();
-  }
+  /**
+   * @param cdoPackage
+   *          A CDO package with <code>ecore == null</code>.
+   */
+  public void loadPackageEcore(CDOPackage cdoPackage);
 }

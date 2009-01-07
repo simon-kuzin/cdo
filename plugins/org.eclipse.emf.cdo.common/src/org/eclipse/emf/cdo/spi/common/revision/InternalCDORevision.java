@@ -9,7 +9,7 @@
  *    Eike Stepper - initial API and implementation
  *    Simon McDuff - maintenance
  **************************************************************************/
-package org.eclipse.emf.cdo.spi.common;
+package org.eclipse.emf.cdo.spi.common.revision;
 
 import org.eclipse.emf.cdo.common.CDODataOutput;
 import org.eclipse.emf.cdo.common.id.CDOID;
@@ -24,6 +24,7 @@ import java.io.IOException;
 
 /**
  * @author Eike Stepper
+ * @since 2.0
  */
 public interface InternalCDORevision extends CDORevision, CDORevisionData, CDOReferenceAdjustable
 {
@@ -31,8 +32,6 @@ public interface InternalCDORevision extends CDORevision, CDORevisionData, CDORe
 
   /**
    * The equivalent of <code>EStructuralFeatureImpl.NIL</code> (i.e. explicit <code>null</code>).
-   * 
-   * @since 2.0
    */
   public static final Object NIL = new Object();
 
@@ -50,9 +49,6 @@ public interface InternalCDORevision extends CDORevision, CDORevisionData, CDORe
 
   public void setResourceID(CDOID resourceID);
 
-  /**
-   * @since 2.0
-   */
   public void setContainerID(Object containerID);
 
   public void setContainingFeatureID(int containingFeatureID);
@@ -78,26 +74,16 @@ public interface InternalCDORevision extends CDORevision, CDORevisionData, CDORe
 
   /**
    * Use this method to retrieved {@link InternalCDORevision#NIL} object in some cases.
-   * 
-   * @since 2.0
    */
   public Object basicGet(CDOFeature feature, int index);
 
   /**
    * Use this method to retrieved {@link InternalCDORevision#NIL} object in some cases.
-   * 
-   * @since 2.0
    */
   public Object basicSet(CDOFeature feature, int index, Object value);
 
-  /**
-   * @since 2.0
-   */
   public void setList(CDOFeature feature, InternalCDOList list);
 
-  /**
-   * @since 2.0
-   */
   public CDOList getList(CDOFeature feature);
 
   /**
@@ -111,8 +97,5 @@ public interface InternalCDORevision extends CDORevision, CDORevisionData, CDORe
   @Deprecated
   public void setListSize(CDOFeature feature, int size);
 
-  /**
-   * @since 2.0
-   */
   public void write(CDODataOutput out, int referenceChunk) throws IOException;
 }

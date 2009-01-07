@@ -8,26 +8,15 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  **************************************************************************/
-package org.eclipse.emf.cdo.spi.common;
+package org.eclipse.emf.cdo.spi.common.model;
 
-import org.eclipse.emf.cdo.common.model.CDOPackage;
-import org.eclipse.emf.cdo.common.model.CDOPackageManager;
+import org.eclipse.emf.cdo.common.model.CDOAttribute;
 
 /**
  * @author Eike Stepper
+ * @noimplement This interface is not intended to be implemented by clients.
  * @since 2.0
  */
-public interface InternalCDOPackageManager extends CDOPackageManager
+public interface InternalCDOAttribute extends CDOAttribute, InternalCDOFeature
 {
-  /**
-   * @param cdoPackage
-   *          A proxy CDO package.
-   */
-  public void loadPackage(CDOPackage cdoPackage);
-
-  /**
-   * @param cdoPackage
-   *          A CDO package with <code>ecore == null</code>.
-   */
-  public void loadPackageEcore(CDOPackage cdoPackage);
 }

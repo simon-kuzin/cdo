@@ -21,7 +21,7 @@ public interface CDOIDObjectFactory
   /**
    * Returns a new instance of CDOIDObject. The implementor of this method may use (read from) the given data input to
    * determine which class to instantiate. The data input must not be used to fill the state of the new instance, this
-   * has to be done in the implementation of the {@link CDOID#read(ExtendedDataInput) read()} method of the new
+   * has to be done in the implementation of the {@link CDOID#read(ExtendedDataInput, boolean) read()} method of the new
    * instance.
    */
   public CDOIDObject createCDOIDObject(ExtendedDataInput in);

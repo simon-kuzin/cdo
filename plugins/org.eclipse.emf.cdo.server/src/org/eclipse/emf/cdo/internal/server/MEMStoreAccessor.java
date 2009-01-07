@@ -14,7 +14,7 @@ package org.eclipse.emf.cdo.internal.server;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
+import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
@@ -24,7 +24,7 @@ import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.server.IQueryContext;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.ITransaction;
-import org.eclipse.emf.cdo.spi.common.InternalCDORevision;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.util.WrappedException;
 import org.eclipse.net4j.util.collection.CloseableIterator;
@@ -95,7 +95,10 @@ public class MEMStoreAccessor extends StoreAccessor
     throw new UnsupportedOperationException();
   }
 
-  public CDOClassRef readObjectType(CDOID id)
+  /**
+   * @since 2.0
+   */
+  public CDOClassifierRef readObjectType(CDOID id)
   {
     InternalCDORevision storeRevision = (InternalCDORevision)getStore().getRevision(id);
     return storeRevision.getCDOClass().createClassRef();

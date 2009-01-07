@@ -14,7 +14,7 @@ package org.eclipse.emf.cdo.server.internal.db;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
+import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.common.model.resource.CDOResourceClass;
@@ -62,7 +62,7 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
 
   private Map<Object, IDBTable> referenceTables = new HashMap<Object, IDBTable>();
 
-  private Map<Integer, CDOClassRef> classRefs = new HashMap<Integer, CDOClassRef>();
+  private Map<Integer, CDOClassifierRef> classRefs = new HashMap<Integer, CDOClassifierRef>();
 
   public MappingStrategy()
   {
@@ -140,9 +140,9 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
     return referenceTables;
   }
 
-  public CDOClassRef getClassRef(IDBStoreAccessor accessor, int classID)
+  public CDOClassifierRef getClassRef(IDBStoreAccessor accessor, int classID)
   {
-    CDOClassRef classRef = classRefs.get(classID);
+    CDOClassifierRef classRef = classRefs.get(classID);
     if (classRef == null)
     {
       switch (classID)
