@@ -14,6 +14,7 @@ import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDLibraryDescriptor;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
+import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.common.model.CDOPackage;
@@ -27,7 +28,6 @@ import org.eclipse.emf.cdo.transaction.CDOTimeStampContext;
 import org.eclipse.emf.cdo.view.CDOView;
 
 import org.eclipse.emf.internal.cdo.query.CDOAbstractQueryIteratorImpl;
-import org.eclipse.emf.internal.cdo.revision.CDOPostCommitReferenceAdjuster;
 
 import org.eclipse.net4j.util.concurrent.RWLockManager.LockType;
 import org.eclipse.net4j.util.io.ExtendedDataInput;
@@ -35,6 +35,7 @@ import org.eclipse.net4j.util.io.ExtendedDataOutput;
 import org.eclipse.net4j.util.io.StringCompressor;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 
+import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.spi.cdo.InternalCDOTransaction.InternalCDOCommitContext;
 import org.eclipse.emf.spi.cdo.InternalCDOXATransaction.InternalCDOXACommitContext;
 
@@ -314,8 +315,7 @@ public interface CDOSessionProtocol
     {
       if (referenceAdjuster == null)
       {
-        referenceAdjuster = new CDOPostCommitReferenceAdjuster(commitContext.getTransaction(), new CDOIDMapper(
-            idMappings));
+        referenceAdjuster = createReferenceAdjuster();
       }
 
       return referenceAdjuster;
@@ -349,6 +349,52 @@ public interface CDOSessionProtocol
     public void addIDMapping(CDOIDTemp oldID, CDOID newID)
     {
       idMappings.put(oldID, newID);
+    }
+
+    protected PostCommitReferenceAdjuster createReferenceAdjuster()
+    {
+      return new PostCommitReferenceAdjuster(commitContext.getTransaction(), new CDOIDMapper(idMappings));
+    }
+
+    /**
+     * @author Simon McDuff
+     */
+    protected static class PostCommitReferenceAdjuster implements CDOReferenceAdjuster
+    {
+      private CDOIDProvider idProvider;
+
+      private CDOIDMapper idMapper;
+
+      public PostCommitReferenceAdjuster(CDOIDProvider idProvider, CDOIDMapper idMapper)
+      {
+        this.idProvider = idProvider;
+        this.idMapper = idMapper;
+      }
+
+      public CDOIDProvider getIdProvider()
+      {
+        return idProvider;
+      }
+
+      public CDOIDMapper getIdMapper()
+      {
+        return idMapper;
+      }
+
+      public Object adjustReference(Object id)
+      {
+        if (id == null)
+        {
+          return null;
+        }
+
+        if (idProvider != null && (id instanceof CDOID || id instanceof InternalEObject))
+        {
+          id = idProvider.provideCDOID(id);
+        }
+
+        return idMapper.adjustReference(id);
+      }
     }
   }
 }
