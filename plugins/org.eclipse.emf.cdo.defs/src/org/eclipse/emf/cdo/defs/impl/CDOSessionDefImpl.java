@@ -10,7 +10,7 @@
  *    André Dietisheim - initial API and implementation
  * </copyright>
  *
- * $Id: CDOSessionDefImpl.java,v 1.2 2009-01-10 07:56:10 estepper Exp $
+ * $Id: CDOSessionDefImpl.java,v 1.2.2.1 2009-01-10 08:37:30 estepper Exp $
  */
 package org.eclipse.emf.cdo.defs.impl;
 
@@ -18,10 +18,10 @@ import org.eclipse.emf.cdo.defs.CDODefsPackage;
 import org.eclipse.emf.cdo.defs.CDOPackageRegistryDef;
 import org.eclipse.emf.cdo.defs.CDOSessionDef;
 import org.eclipse.emf.cdo.defs.FailOverStrategyDef;
+import org.eclipse.emf.cdo.net4j.CDONet4jUtil;
 import org.eclipse.emf.cdo.session.CDOPackageRegistry;
 import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.session.CDOSessionConfiguration;
-import org.eclipse.emf.cdo.util.CDOUtil;
 
 import org.eclipse.emf.internal.cdo.session.CDOSessionConfigurationImpl;
 
@@ -580,7 +580,7 @@ public class CDOSessionDefImpl extends DefImpl implements CDOSessionDef
   @Override
   protected CDOSession createInstance()
   {
-    CDOSessionConfiguration configuration = CDOUtil.createSessionConfiguration();
+    CDOSessionConfiguration configuration = CDONet4jUtil.createSessionConfiguration();
 
     if (isSetConnectorDef())
     {

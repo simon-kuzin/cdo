@@ -22,7 +22,6 @@ import org.eclipse.emf.cdo.tests.model1.Model1Factory;
 import org.eclipse.emf.cdo.tests.model1.Model1Package;
 import org.eclipse.emf.cdo.tests.model1.Product1;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
-import org.eclipse.emf.cdo.util.CDOUtil;
 
 import org.eclipse.net4j.Net4jUtil;
 import org.eclipse.net4j.connector.IConnector;
@@ -54,7 +53,7 @@ public class ImportXML
     Net4jUtil.prepareContainer(container); // Prepare the Net4j kernel
     JVMUtil.prepareContainer(container); // Prepare the JVM transport
     CDOServerUtil.prepareContainer(container); // Prepare the CDO server
-    CDOUtil.prepareContainer(container); // Prepare the CDO client
+    org.eclipse.emf.cdo.net4j.CDONet4jUtil.prepareContainer(container); // Prepare the CDO client
     container.activate();
 
     // Start the transport and create a repository
@@ -112,7 +111,7 @@ public class ImportXML
 
   protected static CDOSession openSession(IConnector connector)
   {
-    CDOSessionConfiguration configuration = CDOUtil.createSessionConfiguration();
+    CDOSessionConfiguration configuration = org.eclipse.emf.cdo.net4j.CDONet4jUtil.createSessionConfiguration();
     configuration.setConnector(connector);
     configuration.setRepositoryName(REPOSITORY_NAME);
     return configuration.openSession();

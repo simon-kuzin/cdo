@@ -101,13 +101,13 @@ public interface CDOSessionConfiguration
   public void setRevisionCache(CDORevisionCache revisionCache);
 
   /**
+   * Returns <code>true</code> if the session for this configuration is currently open, <code>false</code> otherwise.
+   */
+  public boolean isSessionOpen();
+
+  /**
    * Opens the session for this configuration. Once the session is openend this method always returns the same session
    * instance. Therefore it is impossible to change this configuration while the session is open.
    */
   public CDOSession openSession();
-
-  /**
-   * Returns <code>true</code> if the session for this configuration is currently open, <code>false</code> otherwise.
-   */
-  public boolean isSessionOpen();
 }

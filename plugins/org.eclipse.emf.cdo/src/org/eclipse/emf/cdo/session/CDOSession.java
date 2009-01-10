@@ -16,6 +16,7 @@ import org.eclipse.emf.cdo.common.CDOCommonSession;
 import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionFactory;
+import org.eclipse.emf.cdo.net4j.CDOSessionProtocol;
 import org.eclipse.emf.cdo.transaction.CDOTimeStampContext;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.cdo.util.CDOEvent;
@@ -207,7 +208,7 @@ public interface CDOSession extends CDOCommonSession, IContainer<CDOView>, IOpti
      * </ol>
      * Example:
      * <p>
-     * <code>CDOUtil.createCollectionLoadingPolicy(initialElements, subsequentElements);</code>
+     * <code>CDONet4jUtil.createCollectionLoadingPolicy(initialElements, subsequentElements);</code>
      * <p>
      * The user can also provide its own implementation of the CDOCollectionLoadingPolicy interface.
      */

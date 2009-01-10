@@ -18,7 +18,6 @@ import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.session.CDOCollectionLoadingPolicy;
 import org.eclipse.emf.cdo.session.CDOPackageRegistry;
 import org.eclipse.emf.cdo.session.CDOSession;
-import org.eclipse.emf.cdo.session.CDOSessionConfiguration;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.cdo.transaction.CDOXATransaction;
 import org.eclipse.emf.cdo.view.CDORevisionPrefetchingPolicy;
@@ -26,28 +25,19 @@ import org.eclipse.emf.cdo.view.CDOView;
 import org.eclipse.emf.cdo.view.CDOViewSet;
 
 import org.eclipse.emf.internal.cdo.CDOStateMachine;
-import org.eclipse.emf.internal.cdo.protocol.CDOClientProtocolFactory;
 import org.eclipse.emf.internal.cdo.session.CDOCollectionLoadingPolicyImpl;
 import org.eclipse.emf.internal.cdo.session.CDOPackageRegistryImpl;
-import org.eclipse.emf.internal.cdo.session.CDOSessionConfigurationImpl;
 import org.eclipse.emf.internal.cdo.transaction.CDOXATransactionImpl;
 import org.eclipse.emf.internal.cdo.util.FSMUtil;
 import org.eclipse.emf.internal.cdo.view.CDORevisionPrefetchingPolicyImpl;
 
-import org.eclipse.net4j.util.container.IManagedContainer;
 
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.ecore.EAttribute;
-import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EGenericType;
 import org.eclipse.emf.ecore.EModelElement;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.emf.ecore.EReference;
-import org.eclipse.emf.ecore.EcoreFactory;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.EStringToStringMapEntryImpl;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -64,11 +54,6 @@ public final class CDOUtil
 {
   private CDOUtil()
   {
-  }
-
-  public static CDOSessionConfiguration createSessionConfiguration()
-  {
-    return new CDOSessionConfigurationImpl();
   }
 
   /**
@@ -167,54 +152,6 @@ public final class CDOUtil
     }
 
     return null;
-  }
-
-  /**
-   * @since 2.0
-   */
-  public static void prepareContainer(IManagedContainer container)
-  {
-    container.registerFactory(new CDOClientProtocolFactory());
-  }
-
-  public static EPackage createEPackage(String name, String nsPrefix, String nsURI)
-  {
-    EPackage ePackage = EcoreFactory.eINSTANCE.createEPackage();
-    ePackage.setName(name);
-    ePackage.setNsPrefix(nsPrefix);
-    ePackage.setNsURI(nsURI);
-    return ePackage;
-  }
-
-  public static EClass createEClass(EPackage ePackage, String name, boolean isAbstract, boolean isInterface)
-  {
-    EClass eClass = EcoreFactory.eINSTANCE.createEClass();
-    eClass.setName(name);
-    eClass.setAbstract(isAbstract);
-    eClass.setInterface(isInterface);
-    ePackage.getEClassifiers().add(eClass);
-    return eClass;
-  }
-
-  public static EAttribute createEAttribute(EClass eClass, String name, EClassifier type)
-  {
-    EAttribute eAttribute = EcoreFactory.eINSTANCE.createEAttribute();
-    eAttribute.setName(name);
-    eAttribute.setEType(type);
-    eClass.getEStructuralFeatures().add(eAttribute);
-    return eAttribute;
-  }
-
-  public static EReference createEReference(EClass eClass, String name, EClassifier type, boolean isRequired,
-      boolean isMany)
-  {
-    EReference eReference = EcoreFactory.eINSTANCE.createEReference();
-    eReference.setName(name);
-    eReference.setEType(type);
-    eReference.setLowerBound(isRequired ? 1 : 0);
-    eReference.setUpperBound(isMany ? -1 : 0);
-    eClass.getEStructuralFeatures().add(eReference);
-    return eReference;
   }
 
   public static void load(EObject eObject, CDOView view)

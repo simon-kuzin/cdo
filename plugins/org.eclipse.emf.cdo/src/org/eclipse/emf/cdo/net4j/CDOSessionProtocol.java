@@ -8,9 +8,10 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  **************************************************************************/
-package org.eclipse.emf.cdo.session;
+package org.eclipse.emf.cdo.net4j;
 
 import org.eclipse.emf.cdo.common.CDOCommonSession;
+import org.eclipse.emf.cdo.session.CDOSession;
 
 import org.eclipse.net4j.signal.ISignalProtocol;
 

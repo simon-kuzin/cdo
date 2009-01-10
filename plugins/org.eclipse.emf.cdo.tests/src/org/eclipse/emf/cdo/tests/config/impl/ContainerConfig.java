@@ -12,7 +12,6 @@ package org.eclipse.emf.cdo.tests.config.impl;
 
 import org.eclipse.emf.cdo.server.CDOServerUtil;
 import org.eclipse.emf.cdo.tests.config.IContainerConfig;
-import org.eclipse.emf.cdo.util.CDOUtil;
 
 import org.eclipse.net4j.Net4jUtil;
 import org.eclipse.net4j.util.container.ContainerUtil;
@@ -96,7 +95,7 @@ public abstract class ContainerConfig extends Config implements IContainerConfig
     {
       IManagedContainer container = ContainerUtil.createContainer();
       Net4jUtil.prepareContainer(container);
-      CDOUtil.prepareContainer(container);
+      org.eclipse.emf.cdo.net4j.CDONet4jUtil.prepareContainer(container);
       CDOServerUtil.prepareContainer(container);
       return container;
     }
@@ -144,7 +143,7 @@ public abstract class ContainerConfig extends Config implements IContainerConfig
     {
       IManagedContainer container = ContainerUtil.createContainer();
       Net4jUtil.prepareContainer(container);
-      CDOUtil.prepareContainer(container);
+      org.eclipse.emf.cdo.net4j.CDONet4jUtil.prepareContainer(container);
       return container;
     }
 
