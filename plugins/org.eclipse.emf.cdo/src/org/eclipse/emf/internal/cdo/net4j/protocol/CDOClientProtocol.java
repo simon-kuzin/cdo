@@ -85,9 +85,9 @@ public class CDOClientProtocol extends CDOProtocolImpl implements CDOSessionProt
     return send(new RepositoryTimeRequest(this));
   }
 
-  public String loadPackage(CDOPackage cdoPackage, boolean onlyEcore)
+  public void loadPackage(CDOPackage cdoPackage, boolean onlyEcore)
   {
-    return send(new LoadPackageRequest(this, cdoPackage, onlyEcore));
+    send(new LoadPackageRequest(this, cdoPackage, onlyEcore));
   }
 
   public Object loadChunk(InternalCDORevision revision, CDOFeature feature, int accessIndex, int fetchIndex,

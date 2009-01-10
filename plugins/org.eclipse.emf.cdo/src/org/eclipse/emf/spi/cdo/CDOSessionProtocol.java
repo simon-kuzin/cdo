@@ -60,7 +60,7 @@ public interface CDOSessionProtocol
 
   public RepositoryTimeResult getRepositoryTime();
 
-  public String loadPackage(CDOPackage cdoPackage, boolean onlyEcore);
+  public void loadPackage(CDOPackage cdoPackage, boolean onlyEcore);
 
   public Object loadChunk(InternalCDORevision revision, CDOFeature feature, int accessIndex, int fetchIndex,
       int fromIndex, int toIndex);

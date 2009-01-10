@@ -14,13 +14,14 @@ import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackage;
 
 import java.io.IOException;
 
 /**
  * @author Eike Stepper
  */
-public class LoadPackageRequest extends CDOClientRequest<String>
+public class LoadPackageRequest extends CDOClientRequest<Object>
 {
   private CDOPackage cdoPackage;
 
@@ -41,14 +42,18 @@ public class LoadPackageRequest extends CDOClientRequest<String>
   }
 
   @Override
-  protected String confirming(CDODataInput in) throws IOException
+  protected Object confirming(CDODataInput in) throws IOException
   {
     if (onlyEcore)
     {
-      return in.readString();
+      String ecore = in.readString();
+      ((InternalCDOPackage)cdoPackage).setEcore(ecore);
+    }
+    else
+    {
+      in.readCDOPackage(cdoPackage);
     }
 
-    in.readCDOPackage(cdoPackage);
     return null;
   }
 }
