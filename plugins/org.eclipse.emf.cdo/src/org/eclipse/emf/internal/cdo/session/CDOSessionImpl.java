@@ -43,8 +43,6 @@ import org.eclipse.emf.cdo.util.CDOUtil;
 import org.eclipse.emf.cdo.view.CDOView;
 
 import org.eclipse.emf.internal.cdo.bundle.OM;
-import org.eclipse.emf.internal.cdo.net4j.protocol.OpenSessionResult;
-import org.eclipse.emf.internal.cdo.net4j.protocol.RepositoryTimeResult;
 import org.eclipse.emf.internal.cdo.transaction.CDOTransactionImpl;
 import org.eclipse.emf.internal.cdo.util.ModelUtil;
 import org.eclipse.emf.internal.cdo.view.CDOAuditImpl;
@@ -76,6 +74,8 @@ import org.eclipse.emf.spi.cdo.InternalCDOSession;
 import org.eclipse.emf.spi.cdo.InternalCDOTransaction;
 import org.eclipse.emf.spi.cdo.InternalCDOView;
 import org.eclipse.emf.spi.cdo.InternalCDOViewSet;
+import org.eclipse.emf.spi.cdo.CDOSessionProtocol.OpenSessionResult;
+import org.eclipse.emf.spi.cdo.CDOSessionProtocol.RepositoryTimeResult;
 
 import java.io.File;
 import java.io.IOException;

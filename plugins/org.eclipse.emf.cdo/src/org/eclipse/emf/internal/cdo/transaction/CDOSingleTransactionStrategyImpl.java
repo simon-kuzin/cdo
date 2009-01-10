@@ -13,7 +13,6 @@ package org.eclipse.emf.internal.cdo.transaction;
 import org.eclipse.emf.cdo.transaction.CDOSavepoint;
 
 import org.eclipse.emf.internal.cdo.bundle.OM;
-import org.eclipse.emf.internal.cdo.net4j.protocol.CommitTransactionResult;
 
 import org.eclipse.net4j.util.om.monitor.EclipseMonitor;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
@@ -21,8 +20,9 @@ import org.eclipse.net4j.util.om.trace.ContextTracer;
 import org.eclipse.net4j.util.transaction.TransactionException;
 
 import org.eclipse.emf.spi.cdo.CDOTransactionStrategy;
-import org.eclipse.emf.spi.cdo.InternalCDOCommitContext;
 import org.eclipse.emf.spi.cdo.InternalCDOTransaction;
+import org.eclipse.emf.spi.cdo.CDOSessionProtocol.CommitTransactionResult;
+import org.eclipse.emf.spi.cdo.InternalCDOTransaction.InternalCDOCommitContext;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
@@ -30,13 +30,14 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * @author Simon McDuff
  * @since 2.0
  */
-public class CDOSingleTransactionStrategy implements CDOTransactionStrategy
+public class CDOSingleTransactionStrategyImpl implements CDOTransactionStrategy
 {
-  public static final CDOSingleTransactionStrategy INSTANCE = new CDOSingleTransactionStrategy();
+  public static final CDOSingleTransactionStrategyImpl INSTANCE = new CDOSingleTransactionStrategyImpl();
 
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_TRANSCTION, CDOSingleTransactionStrategy.class);
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_TRANSCTION,
+      CDOSingleTransactionStrategyImpl.class);
 
-  public CDOSingleTransactionStrategy()
+  public CDOSingleTransactionStrategyImpl()
   {
   }
 

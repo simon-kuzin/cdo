@@ -19,11 +19,11 @@ import java.util.List;
  * @author Simon McDuff
  * @since 2.0
  */
-public class CDOXASavepoint extends CDOAbstractSavepoint
+public class CDOXASavepointImpl extends AbstractSavepoint
 {
   private List<CDOSavepoint> savepoints;
 
-  public CDOXASavepoint(CDOUserTransaction transaction, CDOAbstractSavepoint lastSavepoint)
+  public CDOXASavepointImpl(CDOUserTransaction transaction, AbstractSavepoint lastSavepoint)
   {
     super(transaction, lastSavepoint);
 

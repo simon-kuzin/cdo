@@ -15,9 +15,10 @@ import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 
-import org.eclipse.emf.internal.cdo.transaction.CDOXATransactionCommitContext;
-
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
+
+import org.eclipse.emf.spi.cdo.CDOSessionProtocol.CommitTransactionResult;
+import org.eclipse.emf.spi.cdo.InternalCDOXATransaction.InternalCDOXACommitContext;
 
 import java.io.IOException;
 
@@ -32,7 +33,7 @@ import java.io.IOException;
  */
 public class CommitTransactionPhase3Request extends CommitTransactionRequest
 {
-  public CommitTransactionPhase3Request(CDOClientProtocol protocol, CDOXATransactionCommitContext xaContext)
+  public CommitTransactionPhase3Request(CDOClientProtocol protocol, InternalCDOXACommitContext xaContext)
   {
     super(protocol, CDOProtocolConstants.SIGNAL_COMMIT_TRANSACTION_PHASE3, xaContext);
   }
@@ -52,7 +53,7 @@ public class CommitTransactionPhase3Request extends CommitTransactionRequest
       return result;
     }
 
-    CDOXATransactionCommitContext context = (CDOXATransactionCommitContext)getCommitContext();
+    InternalCDOXACommitContext context = (InternalCDOXACommitContext)getCommitContext();
     confirmingNewPackage(in, context.getResult());
     return context.getResult();
   }

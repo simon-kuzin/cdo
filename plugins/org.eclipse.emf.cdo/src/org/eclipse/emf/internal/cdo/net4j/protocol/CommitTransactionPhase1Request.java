@@ -15,9 +15,10 @@ import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 
-import org.eclipse.emf.internal.cdo.transaction.CDOXATransactionCommitContext;
-
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
+
+import org.eclipse.emf.spi.cdo.CDOSessionProtocol.CommitTransactionResult;
+import org.eclipse.emf.spi.cdo.InternalCDOXATransaction.InternalCDOXACommitContext;
 
 import java.io.IOException;
 
@@ -31,7 +32,7 @@ import java.io.IOException;
  */
 public class CommitTransactionPhase1Request extends CommitTransactionRequest
 {
-  public CommitTransactionPhase1Request(CDOClientProtocol protocol, CDOXATransactionCommitContext xaContext)
+  public CommitTransactionPhase1Request(CDOClientProtocol protocol, InternalCDOXACommitContext xaContext)
   {
     super(protocol, CDOProtocolConstants.SIGNAL_COMMIT_TRANSACTION_PHASE1, xaContext);
   }

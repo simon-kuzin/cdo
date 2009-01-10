@@ -12,7 +12,7 @@ package org.eclipse.emf.spi.cdo;
 
 import org.eclipse.emf.cdo.transaction.CDOSavepoint;
 
-import org.eclipse.emf.internal.cdo.transaction.CDOSingleTransactionStrategy;
+import org.eclipse.emf.internal.cdo.transaction.CDOSingleTransactionStrategyImpl;
 
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 
@@ -26,7 +26,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
  */
 public interface CDOTransactionStrategy
 {
-  public static final CDOTransactionStrategy DEFAULT = CDOSingleTransactionStrategy.INSTANCE;
+  public static final CDOTransactionStrategy DEFAULT = CDOSingleTransactionStrategyImpl.INSTANCE;
 
   public void setTarget(InternalCDOTransaction transaction);
 

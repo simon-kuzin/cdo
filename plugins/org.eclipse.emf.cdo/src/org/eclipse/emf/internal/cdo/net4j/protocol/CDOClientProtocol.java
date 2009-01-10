@@ -26,7 +26,6 @@ import org.eclipse.emf.cdo.view.CDOView;
 import org.eclipse.emf.internal.cdo.bundle.OM;
 import org.eclipse.emf.internal.cdo.query.CDOAbstractQueryIteratorImpl;
 import org.eclipse.emf.internal.cdo.session.CDORevisionManagerImpl;
-import org.eclipse.emf.internal.cdo.transaction.CDOXATransactionCommitContext;
 
 import org.eclipse.net4j.signal.RemoteException;
 import org.eclipse.net4j.signal.RequestWithConfirmation;
@@ -37,8 +36,9 @@ import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.trace.PerfTracer;
 
 import org.eclipse.emf.spi.cdo.CDOSessionProtocol;
-import org.eclipse.emf.spi.cdo.InternalCDOCommitContext;
 import org.eclipse.emf.spi.cdo.InternalCDOObject;
+import org.eclipse.emf.spi.cdo.InternalCDOTransaction.InternalCDOCommitContext;
+import org.eclipse.emf.spi.cdo.InternalCDOXATransaction.InternalCDOXACommitContext;
 
 import java.io.File;
 import java.util.Collection;
@@ -210,22 +210,22 @@ public class CDOClientProtocol extends CDOProtocolImpl implements CDOSessionProt
     return send(new CommitTransactionRequest(this, commitContext), monitor);
   }
 
-  public CommitTransactionResult commitTransactionPhase1(CDOXATransactionCommitContext xaContext, OMMonitor monitor)
+  public CommitTransactionResult commitTransactionPhase1(InternalCDOXACommitContext xaContext, OMMonitor monitor)
   {
     return send(new CommitTransactionPhase1Request(this, xaContext), monitor);
   }
 
-  public CommitTransactionResult commitTransactionPhase2(CDOXATransactionCommitContext xaContext, OMMonitor monitor)
+  public CommitTransactionResult commitTransactionPhase2(InternalCDOXACommitContext xaContext, OMMonitor monitor)
   {
     return send(new CommitTransactionPhase2Request(this, xaContext), monitor);
   }
 
-  public CommitTransactionResult commitTransactionPhase3(CDOXATransactionCommitContext xaContext, OMMonitor monitor)
+  public CommitTransactionResult commitTransactionPhase3(InternalCDOXACommitContext xaContext, OMMonitor monitor)
   {
     return send(new CommitTransactionPhase3Request(this, xaContext), monitor);
   }
 
-  public CommitTransactionResult commitTransactionCancel(CDOXATransactionCommitContext xaContext, OMMonitor monitor)
+  public CommitTransactionResult commitTransactionCancel(InternalCDOXACommitContext xaContext, OMMonitor monitor)
   {
     return send(new CommitTransactionCancelRequest(this, xaContext), monitor);
   }

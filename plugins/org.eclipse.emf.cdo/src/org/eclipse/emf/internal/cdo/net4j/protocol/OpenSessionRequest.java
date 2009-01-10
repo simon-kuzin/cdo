@@ -28,6 +28,7 @@ import org.eclipse.emf.internal.cdo.session.CDOSessionPackageManagerImpl;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.emf.spi.cdo.InternalCDOSession;
+import org.eclipse.emf.spi.cdo.CDOSessionProtocol.OpenSessionResult;
 
 import java.io.IOException;
 import java.text.MessageFormat;

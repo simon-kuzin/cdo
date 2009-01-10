@@ -19,13 +19,14 @@ import org.eclipse.emf.cdo.internal.common.id.CDOIDExternalTempImpl;
 import org.eclipse.emf.cdo.util.CDOURIUtil;
 
 import org.eclipse.emf.internal.cdo.bundle.OM;
-import org.eclipse.emf.internal.cdo.transaction.CDOXATransactionCommitContext;
 
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.spi.cdo.InternalCDOTransaction;
+import org.eclipse.emf.spi.cdo.CDOSessionProtocol.CommitTransactionResult;
+import org.eclipse.emf.spi.cdo.InternalCDOXATransaction.InternalCDOXACommitContext;
 
 import java.io.IOException;
 import java.util.Map;
@@ -44,15 +45,15 @@ public class CommitTransactionPhase2Request extends CommitTransactionRequest
   private static final ContextTracer PROTOCOL = new ContextTracer(OM.DEBUG_PROTOCOL,
       CommitTransactionPhase1Request.class);
 
-  public CommitTransactionPhase2Request(CDOClientProtocol protocol, CDOXATransactionCommitContext xaContext)
+  public CommitTransactionPhase2Request(CDOClientProtocol protocol, InternalCDOXACommitContext xaContext)
   {
     super(protocol, CDOProtocolConstants.SIGNAL_COMMIT_TRANSACTION_PHASE2, xaContext);
   }
 
   @Override
-  protected CDOXATransactionCommitContext getCommitContext()
+  protected InternalCDOXACommitContext getCommitContext()
   {
-    return (CDOXATransactionCommitContext)super.getCommitContext();
+    return (InternalCDOXACommitContext)super.getCommitContext();
   }
 
   @Override
@@ -73,7 +74,7 @@ public class CommitTransactionPhase2Request extends CommitTransactionRequest
    */
   protected void requestingIdMapping(CDODataOutput out) throws IOException
   {
-    CDOXATransactionCommitContext context = getCommitContext();
+    InternalCDOXACommitContext context = getCommitContext();
     Map<CDOIDExternalTempImpl, InternalCDOTransaction> requestedIDs = context.getRequestedIDs();
     int size = requestedIDs.size();
     out.writeInt(size);
@@ -88,7 +89,7 @@ public class CommitTransactionPhase2Request extends CommitTransactionRequest
       URI oldURIExternal = URI.createURI(tempID.toURIFragment());
       CDOID oldCDOID = CDOIDUtil.read(oldURIExternal.fragment(), null);
 
-      CDOXATransactionCommitContext commitContext = context.getTransactionManager().getCommitContext(entry.getValue());
+      InternalCDOXACommitContext commitContext = context.getTransactionManager().getCommitContext(entry.getValue());
       if (commitContext == null)
       {
         throw new IllegalStateException("Missing informations. " + entry.getValue() + " isn't involved in the commit.");

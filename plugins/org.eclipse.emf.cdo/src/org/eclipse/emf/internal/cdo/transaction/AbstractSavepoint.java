@@ -18,15 +18,15 @@ import org.eclipse.emf.cdo.transaction.CDOUserTransaction;
  * @author Simon McDuff
  * @since 2.0
  */
-public abstract class CDOAbstractSavepoint implements CDOSavepoint
+public abstract class AbstractSavepoint implements CDOSavepoint
 {
   private CDOUserTransaction userTransaction;
 
-  private CDOAbstractSavepoint previousSavepoint;
+  private AbstractSavepoint previousSavepoint;
 
-  private CDOAbstractSavepoint nextSavepoint;
+  private AbstractSavepoint nextSavepoint;
 
-  public CDOAbstractSavepoint(CDOUserTransaction transaction, CDOAbstractSavepoint lastSavepoint)
+  public AbstractSavepoint(CDOUserTransaction transaction, AbstractSavepoint lastSavepoint)
   {
     userTransaction = transaction;
     previousSavepoint = lastSavepoint;
@@ -36,12 +36,12 @@ public abstract class CDOAbstractSavepoint implements CDOSavepoint
     }
   }
 
-  public void setPreviousSavepoint(CDOAbstractSavepoint previousSavepoint)
+  public void setPreviousSavepoint(AbstractSavepoint previousSavepoint)
   {
     this.previousSavepoint = previousSavepoint;
   }
 
-  public void setNextSavepoint(CDOAbstractSavepoint nextSavepoint)
+  public void setNextSavepoint(AbstractSavepoint nextSavepoint)
   {
     this.nextSavepoint = nextSavepoint;
   }
@@ -56,7 +56,7 @@ public abstract class CDOAbstractSavepoint implements CDOSavepoint
     return previousSavepoint;
   }
 
-  public CDOAbstractSavepoint getFirstSavePoint()
+  public AbstractSavepoint getFirstSavePoint()
   {
     return previousSavepoint != null ? previousSavepoint.getFirstSavePoint() : this;
   }

@@ -15,9 +15,10 @@ import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 
-import org.eclipse.emf.internal.cdo.transaction.CDOXATransactionCommitContext;
-
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
+
+import org.eclipse.emf.spi.cdo.CDOSessionProtocol.CommitTransactionResult;
+import org.eclipse.emf.spi.cdo.InternalCDOXATransaction.InternalCDOXACommitContext;
 
 import java.io.IOException;
 
@@ -32,7 +33,7 @@ import java.io.IOException;
  */
 public class CommitTransactionCancelRequest extends CommitTransactionRequest
 {
-  public CommitTransactionCancelRequest(CDOClientProtocol protocol, CDOXATransactionCommitContext xaContext)
+  public CommitTransactionCancelRequest(CDOClientProtocol protocol, InternalCDOXACommitContext xaContext)
   {
     super(protocol, CDOProtocolConstants.SIGNAL_COMMIT_TRANSACTION_CANCEL, xaContext);
   }

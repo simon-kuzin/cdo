@@ -12,7 +12,6 @@ package org.eclipse.emf.internal.cdo.transaction;
 
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
@@ -20,28 +19,28 @@ import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.internal.common.id.CDOIDExternalTempImpl;
 import org.eclipse.emf.cdo.util.CDOUtil;
 
-import org.eclipse.emf.internal.cdo.net4j.protocol.CommitTransactionResult;
 import org.eclipse.emf.internal.cdo.transaction.CDOXATransactionImpl.CDOXAState;
 
 import org.eclipse.net4j.util.ImplementationError;
 
 import org.eclipse.emf.ecore.InternalEObject;
-import org.eclipse.emf.spi.cdo.InternalCDOCommitContext;
 import org.eclipse.emf.spi.cdo.InternalCDOObject;
 import org.eclipse.emf.spi.cdo.InternalCDOTransaction;
+import org.eclipse.emf.spi.cdo.CDOSessionProtocol.CommitTransactionResult;
+import org.eclipse.emf.spi.cdo.InternalCDOTransaction.InternalCDOCommitContext;
+import org.eclipse.emf.spi.cdo.InternalCDOXATransaction.InternalCDOXACommitContext;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 /**
  * @author Simon McDuff
  * @since 2.0
  */
-public class CDOXATransactionCommitContext implements Callable<Object>, CDOIDProvider, InternalCDOCommitContext
+public class CDOXACommitContextImpl implements InternalCDOXACommitContext
 {
   private CDOXATransactionImpl transactionManager;
 
@@ -57,7 +56,7 @@ public class CDOXATransactionCommitContext implements Callable<Object>, CDOIDPro
 
   private Map<InternalCDOObject, CDOIDExternalTempImpl> objectToID = new HashMap<InternalCDOObject, CDOIDExternalTempImpl>();
 
-  public CDOXATransactionCommitContext(CDOXATransactionImpl manager, InternalCDOCommitContext commitContext)
+  public CDOXACommitContextImpl(CDOXATransactionImpl manager, InternalCDOCommitContext commitContext)
   {
     transactionManager = manager;
     delegateCommitContext = commitContext;
