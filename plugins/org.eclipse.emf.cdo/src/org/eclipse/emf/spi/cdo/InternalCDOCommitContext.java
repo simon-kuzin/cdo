@@ -13,7 +13,7 @@ package org.eclipse.emf.spi.cdo;
 
 import org.eclipse.emf.cdo.transaction.CDOCommitContext;
 
-import org.eclipse.emf.internal.cdo.protocol.CommitTransactionResult;
+import org.eclipse.emf.internal.cdo.net4j.protocol.CommitTransactionResult;
 
 /**
  * Provides a context for a commit operation.

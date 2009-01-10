@@ -16,7 +16,6 @@ import org.eclipse.emf.cdo.common.CDOCommonSession;
 import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionFactory;
-import org.eclipse.emf.cdo.net4j.CDOSessionProtocol;
 import org.eclipse.emf.cdo.transaction.CDOTimeStampContext;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.cdo.util.CDOEvent;
@@ -54,22 +53,6 @@ import java.util.Collection;
  */
 public interface CDOSession extends CDOCommonSession, IContainer<CDOView>, IOptionsContainer
 {
-  /**
-   * Returns an instance of {@link Repository} that describes the model repository this {@link CDOSession session} is
-   * connected to.
-   * 
-   * @since 2.0
-   */
-  public Repository repository();
-
-  /**
-   * Returns the Net4j {@link CDOSessionProtocol protocol} instance that represents the underlying
-   * <em>signalling connection</em> to the repository of this session.
-   * 
-   * @since 2.0
-   */
-  public CDOSessionProtocol getProtocol();
-
   /**
    * Returns the EMF {@link EPackage.Registry package registry} that is used by all {@link EObject objects} of all
    * {@link CDOView views} of this session.
@@ -171,6 +154,14 @@ public interface CDOSession extends CDOCommonSession, IContainer<CDOView>, IOpti
    * @since 2.0
    */
   public Options options();
+
+  /**
+   * Returns an instance of {@link Repository} that describes the model repository this {@link CDOSession session} is
+   * connected to.
+   * 
+   * @since 2.0
+   */
+  public Repository repository();
 
   /**
    * @author Simon McDuff

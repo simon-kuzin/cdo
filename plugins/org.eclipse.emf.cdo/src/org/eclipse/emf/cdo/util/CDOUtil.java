@@ -31,7 +31,6 @@ import org.eclipse.emf.internal.cdo.transaction.CDOXATransactionImpl;
 import org.eclipse.emf.internal.cdo.util.FSMUtil;
 import org.eclipse.emf.internal.cdo.view.CDORevisionPrefetchingPolicyImpl;
 
-
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;

@@ -18,21 +18,18 @@ import org.eclipse.emf.cdo.util.CDOUtil;
 import org.eclipse.emf.cdo.view.CDOView;
 import org.eclipse.emf.cdo.view.CDOViewSet;
 
-import org.eclipse.emf.internal.cdo.protocol.CDOClientProtocol;
-import org.eclipse.emf.internal.cdo.protocol.CommitTransactionCancelRequest;
-import org.eclipse.emf.internal.cdo.protocol.CommitTransactionPhase1Request;
-import org.eclipse.emf.internal.cdo.protocol.CommitTransactionPhase2Request;
-import org.eclipse.emf.internal.cdo.protocol.CommitTransactionPhase3Request;
-import org.eclipse.emf.internal.cdo.protocol.CommitTransactionResult;
+import org.eclipse.emf.internal.cdo.net4j.protocol.CommitTransactionResult;
 
 import org.eclipse.net4j.util.CheckUtil;
 import org.eclipse.net4j.util.om.monitor.EclipseMonitor;
+import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.monitor.EclipseMonitor.SynchonizedSubProgressMonitor;
 import org.eclipse.net4j.util.transaction.TransactionException;
 
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.Notifier;
+import org.eclipse.emf.spi.cdo.CDOSessionProtocol;
 import org.eclipse.emf.spi.cdo.CDOTransactionStrategy;
 import org.eclipse.emf.spi.cdo.InternalCDOCommitContext;
 import org.eclipse.emf.spi.cdo.InternalCDOTransaction;
@@ -471,12 +468,12 @@ public class CDOXATransactionImpl implements CDOXATransaction
       CommitTransactionResult result = null;
       if (xaContext.getTransaction().isDirty())
       {
-        // Phase 1
-        CDOClientProtocol protocol = (CDOClientProtocol)xaContext.getTransaction().getSession().getProtocol();
-        CommitTransactionPhase1Request request = new CommitTransactionPhase1Request(protocol, xaContext);
-        result = request.send(new EclipseMonitor(progressMonitor));
+        CDOSessionProtocol sessionProtocol = xaContext.getTransaction().getSession().getSessionProtocol();
+        OMMonitor monitor = new EclipseMonitor(progressMonitor);
+        result = sessionProtocol.commitTransactionPhase1(xaContext, monitor);
         check_result(result);
       }
+
       xaContext.setResult(result);
       xaContext.setState(CDOXAPhase2State.INSTANCE);
     }
@@ -498,12 +495,12 @@ public class CDOXATransactionImpl implements CDOXATransaction
     {
       if (xaContext.getTransaction().isDirty())
       {
-        // Phase 2
-        CDOClientProtocol protocol = (CDOClientProtocol)xaContext.getTransaction().getSession().getProtocol();
-        CommitTransactionPhase2Request request = new CommitTransactionPhase2Request(protocol, xaContext);
-        CommitTransactionResult result = request.send(new EclipseMonitor(progressMonitor));
+        CDOSessionProtocol sessionProtocol = xaContext.getTransaction().getSession().getSessionProtocol();
+        OMMonitor monitor = new EclipseMonitor(progressMonitor);
+        CommitTransactionResult result = sessionProtocol.commitTransactionPhase2(xaContext, monitor);
         check_result(result);
       }
+
       xaContext.setState(CDOXAPhase3State.INSTANCE);
     }
   };
@@ -522,12 +519,11 @@ public class CDOXATransactionImpl implements CDOXATransaction
     @Override
     protected void handle(CDOXATransactionCommitContext xaContext, IProgressMonitor progressMonitor) throws Exception
     {
-      // Phase 2
       if (xaContext.getTransaction().isDirty())
       {
-        CDOClientProtocol protocol = (CDOClientProtocol)xaContext.getTransaction().getSession().getProtocol();
-        CommitTransactionPhase3Request request = new CommitTransactionPhase3Request(protocol, xaContext);
-        CommitTransactionResult result = request.send(new EclipseMonitor(progressMonitor));
+        CDOSessionProtocol sessionProtocol = xaContext.getTransaction().getSession().getSessionProtocol();
+        OMMonitor monitor = new EclipseMonitor(progressMonitor);
+        CommitTransactionResult result = sessionProtocol.commitTransactionPhase3(xaContext, monitor);
         check_result(result);
       }
       xaContext.postCommit(xaContext.getResult());
@@ -549,10 +545,9 @@ public class CDOXATransactionImpl implements CDOXATransaction
     @Override
     protected void handle(CDOXATransactionCommitContext xaContext, IProgressMonitor progressMonitor) throws Exception
     {
-      // Phase 2
-      CDOClientProtocol protocol = (CDOClientProtocol)xaContext.getTransaction().getSession().getProtocol();
-      CommitTransactionCancelRequest request = new CommitTransactionCancelRequest(protocol, xaContext);
-      CommitTransactionResult result = request.send(new EclipseMonitor(progressMonitor));
+      CDOSessionProtocol sessionProtocol = xaContext.getTransaction().getSession().getSessionProtocol();
+      OMMonitor monitor = new EclipseMonitor(progressMonitor);
+      CommitTransactionResult result = sessionProtocol.commitTransactionCancel(xaContext, monitor);
       check_result(result);
     }
   };

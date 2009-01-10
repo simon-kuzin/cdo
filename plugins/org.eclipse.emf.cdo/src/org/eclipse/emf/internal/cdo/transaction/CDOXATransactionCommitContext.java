@@ -20,7 +20,7 @@ import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.internal.common.id.CDOIDExternalTempImpl;
 import org.eclipse.emf.cdo.util.CDOUtil;
 
-import org.eclipse.emf.internal.cdo.protocol.CommitTransactionResult;
+import org.eclipse.emf.internal.cdo.net4j.protocol.CommitTransactionResult;
 import org.eclipse.emf.internal.cdo.transaction.CDOXATransactionImpl.CDOXAState;
 
 import org.eclipse.net4j.util.ImplementationError;

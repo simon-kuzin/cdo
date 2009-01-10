@@ -24,7 +24,7 @@ import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.cdo.util.CDOUtil;
 
 import org.eclipse.emf.internal.cdo.CDOStateMachine;
-import org.eclipse.emf.internal.cdo.protocol.CommitTransactionResult;
+import org.eclipse.emf.internal.cdo.net4j.protocol.CommitTransactionResult;
 
 import org.eclipse.net4j.util.io.IOUtil;
 

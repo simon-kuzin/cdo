@@ -45,7 +45,7 @@ import org.eclipse.emf.cdo.view.CDOViewResourcesEvent;
 import org.eclipse.emf.internal.cdo.CDOObjectMerger;
 import org.eclipse.emf.internal.cdo.CDOStateMachine;
 import org.eclipse.emf.internal.cdo.bundle.OM;
-import org.eclipse.emf.internal.cdo.protocol.CommitTransactionResult;
+import org.eclipse.emf.internal.cdo.net4j.protocol.CommitTransactionResult;
 import org.eclipse.emf.internal.cdo.session.CDOSessionPackageManagerImpl;
 import org.eclipse.emf.internal.cdo.util.CompletePackageClosure;
 import org.eclipse.emf.internal.cdo.util.FSMUtil;

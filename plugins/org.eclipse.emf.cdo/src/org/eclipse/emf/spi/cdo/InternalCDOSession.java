@@ -16,7 +16,6 @@ import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDObjectFactory;
 import org.eclipse.emf.cdo.common.model.CDOPackageURICompressor;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
-import org.eclipse.emf.cdo.net4j.CDOSessionProtocol;
 import org.eclipse.emf.cdo.session.CDOPackageRegistry;
 import org.eclipse.emf.cdo.session.CDOSession;
 
@@ -35,7 +34,7 @@ import java.util.Set;
 public interface InternalCDOSession extends CDOSession, CDOIDObjectFactory, CDOPackageURICompressor,
     ILifecycle.Introspection
 {
-  public CDOSessionProtocol getProtocol();
+  public CDOSessionProtocol getSessionProtocol();
 
   public void setRepositoryName(String repositoryName);
 

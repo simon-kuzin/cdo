@@ -12,6 +12,12 @@
  **************************************************************************/
 package org.eclipse.emf.cdo.net4j;
 
+import org.eclipse.emf.cdo.common.CDOCommonSession;
+
+import org.eclipse.net4j.signal.ISignalProtocol;
+
+import org.eclipse.emf.spi.cdo.CDOSessionProtocol;
+
 /**
  * @since 2.0
  * @author Eike Stepper
@@ -33,6 +39,6 @@ public interface CDOSession extends org.eclipse.emf.cdo.session.CDOSession
      * Returns the Net4j {@link CDOSessionProtocol protocol} instance that represents the underlying
      * <em>signalling connection</em> to the repository of this session.
      */
-    public CDOSessionProtocol getProtocol();
+    public ISignalProtocol<CDOCommonSession> getProtocol();
   }
 }

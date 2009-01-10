@@ -12,10 +12,8 @@
  **************************************************************************/
 package org.eclipse.emf.cdo.net4j;
 
-import org.eclipse.emf.cdo.session.CDOSessionConfiguration;
-
-import org.eclipse.emf.internal.cdo.protocol.CDOClientProtocolFactory;
-import org.eclipse.emf.internal.cdo.session.CDOSessionConfigurationImpl;
+import org.eclipse.emf.internal.cdo.net4j.CDONet4jSessionConfigurationImpl;
+import org.eclipse.emf.internal.cdo.net4j.protocol.CDOClientProtocolFactory;
 
 import org.eclipse.net4j.util.container.IManagedContainer;
 
@@ -31,7 +29,7 @@ public final class CDONet4jUtil
 
   public static CDOSessionConfiguration createSessionConfiguration()
   {
-    return new CDOSessionConfigurationImpl();
+    return new CDONet4jSessionConfigurationImpl();
   }
 
   public static void prepareContainer(IManagedContainer container)

@@ -62,7 +62,7 @@ public class StandaloneManualExample
     LifecycleUtil.activate(bufferProvider);
 
     IProtocolProvider protocolProvider = new FactoriesProtocolProvider(
-        new org.eclipse.emf.internal.cdo.protocol.CDOClientProtocolFactory());
+        new org.eclipse.emf.internal.cdo.net4j.protocol.CDOClientProtocolFactory());
 
     // Prepare selector
     org.eclipse.net4j.internal.tcp.TCPSelector selector = new org.eclipse.net4j.internal.tcp.TCPSelector();

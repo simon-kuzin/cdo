@@ -10,7 +10,7 @@
  *    André Dietisheim - initial API and implementation
  * </copyright>
  *
- * $Id: CDOSessionDefImpl.java,v 1.2.2.1 2009-01-10 08:37:30 estepper Exp $
+ * $Id: CDOSessionDefImpl.java,v 1.2.2.2 2009-01-10 12:31:08 estepper Exp $
  */
 package org.eclipse.emf.cdo.defs.impl;
 
@@ -23,7 +23,7 @@ import org.eclipse.emf.cdo.session.CDOPackageRegistry;
 import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.session.CDOSessionConfiguration;
 
-import org.eclipse.emf.internal.cdo.session.CDOSessionConfigurationImpl;
+import org.eclipse.emf.internal.cdo.net4j.CDONet4jSessionConfigurationImpl;
 
 import org.eclipse.net4j.connector.IConnector;
 import org.eclipse.net4j.defs.ConnectorDef;
@@ -200,7 +200,7 @@ public class CDOSessionDefImpl extends DefImpl implements CDOSessionDef
    * 
    * @throws IllegalStateException
    *           if a {@link FailOverStrategyDef} was set before
-   * @see CDOSessionConfigurationImpl#openSession() <!-- end-user-doc -->
+   * @see CDONet4jSessionConfigurationImpl#openSession() <!-- end-user-doc -->
    * @generated NOT
    */
   public void setConnectorDef(ConnectorDef newConnectorDef)
@@ -387,7 +387,7 @@ public class CDOSessionDefImpl extends DefImpl implements CDOSessionDef
    * 
    * @throws IllegalStateException
    *           if a {@link FailOverStrategyDef} was set before
-   * @see CDOSessionConfigurationImpl#openSession() <!-- end-user-doc -->
+   * @see CDONet4jSessionConfigurationImpl#openSession() <!-- end-user-doc -->
    * @generated NOT
    */
   public void setFailOverStrategyDef(FailOverStrategyDef newFailOverStrategyDef)

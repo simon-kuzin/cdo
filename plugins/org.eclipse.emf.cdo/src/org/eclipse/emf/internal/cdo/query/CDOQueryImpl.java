@@ -16,8 +16,6 @@ import org.eclipse.emf.cdo.common.util.BlockingCloseableIterator;
 import org.eclipse.emf.cdo.internal.common.CDOQueryInfoImpl;
 import org.eclipse.emf.cdo.view.CDOQuery;
 
-import org.eclipse.emf.internal.cdo.protocol.CDOClientProtocol;
-import org.eclipse.emf.internal.cdo.protocol.QueryRequest;
 import org.eclipse.emf.internal.cdo.session.CDOSessionPackageManagerImpl;
 import org.eclipse.emf.internal.cdo.util.FSMUtil;
 import org.eclipse.emf.internal.cdo.util.ModelUtil;
@@ -77,17 +75,7 @@ public class CDOQueryImpl extends CDOQueryInfoImpl implements CDOQuery
   public <T> List<T> getResult(Class<T> classObject)
   {
     CDOAbstractQueryIteratorImpl<T> queryResult = createQueryResult(classObject);
-
-    try
-    {
-      CDOClientProtocol protocol = (CDOClientProtocol)view.getSession().getProtocol();
-      new QueryRequest(protocol, view.getViewID(), queryResult).send();
-    }
-    catch (Exception exception)
-    {
-      throw WrappedException.wrap(exception);
-    }
-
+    view.getSession().getSessionProtocol().query(view.getViewID(), queryResult);
     return queryResult.asList();
   }
 
@@ -101,8 +89,7 @@ public class CDOQueryImpl extends CDOQueryInfoImpl implements CDOQuery
       {
         try
         {
-          CDOClientProtocol protocol = (CDOClientProtocol)view.getSession().getProtocol();
-          new QueryRequest(protocol, view.getViewID(), queryResult).send();
+          view.getSession().getSessionProtocol().query(view.getViewID(), queryResult);
         }
         catch (Exception ex)
         {

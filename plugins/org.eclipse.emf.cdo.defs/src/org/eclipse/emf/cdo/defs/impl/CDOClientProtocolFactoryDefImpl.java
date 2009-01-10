@@ -9,14 +9,14 @@
  * Contributors:
  *    André Dietisheim - initial API and implementation
  * </copyright> *
- * $Id: CDOClientProtocolFactoryDefImpl.java,v 1.1 2008-12-31 14:43:30 estepper Exp $
+ * $Id: CDOClientProtocolFactoryDefImpl.java,v 1.1.2.1 2009-01-10 12:31:08 estepper Exp $
  */
 package org.eclipse.emf.cdo.defs.impl;
 
 import org.eclipse.emf.cdo.defs.CDOClientProtocolFactoryDef;
 import org.eclipse.emf.cdo.defs.CDODefsPackage;
 
-import org.eclipse.emf.internal.cdo.protocol.CDOClientProtocolFactory;
+import org.eclipse.emf.internal.cdo.net4j.protocol.CDOClientProtocolFactory;
 
 import org.eclipse.net4j.defs.impl.ClientProtocolFactoryDefImpl;
 
