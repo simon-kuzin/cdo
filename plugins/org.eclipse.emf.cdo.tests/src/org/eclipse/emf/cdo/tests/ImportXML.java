@@ -10,6 +10,7 @@
  **************************************************************************/
 package org.eclipse.emf.cdo.tests;
 
+import org.eclipse.emf.cdo.net4j.CDONet4jUtil;
 import org.eclipse.emf.cdo.server.CDOServerUtil;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.IStore;
@@ -53,7 +54,7 @@ public class ImportXML
     Net4jUtil.prepareContainer(container); // Prepare the Net4j kernel
     JVMUtil.prepareContainer(container); // Prepare the JVM transport
     CDOServerUtil.prepareContainer(container); // Prepare the CDO server
-    org.eclipse.emf.cdo.net4j.CDONet4jUtil.prepareContainer(container); // Prepare the CDO client
+    CDONet4jUtil.prepareContainer(container); // Prepare the CDO client
     container.activate();
 
     // Start the transport and create a repository
@@ -111,7 +112,7 @@ public class ImportXML
 
   protected static CDOSession openSession(IConnector connector)
   {
-    CDOSessionConfiguration configuration = org.eclipse.emf.cdo.net4j.CDONet4jUtil.createSessionConfiguration();
+    CDOSessionConfiguration configuration = CDONet4jUtil.createSessionConfiguration();
     configuration.setConnector(connector);
     configuration.setRepositoryName(REPOSITORY_NAME);
     return configuration.openSession();

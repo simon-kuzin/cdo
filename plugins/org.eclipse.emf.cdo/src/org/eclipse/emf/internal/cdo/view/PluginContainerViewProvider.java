@@ -17,7 +17,6 @@ import org.eclipse.emf.cdo.view.CDOViewProvider;
 import org.eclipse.emf.cdo.view.CDOViewSet;
 import org.eclipse.emf.cdo.view.ManagedContainerViewProvider;
 
-import org.eclipse.emf.internal.cdo.net4j.CDONet4jSessionFactory;
 import org.eclipse.emf.internal.cdo.session.CDOSessionFactory;
 
 import org.eclipse.net4j.util.container.IManagedContainer;
@@ -50,7 +49,7 @@ public class PluginContainerViewProvider extends ManagedContainerViewProvider im
     }
 
     String repoUUID = CDOURIUtil.extractRepositoryUUID(uri);
-    for (Object element : container.getElements(CDOSessionFactory.PRODUCT_GROUP, CDONet4jSessionFactory.TYPE))
+    for (Object element : container.getElements(CDOSessionFactory.PRODUCT_GROUP))
     {
       CDOSession session = (CDOSession)element;
       String uuid = session.repository().getUUID();

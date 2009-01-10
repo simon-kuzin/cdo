@@ -11,6 +11,7 @@
 package org.eclipse.emf.cdo.examples;
 
 import org.eclipse.emf.cdo.eresource.CDOResource;
+import org.eclipse.emf.cdo.net4j.CDONet4jUtil;
 import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.session.CDOSessionConfiguration;
 import org.eclipse.emf.cdo.tests.model1.Model1Factory;
@@ -80,7 +81,7 @@ public class StandaloneManualExample
     connector.activate();
 
     // Create configuration
-    CDOSessionConfiguration configuration = org.eclipse.emf.cdo.net4j.CDONet4jUtil.createSessionConfiguration();
+    CDOSessionConfiguration configuration = CDONet4jUtil.createSessionConfiguration();
     configuration.setConnector(connector);
     configuration.setRepositoryName("repo1");
 
