@@ -34,7 +34,7 @@ import org.eclipse.net4j.util.concurrent.RWLockManager.LockType;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.trace.PerfTracer;
 
-import org.eclipse.emf.spi.cdo.AbstractQueryIteratorImpl;
+import org.eclipse.emf.spi.cdo.AbstractQueryIterator;
 import org.eclipse.emf.spi.cdo.CDOSessionProtocol;
 import org.eclipse.emf.spi.cdo.InternalCDOObject;
 import org.eclipse.emf.spi.cdo.InternalCDOTransaction.InternalCDOCommitContext;
@@ -141,7 +141,7 @@ public class CDOClientProtocol extends CDOProtocolImpl implements CDOSessionProt
     send(new ChangeSubscriptionRequest(this, viewId, cdoIDs, subscribeMode, clear));
   }
 
-  public List<Object> query(int viewID, AbstractQueryIteratorImpl<?> queryResult)
+  public List<Object> query(int viewID, AbstractQueryIterator<?> queryResult)
   {
     return send(new QueryRequest(this, viewID, queryResult));
   }

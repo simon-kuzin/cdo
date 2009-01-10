@@ -83,7 +83,7 @@ public interface CDOSessionProtocol
 
   public void changeSubscription(int viewId, List<CDOID> cdoIDs, boolean subscribeMode, boolean clear);
 
-  public List<Object> query(int viewID, AbstractQueryIteratorImpl<?> queryResult);
+  public List<Object> query(int viewID, AbstractQueryIterator<?> queryResult);
 
   public boolean cancelQuery(int queryId);
 

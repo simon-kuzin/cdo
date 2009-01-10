@@ -21,13 +21,13 @@ import java.util.List;
 /**
  * @author Simon McDuff
  */
-public abstract class AbstractQueryIteratorImpl<T> extends AbstractQueryResult<T>
+public abstract class AbstractQueryIterator<T> extends AbstractQueryResult<T>
 {
   private static final int UNDEFINED_QUERY_ID = -1;
 
   private ConcurrentValue<Boolean> queryIDSet = new ConcurrentValue<Boolean>(false);
 
-  public AbstractQueryIteratorImpl(CDOView view, CDOQueryInfo queryInfo)
+  public AbstractQueryIterator(CDOView view, CDOQueryInfo queryInfo)
   {
     super(view, queryInfo, UNDEFINED_QUERY_ID);
   }

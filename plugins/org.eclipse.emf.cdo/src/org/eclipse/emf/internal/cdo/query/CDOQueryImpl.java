@@ -23,7 +23,7 @@ import org.eclipse.emf.internal.cdo.util.ModelUtil;
 import org.eclipse.net4j.util.WrappedException;
 
 import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.spi.cdo.AbstractQueryIteratorImpl;
+import org.eclipse.emf.spi.cdo.AbstractQueryIterator;
 import org.eclipse.emf.spi.cdo.InternalCDOObject;
 import org.eclipse.emf.spi.cdo.InternalCDOView;
 
@@ -62,7 +62,7 @@ public class CDOQueryImpl extends CDOQueryInfoImpl implements CDOQuery
   }
 
   @SuppressWarnings("unchecked")
-  protected <T> AbstractQueryIteratorImpl<T> createQueryResult(Class<T> classObject)
+  protected <T> AbstractQueryIterator<T> createQueryResult(Class<T> classObject)
   {
     CDOQueryInfoImpl queryInfo = createQueryInfo();
     if (classObject.equals(CDOID.class))
@@ -75,14 +75,14 @@ public class CDOQueryImpl extends CDOQueryInfoImpl implements CDOQuery
 
   public <T> List<T> getResult(Class<T> classObject)
   {
-    AbstractQueryIteratorImpl<T> queryResult = createQueryResult(classObject);
+    AbstractQueryIterator<T> queryResult = createQueryResult(classObject);
     view.getSession().getSessionProtocol().query(view.getViewID(), queryResult);
     return queryResult.asList();
   }
 
   public <T> BlockingCloseableIterator<T> getResultAsync(Class<T> classObject)
   {
-    final AbstractQueryIteratorImpl<T> queryResult = createQueryResult(classObject);
+    final AbstractQueryIterator<T> queryResult = createQueryResult(classObject);
     final Exception exception[] = new Exception[1];
     Runnable runnable = new Runnable()
     {

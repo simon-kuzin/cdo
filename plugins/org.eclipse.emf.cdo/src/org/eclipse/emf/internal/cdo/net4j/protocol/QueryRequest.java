@@ -21,7 +21,7 @@ import org.eclipse.emf.internal.cdo.bundle.OM;
 
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
-import org.eclipse.emf.spi.cdo.AbstractQueryIteratorImpl;
+import org.eclipse.emf.spi.cdo.AbstractQueryIterator;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,9 +36,9 @@ public class QueryRequest extends CDOClientRequest<List<Object>>
 
   private int viewID;
 
-  private AbstractQueryIteratorImpl<?> queryResult;
+  private AbstractQueryIterator<?> queryResult;
 
-  public QueryRequest(CDOClientProtocol protocol, int viewID, AbstractQueryIteratorImpl<?> queryResult)
+  public QueryRequest(CDOClientProtocol protocol, int viewID, AbstractQueryIterator<?> queryResult)
   {
     super(protocol, CDOProtocolConstants.SIGNAL_QUERY);
     this.viewID = viewID;
