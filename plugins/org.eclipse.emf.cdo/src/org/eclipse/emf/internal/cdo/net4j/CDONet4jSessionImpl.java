@@ -25,6 +25,8 @@ import org.eclipse.net4j.util.event.IListener;
 import org.eclipse.net4j.util.lifecycle.ILifecycle;
 import org.eclipse.net4j.util.lifecycle.LifecycleEventAdapter;
 
+import org.eclipse.emf.spi.cdo.CDOSessionProtocol;
+
 /**
  * @author Eike Stepper
  */
@@ -48,6 +50,11 @@ public class CDONet4jSessionImpl extends CDOSessionImpl implements org.eclipse.e
     protocol.setInfraStructure(this);
   }
 
+  public CDOSessionProtocol getSessionProtocol()
+  {
+    return protocol;
+  }
+
   /**
    * @since 2.0
    */
@@ -61,6 +68,12 @@ public class CDONet4jSessionImpl extends CDOSessionImpl implements org.eclipse.e
   public OptionsImpl options()
   {
     return (OptionsImpl)super.options();
+  }
+
+  @Override
+  protected OptionsImpl createOptions()
+  {
+    return new OptionsImpl();
   }
 
   @Override

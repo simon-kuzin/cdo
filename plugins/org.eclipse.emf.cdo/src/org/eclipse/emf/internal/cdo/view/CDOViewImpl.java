@@ -146,7 +146,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
    */
   public CDOViewImpl()
   {
-    options = initOptions();
+    options = createOptions();
   }
 
   /**
@@ -155,14 +155,6 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
   public OptionsImpl options()
   {
     return options;
-  }
-
-  /**
-   * @since 2.0
-   */
-  protected OptionsImpl initOptions()
-  {
-    return new OptionsImpl();
   }
 
   public int getViewID()
@@ -1387,6 +1379,14 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
   public org.eclipse.emf.common.notify.Notifier getTarget()
   {
     return getResourceSet();
+  }
+
+  /**
+   * @since 2.0
+   */
+  protected OptionsImpl createOptions()
+  {
+    return new OptionsImpl();
   }
 
   /**

@@ -68,7 +68,6 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-import org.eclipse.emf.spi.cdo.CDOSessionProtocol;
 import org.eclipse.emf.spi.cdo.InternalCDOObject;
 import org.eclipse.emf.spi.cdo.InternalCDOSession;
 import org.eclipse.emf.spi.cdo.InternalCDOTransaction;
@@ -97,8 +96,6 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_SESSION, CDOSessionImpl.class);
 
   private int sessionID;
-
-  private CDOSessionProtocol sessionProtocol;
 
   private String repositoryName;
 
@@ -143,10 +140,11 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
   /**
    * @since 2.0
    */
-  protected IOptions options = new OptionsImpl();
+  protected IOptions options;
 
   public CDOSessionImpl()
   {
+    options = createOptions();
     packageManager = createPackageManager();
     revisionManager = createRevisionManager();
   }
@@ -159,9 +157,17 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
   /**
    * @since 2.0
    */
-  public Options options()
+  public OptionsImpl options()
   {
-    return (Options)options;
+    return (OptionsImpl)options;
+  }
+
+  /**
+   * @since 2.0
+   */
+  protected OptionsImpl createOptions()
+  {
+    return new OptionsImpl();
   }
 
   /**
@@ -183,11 +189,6 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
   public CDOIDObject createCDOIDObject(String in)
   {
     return cdoidObjectFactory.createCDOIDObject(in);
-  }
-
-  public CDOSessionProtocol getSessionProtocol()
-  {
-    return sessionProtocol;
   }
 
   /**
@@ -244,7 +245,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
 
   private RepositoryTimeResult sendRepositoryTimeRequest()
   {
-    return sessionProtocol.getRepositoryTime();
+    return getSessionProtocol().getRepositoryTime();
   }
 
   /**
@@ -734,7 +735,8 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
   protected void doBeforeActivate() throws Exception
   {
     super.doBeforeActivate();
-    checkState(repositoryName, "repositoryName == null");
+    checkState(getSessionProtocol(), "sessionProtocol");
+    checkState(repositoryName, "repositoryName");
   }
 
   @Override
@@ -748,7 +750,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
 
     packageRegistry.setSession(this);
 
-    OpenSessionResult result = sessionProtocol.openSession(repositoryName, options().isPassiveUpdateEnabled());
+    OpenSessionResult result = getSessionProtocol().openSession(repositoryName, options().isPassiveUpdateEnabled());
     sessionID = result.getSessionID();
     repositoryUUID = result.getRepositoryUUID();
     repositoryCreationTime = result.getRepositoryCreationTime();
@@ -813,7 +815,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       missingLibraries.removeAll(existingLibraries);
       if (!missingLibraries.isEmpty())
       {
-        sessionProtocol.loadLibraries(missingLibraries, cacheFolder);
+        getSessionProtocol().loadLibraries(missingLibraries, cacheFolder);
       }
     }
 
@@ -901,7 +903,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
         if (!allRevisions.isEmpty())
         {
           int initialChunkSize = options().getCollectionLoadingPolicy().getInitialChunkSize();
-          return sessionProtocol.syncRevisions(allRevisions, initialChunkSize);
+          return getSessionProtocol().syncRevisions(allRevisions, initialChunkSize);
         }
       }
       catch (Exception ex)
@@ -1005,7 +1007,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
         if (!allRevisions.isEmpty())
         {
           int initialChunkSize = collectionLoadingPolicy.getInitialChunkSize();
-          sessionProtocol.setPassiveUpdate(allRevisions, initialChunkSize, passiveUpdateEnabled);
+          getSessionProtocol().setPassiveUpdate(allRevisions, initialChunkSize, passiveUpdateEnabled);
         }
 
         fireEvent(new PassiveUpdateEventImpl());

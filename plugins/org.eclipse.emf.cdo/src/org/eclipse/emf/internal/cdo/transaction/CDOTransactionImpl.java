@@ -128,7 +128,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
    * @since 2.0
    */
   @Override
-  protected OptionsImpl initOptions()
+  protected OptionsImpl createOptions()
   {
     return new OptionsImpl();
   }

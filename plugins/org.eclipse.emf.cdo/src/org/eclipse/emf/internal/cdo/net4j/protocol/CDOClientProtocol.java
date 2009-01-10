@@ -87,7 +87,7 @@ public class CDOClientProtocol extends CDOProtocolImpl implements CDOSessionProt
 
   public String loadPackage(CDOPackage cdoPackage, boolean onlyEcore)
   {
-    return send(new LoadPackageRequest(this, cdoPackage, false));
+    return send(new LoadPackageRequest(this, cdoPackage, onlyEcore));
   }
 
   public Object loadChunk(InternalCDORevision revision, CDOFeature feature, int accessIndex, int fetchIndex,
@@ -290,7 +290,7 @@ public class CDOClientProtocol extends CDOProtocolImpl implements CDOSessionProt
     try
     {
       REVISION_LOADING.start(request);
-      return send(request);
+      return send((RequestWithConfirmation<List<InternalCDORevision>>)request);
     }
     finally
     {
