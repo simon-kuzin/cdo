@@ -8,7 +8,7 @@
  * Contributors:
  *    Simon McDuff  - initial API and implementation
  **************************************************************************/
-package org.eclipse.emf.internal.cdo.query;
+package org.eclipse.emf.spi.cdo;
 
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
 import org.eclipse.emf.cdo.spi.common.AbstractQueryResult;
@@ -16,20 +16,18 @@ import org.eclipse.emf.cdo.view.CDOView;
 
 import org.eclipse.net4j.util.concurrent.ConcurrentValue;
 
-import org.eclipse.emf.spi.cdo.InternalCDOSession;
-
 import java.util.List;
 
 /**
  * @author Simon McDuff
  */
-public abstract class CDOAbstractQueryIteratorImpl<T> extends AbstractQueryResult<T>
+public abstract class AbstractQueryIteratorImpl<T> extends AbstractQueryResult<T>
 {
   private static final int UNDEFINED_QUERY_ID = -1;
 
   private ConcurrentValue<Boolean> queryIDSet = new ConcurrentValue<Boolean>(false);
 
-  public CDOAbstractQueryIteratorImpl(CDOView view, CDOQueryInfo queryInfo)
+  public AbstractQueryIteratorImpl(CDOView view, CDOQueryInfo queryInfo)
   {
     super(view, queryInfo, UNDEFINED_QUERY_ID);
   }

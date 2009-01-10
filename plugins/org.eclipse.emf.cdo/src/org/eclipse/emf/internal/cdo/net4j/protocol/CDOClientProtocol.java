@@ -24,7 +24,6 @@ import org.eclipse.emf.cdo.transaction.CDOTimeStampContext;
 import org.eclipse.emf.cdo.view.CDOView;
 
 import org.eclipse.emf.internal.cdo.bundle.OM;
-import org.eclipse.emf.internal.cdo.query.CDOAbstractQueryIteratorImpl;
 import org.eclipse.emf.internal.cdo.session.CDORevisionManagerImpl;
 
 import org.eclipse.net4j.signal.RemoteException;
@@ -35,6 +34,7 @@ import org.eclipse.net4j.util.concurrent.RWLockManager.LockType;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.trace.PerfTracer;
 
+import org.eclipse.emf.spi.cdo.AbstractQueryIteratorImpl;
 import org.eclipse.emf.spi.cdo.CDOSessionProtocol;
 import org.eclipse.emf.spi.cdo.InternalCDOObject;
 import org.eclipse.emf.spi.cdo.InternalCDOTransaction.InternalCDOCommitContext;
@@ -141,7 +141,7 @@ public class CDOClientProtocol extends CDOProtocolImpl implements CDOSessionProt
     send(new ChangeSubscriptionRequest(this, viewId, cdoIDs, subscribeMode, clear));
   }
 
-  public List<Object> query(int viewID, CDOAbstractQueryIteratorImpl<?> queryResult)
+  public List<Object> query(int viewID, AbstractQueryIteratorImpl<?> queryResult)
   {
     return send(new QueryRequest(this, viewID, queryResult));
   }

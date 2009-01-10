@@ -15,13 +15,15 @@ import org.eclipse.emf.cdo.common.CDOQueryInfo;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.view.CDOView;
 
+import org.eclipse.emf.spi.cdo.AbstractQueryIteratorImpl;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Simon McDuff
  */
-public class CDOQueryResultIteratorImpl<T> extends CDOAbstractQueryIteratorImpl<T>
+public class CDOQueryResultIteratorImpl<T> extends AbstractQueryIteratorImpl<T>
 {
   public CDOQueryResultIteratorImpl(CDOView view, CDOQueryInfo queryInfo)
   {

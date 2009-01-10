@@ -35,6 +35,7 @@ public final class OpenTransactionAction extends AbstractOpenViewAction
   protected void doRun(IProgressMonitor progressMonitor) throws Exception
   {
     CDOTransaction transaction = getSession().openTransaction();
-    // transaction.options().getConflictResolvers().add(new CDOObjectConflictResolver.MergeLocalChangesPerFeature());
+    // transaction.options().getConflictResolvers().add(new
+    // AbstractObjectConflictResolver.MergeLocalChangesPerFeature());
   }
 }

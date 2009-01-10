@@ -8,7 +8,7 @@
  * Contributors:
  *    Simon McDuff - initial API and implementation
  **************************************************************************/
-package org.eclipse.emf.cdo.internal.common.revision;
+package org.eclipse.emf.cdo.spi.common.revision;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
@@ -19,6 +19,7 @@ import java.util.Map;
 
 /**
  * @author Simon McDuff
+ * @since 2.0
  */
 public class CDOIDMapper implements CDOReferenceAdjuster
 {

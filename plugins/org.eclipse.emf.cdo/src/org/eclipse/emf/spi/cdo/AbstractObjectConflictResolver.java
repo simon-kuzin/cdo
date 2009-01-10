@@ -49,11 +49,11 @@ import java.util.Set;
  * @author Eike Stepper
  * @since 2.0
  */
-public abstract class CDOObjectConflictResolver implements CDOConflictResolver
+public abstract class AbstractObjectConflictResolver implements CDOConflictResolver
 {
   private CDOTransaction transaction;
 
-  public CDOObjectConflictResolver()
+  public AbstractObjectConflictResolver()
   {
   }
 
@@ -140,7 +140,7 @@ public abstract class CDOObjectConflictResolver implements CDOConflictResolver
    * @author Eike Stepper
    * @since 2.0
    */
-  public static class TakeRemoteChangesThenApplyLocalChanges extends CDOObjectConflictResolver
+  public static class TakeRemoteChangesThenApplyLocalChanges extends AbstractObjectConflictResolver
   {
     public TakeRemoteChangesThenApplyLocalChanges()
     {
@@ -158,7 +158,7 @@ public abstract class CDOObjectConflictResolver implements CDOConflictResolver
    * @author Eike Stepper
    * @since 2.0
    */
-  public static abstract class ThreeWayMerge extends CDOObjectConflictResolver implements CDOAdapterPolicy
+  public static abstract class ThreeWayMerge extends AbstractObjectConflictResolver implements CDOAdapterPolicy
   {
     private ChangeSubscriptionAdapter adapter = new ChangeSubscriptionAdapter();
 

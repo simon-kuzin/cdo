@@ -22,12 +22,10 @@ import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageURICompressor;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
-import org.eclipse.emf.cdo.internal.common.revision.CDOIDMapper;
+import org.eclipse.emf.cdo.spi.common.revision.CDOIDMapper;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.transaction.CDOTimeStampContext;
 import org.eclipse.emf.cdo.view.CDOView;
-
-import org.eclipse.emf.internal.cdo.query.CDOAbstractQueryIteratorImpl;
 
 import org.eclipse.net4j.util.concurrent.RWLockManager.LockType;
 import org.eclipse.net4j.util.io.ExtendedDataInput;
@@ -85,7 +83,7 @@ public interface CDOSessionProtocol
 
   public void changeSubscription(int viewId, List<CDOID> cdoIDs, boolean subscribeMode, boolean clear);
 
-  public List<Object> query(int viewID, CDOAbstractQueryIteratorImpl<?> queryResult);
+  public List<Object> query(int viewID, AbstractQueryIteratorImpl<?> queryResult);
 
   public boolean cancelQuery(int queryId);
 
