@@ -11,7 +11,6 @@
 package org.eclipse.emf.cdo.server.internal.db;
 
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.db.IAttributeMapping;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
@@ -19,6 +18,8 @@ import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.db.IDBAdapter;
 import org.eclipse.net4j.db.ddl.IDBField;
+
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -30,7 +31,7 @@ public abstract class AttributeMapping extends FeatureMapping implements IAttrib
 {
   private IDBField field;
 
-  public AttributeMapping(ClassMapping classMapping, CDOFeature feature)
+  public AttributeMapping(ClassMapping classMapping, EStructuralFeature feature)
   {
     super(classMapping, feature);
     field = classMapping.addField(feature, classMapping.getTable());
@@ -50,7 +51,7 @@ public abstract class AttributeMapping extends FeatureMapping implements IAttrib
 
   public Object getRevisionValue(CDORevision revision)
   {
-    CDOFeature feature = getFeature();
+    EStructuralFeature feature = getFeature();
     return ((InternalCDORevision)revision).getValue(feature);
   }
 
@@ -79,7 +80,7 @@ public abstract class AttributeMapping extends FeatureMapping implements IAttrib
    */
   public static class AMString extends AttributeMapping
   {
-    public AMString(ClassMapping classMapping, CDOFeature feature)
+    public AMString(ClassMapping classMapping, EStructuralFeature feature)
     {
       super(classMapping, feature);
     }
@@ -96,7 +97,7 @@ public abstract class AttributeMapping extends FeatureMapping implements IAttrib
    */
   public static class AMShort extends AttributeMapping
   {
-    public AMShort(ClassMapping classMapping, CDOFeature feature)
+    public AMShort(ClassMapping classMapping, EStructuralFeature feature)
     {
       super(classMapping, feature);
     }
@@ -113,7 +114,7 @@ public abstract class AttributeMapping extends FeatureMapping implements IAttrib
    */
   public static class AMObject extends AttributeMapping
   {
-    public AMObject(ClassMapping classMapping, CDOFeature feature)
+    public AMObject(ClassMapping classMapping, EStructuralFeature feature)
     {
       super(classMapping, feature);
     }
@@ -136,7 +137,7 @@ public abstract class AttributeMapping extends FeatureMapping implements IAttrib
    */
   public static class AMLong extends AttributeMapping
   {
-    public AMLong(ClassMapping classMapping, CDOFeature feature)
+    public AMLong(ClassMapping classMapping, EStructuralFeature feature)
     {
       super(classMapping, feature);
     }
@@ -153,7 +154,7 @@ public abstract class AttributeMapping extends FeatureMapping implements IAttrib
    */
   public static class AMInteger extends AttributeMapping
   {
-    public AMInteger(ClassMapping classMapping, CDOFeature feature)
+    public AMInteger(ClassMapping classMapping, EStructuralFeature feature)
     {
       super(classMapping, feature);
     }
@@ -170,7 +171,7 @@ public abstract class AttributeMapping extends FeatureMapping implements IAttrib
    */
   public static class AMFloat extends AttributeMapping
   {
-    public AMFloat(ClassMapping classMapping, CDOFeature feature)
+    public AMFloat(ClassMapping classMapping, EStructuralFeature feature)
     {
       super(classMapping, feature);
     }
@@ -187,7 +188,7 @@ public abstract class AttributeMapping extends FeatureMapping implements IAttrib
    */
   public static class AMDouble extends AttributeMapping
   {
-    public AMDouble(ClassMapping classMapping, CDOFeature feature)
+    public AMDouble(ClassMapping classMapping, EStructuralFeature feature)
     {
       super(classMapping, feature);
     }
@@ -204,7 +205,7 @@ public abstract class AttributeMapping extends FeatureMapping implements IAttrib
    */
   public static class AMDate extends AttributeMapping
   {
-    public AMDate(ClassMapping classMapping, CDOFeature feature)
+    public AMDate(ClassMapping classMapping, EStructuralFeature feature)
     {
       super(classMapping, feature);
     }
@@ -221,7 +222,7 @@ public abstract class AttributeMapping extends FeatureMapping implements IAttrib
    */
   public static class AMCharacter extends AttributeMapping
   {
-    public AMCharacter(ClassMapping classMapping, CDOFeature feature)
+    public AMCharacter(ClassMapping classMapping, EStructuralFeature feature)
     {
       super(classMapping, feature);
     }
@@ -244,7 +245,7 @@ public abstract class AttributeMapping extends FeatureMapping implements IAttrib
    */
   public static class AMByte extends AttributeMapping
   {
-    public AMByte(ClassMapping classMapping, CDOFeature feature)
+    public AMByte(ClassMapping classMapping, EStructuralFeature feature)
     {
       super(classMapping, feature);
     }
@@ -261,7 +262,7 @@ public abstract class AttributeMapping extends FeatureMapping implements IAttrib
    */
   public static class AMBoolean extends AttributeMapping
   {
-    public AMBoolean(ClassMapping classMapping, CDOFeature feature)
+    public AMBoolean(ClassMapping classMapping, EStructuralFeature feature)
     {
       super(classMapping, feature);
     }

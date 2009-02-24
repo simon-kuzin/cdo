@@ -10,7 +10,6 @@
  */
 package org.eclipse.emf.cdo.server.internal.db;
 
-import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.internal.server.LongIDStore;
 import org.eclipse.emf.cdo.internal.server.StoreAccessorPool;
 import org.eclipse.emf.cdo.server.ISession;
@@ -30,15 +29,20 @@ import org.eclipse.net4j.db.IDBConnectionProvider;
 import org.eclipse.net4j.db.ddl.IDBSchema;
 import org.eclipse.net4j.db.ddl.IDBTable;
 import org.eclipse.net4j.spi.db.DBSchema;
-import org.eclipse.net4j.util.ImplementationError;
 import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 import org.eclipse.net4j.util.om.monitor.ProgressDistributor;
+
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EClassifier;
+import org.eclipse.emf.ecore.EcorePackage;
 
 import javax.sql.DataSource;
 
 import java.sql.Connection;
 import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -90,6 +94,32 @@ public class DBStore extends LongIDStore implements IDBStore
 
   @ExcludeFromDump
   private transient int nextFeatureID;
+
+  private static Map<EClassifier, DBType> typeMap = new HashMap<EClassifier, DBType>();
+
+  static
+  {
+    typeMap.put(EcorePackage.eINSTANCE.getEDate(), DBType.TIMESTAMP);
+    typeMap.put(EcorePackage.eINSTANCE.getEString(), DBType.VARCHAR);
+
+    typeMap.put(EcorePackage.eINSTANCE.getEBoolean(), DBType.BOOLEAN);
+    typeMap.put(EcorePackage.eINSTANCE.getEByte(), DBType.SMALLINT);
+    typeMap.put(EcorePackage.eINSTANCE.getEChar(), DBType.CHAR);
+    typeMap.put(EcorePackage.eINSTANCE.getEDouble(), DBType.DOUBLE);
+    typeMap.put(EcorePackage.eINSTANCE.getEFloat(), DBType.FLOAT);
+    typeMap.put(EcorePackage.eINSTANCE.getEInt(), DBType.INTEGER);
+    typeMap.put(EcorePackage.eINSTANCE.getELong(), DBType.BIGINT);
+    typeMap.put(EcorePackage.eINSTANCE.getEShort(), DBType.SMALLINT);
+
+    typeMap.put(EcorePackage.eINSTANCE.getEBooleanObject(), DBType.BOOLEAN);
+    typeMap.put(EcorePackage.eINSTANCE.getEByteObject(), DBType.SMALLINT);
+    typeMap.put(EcorePackage.eINSTANCE.getECharacterObject(), DBType.CHAR);
+    typeMap.put(EcorePackage.eINSTANCE.getEDoubleObject(), DBType.DOUBLE);
+    typeMap.put(EcorePackage.eINSTANCE.getEFloatObject(), DBType.FLOAT);
+    typeMap.put(EcorePackage.eINSTANCE.getEIntegerObject(), DBType.INTEGER);
+    typeMap.put(EcorePackage.eINSTANCE.getELongObject(), DBType.BIGINT);
+    typeMap.put(EcorePackage.eINSTANCE.getEShortObject(), DBType.SMALLINT);
+  }
 
   public DBStore()
   {
@@ -384,53 +414,19 @@ public class DBStore extends LongIDStore implements IDBStore
     return System.currentTimeMillis();
   }
 
-  public static DBType getDBType(CDOType type)
+  public static DBType getDBType(EClassifier type)
   {
-    if (type == CDOType.BOOLEAN || type == CDOType.BOOLEAN_OBJECT)
-    {
-      return DBType.BOOLEAN;
-    }
-    else if (type == CDOType.BYTE || type == CDOType.BYTE_OBJECT)
-    {
-      return DBType.SMALLINT;
-    }
-    else if (type == CDOType.CHAR || type == CDOType.CHARACTER_OBJECT)
-    {
-      return DBType.CHAR;
-    }
-    else if (type == CDOType.DATE)
-    {
-      return DBType.TIMESTAMP;
-    }
-    else if (type == CDOType.DOUBLE || type == CDOType.DOUBLE_OBJECT)
-    {
-      return DBType.DOUBLE;
-    }
-    else if (type == CDOType.FLOAT || type == CDOType.FLOAT_OBJECT)
-    {
-      return DBType.FLOAT;
-    }
-    else if (type == CDOType.INT || type == CDOType.INTEGER_OBJECT)
-    {
-      return DBType.INTEGER;
-    }
-    else if (type == CDOType.LONG || type == CDOType.LONG_OBJECT)
+    if (type instanceof EClass)
     {
       return DBType.BIGINT;
-    }
-    else if (type == CDOType.OBJECT)
-    {
-      return DBType.BIGINT;
-    }
-    else if (type == CDOType.SHORT || type == CDOType.SHORT_OBJECT)
-    {
-      return DBType.SMALLINT;
-    }
-    else if (type == CDOType.STRING || type == CDOType.CUSTOM)
-    {
-      return DBType.VARCHAR;
     }
 
-    throw new ImplementationError("Unrecognized CDOType: " + type);
+    DBType dbType = typeMap.get(type);
+    if (dbType != null)
+    {
+      return dbType;
+    }
+
+    return DBType.VARCHAR;
   }
 }

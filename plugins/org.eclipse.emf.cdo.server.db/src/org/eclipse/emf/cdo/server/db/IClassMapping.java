@@ -11,12 +11,13 @@
 package org.eclipse.emf.cdo.server.db;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 
 import org.eclipse.net4j.db.ddl.IDBTable;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
+
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.util.List;
 import java.util.Set;
@@ -28,7 +29,7 @@ public interface IClassMapping
 {
   public IMappingStrategy getMappingStrategy();
 
-  public CDOClass getCDOClass();
+  public EClass getEClass();
 
   public IDBTable getTable();
 
@@ -42,15 +43,15 @@ public interface IClassMapping
   /**
    * @since 2.0
    */
-  public IFeatureMapping getFeatureMapping(CDOFeature feature);
+  public IFeatureMapping getFeatureMapping(EStructuralFeature feature);
 
   public List<IAttributeMapping> getAttributeMappings();
 
   public List<IReferenceMapping> getReferenceMappings();
 
-  public IAttributeMapping getAttributeMapping(CDOFeature feature);
+  public IAttributeMapping getAttributeMapping(EStructuralFeature feature);
 
-  public IReferenceMapping getReferenceMapping(CDOFeature feature);
+  public IReferenceMapping getReferenceMapping(EStructuralFeature feature);
 
   /**
    * @since 2.0

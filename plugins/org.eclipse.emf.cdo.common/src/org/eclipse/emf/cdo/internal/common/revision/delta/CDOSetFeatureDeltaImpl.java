@@ -12,12 +12,13 @@
 package org.eclipse.emf.cdo.internal.common.revision.delta;
 
 import org.eclipse.emf.cdo.common.io.CDODataInput;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDeltaVisitor;
 import org.eclipse.emf.cdo.common.revision.delta.CDOSetFeatureDelta;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
+
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.io.IOException;
 
@@ -27,12 +28,12 @@ import java.io.IOException;
 public class CDOSetFeatureDeltaImpl extends CDOSingleValueFeatureDeltaImpl implements CDOSetFeatureDelta,
     IListTargetAdding
 {
-  public CDOSetFeatureDeltaImpl(CDOFeature feature, int index, Object value)
+  public CDOSetFeatureDeltaImpl(EStructuralFeature feature, int index, Object value)
   {
     super(feature, index, value);
   }
 
-  public CDOSetFeatureDeltaImpl(CDODataInput in, CDOClass cdoClass) throws IOException
+  public CDOSetFeatureDeltaImpl(CDODataInput in, EClass cdoClass) throws IOException
   {
     super(in, cdoClass);
   }

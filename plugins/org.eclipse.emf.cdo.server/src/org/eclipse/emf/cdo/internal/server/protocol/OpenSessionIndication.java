@@ -12,7 +12,6 @@ package org.eclipse.emf.cdo.internal.server.protocol;
 
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.internal.server.Repository;
 import org.eclipse.emf.cdo.internal.server.Session;
@@ -23,6 +22,8 @@ import org.eclipse.emf.cdo.server.RepositoryNotFoundException;
 import org.eclipse.emf.cdo.server.SessionCreationException;
 
 import org.eclipse.net4j.util.om.trace.ContextTracer;
+
+import org.eclipse.emf.ecore.EPackage;
 
 import java.io.IOException;
 
@@ -136,22 +137,22 @@ public class OpenSessionIndication extends RepositoryTimeIndication
 
   private void writePackageInfos(CDODataOutput out) throws IOException
   {
-    CDOPackage[] packages = getPackageManager().getPackages();
-    for (CDOPackage p : packages)
+    EPackage[] packages = getPackageManager().getPackages();
+    for (EPackage p : packages)
     {
       if (!p.isSystem())
       {
         if (PROTOCOL_TRACER.isEnabled())
         {
           PROTOCOL_TRACER.format("Writing package info: uri={0}, dynamic={1}, metaIDRange={2}, parentURI={3}", p
-              .getPackageURI(), p.isDynamic(), p.getMetaIDRange(), p.getParentURI());
+              .getNsURI(), p.isDynamic(), p.getMetaIDRange(), p.getParentURI());
         }
 
         out.writeBoolean(true);
-        out.writeCDOPackageURI(p.getPackageURI());
+        out.writeEPackageURI(p.getNsURI());
         out.writeBoolean(p.isDynamic());
         out.writeCDOIDMetaRange(p.getMetaIDRange());
-        out.writeCDOPackageURI(p.getParentURI());
+        out.writeEPackageURI(p.getParentURI());
       }
     }
 

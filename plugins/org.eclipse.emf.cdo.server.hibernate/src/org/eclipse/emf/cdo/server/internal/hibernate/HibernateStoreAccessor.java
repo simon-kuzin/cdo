@@ -15,11 +15,8 @@ import org.eclipse.emf.cdo.common.CDOQueryInfo;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
+import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
-import org.eclipse.emf.cdo.common.model.resource.CDOResourceNodeClass;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.internal.server.StoreAccessor;
@@ -39,6 +36,9 @@ import org.eclipse.net4j.util.WrappedException;
 import org.eclipse.net4j.util.collection.CloseableIterator;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
+
+import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 import org.hibernate.Criteria;
 import org.hibernate.FlushMode;
@@ -203,7 +203,7 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
     this.errorOccured = errorOccured;
   }
 
-  public HibernateStoreChunkReader createChunkReader(CDORevision revision, CDOFeature feature)
+  public HibernateStoreChunkReader createChunkReader(CDORevision revision, EStructuralFeature feature)
   {
     return new HibernateStoreChunkReader(this, revision, feature);
   }
@@ -219,25 +219,25 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
     throw new UnsupportedOperationException();
   }
 
-  public CDOClassRef readObjectType(CDOID id)
+  public CDOClassifierRef readObjectType(CDOID id)
   {
     CDORevision cdoRevision = readRevision(id, -1);
-    return cdoRevision.getCDOClass().createClassRef();
+    return cdoRevision.getEClass().createClassRef();
   }
 
-  public void readPackage(CDOPackage cdoPackage)
+  public void readPackage(EPackage cdoPackage)
   {
     getStore().getPackageHandler().readPackage(cdoPackage);
   }
 
-  public void readPackageEcore(CDOPackage cdoPackage)
+  public void readPackageEcore(EPackage cdoPackage)
   {
     throw new UnsupportedOperationException();
   }
 
   public Collection<CDOPackageInfo> readPackageInfos()
   {
-    return getStore().getPackageHandler().getCDOPackageInfos();
+    return getStore().getPackageHandler().getEPackageDescriptors();
   }
 
   public CDORevision readRevision(CDOID id, int referenceChunk)
@@ -319,7 +319,7 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
     return null;
   }
 
-  private CDOFeature getResourceNameFeature()
+  private EStructuralFeature getResourceNameFeature()
   {
     return getResourceNodeClass().getCDONameFeature();
   }
@@ -400,7 +400,7 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
         session.save(HibernateUtil.getInstance().getEntityName(cdoRevision), cdoRevision);
         if (TRACER.isEnabled())
         {
-          TRACER.trace("Persisted new Object " + cdoRevision.getCDOClass().getName() + " id: " + cdoRevision.getID());
+          TRACER.trace("Persisted new Object " + cdoRevision.getEClass().getName() + " id: " + cdoRevision.getID());
         }
       }
 
@@ -409,7 +409,7 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
         session.merge(HibernateUtil.getInstance().getEntityName(cdoRevision), cdoRevision);
         if (TRACER.isEnabled())
         {
-          TRACER.trace("Updated Object " + cdoRevision.getCDOClass().getName() + " id: " + cdoRevision.getID());
+          TRACER.trace("Updated Object " + cdoRevision.getEClass().getName() + " id: " + cdoRevision.getID());
         }
       }
 
@@ -470,7 +470,7 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
   }
 
   @Override
-  protected void writePackages(CDOPackage[] cdoPackages, OMMonitor monitor)
+  protected void writePackages(EPackage[] cdoPackages, OMMonitor monitor)
   {
     if (cdoPackages != null && cdoPackages.length != 0)
     {

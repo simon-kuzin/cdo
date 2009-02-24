@@ -10,17 +10,17 @@
  */
 package org.eclipse.emf.cdo.internal.common.model.resource;
 
-import org.eclipse.emf.cdo.common.model.CDOClass;
+import org.eclipse.emf.cdo.common.model.EClass;
 import org.eclipse.emf.cdo.common.model.resource.CDONameFeature;
-import org.eclipse.emf.cdo.internal.common.model.CDOFeatureImpl;
+import org.eclipse.emf.cdo.internal.common.model.EStructuralFeatureImpl;
 import org.eclipse.emf.cdo.internal.common.model.CDOTypeImpl;
 
 /**
  * @author Eike Stepper
  */
-public class CDONameFeatureImpl extends CDOFeatureImpl implements CDONameFeature
+public class CDONameFeatureImpl extends EStructuralFeatureImpl implements CDONameFeature
 {
-  public CDONameFeatureImpl(CDOClass containingClass)
+  public CDONameFeatureImpl(EClass containingClass)
   {
     super(containingClass, FEATURE_ID, NAME, CDOTypeImpl.STRING, null, false);
   }

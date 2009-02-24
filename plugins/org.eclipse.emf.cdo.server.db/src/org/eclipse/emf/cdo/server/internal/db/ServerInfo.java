@@ -10,7 +10,8 @@
  */
 package org.eclipse.emf.cdo.server.internal.db;
 
-import org.eclipse.emf.cdo.common.model.CDOModelElement;
+import org.eclipse.emf.ecore.EModelElement;
+
 
 /**
  * @author Eike Stepper
@@ -50,7 +51,7 @@ public abstract class ServerInfo
     return String.valueOf(dbID);
   }
 
-  public static synchronized int getDBID(CDOModelElement modelElement)
+  public static synchronized int getDBID(EModelElement modelElement)
   {
     ServerInfo serverInfo = (ServerInfo)modelElement.getServerInfo();
     return serverInfo.dbID;

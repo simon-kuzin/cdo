@@ -13,7 +13,7 @@ package org.eclipse.emf.cdo.internal.common.model;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOModelElement;
+import org.eclipse.emf.cdo.spi.common.model.InternalEModelElement;
 
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
@@ -22,9 +22,9 @@ import java.io.IOException;
 /**
  * @author Eike Stepper
  */
-public abstract class CDOModelElementImpl implements InternalCDOModelElement
+public abstract class EModelElementImpl implements InternalEModelElement
 {
-  private static final ContextTracer MODEL_TRACER = new ContextTracer(OM.DEBUG_MODEL, CDOModelElementImpl.class);
+  private static final ContextTracer MODEL_TRACER = new ContextTracer(OM.DEBUG_MODEL, EModelElementImpl.class);
 
   private String name;
 
@@ -32,12 +32,12 @@ public abstract class CDOModelElementImpl implements InternalCDOModelElement
 
   private Object serverInfo;
 
-  protected CDOModelElementImpl(String name)
+  protected EModelElementImpl(String name)
   {
     this.name = name;
   }
 
-  protected CDOModelElementImpl()
+  protected EModelElementImpl()
   {
   }
 

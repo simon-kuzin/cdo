@@ -12,9 +12,9 @@ package org.eclipse.emf.internal.cdo.net4j.protocol;
 
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackage;
+
+import org.eclipse.emf.ecore.EPackage;
 
 import java.io.IOException;
 
@@ -23,11 +23,11 @@ import java.io.IOException;
  */
 public class LoadPackageRequest extends CDOClientRequest<Object>
 {
-  private CDOPackage cdoPackage;
+  private EPackage cdoPackage;
 
   private boolean onlyEcore;
 
-  public LoadPackageRequest(CDOClientProtocol protocol, CDOPackage cdoPackage, boolean onlyEcore)
+  public LoadPackageRequest(CDOClientProtocol protocol, EPackage cdoPackage, boolean onlyEcore)
   {
     super(protocol, CDOProtocolConstants.SIGNAL_LOAD_PACKAGE);
     this.cdoPackage = cdoPackage;
@@ -37,7 +37,7 @@ public class LoadPackageRequest extends CDOClientRequest<Object>
   @Override
   protected void requesting(CDODataOutput out) throws IOException
   {
-    out.writeCDOPackageURI(cdoPackage.getPackageURI());
+    out.writeEPackageURI(cdoPackage.getNsURI());
     out.writeBoolean(onlyEcore);
   }
 
@@ -46,12 +46,15 @@ public class LoadPackageRequest extends CDOClientRequest<Object>
   {
     if (onlyEcore)
     {
-      String ecore = in.readString();
-      ((InternalCDOPackage)cdoPackage).setEcore(ecore);
+      // TODO: implement LoadPackageRequest.confirming(in)
+      throw new UnsupportedOperationException();
+
+      // String ecore = in.readString();
+      // ((InternalEPackage)cdoPackage).setEcore(ecore);
     }
     else
     {
-      in.readCDOPackage(cdoPackage);
+      in.readEPackage(cdoPackage);
     }
 
     return null;

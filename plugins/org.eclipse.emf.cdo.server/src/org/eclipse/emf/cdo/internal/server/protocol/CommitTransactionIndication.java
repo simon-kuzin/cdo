@@ -19,9 +19,8 @@ import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
-import org.eclipse.emf.cdo.common.model.CDOPackageManager;
 import org.eclipse.emf.cdo.common.model.CDOPackageURICompressor;
+import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDOListFactory;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
@@ -40,7 +39,6 @@ import org.eclipse.emf.cdo.internal.server.TransactionCommitContextImpl.Transact
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
 import org.eclipse.emf.cdo.server.IStore;
 import org.eclipse.emf.cdo.server.IView;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackage;
 
 import org.eclipse.net4j.signal.IndicationWithMonitoring;
 import org.eclipse.net4j.util.WrappedException;
@@ -51,6 +49,8 @@ import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.monitor.ProgressDistributable;
 import org.eclipse.net4j.util.om.monitor.ProgressDistributor;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
+
+import org.eclipse.emf.ecore.EPackage;
 
 import java.io.IOException;
 import java.util.List;
@@ -176,7 +176,7 @@ public class CommitTransactionIndication extends IndicationWithMonitoring
       }
 
       @Override
-      protected CDOPackageManager getPackageManager()
+      protected CDOPackageRegistry getPackageManager()
       {
         return CommitTransactionIndication.this.getPackageManager();
       }
@@ -278,7 +278,7 @@ public class CommitTransactionIndication extends IndicationWithMonitoring
     commitContext.setAutoReleaseLocksEnabled(autoReleaseLocksEnabled);
 
     TransactionPackageManager packageManager = commitContext.getPackageManager();
-    CDOPackage[] newPackages = new CDOPackage[in.readInt()];
+    EPackage[] newPackages = new EPackage[in.readInt()];
     CDORevision[] newObjects = new CDORevision[in.readInt()];
     CDORevisionDelta[] dirtyObjectDeltas = new CDORevisionDelta[in.readInt()];
     CDOID[] detachedObjects = new CDOID[in.readInt()];
@@ -295,7 +295,7 @@ public class CommitTransactionIndication extends IndicationWithMonitoring
     {
       for (int i = 0; i < newPackages.length; i++)
       {
-        InternalCDOPackage newPackage = (InternalCDOPackage)in.readCDOPackage();
+        InternalEPackage newPackage = (InternalEPackage)in.readEPackageDescriptor();
         newPackage.setEcore(in.readString());
         newPackages[i] = newPackage;
         packageManager.addPackage(newPackage);

@@ -10,7 +10,7 @@
  */
 package org.eclipse.emf.cdo.spi.common.model;
 
-import org.eclipse.emf.cdo.common.model.CDOPackage;
+import org.eclipse.emf.cdo.common.model.EPackage;
 import org.eclipse.emf.cdo.common.model.CDOPackageManager;
 
 /**
@@ -23,11 +23,11 @@ public interface InternalCDOPackageManager extends CDOPackageManager
    * @param cdoPackage
    *          A proxy CDO package.
    */
-  public void loadPackage(CDOPackage cdoPackage);
+  public void loadPackage(EPackage cdoPackage);
 
   /**
    * @param cdoPackage
    *          A CDO package with <code>ecore == null</code>.
    */
-  public void loadPackageEcore(CDOPackage cdoPackage);
+  public void loadPackageEcore(EPackage cdoPackage);
 }

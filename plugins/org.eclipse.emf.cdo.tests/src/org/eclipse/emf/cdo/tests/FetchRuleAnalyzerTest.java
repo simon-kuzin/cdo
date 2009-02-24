@@ -117,13 +117,13 @@ public class FetchRuleAnalyzerTest extends AbstractCDOTest
     assertEquals(2, fetchRules.size());
 
     CDOFetchRule fetchRule1 = fetchRules.get(0);
-    EClass eClass = ModelUtil.getEClass(fetchRule1.getCDOClass(), session.getPackageRegistry());
+    EClass eClass = ModelUtil.getEClass(fetchRule1.getEClass(), session.getPackageRegistry());
     assertEquals(getModel1Package().getCompany(), eClass);
     assertEquals(1, fetchRule1.getFeatures().size());
     assertEquals(getModel1Package().getCompany_PurchaseOrders().getName(), fetchRule1.getFeatures().get(0).getName());
 
     CDOFetchRule fetchRule2 = fetchRules.get(1);
-    EClass ePurchaseOrder = ModelUtil.getEClass(fetchRule2.getCDOClass(), session.getPackageRegistry());
+    EClass ePurchaseOrder = ModelUtil.getEClass(fetchRule2.getEClass(), session.getPackageRegistry());
     assertEquals(getModel1Package().getPurchaseOrder(), ePurchaseOrder);
     assertEquals(1, fetchRule2.getFeatures().size());
     assertEquals(getModel1Package().getPurchaseOrder_Supplier().getName(), fetchRule2.getFeatures().get(0).getName());

@@ -10,23 +10,23 @@
  */
 package org.eclipse.emf.cdo.internal.common.model.resource;
 
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOClassProxy;
+import org.eclipse.emf.cdo.common.model.EClass;
+import org.eclipse.emf.cdo.common.model.EClassProxy;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageManager;
 import org.eclipse.emf.cdo.common.model.resource.CDONodesFeature;
 import org.eclipse.emf.cdo.common.model.resource.CDOResourceNodeClass;
 import org.eclipse.emf.cdo.common.model.resource.CDOResourcePackage;
-import org.eclipse.emf.cdo.internal.common.model.CDOFeatureImpl;
+import org.eclipse.emf.cdo.internal.common.model.EStructuralFeatureImpl;
 
 /**
  * @author Eike Stepper
  */
-public class CDONodesFeatureImpl extends CDOFeatureImpl implements CDONodesFeature
+public class CDONodesFeatureImpl extends EStructuralFeatureImpl implements CDONodesFeature
 {
-  public CDONodesFeatureImpl(CDOClass containingClass, CDOPackageManager packageManager)
+  public CDONodesFeatureImpl(EClass containingClass, CDOPackageManager packageManager)
   {
-    super(containingClass, FEATURE_ID, NAME, new CDOClassProxy(CDOModelUtil.createClassRef(
+    super(containingClass, FEATURE_ID, NAME, new EClassProxy(CDOModelUtil.createClassRef(
         CDOResourcePackage.PACKAGE_URI, CDOResourceNodeClass.CLASSIFIER_ID), packageManager), true, true);
   }
 }

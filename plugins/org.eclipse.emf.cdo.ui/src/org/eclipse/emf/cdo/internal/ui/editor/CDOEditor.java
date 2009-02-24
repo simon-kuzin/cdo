@@ -12,8 +12,6 @@
 package org.eclipse.emf.cdo.internal.ui.editor;
 
 import org.eclipse.emf.cdo.CDOObject;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.internal.ui.SharedIcons;
 import org.eclipse.emf.cdo.internal.ui.bundle.OM;
@@ -50,7 +48,9 @@ import org.eclipse.emf.common.util.BasicDiagnostic;
 import org.eclipse.emf.common.util.Diagnostic;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EValidator;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -2076,10 +2076,10 @@ public class CDOEditor extends MultiPageEditorPart implements IEditingDomainProv
   {
     boolean populated = false;
     CDOSessionPackageManager packageManager = view.getSession().getPackageManager();
-    List<CDOPackage> cdoPackages = Arrays.asList(packageManager.getPackages());
+    List<EPackage> cdoPackages = Arrays.asList(packageManager.getPackages());
     Collections.sort(cdoPackages);
 
-    for (CDOPackage cdoPackage : cdoPackages)
+    for (EPackage cdoPackage : cdoPackages)
     {
       if (!cdoPackage.isSystem())
       {
@@ -2092,15 +2092,15 @@ public class CDOEditor extends MultiPageEditorPart implements IEditingDomainProv
           continue;
         }
 
-        List<CDOClass> cdoClasses = Arrays.asList(cdoPackage.getConcreteClasses());
+        List<EClass> cdoClasses = Arrays.asList(cdoPackage.getConcreteClasses());
         Collections.sort(cdoClasses);
         // TODO Sorting by class name may not have the desired effect if the labels are computed by an ItemProvider!
 
         if (!cdoClasses.isEmpty())
         {
-          MenuManager submenuManager = new MenuManager(cdoPackage.getPackageURI());
+          MenuManager submenuManager = new MenuManager(cdoPackage.getNsURI());
 
-          for (CDOClass cdoClass : cdoClasses)
+          for (EClass cdoClass : cdoClasses)
           {
             // TODO Optimize/cache this?
             CreateRootAction action = new CreateRootAction(cdoClass);
@@ -2345,9 +2345,9 @@ public class CDOEditor extends MultiPageEditorPart implements IEditingDomainProv
    */
   private final class CreateRootAction extends LongRunningAction
   {
-    private CDOClass cdoClass;
+    private EClass cdoClass;
 
-    private CreateRootAction(CDOClass cdoClass)
+    private CreateRootAction(EClass cdoClass)
     {
       super(getEditorSite().getPage(), cdoClass.getName(), SharedIcons.getDescriptor(SharedIcons.OBJ_ECLASS));
       this.cdoClass = cdoClass;

@@ -10,9 +10,9 @@
  */
 package org.eclipse.emf.cdo.server.internal.db;
 
-import org.eclipse.emf.cdo.common.model.CDOFeature;
-
 import org.eclipse.net4j.db.IDBAdapter;
+
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 /**
  * @author Eike Stepper
@@ -21,9 +21,9 @@ public class FeatureMapping
 {
   private ClassMapping classMapping;
 
-  private CDOFeature feature;
+  private EStructuralFeature feature;
 
-  public FeatureMapping(ClassMapping classMapping, CDOFeature feature)
+  public FeatureMapping(ClassMapping classMapping, EStructuralFeature feature)
   {
     this.classMapping = classMapping;
     this.feature = feature;
@@ -34,7 +34,7 @@ public class FeatureMapping
     return classMapping;
   }
 
-  public CDOFeature getFeature()
+  public EStructuralFeature getFeature()
   {
     return feature;
   }

@@ -10,10 +10,9 @@
  */
 package org.eclipse.emf.cdo.server.internal.db;
 
-import org.eclipse.emf.cdo.common.model.CDOPackage;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackage;
-
 import org.eclipse.net4j.db.ddl.IDBSchema;
+
+import org.eclipse.emf.ecore.EPackage;
 
 /**
  * @author Eike Stepper
@@ -27,19 +26,19 @@ public final class PackageServerInfo extends ServerInfo
     super(id);
   }
 
-  public static PackageServerInfo setDBID(CDOPackage cdoPackage, int id)
+  public static PackageServerInfo setDBID(EPackage cdoPackage, int id)
   {
     PackageServerInfo serverInfo = new PackageServerInfo(id);
-    ((InternalCDOPackage)cdoPackage).setServerInfo(serverInfo);
+    ((InternalEPackage)cdoPackage).setServerInfo(serverInfo);
     return serverInfo;
   }
 
-  public static IDBSchema getSchema(CDOPackage cdoPackage)
+  public static IDBSchema getSchema(EPackage cdoPackage)
   {
     return ((PackageServerInfo)cdoPackage.getServerInfo()).schema;
   }
 
-  public static void setSchema(CDOPackage cdoPackage, IDBSchema schema)
+  public static void setSchema(EPackage cdoPackage, IDBSchema schema)
   {
     ((PackageServerInfo)cdoPackage.getServerInfo()).schema = schema;
   }

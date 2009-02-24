@@ -11,8 +11,8 @@
  */
 package org.eclipse.emf.internal.cdo.analyzer;
 
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 /**
  * @author Simon McDuff
@@ -25,11 +25,11 @@ public class CDOFetchFeatureInfo
 
   private boolean active;
 
-  private CDOClass cdoClass;
+  private EClass cdoClass;
 
-  private CDOFeature cdoFeature;
+  private EStructuralFeature cdoFeature;
 
-  public CDOFetchFeatureInfo(CDOClass cdoClass, CDOFeature cdoFeature)
+  public CDOFetchFeatureInfo(EClass cdoClass, EStructuralFeature cdoFeature)
   {
     this.cdoClass = cdoClass;
     this.cdoFeature = cdoFeature;
@@ -37,12 +37,12 @@ public class CDOFetchFeatureInfo
     latencyTime = -1;
   }
 
-  public CDOClass getCDOClass()
+  public EClass getEClass()
   {
     return cdoClass;
   }
 
-  public CDOFeature getCDOFeature()
+  public EStructuralFeature getEStructuralFeature()
   {
     return cdoFeature;
   }

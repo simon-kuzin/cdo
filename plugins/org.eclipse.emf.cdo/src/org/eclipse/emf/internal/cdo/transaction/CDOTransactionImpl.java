@@ -18,7 +18,7 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
+import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
@@ -30,7 +30,6 @@ import org.eclipse.emf.cdo.eresource.CDOResourceNode;
 import org.eclipse.emf.cdo.eresource.EresourceFactory;
 import org.eclipse.emf.cdo.eresource.impl.CDOResourceImpl;
 import org.eclipse.emf.cdo.eresource.impl.CDOResourceNodeImpl;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackage;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
 import org.eclipse.emf.cdo.transaction.CDOConflictResolver;
 import org.eclipse.emf.cdo.transaction.CDOSavepoint;
@@ -1021,7 +1020,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
   }
 
   @SuppressWarnings("unchecked")
-  private List<CDOPackage> analyzeNewPackages()
+  private List<EPackage> analyzeNewPackages()
   {
     CDOSessionPackageManagerImpl packageManager = (CDOSessionPackageManagerImpl)getSession().getPackageManager();
     Set<EPackage> usedPackages = new HashSet<EPackage>();
@@ -1031,10 +1030,10 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
       EPackage ePackage = object.eClass().getEPackage();
       if (usedPackages.add(ePackage))
       {
-        EPackage topLevelPackage = ModelUtil.getTopLevelPackage(ePackage);
+        EPackage topLevelPackage = EMFUtil.getTopLevelPackage(ePackage);
         if (ePackage == topLevelPackage || usedPackages.add(topLevelPackage))
         {
-          CDOPackage cdoPackage = ModelUtil.getCDOPackage(topLevelPackage, packageManager);
+          EPackage cdoPackage = ModelUtil.getEPackage(topLevelPackage, packageManager);
           if (!cdoPackage.isPersistent() && !cdoPackage.isSystem())
           {
             usedNewPackages.add(topLevelPackage);
@@ -1051,18 +1050,18 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     return Collections.EMPTY_LIST;
   }
 
-  private static List<CDOPackage> analyzeNewPackages(Collection<EPackage> usedTopLevelPackages,
+  private static List<EPackage> analyzeNewPackages(Collection<EPackage> usedTopLevelPackages,
       CDOSessionPackageManagerImpl packageManager)
   {
-    // Determine which of the corresdonding CDOPackages are new
-    List<CDOPackage> newPackages = new ArrayList<CDOPackage>();
+    // Determine which of the corresdonding EPackages are new
+    List<EPackage> newPackages = new ArrayList<EPackage>();
 
     IPackageClosure closure = new CompletePackageClosure();
     usedTopLevelPackages = closure.calculate(usedTopLevelPackages);
 
     for (EPackage usedPackage : usedTopLevelPackages)
     {
-      CDOPackage cdoPackage = ModelUtil.getCDOPackage(usedPackage, packageManager);
+      EPackage cdoPackage = ModelUtil.getEPackage(usedPackage, packageManager);
       if (cdoPackage == null)
       {
         throw new IllegalStateException("Missing CDO package: " + usedPackage.getNsURI());
@@ -1158,7 +1157,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
 
     private Map<CDOID, CDOObject> detachedObjects;
 
-    private List<CDOPackage> newPackages;
+    private List<EPackage> newPackages;
 
     public CDOCommitContextImpl()
     {
@@ -1186,7 +1185,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
       return newObjects;
     }
 
-    public List<CDOPackage> getNewPackages()
+    public List<EPackage> getNewPackages()
     {
       return newPackages;
     }
@@ -1254,9 +1253,9 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
           }
 
           InternalCDOSession session = getSession();
-          for (CDOPackage newPackage : newPackages)
+          for (EPackage newPackage : newPackages)
           {
-            ((InternalCDOPackage)newPackage).setPersistent(true);
+            ((InternalEPackage)newPackage).setPersistent(true);
           }
 
           long timeStamp = result.getTimeStamp();

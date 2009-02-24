@@ -8,18 +8,32 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  */
-package org.eclipse.emf.cdo.common.model.resource;
-
-import org.eclipse.emf.cdo.common.model.CDOFeature;
+package org.eclipse.emf.cdo.common.model;
 
 /**
  * @author Eike Stepper
- * @noimplement This interface is not intended to be implemented by clients.
- * @since 2.0
  */
-public interface CDOFolderFeature extends CDOFeature
+public interface CDOPackageUnit
 {
-  public static final int FEATURE_ID = 0;
+  public CDOPackageUnitManager getPackageUnitManager();
 
-  public static final String NAME = "folder";
+  public String getID();
+
+  public State getState();
+
+  public long getTimeStamp();
+
+  public boolean isDynamic();
+
+  public boolean isLegacy();
+
+  public CDOPackageInfo[] getPackageInfos();
+
+  /**
+   * @author Eike Stepper
+   */
+  public enum State
+  {
+    NEW, LOADED, PROXY
+  }
 }

@@ -10,11 +10,11 @@
  */
 package org.eclipse.emf.cdo.spi.common.model;
 
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOClassProxy;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
+import org.eclipse.emf.cdo.common.model.EClass;
+import org.eclipse.emf.cdo.common.model.EClassProxy;
+import org.eclipse.emf.cdo.common.model.EClassRef;
+import org.eclipse.emf.cdo.common.model.EStructuralFeature;
+import org.eclipse.emf.cdo.common.model.EPackage;
 
 import java.util.List;
 
@@ -23,15 +23,15 @@ import java.util.List;
  * @noimplement This interface is not intended to be implemented by clients.
  * @since 2.0
  */
-public interface InternalCDOClass extends CDOClass, InternalCDOModelElement
+public interface InternalEClass extends EClass, InternalEModelElement
 {
-  public void setContainingPackage(CDOPackage containingPackage);
+  public void setContainingPackage(EPackage containingPackage);
 
-  public void addSuperType(CDOClassRef classRef);
+  public void addSuperType(EClassRef classRef);
 
-  public void addFeature(CDOFeature cdoFeature);
+  public void addFeature(EStructuralFeature cdoFeature);
 
   public int getFeatureIndex(int featureID);
 
-  public List<CDOClassProxy> getSuperTypeProxies();
+  public List<EClassProxy> getSuperTypeProxies();
 }

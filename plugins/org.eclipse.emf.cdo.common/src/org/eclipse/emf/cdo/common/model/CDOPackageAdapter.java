@@ -8,20 +8,19 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  */
-package org.eclipse.emf.cdo.common.model.resource;
+package org.eclipse.emf.cdo.common.model;
 
-import org.eclipse.emf.cdo.common.model.CDOClass;
+import org.eclipse.emf.common.notify.Adapter;
+import org.eclipse.emf.ecore.EPackage;
 
 /**
  * @author Eike Stepper
- * @noimplement This interface is not intended to be implemented by clients.
- * @since 2.0
  */
-public interface CDOResourceFolderClass extends CDOClass
+public interface CDOPackageAdapter extends Adapter
 {
-  public static final int CLASSIFIER_ID = 1;
+  public EPackage getPackage();
 
-  public static final String NAME = "CDOResourceFolder";
+  public CDOPackageRegistry getPackageRegistry();
 
-  public CDONodesFeature getCDONodesFeature();
+  public CDOPackageInfo getPackageInfo();
 }

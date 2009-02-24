@@ -136,7 +136,7 @@ public class HibernateUtil
 
   public String getEntityName(CDORevision cdoRevision)
   {
-    return cdoRevision.getCDOClass().getName();
+    return cdoRevision.getEClass().getName();
   }
 
   /**
@@ -159,7 +159,7 @@ public class HibernateUtil
     }
     if (!(cdoRevision.getID() instanceof CDOIDHibernate))
     {
-      throw new IllegalStateException("CDORevision " + cdoRevision.getCDOClass().getName() + " " + cdoRevision.getID()
+      throw new IllegalStateException("CDORevision " + cdoRevision.getEClass().getName() + " " + cdoRevision.getID()
           + " does not have a hibernate cdoid after saving/updating it");
     }
 

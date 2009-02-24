@@ -12,14 +12,14 @@ package org.eclipse.emf.cdo.internal.common.model;
 
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOClassProxy;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
+import org.eclipse.emf.cdo.common.model.EClass;
+import org.eclipse.emf.cdo.common.model.EClassProxy;
+import org.eclipse.emf.cdo.common.model.EClassRef;
+import org.eclipse.emf.cdo.common.model.EPackage;
 import org.eclipse.emf.cdo.common.model.CDOPackageManager;
 import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOClass;
+import org.eclipse.emf.cdo.spi.common.model.InternalEClass;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOFeature;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
@@ -31,15 +31,15 @@ import java.text.MessageFormat;
 /**
  * @author Eike Stepper
  */
-public class CDOFeatureImpl extends CDOModelElementImpl implements InternalCDOFeature
+public class EStructuralFeatureImpl extends EModelElementImpl implements InternalCDOFeature
 {
   private static final int UNKNOWN_FEATURE_INDEX = Integer.MIN_VALUE;
 
-  private static final ContextTracer MODEL_TRACER = new ContextTracer(OM.DEBUG_MODEL, CDOFeatureImpl.class);
+  private static final ContextTracer MODEL_TRACER = new ContextTracer(OM.DEBUG_MODEL, EStructuralFeatureImpl.class);
 
-  private static final ContextTracer PROTOCOL_TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, CDOFeatureImpl.class);
+  private static final ContextTracer PROTOCOL_TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, EStructuralFeatureImpl.class);
 
-  private CDOClass containingClass;
+  private EClass containingClass;
 
   private int featureID;
 
@@ -51,21 +51,21 @@ public class CDOFeatureImpl extends CDOModelElementImpl implements InternalCDOFe
 
   private boolean containment;
 
-  private CDOClassProxy referenceTypeProxy;
+  private EClassProxy referenceTypeProxy;
 
   private Object defaultValue;
 
   /**
    * Creates an uninitialized instance.
    */
-  public CDOFeatureImpl()
+  public EStructuralFeatureImpl()
   {
   }
 
   /**
    * Creates an attribute feature.
    */
-  public CDOFeatureImpl(CDOClass containingClass, int featureID, String name, CDOType type, Object defaultValue,
+  public EStructuralFeatureImpl(EClass containingClass, int featureID, String name, CDOType type, Object defaultValue,
       boolean many)
   {
     super(name);
@@ -88,7 +88,7 @@ public class CDOFeatureImpl extends CDOModelElementImpl implements InternalCDOFe
   /**
    * Creates a reference feature.
    */
-  public CDOFeatureImpl(CDOClass containingClass, int featureID, String name, CDOClassProxy referenceTypeProxy,
+  public EStructuralFeatureImpl(EClass containingClass, int featureID, String name, EClassProxy referenceTypeProxy,
       boolean many, boolean containment)
   {
     super(name);
@@ -112,7 +112,7 @@ public class CDOFeatureImpl extends CDOModelElementImpl implements InternalCDOFe
   /**
    * Reads a feature from a stream.
    */
-  public CDOFeatureImpl(CDOClass containingClass, CDODataInput in) throws IOException
+  public EStructuralFeatureImpl(EClass containingClass, CDODataInput in) throws IOException
   {
     this.containingClass = containingClass;
     read(in);
@@ -139,13 +139,13 @@ public class CDOFeatureImpl extends CDOModelElementImpl implements InternalCDOFe
 
     if (isReference())
     {
-      CDOClassRef classRef = in.readCDOClassRef();
+      EClassRef classRef = in.readEClassRef();
       if (PROTOCOL_TRACER.isEnabled())
       {
         PROTOCOL_TRACER.format("Read reference type: classRef={0}", classRef);
       }
 
-      referenceTypeProxy = new CDOClassProxy(classRef, containingClass.getContainingPackage().getPackageManager());
+      referenceTypeProxy = new EClassProxy(classRef, containingClass.getContainingPackage().getPackageManager());
     }
   }
 
@@ -176,13 +176,13 @@ public class CDOFeatureImpl extends CDOModelElementImpl implements InternalCDOFe
 
     if (isReference())
     {
-      CDOClassRef classRef = referenceTypeProxy.getClassRef();
+      EClassRef classRef = referenceTypeProxy.getClassRef();
       if (PROTOCOL_TRACER.isEnabled())
       {
         PROTOCOL_TRACER.format("Writing reference type: classRef={0}", classRef);
       }
 
-      out.writeCDOClassRef(classRef);
+      out.writeEClassRef(classRef);
     }
   }
 
@@ -191,17 +191,17 @@ public class CDOFeatureImpl extends CDOModelElementImpl implements InternalCDOFe
     return getContainingPackage().getPackageManager();
   }
 
-  public CDOPackage getContainingPackage()
+  public EPackage getContainingPackage()
   {
     return containingClass.getContainingPackage();
   }
 
-  public CDOClass getContainingClass()
+  public EClass getContainingClass()
   {
     return containingClass;
   }
 
-  public void setContainingClass(CDOClass containingClass)
+  public void setContainingClass(EClass containingClass)
   {
     this.containingClass = containingClass;
   }
@@ -220,7 +220,7 @@ public class CDOFeatureImpl extends CDOModelElementImpl implements InternalCDOFe
   {
     if (featureIndex == UNKNOWN_FEATURE_INDEX)
     {
-      featureIndex = ((InternalCDOClass)containingClass).getFeatureIndex(featureID);
+      featureIndex = ((InternalEClass)containingClass).getFeatureIndex(featureID);
     }
 
     return featureIndex;
@@ -281,7 +281,7 @@ public class CDOFeatureImpl extends CDOModelElementImpl implements InternalCDOFe
     this.containment = containment;
   }
 
-  public CDOClass getReferenceType()
+  public EClass getReferenceType()
   {
     if (referenceTypeProxy == null)
     {
@@ -291,12 +291,12 @@ public class CDOFeatureImpl extends CDOModelElementImpl implements InternalCDOFe
     return referenceTypeProxy.getCdoClass();
   }
 
-  public void setReferenceType(CDOClassRef cdoClassRef)
+  public void setReferenceType(EClassRef cdoClassRef)
   {
-    referenceTypeProxy = new CDOClassProxy(cdoClassRef, getPackageManager());
+    referenceTypeProxy = new EClassProxy(cdoClassRef, getPackageManager());
   }
 
-  public CDOClassProxy getReferenceTypeProxy()
+  public EClassProxy getReferenceTypeProxy()
   {
     return referenceTypeProxy;
   }
@@ -306,11 +306,11 @@ public class CDOFeatureImpl extends CDOModelElementImpl implements InternalCDOFe
   {
     if (type == CDOType.OBJECT)
     {
-      return MessageFormat.format("CDOFeature(ID={0}, name={1}, type={2})", featureID, getName(), referenceTypeProxy);
+      return MessageFormat.format("EStructuralFeature(ID={0}, name={1}, type={2})", featureID, getName(), referenceTypeProxy);
     }
     else
     {
-      return MessageFormat.format("CDOFeature(ID={0}, name={1}, type={2})", featureID, getName(), type);
+      return MessageFormat.format("EStructuralFeature(ID={0}, name={1}, type={2})", featureID, getName(), type);
     }
   }
 

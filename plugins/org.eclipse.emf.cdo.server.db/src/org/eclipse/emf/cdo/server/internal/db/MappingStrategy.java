@@ -13,14 +13,7 @@ package org.eclipse.emf.cdo.server.internal.db;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
-import org.eclipse.emf.cdo.common.model.resource.CDOResourceClass;
-import org.eclipse.emf.cdo.common.model.resource.CDOResourceFolderClass;
-import org.eclipse.emf.cdo.common.model.resource.CDOResourceNodeClass;
-import org.eclipse.emf.cdo.common.model.resource.CDOResourcePackage;
+import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.IStoreAccessor.QueryResourcesContext;
 import org.eclipse.emf.cdo.server.db.IClassMapping;
@@ -38,6 +31,10 @@ import org.eclipse.net4j.util.StringUtil;
 import org.eclipse.net4j.util.collection.CloseableIterator;
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
+
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -62,7 +59,7 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
 
   private Map<Object, IDBTable> referenceTables = new HashMap<Object, IDBTable>();
 
-  private Map<Integer, CDOClassRef> classRefs = new HashMap<Integer, CDOClassRef>();
+  private Map<Integer, CDOClassifierRef> classRefs = new HashMap<Integer, CDOClassifierRef>();
 
   public MappingStrategy()
   {
@@ -140,9 +137,9 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
     return referenceTables;
   }
 
-  public CDOClassRef getClassRef(IDBStoreAccessor accessor, int classID)
+  public CDOClassifierRef getClassRef(IDBStoreAccessor accessor, int classID)
   {
-    CDOClassRef classRef = classRefs.get(classID);
+    CDOClassifierRef classRef = classRefs.get(classID);
     if (classRef == null)
     {
       switch (classID)
@@ -178,7 +175,7 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
     return classRef;
   }
 
-  public IClassMapping getClassMapping(CDOClass cdoClass)
+  public IClassMapping getClassMapping(EClass cdoClass)
   {
     IClassMapping mapping = ClassServerInfo.getClassMapping(cdoClass);
     if (mapping == NoClassMapping.INSTANCE)
@@ -195,19 +192,19 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
     return mapping;
   }
 
-  public String getTableName(CDOPackage cdoPackage)
+  public String getTableName(EPackage cdoPackage)
   {
     String name = isQualifiedNames() ? cdoPackage.getQualifiedName().replace('.', '_') : cdoPackage.getName();
     return getTableName(name, "P" + PackageServerInfo.getDBID(cdoPackage));
   }
 
-  public String getTableName(CDOClass cdoClass)
+  public String getTableName(EClass cdoClass)
   {
     String name = isQualifiedNames() ? cdoClass.getQualifiedName().replace('.', '_') : cdoClass.getName();
     return getTableName(name, "C" + ClassServerInfo.getDBID(cdoClass));
   }
 
-  public String getReferenceTableName(CDOClass cdoClass, CDOFeature cdoFeature)
+  public String getReferenceTableName(EClass cdoClass, EStructuralFeature cdoFeature)
   {
     String name = isQualifiedNames() ? cdoClass.getQualifiedName().replace('.', '_') : cdoClass.getName();
     name += "_";
@@ -216,21 +213,21 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
     return getTableName(name, "F" + FeatureServerInfo.getDBID(cdoFeature));
   }
 
-  public String getReferenceTableName(CDOClass cdoClass)
+  public String getReferenceTableName(EClass cdoClass)
   {
     String name = isQualifiedNames() ? cdoClass.getQualifiedName().replace('.', '_') : cdoClass.getName();
     name += "_refs";
     return getTableName(name, "F" + ClassServerInfo.getDBID(cdoClass));
   }
 
-  public String getReferenceTableName(CDOPackage cdoPackage)
+  public String getReferenceTableName(EPackage cdoPackage)
   {
     String name = isQualifiedNames() ? cdoPackage.getQualifiedName().replace('.', '_') : cdoPackage.getName();
     name += "_refs";
     return getTableName(name, "F" + PackageServerInfo.getDBID(cdoPackage));
   }
 
-  public String getFieldName(CDOFeature cdoFeature)
+  public String getFieldName(EStructuralFeature cdoFeature)
   {
     return getName(cdoFeature.getName(), "F" + FeatureServerInfo.getDBID(cdoFeature), getMaxFieldNameLength());
   }
@@ -291,8 +288,8 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
 
   public final CloseableIterator<CDOID> readObjectIDs(final IDBStoreAccessor accessor)
   {
-    List<CDOClass> classes = getClassesWithObjectInfo();
-    final Iterator<CDOClass> classIt = classes.iterator();
+    List<EClass> classes = getClassesWithObjectInfo();
+    final Iterator<EClass> classIt = classes.iterator();
     return new ObjectIDIterator(this, accessor)
     {
       @Override
@@ -300,7 +297,7 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
       {
         while (classIt.hasNext())
         {
-          CDOClass cdoClass = classIt.next();
+          EClass cdoClass = classIt.next();
           IClassMapping mapping = getClassMapping(cdoClass);
           if (mapping != null)
           {
@@ -412,7 +409,7 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
     }
   }
 
-  private void addResourceTables(CDOClass cdoClass, Set<IDBTable> tables)
+  private void addResourceTables(EClass cdoClass, Set<IDBTable> tables)
   {
     IClassMapping mapping = getClassMapping(cdoClass);
     if (mapping != null)
@@ -425,7 +422,7 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
   public long repairAfterCrash(IDBAdapter dbAdapter, Connection connection)
   {
     long maxCDOID = 0L;
-    for (CDOClass idClass : getClassesWithObjectInfo())
+    for (EClass idClass : getClassesWithObjectInfo())
     {
       IClassMapping classMapping = getClassMapping(idClass);
       IDBTable table = classMapping.getTable();
@@ -451,9 +448,9 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
   /**
    * The implementation of this method must take care of creating a unique ids to prevent duplicate resource paths.
    */
-  protected abstract IClassMapping createClassMapping(CDOClass cdoClass);
+  protected abstract IClassMapping createClassMapping(EClass cdoClass);
 
-  protected abstract List<CDOClass> getClassesWithObjectInfo();
+  protected abstract List<EClass> getClassesWithObjectInfo();
 
   @Override
   protected void doBeforeActivate() throws Exception

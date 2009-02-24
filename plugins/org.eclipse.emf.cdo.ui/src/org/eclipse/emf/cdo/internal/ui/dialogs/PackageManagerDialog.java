@@ -10,12 +10,11 @@
  */
 package org.eclipse.emf.cdo.internal.ui.dialogs;
 
-import org.eclipse.emf.cdo.common.model.CDOPackage;
+import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.internal.ui.SharedIcons;
 import org.eclipse.emf.cdo.internal.ui.actions.RegisterFilesystemPackagesAction;
 import org.eclipse.emf.cdo.internal.ui.actions.RegisterGeneratedPackagesAction;
 import org.eclipse.emf.cdo.internal.ui.actions.RegisterWorkspacePackagesAction;
-import org.eclipse.emf.cdo.session.CDOPackageRegistry;
 import org.eclipse.emf.cdo.session.CDOPackageType;
 import org.eclipse.emf.cdo.session.CDOPackageTypeRegistry;
 import org.eclipse.emf.cdo.session.CDOSession;
@@ -207,7 +206,7 @@ public class PackageManagerDialog extends TitleAreaDialog
     return packageType.toString();
   }
 
-  protected String getCDOPackageText(CDOPackage cdoPackage)
+  protected String getEPackageText(EPackage cdoPackage)
   {
     if (cdoPackage.isSystem())
     {
@@ -267,7 +266,7 @@ public class PackageManagerDialog extends TitleAreaDialog
         case 1:
           return content.getEPackage() == null ? EMPTY : getEPackageText(content.getEPackage());
         case 2:
-          return content.getCDOPackage() == null ? EMPTY : getCDOPackageText(content.getCDOPackage());
+          return content.getEPackage() == null ? EMPTY : getEPackageText(content.getEPackage());
         }
       }
 
@@ -333,9 +332,9 @@ public class PackageManagerDialog extends TitleAreaDialog
         content.setEPackage(entry.getValue());
       }
 
-      for (CDOPackage cdoPackage : session.getPackageManager().getPackages())
+      for (EPackage cdoPackage : session.getPackageManager().getPackages())
       {
-        String packageURI = cdoPackage.getPackageURI();
+        String packageURI = cdoPackage.getNsURI();
         Content content = map.get(packageURI);
         if (content == null)
         {
@@ -343,7 +342,7 @@ public class PackageManagerDialog extends TitleAreaDialog
           map.put(packageURI, content);
         }
 
-        content.setCDOPackage(cdoPackage);
+        content.setEPackage(cdoPackage);
       }
 
       ArrayList<Content> list = new ArrayList<Content>(map.values());
@@ -361,7 +360,7 @@ public class PackageManagerDialog extends TitleAreaDialog
 
     private Object ePackage;
 
-    private CDOPackage cdoPackage;
+    private EPackage cdoPackage;
 
     public Content(String packageURI)
     {
@@ -383,12 +382,12 @@ public class PackageManagerDialog extends TitleAreaDialog
       this.ePackage = ePackage;
     }
 
-    public CDOPackage getCDOPackage()
+    public EPackage getEPackage()
     {
       return cdoPackage;
     }
 
-    public void setCDOPackage(CDOPackage cdoPackage)
+    public void setEPackage(EPackage cdoPackage)
     {
       this.cdoPackage = cdoPackage;
     }

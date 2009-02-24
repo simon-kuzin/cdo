@@ -10,8 +10,7 @@
  */
 package org.eclipse.emf.cdo.server.internal.db;
 
-import org.eclipse.emf.cdo.common.model.CDOFeature;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOFeature;
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 /**
  * @author Eike Stepper
@@ -23,7 +22,7 @@ public final class FeatureServerInfo extends ServerInfo
     super(id);
   }
 
-  public static FeatureServerInfo setDBID(CDOFeature cdoFeature, int id)
+  public static FeatureServerInfo setDBID(EStructuralFeature cdoFeature, int id)
   {
     FeatureServerInfo serverInfo = new FeatureServerInfo(id);
     ((InternalCDOFeature)cdoFeature).setServerInfo(serverInfo);

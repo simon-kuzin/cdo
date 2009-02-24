@@ -8,7 +8,7 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  */
-package org.eclipse.emf.internal.cdo.util;
+package org.eclipse.emf.cdo.common.model.internal;
 
 import org.eclipse.net4j.util.StringUtil;
 

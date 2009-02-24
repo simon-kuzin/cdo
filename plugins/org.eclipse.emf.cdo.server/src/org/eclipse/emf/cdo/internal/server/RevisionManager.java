@@ -12,11 +12,10 @@
  */
 package org.eclipse.emf.cdo.internal.server;
 
+import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDObjectFactory;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
-import org.eclipse.emf.cdo.common.model.CDOPackageManager;
+import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.internal.common.revision.CDORevisionResolverImpl;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.IRevisionManager;
@@ -27,6 +26,10 @@ import org.eclipse.emf.cdo.server.IStoreChunkReader.Chunk;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.util.collection.MoveableList;
+
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -90,12 +93,12 @@ public class RevisionManager extends CDORevisionResolverImpl implements IRevisio
    */
   protected void ensureChunks(InternalCDORevision revision, int referenceChunk, IStoreAccessor accessor)
   {
-    CDOClass cdoClass = revision.getCDOClass();
-    CDOFeature[] features = cdoClass.getAllFeatures();
+    EClass cdoClass = revision.getEClass();
+    EStructuralFeature[] features = TODO.getAllPersistentFeatures(cdoClass);
     for (int i = 0; i < features.length; i++)
     {
-      CDOFeature feature = features[i];
-      if (feature.isReference() && feature.isMany())
+      EStructuralFeature feature = features[i];
+      if (feature instanceof EReference && feature.isMany())
       {
         MoveableList<Object> list = revision.getList(feature);
         int chunkEnd = Math.min(referenceChunk, list.size());
@@ -107,14 +110,14 @@ public class RevisionManager extends CDORevisionResolverImpl implements IRevisio
   /**
    * @since 2.0
    */
-  public IStoreAccessor ensureChunk(InternalCDORevision revision, CDOFeature feature, int chunkStart, int chunkEnd)
+  public IStoreAccessor ensureChunk(InternalCDORevision revision, EStructuralFeature feature, int chunkStart, int chunkEnd)
   {
     MoveableList<Object> list = revision.getList(feature);
     chunkEnd = Math.min(chunkEnd, list.size());
     return ensureChunk(revision, feature, StoreThreadLocal.getAccessor(), list, chunkStart, chunkEnd);
   }
 
-  protected IStoreAccessor ensureChunk(InternalCDORevision revision, CDOFeature feature, IStoreAccessor accessor,
+  protected IStoreAccessor ensureChunk(InternalCDORevision revision, EStructuralFeature feature, IStoreAccessor accessor,
       MoveableList<Object> list, int chunkStart, int chunkEnd)
   {
     IStoreChunkReader chunkReader = null;
@@ -285,7 +288,7 @@ public class RevisionManager extends CDORevisionResolverImpl implements IRevisio
    * @since 2.0
    */
   @Override
-  protected CDOPackageManager getPackageManager()
+  protected CDOPackageRegistry getPackageManager()
   {
     return repository.getPackageManager();
   }

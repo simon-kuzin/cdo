@@ -19,21 +19,17 @@ import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDLibraryDescriptor;
-import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDObject;
 import org.eclipse.emf.cdo.common.id.CDOIDObjectFactory;
-import org.eclipse.emf.cdo.common.id.CDOIDTemp;
-import org.eclipse.emf.cdo.common.id.CDOIDTempMeta;
-import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
+import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
+import org.eclipse.emf.cdo.common.model.internal.CDOPackageRegistryImpl;
+import org.eclipse.emf.cdo.common.model.internal.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionFactory;
 import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.session.CDOCollectionLoadingPolicy;
-import org.eclipse.emf.cdo.session.CDOPackageRegistry;
 import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.session.CDOSessionInvalidationEvent;
 import org.eclipse.emf.cdo.session.CDOSession.Repository;
@@ -45,7 +41,6 @@ import org.eclipse.emf.cdo.view.CDOView;
 import org.eclipse.emf.internal.cdo.bundle.OM;
 import org.eclipse.emf.internal.cdo.session.remote.CDORemoteSessionManagerImpl;
 import org.eclipse.emf.internal.cdo.transaction.CDOTransactionImpl;
-import org.eclipse.emf.internal.cdo.util.ModelUtil;
 import org.eclipse.emf.internal.cdo.view.CDOAuditImpl;
 import org.eclipse.emf.internal.cdo.view.CDOViewImpl;
 
@@ -65,8 +60,7 @@ import org.eclipse.net4j.util.options.IOptions;
 import org.eclipse.net4j.util.options.IOptionsContainer;
 import org.eclipse.net4j.util.options.OptionsEvent;
 
-import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.emf.ecore.InternalEObject;
+import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.spi.cdo.InternalCDOObject;
@@ -109,9 +103,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
 
   private boolean repositorySupportingAudits;
 
-  private CDOPackageRegistry packageRegistry;
-
-  private CDOSessionPackageManagerImpl packageManager;
+  private InternalCDOPackageRegistry packageRegistry;
 
   private CDORevisionManagerImpl revisionManager;
 
@@ -124,16 +116,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
   private Object invalidationRunnerLock = new Object();
 
   @ExcludeFromDump
-  private transient Map<CDOID, InternalEObject> idToMetaInstanceMap = new HashMap<CDOID, InternalEObject>();
-
-  @ExcludeFromDump
-  private transient Map<InternalEObject, CDOID> metaInstanceToIDMap = new HashMap<InternalEObject, CDOID>();
-
-  @ExcludeFromDump
   private transient int lastViewID;
-
-  @ExcludeFromDump
-  private transient int lastTempMetaID;
 
   @ExcludeFromDump
   private transient StringCompressor packageURICompressor;
@@ -149,7 +132,6 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
   public CDOSessionImpl()
   {
     options = createOptions();
-    packageManager = createPackageManager();
     revisionManager = createRevisionManager();
     remoteSessionManager = createRemoteSessionManager();
   }
@@ -279,17 +261,12 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
    */
   public void setPackageRegistry(CDOPackageRegistry packageRegistry)
   {
-    this.packageRegistry = packageRegistry;
+    this.packageRegistry = (InternalCDOPackageRegistry)packageRegistry;
   }
 
   public CDOPackageRegistry getPackageRegistry()
   {
     return packageRegistry;
-  }
-
-  public CDOSessionPackageManagerImpl getPackageManager()
-  {
-    return packageManager;
   }
 
   public CDORevisionManagerImpl getRevisionManager()
@@ -445,81 +422,6 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
   {
     checkActive();
     return views.isEmpty();
-  }
-
-  public synchronized CDOIDMetaRange getTempMetaIDRange(int count)
-  {
-    CDOIDTemp lowerBound = CDOIDUtil.createTempMeta(lastTempMetaID + 1);
-    lastTempMetaID += count;
-    return CDOIDUtil.createMetaRange(lowerBound, count);
-  }
-
-  public InternalEObject lookupMetaInstance(CDOID id)
-  {
-    InternalEObject metaInstance = idToMetaInstanceMap.get(id);
-    if (metaInstance == null)
-    {
-      CDOPackage[] cdoPackages = packageManager.getPackages();
-      for (CDOPackage cdoPackage : cdoPackages)
-      {
-        CDOIDMetaRange metaIDRange = cdoPackage.getMetaIDRange();
-        if (metaIDRange != null && metaIDRange.contains(id))
-        {
-          EPackage ePackage = ModelUtil.getEPackage(cdoPackage, packageRegistry);
-          registerEPackage(ePackage);
-          metaInstance = idToMetaInstanceMap.get(id);
-          break;
-        }
-      }
-    }
-
-    return metaInstance;
-  }
-
-  public CDOID lookupMetaInstanceID(InternalEObject metaInstance)
-  {
-    return metaInstanceToIDMap.get(metaInstance);
-  }
-
-  public void registerEPackage(EPackage ePackage, CDOIDMetaRange metaIDRange)
-  {
-    if (metaIDRange.isTemporary())
-    {
-      throw new IllegalArgumentException("metaIDRange.isTemporary()");
-    }
-
-    CDOIDMetaRange range = CDOIDUtil.createMetaRange(metaIDRange.getLowerBound(), 0);
-    range = SessionUtil
-        .registerMetaInstance((InternalEObject)ePackage, range, idToMetaInstanceMap, metaInstanceToIDMap);
-    if (range.size() != metaIDRange.size())
-    {
-      throw new IllegalStateException("range.size() != metaIDRange.size()");
-    }
-  }
-
-  public CDOIDMetaRange registerEPackage(EPackage ePackage)
-  {
-    CDOIDMetaRange range = SessionUtil.registerEPackage(ePackage, lastTempMetaID + 1, idToMetaInstanceMap,
-        metaInstanceToIDMap);
-    lastTempMetaID = ((CDOIDTempMeta)range.getUpperBound()).getIntValue();
-    return range;
-  }
-
-  public void remapMetaInstance(CDOID oldID, CDOID newID)
-  {
-    InternalEObject metaInstance = idToMetaInstanceMap.remove(oldID);
-    if (metaInstance == null)
-    {
-      throw new IllegalArgumentException("Unknown meta instance id: " + oldID);
-    }
-
-    if (TRACER.isEnabled())
-    {
-      TRACER.format("Remapping meta instance: {0} --> {1} <-> {2}", oldID, newID, metaInstance);
-    }
-
-    idToMetaInstanceMap.put(newID, metaInstance);
-    metaInstanceToIDMap.put(metaInstance, newID);
   }
 
   /**
@@ -687,7 +589,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
   /**
    * @since 2.0
    */
-  protected CDOPackageRegistry createPackageRegistry()
+  protected InternalCDOPackageRegistry createPackageRegistry()
   {
     return new CDOPackageRegistryImpl();
   }
@@ -763,7 +665,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       packageRegistry = createPackageRegistry();
     }
 
-    packageRegistry.setSession(this);
+    packageRegistry.setPackageUnitLoader(this);
 
     OpenSessionResult result = getSessionProtocol().openSession(repositoryName, options().isPassiveUpdateEnabled());
     sessionID = result.getSessionID();
@@ -773,8 +675,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     repositorySupportingAudits = result.isRepositorySupportingAudits();
     handleLibraryDescriptor(result.getLibraryDescriptor());
     packageURICompressor = result.getCompressor();
-    packageManager.addPackageProxies(result.getPackageInfos());
-    packageManager.activate();
+    packageRegistry.addPackageDescriptors(result.getPackageDescriptors());
     revisionManager.activate();
   }
 
@@ -803,9 +704,6 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
 
     revisionManager.deactivate();
     revisionManager = null;
-
-    packageManager.deactivate();
-    packageManager = null;
     super.doDeactivate();
   }
 
@@ -1059,7 +957,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       {
         revisionFactory = new CDORevisionFactory()
         {
-          public CDORevision createRevision(CDOClass cdoClass, CDOID id)
+          public CDORevision createRevision(EClass cdoClass, CDOID id)
           {
             return CDORevisionUtil.create(cdoClass, id);
           }

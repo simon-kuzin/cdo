@@ -10,10 +10,8 @@
  */
 package org.eclipse.emf.cdo.server.internal.db;
 
+import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
-import org.eclipse.emf.cdo.common.model.resource.CDOResourceNodeClass;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.IPackageManager;
 import org.eclipse.emf.cdo.server.IRepository;
@@ -22,14 +20,17 @@ import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.net4j.util.collection.Pair;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EStructuralFeature;
+
 /**
  * @author Eike Stepper
  */
 public class HorizontalClassMapping extends ClassMapping
 {
-  public HorizontalClassMapping(HorizontalMappingStrategy mappingStrategy, CDOClass cdoClass)
+  public HorizontalClassMapping(HorizontalMappingStrategy mappingStrategy, EClass cdoClass)
   {
-    super(mappingStrategy, cdoClass, cdoClass.getAllFeatures());
+    super(mappingStrategy, cdoClass, TODO.getAllPersistentFeatures(cdoClass));
   }
 
   @Override
@@ -48,7 +49,7 @@ public class HorizontalClassMapping extends ClassMapping
       if (revision.getVersion() == 1)
       {
         CDOID id = revision.getID();
-        CDOClass type = revision.getCDOClass();
+        EClass type = revision.getEClass();
         getMappingStrategy().getObjectTypeCache().putObjectType(accessor, id, type);
       }
 
@@ -67,7 +68,7 @@ public class HorizontalClassMapping extends ClassMapping
     IRepository repository = getMappingStrategy().getStore().getRepository();
     IPackageManager packageManager = repository.getPackageManager();
     CDOResourceNodeClass resourceNodeClass = packageManager.getCDOResourcePackage().getCDOResourceNodeClass();
-    CDOFeature resourceNameFeature = resourceNodeClass.getCDONameFeature();
+    EStructuralFeature resourceNameFeature = resourceNodeClass.getCDONameFeature();
 
     CDOID folderID = (CDOID)revision.data().getContainerID();
     String name = (String)revision.data().get(resourceNameFeature, 0);
@@ -80,9 +81,9 @@ public class HorizontalClassMapping extends ClassMapping
   }
 
   @Override
-  public Object createReferenceMappingKey(CDOFeature cdoFeature)
+  public Object createReferenceMappingKey(EStructuralFeature cdoFeature)
   {
-    return new Pair<CDOClass, CDOFeature>(getCDOClass(), cdoFeature);
+    return new Pair<EClass, EStructuralFeature>(getEClass(), cdoFeature);
   }
 
   public boolean hasFullRevisionInfo()

@@ -11,7 +11,7 @@
  */
 package org.eclipse.emf.internal.cdo;
 
-import org.eclipse.emf.cdo.common.model.CDOFeature;
+import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.revision.delta.CDOAddFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOClearFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOContainerFeatureDelta;
@@ -23,7 +23,6 @@ import org.eclipse.emf.cdo.common.revision.delta.CDORemoveFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOSetFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOUnsetFeatureDelta;
-import org.eclipse.emf.cdo.session.CDOPackageRegistry;
 
 import org.eclipse.emf.internal.cdo.util.ModelUtil;
 
@@ -125,7 +124,7 @@ public class CDONotificationBuilder implements CDOFeatureDeltaVisitor
     }
   }
 
-  private int getEFeatureID(CDOFeature cdoFeature)
+  private int getEFeatureID(EStructuralFeature cdoFeature)
   {
     EStructuralFeature eFeature = ModelUtil.getEFeature(cdoFeature, packageRegistry);
     return internalObject.eClass().getFeatureID(eFeature);

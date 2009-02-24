@@ -12,15 +12,15 @@ package org.eclipse.emf.cdo.internal.common.model;
 
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOClassProxy;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
+import org.eclipse.emf.cdo.common.model.EClass;
+import org.eclipse.emf.cdo.common.model.EClassProxy;
+import org.eclipse.emf.cdo.common.model.EClassRef;
+import org.eclipse.emf.cdo.common.model.EStructuralFeature;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
+import org.eclipse.emf.cdo.common.model.EPackage;
 import org.eclipse.emf.cdo.common.model.CDOPackageManager;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOClass;
+import org.eclipse.emf.cdo.spi.common.model.InternalEClass;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOFeature;
 
 import org.eclipse.net4j.util.ObjectUtil;
@@ -35,33 +35,33 @@ import java.util.List;
 /**
  * @author Eike Stepper
  */
-public class CDOClassImpl extends CDOModelElementImpl implements InternalCDOClass
+public class EClassImpl extends EModelElementImpl implements InternalEClass
 {
-  private static final ContextTracer MODEL_TRACER = new ContextTracer(OM.DEBUG_MODEL, CDOClassImpl.class);
+  private static final ContextTracer MODEL_TRACER = new ContextTracer(OM.DEBUG_MODEL, EClassImpl.class);
 
-  private static final ContextTracer PROTOCOL_TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, CDOClassImpl.class);
+  private static final ContextTracer PROTOCOL_TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, EClassImpl.class);
 
-  private CDOPackage containingPackage;
+  private EPackage containingPackage;
 
   private int classifierID;
 
   private boolean isAbstract;
 
-  private List<CDOClassProxy> superTypes = new ArrayList<CDOClassProxy>(0);
+  private List<EClassProxy> superTypes = new ArrayList<EClassProxy>(0);
 
-  private List<CDOFeature> features = new ArrayList<CDOFeature>(0);
+  private List<EStructuralFeature> features = new ArrayList<EStructuralFeature>(0);
 
   private transient List<Integer> indices;
 
-  private transient CDOClass[] allSuperTypes;
+  private transient EClass[] allSuperTypes;
 
-  private transient CDOFeature[] allFeatures;
+  private transient EStructuralFeature[] allFeatures;
 
-  public CDOClassImpl()
+  public EClassImpl()
   {
   }
 
-  public CDOClassImpl(CDOPackage containingPackage, int classifierID, String name, boolean isAbstract)
+  public EClassImpl(EPackage containingPackage, int classifierID, String name, boolean isAbstract)
   {
     super(name);
     this.containingPackage = containingPackage;
@@ -73,7 +73,7 @@ public class CDOClassImpl extends CDOModelElementImpl implements InternalCDOClas
     }
   }
 
-  public CDOClassImpl(CDOPackage containingPackage, CDODataInput in) throws IOException
+  public EClassImpl(EPackage containingPackage, CDODataInput in) throws IOException
   {
     this.containingPackage = containingPackage;
     read(in);
@@ -109,12 +109,12 @@ public class CDOClassImpl extends CDOModelElementImpl implements InternalCDOClas
     writeFeatures(out);
   }
 
-  public int getFeatureID(CDOFeature feature)
+  public int getFeatureID(EStructuralFeature feature)
   {
     int index = feature.getFeatureIndex();
     if (index != -1)
     {
-      CDOFeature[] features = getAllFeatures();
+      EStructuralFeature[] features = getAllFeatures();
       while (index < features.length)
       {
         if (features[index] == feature)
@@ -134,12 +134,12 @@ public class CDOClassImpl extends CDOModelElementImpl implements InternalCDOClas
     return containingPackage.getPackageManager();
   }
 
-  public CDOPackage getContainingPackage()
+  public EPackage getContainingPackage()
   {
     return containingPackage;
   }
 
-  public void setContainingPackage(CDOPackage containingPackage)
+  public void setContainingPackage(EPackage containingPackage)
   {
     this.containingPackage = containingPackage;
   }
@@ -194,10 +194,10 @@ public class CDOClassImpl extends CDOModelElementImpl implements InternalCDOClas
     return superTypes.size();
   }
 
-  public CDOClass[] getSuperTypes()
+  public EClass[] getSuperTypes()
   {
     int size = superTypes.size();
-    CDOClass[] result = new CDOClass[size];
+    EClass[] result = new EClass[size];
     for (int i = 0; i < size; i++)
     {
       result[i] = getSuperType(i);
@@ -206,21 +206,21 @@ public class CDOClassImpl extends CDOModelElementImpl implements InternalCDOClas
     return result;
   }
 
-  public void setSuperTypes(List<CDOClass> superTypes)
+  public void setSuperTypes(List<EClass> superTypes)
   {
-    this.superTypes = new ArrayList<CDOClassProxy>(superTypes.size());
-    for (CDOClass cdoClass : superTypes)
+    this.superTypes = new ArrayList<EClassProxy>(superTypes.size());
+    for (EClass cdoClass : superTypes)
     {
-      this.superTypes.add(new CDOClassProxy(cdoClass));
+      this.superTypes.add(new EClassProxy(cdoClass));
     }
   }
 
-  public CDOClass getSuperType(int index)
+  public EClass getSuperType(int index)
   {
     return superTypes.get(index).getCdoClass();
   }
 
-  public List<CDOClassProxy> getSuperTypeProxies()
+  public List<EClassProxy> getSuperTypeProxies()
   {
     return Collections.unmodifiableList(superTypes);
   }
@@ -230,29 +230,29 @@ public class CDOClassImpl extends CDOModelElementImpl implements InternalCDOClas
     return features.size();
   }
 
-  public CDOFeature[] getFeatures()
+  public EStructuralFeature[] getFeatures()
   {
-    return features.toArray(new CDOFeature[features.size()]);
+    return features.toArray(new EStructuralFeature[features.size()]);
   }
 
-  public void setFeatures(List<CDOFeature> features)
+  public void setFeatures(List<EStructuralFeature> features)
   {
     this.features = features;
-    for (CDOFeature feature : features)
+    for (EStructuralFeature feature : features)
     {
       ((InternalCDOFeature)feature).setContainingClass(this);
     }
   }
 
-  public CDOFeature lookupFeature(int featureID)
+  public EStructuralFeature lookupFeature(int featureID)
   {
     int i = getFeatureIndex(featureID);
     return getAllFeatures()[i];
   }
 
-  public CDOFeature lookupFeature(String name)
+  public EStructuralFeature lookupFeature(String name)
   {
-    for (CDOFeature feature : getAllFeatures())
+    for (EStructuralFeature feature : getAllFeatures())
     {
       if (ObjectUtil.equals(feature.getName(), name))
       {
@@ -263,20 +263,20 @@ public class CDOClassImpl extends CDOModelElementImpl implements InternalCDOClas
     return null;
   }
 
-  public CDOClassRef createClassRef()
+  public EClassRef createClassRef()
   {
     return CDOModelUtil.createClassRef(containingPackage.getPackageURI(), classifierID);
   }
 
-  public CDOClass[] getAllSuperTypes()
+  public EClass[] getAllSuperTypes()
   {
     if (allSuperTypes == null)
     {
-      List<CDOClass> result = new ArrayList<CDOClass>(0);
-      for (CDOClass superType : getSuperTypes())
+      List<EClass> result = new ArrayList<EClass>(0);
+      for (EClass superType : getSuperTypes())
       {
-        CDOClass[] higherSupers = superType.getAllSuperTypes();
-        for (CDOClass higherSuper : higherSupers)
+        EClass[] higherSupers = superType.getAllSuperTypes();
+        for (EClass higherSuper : higherSupers)
         {
           addUnique(higherSuper, result);
         }
@@ -284,7 +284,7 @@ public class CDOClassImpl extends CDOModelElementImpl implements InternalCDOClas
         addUnique(superType, result);
       }
 
-      allSuperTypes = result.toArray(new CDOClass[result.size()]);
+      allSuperTypes = result.toArray(new EClass[result.size()]);
     }
 
     return allSuperTypes;
@@ -294,10 +294,10 @@ public class CDOClassImpl extends CDOModelElementImpl implements InternalCDOClas
   {
     if (indices == null)
     {
-      CDOFeature[] features = getAllFeatures();
+      EStructuralFeature[] features = getAllFeatures();
       indices = new ArrayList<Integer>(features.length);
       int index = 0;
-      for (CDOFeature feature : features)
+      for (EStructuralFeature feature : features)
       {
         if (feature.getContainingClass() == this)
         {
@@ -312,35 +312,35 @@ public class CDOClassImpl extends CDOModelElementImpl implements InternalCDOClas
     return indices.get(featureID);
   }
 
-  public CDOFeature[] getAllFeatures()
+  public EStructuralFeature[] getAllFeatures()
   {
     if (allFeatures == null)
     {
-      List<CDOFeature> result = new ArrayList<CDOFeature>(0);
-      for (CDOClass superType : getSuperTypes())
+      List<EStructuralFeature> result = new ArrayList<EStructuralFeature>(0);
+      for (EClass superType : getSuperTypes())
       {
-        CDOFeature[] features = superType.getAllFeatures();
+        EStructuralFeature[] features = superType.getAllFeatures();
         addAllFeatures(features, result);
       }
 
       addAllFeatures(getFeatures(), result);
-      allFeatures = result.toArray(new CDOFeature[result.size()]);
+      allFeatures = result.toArray(new EStructuralFeature[result.size()]);
     }
 
     return allFeatures;
   }
 
-  public void addSuperType(CDOClassRef classRef)
+  public void addSuperType(EClassRef classRef)
   {
     if (MODEL_TRACER.isEnabled())
     {
       MODEL_TRACER.format("Adding super type: {0}", classRef);
     }
 
-    superTypes.add(new CDOClassProxy(classRef, containingPackage.getPackageManager()));
+    superTypes.add(new EClassProxy(classRef, containingPackage.getPackageManager()));
   }
 
-  public void addFeature(CDOFeature cdoFeature)
+  public void addFeature(EStructuralFeature cdoFeature)
   {
     if (MODEL_TRACER.isEnabled())
     {
@@ -350,7 +350,7 @@ public class CDOClassImpl extends CDOModelElementImpl implements InternalCDOClas
     features.add(cdoFeature);
   }
 
-  public int compareTo(CDOClass that)
+  public int compareTo(EClass that)
   {
     return getName().compareTo(that.getName());
   }
@@ -358,7 +358,7 @@ public class CDOClassImpl extends CDOModelElementImpl implements InternalCDOClas
   @Override
   public String toString()
   {
-    return MessageFormat.format("CDOClass(ID={0}, name={1})", classifierID, getName());
+    return MessageFormat.format("EClass(ID={0}, name={1})", classifierID, getName());
   }
 
   private void setIndex(int featureID, int index)
@@ -381,13 +381,13 @@ public class CDOClassImpl extends CDOModelElementImpl implements InternalCDOClas
 
     for (int i = 0; i < size; i++)
     {
-      CDOClassRef classRef = in.readCDOClassRef();
+      EClassRef classRef = in.readEClassRef();
       if (PROTOCOL_TRACER.isEnabled())
       {
         PROTOCOL_TRACER.format("Read super type: classRef={0}", classRef, classifierID);
       }
 
-      superTypes.add(new CDOClassProxy(classRef, containingPackage.getPackageManager()));
+      superTypes.add(new EClassProxy(classRef, containingPackage.getPackageManager()));
     }
   }
 
@@ -401,7 +401,7 @@ public class CDOClassImpl extends CDOModelElementImpl implements InternalCDOClas
 
     for (int i = 0; i < size; i++)
     {
-      CDOFeature cdoFeature = in.readCDOFeature(this);
+      EStructuralFeature cdoFeature = in.readEStructuralFeature(this);
       addFeature(cdoFeature);
     }
   }
@@ -415,15 +415,15 @@ public class CDOClassImpl extends CDOModelElementImpl implements InternalCDOClas
     }
 
     out.writeInt(size);
-    for (CDOClassProxy proxy : superTypes)
+    for (EClassProxy proxy : superTypes)
     {
-      CDOClassRef classRef = proxy.getClassRef();
+      EClassRef classRef = proxy.getClassRef();
       if (PROTOCOL_TRACER.isEnabled())
       {
         PROTOCOL_TRACER.format("Writing super type: classRef={0}", classRef);
       }
 
-      out.writeCDOClassRef(classRef);
+      out.writeEClassRef(classRef);
     }
   }
 
@@ -436,15 +436,15 @@ public class CDOClassImpl extends CDOModelElementImpl implements InternalCDOClas
     }
 
     out.writeInt(size);
-    for (CDOFeature cdoFeature : features)
+    for (EStructuralFeature cdoFeature : features)
     {
-      out.writeCDOFeature(cdoFeature);
+      out.writeEStructuralFeature(cdoFeature);
     }
   }
 
-  private static void addAllFeatures(CDOFeature[] features, List<CDOFeature> result)
+  private static void addAllFeatures(EStructuralFeature[] features, List<EStructuralFeature> result)
   {
-    for (CDOFeature feature : features)
+    for (EStructuralFeature feature : features)
     {
       addUnique(feature, result);
     }

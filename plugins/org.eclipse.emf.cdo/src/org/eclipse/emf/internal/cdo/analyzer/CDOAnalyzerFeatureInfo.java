@@ -13,12 +13,13 @@
 package org.eclipse.emf.internal.cdo.analyzer;
 
 import org.eclipse.emf.cdo.common.CDOFetchRule;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
 
 import org.eclipse.emf.internal.cdo.bundle.OM;
 
 import org.eclipse.net4j.util.om.trace.ContextTracer;
+
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -33,18 +34,18 @@ public class CDOAnalyzerFeatureInfo
 
   private Map<CDOFetchFeatureInfo, CDOFetchFeatureInfo> featureStats = new HashMap<CDOFetchFeatureInfo, CDOFetchFeatureInfo>();
 
-  private Map<CDOClass, CDOFetchRule> fetchRules = new HashMap<CDOClass, CDOFetchRule>();
+  private Map<EClass, CDOFetchRule> fetchRules = new HashMap<EClass, CDOFetchRule>();
 
   public CDOAnalyzerFeatureInfo()
   {
   }
 
-  public Collection<CDOFetchRule> getRules(CDOClass cdoClass, CDOFeature cdoFeature)
+  public Collection<CDOFetchRule> getRules(EClass cdoClass, EStructuralFeature cdoFeature)
   {
     return fetchRules.values();
   }
 
-  public synchronized CDOFetchFeatureInfo getFeatureStat(CDOClass cdoClass, CDOFeature cdoFeature)
+  public synchronized CDOFetchFeatureInfo getFeatureStat(EClass cdoClass, EStructuralFeature cdoFeature)
   {
     CDOFetchFeatureInfo search = new CDOFetchFeatureInfo(cdoClass, cdoFeature);
     CDOFetchFeatureInfo featureRule = featureStats.get(search);
@@ -57,14 +58,14 @@ public class CDOAnalyzerFeatureInfo
     return featureRule;
   }
 
-  public boolean isActive(CDOClass cdoClass, CDOFeature cdoFeature)
+  public boolean isActive(EClass cdoClass, EStructuralFeature cdoFeature)
   {
     CDOFetchFeatureInfo search = new CDOFetchFeatureInfo(cdoClass, cdoFeature);
     CDOFetchFeatureInfo featureRule = featureStats.get(search);
     return featureRule != null && featureRule.isActive();
   }
 
-  public void activate(CDOClass cdoClass, CDOFeature cdoFeature)
+  public void activate(EClass cdoClass, EStructuralFeature cdoFeature)
   {
     CDOFetchFeatureInfo info = getFeatureStat(cdoClass, cdoFeature);
     if (!info.isActive())
@@ -74,7 +75,7 @@ public class CDOAnalyzerFeatureInfo
     }
   }
 
-  public void deactivate(CDOClass cdoClass, CDOFeature cdoFeature)
+  public void deactivate(EClass cdoClass, EStructuralFeature cdoFeature)
   {
     CDOFetchFeatureInfo info = getFeatureStat(cdoClass, cdoFeature);
     if (info.isActive())
@@ -84,7 +85,7 @@ public class CDOAnalyzerFeatureInfo
     }
   }
 
-  private void addRule(CDOClass cdoClass, CDOFeature cdoFeature)
+  private void addRule(EClass cdoClass, EStructuralFeature cdoFeature)
   {
     if (TRACER.isEnabled())
     {
@@ -101,7 +102,7 @@ public class CDOAnalyzerFeatureInfo
     fetchRule.addFeature(cdoFeature);
   }
 
-  private void removeRule(CDOClass cdoClass, CDOFeature cdoFeature)
+  private void removeRule(EClass cdoClass, EStructuralFeature cdoFeature)
   {
     if (TRACER.isEnabled())
     {

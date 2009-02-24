@@ -8,18 +8,16 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  */
-package org.eclipse.emf.cdo.common.model.resource;
+package org.eclipse.emf.cdo.common.model;
 
-import org.eclipse.emf.cdo.common.model.CDOFeature;
+import org.eclipse.net4j.util.container.IContainer;
 
 /**
  * @author Eike Stepper
- * @noimplement This interface is not intended to be implemented by clients.
- * @since 2.0
  */
-public interface CDONameFeature extends CDOFeature
+public interface CDOPackageUnitManager extends IContainer<CDOPackageUnit>
 {
-  public static final int FEATURE_ID = 1;
+  public CDOPackageUnit[] getPackageUnits();
 
-  public static final String NAME = "name";
+  public CDOPackageUnit getPackageUnit(String id);
 }

@@ -10,8 +10,9 @@
  */
 package org.eclipse.emf.cdo.server.internal.hibernate.tuplizer;
 
-import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
+
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 import org.hibernate.HibernateException;
 import org.hibernate.PropertyNotFoundException;
@@ -60,12 +61,12 @@ public class CDORevisionPropertyAccessor implements PropertyAccessor
   {
     private CDORevisionPropertyAccessor propertyAccessor;
 
-    private CDOFeature cdoFeature;
+    private EStructuralFeature cdoFeature;
 
     public BaseAccessor(CDORevisionPropertyAccessor propertyAccessor, String propertyName)
     {
       this.propertyAccessor = propertyAccessor;
-      cdoFeature = propertyAccessor.getTuplizer().getCDOClass().lookupFeature(propertyName);
+      cdoFeature = propertyAccessor.getTuplizer().getEClass().lookupFeature(propertyName);
       if (cdoFeature == null)
       {
         throw new IllegalStateException("Feature not found: " + propertyName);
@@ -77,7 +78,7 @@ public class CDORevisionPropertyAccessor implements PropertyAccessor
       return propertyAccessor;
     }
 
-    public CDOFeature getCDOFeature()
+    public EStructuralFeature getEStructuralFeature()
     {
       return cdoFeature;
     }
@@ -98,7 +99,7 @@ public class CDORevisionPropertyAccessor implements PropertyAccessor
     public Object get(Object target) throws HibernateException
     {
       InternalCDORevision revision = (InternalCDORevision)target;
-      return revision.getValue(getCDOFeature());
+      return revision.getValue(getEStructuralFeature());
     }
 
     @SuppressWarnings("unchecked")
@@ -149,7 +150,7 @@ public class CDORevisionPropertyAccessor implements PropertyAccessor
     public void set(Object target, Object value, SessionFactoryImplementor factory) throws HibernateException
     {
       InternalCDORevision revision = (InternalCDORevision)target;
-      revision.setValue(getCDOFeature(), value);
+      revision.setValue(getEStructuralFeature(), value);
     }
   }
 }

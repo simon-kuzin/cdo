@@ -11,12 +11,10 @@
  */
 package org.eclipse.emf.cdo.internal.common.revision.cache.lru;
 
+import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOPackageManager;
-import org.eclipse.emf.cdo.common.model.resource.CDONameFeature;
-import org.eclipse.emf.cdo.common.model.resource.CDOResourceNodeClass;
+import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
@@ -26,6 +24,9 @@ import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.net4j.util.ObjectUtil;
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
+
+import org.eclipse.emf.ecore.EAttribute;
+import org.eclipse.emf.ecore.EClass;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -42,7 +43,7 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
 
   private Map<CDOID, RevisionHolder> revisions = new HashMap<CDOID, RevisionHolder>();
 
-  private CDOPackageManager packageManager;
+  private CDOPackageRegistry packageManager;
 
   private int capacityCurrent;
 
@@ -52,24 +53,23 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
 
   private LRU revisedLRU;
 
-  private transient CDONameFeature cdoNameFeature;
+  private transient EAttribute cdoNameFeature;
 
   public LRURevisionCache()
   {
   }
 
-  public CDOPackageManager getPackageManager()
+  public CDOPackageRegistry getPackageManager()
   {
     return packageManager;
   }
 
-  public void setPackageManager(CDOPackageManager packageManager)
+  public void setPackageManager(CDOPackageRegistry packageManager)
   {
     this.packageManager = packageManager;
     if (packageManager != null)
     {
-      CDOResourceNodeClass resourceNodeClass = packageManager.getCDOResourcePackage().getCDOResourceNodeClass();
-      cdoNameFeature = resourceNodeClass.getCDONameFeature();
+      cdoNameFeature = TODO.getResourceNodeNameAttribute(packageManager);
     }
   }
 
@@ -124,7 +124,7 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
     return currentRevisions;
   }
 
-  public synchronized CDOClass getObjectType(CDOID id)
+  public synchronized EClass getObjectType(CDOID id)
   {
     RevisionHolder holder = getHolder(id);
     if (holder == null)
@@ -133,7 +133,7 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
     }
 
     InternalCDORevision revision = holder.getRevision();
-    return revision.getCDOClass();
+    return revision.getEClass();
   }
 
   public synchronized InternalCDORevision getRevision(CDOID id)

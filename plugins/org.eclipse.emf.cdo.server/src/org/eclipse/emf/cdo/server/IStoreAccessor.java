@@ -14,17 +14,17 @@ import org.eclipse.emf.cdo.common.CDOCommonView;
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
+import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
-import org.eclipse.emf.cdo.common.model.CDOPackageManager;
+import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackage;
 
 import org.eclipse.net4j.util.collection.CloseableIterator;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
+
+import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.util.Collection;
 import java.util.Map;
@@ -59,7 +59,7 @@ public interface IStoreAccessor extends IQueryHandler
   /**
    * @since 2.0
    */
-  public IStoreChunkReader createChunkReader(CDORevision revision, CDOFeature feature);
+  public IStoreChunkReader createChunkReader(CDORevision revision, EStructuralFeature feature);
 
   /**
    * @since 2.0
@@ -69,24 +69,24 @@ public interface IStoreAccessor extends IQueryHandler
   /**
    * Demand loads a given package proxy that has been created on startup of the repository.
    * <p>
-   * It's left to the implementor's choice whether to load the {@link CDOPackage#getEcore() ecore xml} at this time
-   * already. In case it is <b>not</b> loaded at this time {@link #readPackageEcore(CDOPackage) readPackageEcore()} is
+   * It's left to the implementor's choice whether to load the {@link EPackage#getEcore() ecore xml} at this time
+   * already. In case it is <b>not</b> loaded at this time {@link #readPackageEcore(EPackage) readPackageEcore()} is
    * called later on demand.
    * <p>
    * This method must only load the given package, <b>not</b> possible contained packages.
    * 
-   * @see InternalCDOPackage
+   * @see InternalEPackage
    * @since 2.0
    */
-  public void readPackage(CDOPackage cdoPackage);
+  public void readPackage(EPackage cdoPackage);
 
   /**
-   * Loads the {@link CDOPackage#getEcore() ecore xml} of the given package.
+   * Loads the {@link EPackage#getEcore() ecore xml} of the given package.
    * 
-   * @see InternalCDOPackage#setEcore(String)
+   * @see InternalEPackage#setEcore(String)
    * @since 2.0
    */
-  public void readPackageEcore(CDOPackage cdoPackage);
+  public void readPackageEcore(EPackage cdoPackage);
 
   /**
    * Returns an iterator that iterates over all objects in the store and makes their CDOIDs available for processing.
@@ -102,7 +102,7 @@ public interface IStoreAccessor extends IQueryHandler
    * 
    * @since 2.0
    */
-  public CDOClassRef readObjectType(CDOID id);
+  public CDOClassifierRef readObjectType(CDOID id);
 
   /**
    * Reads a current revision (i.e. one with revised == 0) from the back-end. Returns <code>null</code> if the id is
@@ -264,13 +264,13 @@ public interface IStoreAccessor extends IQueryHandler
      * <code>CommitContext</code>. In addition to the packages registered with the session this package manager also
      * contains the new packages that are part of this commit operation.
      */
-    public CDOPackageManager getPackageManager();
+    public CDOPackageRegistry getPackageManager();
 
     /**
      * Returns an array of the new packages that are part of the commit operation represented by this
      * <code>CommitContext</code>.
      */
-    public CDOPackage[] getNewPackages();
+    public EPackage[] getNewPackages();
 
     /**
      * Returns an array of the new objects that are part of the commit operation represented by this

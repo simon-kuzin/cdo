@@ -22,8 +22,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
-import org.eclipse.emf.cdo.common.model.CDOPackageManager;
+import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.model.CDOPackageURICompressor;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDOListFactory;
@@ -35,7 +34,6 @@ import org.eclipse.emf.cdo.internal.common.io.CDODataInputImpl;
 import org.eclipse.emf.cdo.internal.common.io.CDODataOutputImpl;
 import org.eclipse.emf.cdo.session.CDORevisionManager;
 import org.eclipse.emf.cdo.session.CDOSessionPackageManager;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackage;
 
 import org.eclipse.emf.internal.cdo.bundle.OM;
 import org.eclipse.emf.internal.cdo.revision.CDOListWithElementProxiesImpl;
@@ -46,6 +44,7 @@ import org.eclipse.net4j.util.io.ExtendedDataOutputStream;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.spi.cdo.InternalCDOSession;
 import org.eclipse.emf.spi.cdo.CDOSessionProtocol.CommitTransactionResult;
 import org.eclipse.emf.spi.cdo.InternalCDOTransaction.InternalCDOCommitContext;
@@ -147,7 +146,7 @@ public class CommitTransactionRequest extends RequestWithMonitoring<CommitTransa
       }
 
       @Override
-      protected CDOPackageManager getPackageManager()
+      protected CDOPackageRegistry getPackageManager()
       {
         return CommitTransactionRequest.this.getPackageManager();
       }
@@ -199,7 +198,7 @@ public class CommitTransactionRequest extends RequestWithMonitoring<CommitTransa
 
   protected void requestingCommit(CDODataOutput out) throws IOException
   {
-    List<CDOPackage> newPackages = commitContext.getNewPackages();
+    List<EPackage> newPackages = commitContext.getNewPackages();
     Collection<CDOResource> newResources = commitContext.getNewResources().values();
     Collection<CDOObject> newObjects = commitContext.getNewObjects().values();
     Collection<CDORevisionDelta> revisionDeltas = commitContext.getRevisionDeltas().values();
@@ -216,15 +215,15 @@ public class CommitTransactionRequest extends RequestWithMonitoring<CommitTransa
       PROTOCOL_TRACER.format("Writing {0} new packages", newPackages.size());
     }
 
-    for (CDOPackage newPackage : newPackages)
+    for (EPackage newPackage : newPackages)
     {
       if (PROTOCOL_TRACER.isEnabled())
       {
         PROTOCOL_TRACER.format("Writing package {0}", newPackage);
       }
 
-      out.writeCDOPackage(newPackage);
-      out.writeString(((InternalCDOPackage)newPackage).basicGetEcore());
+      out.writeEPackage(newPackage);
+      // out.writeString(((InternalEPackage)newPackage).basicGetEcore());
     }
 
     if (PROTOCOL_TRACER.isEnabled())
@@ -275,14 +274,14 @@ public class CommitTransactionRequest extends RequestWithMonitoring<CommitTransa
   protected void confirmingNewPackage(CDODataInput in, CommitTransactionResult result) throws IOException
   {
     InternalCDOSession session = commitContext.getTransaction().getSession();
-    List<CDOPackage> newPackages = commitContext.getNewPackages();
-    for (CDOPackage newPackage : newPackages)
+    List<EPackage> newPackages = commitContext.getNewPackages();
+    for (EPackage newPackage : newPackages)
     {
       if (newPackage.getParentURI() == null)
       {
         CDOIDMetaRange oldRange = newPackage.getMetaIDRange();
         CDOIDMetaRange newRange = in.readCDOIDMetaRange();
-        ((InternalCDOPackage)newPackage).setMetaIDRange(newRange);
+        ((InternalEPackage)newPackage).setMetaIDRange(newRange);
         for (int i = 0; i < oldRange.size(); i++)
         {
           CDOIDTemp oldID = (CDOIDTemp)oldRange.get(i);

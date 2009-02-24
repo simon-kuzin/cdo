@@ -11,9 +11,6 @@
 package org.eclipse.emf.cdo.server.internal.db;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
-import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.IStore;
 import org.eclipse.emf.cdo.server.db.IAttributeMapping;
@@ -33,6 +30,10 @@ import org.eclipse.net4j.db.ddl.IDBTable;
 import org.eclipse.net4j.util.ImplementationError;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.EStructuralFeature;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -45,7 +46,7 @@ public abstract class ClassMapping implements IClassMapping
 {
   private MappingStrategy mappingStrategy;
 
-  private CDOClass cdoClass;
+  private EClass cdoClass;
 
   private IDBTable table;
 
@@ -55,7 +56,7 @@ public abstract class ClassMapping implements IClassMapping
 
   private List<IReferenceMapping> referenceMappings;
 
-  public ClassMapping(MappingStrategy mappingStrategy, CDOClass cdoClass, CDOFeature[] features)
+  public ClassMapping(MappingStrategy mappingStrategy, EClass cdoClass, EStructuralFeature[] features)
   {
     this.mappingStrategy = mappingStrategy;
     this.cdoClass = cdoClass;
@@ -103,7 +104,7 @@ public abstract class ClassMapping implements IClassMapping
     return mappingStrategy;
   }
 
-  public CDOClass getCDOClass()
+  public EClass getEClass()
   {
     return cdoClass;
   }
@@ -142,7 +143,7 @@ public abstract class ClassMapping implements IClassMapping
     return table;
   }
 
-  protected IDBField addField(CDOFeature cdoFeature, IDBTable table) throws DBException
+  protected IDBField addField(EStructuralFeature cdoFeature, IDBTable table) throws DBException
   {
     String fieldName = mappingStrategy.getFieldName(cdoFeature);
     DBType fieldType = getDBType(cdoFeature);
@@ -153,12 +154,12 @@ public abstract class ClassMapping implements IClassMapping
     return field;
   }
 
-  protected DBType getDBType(CDOFeature cdoFeature)
+  protected DBType getDBType(EStructuralFeature cdoFeature)
   {
     return DBStore.getDBType(cdoFeature.getType());
   }
 
-  protected int getDBLength(CDOFeature cdoFeature)
+  protected int getDBLength(EStructuralFeature cdoFeature)
   {
     // Derby: The maximum length for a VARCHAR string is 32,672 characters.
     CDOType type = cdoFeature.getType();
@@ -171,9 +172,9 @@ public abstract class ClassMapping implements IClassMapping
     return store.getDBAdapter();
   }
 
-  public IFeatureMapping getFeatureMapping(CDOFeature feature)
+  public IFeatureMapping getFeatureMapping(EStructuralFeature feature)
   {
-    if (feature.isReference() && mappingStrategy.getToMany() != ToMany.LIKE_ATTRIBUTES)
+    if (feature instanceof EReference && mappingStrategy.getToMany() != ToMany.LIKE_ATTRIBUTES)
     {
       return getReferenceMapping(feature);
     }
@@ -191,7 +192,7 @@ public abstract class ClassMapping implements IClassMapping
     return referenceMappings;
   }
 
-  public IReferenceMapping getReferenceMapping(CDOFeature feature)
+  public IReferenceMapping getReferenceMapping(EStructuralFeature feature)
   {
     // TODO Optimize this?
     for (IReferenceMapping referenceMapping : referenceMappings)
@@ -205,7 +206,7 @@ public abstract class ClassMapping implements IClassMapping
     return null;
   }
 
-  public IAttributeMapping getAttributeMapping(CDOFeature feature)
+  public IAttributeMapping getAttributeMapping(EStructuralFeature feature)
   {
     // TODO Optimize this?
     for (IAttributeMapping attributeMapping : attributeMappings)
@@ -219,12 +220,12 @@ public abstract class ClassMapping implements IClassMapping
     return null;
   }
 
-  protected List<IAttributeMapping> createAttributeMappings(CDOFeature[] features)
+  protected List<IAttributeMapping> createAttributeMappings(EStructuralFeature[] features)
   {
     List<IAttributeMapping> attributeMappings = new ArrayList<IAttributeMapping>();
-    for (CDOFeature feature : features)
+    for (EStructuralFeature feature : features)
     {
-      if (feature.isReference())
+      if (feature instanceof EReference)
       {
         if (!feature.isMany())
         {
@@ -240,12 +241,12 @@ public abstract class ClassMapping implements IClassMapping
     return attributeMappings.isEmpty() ? null : attributeMappings;
   }
 
-  protected List<IReferenceMapping> createReferenceMappings(CDOFeature[] features)
+  protected List<IReferenceMapping> createReferenceMappings(EStructuralFeature[] features)
   {
     List<IReferenceMapping> referenceMappings = new ArrayList<IReferenceMapping>();
-    for (CDOFeature feature : features)
+    for (EStructuralFeature feature : features)
     {
-      if (feature.isReference() && feature.isMany())
+      if (feature instanceof EReference && feature.isMany())
       {
         referenceMappings.add(createReferenceMapping(feature));
       }
@@ -254,7 +255,7 @@ public abstract class ClassMapping implements IClassMapping
     return referenceMappings.isEmpty() ? null : referenceMappings;
   }
 
-  protected AttributeMapping createAttributeMapping(CDOFeature feature)
+  protected AttributeMapping createAttributeMapping(EStructuralFeature feature)
   {
     CDOType type = feature.getType();
     if (type == CDOType.BOOLEAN || type == CDOType.BOOLEAN_OBJECT)
@@ -305,17 +306,17 @@ public abstract class ClassMapping implements IClassMapping
     throw new ImplementationError("Unrecognized CDOType: " + type);
   }
 
-  protected ToOneReferenceMapping createToOneReferenceMapping(CDOFeature feature)
+  protected ToOneReferenceMapping createToOneReferenceMapping(EStructuralFeature feature)
   {
     return new ToOneReferenceMapping(this, feature);
   }
 
-  protected ReferenceMapping createReferenceMapping(CDOFeature feature)
+  protected ReferenceMapping createReferenceMapping(EStructuralFeature feature)
   {
     return new ReferenceMapping(this, feature, ToMany.PER_REFERENCE);
   }
 
-  public Object createReferenceMappingKey(CDOFeature cdoFeature)
+  public Object createReferenceMappingKey(EStructuralFeature cdoFeature)
   {
     return cdoFeature;
   }

@@ -19,12 +19,6 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDMeta;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
-import org.eclipse.emf.cdo.common.model.resource.CDONameFeature;
-import org.eclipse.emf.cdo.common.model.resource.CDOResourceFolderClass;
-import org.eclipse.emf.cdo.common.model.resource.CDOResourceNodeClass;
-import org.eclipse.emf.cdo.common.model.resource.CDOResourcePackage;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionResolver;
@@ -81,6 +75,7 @@ import org.eclipse.emf.common.notify.impl.NotificationImpl;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.util.EcoreUtil;
@@ -451,13 +446,13 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     InternalCDORevision folderRevision = getLocalRevision(folderID);
     CDOResourcePackage resourcePackage = getSession().getPackageManager().getCDOResourcePackage();
     CDOResourceFolderClass resourceFolderClass = resourcePackage.getCDOResourceFolderClass();
-    if (folderRevision.getCDOClass() != resourceFolderClass)
+    if (folderRevision.getEClass() != resourceFolderClass)
     {
       throw new CDOException("Expected folder for id = " + folderID);
     }
 
-    CDOFeature nodesFeature = resourceFolderClass.getCDONodesFeature();
-    CDOFeature nameFeature = resourcePackage.getCDOResourceNodeClass().getCDONameFeature();
+    EStructuralFeature nodesFeature = resourceFolderClass.getCDONodesFeature();
+    EStructuralFeature nameFeature = resourcePackage.getCDOResourceNodeClass().getCDONameFeature();
 
     int size = folderRevision.data().size(nodesFeature);
     for (int i = 0; i < size; i++)
@@ -630,7 +625,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     return (CDOResourceImpl)getObject(resourceID);
   }
 
-  public InternalCDOObject newInstance(CDOClass cdoClass)
+  public InternalCDOObject newInstance(EClass cdoClass)
   {
     EClass eClass = ModelUtil.getEClass(cdoClass, session.getPackageRegistry());
     if (eClass == null)
@@ -796,7 +791,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     InternalCDORevision revision = getRevision(id, true);
     FSMUtil.validate(id, revision);
 
-    CDOClass cdoClass = revision.getCDOClass();
+    EClass cdoClass = revision.getEClass();
     InternalCDOObject object;
     if (cdoClass.isResource())
     {

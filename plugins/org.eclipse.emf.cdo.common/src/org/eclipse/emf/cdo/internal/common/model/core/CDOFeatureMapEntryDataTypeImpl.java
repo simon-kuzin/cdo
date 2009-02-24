@@ -11,20 +11,20 @@
  */
 package org.eclipse.emf.cdo.internal.common.model.core;
 
-import org.eclipse.emf.cdo.common.model.core.CDOFeatureMapEntryDataType;
+import org.eclipse.emf.cdo.common.model.core.EStructuralFeatureMapEntryDataType;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjustable;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 
 /**
  * @author Simon McDuff
  */
-public class CDOFeatureMapEntryDataTypeImpl implements CDOFeatureMapEntryDataType, CDOReferenceAdjustable
+public class EStructuralFeatureMapEntryDataTypeImpl implements EStructuralFeatureMapEntryDataType, CDOReferenceAdjustable
 {
   private String uri;
 
   private Object object;
 
-  public CDOFeatureMapEntryDataTypeImpl(String uri, Object object)
+  public EStructuralFeatureMapEntryDataTypeImpl(String uri, Object object)
   {
     this.uri = uri;
     this.object = object;

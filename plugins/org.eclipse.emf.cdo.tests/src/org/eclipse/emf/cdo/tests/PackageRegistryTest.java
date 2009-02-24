@@ -11,7 +11,6 @@
 package org.eclipse.emf.cdo.tests;
 
 import org.eclipse.emf.cdo.CDOObject;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.net4j.CDONet4jUtil;
 import org.eclipse.emf.cdo.net4j.CDOSessionConfiguration;
@@ -30,7 +29,8 @@ import org.eclipse.emf.cdo.tests.model3.subpackage.Class2;
 import org.eclipse.emf.cdo.tests.model3.subpackage.SubpackageFactory;
 import org.eclipse.emf.cdo.tests.model3.subpackage.SubpackagePackage;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
-import org.eclipse.emf.cdo.util.EMFUtil;
+
+import org.eclipse.emf.internal.cdo.CDOFactoryImpl;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EAttribute;
@@ -154,11 +154,11 @@ public class PackageRegistryTest extends AbstractCDOTest
     res.getContents().add(class1);
     transaction.commit();
 
-    CDOPackage model3Package = session.getPackageManager().lookupPackage(Model3Package.eINSTANCE.getNsURI());
+    EPackage model3Package = session.getPackageManager().lookupPackage(Model3Package.eINSTANCE.getNsURI());
     assertEquals(11, model3Package.getMetaIDRange().size());
     assertNotNull(model3Package.getEcore());
 
-    CDOPackage subPackage = session.getPackageManager().lookupPackage(SubpackagePackage.eINSTANCE.getNsURI());
+    EPackage subPackage = session.getPackageManager().lookupPackage(SubpackagePackage.eINSTANCE.getNsURI());
     assertNull(subPackage.getMetaIDRange());
     assertNull(subPackage.getEcore());
     session.close();
@@ -180,11 +180,11 @@ public class PackageRegistryTest extends AbstractCDOTest
     }
 
     CDOSession session = openSession();
-    CDOPackage model3Package = session.getPackageManager().lookupPackage(Model3Package.eINSTANCE.getNsURI());
+    EPackage model3Package = session.getPackageManager().lookupPackage(Model3Package.eINSTANCE.getNsURI());
     assertEquals(11, model3Package.getMetaIDRange().size());
     assertNotNull(model3Package.getEcore());
 
-    CDOPackage subPackage = session.getPackageManager().lookupPackage(SubpackagePackage.eINSTANCE.getNsURI());
+    EPackage subPackage = session.getPackageManager().lookupPackage(SubpackagePackage.eINSTANCE.getNsURI());
     assertNull(subPackage.getMetaIDRange());
     assertNull(subPackage.getEcore());
     session.close();
@@ -339,7 +339,7 @@ public class PackageRegistryTest extends AbstractCDOTest
     c.setName("DClass");
 
     p.getEClassifiers().add(c);
-    EMFUtil.prepareDynamicEPackage(p);
+    CDOFactoryImpl.prepareDynamicEPackage(p);
     EPackage.Registry.INSTANCE.put(p.getNsURI(), p);
 
     CDOSession session = openLazySession();
@@ -356,7 +356,7 @@ public class PackageRegistryTest extends AbstractCDOTest
 
   public void testDynamicPackageFactory() throws Exception
   {
-    // -Dorg.eclipse.emf.ecore.EPackage.Registry.INSTANCE=org.eclipse.emf.ecore.impl.EPackageRegistryImpl
+    // -Dorg.eclipse.emf.ecore.EPackage.Registry.INSTANCE=org.eclipse.emf.ecore.impl.CDOPackageRegistryImpl
 
     {
       EPackage model1 = loadModel("model1.ecore");

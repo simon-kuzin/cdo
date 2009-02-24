@@ -12,8 +12,7 @@ package org.eclipse.emf.cdo.server.internal.db;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
+import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IMappingStrategy;
 import org.eclipse.emf.cdo.server.db.IObjectTypeCache;
@@ -27,6 +26,8 @@ import org.eclipse.net4j.db.ddl.IDBIndex;
 import org.eclipse.net4j.db.ddl.IDBSchema;
 import org.eclipse.net4j.db.ddl.IDBTable;
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
+
+import org.eclipse.emf.ecore.EClass;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -61,7 +62,7 @@ public class ObjectTypeCache extends Lifecycle implements IObjectTypeCache
     this.mappingStrategy = mappingStrategy;
   }
 
-  public final CDOClassRef getObjectType(IDBStoreAccessor accessor, CDOID id)
+  public final CDOClassifierRef getObjectType(IDBStoreAccessor accessor, CDOID id)
   {
     Statement statement = accessor.getJDBCDelegate().getStatement();
     initialize(statement);
@@ -101,7 +102,7 @@ public class ObjectTypeCache extends Lifecycle implements IObjectTypeCache
     }
   }
 
-  public final void putObjectType(IDBStoreAccessor accessor, CDOID id, CDOClass type)
+  public final void putObjectType(IDBStoreAccessor accessor, CDOID id, EClass type)
   {
     Statement statement = accessor.getJDBCDelegate().getStatement();
     initialize(statement);

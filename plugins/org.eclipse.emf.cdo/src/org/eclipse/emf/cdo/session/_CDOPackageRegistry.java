@@ -10,15 +10,13 @@
  */
 package org.eclipse.emf.cdo.session;
 
-import org.eclipse.emf.cdo.common.model.CDOPackage;
-
 import org.eclipse.emf.ecore.EPackage;
 
 /**
  * @author Eike Stepper
  * @since 2.0
  */
-public interface CDOPackageRegistry extends EPackage.Registry
+public interface _CDOPackageRegistry extends EPackage.Registry
 {
   /**
    * Registers a top level {@link EPackage} <b>and</b> its sub packages with this package registry.
@@ -31,7 +29,7 @@ public interface CDOPackageRegistry extends EPackage.Registry
    */
   public EPackage putEPackage(EPackage ePackage) throws IllegalArgumentException;
 
-  public void putPackageDescriptor(CDOPackage proxy);
+  public void putPackageDescriptor(EPackage proxy);
 
   public CDOSession getSession();
 

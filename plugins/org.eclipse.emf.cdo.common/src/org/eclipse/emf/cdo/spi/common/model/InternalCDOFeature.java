@@ -12,10 +12,10 @@ package org.eclipse.emf.cdo.spi.common.model;
 
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOClassProxy;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
+import org.eclipse.emf.cdo.common.model.EClass;
+import org.eclipse.emf.cdo.common.model.EClassProxy;
+import org.eclipse.emf.cdo.common.model.EClassRef;
+import org.eclipse.emf.cdo.common.model.EStructuralFeature;
 
 import java.io.IOException;
 
@@ -24,15 +24,15 @@ import java.io.IOException;
  * @noimplement This interface is not intended to be implemented by clients.
  * @since 2.0
  */
-public interface InternalCDOFeature extends CDOFeature, InternalCDOModelElement
+public interface InternalCDOFeature extends EStructuralFeature, InternalEModelElement
 {
-  public CDOClassProxy getReferenceTypeProxy();
+  public EClassProxy getReferenceTypeProxy();
 
-  public void setContainingClass(CDOClass containingClass);
+  public void setContainingClass(EClass containingClass);
 
   public void setFeatureIndex(int featureIndex);
 
-  public void setReferenceType(CDOClassRef cdoClassRef);
+  public void setReferenceType(EClassRef cdoClassRef);
 
   public void setDefaultValue(Object defaultValue);
 

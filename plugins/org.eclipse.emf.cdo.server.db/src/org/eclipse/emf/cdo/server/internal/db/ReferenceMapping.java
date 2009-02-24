@@ -11,9 +11,6 @@
 package org.eclipse.emf.cdo.server.internal.db;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.IStoreChunkReader.Chunk;
@@ -27,6 +24,10 @@ import org.eclipse.net4j.db.DBType;
 import org.eclipse.net4j.db.ddl.IDBField;
 import org.eclipse.net4j.db.ddl.IDBTable;
 import org.eclipse.net4j.db.ddl.IDBIndex.Type;
+
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.util.List;
 import java.util.Map;
@@ -42,11 +43,11 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
 
   private boolean withFeature;
 
-  public ReferenceMapping(ClassMapping classMapping, CDOFeature feature, ToMany toMany)
+  public ReferenceMapping(ClassMapping classMapping, EStructuralFeature feature, ToMany toMany)
   {
     super(classMapping, feature);
     this.toMany = toMany;
-    mapReference(classMapping.getCDOClass(), feature);
+    mapReference(classMapping.getEClass(), feature);
   }
 
   public IDBTable getTable()
@@ -80,7 +81,7 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
     chunkReader.getAccessor().getJDBCDelegate().selectRevisionReferenceChunks(chunkReader, chunks, this, where);
   }
 
-  protected void mapReference(CDOClass cdoClass, CDOFeature cdoFeature)
+  protected void mapReference(EClass cdoClass, EStructuralFeature cdoFeature)
   {
     MappingStrategy mappingStrategy = getClassMapping().getMappingStrategy();
     switch (toMany)
@@ -101,7 +102,7 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
 
     case PER_PACKAGE:
       withFeature = true;
-      CDOPackage cdoPackage = cdoClass.getContainingPackage();
+      EPackage cdoPackage = cdoClass.getContainingPackage();
       table = mapReferenceTable(cdoPackage, mappingStrategy.getReferenceTableName(cdoPackage));
       break;
 
@@ -116,7 +117,7 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
     }
   }
 
-  protected Object getReferenceMappingKey(CDOFeature cdoFeature)
+  protected Object getReferenceMappingKey(EStructuralFeature cdoFeature)
   {
     return getClassMapping().createReferenceMappingKey(cdoFeature);
   }

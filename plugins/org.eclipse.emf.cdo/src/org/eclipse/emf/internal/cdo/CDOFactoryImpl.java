@@ -10,6 +10,7 @@
  */
 package org.eclipse.emf.internal.cdo;
 
+import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.util.CDOFactory;
 
 import org.eclipse.emf.ecore.EClass;
@@ -31,5 +32,19 @@ public class CDOFactoryImpl extends EFactoryImpl implements CDOFactory
   protected EObject basicCreate(EClass eClass)
   {
     return new DynamicCDOObjectImpl(eClass);
+  }
+
+  /**
+   * @since 2.0
+   */
+  public static boolean prepareDynamicEPackage(EPackage ePackage)
+  {
+    if (EMFUtil.isDynamicEPackage(ePackage))
+    {
+      ePackage.setEFactoryInstance(new CDOFactoryImpl(ePackage));
+      return true;
+    }
+
+    return false;
   }
 }

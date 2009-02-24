@@ -12,10 +12,9 @@
  */
 package org.eclipse.emf.cdo.internal.server;
 
+import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
-import org.eclipse.emf.cdo.common.model.resource.CDOResourceNodeClass;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.IMEMStore;
 import org.eclipse.emf.cdo.server.ISession;
@@ -26,6 +25,8 @@ import org.eclipse.emf.cdo.server.StoreThreadLocal;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.util.ObjectUtil;
+
+import org.eclipse.emf.ecore.EAttribute;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,6 +47,8 @@ public class MEMStore extends LongIDStore implements IMEMStore
 
   private int listLimit;
 
+  private EAttribute resourceNodeNameAttribute;
+
   /**
    * @param listLimit
    *          See {@link #setListLimit(int)}.
@@ -57,6 +60,7 @@ public class MEMStore extends LongIDStore implements IMEMStore
         RevisionTemporality.AUDITING), set(RevisionParallelism.NONE));
     setRevisionTemporality(RevisionTemporality.AUDITING);
     this.listLimit = listLimit;
+    resourceNodeNameAttribute = TODO.getResourceNodeNameAttribute(getRepository().getPackageManager());
   }
 
   public MEMStore()
@@ -178,7 +182,7 @@ public class MEMStore extends LongIDStore implements IMEMStore
     if (revision.isResource())
     {
       CDOID revisionFolder = (CDOID)revision.data().getContainerID();
-      String revisionName = (String)revision.data().get(getResourceNameFeature(), 0);
+      String revisionName = (String)revision.data().get(resourceNodeNameAttribute, 0);
 
       IStoreAccessor accessor = StoreThreadLocal.getAccessor();
       CDOID resourceID = accessor.readResourceID(revisionFolder, revisionName, revision.getCreated());
@@ -193,16 +197,6 @@ public class MEMStore extends LongIDStore implements IMEMStore
     {
       enforceListLimit(list);
     }
-  }
-
-  private CDOResourceNodeClass getResourceNodeClass()
-  {
-    return getRepository().getPackageManager().getCDOResourcePackage().getCDOResourceNodeClass();
-  }
-
-  private CDOFeature getResourceNameFeature()
-  {
-    return getResourceNodeClass().getCDONameFeature();
   }
 
   /**
@@ -264,7 +258,7 @@ public class MEMStore extends LongIDStore implements IMEMStore
             CDOID revisionFolder = (CDOID)revision.data().getContainerID();
             if (CDOIDUtil.equals(revisionFolder, folderID))
             {
-              String revisionName = (String)revision.data().get(getResourceNameFeature(), 0);
+              String revisionName = (String)revision.data().get(resourceNodeNameAttribute, 0);
               boolean match = exactMatch || revisionName == null || name == null ? ObjectUtil
                   .equals(revisionName, name) : revisionName.startsWith(name);
 

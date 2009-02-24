@@ -11,10 +11,11 @@
 package org.eclipse.emf.cdo.server.internal.db;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
+import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.server.db.IClassMapping;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
+
+import org.eclipse.emf.ecore.EClass;
 
 import java.util.Collections;
 import java.util.List;
@@ -46,21 +47,21 @@ public class VerticalMappingStrategy extends MappingStrategy
     return rootClassMapping;
   }
 
-  public CDOClassRef readObjectType(IDBStoreAccessor accessor, CDOID id)
+  public CDOClassifierRef readObjectType(IDBStoreAccessor accessor, CDOID id)
   {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  protected IClassMapping createClassMapping(CDOClass cdoClass)
+  protected IClassMapping createClassMapping(EClass cdoClass)
   {
     return new VerticalClassMapping(this, cdoClass);
   }
 
   @Override
-  protected List<CDOClass> getClassesWithObjectInfo()
+  protected List<EClass> getClassesWithObjectInfo()
   {
-    return Collections.singletonList(rootClassMapping.getCDOClass());
+    return Collections.singletonList(rootClassMapping.getEClass());
   }
 
   @Override

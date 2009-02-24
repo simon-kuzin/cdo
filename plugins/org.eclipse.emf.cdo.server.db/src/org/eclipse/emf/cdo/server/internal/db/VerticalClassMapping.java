@@ -10,12 +10,13 @@
  */
 package org.eclipse.emf.cdo.server.internal.db;
 
-import org.eclipse.emf.cdo.common.model.CDOClass;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.db.IClassMapping;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
+
+import org.eclipse.emf.ecore.EClass;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,10 +28,10 @@ public class VerticalClassMapping extends ClassMapping
 {
   private List<IClassMapping> superMappings;
 
-  public VerticalClassMapping(VerticalMappingStrategy mappingStrategy, CDOClass cdoClass)
+  public VerticalClassMapping(VerticalMappingStrategy mappingStrategy, EClass cdoClass)
   {
     super(mappingStrategy, cdoClass, cdoClass.getFeatures());
-    for (CDOClass superType : cdoClass.getSuperTypes())
+    for (EClass superType : cdoClass.getSuperTypes())
     {
       IClassMapping superMapping = mappingStrategy.getClassMapping(superType);
       if (superMapping != null)

@@ -11,13 +11,13 @@
 package org.eclipse.emf.cdo.internal.common.model.core;
 
 import org.eclipse.emf.cdo.common.model.core.CDOCorePackage;
-import org.eclipse.emf.cdo.internal.common.model.CDOPackageImpl;
+import org.eclipse.emf.cdo.internal.common.model.EPackageImpl;
 import org.eclipse.emf.cdo.internal.common.model.CDOPackageManagerImpl;
 
 /**
  * @author Eike Stepper
  */
-public final class CDOCorePackageImpl extends CDOPackageImpl implements CDOCorePackage
+public final class CDOCorePackageImpl extends EPackageImpl implements CDOCorePackage
 {
   private CDOObjectClassImpl cdoObjectClass;
 

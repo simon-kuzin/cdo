@@ -163,10 +163,10 @@ public class OpenSessionRequest extends CDOTimeRequest<OpenSessionResult>
         break;
       }
 
-      String packageURI = in.readCDOPackageURI();
+      String packageURI = in.readEPackageURI();
       boolean dynamic = in.readBoolean();
       CDOIDMetaRange metaIDRange = in.readCDOIDMetaRange();
-      String parentURI = in.readCDOPackageURI();
+      String parentURI = in.readEPackageURI();
       if (PROTOCOL_TRACER.isEnabled())
       {
         PROTOCOL_TRACER.format("Read package info: uri={0}, dynamic={1}, metaIDRange={2}, parentURI={3}", packageURI,

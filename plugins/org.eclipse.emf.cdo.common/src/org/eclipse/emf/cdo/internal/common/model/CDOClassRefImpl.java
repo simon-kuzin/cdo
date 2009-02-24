@@ -12,44 +12,44 @@ package org.eclipse.emf.cdo.internal.common.model;
 
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
+import org.eclipse.emf.cdo.common.model.EClass;
+import org.eclipse.emf.cdo.common.model.EClassRef;
+import org.eclipse.emf.cdo.common.model.EPackage;
 import org.eclipse.emf.cdo.common.model.CDOPackageManager;
 
 import java.io.IOException;
 import java.text.MessageFormat;
 
 /**
- * TODO Optimize transfer of CDOClassRef instances
+ * TODO Optimize transfer of EClassRef instances
  * 
  * @author Eike Stepper
  */
-public final class CDOClassRefImpl implements CDOClassRef
+public final class EClassRefImpl implements EClassRef
 {
   private String packageURI;
 
   private int classifierID;
 
-  public CDOClassRefImpl()
+  public EClassRefImpl()
   {
   }
 
-  public CDOClassRefImpl(String packageURI, int classifierID)
+  public EClassRefImpl(String packageURI, int classifierID)
   {
     this.packageURI = packageURI;
     this.classifierID = classifierID;
   }
 
-  public CDOClassRefImpl(CDODataInput in) throws IOException
+  public EClassRefImpl(CDODataInput in) throws IOException
   {
-    packageURI = in.readCDOPackageURI();
+    packageURI = in.readEPackageURI();
     classifierID = in.readInt();
   }
 
   public void write(CDODataOutput out) throws IOException
   {
-    out.writeCDOPackageURI(packageURI);
+    out.writeEPackageURI(packageURI);
     out.writeInt(classifierID);
   }
 
@@ -63,9 +63,9 @@ public final class CDOClassRefImpl implements CDOClassRef
     return classifierID;
   }
 
-  public CDOClass resolve(CDOPackageManager packageManager)
+  public EClass resolve(CDOPackageManager packageManager)
   {
-    CDOPackage cdoPackage = packageManager.lookupPackage(packageURI);
+    EPackage cdoPackage = packageManager.lookupPackage(packageURI);
     if (cdoPackage != null)
     {
       return cdoPackage.lookupClass(classifierID);
@@ -77,6 +77,6 @@ public final class CDOClassRefImpl implements CDOClassRef
   @Override
   public String toString()
   {
-    return MessageFormat.format("CDOClassRef({0}, {1})", packageURI, classifierID);
+    return MessageFormat.format("EClassRef({0}, {1})", packageURI, classifierID);
   }
 }

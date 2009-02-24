@@ -142,8 +142,8 @@ public class AttributeTest extends AbstractCDOTest
 
     // Create a new EPackage and add the new EClasses
     EPackage schoolPackage = efactory.createEPackage();
-    schoolPackage.setName("CDOPackageTest");
-    schoolPackage.setNsPrefix("CDOPackageTest");
+    schoolPackage.setName("EPackageTest");
+    schoolPackage.setNsPrefix("EPackageTest");
     schoolPackage.setNsURI("http:///www.cdo.org/testcase");
     schoolPackage.getEClassifiers().add(schoolBookEClass);
     return schoolPackage;

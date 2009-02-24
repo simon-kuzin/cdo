@@ -10,12 +10,13 @@
  */
 package org.eclipse.emf.cdo.server;
 
-import org.eclipse.emf.cdo.common.model.CDOPackageManager;
+import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
+
 
 /**
  * @author Eike Stepper
  * @noimplement This interface is not intended to be implemented by clients.
  */
-public interface IPackageManager extends IRepositoryElement, CDOPackageManager
+public interface IPackageManager extends IRepositoryElement, CDOPackageRegistry
 {
 }

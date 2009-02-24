@@ -13,9 +13,10 @@ package org.eclipse.emf.cdo.common;
 
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
-import org.eclipse.emf.cdo.common.model.CDOPackageManager;
+import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
+
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,53 +28,53 @@ import java.util.List;
  */
 public final class CDOFetchRule
 {
-  private CDOClass cdoClass;
+  private EClass cdoClass;
 
-  private List<CDOFeature> features = new ArrayList<CDOFeature>(0);
+  private List<EStructuralFeature> features = new ArrayList<EStructuralFeature>(0);
 
-  public CDOFetchRule(CDOClass cdoClass)
+  public CDOFetchRule(EClass cdoClass)
   {
     this.cdoClass = cdoClass;
   }
 
-  public CDOFetchRule(CDODataInput in, CDOPackageManager packageManager) throws IOException
+  public CDOFetchRule(CDODataInput in, CDOPackageRegistry packageManager) throws IOException
   {
-    cdoClass = in.readCDOClassRefAndResolve();
+    cdoClass = (EClass)in.readEClassifierRefAndResolve();
     int size = in.readInt();
     for (int i = 0; i < size; i++)
     {
       int featureID = in.readInt();
-      CDOFeature feature = cdoClass.lookupFeature(featureID);
+      EStructuralFeature feature = cdoClass.getEStructuralFeature(featureID);
       features.add(feature);
     }
   }
 
   public void write(CDODataOutput out) throws IOException
   {
-    out.writeCDOClassRef(cdoClass);
+    out.writeEClassifierRef(cdoClass);
     out.writeInt(features.size());
-    for (CDOFeature feature : features)
+    for (EStructuralFeature feature : features)
     {
       out.writeInt(feature.getFeatureID());
     }
   }
 
-  public CDOClass getCDOClass()
+  public EClass getEClass()
   {
     return cdoClass;
   }
 
-  public List<CDOFeature> getFeatures()
+  public List<EStructuralFeature> getFeatures()
   {
     return features;
   }
 
-  public void addFeature(CDOFeature feature)
+  public void addFeature(EStructuralFeature feature)
   {
     features.add(feature);
   }
 
-  public void removeFeature(CDOFeature feature)
+  public void removeFeature(EStructuralFeature feature)
   {
     features.remove(feature);
 

@@ -13,7 +13,7 @@ package org.eclipse.emf.internal.cdo.net4j.protocol;
 
 import org.eclipse.emf.cdo.common.id.CDOIDObjectFactory;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
-import org.eclipse.emf.cdo.common.model.CDOPackageManager;
+import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.model.CDOPackageURICompressor;
 import org.eclipse.emf.cdo.common.revision.CDOListFactory;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
@@ -92,7 +92,7 @@ public abstract class CDOClientIndication extends Indication
       }
 
       @Override
-      protected CDOPackageManager getPackageManager()
+      protected CDOPackageRegistry getPackageManager()
       {
         return CDOClientIndication.this.getPackageManager();
       }

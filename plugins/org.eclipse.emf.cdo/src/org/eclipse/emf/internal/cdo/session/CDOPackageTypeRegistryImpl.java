@@ -11,13 +11,13 @@
 package org.eclipse.emf.internal.cdo.session;
 
 import org.eclipse.emf.cdo.CDOObject;
+import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.session.CDOPackageType;
 import org.eclipse.emf.cdo.session.CDOPackageTypeRegistry;
 import org.eclipse.emf.cdo.util.CDOFactory;
 
 import org.eclipse.emf.internal.cdo.bundle.OM;
-import org.eclipse.emf.internal.cdo.util.ModelUtil;
 
 import org.eclipse.net4j.util.StringUtil;
 import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
@@ -225,7 +225,7 @@ public final class CDOPackageTypeRegistryImpl extends HashMapRegistry<String, CD
       return CDOPackageType.LEGACY;
     }
 
-    EPackage topLevelPackage = ModelUtil.getTopLevelPackage(ePackage);
+    EPackage topLevelPackage = EMFUtil.getTopLevelPackage(ePackage);
     EClass eClass = getAnyConcreteEClass(topLevelPackage);
     if (eClass == null)
     {

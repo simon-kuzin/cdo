@@ -13,6 +13,7 @@ package org.eclipse.emf.cdo.eresource.impl;
 
 import org.eclipse.emf.cdo.CDOState;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.id.CDOIDObjectFactory;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.eresource.EresourcePackage;
@@ -512,7 +513,8 @@ public class CDOResourceImpl extends CDOResourceNodeImpl implements CDOResource,
       return null;
     }
 
-    CDOID cdoID = CDOIDUtil.read(uriFragment, cdoView().getSession().getPackageManager().getCDOIDObjectFactory());
+    CDOIDObjectFactory cdoidObjectFactory = cdoView().getSession();
+    CDOID cdoID = CDOIDUtil.read(uriFragment, cdoidObjectFactory);
     if (CDOIDUtil.isNull(cdoID) || cdoID.isTemporary() && !cdoView().isObjectRegistered(cdoID))
     {
       return null;

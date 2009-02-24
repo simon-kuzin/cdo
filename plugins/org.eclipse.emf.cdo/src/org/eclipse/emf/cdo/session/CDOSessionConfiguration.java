@@ -10,6 +10,7 @@
  */
 package org.eclipse.emf.cdo.session;
 
+import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
 
 import org.eclipse.emf.internal.cdo.session.CDORevisionManagerImpl;

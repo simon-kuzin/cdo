@@ -12,21 +12,19 @@ package org.eclipse.emf.internal.cdo;
 
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.CDOState;
+import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
-import org.eclipse.emf.cdo.common.model.CDOType;
+import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
+import org.eclipse.emf.cdo.common.model.internal.GenUtil;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.eresource.CDOResource;
-import org.eclipse.emf.cdo.session.CDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.emf.internal.cdo.bundle.OM;
 import org.eclipse.emf.internal.cdo.session.CDORevisionManagerImpl;
 import org.eclipse.emf.internal.cdo.util.FSMUtil;
-import org.eclipse.emf.internal.cdo.util.GenUtil;
 import org.eclipse.emf.internal.cdo.util.ModelUtil;
 
 import org.eclipse.net4j.util.ImplementationError;
@@ -36,9 +34,12 @@ import org.eclipse.net4j.util.om.trace.ContextTracer;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.impl.NotifyingListImpl;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.EAttributeImpl;
 import org.eclipse.emf.ecore.impl.EClassImpl;
@@ -94,9 +95,9 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper
     state = CDOState.TRANSIENT;
   }
 
-  public CDOClass cdoClass()
+  public EClass cdoClass()
   {
-    return CDOObjectImpl.getCDOClass(this);
+    return CDOObjectImpl.getEClass(this);
   }
 
   public CDOState cdoState()
@@ -260,8 +261,8 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper
 
     // Handle values
     CDOPackageRegistry packageRegistry = cdoView().getSession().getPackageRegistry();
-    CDOClass cdoClass = revision.getCDOClass();
-    for (CDOFeature feature : cdoClass.getAllFeatures())
+    EClass cdoClass = revision.getEClass();
+    for (EStructuralFeature feature : TODO.getAllPersistentFeatures(cdoClass))
     {
       instanceToRevisionFeature(feature, packageRegistry);
     }
@@ -286,7 +287,7 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper
     }
   }
 
-  private void instanceToRevisionFeature(CDOFeature feature, CDOPackageRegistry packageRegistry)
+  private void instanceToRevisionFeature(EStructuralFeature feature, CDOPackageRegistry packageRegistry)
   {
     Object instanceValue = getInstanceValue(instance, feature, packageRegistry);
     if (feature.isMany())
@@ -302,7 +303,7 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper
           for (Iterator<?> it = instanceList.basicIterator(); it.hasNext();)
           {
             Object instanceElement = it.next();
-            if (instanceElement != null && feature.isReference())
+            if (instanceElement != null && feature instanceof EReference)
             {
               instanceElement = view.convertObjectToID(instanceElement);
             }
@@ -314,7 +315,7 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper
     }
     else
     {
-      if (instanceValue != null && feature.isReference())
+      if (instanceValue != null && feature instanceof EReference)
       {
         instanceValue = view.convertObjectToID(instanceValue);
       }
@@ -346,8 +347,8 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper
 
       // Handle values
       CDOPackageRegistry packageRegistry = cdoView().getSession().getPackageRegistry();
-      CDOClass cdoClass = revision.getCDOClass();
-      for (CDOFeature feature : cdoClass.getAllFeatures())
+      EClass cdoClass = revision.getEClass();
+      for (EStructuralFeature feature : TODO.getAllPersistentFeatures(cdoClass))
       {
         revisionToInstanceFeature(feature, packageRegistry);
       }
@@ -373,7 +374,7 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper
   }
 
   @SuppressWarnings("unchecked")
-  private void revisionToInstanceFeature(CDOFeature feature, CDOPackageRegistry packageRegistry)
+  private void revisionToInstanceFeature(EStructuralFeature feature, CDOPackageRegistry packageRegistry)
   {
     Object value = revision.getValue(feature);
     if (feature.isMany())
@@ -385,7 +386,7 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper
         if (value != null)
         {
           List<?> revisionList = (List<?>)value;
-          if (feature.isReference())
+          if (feature instanceof EReference)
           {
             for (Object element : revisionList)
             {
@@ -406,7 +407,7 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper
     }
     else
     {
-      if (feature.isReference())
+      if (feature instanceof EReference)
       {
         value = getEObjectFromPotentialID(view, feature, value);
       }
@@ -430,7 +431,8 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper
     return instance.eContainerFeatureID();
   }
 
-  private Object getInstanceValue(InternalEObject instance, CDOFeature feature, CDOPackageRegistry packageRegistry)
+  private Object getInstanceValue(InternalEObject instance, EStructuralFeature feature,
+      CDOPackageRegistry packageRegistry)
   {
     EStructuralFeature eFeature = ModelUtil.getEFeature(feature, packageRegistry);
     return instance.eGet(eFeature);
@@ -449,7 +451,7 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper
   /**
    * TODO Ed: Help to fix whole mess (avoid inverse updates)
    */
-  private void setInstanceValue(InternalEObject instance, CDOFeature feature, Object value)
+  private void setInstanceValue(InternalEObject instance, EStructuralFeature feature, Object value)
   {
     // TODO Consider EStoreEObjectImpl based objects as well!
     // TODO Don't use Java reflection
@@ -457,7 +459,7 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper
     String featureName = feature.getName();
     String fieldName = featureName;// TODO safeName()
     Field field = ReflectUtil.getField(instanceClass, fieldName);
-    if (field == null && feature.getType() == CDOType.BOOLEAN)
+    if (field == null && feature.getEType() == EcorePackage.eINSTANCE.getEBoolean())
     {
       if (instanceClass.isAssignableFrom(EAttributeImpl.class) || instanceClass.isAssignableFrom(EClassImpl.class)
           || instanceClass.isAssignableFrom(EDataTypeImpl.class)
@@ -520,7 +522,7 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper
    *          that will be used later to resolve the proxy. <code>null</code> indicates that proxy creation will be
    *          avoided!
    */
-  private InternalEObject getEObjectFromPotentialID(InternalCDOView view, CDOFeature feature, Object potentialID)
+  private InternalEObject getEObjectFromPotentialID(InternalCDOView view, EStructuralFeature feature, Object potentialID)
   {
     if (potentialID instanceof CDOID)
     {
@@ -561,7 +563,7 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper
    * <p>
    * TODO {@link InternalEObject#eResolveProxy(InternalEObject) 
    */
-  private InternalEObject createProxy(InternalCDOView view, CDOFeature feature, CDOID id)
+  private InternalEObject createProxy(InternalCDOView view, EStructuralFeature feature, CDOID id)
   {
     CDOPackageRegistry packageRegistry = view.getSession().getPackageRegistry();
     EStructuralFeature eFeature = ModelUtil.getEFeature(feature, packageRegistry);
@@ -582,10 +584,10 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper
     // if (!allProxiesResolved)
     {
       CDOPackageRegistry packageRegistry = cdoView().getSession().getPackageRegistry();
-      CDOClass cdoClass = revision.getCDOClass();
-      for (CDOFeature feature : cdoClass.getAllFeatures())
+      EClass cdoClass = revision.getEClass();
+      for (EStructuralFeature feature : TODO.getAllPersistentFeatures(cdoClass))
       {
-        if (feature.isReference())
+        if (feature instanceof EReference)
         {
           resolveProxies(feature, packageRegistry);
         }
@@ -600,7 +602,7 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper
    * EMF with fixed bug #247130. These compile errors do not affect native models!
    */
   @SuppressWarnings("unchecked")
-  private void resolveProxies(CDOFeature feature, CDOPackageRegistry packageRegistry)
+  private void resolveProxies(EStructuralFeature feature, CDOPackageRegistry packageRegistry)
   {
     Object value = getInstanceValue(instance, feature, packageRegistry);
     if (value != null)

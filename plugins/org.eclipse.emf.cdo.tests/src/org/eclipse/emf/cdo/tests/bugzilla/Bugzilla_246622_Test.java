@@ -11,7 +11,6 @@
  */
 package org.eclipse.emf.cdo.tests.bugzilla;
 
-import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.tests.AbstractCDOTest;
@@ -21,6 +20,8 @@ import org.eclipse.emf.cdo.tests.model1.PurchaseOrder;
 import org.eclipse.emf.cdo.tests.model1.Supplier;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.cdo.util.CDOUtil;
+
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 /**
  * 246622: CDOStore.set doesn't affect variable correctly - Could cause memory retention
@@ -42,7 +43,7 @@ public class Bugzilla_246622_Test extends AbstractCDOTest
 
     res.getContents().add(order);
     order.getOrderDetails().add(orderDetail);
-    CDOFeature order_OrderDetailFeature = session.getPackageManager().convert(
+    EStructuralFeature order_OrderDetailFeature = session.getPackageManager().convert(
         getModel1Package().getOrder_OrderDetails());
     assertEquals(orderDetail, CDOUtil.getCDOObject(order).cdoRevision().data().get(order_OrderDetailFeature, 0));
 
@@ -99,9 +100,9 @@ public class Bugzilla_246622_Test extends AbstractCDOTest
     res.getContents().add(purchaseOrder);
     res.getContents().add(supplier);
 
-    CDOFeature supplier_PurchaseOrder = session.getPackageManager().convert(
+    EStructuralFeature supplier_PurchaseOrder = session.getPackageManager().convert(
         getModel1Package().getSupplier_PurchaseOrders());
-    CDOFeature purchaseOrder_Supplier = session.getPackageManager().convert(
+    EStructuralFeature purchaseOrder_Supplier = session.getPackageManager().convert(
         getModel1Package().getPurchaseOrder_Supplier());
 
     assertEquals(supplier, CDOUtil.getCDOObject(purchaseOrder).cdoRevision().data().get(purchaseOrder_Supplier, 0));

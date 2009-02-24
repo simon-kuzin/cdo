@@ -15,12 +15,11 @@
 package org.eclipse.emf.cdo.internal.server;
 
 import org.eclipse.emf.cdo.common.CDOCommonSession;
+import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.common.model.CDOPackageURICompressor;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
@@ -47,6 +46,10 @@ import org.eclipse.net4j.util.lifecycle.ILifecycle;
 import org.eclipse.net4j.util.lifecycle.LifecycleEventAdapter;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 import org.eclipse.net4j.util.options.IOptionsContainer;
+
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -367,12 +370,12 @@ public class Session extends Container<IView> implements ISession, CDOIDProvider
       List<CDORevision> additionalRevisions)
   {
     RevisionManager revisionManager = (RevisionManager)getSessionManager().getRepository().getRevisionManager();
-    CDOClass cdoClass = revision.getCDOClass();
-    CDOFeature[] features = cdoClass.getAllFeatures();
+    EClass cdoClass = revision.getEClass();
+    EStructuralFeature[] features = TODO.getAllPersistentFeatures(cdoClass);
     for (int i = 0; i < features.length; i++)
     {
-      CDOFeature feature = features[i];
-      if (feature.isReference() && !feature.isMany() && feature.isContainment())
+      EStructuralFeature feature = features[i];
+      if (feature instanceof EReference && !feature.isMany() && feature.isContainment())
       {
         Object value = revision.getValue(feature);
         if (value instanceof CDOID)

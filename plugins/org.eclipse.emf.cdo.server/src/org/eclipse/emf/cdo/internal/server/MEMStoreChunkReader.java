@@ -11,10 +11,11 @@
  */
 package org.eclipse.emf.cdo.internal.server;
 
-import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
+
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class MEMStoreChunkReader extends StoreChunkReader
   /**
    * @since 2.0
    */
-  public MEMStoreChunkReader(IStoreAccessor accessor, CDORevision revision, CDOFeature feature)
+  public MEMStoreChunkReader(IStoreAccessor accessor, CDORevision revision, EStructuralFeature feature)
   {
     super(accessor, revision, feature);
   }

@@ -12,11 +12,11 @@ package org.eclipse.emf.cdo;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
-import org.eclipse.emf.cdo.common.model.CDOClass;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.view.CDOView;
 
+import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.spi.cdo.InternalCDOObject;
@@ -44,12 +44,12 @@ public interface CDOObject extends EObject
   public CDOID cdoID();
 
   /**
-   * Returns the immutable {@link CDOClass class} of this object. This method must only be called if this object is
+   * Returns the immutable {@link EClass class} of this object. This method must only be called if this object is
    * properly associated with a {@link CDOView view}, i.e. if {@link #cdoView()} does not return <code>null</code> .
    * 
    * @return Never <code>null</code>.
    */
-  public CDOClass cdoClass();
+  public EClass cdoClass();
 
   /**
    * Returns the local {@link CDOState state} of this object.

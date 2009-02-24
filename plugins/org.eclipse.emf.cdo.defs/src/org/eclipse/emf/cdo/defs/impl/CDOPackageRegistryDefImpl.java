@@ -15,6 +15,8 @@ import org.eclipse.emf.cdo.defs.CDODefsPackage;
 import org.eclipse.emf.cdo.defs.CDOPackageRegistryDef;
 import org.eclipse.emf.cdo.defs.EPackageDef;
 
+import org.eclipse.emf.internal.cdo.session.CDOPackageRegistryImpl;
+
 import org.eclipse.net4j.util.defs.impl.DefImpl;
 
 import org.eclipse.emf.common.notify.NotificationChain;
@@ -22,7 +24,6 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.InternalEObject;
-import org.eclipse.emf.ecore.impl.EPackageRegistryImpl;
 import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 
@@ -202,7 +203,7 @@ public class CDOPackageRegistryDefImpl extends DefImpl implements CDOPackageRegi
    */
   protected Object createInstance()
   {
-    return addPackages(new EPackageRegistryImpl());
+    return addPackages(new CDOPackageRegistryImpl());
   }
 
   /**

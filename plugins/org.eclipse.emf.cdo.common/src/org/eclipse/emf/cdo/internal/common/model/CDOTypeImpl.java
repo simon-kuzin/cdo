@@ -15,7 +15,7 @@ import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
-import org.eclipse.emf.cdo.internal.common.model.core.CDOFeatureMapEntryDataTypeImpl;
+import org.eclipse.emf.cdo.internal.common.model.core.EStructuralFeatureMapEntryDataTypeImpl;
 
 import java.io.IOException;
 import java.util.Date;
@@ -368,7 +368,7 @@ public abstract class CDOTypeImpl implements CDOType
 
     public void writeValue(CDODataOutput out, Object value) throws IOException
     {
-      CDOFeatureMapEntryDataTypeImpl featureMapEntry = (CDOFeatureMapEntryDataTypeImpl)value;
+      EStructuralFeatureMapEntryDataTypeImpl featureMapEntry = (EStructuralFeatureMapEntryDataTypeImpl)value;
       out.writeString(featureMapEntry.getURI());
       out.writeCDOID(out.getIDProvider().provideCDOID(featureMapEntry.getObject()));
     }
@@ -377,13 +377,13 @@ public abstract class CDOTypeImpl implements CDOType
     {
       String uri = in.readString();
       Object id = in.readCDOID();
-      return new CDOFeatureMapEntryDataTypeImpl(uri, id);
+      return new EStructuralFeatureMapEntryDataTypeImpl(uri, id);
     }
 
     @Override
     public Object doAdjustReferences(CDOReferenceAdjuster adjuster, Object value)
     {
-      CDOFeatureMapEntryDataTypeImpl featureMapEntry = (CDOFeatureMapEntryDataTypeImpl)value;
+      EStructuralFeatureMapEntryDataTypeImpl featureMapEntry = (EStructuralFeatureMapEntryDataTypeImpl)value;
       featureMapEntry.adjustReferences(adjuster);
       return value;
     }

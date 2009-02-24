@@ -10,10 +10,10 @@
  **************************************************************************/
 package org.eclipse.emf.internal.cdo.net4j.protocol;
 
+import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
@@ -21,6 +21,8 @@ import org.eclipse.emf.internal.cdo.bundle.OM;
 
 import org.eclipse.net4j.util.collection.MoveableList;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
+
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.io.IOException;
 
@@ -33,7 +35,7 @@ public class LoadChunkRequest extends CDOClientRequest<Object>
 
   private InternalCDORevision revision;
 
-  private CDOFeature feature;
+  private EStructuralFeature feature;
 
   private int accessIndex;
 
@@ -43,7 +45,7 @@ public class LoadChunkRequest extends CDOClientRequest<Object>
 
   private int fetchIndex;
 
-  public LoadChunkRequest(CDOClientProtocol protocol, InternalCDORevision revision, CDOFeature feature,
+  public LoadChunkRequest(CDOClientProtocol protocol, InternalCDORevision revision, EStructuralFeature feature,
       int accessIndex, int fetchIndex, int fromIndex, int toIndex)
   {
     super(protocol, CDOProtocolConstants.SIGNAL_LOAD_CHUNK);
@@ -82,8 +84,8 @@ public class LoadChunkRequest extends CDOClientRequest<Object>
       PROTOCOL_TRACER.format("Writing feature: {0}", feature);
     }
 
-    out.writeCDOClassRef(feature.getContainingClass());
-    out.writeInt(feature.getFeatureIndex());
+    out.writeEClassifierRef(feature.getEContainingClass());
+    out.writeInt(feature.getFeatureID());
     if (PROTOCOL_TRACER.isEnabled())
     {
       PROTOCOL_TRACER.format("Writing fromIndex: {0}", fromIndex);
@@ -105,7 +107,7 @@ public class LoadChunkRequest extends CDOClientRequest<Object>
     MoveableList<Object> list = revision.getList(feature);
     for (int i = fromIndex; i <= toIndex; i++)
     {
-      Object value = feature.getType().readValue(in);
+      Object value = TODO.readValue(in, feature.getEType());
       list.set(i, value);
       if (i == accessIndex)
       {

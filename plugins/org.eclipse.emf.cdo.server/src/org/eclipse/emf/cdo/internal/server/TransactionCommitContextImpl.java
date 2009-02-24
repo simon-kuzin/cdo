@@ -13,12 +13,8 @@ package org.eclipse.emf.cdo.internal.server;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
-import org.eclipse.emf.cdo.common.id.CDOIDObjectFactory;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
-import org.eclipse.emf.cdo.common.model.core.CDOCorePackage;
-import org.eclipse.emf.cdo.common.model.resource.CDOResourcePackage;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionResolver;
@@ -26,8 +22,6 @@ import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.StoreThreadLocal;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackage;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageManager;
 import org.eclipse.emf.cdo.spi.common.revision.CDOIDMapper;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
@@ -39,6 +33,8 @@ import org.eclipse.net4j.util.concurrent.TimeoutRuntimeException;
 import org.eclipse.net4j.util.event.IListener;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
+
+import org.eclipse.emf.ecore.EPackage;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -62,7 +58,7 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
 
   private long timeStamp = CDORevision.UNSPECIFIED_DATE;
 
-  private CDOPackage[] newPackages;
+  private EPackage[] newPackages;
 
   private CDORevision[] newObjects;
 
@@ -114,7 +110,7 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
     return packageManager;
   }
 
-  public CDOPackage[] getNewPackages()
+  public EPackage[] getNewPackages()
   {
     return newPackages;
   }
@@ -196,7 +192,7 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
     StoreThreadLocal.setAccessor(accessor);
   }
 
-  public void setNewPackages(CDOPackage[] newPackages)
+  public void setNewPackages(EPackage[] newPackages)
   {
     this.newPackages = newPackages;
   }
@@ -353,7 +349,7 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
     try
     {
       monitor.begin(newPackages.length);
-      for (CDOPackage newPackage : newPackages)
+      for (EPackage newPackage : newPackages)
       {
         if (newPackage.getParentURI() == null)
         {
@@ -367,7 +363,7 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
     }
   }
 
-  private void adjustMetaRange(CDOPackage newPackage, OMMonitor monitor)
+  private void adjustMetaRange(EPackage newPackage, OMMonitor monitor)
   {
     CDOIDMetaRange oldRange = newPackage.getMetaIDRange();
     if (!oldRange.isTemporary())
@@ -379,7 +375,7 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
     {
       monitor.begin(oldRange.size());
       CDOIDMetaRange newRange = transaction.getRepository().getMetaIDRange(oldRange.size());
-      ((InternalCDOPackage)newPackage).setMetaIDRange(newRange);
+      ((InternalEPackage)newPackage).setMetaIDRange(newRange);
       for (int l = 0; l < oldRange.size(); l++)
       {
         CDOIDTemp oldID = (CDOIDTemp)oldRange.get(l);
@@ -568,7 +564,7 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
       PackageManager packageManager = (PackageManager)transaction.getRepository().getPackageManager();
       for (int i = 0; i < newPackages.length; i++)
       {
-        CDOPackage cdoPackage = newPackages[i];
+        EPackage cdoPackage = newPackages[i];
         packageManager.addPackage(cdoPackage);
         monitor.worked();
       }
@@ -649,7 +645,7 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
    */
   public final class TransactionPackageManager implements InternalCDOPackageManager
   {
-    private List<CDOPackage> newPackages = new ArrayList<CDOPackage>();
+    private List<EPackage> newPackages = new ArrayList<EPackage>();
 
     private PackageManager repositoryPackageManager = (PackageManager)transaction.getRepository().getPackageManager();
 
@@ -657,7 +653,7 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
     {
     }
 
-    public void addPackage(CDOPackage cdoPackage)
+    public void addPackage(EPackage cdoPackage)
     {
       newPackages.add(cdoPackage);
     }
@@ -667,16 +663,11 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
       newPackages.clear();
     }
 
-    public CDOIDObjectFactory getCDOIDObjectFactory()
+    public EPackage lookupPackage(String uri)
     {
-      return repositoryPackageManager.getCDOIDObjectFactory();
-    }
-
-    public CDOPackage lookupPackage(String uri)
-    {
-      for (CDOPackage cdoPackage : newPackages)
+      for (EPackage cdoPackage : newPackages)
       {
-        if (ObjectUtil.equals(cdoPackage.getPackageURI(), uri))
+        if (ObjectUtil.equals(cdoPackage.getNsURI(), uri))
         {
           return cdoPackage;
         }
@@ -695,12 +686,12 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
       return repositoryPackageManager.getCDOResourcePackage();
     }
 
-    public void loadPackage(CDOPackage cdoPackage)
+    public void loadPackage(EPackage cdoPackage)
     {
       repositoryPackageManager.loadPackage(cdoPackage);
     }
 
-    public void loadPackageEcore(CDOPackage cdoPackage)
+    public void loadPackageEcore(EPackage cdoPackage)
     {
       repositoryPackageManager.loadPackageEcore(cdoPackage);
     }
@@ -710,12 +701,12 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
       throw new UnsupportedOperationException();
     }
 
-    public CDOPackage[] getPackages()
+    public EPackage[] getPackages()
     {
       throw new UnsupportedOperationException();
     }
 
-    public CDOPackage[] getElements()
+    public EPackage[] getElements()
     {
       throw new UnsupportedOperationException();
     }

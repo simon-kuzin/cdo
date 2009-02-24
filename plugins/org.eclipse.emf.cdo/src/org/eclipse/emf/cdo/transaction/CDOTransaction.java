@@ -16,7 +16,6 @@ package org.eclipse.emf.cdo.transaction;
 
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.model.CDOClass;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.util.CDOEvent;
@@ -66,8 +65,6 @@ public interface CDOTransaction extends CDOView, CDOUserTransaction
   public CDOResource getOrCreateResource(String path);
 
   public CDOObject newInstance(EClass eClass);
-
-  public CDOObject newInstance(CDOClass cdoClass);
 
   public void addHandler(CDOTransactionHandler handler);
 

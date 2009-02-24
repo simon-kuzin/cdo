@@ -10,7 +10,7 @@
  */
 package org.eclipse.emf.cdo.internal.common.model;
 
-import org.eclipse.emf.cdo.common.model.CDOPackage;
+import org.eclipse.emf.cdo.common.model.EPackage;
 import org.eclipse.emf.cdo.common.model.core.CDOCorePackage;
 import org.eclipse.emf.cdo.common.model.resource.CDOResourcePackage;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
@@ -29,11 +29,11 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * @author Eike Stepper
  */
-public abstract class CDOPackageManagerImpl extends Container<CDOPackage> implements InternalCDOPackageManager
+public abstract class CDOPackageManagerImpl extends Container<EPackage> implements InternalCDOPackageManager
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_MODEL, CDOPackageManagerImpl.class);
 
-  private ConcurrentMap<String, CDOPackage> packages = new ConcurrentHashMap<String, CDOPackage>();
+  private ConcurrentMap<String, EPackage> packages = new ConcurrentHashMap<String, EPackage>();
 
   private CDOCorePackage cdoCorePackage;
 
@@ -45,7 +45,7 @@ public abstract class CDOPackageManagerImpl extends Container<CDOPackage> implem
     addPackage(cdoResourcePackage = new CDOResourcePackageImpl(this));
   }
 
-  public CDOPackage lookupPackage(String uri)
+  public EPackage lookupPackage(String uri)
   {
     if (uri == null)
     {
@@ -60,12 +60,12 @@ public abstract class CDOPackageManagerImpl extends Container<CDOPackage> implem
     return packages.size();
   }
 
-  public CDOPackage[] getPackages()
+  public EPackage[] getPackages()
   {
-    return packages.values().toArray(new CDOPackage[packages.size()]);
+    return packages.values().toArray(new EPackage[packages.size()]);
   }
 
-  public CDOPackage[] getElements()
+  public EPackage[] getElements()
   {
     return getPackages();
   }
@@ -86,10 +86,10 @@ public abstract class CDOPackageManagerImpl extends Container<CDOPackage> implem
     return cdoResourcePackage;
   }
 
-  public List<CDOPackage> getTransientPackages()
+  public List<EPackage> getTransientPackages()
   {
-    List<CDOPackage> result = new ArrayList<CDOPackage>();
-    for (CDOPackage cdoPackage : packages.values())
+    List<EPackage> result = new ArrayList<EPackage>();
+    for (EPackage cdoPackage : packages.values())
     {
       if (!cdoPackage.isPersistent())
       {
@@ -100,7 +100,7 @@ public abstract class CDOPackageManagerImpl extends Container<CDOPackage> implem
     return result;
   }
 
-  public void addPackage(CDOPackage cdoPackage)
+  public void addPackage(EPackage cdoPackage)
   {
     String uri = cdoPackage.getPackageURI();
     if (uri == null)
@@ -108,7 +108,7 @@ public abstract class CDOPackageManagerImpl extends Container<CDOPackage> implem
       throw new IllegalArgumentException("uri == null");
     }
 
-    CDOPackage existing = packages.putIfAbsent(uri, cdoPackage);
+    EPackage existing = packages.putIfAbsent(uri, cdoPackage);
     if (existing == null)
     {
       if (TRACER.isEnabled())
@@ -124,7 +124,7 @@ public abstract class CDOPackageManagerImpl extends Container<CDOPackage> implem
     }
   }
 
-  public void removePackage(CDOPackage cdoPackage)
+  public void removePackage(EPackage cdoPackage)
   {
     packages.remove(cdoPackage.getPackageURI());
     fireElementRemovedEvent(cdoPackage);

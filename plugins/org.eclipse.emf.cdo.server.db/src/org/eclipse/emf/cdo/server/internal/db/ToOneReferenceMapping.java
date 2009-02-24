@@ -12,15 +12,16 @@ package org.eclipse.emf.cdo.server.internal.db;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 /**
  * @author Eike Stepper
  */
 public class ToOneReferenceMapping extends AttributeMapping.AMObject
 {
-  public ToOneReferenceMapping(ClassMapping classMapping, CDOFeature feature)
+  public ToOneReferenceMapping(ClassMapping classMapping, EStructuralFeature feature)
   {
     super(classMapping, feature);
   }

@@ -12,7 +12,7 @@ package org.eclipse.emf.cdo.spi.common.model;
 
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
-import org.eclipse.emf.cdo.common.model.CDOModelElement;
+import org.eclipse.emf.cdo.common.model.EModelElement;
 
 import java.io.IOException;
 
@@ -21,7 +21,7 @@ import java.io.IOException;
  * @noimplement This interface is not intended to be implemented by clients.
  * @since 2.0
  */
-public interface InternalCDOModelElement extends CDOModelElement
+public interface InternalEModelElement extends EModelElement
 {
   public void setName(String name);
 

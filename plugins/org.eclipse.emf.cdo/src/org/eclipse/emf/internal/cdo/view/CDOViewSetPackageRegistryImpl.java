@@ -14,13 +14,14 @@ package org.eclipse.emf.internal.cdo.view;
 import org.eclipse.emf.cdo.view.CDOView;
 import org.eclipse.emf.cdo.view.CDOViewSet;
 
+import org.eclipse.emf.internal.cdo.session.CDOPackageRegistryImpl;
+
 import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.emf.ecore.impl.EPackageRegistryImpl;
 
 /**
  * @author Simon McDuff
  */
-public class CDOViewSetPackageRegistryImpl extends EPackageRegistryImpl
+public class CDOViewSetPackageRegistryImpl extends CDOPackageRegistryImpl
 {
   private static final long serialVersionUID = 1L;
 

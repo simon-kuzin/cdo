@@ -139,7 +139,7 @@ public class CDOQueryImpl extends CDOQueryInfoImpl implements CDOQuery
     if (object instanceof EClass)
     {
       EClass eClass = (EClass)object;
-      return ModelUtil.getCDOClass(eClass, (CDOSessionPackageManagerImpl)view.getSession().getPackageManager());
+      return ModelUtil.getEClass(eClass, (CDOSessionPackageManagerImpl)view.getSession().getPackageManager());
     }
     else if (object instanceof InternalCDOObject)
     {

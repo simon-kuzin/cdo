@@ -11,13 +11,14 @@
 package org.eclipse.emf.cdo.common.revision.cache;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOPackageManager;
+import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.util.event.IEvent;
 import org.eclipse.net4j.util.event.INotifier;
+
+import org.eclipse.emf.ecore.EClass;
 
 import java.util.List;
 
@@ -28,7 +29,7 @@ import java.util.List;
  */
 public interface CDORevisionCache extends INotifier.Introspection
 {
-  public CDOClass getObjectType(CDOID id);
+  public EClass getObjectType(CDOID id);
 
   public InternalCDORevision getRevision(CDOID id);
 
@@ -47,9 +48,9 @@ public interface CDORevisionCache extends INotifier.Introspection
 
   public CDOID getResourceID(CDOID folderID, String name, long timeStamp);
 
-  public CDOPackageManager getPackageManager();
+  public CDOPackageRegistry getPackageManager();
 
-  public void setPackageManager(CDOPackageManager packageManager);
+  public void setPackageManager(CDOPackageRegistry packageManager);
 
   public void clear();
 

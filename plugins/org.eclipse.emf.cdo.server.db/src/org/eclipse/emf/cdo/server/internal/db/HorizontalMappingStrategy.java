@@ -12,11 +12,7 @@ package org.eclipse.emf.cdo.server.internal.db;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
-import org.eclipse.emf.cdo.common.model.resource.CDOResourceNodeClass;
-import org.eclipse.emf.cdo.common.model.resource.CDOResourcePackage;
+import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.server.IPackageManager;
 import org.eclipse.emf.cdo.server.db.IClassMapping;
 import org.eclipse.emf.cdo.server.db.IDBStore;
@@ -30,6 +26,9 @@ import org.eclipse.net4j.db.ddl.IDBField;
 import org.eclipse.net4j.db.ddl.IDBTable;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
+
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EPackage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -64,16 +63,16 @@ public class HorizontalMappingStrategy extends MappingStrategy
     this.objectTypeCache = objectTypeCache;
   }
 
-  public CDOClassRef readObjectType(IDBStoreAccessor accessor, CDOID id)
+  public CDOClassifierRef readObjectType(IDBStoreAccessor accessor, CDOID id)
   {
     return objectTypeCache.getObjectType(accessor, id);
   }
 
-  protected final CDOClassRef readObjectTypeFromClassesWithObjectInfo(IDBStoreAccessor accessor, CDOID id)
+  protected final CDOClassifierRef readObjectTypeFromClassesWithObjectInfo(IDBStoreAccessor accessor, CDOID id)
   {
     String prefix = "SELECT DISTINCT " + CDODBSchema.ATTRIBUTES_CLASS + " FROM ";
     String suffix = " WHERE " + CDODBSchema.ATTRIBUTES_ID + "=" + id;
-    for (CDOClass cdoClass : getClassesWithObjectInfo())
+    for (EClass cdoClass : getClassesWithObjectInfo())
     {
       IClassMapping mapping = getClassMapping(cdoClass);
       if (mapping != null)
@@ -114,7 +113,7 @@ public class HorizontalMappingStrategy extends MappingStrategy
   }
 
   @Override
-  protected IClassMapping createClassMapping(CDOClass cdoClass)
+  protected IClassMapping createClassMapping(EClass cdoClass)
   {
     if (cdoClass.isAbstract())
     {
@@ -125,13 +124,13 @@ public class HorizontalMappingStrategy extends MappingStrategy
   }
 
   @Override
-  protected List<CDOClass> getClassesWithObjectInfo()
+  protected List<EClass> getClassesWithObjectInfo()
   {
-    List<CDOClass> result = new ArrayList<CDOClass>();
+    List<EClass> result = new ArrayList<EClass>();
     IPackageManager packageManager = getStore().getRepository().getPackageManager();
-    for (CDOPackage cdoPackage : packageManager.getPackages())
+    for (EPackage cdoPackage : packageManager.getPackages())
     {
-      for (CDOClass cdoClass : cdoPackage.getConcreteClasses())
+      for (EClass cdoClass : cdoPackage.getConcreteClasses())
       {
         if (!cdoClass.isRoot())
         {

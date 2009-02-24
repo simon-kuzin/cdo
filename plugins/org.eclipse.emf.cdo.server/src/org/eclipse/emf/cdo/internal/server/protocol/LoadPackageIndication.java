@@ -12,11 +12,12 @@ package org.eclipse.emf.cdo.internal.server.protocol;
 
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
 
 import org.eclipse.net4j.util.om.trace.ContextTracer;
+
+import org.eclipse.emf.ecore.EPackage;
 
 import java.io.IOException;
 
@@ -27,7 +28,7 @@ public class LoadPackageIndication extends CDOReadIndication
 {
   private static final ContextTracer PROTOCOL_TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, LoadPackageIndication.class);
 
-  private CDOPackage cdoPackage;
+  private EPackage cdoPackage;
 
   private boolean onlyEcore;
 
@@ -39,7 +40,7 @@ public class LoadPackageIndication extends CDOReadIndication
   @Override
   protected void indicating(CDODataInput in) throws IOException
   {
-    String packageURI = in.readCDOPackageURI();
+    String packageURI = in.readEPackageURI();
     if (PROTOCOL_TRACER.isEnabled())
     {
       PROTOCOL_TRACER.format("Read packageURI: {0}", packageURI);
@@ -78,7 +79,7 @@ public class LoadPackageIndication extends CDOReadIndication
         PROTOCOL_TRACER.format("Writing package: {0}", cdoPackage);
       }
 
-      out.writeCDOPackage(cdoPackage);
+      out.writeEPackage(cdoPackage);
     }
   }
 }

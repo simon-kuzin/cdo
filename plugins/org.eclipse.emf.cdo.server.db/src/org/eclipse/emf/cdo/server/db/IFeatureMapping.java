@@ -10,7 +10,7 @@
  */
 package org.eclipse.emf.cdo.server.db;
 
-import org.eclipse.emf.cdo.common.model.CDOFeature;
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 /**
  * @author Eike Stepper
@@ -19,5 +19,5 @@ public interface IFeatureMapping
 {
   public IClassMapping getClassMapping();
 
-  public CDOFeature getFeature();
+  public EStructuralFeature getFeature();
 }

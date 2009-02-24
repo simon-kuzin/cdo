@@ -10,10 +10,11 @@
  */
 package org.eclipse.emf.cdo.internal.server;
 
-import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.IStoreChunkReader;
+
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,14 +28,14 @@ public abstract class StoreChunkReader implements IStoreChunkReader
 
   private CDORevision revision;
 
-  private CDOFeature feature;
+  private EStructuralFeature feature;
 
   private List<Chunk> chunks = new ArrayList<Chunk>(0);
 
   /**
    * @since 2.0
    */
-  public StoreChunkReader(IStoreAccessor accessor, CDORevision revision, CDOFeature feature)
+  public StoreChunkReader(IStoreAccessor accessor, CDORevision revision, EStructuralFeature feature)
   {
     this.accessor = accessor;
     this.revision = revision;
@@ -54,7 +55,7 @@ public abstract class StoreChunkReader implements IStoreChunkReader
     return revision;
   }
 
-  public CDOFeature getFeature()
+  public EStructuralFeature getFeature()
   {
     return feature;
   }

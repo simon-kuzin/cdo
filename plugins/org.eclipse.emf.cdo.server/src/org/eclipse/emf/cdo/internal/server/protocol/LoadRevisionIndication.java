@@ -15,8 +15,6 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.internal.server.RevisionManager;
@@ -25,6 +23,9 @@ import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.util.collection.MoveableList;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
+
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -46,7 +47,7 @@ public class LoadRevisionIndication extends CDOReadIndication
 
   protected int referenceChunk;
 
-  protected Map<CDOClass, CDOFetchRule> fetchRules = new HashMap<CDOClass, CDOFetchRule>();
+  protected Map<EClass, CDOFetchRule> fetchRules = new HashMap<EClass, CDOFetchRule>();
 
   protected CDOID contextID = CDOID.NULL;
 
@@ -107,7 +108,7 @@ public class LoadRevisionIndication extends CDOReadIndication
       for (int i = 0; i < fetchSize; i++)
       {
         CDOFetchRule fetchRule = new CDOFetchRule(in, getPackageManager());
-        fetchRules.put(fetchRule.getCDOClass(), fetchRule);
+        fetchRules.put(fetchRule.getEClass(), fetchRule);
       }
     }
   }
@@ -181,7 +182,7 @@ public class LoadRevisionIndication extends CDOReadIndication
       List<CDORevision> additionalRevisions, Set<CDOFetchRule> visitedFetchRules)
   {
     getSession().collectContainedRevisions(revision, referenceChunk, revisions, additionalRevisions);
-    CDOFetchRule fetchRule = fetchRules.get(revision.getCDOClass());
+    CDOFetchRule fetchRule = fetchRules.get(revision.getEClass());
     if (fetchRule == null || visitedFetchRules.contains(fetchRule))
     {
       return;
@@ -190,7 +191,7 @@ public class LoadRevisionIndication extends CDOReadIndication
     visitedFetchRules.add(fetchRule);
 
     RevisionManager revisionManager = (RevisionManager)getSessionManager().getRepository().getRevisionManager();
-    for (CDOFeature feature : fetchRule.getFeatures())
+    for (EStructuralFeature feature : fetchRule.getFeatures())
     {
       if (feature.isMany())
       {

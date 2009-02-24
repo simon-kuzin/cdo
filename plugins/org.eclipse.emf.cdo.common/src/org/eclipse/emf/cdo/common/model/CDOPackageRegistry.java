@@ -10,22 +10,17 @@
  */
 package org.eclipse.emf.cdo.common.model;
 
+import org.eclipse.emf.ecore.EPackage;
+
 /**
  * @author Eike Stepper
- * @noimplement This interface is not intended to be implemented by clients.
  */
-public interface CDOModelElement
+public interface CDOPackageRegistry extends EPackage.Registry
 {
-  public CDOPackageManager getPackageManager();
-
-  public String getName();
+  public CDOPackageUnitManager getPackageUnitManager();
 
   /**
-   * @since 2.0
+   * Registers an {@link EPackage} with this package registry.
    */
-  public String getQualifiedName();
-
-  public Object getClientInfo();
-
-  public Object getServerInfo();
+  public void putEPackage(EPackage ePackage);
 }

@@ -15,10 +15,6 @@ package org.eclipse.emf.cdo.internal.server;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOClassProxy;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
@@ -26,14 +22,13 @@ import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.ITransaction;
 import org.eclipse.emf.cdo.server.StoreUtil;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOClass;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOFeature;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackage;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
+
+import org.eclipse.emf.ecore.EPackage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -139,7 +134,7 @@ public abstract class StoreAccessor extends Lifecycle implements IStoreAccessor
     commitContexts.add(context);
     long timeStamp = context.getTimeStamp();
     boolean deltas = store.getRepository().isSupportingRevisionDeltas();
-    CDOPackage[] newPackages = context.getNewPackages();
+    EPackage[] newPackages = context.getNewPackages();
     CDORevision[] newObjects = context.getNewObjects();
     CDOID[] detachedObjects = context.getDetachedObjects();
     int dirtyCount = deltas ? context.getDirtyObjectDeltas().length : context.getDirtyObjects().length;
@@ -231,7 +226,7 @@ public abstract class StoreAccessor extends Lifecycle implements IStoreAccessor
   /**
    * @since 2.0
    */
-  protected abstract void writePackages(CDOPackage[] cdoPackages, OMMonitor monitor);
+  protected abstract void writePackages(EPackage[] cdoPackages, OMMonitor monitor);
 
   /**
    * @since 2.0
@@ -269,100 +264,4 @@ public abstract class StoreAccessor extends Lifecycle implements IStoreAccessor
    * @since 2.0
    */
   protected abstract void doUnpassivate() throws Exception;
-
-  /**
-   * @author Eike Stepper
-   * @since 2.0
-   */
-  public static abstract class PackageWriter implements Runnable
-  {
-    private CDOPackage[] cdoPackages;
-
-    private OMMonitor mainMonitor;
-
-    public PackageWriter(CDOPackage[] cdoPackages, OMMonitor monitor)
-    {
-      this.cdoPackages = cdoPackages;
-      mainMonitor = monitor;
-    }
-
-    public CDOPackage[] getCDOPackages()
-    {
-      return cdoPackages;
-    }
-
-    public OMMonitor getMonitor()
-    {
-      return mainMonitor;
-    }
-
-    public void run()
-    {
-      try
-      {
-        mainMonitor.begin(cdoPackages.length);
-        for (CDOPackage cdoPackage : cdoPackages)
-        {
-          runPackage(cdoPackage, mainMonitor.fork());
-        }
-      }
-      finally
-      {
-        mainMonitor.done();
-      }
-    }
-
-    protected void runPackage(CDOPackage cdoPackage, OMMonitor monitor)
-    {
-      try
-      {
-        CDOClass[] classes = cdoPackage.getClasses();
-        monitor.begin(1 + classes.length);
-
-        writePackage((InternalCDOPackage)cdoPackage, monitor.fork());
-        for (CDOClass cdoClass : classes)
-        {
-          runClass((InternalCDOClass)cdoClass, monitor.fork());
-        }
-      }
-      finally
-      {
-        monitor.done();
-      }
-    }
-
-    protected void runClass(InternalCDOClass cdoClass, OMMonitor monitor)
-    {
-      try
-      {
-        List<CDOClassProxy> superTypeProxies = cdoClass.getSuperTypeProxies();
-        CDOFeature[] features = cdoClass.getFeatures();
-        monitor.begin(1 + superTypeProxies.size() + features.length);
-
-        writeClass(cdoClass, monitor.fork());
-
-        for (CDOClassProxy superType : superTypeProxies)
-        {
-          writeSuperType(cdoClass, superType, monitor.fork());
-        }
-
-        for (CDOFeature feature : features)
-        {
-          writeFeature((InternalCDOFeature)feature, monitor.fork());
-        }
-      }
-      finally
-      {
-        monitor.done();
-      }
-    }
-
-    protected abstract void writePackage(InternalCDOPackage cdoPackage, OMMonitor monitor);
-
-    protected abstract void writeClass(InternalCDOClass cdoClass, OMMonitor monitor);
-
-    protected abstract void writeSuperType(InternalCDOClass type, CDOClassProxy superType, OMMonitor monitor);
-
-    protected abstract void writeFeature(InternalCDOFeature feature, OMMonitor monitor);
-  }
 }

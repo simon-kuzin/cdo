@@ -13,9 +13,10 @@ package org.eclipse.emf.cdo.transaction;
 
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.eresource.CDOResource;
+
+import org.eclipse.emf.ecore.EPackage;
 
 import java.util.List;
 import java.util.Map;
@@ -34,9 +35,9 @@ public interface CDOCommitContext
   public CDOTransaction getTransaction();
 
   /**
-   * Returns a list of the new {@link CDOPackage packages} that are to be committed with this commit context.
+   * Returns a list of the new {@link EPackage packages} that are to be committed with this commit context.
    */
-  public List<CDOPackage> getNewPackages();
+  public List<EPackage> getNewPackages();
 
   /**
    * Returns a map of the new {@link CDOResource resources} that are to be committed with this commit context.

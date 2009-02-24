@@ -11,11 +11,12 @@
  */
 package org.eclipse.emf.cdo.server.internal.hibernate.tuplizer;
 
-import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.internal.hibernate.bundle.OM;
 
 import org.eclipse.net4j.util.om.trace.ContextTracer;
+
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 import org.hibernate.collection.PersistentCollection;
 
@@ -40,18 +41,18 @@ public class PersistableListHolder
   {
   }
 
-  public void putListMapping(Object target, CDOFeature cdoFeature, PersistentCollection collection)
+  public void putListMapping(Object target, EStructuralFeature cdoFeature, PersistentCollection collection)
   {
     Key key = new Key(target, cdoFeature);
     getListMapping().put(key, collection);
     if (TRACER.isEnabled())
     {
-      TRACER.trace("Stored hb list in threadlocal: " + ((CDORevision)target).getCDOClass().getName() + "."
+      TRACER.trace("Stored hb list in threadlocal: " + ((CDORevision)target).getEClass().getName() + "."
           + cdoFeature.getName());
     }
   }
 
-  public PersistentCollection getListMapping(Object target, CDOFeature cdoFeature)
+  public PersistentCollection getListMapping(Object target, EStructuralFeature cdoFeature)
   {
     Key key = new Key(target, cdoFeature);
     return getListMapping().get(key);
@@ -86,9 +87,9 @@ public class PersistableListHolder
   {
     private Object owner;
 
-    private CDOFeature cdoFeature;
+    private EStructuralFeature cdoFeature;
 
-    public Key(Object owner, CDOFeature cdoFeature)
+    public Key(Object owner, EStructuralFeature cdoFeature)
     {
       this.owner = owner;
       this.cdoFeature = cdoFeature;

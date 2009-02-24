@@ -11,8 +11,6 @@
 package org.eclipse.emf.cdo.server.internal.db;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.db.IAttributeMapping;
 import org.eclipse.emf.cdo.server.db.IClassMapping;
@@ -23,6 +21,9 @@ import org.eclipse.emf.cdo.server.db.IReferenceMapping;
 
 import org.eclipse.net4j.db.ddl.IDBTable;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
+
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.util.Collections;
 import java.util.List;
@@ -44,7 +45,7 @@ public class NoClassMapping implements IClassMapping
     return null;
   }
 
-  public CDOClass getCDOClass()
+  public EClass getEClass()
   {
     return null;
   }
@@ -64,7 +65,7 @@ public class NoClassMapping implements IClassMapping
     return false;
   }
 
-  public IFeatureMapping getFeatureMapping(CDOFeature feature)
+  public IFeatureMapping getFeatureMapping(EStructuralFeature feature)
   {
     return null;
   }
@@ -79,12 +80,12 @@ public class NoClassMapping implements IClassMapping
     return null;
   }
 
-  public IAttributeMapping getAttributeMapping(CDOFeature feature)
+  public IAttributeMapping getAttributeMapping(EStructuralFeature feature)
   {
     return null;
   }
 
-  public IReferenceMapping getReferenceMapping(CDOFeature feature)
+  public IReferenceMapping getReferenceMapping(EStructuralFeature feature)
   {
     return null;
   }

@@ -11,14 +11,13 @@
 package org.eclipse.emf.cdo.internal.server;
 
 import org.eclipse.emf.cdo.common.id.CDOIDObjectFactory;
-import org.eclipse.emf.cdo.common.model.CDOModelUtil;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
-import org.eclipse.emf.cdo.internal.common.model.CDOPackageManagerImpl;
 import org.eclipse.emf.cdo.server.IPackageManager;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.StoreThreadLocal;
+
+import org.eclipse.emf.ecore.EPackage;
 
 import java.util.Collection;
 
@@ -60,7 +59,7 @@ public class PackageManager extends CDOPackageManagerImpl implements IPackageMan
   /**
    * @since 2.0
    */
-  public void loadPackage(CDOPackage cdoPackage)
+  public void loadPackage(EPackage cdoPackage)
   {
     IStoreAccessor accessor = StoreThreadLocal.getAccessor();
     accessor.readPackage(cdoPackage);
@@ -69,7 +68,7 @@ public class PackageManager extends CDOPackageManagerImpl implements IPackageMan
   /**
    * @since 2.0
    */
-  public void loadPackageEcore(CDOPackage cdoPackage)
+  public void loadPackageEcore(EPackage cdoPackage)
   {
     IStoreAccessor accessor = StoreThreadLocal.getAccessor();
     accessor.readPackageEcore(cdoPackage);

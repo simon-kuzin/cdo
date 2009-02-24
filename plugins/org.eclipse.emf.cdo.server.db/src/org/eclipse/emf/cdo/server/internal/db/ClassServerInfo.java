@@ -10,11 +10,12 @@
  */
 package org.eclipse.emf.cdo.server.internal.db;
 
-import org.eclipse.emf.cdo.common.model.CDOClass;
+import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.server.db.IClassMapping;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOClass;
 
 import org.eclipse.net4j.util.ImplementationError;
+
+import org.eclipse.emf.ecore.EClass;
 
 /**
  * @author Eike Stepper
@@ -28,23 +29,23 @@ public final class ClassServerInfo extends ServerInfo
     super(id);
   }
 
-  public static ClassServerInfo setDBID(CDOClass cdoClass, int id)
+  public static ClassServerInfo setDBID(EClass cdoClass, int id)
   {
     ClassServerInfo serverInfo = new ClassServerInfo(id);
-    ((InternalCDOClass)cdoClass).setServerInfo(serverInfo);
+    ((InternalEClass)cdoClass).setServerInfo(serverInfo);
     return serverInfo;
   }
 
   /*
-   * Should only be called from MappingStrategy#getClassMapping(CDOClass).
+   * Should only be called from MappingStrategy#getClassMapping(EClass).
    */
-  public static IClassMapping getClassMapping(CDOClass cdoClass)
+  public static IClassMapping getClassMapping(EClass cdoClass)
   {
     ClassServerInfo serverInfo = getServerInfo(cdoClass);
     return serverInfo == null ? null : serverInfo.classMapping;
   }
 
-  public static void setClassMapping(CDOClass cdoClass, IClassMapping classMapping)
+  public static void setClassMapping(EClass cdoClass, IClassMapping classMapping)
   {
     ClassServerInfo serverInfo = getServerInfo(cdoClass);
     if (serverInfo == null)
@@ -55,12 +56,12 @@ public final class ClassServerInfo extends ServerInfo
     serverInfo.classMapping = classMapping;
   }
 
-  private static ClassServerInfo getServerInfo(CDOClass cdoClass)
+  private static ClassServerInfo getServerInfo(EClass cdoClass)
   {
     ClassServerInfo serverInfo = (ClassServerInfo)cdoClass.getServerInfo();
     if (serverInfo == null)
     {
-      if (cdoClass.isRoot())
+      if (TODO.isRoot(cdoClass))
       {
         serverInfo = setDBID(cdoClass, CDO_OBJECT_CLASS_DBID);
       }

@@ -12,7 +12,6 @@
 package org.eclipse.emf.cdo.tests.bugzilla;
 
 import org.eclipse.emf.cdo.CDOObject;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.tests.AbstractCDOTest;
@@ -91,7 +90,7 @@ public class Bugzilla_258933_Test extends AbstractCDOTest
 
       CDOSession session = openSession();
       session.getPackageRegistry().putEPackage(topPackage);
-      CDOPackage packageObject = ModelUtil.getCDOPackage(topPackage, (CDOSessionPackageManagerImpl)session
+      EPackage packageObject = ModelUtil.getEPackage(topPackage, (CDOSessionPackageManagerImpl)session
           .getPackageManager());
       assertNotNull(packageObject.getEcore());
 

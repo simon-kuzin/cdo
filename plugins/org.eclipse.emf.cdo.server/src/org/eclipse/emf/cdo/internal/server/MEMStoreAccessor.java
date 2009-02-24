@@ -14,10 +14,7 @@ package org.eclipse.emf.cdo.internal.server;
 
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
+import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
@@ -29,6 +26,10 @@ import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.net4j.util.WrappedException;
 import org.eclipse.net4j.util.collection.CloseableIterator;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
+
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -64,7 +65,7 @@ public class MEMStoreAccessor extends StoreAccessor
   /**
    * @since 2.0
    */
-  public MEMStoreChunkReader createChunkReader(CDORevision revision, CDOFeature feature)
+  public MEMStoreChunkReader createChunkReader(CDORevision revision, EStructuralFeature feature)
   {
     return new MEMStoreChunkReader(this, revision, feature);
   }
@@ -74,7 +75,7 @@ public class MEMStoreAccessor extends StoreAccessor
     return Collections.emptySet();
   }
 
-  public void readPackage(CDOPackage cdoPackage)
+  public void readPackage(EPackage cdoPackage)
   {
     throw new UnsupportedOperationException();
   }
@@ -82,7 +83,7 @@ public class MEMStoreAccessor extends StoreAccessor
   /**
    * @since 2.0
    */
-  public void readPackageEcore(CDOPackage cdoPackage)
+  public void readPackageEcore(EPackage cdoPackage)
   {
     throw new UnsupportedOperationException();
   }
@@ -95,22 +96,22 @@ public class MEMStoreAccessor extends StoreAccessor
     throw new UnsupportedOperationException();
   }
 
-  public CDOClassRef readObjectType(CDOID id)
+  public CDOClassifierRef readObjectType(CDOID id)
   {
     InternalCDORevision storeRevision = (InternalCDORevision)getStore().getRevision(id);
-    return storeRevision.getCDOClass().createClassRef();
+    return new CDOClassifierRef(storeRevision.getEClass());
   }
 
   public CDORevision readRevision(CDOID id, int referenceChunk)
   {
     InternalCDORevision storeRevision = (InternalCDORevision)getStore().getRevision(id);
     // IRevisionManager revisionManager = getStore().getRepository().getRevisionManager();
-    // InternalCDORevision newRevision = new InternalCDORevision(revisionManager, storeRevision.getCDOClass(),
+    // InternalCDORevision newRevision = new InternalCDORevision(revisionManager, storeRevision.getEClass(),
     // storeRevision
     // .getID());
     // newRevision.setResourceID(storeRevision.getResourceID());
     //
-    // for (CDOFeature feature : storeRevision.getCDOClass().getAllFeatures())
+    // for (EStructuralFeature feature : storeRevision.TODO.getAllPersistentFeatures(getEClass()))
     // {
     // if (feature.isMany())
     // {
@@ -170,7 +171,7 @@ public class MEMStoreAccessor extends StoreAccessor
   }
 
   @Override
-  protected void writePackages(CDOPackage[] cdoPackages, OMMonitor monitor)
+  protected void writePackages(EPackage[] cdoPackages, OMMonitor monitor)
   {
     // Do nothing
   }
@@ -254,16 +255,16 @@ public class MEMStoreAccessor extends StoreAccessor
     Long sleep = (Long)info.getParameters().get("sleep");
     if (context != null)
     {
-      if (context instanceof CDOClass)
+      if (context instanceof EClass)
       {
-        final CDOClass cdoClass = (CDOClass)context;
+        final EClass cdoClass = (EClass)context;
         filters.add(new Object()
         {
           @Override
           public boolean equals(Object obj)
           {
             CDORevision revision = (CDORevision)obj;
-            return revision.getCDOClass().equals(cdoClass);
+            return revision.getEClass().equals(cdoClass);
           }
         });
       }

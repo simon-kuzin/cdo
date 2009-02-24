@@ -11,7 +11,6 @@
 package org.eclipse.emf.cdo.tests;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.eresource.CDOResource;
@@ -452,7 +451,7 @@ public class IndexReconstructionTest extends AbstractCDOTest
 
   private void expectIndex(CDOID id, EStructuralFeature eFeature, int index)
   {
-    CDOFeature feature = transaction.getSession().getPackageManager().convert(eFeature);
+    EStructuralFeature feature = transaction.getSession().getPackageManager().convert(eFeature);
     ReconstructedIndex expectedIndex = new ReconstructedIndex(id, feature, index);
     if (!expectedIndices.add(expectedIndex))
     {
@@ -504,11 +503,11 @@ public class IndexReconstructionTest extends AbstractCDOTest
   {
     private CDOID id;
 
-    private CDOFeature feature;
+    private EStructuralFeature feature;
 
     private int index;
 
-    public ReconstructedIndex(CDOID id, CDOFeature feature, int index)
+    public ReconstructedIndex(CDOID id, EStructuralFeature feature, int index)
     {
       this.feature = feature;
       this.id = id;

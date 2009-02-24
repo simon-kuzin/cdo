@@ -10,17 +10,16 @@
  */
 package org.eclipse.emf.cdo.internal.common.io;
 
+import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOID.Type;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
+import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
+import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageURICompressor;
-import org.eclipse.emf.cdo.common.model.CDOType;
+import org.eclipse.emf.cdo.common.model.internal.InternalCDOPackageInfo;
 import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
@@ -28,24 +27,22 @@ import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.internal.common.id.CDOIDAndVersionImpl;
-import org.eclipse.emf.cdo.internal.common.model.CDOClassRefImpl;
-import org.eclipse.emf.cdo.internal.common.model.CDOTypeImpl;
 import org.eclipse.emf.cdo.internal.common.revision.delta.CDOFeatureDeltaImpl;
 import org.eclipse.emf.cdo.internal.common.revision.delta.CDORevisionDeltaImpl;
 import org.eclipse.emf.cdo.spi.common.id.AbstractCDOID;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOClass;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOFeature;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackage;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.util.concurrent.RWLockManager;
 import org.eclipse.net4j.util.io.ExtendedDataOutput;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EClassifier;
+import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.EStructuralFeature;
+
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Eike Stepper
@@ -54,22 +51,7 @@ public abstract class CDODataOutputImpl implements CDODataOutput
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, CDODataOutputImpl.class);
 
-  private static final Map<Class<?>, CDOType> idTypes = new HashMap<Class<?>, CDOType>();
-
   private ExtendedDataOutput out;
-
-  static
-  {
-    idTypes.put(String.class, CDOType.STRING);
-    idTypes.put(Boolean.class, CDOType.BOOLEAN);
-    idTypes.put(Date.class, CDOType.DATE);
-    idTypes.put(Long.class, CDOType.LONG);
-    idTypes.put(Integer.class, CDOType.INT);
-    idTypes.put(Double.class, CDOType.DOUBLE);
-    idTypes.put(Byte.class, CDOType.BYTE);
-    idTypes.put(Character.class, CDOType.CHAR);
-    idTypes.put(Float.class, CDOType.FLOAT);
-  }
 
   public CDODataOutputImpl(ExtendedDataOutput out)
   {
@@ -166,39 +148,29 @@ public abstract class CDODataOutputImpl implements CDODataOutput
     out.writeUTF(str);
   }
 
-  public void writeCDOType(CDOType cdoType) throws IOException
+  public void writeCDOPackageInfo(CDOPackageInfo packageInfo) throws IOException
   {
-    ((CDOTypeImpl)cdoType).write(this);
+    ((InternalCDOPackageInfo)packageInfo).write(this);
   }
 
-  public void writeCDOPackageURI(String uri) throws IOException
+  public void writeEClassifierRef(CDOClassifierRef eClassifierRef) throws IOException
+  {
+    eClassifierRef.write(this);
+  }
+
+  public void writeEClassifierRef(EClassifier eClassifier) throws IOException
+  {
+    writeEClassifierRef(new CDOClassifierRef(eClassifier));
+  }
+
+  public void writeEPackageURI(String uri) throws IOException
   {
     getPackageURICompressor().writePackageURI(this, uri);
   }
 
-  public void writeCDOClassRef(CDOClassRef cdoClassRef) throws IOException
+  public void writeEPackage(EPackage cdoPackage) throws IOException
   {
-    ((CDOClassRefImpl)cdoClassRef).write(this);
-  }
-
-  public void writeCDOClassRef(CDOClass cdoClass) throws IOException
-  {
-    writeCDOClassRef(cdoClass.createClassRef());
-  }
-
-  public void writeCDOPackage(CDOPackage cdoPackage) throws IOException
-  {
-    ((InternalCDOPackage)cdoPackage).write(this);
-  }
-
-  public void writeCDOClass(CDOClass cdoClass) throws IOException
-  {
-    ((InternalCDOClass)cdoClass).write(this);
-  }
-
-  public void writeCDOFeature(CDOFeature cdoFeature) throws IOException
-  {
-    ((InternalCDOFeature)cdoFeature).write(this);
+    TODO.writeEPackage(this, cdoPackage);
   }
 
   public void writeCDOID(CDOID id) throws IOException
@@ -251,7 +223,7 @@ public abstract class CDODataOutputImpl implements CDODataOutput
     }
   }
 
-  public void writeCDOList(CDOList list, CDOFeature feature, int referenceChunk) throws IOException
+  public void writeCDOList(CDOList list, EStructuralFeature feature, int referenceChunk) throws IOException
   {
     // TODO Simon: Could most of this stuff be moved into the list?
     // (only if protected methods of this class don't need to become public)
@@ -297,7 +269,7 @@ public abstract class CDODataOutputImpl implements CDODataOutput
     for (int j = 0; j < size; j++)
     {
       Object value = list.get(j, false);
-      if (value != null && feature.isReference())
+      if (value != null && feature instanceof EReference)
       {
         value = getIDProvider().provideCDOID(value);
       }
@@ -307,7 +279,7 @@ public abstract class CDODataOutputImpl implements CDODataOutput
         TRACER.trace("    " + value);
       }
 
-      feature.getType().writeValue(this, value);
+      TODO.writeFeatureValue(this, value, feature);
     }
   }
 
@@ -316,51 +288,22 @@ public abstract class CDODataOutputImpl implements CDODataOutput
     ((CDORevisionDeltaImpl)revisionDelta).write(this);
   }
 
-  public void writeCDOFeatureDelta(CDOFeatureDelta featureDelta, CDOClass cdoClass) throws IOException
+  public void writeCDOFeatureDelta(CDOFeatureDelta featureDelta, EClass cdoClass) throws IOException
   {
     ((CDOFeatureDeltaImpl)featureDelta).write(this, cdoClass);
   }
 
   public void writeCDORevisionOrPrimitive(Object value) throws IOException
   {
-    if (value == null)
-    {
-      value = CDOID.NULL;
-    }
-    else if (value instanceof CDORevision)
-    {
-      value = ((CDORevision)value).getID();
-    }
-
-    CDOType type = null;
-    if (value instanceof CDOID)
-    {
-      if (((CDOID)value).isTemporary())
-      {
-        throw new IllegalArgumentException("Temporary ID not supported: " + value);
-      }
-
-      type = CDOType.OBJECT;
-    }
-    else
-    {
-      type = idTypes.get(value.getClass());
-      if (type == null)
-      {
-        throw new IllegalArgumentException("No type for object " + value.getClass());
-      }
-    }
-
-    writeCDOType(type);
-    type.writeValue(this, value);
+    TODO.writeCDORevisionOrPrimitive(this, value);
   }
 
   public void writeCDORevisionOrPrimitiveOrClass(Object value) throws IOException
   {
-    if (value instanceof CDOClass)
+    if (value instanceof EClass)
     {
       writeBoolean(true);
-      writeCDOClassRef(((CDOClass)value).createClassRef());
+      writeEClassifierRef((EClass)value);
     }
     else
     {

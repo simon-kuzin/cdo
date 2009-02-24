@@ -11,7 +11,7 @@
  */
 package org.eclipse.emf.cdo.internal.common.revision;
 
-import org.eclipse.emf.cdo.common.model.CDOType;
+import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDOListFactory;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
@@ -19,6 +19,9 @@ import org.eclipse.emf.cdo.spi.common.revision.InternalCDOList;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.util.collection.MoveableArrayList;
+
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EClassifier;
 
 /**
  * @author Simon McDuff
@@ -44,14 +47,14 @@ public class CDOListImpl extends MoveableArrayList<Object> implements InternalCD
     }
   }
 
-  public InternalCDOList clone(CDOType type)
+  public InternalCDOList clone(EClassifier type)
   {
     int size = size();
     InternalCDOList list = new CDOListImpl(size, 0);
     for (int j = 0; j < size; j++)
     {
       Object value = this.get(j);
-      list.add(j, type.copyValue(value));
+      list.add(j, TODO.copyValue(value, type));
     }
 
     return list;
@@ -62,14 +65,14 @@ public class CDOListImpl extends MoveableArrayList<Object> implements InternalCD
     return super.get(index);
   }
 
-  public void adjustReferences(CDOReferenceAdjuster revisionAdjuster, CDOType type)
+  public void adjustReferences(CDOReferenceAdjuster revisionAdjuster, EClass type)
   {
     int size = size();
     for (int i = 0; i < size; i++)
     {
       Object element = super.get(i);
       handleAdjustReference(i, element);
-      Object newID = type.adjustReferences(revisionAdjuster, element);
+      Object newID = TODO.adjustReferences(revisionAdjuster, element, type);
       if (newID != element)
       {
         super.set(i, newID);

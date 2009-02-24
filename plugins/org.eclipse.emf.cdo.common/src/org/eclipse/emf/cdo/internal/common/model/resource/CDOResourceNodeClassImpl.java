@@ -10,21 +10,21 @@
  */
 package org.eclipse.emf.cdo.internal.common.model.resource;
 
-import org.eclipse.emf.cdo.common.model.CDOPackage;
+import org.eclipse.emf.cdo.common.model.EPackage;
 import org.eclipse.emf.cdo.common.model.CDOPackageManager;
 import org.eclipse.emf.cdo.common.model.resource.CDOResourceNodeClass;
-import org.eclipse.emf.cdo.internal.common.model.CDOClassImpl;
+import org.eclipse.emf.cdo.internal.common.model.EClassImpl;
 
 /**
  * @author Eike Stepper
  */
-public class CDOResourceNodeClassImpl extends CDOClassImpl implements CDOResourceNodeClass
+public class CDOResourceNodeClassImpl extends EClassImpl implements CDOResourceNodeClass
 {
   private CDOFolderFeatureImpl cdoFolderFeature;
 
   private CDONameFeatureImpl cdoNameFeature;
 
-  public CDOResourceNodeClassImpl(CDOPackage containingPackage, CDOPackageManager packageManager)
+  public CDOResourceNodeClassImpl(EPackage containingPackage, CDOPackageManager packageManager)
   {
     super(containingPackage, CLASSIFIER_ID, NAME, true);
     addFeature(cdoFolderFeature = new CDOFolderFeatureImpl(this, packageManager));

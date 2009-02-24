@@ -14,12 +14,12 @@ package org.eclipse.emf.cdo.internal.common.model;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
+import org.eclipse.emf.cdo.common.model.EClass;
+import org.eclipse.emf.cdo.common.model.EPackage;
 import org.eclipse.emf.cdo.common.model.CDOPackageManager;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOClass;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackage;
+import org.eclipse.emf.cdo.spi.common.model.InternalEClass;
+import org.eclipse.emf.cdo.spi.common.model.InternalEPackage;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageManager;
 
 import org.eclipse.net4j.util.ObjectUtil;
@@ -33,19 +33,19 @@ import java.util.List;
 /**
  * @author Eike Stepper
  */
-public class CDOPackageImpl extends CDOModelElementImpl implements InternalCDOPackage
+public class EPackageImpl extends EModelElementImpl implements InternalEPackage
 {
-  private static final ContextTracer MODEL_TRACER = new ContextTracer(OM.DEBUG_MODEL, CDOPackageImpl.class);
+  private static final ContextTracer MODEL_TRACER = new ContextTracer(OM.DEBUG_MODEL, EPackageImpl.class);
 
-  private static final ContextTracer PROTOCOL_TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, CDOPackageImpl.class);
+  private static final ContextTracer PROTOCOL_TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, EPackageImpl.class);
 
   private CDOPackageManager packageManager;
 
   private String packageURI;
 
-  private List<CDOClass> classes;
+  private List<EClass> classes;
 
-  private List<CDOClass> index;
+  private List<EClass> index;
 
   private String ecore;
 
@@ -59,11 +59,11 @@ public class CDOPackageImpl extends CDOModelElementImpl implements InternalCDOPa
 
   private transient boolean persistent = true;
 
-  public CDOPackageImpl()
+  public EPackageImpl()
   {
   }
 
-  public CDOPackageImpl(CDOPackageManager packageManager, String packageURI, String name, String ecore,
+  public EPackageImpl(CDOPackageManager packageManager, String packageURI, String name, String ecore,
       boolean dynamic, CDOIDMetaRange metaIDRange, String parentURI)
   {
     super(name);
@@ -81,7 +81,7 @@ public class CDOPackageImpl extends CDOModelElementImpl implements InternalCDOPa
     createLists();
   }
 
-  public CDOPackageImpl(CDOPackageManager packageManager, CDODataInput in) throws IOException
+  public EPackageImpl(CDOPackageManager packageManager, CDODataInput in) throws IOException
   {
     this.packageManager = packageManager;
     createLists();
@@ -91,7 +91,7 @@ public class CDOPackageImpl extends CDOModelElementImpl implements InternalCDOPa
   /**
    * Creates a proxy CDO package
    */
-  public CDOPackageImpl(CDOPackageManager packageManager, String packageURI, boolean dynamic,
+  public EPackageImpl(CDOPackageManager packageManager, String packageURI, boolean dynamic,
       CDOIDMetaRange metaIDRange, String parentURI)
   {
     this.packageManager = packageManager;
@@ -110,7 +110,7 @@ public class CDOPackageImpl extends CDOModelElementImpl implements InternalCDOPa
   public void read(CDODataInput in) throws IOException
   {
     super.read(in);
-    packageURI = in.readCDOPackageURI();
+    packageURI = in.readEPackageURI();
     dynamic = in.readBoolean();
     metaIDRange = in.readCDOIDMetaRange();
     parentURI = in.readString();
@@ -128,7 +128,7 @@ public class CDOPackageImpl extends CDOModelElementImpl implements InternalCDOPa
 
     for (int i = 0; i < size; i++)
     {
-      CDOClass cdoClass = in.readCDOClass(this);
+      EClass cdoClass = in.readEClass(this);
       addClass(cdoClass);
     }
   }
@@ -144,7 +144,7 @@ public class CDOPackageImpl extends CDOModelElementImpl implements InternalCDOPa
     }
 
     super.write(out);
-    out.writeCDOPackageURI(packageURI);
+    out.writeEPackageURI(packageURI);
     out.writeBoolean(dynamic);
     out.writeCDOIDMetaRange(metaIDRange);
     out.writeString(parentURI);
@@ -156,9 +156,9 @@ public class CDOPackageImpl extends CDOModelElementImpl implements InternalCDOPa
     }
 
     out.writeInt(size);
-    for (CDOClass cdoClass : classes)
+    for (EClass cdoClass : classes)
     {
-      out.writeCDOClass(cdoClass);
+      out.writeEClass(cdoClass);
     }
   }
 
@@ -182,13 +182,13 @@ public class CDOPackageImpl extends CDOModelElementImpl implements InternalCDOPa
     this.parentURI = parentURI;
   }
 
-  public CDOPackage getTopLevelPackage()
+  public EPackage getTopLevelPackage()
   {
-    CDOPackage parentPackage = getParentPackage();
+    EPackage parentPackage = getParentPackage();
     return parentPackage == null ? this : parentPackage.getTopLevelPackage();
   }
 
-  public CDOPackage getParentPackage()
+  public EPackage getParentPackage()
   {
     if (parentURI == null)
     {
@@ -198,18 +198,18 @@ public class CDOPackageImpl extends CDOModelElementImpl implements InternalCDOPa
     return packageManager.lookupPackage(parentURI);
   }
 
-  public CDOPackage[] getSubPackages(boolean recursive)
+  public EPackage[] getSubPackages(boolean recursive)
   {
-    List<CDOPackage> result = new ArrayList<CDOPackage>();
-    CDOPackage[] allPackages = packageManager.getPackages();
+    List<EPackage> result = new ArrayList<EPackage>();
+    EPackage[] allPackages = packageManager.getPackages();
     getSubPackages(this, allPackages, result, recursive);
-    return result.toArray(new CDOPackage[result.size()]);
+    return result.toArray(new EPackage[result.size()]);
   }
 
-  private void getSubPackages(CDOPackage parentPackage, CDOPackage[] allPackages, List<CDOPackage> result,
+  private void getSubPackages(EPackage parentPackage, EPackage[] allPackages, List<EPackage> result,
       boolean recursive)
   {
-    for (CDOPackage cdoPackage : allPackages)
+    for (EPackage cdoPackage : allPackages)
     {
       if (ObjectUtil.equals(cdoPackage.getParentURI(), parentPackage.getPackageURI()))
       {
@@ -234,7 +234,7 @@ public class CDOPackageImpl extends CDOModelElementImpl implements InternalCDOPa
 
   public String getQualifiedName()
   {
-    CDOPackage parentPackage = getParentPackage();
+    EPackage parentPackage = getParentPackage();
     if (parentPackage != null)
     {
       return parentPackage.getQualifiedName() + "." + getName();
@@ -249,18 +249,18 @@ public class CDOPackageImpl extends CDOModelElementImpl implements InternalCDOPa
     return classes.size();
   }
 
-  public CDOClass[] getClasses()
+  public EClass[] getClasses()
   {
     load();
-    return classes.toArray(new CDOClass[classes.size()]);
+    return classes.toArray(new EClass[classes.size()]);
   }
 
-  public void setClasses(List<CDOClass> classes)
+  public void setClasses(List<EClass> classes)
   {
     this.classes = classes;
-    for (CDOClass cdoClass : classes)
+    for (EClass cdoClass : classes)
     {
-      ((InternalCDOClass)cdoClass).setContainingPackage(this);
+      ((InternalEClass)cdoClass).setContainingPackage(this);
       setIndex(cdoClass.getClassifierID(), cdoClass);
     }
   }
@@ -268,11 +268,11 @@ public class CDOPackageImpl extends CDOModelElementImpl implements InternalCDOPa
   /**
    * @return All classes with <code>isAbstract() == false</code> and <code>isSystem() == false</code>.
    */
-  public CDOClass[] getConcreteClasses()
+  public EClass[] getConcreteClasses()
   {
     load();
-    List<CDOClass> result = new ArrayList<CDOClass>(0);
-    for (CDOClass cdoClass : classes)
+    List<EClass> result = new ArrayList<EClass>(0);
+    for (EClass cdoClass : classes)
     {
       if (!cdoClass.isAbstract())
       {
@@ -280,10 +280,10 @@ public class CDOPackageImpl extends CDOModelElementImpl implements InternalCDOPa
       }
     }
 
-    return result.toArray(new CDOClass[result.size()]);
+    return result.toArray(new EClass[result.size()]);
   }
 
-  public CDOClass lookupClass(int classifierID)
+  public EClass lookupClass(int classifierID)
   {
     load();
     return index.get(classifierID);
@@ -353,7 +353,7 @@ public class CDOPackageImpl extends CDOModelElementImpl implements InternalCDOPa
     this.persistent = persistent;
   }
 
-  public void addClass(CDOClass cdoClass)
+  public void addClass(EClass cdoClass)
   {
     int classifierID = cdoClass.getClassifierID();
     if (MODEL_TRACER.isEnabled())
@@ -365,7 +365,7 @@ public class CDOPackageImpl extends CDOModelElementImpl implements InternalCDOPa
     classes.add(cdoClass);
   }
 
-  public int compareTo(CDOPackage that)
+  public int compareTo(EPackage that)
   {
     return getPackageURI().compareTo(that.getPackageURI());
   }
@@ -373,11 +373,11 @@ public class CDOPackageImpl extends CDOModelElementImpl implements InternalCDOPa
   @Override
   public String toString()
   {
-    return MessageFormat.format("CDOPackage(URI={0}, name={1}, dynamic={2}, metaIDRange={3}, parentURI={4})",
+    return MessageFormat.format("EPackage(URI={0}, name={1}, dynamic={2}, metaIDRange={3}, parentURI={4})",
         packageURI, getName(), dynamic, metaIDRange, parentURI);
   }
 
-  private void setIndex(int classifierID, CDOClass cdoClass)
+  private void setIndex(int classifierID, EClass cdoClass)
   {
     while (classifierID >= index.size())
     {
@@ -389,8 +389,8 @@ public class CDOPackageImpl extends CDOModelElementImpl implements InternalCDOPa
 
   private void createLists()
   {
-    classes = new ArrayList<CDOClass>(0);
-    index = new ArrayList<CDOClass>(0);
+    classes = new ArrayList<EClass>(0);
+    index = new ArrayList<EClass>(0);
   }
 
   private synchronized void load()

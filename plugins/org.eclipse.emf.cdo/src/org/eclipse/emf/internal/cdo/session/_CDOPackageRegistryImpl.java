@@ -13,19 +13,18 @@ package org.eclipse.emf.internal.cdo.session;
 
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
+import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
+import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
-import org.eclipse.emf.cdo.session.CDOPackageRegistry;
 import org.eclipse.emf.cdo.session.CDOPackageType;
 import org.eclipse.emf.cdo.session.CDOPackageTypeRegistry;
 import org.eclipse.emf.cdo.session.CDOSession;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackage;
 import org.eclipse.emf.cdo.transaction.CDOCommitContext;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.cdo.transaction.CDOTransactionHandler;
-import org.eclipse.emf.cdo.util.EMFUtil;
 import org.eclipse.emf.cdo.view.CDOView;
 
+import org.eclipse.emf.internal.cdo.CDOFactoryImpl;
 import org.eclipse.emf.internal.cdo.bundle.OM;
 import org.eclipse.emf.internal.cdo.util.ModelUtil;
 
@@ -53,7 +52,7 @@ import java.util.Set;
 /**
  * @author Eike Stepper
  */
-public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements CDOPackageRegistry
+public class _CDOPackageRegistryImpl extends EPackageRegistryImpl implements CDOPackageRegistry
 {
   private static final long serialVersionUID = 1L;
 
@@ -75,11 +74,11 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements CDOP
     this.session = (InternalCDOSession)session;
   }
 
-  public void putPackageDescriptor(CDOPackage cdoPackage)
+  public void putPackageDescriptor(EPackage cdoPackage)
   {
     checkSession();
     EPackage.Descriptor descriptor = new RemotePackageDescriptor(cdoPackage);
-    String uri = cdoPackage.getPackageURI();
+    String uri = cdoPackage.getNsURI();
     if (tracer.isEnabled())
     {
       tracer.format("Registering package descriptor for {0}", uri);
@@ -129,12 +128,12 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements CDOP
       }
 
       EPackage ePackage = (EPackage)value;
-      EMFUtil.prepareDynamicEPackage(ePackage);
+      CDOFactoryImpl.prepareDynamicEPackage(ePackage);
 
       CDOSessionPackageManagerImpl packageManager = (CDOSessionPackageManagerImpl)session.getPackageManager();
-      CDOPackage cdoPackage = ModelUtil.getCDOPackage(ePackage, packageManager);
+      EPackage cdoPackage = ModelUtil.getEPackage(ePackage, packageManager);
       CDOIDMetaRange metaIDRange = cdoPackage.getTopLevelPackage().getMetaIDRange();
-      ((InternalCDOPackage)cdoPackage).setPersistent(metaIDRange != null && !metaIDRange.isTemporary());
+      ((InternalEPackage)cdoPackage).setPersistent(metaIDRange != null && !metaIDRange.isTemporary());
     }
 
     return super.put(key, value);
@@ -159,14 +158,14 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements CDOP
    */
   private final class RemotePackageDescriptor implements EPackage.Descriptor
   {
-    private CDOPackage cdoPackage;
+    private EPackage cdoPackage;
 
-    private RemotePackageDescriptor(CDOPackage cdoPackage)
+    private RemotePackageDescriptor(EPackage cdoPackage)
     {
       this.cdoPackage = cdoPackage;
     }
 
-    public CDOPackage getCDOPackage()
+    public EPackage getEPackage()
     {
       return cdoPackage;
     }
@@ -192,7 +191,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements CDOP
     @Override
     public String toString()
     {
-      return MessageFormat.format("RemotePackageDescriptor[{0}]", cdoPackage.getPackageURI());
+      return MessageFormat.format("RemotePackageDescriptor[{0}]", cdoPackage.getNsURI());
     }
   }
 
@@ -437,7 +436,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements CDOP
     {
       if (!containsKey(ePackage.getNsURI()))
       {
-        EPackage topLevelPackage = ModelUtil.getTopLevelPackage(ePackage);
+        EPackage topLevelPackage = EMFUtil.getTopLevelPackage(ePackage);
         // PutEPackage
         putEPackage(topLevelPackage);
       }

@@ -13,8 +13,6 @@ package org.eclipse.emf.cdo.tests.bugzilla;
 
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.tests.AbstractCDOTest;
@@ -52,7 +50,7 @@ public class Bugzilla_246442_Test extends AbstractCDOTest
       CDOSession session = openSession();
 
       session.getPackageRegistry().putEPackage(topPackage);
-      CDOPackage packageObject = ModelUtil.getCDOPackage(topPackage, (CDOSessionPackageManagerImpl)session
+      EPackage packageObject = ModelUtil.getEPackage(topPackage, (CDOSessionPackageManagerImpl)session
           .getPackageManager());
       assertNotNull(packageObject.getEcore());
 
@@ -89,9 +87,9 @@ public class Bugzilla_246442_Test extends AbstractCDOTest
 
     session.getPackageRegistry().putEPackage(topPackage);
 
-    CDOClass cdoClass1 = ModelUtil.getCDOClass(class1Class, (CDOSessionPackageManagerImpl)session.getPackageManager());
-    CDOClass cdoClass2 = ModelUtil.getCDOClass(class2Class, (CDOSessionPackageManagerImpl)session.getPackageManager());
-    CDOClass cdoClass3 = ModelUtil.getCDOClass(class3Class, (CDOSessionPackageManagerImpl)session.getPackageManager());
+    EClass cdoClass1 = ModelUtil.getEClass(class1Class, (CDOSessionPackageManagerImpl)session.getPackageManager());
+    EClass cdoClass2 = ModelUtil.getEClass(class2Class, (CDOSessionPackageManagerImpl)session.getPackageManager());
+    EClass cdoClass3 = ModelUtil.getEClass(class3Class, (CDOSessionPackageManagerImpl)session.getPackageManager());
 
     assertEquals(class1Class.getName(), cdoClass1.getName());
     assertEquals(class2Class.getName(), cdoClass2.getName());

@@ -13,14 +13,13 @@
  */
 package org.eclipse.emf.cdo.spi.common.revision;
 
+import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
+import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDOListFactory;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
@@ -30,12 +29,15 @@ import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDeltaUtil;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.internal.common.revision.delta.CDORevisionMerger;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOFeature;
 
 import org.eclipse.net4j.util.ImplementationError;
 import org.eclipse.net4j.util.collection.MoveableList;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 import org.eclipse.net4j.util.om.trace.PerfTracer;
+
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.io.IOException;
 import java.util.Map;
@@ -52,7 +54,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
 
   private static final PerfTracer WRITING = new PerfTracer(OM.PERF_REVISION_WRITING, AbstractCDORevision.class);
 
-  private CDOClass cdoClass;
+  private EClass cdoClass;
 
   private CDOID id;
 
@@ -68,11 +70,11 @@ public abstract class AbstractCDORevision implements InternalCDORevision
 
   private int containingFeatureID;
 
-  public AbstractCDORevision(CDOClass cdoClass, CDOID id)
+  public AbstractCDORevision(EClass cdoClass, CDOID id)
   {
     if (cdoClass.isAbstract())
     {
-      throw new IllegalArgumentException("CDOClass is abstract: " + cdoClass);
+      throw new IllegalArgumentException("EClass is abstract: " + cdoClass);
     }
 
     if (CDOIDUtil.isNull(id))
@@ -88,7 +90,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     resourceID = CDOID.NULL;
     containerID = CDOID.NULL;
     containingFeatureID = 0;
-    initValues(cdoClass.getAllFeatures().length);
+    initValues(TODO.getAllPersistentFeatures(cdoClass).length);
   }
 
   public AbstractCDORevision(AbstractCDORevision source)
@@ -106,7 +108,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
   public AbstractCDORevision(CDODataInput in) throws IOException
   {
     READING.start(this);
-    cdoClass = in.readCDOClassRefAndResolve();
+    cdoClass = (EClass)in.readEClassifierRefAndResolve();
 
     id = in.readCDOID();
     version = in.readInt();
@@ -133,7 +135,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
 
   public void write(CDODataOutput out, int referenceChunk) throws IOException
   {
-    CDOClassRef classRef = cdoClass.createClassRef();
+    CDOClassifierRef classRef = new CDOClassifierRef(cdoClass);
     if (TRACER.isEnabled())
     {
       TRACER
@@ -144,7 +146,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     }
 
     WRITING.start(this);
-    out.writeCDOClassRef(classRef);
+    out.writeEClassifierRef(classRef);
     out.writeCDOID(id);
     out.writeInt(getVersion());
     if (!id.isTemporary())
@@ -161,7 +163,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     WRITING.stop(this);
   }
 
-  public CDOClass getCDOClass()
+  public EClass getEClass()
   {
     return cdoClass;
   }
@@ -269,17 +271,17 @@ public abstract class AbstractCDORevision implements InternalCDORevision
 
   public boolean isResourceNode()
   {
-    return cdoClass.isResourceNode();
+    return TODO.isResourceNode(cdoClass);
   }
 
   public boolean isResourceFolder()
   {
-    return cdoClass.isResourceFolder();
+    return TODO.isResourceFolder(cdoClass);
   }
 
   public boolean isResource()
   {
-    return cdoClass.isResource();
+    return TODO.isResource(cdoClass);
   }
 
   public CDORevisionData data()
@@ -348,12 +350,12 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     this.containingFeatureID = containingFeatureID;
   }
 
-  public int hashCode(CDOFeature feature)
+  public int hashCode(EStructuralFeature feature)
   {
     return getValue(feature).hashCode();
   }
 
-  public Object get(CDOFeature feature, int index)
+  public Object get(EStructuralFeature feature, int index)
   {
     if (feature.isMany())
     {
@@ -363,7 +365,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     return getValue(feature);
   }
 
-  public Object basicGet(CDOFeature feature, int index)
+  public Object basicGet(EStructuralFeature feature, int index)
   {
     if (feature.isMany())
     {
@@ -373,32 +375,32 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     return basicGet(feature);
   }
 
-  public boolean contains(CDOFeature feature, Object value)
+  public boolean contains(EStructuralFeature feature, Object value)
   {
     return getList(feature).contains(value);
   }
 
-  public int indexOf(CDOFeature feature, Object value)
+  public int indexOf(EStructuralFeature feature, Object value)
   {
     return getList(feature).indexOf(value);
   }
 
-  public boolean isEmpty(CDOFeature feature)
+  public boolean isEmpty(EStructuralFeature feature)
   {
     return getList(feature).isEmpty();
   }
 
-  public int lastIndexOf(CDOFeature feature, Object value)
+  public int lastIndexOf(EStructuralFeature feature, Object value)
   {
     return getList(feature).lastIndexOf(value);
   }
 
-  public int size(CDOFeature feature)
+  public int size(EStructuralFeature feature)
   {
     return getList(feature).size();
   }
 
-  public Object[] toArray(CDOFeature feature)
+  public Object[] toArray(EStructuralFeature feature)
   {
     if (!feature.isMany())
     {
@@ -408,7 +410,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     return getList(feature).toArray();
   }
 
-  public <T> T[] toArray(CDOFeature feature, T[] array)
+  public <T> T[] toArray(EStructuralFeature feature, T[] array)
   {
     if (!feature.isMany())
     {
@@ -418,27 +420,27 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     return getList(feature).toArray(array);
   }
 
-  public void add(CDOFeature feature, int index, Object value)
+  public void add(EStructuralFeature feature, int index, Object value)
   {
     getList(feature).add(index, value);
   }
 
-  public void clear(CDOFeature feature)
+  public void clear(EStructuralFeature feature)
   {
     setValue(feature, null);
   }
 
-  public Object move(CDOFeature feature, int targetIndex, int sourceIndex)
+  public Object move(EStructuralFeature feature, int targetIndex, int sourceIndex)
   {
     return getList(feature).move(targetIndex, sourceIndex);
   }
 
-  public Object remove(CDOFeature feature, int index)
+  public Object remove(EStructuralFeature feature, int index)
   {
     return getList(feature).remove(index);
   }
 
-  public Object set(CDOFeature feature, int index, Object value)
+  public Object set(EStructuralFeature feature, int index, Object value)
   {
     if (feature.isMany())
     {
@@ -448,7 +450,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     return setValue(feature, value);
   }
 
-  public Object basicSet(CDOFeature feature, int index, Object value)
+  public Object basicSet(EStructuralFeature feature, int index, Object value)
   {
     if (feature.isMany())
     {
@@ -458,7 +460,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     return basicSet(feature, value);
   }
 
-  public void unset(CDOFeature feature)
+  public void unset(EStructuralFeature feature)
   {
     setValue(feature, null);
   }
@@ -473,21 +475,25 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     resourceID = (CDOID)revisionAdjuster.adjustReference(resourceID);
     containerID = revisionAdjuster.adjustReference(containerID);
 
-    CDOFeature[] features = cdoClass.getAllFeatures();
+    EStructuralFeature[] features = TODO.getAllPersistentFeatures(cdoClass);
     for (int i = 0; i < features.length; i++)
     {
-      CDOFeature feature = features[i];
-      if (feature.isMany())
+      EStructuralFeature feature = features[i];
+      if (feature instanceof EReference)
       {
-        InternalCDOList list = (InternalCDOList)getValueAsList(i);
-        if (list != null)
+        EReference reference = (EReference)feature;
+        if (reference.isMany())
         {
-          list.adjustReferences(revisionAdjuster, feature.getType());
+          InternalCDOList list = (InternalCDOList)getValueAsList(i);
+          if (list != null)
+          {
+            list.adjustReferences(revisionAdjuster, reference.getEReferenceType());
+          }
         }
-      }
-      else
-      {
-        setValue(i, feature.getType().adjustReferences(revisionAdjuster, getValue(i)));
+        else
+        {
+          setValue(i, TODO.adjustReferences(revisionAdjuster, getValue(i), reference.getEReferenceType()));
+        }
       }
     }
   }
@@ -498,17 +504,17 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     return cdoClass.getName() + "@" + id + "v" + version;
   }
 
-  public Object getValue(CDOFeature feature)
+  public Object getValue(EStructuralFeature feature)
   {
     return convertValue(feature, basicGet(feature));
   }
 
-  public Object setValue(CDOFeature feature, Object value)
+  public Object setValue(EStructuralFeature feature, Object value)
   {
     return convertValue(feature, basicSet(feature, value));
   }
 
-  protected Object convertValue(CDOFeature feature, Object value)
+  protected Object convertValue(EStructuralFeature feature, Object value)
   {
     if (value == null)
     {
@@ -522,13 +528,13 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     return value;
   }
 
-  protected Object basicGet(CDOFeature feature)
+  protected Object basicGet(EStructuralFeature feature)
   {
     int featureID = cdoClass.getFeatureID(feature);
     return getValue(featureID);
   }
 
-  protected Object basicSet(CDOFeature feature, Object value)
+  protected Object basicSet(EStructuralFeature feature, Object value)
   {
     int featureID = cdoClass.getFeatureID(feature);
 
@@ -544,12 +550,12 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     }
   }
 
-  public CDOList getList(CDOFeature feature)
+  public CDOList getList(EStructuralFeature feature)
   {
     return getList(feature, 0);
   }
 
-  public CDOList getList(CDOFeature feature, int size)
+  public CDOList getList(EStructuralFeature feature, int size)
   {
     int i = cdoClass.getFeatureID(feature);
     CDOList list = (CDOList)getValue(i);
@@ -561,13 +567,13 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     return list;
   }
 
-  public void setList(CDOFeature feature, InternalCDOList list)
+  public void setList(EStructuralFeature feature, InternalCDOList list)
   {
     int i = cdoClass.getFeatureID(feature);
     setValue(i, list);
   }
 
-  public void setListSize(CDOFeature feature, int size)
+  public void setListSize(EStructuralFeature feature, int size)
   {
     MoveableList<Object> list = getList(feature, size);
     for (int j = list.size(); j < size; j++)
@@ -589,18 +595,18 @@ public abstract class AbstractCDORevision implements InternalCDORevision
 
   private void readValues(CDODataInput in) throws IOException
   {
-    CDOFeature[] features = cdoClass.getAllFeatures();
+    EStructuralFeature[] features = TODO.getAllPersistentFeatures(cdoClass);
     initValues(features.length);
     for (int i = 0; i < features.length; i++)
     {
-      CDOFeature feature = features[i];
+      EStructuralFeature feature = features[i];
       if (feature.isMany())
       {
         setValue(i, in.readCDOList(this, feature));
       }
       else
       {
-        setValue(i, ((InternalCDOFeature)feature).readValue(in));
+        setValue(i, TODO.readFeatureValue(in, feature));
         if (TRACER.isEnabled())
         {
           TRACER.format("Read feature {0}: {1}", feature, getValue(i));
@@ -611,10 +617,10 @@ public abstract class AbstractCDORevision implements InternalCDORevision
 
   private void writeValues(CDODataOutput out, int referenceChunk) throws IOException
   {
-    CDOFeature[] features = cdoClass.getAllFeatures();
+    EStructuralFeature[] features = TODO.getAllPersistentFeatures(cdoClass);
     for (int i = 0; i < features.length; i++)
     {
-      CDOFeature feature = features[i];
+      EStructuralFeature feature = features[i];
       if (feature.isMany())
       {
         out.writeCDOList(getValueAsList(i), feature, referenceChunk);
@@ -622,7 +628,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
       else
       {
         Object value = getValue(i);
-        if (value != null && feature.isReference())
+        if (value != null && feature instanceof EReference)
         {
           value = out.getIDProvider().provideCDOID(value);
         }
@@ -632,7 +638,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
           TRACER.format("Writing feature {0}: {1}", feature, value);
         }
 
-        ((InternalCDOFeature)feature).writeValue(out, value);
+        TODO.writeFeatureValue(out, value, feature);
       }
     }
   }

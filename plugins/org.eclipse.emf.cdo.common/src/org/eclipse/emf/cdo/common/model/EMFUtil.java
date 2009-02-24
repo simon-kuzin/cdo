@@ -10,9 +10,7 @@
  *    Victor Roldan Betancort - http://bugs.eclipse.org/244801
  *    Simon McDuff - maintenance
  */
-package org.eclipse.emf.cdo.util;
-
-import org.eclipse.emf.internal.cdo.CDOFactoryImpl;
+package org.eclipse.emf.cdo.common.model;
 
 import org.eclipse.net4j.util.io.IORuntimeException;
 
@@ -56,6 +54,19 @@ public final class EMFUtil
 
   private EMFUtil()
   {
+  }
+
+  public static String getParentURI(EPackage ePackage)
+  {
+    EPackage superPackage = ePackage.getESuperPackage();
+    String parentURI = superPackage == null ? null : superPackage.getNsURI();
+    return parentURI;
+  }
+
+  public static EPackage getTopLevelPackage(EPackage ePackage)
+  {
+    EPackage superPackage = ePackage.getESuperPackage();
+    return superPackage == null ? ePackage : getTopLevelPackage(superPackage);
   }
 
   /**
@@ -279,20 +290,6 @@ public final class EMFUtil
   public static boolean isDynamicEPackage(Object value)
   {
     return value.getClass() == EPackageImpl.class;
-  }
-
-  /**
-   * @since 2.0
-   */
-  public static boolean prepareDynamicEPackage(EPackage ePackage)
-  {
-    if (isDynamicEPackage(ePackage))
-    {
-      ePackage.setEFactoryInstance(new CDOFactoryImpl(ePackage));
-      return true;
-    }
-
-    return false;
   }
 
   public static boolean isMany(EStructuralFeature eFeature)

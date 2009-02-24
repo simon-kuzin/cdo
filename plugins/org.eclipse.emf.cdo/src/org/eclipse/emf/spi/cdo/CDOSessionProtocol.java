@@ -16,8 +16,6 @@ import org.eclipse.emf.cdo.common.id.CDOIDLibraryDescriptor;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageURICompressor;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
@@ -34,6 +32,8 @@ import org.eclipse.net4j.util.io.ExtendedDataOutput;
 import org.eclipse.net4j.util.io.StringCompressor;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 
+import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.spi.cdo.InternalCDOTransaction.InternalCDOCommitContext;
 import org.eclipse.emf.spi.cdo.InternalCDOXATransaction.InternalCDOXACommitContext;
@@ -62,9 +62,9 @@ public interface CDOSessionProtocol
 
   public RepositoryTimeResult getRepositoryTime();
 
-  public void loadPackage(CDOPackage cdoPackage, boolean onlyEcore);
+  public void loadPackage(EPackage cdoPackage, boolean onlyEcore);
 
-  public Object loadChunk(InternalCDORevision revision, CDOFeature feature, int accessIndex, int fetchIndex,
+  public Object loadChunk(InternalCDORevision revision, EStructuralFeature feature, int accessIndex, int fetchIndex,
       int fromIndex, int toIndex);
 
   public List<InternalCDORevision> loadRevisions(Collection<CDOID> ids, int referenceChunk);
@@ -127,7 +127,7 @@ public interface CDOSessionProtocol
 
     private CDOIDLibraryDescriptor libraryDescriptor;
 
-    private List<CDOPackageInfo> packageInfos = new ArrayList<CDOPackageInfo>();
+    private List<CDOPackageInfo> packageDescriptors = new ArrayList<CDOPackageInfo>();
 
     private StringCompressor compressor = new StringCompressor(true);
 
@@ -176,14 +176,14 @@ public interface CDOSessionProtocol
       return libraryDescriptor;
     }
 
-    public List<CDOPackageInfo> getPackageInfos()
+    public List<CDOPackageInfo> getPackageDescriptors()
     {
-      return packageInfos;
+      return packageDescriptors;
     }
 
     public void addPackageInfo(String packageURI, boolean dynamic, CDOIDMetaRange metaIDRange, String parentURI)
     {
-      packageInfos.add(new CDOPackageInfo(packageURI, dynamic, metaIDRange, parentURI));
+      packageDescriptors.add(new CDOPackageInfo(packageURI, parentURI, dynamic, metaIDRange));
     }
 
     public StringCompressor getCompressor()

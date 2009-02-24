@@ -10,16 +10,16 @@
  */
 package org.eclipse.emf.cdo.internal.common.model.core;
 
-import org.eclipse.emf.cdo.common.model.CDOPackage;
+import org.eclipse.emf.cdo.common.model.EPackage;
 import org.eclipse.emf.cdo.common.model.core.CDOObjectClass;
-import org.eclipse.emf.cdo.internal.common.model.CDOClassImpl;
+import org.eclipse.emf.cdo.internal.common.model.EClassImpl;
 
 /**
  * @author Eike Stepper
  */
-public class CDOObjectClassImpl extends CDOClassImpl implements CDOObjectClass
+public class CDOObjectClassImpl extends EClassImpl implements CDOObjectClass
 {
-  public CDOObjectClassImpl(CDOPackage containingPackage)
+  public CDOObjectClassImpl(EPackage containingPackage)
   {
     super(containingPackage, CLASSIFIER_ID, NAME, false);
   }

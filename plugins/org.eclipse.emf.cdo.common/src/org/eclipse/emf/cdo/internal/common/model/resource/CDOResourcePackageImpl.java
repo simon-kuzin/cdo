@@ -11,13 +11,13 @@
 package org.eclipse.emf.cdo.internal.common.model.resource;
 
 import org.eclipse.emf.cdo.common.model.resource.CDOResourcePackage;
-import org.eclipse.emf.cdo.internal.common.model.CDOPackageImpl;
+import org.eclipse.emf.cdo.internal.common.model.EPackageImpl;
 import org.eclipse.emf.cdo.internal.common.model.CDOPackageManagerImpl;
 
 /**
  * @author Eike Stepper
  */
-public final class CDOResourcePackageImpl extends CDOPackageImpl implements CDOResourcePackage
+public final class CDOResourcePackageImpl extends EPackageImpl implements CDOResourcePackage
 {
   private CDOResourceNodeClassImpl cdoResourceNodeClass;
 

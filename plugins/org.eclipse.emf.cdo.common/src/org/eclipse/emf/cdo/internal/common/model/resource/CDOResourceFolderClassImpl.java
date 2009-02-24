@@ -11,21 +11,21 @@
 package org.eclipse.emf.cdo.internal.common.model.resource;
 
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
+import org.eclipse.emf.cdo.common.model.EPackage;
 import org.eclipse.emf.cdo.common.model.CDOPackageManager;
 import org.eclipse.emf.cdo.common.model.resource.CDOResourceFolderClass;
 import org.eclipse.emf.cdo.common.model.resource.CDOResourceNodeClass;
 import org.eclipse.emf.cdo.common.model.resource.CDOResourcePackage;
-import org.eclipse.emf.cdo.internal.common.model.CDOClassImpl;
+import org.eclipse.emf.cdo.internal.common.model.EClassImpl;
 
 /**
  * @author Eike Stepper
  */
-public class CDOResourceFolderClassImpl extends CDOClassImpl implements CDOResourceFolderClass
+public class CDOResourceFolderClassImpl extends EClassImpl implements CDOResourceFolderClass
 {
   private CDONodesFeatureImpl cdoNodesFeature;
 
-  public CDOResourceFolderClassImpl(CDOPackage containingPackage, CDOPackageManager packageManager)
+  public CDOResourceFolderClassImpl(EPackage containingPackage, CDOPackageManager packageManager)
   {
     super(containingPackage, CLASSIFIER_ID, NAME, false);
     addSuperType(CDOModelUtil.createClassRef(CDOResourcePackage.PACKAGE_URI, CDOResourceNodeClass.CLASSIFIER_ID));

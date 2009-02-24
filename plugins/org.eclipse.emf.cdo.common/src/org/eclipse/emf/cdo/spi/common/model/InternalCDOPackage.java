@@ -11,8 +11,8 @@
 package org.eclipse.emf.cdo.spi.common.model;
 
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
+import org.eclipse.emf.cdo.common.model.EClass;
+import org.eclipse.emf.cdo.common.model.EPackage;
 import org.eclipse.emf.cdo.common.model.CDOPackageManager;
 
 import java.util.List;
@@ -22,7 +22,7 @@ import java.util.List;
  * @noimplement This interface is not intended to be implemented by clients.
  * @since 2.0
  */
-public interface InternalCDOPackage extends CDOPackage, InternalCDOModelElement
+public interface InternalEPackage extends EPackage, InternalEModelElement
 {
   public void setPackageManager(CDOPackageManager packageManager);
 
@@ -34,7 +34,7 @@ public interface InternalCDOPackage extends CDOPackage, InternalCDOModelElement
 
   public String basicGetEcore();
 
-  public void addClass(CDOClass cdoClass);
+  public void addClass(EClass cdoClass);
 
-  public void setClasses(List<CDOClass> classes);
+  public void setClasses(List<EClass> classes);
 }

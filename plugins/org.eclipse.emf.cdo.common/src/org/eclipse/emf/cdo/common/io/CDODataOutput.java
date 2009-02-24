@@ -15,11 +15,8 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOClassRef;
-import org.eclipse.emf.cdo.common.model.CDOFeature;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
-import org.eclipse.emf.cdo.common.model.CDOType;
+import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
+import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
@@ -27,6 +24,11 @@ import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 
 import org.eclipse.net4j.util.concurrent.RWLockManager;
 import org.eclipse.net4j.util.io.ExtendedDataOutput;
+
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EClassifier;
+import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.io.IOException;
 
@@ -40,19 +42,15 @@ public interface CDODataOutput extends ExtendedDataOutput
 
   // /////////////////////////////////////////////////////////////////////////////////////////////////
 
-  public void writeCDOPackageURI(String uri) throws IOException;
+  public void writeCDOPackageInfo(CDOPackageInfo packageInfo) throws IOException;
 
-  public void writeCDOType(CDOType cdoType) throws IOException;
+  public void writeEClassifierRef(CDOClassifierRef eClassifierRef) throws IOException;
 
-  public void writeCDOClassRef(CDOClassRef cdoClassRef) throws IOException;
+  public void writeEClassifierRef(EClassifier eClassifier) throws IOException;
 
-  public void writeCDOClassRef(CDOClass cdoClass) throws IOException;
+  public void writeEPackageURI(String uri) throws IOException;
 
-  public void writeCDOPackage(CDOPackage cdoPackage) throws IOException;
-
-  public void writeCDOClass(CDOClass cdoClass) throws IOException;
-
-  public void writeCDOFeature(CDOFeature cdoFeature) throws IOException;
+  public void writeEPackage(EPackage cdoPackage) throws IOException;
 
   // /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -66,11 +64,11 @@ public interface CDODataOutput extends ExtendedDataOutput
 
   public void writeCDORevision(CDORevision revision, int referenceChunk) throws IOException;
 
-  public void writeCDOList(CDOList list, CDOFeature feature, int referenceChunk) throws IOException;
+  public void writeCDOList(CDOList list, EStructuralFeature feature, int referenceChunk) throws IOException;
 
   public void writeCDORevisionDelta(CDORevisionDelta revisionDelta) throws IOException;
 
-  public void writeCDOFeatureDelta(CDOFeatureDelta featureDelta, CDOClass cdoClass) throws IOException;
+  public void writeCDOFeatureDelta(CDOFeatureDelta featureDelta, EClass cdoClass) throws IOException;
 
   /**
    * Write either a CDORevision or a primitive value.
@@ -78,7 +76,7 @@ public interface CDODataOutput extends ExtendedDataOutput
   public void writeCDORevisionOrPrimitive(Object value) throws IOException;
 
   /**
-   * Write either a CDORevision, a primitive value or a CDOClass.
+   * Write either a CDORevision, a primitive value or a EClass.
    */
   public void writeCDORevisionOrPrimitiveOrClass(Object value) throws IOException;
 

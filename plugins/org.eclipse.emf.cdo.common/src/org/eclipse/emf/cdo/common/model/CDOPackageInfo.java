@@ -12,48 +12,16 @@ package org.eclipse.emf.cdo.common.model;
 
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 
-/*
- * TODO Add read(), write(), ...
- */
-
 /**
  * @author Eike Stepper
  */
-public final class CDOPackageInfo
+public interface CDOPackageInfo
 {
-  private String packageURI;
+  public CDOPackageUnit getPackageUnit();
 
-  private boolean dynamic;
+  public String getPackageURI();
 
-  private CDOIDMetaRange metaIDRange;
+  public String getParentURI();
 
-  private String parentURI;
-
-  public CDOPackageInfo(String packageURI, boolean dynamic, CDOIDMetaRange metaIDRange, String parentURI)
-  {
-    this.packageURI = packageURI;
-    this.dynamic = dynamic;
-    this.metaIDRange = metaIDRange;
-    this.parentURI = parentURI;
-  }
-
-  public String getPackageURI()
-  {
-    return packageURI;
-  }
-
-  public boolean isDynamic()
-  {
-    return dynamic;
-  }
-
-  public CDOIDMetaRange getMetaIDRange()
-  {
-    return metaIDRange;
-  }
-
-  public String getParentURI()
-  {
-    return parentURI;
-  }
+  public CDOIDMetaRange getMetaIDRange();
 }
