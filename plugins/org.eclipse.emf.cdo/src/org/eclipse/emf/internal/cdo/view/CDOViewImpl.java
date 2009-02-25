@@ -15,6 +15,7 @@ package org.eclipse.emf.internal.cdo.view;
 import org.eclipse.emf.cdo.CDONotification;
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.CDOState;
+import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDMeta;
@@ -27,7 +28,9 @@ import org.eclipse.emf.cdo.common.util.CDOException;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.eresource.CDOResourceFolder;
 import org.eclipse.emf.cdo.eresource.CDOResourceNode;
+import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.eresource.impl.CDOResourceImpl;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.transaction.CDOCommitContext;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
@@ -35,7 +38,6 @@ import org.eclipse.emf.cdo.util.CDOURIUtil;
 import org.eclipse.emf.cdo.util.CDOUtil;
 import org.eclipse.emf.cdo.util.DanglingReferenceException;
 import org.eclipse.emf.cdo.util.InvalidURIException;
-import org.eclipse.emf.cdo.util.ModelUtil;
 import org.eclipse.emf.cdo.util.ReadOnlyException;
 import org.eclipse.emf.cdo.view.CDOAdapterPolicy;
 import org.eclipse.emf.cdo.view.CDOFeatureAnalyzer;
@@ -73,9 +75,10 @@ import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.impl.NotificationImpl;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.util.EcoreUtil;
@@ -444,15 +447,14 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     }
 
     InternalCDORevision folderRevision = getLocalRevision(folderID);
-    CDOResourcePackage resourcePackage = getSession().getPackageUnitManager().getCDOResourcePackage();
-    CDOResourceFolderClass resourceFolderClass = resourcePackage.getCDOResourceFolderClass();
+    EClass resourceFolderClass = EresourcePackage.eINSTANCE.getCDOResourceFolder();
     if (folderRevision.getEClass() != resourceFolderClass)
     {
       throw new CDOException("Expected folder for id = " + folderID);
     }
 
-    EStructuralFeature nodesFeature = resourceFolderClass.getCDONodesFeature();
-    EStructuralFeature nameFeature = resourcePackage.getCDOResourceNodeClass().getCDONameFeature();
+    EReference nodesFeature = EresourcePackage.eINSTANCE.getCDOResourceFolder_Nodes();
+    EAttribute nameFeature = EresourcePackage.eINSTANCE.getCDOResourceNode_Name();
 
     int size = folderRevision.data().size(nodesFeature);
     for (int i = 0; i < size; i++)
@@ -625,17 +627,6 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     return (CDOResourceImpl)getObject(resourceID);
   }
 
-  public InternalCDOObject newInstance(EClass cdoClass)
-  {
-    EClass eClass = ModelUtil.getEClass(cdoClass, session.getPackageRegistry());
-    if (eClass == null)
-    {
-      throw new IllegalStateException("No EClass for " + cdoClass);
-    }
-
-    return newInstance(eClass);
-  }
-
   public InternalCDOObject newInstance(EClass eClass)
   {
     EObject eObject = EcoreUtil.create(eClass);
@@ -693,7 +684,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
         }
 
         // CDOResource have a special way to register to the view.
-        if (!localLookupObject.eClass().isResource())
+        if (!TODO.isResource(localLookupObject.eClass()))
         {
           registerObject(localLookupObject);
         }
@@ -769,7 +760,8 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
       TRACER.trace("Creating meta object for " + id);
     }
 
-    InternalEObject metaInstance = session.lookupMetaInstance(id);
+    InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)session.getPackageRegistry();
+    InternalEObject metaInstance = packageRegistry.lookupMetaInstance(id);
     if (metaInstance == null)
     {
       throw new ImplementationError("No metaInstance for " + id);
@@ -793,7 +785,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
 
     EClass cdoClass = revision.getEClass();
     InternalCDOObject object;
-    if (cdoClass.isResource())
+    if (TODO.isResource(cdoClass))
     {
       object = (InternalCDOObject)newResourceInstance(revision);
       // object is PROXY
@@ -816,9 +808,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
 
   private String getResourcePath(InternalCDORevision revision)
   {
-    CDOResourcePackage resourcePackage = session.getPackageUnitManager().getCDOResourcePackage();
-    CDOResourceNodeClass resourceNodeClass = resourcePackage.getCDOResourceNodeClass();
-    CDONameFeature nameFeature = resourceNodeClass.getCDONameFeature();
+    EAttribute nameFeature = EresourcePackage.eINSTANCE.getCDOResourceNode_Name();
 
     CDOID folderID = (CDOID)revision.data().getContainerID();
     String name = (String)revision.data().get(nameFeature, 0);
