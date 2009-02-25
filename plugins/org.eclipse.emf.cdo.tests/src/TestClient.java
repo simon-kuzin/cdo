@@ -1,6 +1,7 @@
 import org.eclipse.emf.cdo.net4j.CDONet4jUtil;
 import org.eclipse.emf.cdo.net4j.CDOSession;
 import org.eclipse.emf.cdo.net4j.CDOSessionConfiguration;
+import org.eclipse.emf.cdo.tests.model1.Model1Package;
 import org.eclipse.emf.cdo.util.CDOUtil;
 
 import org.eclipse.net4j.Net4jUtil;
@@ -49,6 +50,7 @@ public class TestClient
     sessionConfiguration.setRepositoryName(TestServer.REPOSITORY_NAME);
     sessionConfiguration.setConnector(connector);
     CDOSession session = sessionConfiguration.openSession();
+    session.getPackageRegistry().putEPackage(Model1Package.eINSTANCE);
 
     System.out.println("Press any key to shutdown");
     while (IOUtil.IN().read() == -1)
