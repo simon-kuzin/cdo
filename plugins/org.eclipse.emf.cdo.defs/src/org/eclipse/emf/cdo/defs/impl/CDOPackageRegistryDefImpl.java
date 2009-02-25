@@ -14,8 +14,7 @@ package org.eclipse.emf.cdo.defs.impl;
 import org.eclipse.emf.cdo.defs.CDODefsPackage;
 import org.eclipse.emf.cdo.defs.CDOPackageRegistryDef;
 import org.eclipse.emf.cdo.defs.EPackageDef;
-
-import org.eclipse.emf.internal.cdo.session.CDOPackageRegistryImpl;
+import org.eclipse.emf.cdo.internal.common.model.CDOPackageRegistryImpl;
 
 import org.eclipse.net4j.util.defs.impl.DefImpl;
 

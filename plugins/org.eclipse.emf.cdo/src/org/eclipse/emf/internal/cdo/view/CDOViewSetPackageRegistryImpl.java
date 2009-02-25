@@ -11,10 +11,9 @@
  */
 package org.eclipse.emf.internal.cdo.view;
 
+import org.eclipse.emf.cdo.internal.common.model.CDOPackageRegistryImpl;
 import org.eclipse.emf.cdo.view.CDOView;
 import org.eclipse.emf.cdo.view.CDOViewSet;
-
-import org.eclipse.emf.internal.cdo.session.CDOPackageRegistryImpl;
 
 import org.eclipse.emf.ecore.EPackage;
 

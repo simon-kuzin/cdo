@@ -10,11 +10,11 @@
  **************************************************************************/
 package org.eclipse.emf.internal.cdo.net4j;
 
+import org.eclipse.emf.cdo.internal.common.model.CDOPackageRegistryImpl;
 import org.eclipse.emf.cdo.net4j.CDONet4jUtil;
 import org.eclipse.emf.cdo.net4j.CDOSessionConfiguration;
 import org.eclipse.emf.cdo.session.CDOSession;
 
-import org.eclipse.emf.internal.cdo.session.CDOPackageRegistryImpl;
 import org.eclipse.emf.internal.cdo.session.CDOSessionFactory;
 
 import org.eclipse.net4j.util.container.IManagedContainer;

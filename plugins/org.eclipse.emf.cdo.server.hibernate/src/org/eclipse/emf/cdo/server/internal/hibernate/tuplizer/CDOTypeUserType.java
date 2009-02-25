@@ -11,6 +11,8 @@
  */
 package org.eclipse.emf.cdo.server.internal.hibernate.tuplizer;
 
+import org.eclipse.emf.cdo.common.model.CDOModelUtil;
+
 import org.hibernate.Hibernate;
 import org.hibernate.usertype.UserType;
 

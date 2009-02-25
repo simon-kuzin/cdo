@@ -13,7 +13,6 @@ package org.eclipse.emf.cdo.server.internal.db;
 import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
-import org.eclipse.emf.cdo.server.IPackageManager;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 

@@ -12,8 +12,6 @@ package org.eclipse.emf.cdo.tests.store.verifier;
 
 import static junit.framework.Assert.assertTrue;
 
-import org.eclipse.emf.cdo.common.model.CDOClass;
-import org.eclipse.emf.cdo.common.model.CDOPackage;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.db.IClassMapping;
 import org.eclipse.emf.cdo.server.db.IDBStore;

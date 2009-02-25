@@ -19,8 +19,6 @@ import org.eclipse.emf.cdo.tests.model1.Order;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.cdo.util.ModelUtil;
 
-import org.eclipse.emf.internal.cdo.session._CDOSessionPackageManagerImpl;
-
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EPackage;
