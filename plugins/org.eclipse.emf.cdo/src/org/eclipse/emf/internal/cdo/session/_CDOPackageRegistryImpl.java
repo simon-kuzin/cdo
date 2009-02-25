@@ -26,7 +26,7 @@ import org.eclipse.emf.cdo.view.CDOView;
 
 import org.eclipse.emf.internal.cdo.CDOFactoryImpl;
 import org.eclipse.emf.internal.cdo.bundle.OM;
-import org.eclipse.emf.cdo.common.model.ModelUtil;
+import org.eclipse.emf.cdo.util.ModelUtil;
 
 import org.eclipse.net4j.util.container.ContainerEventAdapter;
 import org.eclipse.net4j.util.container.IContainer;

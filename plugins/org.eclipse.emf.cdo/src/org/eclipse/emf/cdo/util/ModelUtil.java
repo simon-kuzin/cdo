@@ -9,7 +9,7 @@
  *    Eike Stepper - initial API and implementation
  *    Simon McDuff - maintenance 
  */
-package org.eclipse.emf.cdo.common.model;
+package org.eclipse.emf.cdo.util;
 
 import org.eclipse.emf.internal.cdo.CDOFactoryImpl;
 

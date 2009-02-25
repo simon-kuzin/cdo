@@ -14,7 +14,6 @@ package org.eclipse.emf.internal.cdo;
 import org.eclipse.emf.cdo.CDOLock;
 import org.eclipse.emf.cdo.CDOState;
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.model.ModelUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.eresource.impl.CDOResourceImpl;
@@ -23,7 +22,6 @@ import org.eclipse.emf.cdo.util.CDOUtil;
 import org.eclipse.emf.cdo.view.CDOView;
 
 import org.eclipse.emf.internal.cdo.bundle.OM;
-import org.eclipse.emf.internal.cdo.session._CDOSessionPackageManagerImpl;
 import org.eclipse.emf.internal.cdo.util.FSMUtil;
 
 import org.eclipse.net4j.util.ImplementationError;
@@ -135,11 +133,6 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
   protected Object[] cdoBasicSettings()
   {
     return cdoSettings;
-  }
-
-  public EClass cdoClass()
-  {
-    return getEClass(this);
   }
 
   /**
@@ -1024,13 +1017,6 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
     }
 
     return eClass().getName() + "@" + id;
-  }
-
-  static EClass getEClass(InternalCDOObject cdoObject)
-  {
-    InternalCDOView view = cdoObject.cdoView();
-    _CDOSessionPackageManagerImpl packageManager = (_CDOSessionPackageManagerImpl)view.getSession().getPackageUnitManager();
-    return ModelUtil.getEClass(cdoObject.eClass(), packageManager);
   }
 
   private CDOStore cdoStore()

@@ -15,13 +15,13 @@ import org.eclipse.emf.cdo.CDOState;
 import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
-import org.eclipse.emf.cdo.common.model.ModelUtil;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.internal.common.model.GenUtil;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
+import org.eclipse.emf.cdo.util.ModelUtil;
 
 import org.eclipse.emf.internal.cdo.bundle.OM;
 import org.eclipse.emf.internal.cdo.session.CDORevisionManagerImpl;
@@ -93,11 +93,6 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper
   {
     this.instance = instance;
     state = CDOState.TRANSIENT;
-  }
-
-  public EClass cdoClass()
-  {
-    return CDOObjectImpl.getEClass(this);
   }
 
   public CDOState cdoState()

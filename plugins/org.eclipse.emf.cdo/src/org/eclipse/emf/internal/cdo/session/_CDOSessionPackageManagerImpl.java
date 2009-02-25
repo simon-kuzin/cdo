@@ -17,7 +17,7 @@ import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.session.CDOSessionPackageManager;
 
 import org.eclipse.emf.internal.cdo.bundle.OM;
-import org.eclipse.emf.cdo.common.model.ModelUtil;
+import org.eclipse.emf.cdo.util.ModelUtil;
 
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;

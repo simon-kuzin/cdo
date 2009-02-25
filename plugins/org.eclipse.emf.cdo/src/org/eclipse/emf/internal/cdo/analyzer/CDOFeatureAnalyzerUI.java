@@ -81,7 +81,7 @@ public class CDOFeatureAnalyzerUI extends CDOAbstractFeatureRuleAnalyzer
       addRootFeature = false;
     }
 
-    CDOClusterOfFetchRule search = new CDOClusterOfFetchRule(lastTraverseCDOObject.cdoClass(), lastTraverseFeature);
+    CDOClusterOfFetchRule search = new CDOClusterOfFetchRule(lastTraverseCDOObject.eClass(), lastTraverseFeature);
     CDOClusterOfFetchRule fetchOfRule = featureRules.get(search);
     if (fetchOfRule == null)
     {
@@ -92,7 +92,7 @@ public class CDOFeatureAnalyzerUI extends CDOAbstractFeatureRuleAnalyzer
     List<CDOFetchRule> list = new ArrayList<CDOFetchRule>();
     for (CDOFetchRule fetchRule : fetchRules)
     {
-      if (addRootFeature == true || lastTraverseCDOObject.cdoClass() != fetchRule.getEClass())
+      if (addRootFeature == true || lastTraverseCDOObject.eClass() != fetchRule.getEClass())
       {
         list.add(fetchRule);
       }
@@ -110,7 +110,7 @@ public class CDOFeatureAnalyzerUI extends CDOAbstractFeatureRuleAnalyzer
       if (lastElapseTimeBetweenOperations > maxTimeBetweenOperation || currentClusterOfFetchRule == null)
       {
         // The user interacted with the UI. Restart a new ClusterOfFetchRule
-        currentClusterOfFetchRule = getFeatureRule(cdoObject.cdoClass(), feature);
+        currentClusterOfFetchRule = getFeatureRule(cdoObject.eClass(), feature);
       }
     }
   }
@@ -120,7 +120,7 @@ public class CDOFeatureAnalyzerUI extends CDOAbstractFeatureRuleAnalyzer
   {
     if (didFetch())
     {
-      currentClusterOfFetchRule.getFeatureInfo().activate(cdoObject.cdoClass(), feature);
+      currentClusterOfFetchRule.getFeatureInfo().activate(cdoObject.eClass(), feature);
     }
   }
 }

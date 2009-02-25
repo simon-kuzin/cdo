@@ -42,7 +42,7 @@ public class CDOFeatureAnalyzerModelBased extends CDOAbstractFeatureRuleAnalyzer
   {
     if (didFetch())
     {
-      featureInfos.activate(cdoObject.cdoClass(), feature);
+      featureInfos.activate(cdoObject.eClass(), feature);
     }
   }
 
@@ -55,7 +55,7 @@ public class CDOFeatureAnalyzerModelBased extends CDOAbstractFeatureRuleAnalyzer
   {
     fetchData();
     List<CDOFetchRule> rules = new ArrayList<CDOFetchRule>();
-    rules.addAll(featureInfos.getRules(lastTraverseCDOObject.cdoClass(), lastTraverseFeature));
+    rules.addAll(featureInfos.getRules(lastTraverseCDOObject.eClass(), lastTraverseFeature));
     return rules;
   }
 }

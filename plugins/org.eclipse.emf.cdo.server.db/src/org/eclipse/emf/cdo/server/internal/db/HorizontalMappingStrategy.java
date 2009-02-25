@@ -10,10 +10,10 @@
  */
 package org.eclipse.emf.cdo.server.internal.db;
 
+import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
-import org.eclipse.emf.cdo.server.IPackageManager;
 import org.eclipse.emf.cdo.server.db.IClassMapping;
 import org.eclipse.emf.cdo.server.db.IDBStore;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
@@ -132,7 +132,7 @@ public class HorizontalMappingStrategy extends MappingStrategy
     {
       for (EClass cdoClass : cdoPackage.getConcreteClasses())
       {
-        if (!cdoClass.isRoot())
+        if (!TODO.isRoot(cdoClass))
         {
           result.add(cdoClass);
         }
