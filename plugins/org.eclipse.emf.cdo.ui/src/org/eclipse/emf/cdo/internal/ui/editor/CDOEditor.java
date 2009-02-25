@@ -2075,7 +2075,7 @@ public class CDOEditor extends MultiPageEditorPart implements IEditingDomainProv
   protected boolean populateNewRoot(MenuManager menuManager)
   {
     boolean populated = false;
-    CDOSessionPackageManager packageManager = view.getSession().getPackageManager();
+    CDOSessionPackageManager packageManager = view.getSession().getPackageUnitManager();
     List<EPackage> cdoPackages = Arrays.asList(packageManager.getPackages());
     Collections.sort(cdoPackages);
 

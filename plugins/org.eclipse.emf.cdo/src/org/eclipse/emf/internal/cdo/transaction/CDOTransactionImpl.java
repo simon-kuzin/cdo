@@ -44,7 +44,7 @@ import org.eclipse.emf.cdo.view.CDOViewResourcesEvent;
 import org.eclipse.emf.internal.cdo.CDOObjectMerger;
 import org.eclipse.emf.internal.cdo.CDOStateMachine;
 import org.eclipse.emf.internal.cdo.bundle.OM;
-import org.eclipse.emf.internal.cdo.session.CDOSessionPackageManagerImpl;
+import org.eclipse.emf.internal.cdo.session._CDOSessionPackageManagerImpl;
 import org.eclipse.emf.internal.cdo.util.CompletePackageClosure;
 import org.eclipse.emf.internal.cdo.util.FSMUtil;
 import org.eclipse.emf.internal.cdo.util.IPackageClosure;
@@ -1022,7 +1022,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
   @SuppressWarnings("unchecked")
   private List<EPackage> analyzeNewPackages()
   {
-    CDOSessionPackageManagerImpl packageManager = (CDOSessionPackageManagerImpl)getSession().getPackageManager();
+    _CDOSessionPackageManagerImpl packageManager = (_CDOSessionPackageManagerImpl)getSession().getPackageUnitManager();
     Set<EPackage> usedPackages = new HashSet<EPackage>();
     Set<EPackage> usedNewPackages = new HashSet<EPackage>();
     for (CDOObject object : getNewObjects().values())
@@ -1051,7 +1051,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
   }
 
   private static List<EPackage> analyzeNewPackages(Collection<EPackage> usedTopLevelPackages,
-      CDOSessionPackageManagerImpl packageManager)
+      _CDOSessionPackageManagerImpl packageManager)
   {
     // Determine which of the corresdonding EPackages are new
     List<EPackage> newPackages = new ArrayList<EPackage>();

@@ -18,7 +18,6 @@ import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.tests.AbstractCDOTest;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 
-import org.eclipse.emf.internal.cdo.session.CDOSessionPackageManagerImpl;
 import org.eclipse.emf.internal.cdo.util.ModelUtil;
 
 import org.eclipse.emf.ecore.EAttribute;
@@ -29,7 +28,7 @@ import org.eclipse.emf.ecore.EcoreFactory;
 import org.eclipse.emf.ecore.EcorePackage;
 
 /**
- * ArrayIndexOutOfBoundsException when importing resoruces.
+ * ArrayIndexOutOfBoundsException when importing resources.
  * <p>
  * 
  * @see https://bugs.eclipse.org/246442
@@ -50,8 +49,8 @@ public class Bugzilla_246442_Test extends AbstractCDOTest
       CDOSession session = openSession();
 
       session.getPackageRegistry().putEPackage(topPackage);
-      EPackage packageObject = ModelUtil.getEPackage(topPackage, (CDOSessionPackageManagerImpl)session
-          .getPackageManager());
+      EPackage packageObject = ModelUtil.getEPackage(topPackage, (_CDOSessionPackageManagerImpl)session
+          .getPackageUnitManager());
       assertNotNull(packageObject.getEcore());
 
       CDOTransaction transaction = session.openTransaction();
@@ -87,9 +86,9 @@ public class Bugzilla_246442_Test extends AbstractCDOTest
 
     session.getPackageRegistry().putEPackage(topPackage);
 
-    EClass cdoClass1 = ModelUtil.getEClass(class1Class, (CDOSessionPackageManagerImpl)session.getPackageManager());
-    EClass cdoClass2 = ModelUtil.getEClass(class2Class, (CDOSessionPackageManagerImpl)session.getPackageManager());
-    EClass cdoClass3 = ModelUtil.getEClass(class3Class, (CDOSessionPackageManagerImpl)session.getPackageManager());
+    EClass cdoClass1 = ModelUtil.getEClass(class1Class, (_CDOSessionPackageManagerImpl)session.getPackageUnitManager());
+    EClass cdoClass2 = ModelUtil.getEClass(class2Class, (_CDOSessionPackageManagerImpl)session.getPackageUnitManager());
+    EClass cdoClass3 = ModelUtil.getEClass(class3Class, (_CDOSessionPackageManagerImpl)session.getPackageUnitManager());
 
     assertEquals(class1Class.getName(), cdoClass1.getName());
     assertEquals(class2Class.getName(), cdoClass2.getName());

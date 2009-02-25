@@ -51,10 +51,10 @@ public class RollbackTest extends AbstractCDOTest
 
   protected void flow1(CDOTransaction transaction1, CDOTransaction transaction2)
   {
-    EStructuralFeature category_Products1 = transaction1.getSession().getPackageManager().convert(
+    EStructuralFeature category_Products1 = transaction1.getSession().getPackageUnitManager().convert(
         getModel1Package().getCategory_Products());
 
-    EStructuralFeature category_Products2 = transaction2.getSession().getPackageManager().convert(
+    EStructuralFeature category_Products2 = transaction2.getSession().getPackageUnitManager().convert(
         getModel1Package().getCategory_Products());
 
     // Client1

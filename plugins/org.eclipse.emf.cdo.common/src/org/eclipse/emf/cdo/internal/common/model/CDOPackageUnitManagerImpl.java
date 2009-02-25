@@ -8,10 +8,11 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  */
-package org.eclipse.emf.cdo.common.model.internal;
+package org.eclipse.emf.cdo.internal.common.model;
 
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnitManager;
 
 import org.eclipse.net4j.util.container.Container;
 import org.eclipse.net4j.util.om.trace.ContextTracer;

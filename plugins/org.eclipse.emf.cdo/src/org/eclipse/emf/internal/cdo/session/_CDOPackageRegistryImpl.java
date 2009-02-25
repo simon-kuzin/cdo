@@ -130,7 +130,7 @@ public class _CDOPackageRegistryImpl extends EPackageRegistryImpl implements CDO
       EPackage ePackage = (EPackage)value;
       CDOFactoryImpl.prepareDynamicEPackage(ePackage);
 
-      CDOSessionPackageManagerImpl packageManager = (CDOSessionPackageManagerImpl)session.getPackageManager();
+      _CDOSessionPackageManagerImpl packageManager = (_CDOSessionPackageManagerImpl)session.getPackageManager();
       EPackage cdoPackage = ModelUtil.getEPackage(ePackage, packageManager);
       CDOIDMetaRange metaIDRange = cdoPackage.getTopLevelPackage().getMetaIDRange();
       ((InternalEPackage)cdoPackage).setPersistent(metaIDRange != null && !metaIDRange.isTemporary());

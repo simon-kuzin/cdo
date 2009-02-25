@@ -110,7 +110,7 @@ public class ViewTest extends AbstractCDOTest
     }
 
     CDORevisionData revision = resource.cdoRevision().data();
-    CDOResourcePackage resourcePackage = session.getPackageManager().getCDOResourcePackage();
+    CDOResourcePackage resourcePackage = session.getPackageUnitManager().getCDOResourcePackage();
     CDOContentsFeature contentsFeature = resourcePackage.getCDOResourceClass().getCDOContentsFeature();
     assertEquals(true, revision.get(contentsFeature, 99) instanceof CDOElementProxy);
     assertEquals(false, revision.get(contentsFeature, 100) instanceof CDOElementProxy);
@@ -150,7 +150,7 @@ public class ViewTest extends AbstractCDOTest
     }
 
     CDORevisionData revision = resource.cdoRevision().data();
-    CDOResourcePackage resourcePackage = session.getPackageManager().getCDOResourcePackage();
+    CDOResourcePackage resourcePackage = session.getPackageUnitManager().getCDOResourcePackage();
     CDOContentsFeature contentsFeature = resourcePackage.getCDOResourceClass().getCDOContentsFeature();
     assertEquals(false, revision.get(contentsFeature, 0) instanceof CDOElementProxy);
     assertEquals(false, revision.get(contentsFeature, 1) instanceof CDOElementProxy);

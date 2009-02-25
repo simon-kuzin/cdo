@@ -15,13 +15,13 @@ import org.eclipse.emf.cdo.common.id.CDOIDObjectFactory;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.model.CDOPackageURICompressor;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnitManager;
 import org.eclipse.emf.cdo.common.revision.CDOListFactory;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionFactory;
 import org.eclipse.emf.cdo.common.revision.CDORevisionResolver;
 import org.eclipse.emf.cdo.internal.common.io.CDODataInputImpl;
 import org.eclipse.emf.cdo.session.CDORevisionManager;
-import org.eclipse.emf.cdo.session.CDOSessionPackageManager;
 
 import org.eclipse.emf.internal.cdo.revision.CDOListWithElementProxiesImpl;
 
@@ -58,9 +58,14 @@ public abstract class CDOClientIndication extends Indication
     return getSession().getRevisionManager();
   }
 
-  protected CDOSessionPackageManager getPackageManager()
+  protected CDOPackageRegistry getPackageRegistry()
   {
-    return getSession().getPackageManager();
+    return getSession().getPackageRegistry();
+  }
+
+  protected CDOPackageUnitManager getPackageUnitManager()
+  {
+    return getSession().getPackageUnitManager();
   }
 
   protected CDOPackageURICompressor getPackageURICompressor()
@@ -92,9 +97,9 @@ public abstract class CDOClientIndication extends Indication
       }
 
       @Override
-      protected CDOPackageRegistry getPackageManager()
+      protected CDOPackageRegistry getPackageRegistry()
       {
-        return CDOClientIndication.this.getPackageManager();
+        return CDOClientIndication.this.getPackageRegistry();
       }
 
       @Override

@@ -22,7 +22,7 @@ import org.eclipse.emf.cdo.util.CDOUtil;
 import org.eclipse.emf.cdo.view.CDOView;
 
 import org.eclipse.emf.internal.cdo.bundle.OM;
-import org.eclipse.emf.internal.cdo.session.CDOSessionPackageManagerImpl;
+import org.eclipse.emf.internal.cdo.session._CDOSessionPackageManagerImpl;
 import org.eclipse.emf.internal.cdo.util.FSMUtil;
 import org.eclipse.emf.internal.cdo.util.ModelUtil;
 
@@ -1029,7 +1029,7 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
   static EClass getEClass(InternalCDOObject cdoObject)
   {
     InternalCDOView view = cdoObject.cdoView();
-    CDOSessionPackageManagerImpl packageManager = (CDOSessionPackageManagerImpl)view.getSession().getPackageManager();
+    _CDOSessionPackageManagerImpl packageManager = (_CDOSessionPackageManagerImpl)view.getSession().getPackageUnitManager();
     return ModelUtil.getEClass(cdoObject.eClass(), packageManager);
   }
 

@@ -332,7 +332,7 @@ public class PackageManagerDialog extends TitleAreaDialog
         content.setEPackage(entry.getValue());
       }
 
-      for (EPackage cdoPackage : session.getPackageManager().getPackages())
+      for (EPackage cdoPackage : session.getPackageUnitManager().getPackages())
       {
         String packageURI = cdoPackage.getNsURI();
         Content content = map.get(packageURI);

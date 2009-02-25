@@ -12,18 +12,19 @@
 package org.eclipse.emf.internal.cdo.net4j.protocol;
 
 import org.eclipse.emf.cdo.common.id.CDOIDLibraryDescriptor;
-import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDObjectFactory;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
+import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.model.CDOPackageURICompressor;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnitManager;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.util.ServerException;
 
 import org.eclipse.emf.internal.cdo.bundle.OM;
 import org.eclipse.emf.internal.cdo.session.CDORevisionManagerImpl;
-import org.eclipse.emf.internal.cdo.session.CDOSessionPackageManagerImpl;
 
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
@@ -66,7 +67,13 @@ public class OpenSessionRequest extends CDOTimeRequest<OpenSessionResult>
   }
 
   @Override
-  protected CDOSessionPackageManagerImpl getPackageManager()
+  protected CDOPackageRegistry getPackageRegistry()
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  protected CDOPackageUnitManager getPackageUnitManager()
   {
     throw new UnsupportedOperationException();
   }
@@ -155,25 +162,11 @@ public class OpenSessionRequest extends CDOTimeRequest<OpenSessionResult>
     result = new OpenSessionResult(sessionID, repositoryUUID, repositoryCreationTime, repositorySupportingAudits,
         libraryDescriptor);
 
-    for (;;)
+    int size = in.readInt();
+    for (int i = 0; i < size; i++)
     {
-      boolean readInfo = in.readBoolean();
-      if (!readInfo)
-      {
-        break;
-      }
-
-      String packageURI = in.readEPackageURI();
-      boolean dynamic = in.readBoolean();
-      CDOIDMetaRange metaIDRange = in.readCDOIDMetaRange();
-      String parentURI = in.readEPackageURI();
-      if (PROTOCOL_TRACER.isEnabled())
-      {
-        PROTOCOL_TRACER.format("Read package info: uri={0}, dynamic={1}, metaIDRange={2}, parentURI={3}", packageURI,
-            dynamic, metaIDRange, parentURI);
-      }
-
-      result.addPackageInfo(packageURI, dynamic, metaIDRange, parentURI);
+      CDOPackageUnit packageUnit = in.readCDOPackageUnit();
+      result.addPackageUnit(packageUnit);
     }
 
     super.confirming(in);

@@ -11,7 +11,6 @@
 package org.eclipse.emf.cdo.common.revision.cache;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
@@ -47,10 +46,6 @@ public interface CDORevisionCache extends INotifier.Introspection
   public boolean addRevision(InternalCDORevision revision);
 
   public CDOID getResourceID(CDOID folderID, String name, long timeStamp);
-
-  public CDOPackageRegistry getPackageManager();
-
-  public void setPackageManager(CDOPackageRegistry packageManager);
 
   public void clear();
 

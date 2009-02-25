@@ -451,7 +451,7 @@ public class IndexReconstructionTest extends AbstractCDOTest
 
   private void expectIndex(CDOID id, EStructuralFeature eFeature, int index)
   {
-    EStructuralFeature feature = transaction.getSession().getPackageManager().convert(eFeature);
+    EStructuralFeature feature = transaction.getSession().getPackageUnitManager().convert(eFeature);
     ReconstructedIndex expectedIndex = new ReconstructedIndex(id, feature, index);
     if (!expectedIndices.add(expectedIndex))
     {

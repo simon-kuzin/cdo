@@ -19,14 +19,17 @@ import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.internal.common.model.CDOPackageRegistryImpl;
+import org.eclipse.emf.cdo.internal.common.model.CDOPackageUnitManagerImpl;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
 import org.eclipse.emf.cdo.server.IQueryHandler;
 import org.eclipse.emf.cdo.server.IQueryHandlerProvider;
 import org.eclipse.emf.cdo.server.IRepository;
-import org.eclipse.emf.cdo.server.IRepositoryElement;
 import org.eclipse.emf.cdo.server.IStore;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.StoreThreadLocal;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnitManager;
 
 import org.eclipse.net4j.util.StringUtil;
 import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
@@ -48,7 +51,7 @@ import java.util.UUID;
  * @author Eike Stepper
  * @since 2.0
  */
-public class Repository extends Container<IRepositoryElement> implements IRepository
+public class Repository extends Container<Object> implements IRepository
 {
   private String name;
 
@@ -64,7 +67,9 @@ public class Repository extends Container<IRepositoryElement> implements IReposi
 
   private boolean verifyingRevisions;
 
-  private PackageManager packageManager;
+  private InternalCDOPackageUnitManager packageUnitManager;
+
+  private InternalCDOPackageRegistry packageRegistry;
 
   private SessionManager sessionManager;
 
@@ -83,9 +88,6 @@ public class Repository extends Container<IRepositoryElement> implements IReposi
   private List<ReadAccessHandler> readAccessHandlers = new ArrayList<ReadAccessHandler>();
 
   private List<WriteAccessHandler> writeAccessHandlers = new ArrayList<WriteAccessHandler>();
-
-  @ExcludeFromDump
-  private transient IRepositoryElement[] elements;
 
   @ExcludeFromDump
   private transient long lastMetaID;
@@ -169,17 +171,24 @@ public class Repository extends Container<IRepositoryElement> implements IReposi
     return verifyingRevisions;
   }
 
-  public PackageManager getPackageManager()
+  public InternalCDOPackageUnitManager getPackageUnitManager()
   {
-    return packageManager;
+    return packageUnitManager;
   }
 
-  /**
-   * @since 2.0
-   */
-  public void setPackageManager(PackageManager packageManager)
+  public void setPackageUnitManager(InternalCDOPackageUnitManager packageUnitManager)
   {
-    this.packageManager = packageManager;
+    this.packageUnitManager = packageUnitManager;
+  }
+
+  public InternalCDOPackageRegistry getPackageRegistry()
+  {
+    return packageRegistry;
+  }
+
+  public void setPackageRegistry(InternalCDOPackageRegistry packageRegistry)
+  {
+    this.packageRegistry = packageRegistry;
   }
 
   public SessionManager getSessionManager()
@@ -350,8 +359,10 @@ public class Repository extends Container<IRepositoryElement> implements IReposi
     return handler;
   }
 
-  public IRepositoryElement[] getElements()
+  public Object[] getElements()
   {
+    final Object[] elements = { packageUnitManager, packageRegistry, sessionManager, revisionManager, queryManager,
+        notificationManager, commitManager, lockManager, store };
     return elements;
   }
 
@@ -528,7 +539,8 @@ public class Repository extends Container<IRepositoryElement> implements IReposi
   {
     super.doBeforeActivate();
     checkState(!StringUtil.isEmpty(name), "name is empty");
-    checkState(packageManager, "packageManager");
+    checkState(packageUnitManager, "packageUnitManager");
+    checkState(packageRegistry, "packageRegistry");
     checkState(sessionManager, "sessionManager");
     checkState(revisionManager, "revisionManager");
     checkState(queryManager, "queryManager");
@@ -536,7 +548,7 @@ public class Repository extends Container<IRepositoryElement> implements IReposi
     checkState(commitManager, "commitManager");
     checkState(lockManager, "lockingManager");
 
-    packageManager.setRepository(this);
+    packageRegistry.setPackageUnitManager(packageUnitManager);
     sessionManager.setRepository(this);
     revisionManager.setRepository(this);
     queryManager.setRepository(this);
@@ -565,9 +577,6 @@ public class Repository extends Container<IRepositoryElement> implements IReposi
       String value = getProperties().get(Props.VERIFYING_REVISIONS);
       verifyingRevisions = value == null ? false : Boolean.valueOf(value);
     }
-
-    elements = new IRepositoryElement[] { packageManager, sessionManager, revisionManager, queryManager,
-        notificationManager, commitManager, lockManager, store };
   }
 
   @Override
@@ -575,7 +584,8 @@ public class Repository extends Container<IRepositoryElement> implements IReposi
   {
     super.doActivate();
     LifecycleUtil.activate(store);
-    LifecycleUtil.activate(packageManager);
+    LifecycleUtil.activate(packageUnitManager);
+    LifecycleUtil.activate(packageRegistry);
     if (store.wasCrashed())
     {
       OM.LOG.info("Crash of repository " + name + " detected");
@@ -605,7 +615,8 @@ public class Repository extends Container<IRepositoryElement> implements IReposi
     LifecycleUtil.deactivate(revisionManager);
     LifecycleUtil.deactivate(sessionManager);
 
-    LifecycleUtil.deactivate(packageManager);
+    LifecycleUtil.deactivate(packageRegistry);
+    LifecycleUtil.deactivate(packageUnitManager);
     LifecycleUtil.deactivate(store);
     super.doDeactivate();
   }
@@ -623,9 +634,14 @@ public class Repository extends Container<IRepositoryElement> implements IReposi
     @Override
     protected void doBeforeActivate() throws Exception
     {
-      if (getPackageManager() == null)
+      if (getPackageUnitManager() == null)
       {
-        setPackageManager(createPackageManager());
+        setPackageUnitManager(createPackageUnitManager());
+      }
+
+      if (getPackageRegistry() == null)
+      {
+        setPackageRegistry(createPackageRegistry());
       }
 
       if (getSessionManager() == null)
@@ -661,9 +677,14 @@ public class Repository extends Container<IRepositoryElement> implements IReposi
       super.doBeforeActivate();
     }
 
-    protected PackageManager createPackageManager()
+    protected InternalCDOPackageRegistry createPackageRegistry()
     {
-      return new PackageManager();
+      return new CDOPackageRegistryImpl();
+    }
+
+    protected InternalCDOPackageUnitManager createPackageUnitManager()
+    {
+      return new CDOPackageUnitManagerImpl();
     }
 
     protected SessionManager createSessionManager()

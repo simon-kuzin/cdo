@@ -20,7 +20,7 @@ import org.eclipse.emf.cdo.eresource.EresourcePackage;
 
 import org.eclipse.emf.internal.cdo.CDOFactoryImpl;
 import org.eclipse.emf.internal.cdo.bundle.OM;
-import org.eclipse.emf.internal.cdo.session.CDOSessionPackageManagerImpl;
+import org.eclipse.emf.internal.cdo.session._CDOSessionPackageManagerImpl;
 
 import org.eclipse.net4j.util.ImplementationError;
 import org.eclipse.net4j.util.ObjectUtil;
@@ -112,7 +112,7 @@ public final class ModelUtil
     }
   }
 
-  public static EPackage getEPackage(EPackage ePackage, CDOSessionPackageManagerImpl packageManager)
+  public static EPackage getEPackage(EPackage ePackage, _CDOSessionPackageManagerImpl packageManager)
   {
     String packageURI = ePackage.getNsURI();
     EPackage cdoPackage = packageManager.lookupPackage(packageURI);
@@ -133,20 +133,20 @@ public final class ModelUtil
     return cdoPackage;
   }
 
-  public static EClass getEClass(EClass eClass, CDOSessionPackageManagerImpl packageManager)
+  public static EClass getEClass(EClass eClass, _CDOSessionPackageManagerImpl packageManager)
   {
     EPackage cdoPackage = getEPackage(eClass.getEPackage(), packageManager);
     return cdoPackage.lookupClass(eClass.getClassifierID());
   }
 
   public static EStructuralFeature getEStructuralFeature(EStructuralFeature eFeature,
-      CDOSessionPackageManagerImpl packageManager)
+      _CDOSessionPackageManagerImpl packageManager)
   {
     EClass cdoClass = getEClass(eFeature.getEContainingClass(), packageManager);
     return cdoClass.lookupFeature(eFeature.getFeatureID());
   }
 
-  public static EPackage addEPackage(EPackage ePackage, CDOSessionPackageManagerImpl packageManager)
+  public static EPackage addEPackage(EPackage ePackage, _CDOSessionPackageManagerImpl packageManager)
   {
     EPackage cdoPackage = createEPackage(ePackage, packageManager);
     packageManager.addPackage(cdoPackage);
@@ -163,7 +163,7 @@ public final class ModelUtil
    * @see EMFUtil#getPersistentFeatures(org.eclipse.emf.common.util.EList)
    * @see http://www.eclipse.org/newsportal/article.php?id=26780&group=eclipse.tools.emf#26780
    */
-  public static EPackage createEPackage(EPackage ePackage, CDOSessionPackageManagerImpl packageManager)
+  public static EPackage createEPackage(EPackage ePackage, _CDOSessionPackageManagerImpl packageManager)
   {
     InternalCDOSession session = packageManager.getSession();
     String uri = ePackage.getNsURI();
@@ -222,7 +222,7 @@ public final class ModelUtil
 
   public static EStructuralFeature createCDOReference(EReference eFeature, EClass containingClass)
   {
-    CDOPackageRegistry packageManager = containingClass.getPackageManager();
+    CDOPackageRegistry packageManager = containingClass.getPackageUnitManager();
     int featureID = eFeature.getFeatureID();
     String name = eFeature.getName();
     CDOClassifierRef classRef = createClassRef(eFeature.getEType());
@@ -376,7 +376,7 @@ public final class ModelUtil
     return null;
   }
 
-  public static void addModelInfos(CDOSessionPackageManagerImpl packageManager)
+  public static void addModelInfos(_CDOSessionPackageManagerImpl packageManager)
   {
     // Ecore
     CDOCorePackage corePackage = packageManager.getCDOCorePackage();

@@ -13,11 +13,10 @@ package org.eclipse.emf.spi.cdo;
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDLibraryDescriptor;
-import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
-import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageURICompressor;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.session.remote.CDORemoteSession;
@@ -127,7 +126,7 @@ public interface CDOSessionProtocol
 
     private CDOIDLibraryDescriptor libraryDescriptor;
 
-    private List<CDOPackageInfo> packageDescriptors = new ArrayList<CDOPackageInfo>();
+    private List<CDOPackageUnit> packageUnits = new ArrayList<CDOPackageUnit>();
 
     private StringCompressor compressor = new StringCompressor(true);
 
@@ -176,14 +175,14 @@ public interface CDOSessionProtocol
       return libraryDescriptor;
     }
 
-    public List<CDOPackageInfo> getPackageDescriptors()
+    public List<CDOPackageUnit> getPackageUnits()
     {
-      return packageDescriptors;
+      return packageUnits;
     }
 
-    public void addPackageInfo(String packageURI, boolean dynamic, CDOIDMetaRange metaIDRange, String parentURI)
+    public void addPackageUnit(CDOPackageUnit packageUnit)
     {
-      packageDescriptors.add(new CDOPackageInfo(packageURI, parentURI, dynamic, metaIDRange));
+      packageUnits.add(packageUnit);
     }
 
     public StringCompressor getCompressor()

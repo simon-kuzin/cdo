@@ -19,7 +19,7 @@ import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageURICompressor;
-import org.eclipse.emf.cdo.common.model.internal.InternalCDOPackageInfo;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
@@ -30,6 +30,8 @@ import org.eclipse.emf.cdo.internal.common.id.CDOIDAndVersionImpl;
 import org.eclipse.emf.cdo.internal.common.revision.delta.CDOFeatureDeltaImpl;
 import org.eclipse.emf.cdo.internal.common.revision.delta.CDORevisionDeltaImpl;
 import org.eclipse.emf.cdo.spi.common.id.AbstractCDOID;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.util.concurrent.RWLockManager;
@@ -146,6 +148,12 @@ public abstract class CDODataOutputImpl implements CDODataOutput
   public void writeUTF(String str) throws IOException
   {
     out.writeUTF(str);
+  }
+
+  public void writeCDOPackageUnit(CDOPackageUnit packageUnit) throws IOException
+  {
+    writeBoolean(packageUnit.isDynamic());
+    ((InternalCDOPackageUnit)packageUnit).write(this);
   }
 
   public void writeCDOPackageInfo(CDOPackageInfo packageInfo) throws IOException

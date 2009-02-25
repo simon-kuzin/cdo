@@ -8,7 +8,7 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  */
-package org.eclipse.emf.cdo.common.model.internal;
+package org.eclipse.emf.cdo.internal.common.model;
 
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
@@ -16,9 +16,14 @@ import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnitManager;
 import org.eclipse.emf.cdo.common.model.EMFUtil;
+import org.eclipse.emf.cdo.internal.common.bundle.OM;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 
 import org.eclipse.net4j.util.ObjectUtil;
 import org.eclipse.net4j.util.om.OMPlatform;
+import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.emf.ecore.EPackage;
 
@@ -33,6 +38,8 @@ import java.util.Set;
  */
 public abstract class CDOPackageUnitImpl implements InternalCDOPackageUnit
 {
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, CDOPackageUnitImpl.class);
+
   private CDOPackageUnitManager packageUnitManager;
 
   private String id;
@@ -99,13 +106,26 @@ public abstract class CDOPackageUnitImpl implements InternalCDOPackageUnit
 
   public void write(CDODataOutput out) throws IOException
   {
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("Writing package unit: id={0}, timeStamp={1,date} {1,time}, dynamic={2}, legacy={3}", id,
+          timeStamp, isDynamic(), isLegacy());
+    }
+
     out.writeString(id);
     out.writeLong(timeStamp);
 
-    out.writeInt(packageInfos == null ? 0 : packageInfos.length);
-    for (CDOPackageInfo packageInfo : packageInfos)
+    if (packageInfos == null)
     {
-      out.writeCDOPackageInfo(packageInfo);
+      out.writeInt(0);
+    }
+    else
+    {
+      out.writeInt(packageInfos.length);
+      for (CDOPackageInfo packageInfo : packageInfos)
+      {
+        out.writeCDOPackageInfo(packageInfo);
+      }
     }
   }
 
@@ -113,6 +133,11 @@ public abstract class CDOPackageUnitImpl implements InternalCDOPackageUnit
   {
     id = in.readString();
     timeStamp = in.readLong();
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("Read package unit: id={0}, timeStamp={1,date} {1,time}, dynamic={2}, legacy={3}", id, timeStamp,
+          isDynamic(), isLegacy());
+    }
 
     int size = in.readInt();
     packageInfos = new InternalCDOPackageInfo[size];
@@ -166,11 +191,51 @@ public abstract class CDOPackageUnitImpl implements InternalCDOPackageUnit
     return packageInfo;
   }
 
+  public static byte[] serializeBundle(String bundleID)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  public static byte[] serializePackage(EPackage topLevelPackage)
+  {
+    // TODO: implement CDOPackageUnitImpl.serializePackage(topLevelPackage)
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * @author Eike Stepper
+   */
+  public static class Dynamic extends CDOPackageUnitImpl
+  {
+    public Dynamic()
+    {
+    }
+
+    public Dynamic(CDOPackageRegistry packageRegistry, EPackage topLevelPackage)
+    {
+      initNew(topLevelPackage.getNsURI(), packageRegistry, topLevelPackage);
+    }
+
+    public boolean isDynamic()
+    {
+      return true;
+    }
+
+    public boolean isLegacy()
+    {
+      return true;
+    }
+  }
+
   /**
    * @author Eike Stepper
    */
   public static class Generated extends CDOPackageUnitImpl
   {
+    public Generated()
+    {
+    }
+
     public Generated(CDOPackageRegistry packageRegistry, EPackage topLevelPackage)
     {
       if (OMPlatform.INSTANCE.isOSGiRunning())
@@ -235,37 +300,5 @@ public abstract class CDOPackageUnitImpl implements InternalCDOPackageUnit
     {
       initNew(topLevelPackage.getNsURI(), packageRegistry, topLevelPackage);
     }
-  }
-
-  /**
-   * @author Eike Stepper
-   */
-  public static class Dynamic extends CDOPackageUnitImpl
-  {
-    public Dynamic(CDOPackageRegistry packageRegistry, EPackage topLevelPackage)
-    {
-      initNew(topLevelPackage.getNsURI(), packageRegistry, topLevelPackage);
-    }
-
-    public boolean isDynamic()
-    {
-      return true;
-    }
-
-    public boolean isLegacy()
-    {
-      return true;
-    }
-  }
-
-  public static byte[] serializeBundle(String bundleID)
-  {
-    throw new UnsupportedOperationException();
-  }
-
-  public static byte[] serializePackage(EPackage topLevelPackage)
-  {
-    // TODO: implement CDOPackageUnitImpl.serializePackage(topLevelPackage)
-    throw new UnsupportedOperationException();
   }
 }

@@ -8,12 +8,16 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  */
-package org.eclipse.emf.cdo.common.model.internal;
+package org.eclipse.emf.cdo.internal.common.model;
 
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
+import org.eclipse.emf.cdo.internal.common.bundle.OM;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
+
+import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import java.io.IOException;
 
@@ -22,6 +26,8 @@ import java.io.IOException;
  */
 public class CDOPackageInfoImpl implements InternalCDOPackageInfo
 {
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, CDOPackageInfoImpl.class);
+
   private CDOPackageUnit packageUnit;
 
   private String packageURI;
@@ -76,6 +82,12 @@ public class CDOPackageInfoImpl implements InternalCDOPackageInfo
 
   public void write(CDODataOutput out) throws IOException
   {
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("Writing package info: packageURI={0}, parentURI={1}, metaIDRange={2}", packageURI, parentURI,
+          metaIDRange);
+    }
+
     out.writeString(packageURI);
     out.writeString(parentURI);
     out.writeCDOIDMetaRange(metaIDRange);
@@ -86,5 +98,10 @@ public class CDOPackageInfoImpl implements InternalCDOPackageInfo
     packageURI = in.readEPackageURI();
     parentURI = in.readEPackageURI();
     metaIDRange = in.readCDOIDMetaRange();
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("Read package info: packageURI={0}, parentURI={1}, metaIDRange={2}", packageURI, parentURI,
+          metaIDRange);
+    }
   }
 }

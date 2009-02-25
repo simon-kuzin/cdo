@@ -19,13 +19,11 @@ import org.eclipse.emf.cdo.common.revision.CDOListFactory;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
-import org.eclipse.emf.cdo.internal.common.io.CDODataOutputImpl;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDOList;
 
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EPackage;
@@ -106,12 +104,6 @@ public final class TODO
   {
     EPackage resourcePackage = packageManager.getEPackage("http://www.eclipse.org/emf/CDO/resource/2.0.0");
     return (EClass)getClassifier(resourcePackage, "CDOResourceNode");
-  }
-
-  public static EAttribute getResourceNodeNameAttribute(CDOPackageRegistry packageManager)
-  {
-    EClass resourceNodeClass = getResourceNodeClass(packageManager);
-    return (EAttribute)resourceNodeClass.getEStructuralFeature("name");
   }
 
   public static boolean isResource(EClass cdoClass)
@@ -238,7 +230,7 @@ public final class TODO
     writeValue(out, value, type);
   }
 
-  public static void writeEPackage(CDODataOutputImpl cdoDataOutputImpl, EPackage cdoPackage) throws IOException
+  public static void writeEPackage(CDODataOutput out, EPackage cdoPackage) throws IOException
   {
     // TODO: implement TODO.writeEPackage(cdoDataOutputImpl, cdoPackage)
     throw new UnsupportedOperationException();

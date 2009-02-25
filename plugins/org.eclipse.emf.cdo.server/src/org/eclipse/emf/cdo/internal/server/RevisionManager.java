@@ -15,7 +15,6 @@ package org.eclipse.emf.cdo.internal.server;
 import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDObjectFactory;
-import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.internal.common.revision.CDORevisionResolverImpl;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.IRevisionManager;
@@ -110,15 +109,16 @@ public class RevisionManager extends CDORevisionResolverImpl implements IRevisio
   /**
    * @since 2.0
    */
-  public IStoreAccessor ensureChunk(InternalCDORevision revision, EStructuralFeature feature, int chunkStart, int chunkEnd)
+  public IStoreAccessor ensureChunk(InternalCDORevision revision, EStructuralFeature feature, int chunkStart,
+      int chunkEnd)
   {
     MoveableList<Object> list = revision.getList(feature);
     chunkEnd = Math.min(chunkEnd, list.size());
     return ensureChunk(revision, feature, StoreThreadLocal.getAccessor(), list, chunkStart, chunkEnd);
   }
 
-  protected IStoreAccessor ensureChunk(InternalCDORevision revision, EStructuralFeature feature, IStoreAccessor accessor,
-      MoveableList<Object> list, int chunkStart, int chunkEnd)
+  protected IStoreAccessor ensureChunk(InternalCDORevision revision, EStructuralFeature feature,
+      IStoreAccessor accessor, MoveableList<Object> list, int chunkStart, int chunkEnd)
   {
     IStoreChunkReader chunkReader = null;
     int fromIndex = -1;
@@ -282,15 +282,6 @@ public class RevisionManager extends CDORevisionResolverImpl implements IRevisio
     }
 
     return revisions;
-  }
-
-  /**
-   * @since 2.0
-   */
-  @Override
-  protected CDOPackageRegistry getPackageManager()
-  {
-    return repository.getPackageManager();
   }
 
   /**

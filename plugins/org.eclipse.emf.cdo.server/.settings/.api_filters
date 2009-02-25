@@ -57,14 +57,6 @@
             </message_arguments>
         </filter>
     </resource>
-    <resource path="src/org/eclipse/emf/cdo/server/IRevisionManager.java" type="org.eclipse.emf.cdo.server.IRevisionManager">
-        <filter id="574619656">
-            <message_arguments>
-                <message_argument value="CDORevisionResolver"/>
-                <message_argument value="IRevisionManager"/>
-            </message_arguments>
-        </filter>
-    </resource>
     <resource path="src/org/eclipse/emf/cdo/server/IView.java" type="org.eclipse.emf.cdo.server.IView">
         <filter id="574619656">
             <message_arguments>

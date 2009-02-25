@@ -1,4 +1,4 @@
-package org.eclipse.emf.cdo.common.model.internal;
+package org.eclipse.emf.cdo.spi.common.model;
 
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;

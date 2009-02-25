@@ -11,10 +11,9 @@
  */
 package org.eclipse.emf.cdo.internal.common.revision.cache.lru;
 
-import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
-import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
+import org.eclipse.emf.cdo.common.model.CDOModelConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
@@ -25,8 +24,8 @@ import org.eclipse.net4j.util.ObjectUtil;
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
-import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -43,8 +42,6 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
 
   private Map<CDOID, RevisionHolder> revisions = new HashMap<CDOID, RevisionHolder>();
 
-  private CDOPackageRegistry packageManager;
-
   private int capacityCurrent;
 
   private int capacityRevised;
@@ -53,24 +50,8 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
 
   private LRU revisedLRU;
 
-  private transient EAttribute cdoNameFeature;
-
   public LRURevisionCache()
   {
-  }
-
-  public CDOPackageRegistry getPackageManager()
-  {
-    return packageManager;
-  }
-
-  public void setPackageManager(CDOPackageRegistry packageManager)
-  {
-    this.packageManager = packageManager;
-    if (packageManager != null)
-    {
-      cdoNameFeature = TODO.getResourceNodeNameAttribute(packageManager);
-    }
   }
 
   public int getCapacityCurrent()
@@ -271,7 +252,8 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
             CDOID revisionFolderID = (CDOID)revision.getContainerID();
             if (CDOIDUtil.equals(revisionFolderID, folderID))
             {
-              String revisionName = (String)revision.getValue(cdoNameFeature);
+              EStructuralFeature feature = revision.getEClass().getEStructuralFeature(CDOModelConstants.RESOURCE_NODE_NAME_ATTRIBUTE);
+              String revisionName = (String)revision.getValue(feature);
               if (ObjectUtil.equals(revisionName, name))
               {
                 return revision.getID();

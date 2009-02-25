@@ -21,8 +21,17 @@ import java.util.Set;
 /**
  * @author Eike Stepper
  */
-public interface IStore extends IRepositoryElement
+public interface IStore
 {
+  public IRepository getRepository();
+
+  /**
+   * Internal.
+   * 
+   * @since 2.0
+   */
+  public void setRepository(IRepository repository);
+
   /**
    * @since 2.0
    */

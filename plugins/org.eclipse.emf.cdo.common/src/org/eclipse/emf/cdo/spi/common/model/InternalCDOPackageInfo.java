@@ -10,26 +10,28 @@
  */
 package org.eclipse.emf.cdo.spi.common.model;
 
+import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
-import org.eclipse.emf.cdo.common.model.EModelElement;
+import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 
 import java.io.IOException;
 
 /**
  * @author Eike Stepper
- * @noimplement This interface is not intended to be implemented by clients.
- * @since 2.0
  */
-public interface InternalEModelElement extends EModelElement
+public interface InternalCDOPackageInfo extends CDOPackageInfo
 {
-  public void setName(String name);
+  public void setPackageUnit(CDOPackageUnit packageUnit);
 
-  public void setClientInfo(Object clientInfo);
+  public void setPackageURI(String packageUri);
 
-  public void setServerInfo(Object serverInfo);
+  public void setParentURI(String parentUri);
 
-  public void read(CDODataInput in) throws IOException;
+  public void setMetaIDRange(CDOIDMetaRange metaIdRange);
 
   public void write(CDODataOutput out) throws IOException;
+
+  public void read(CDODataInput in) throws IOException;
 }

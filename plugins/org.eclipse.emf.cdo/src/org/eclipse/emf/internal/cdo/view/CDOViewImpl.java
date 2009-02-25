@@ -444,7 +444,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     }
 
     InternalCDORevision folderRevision = getLocalRevision(folderID);
-    CDOResourcePackage resourcePackage = getSession().getPackageManager().getCDOResourcePackage();
+    CDOResourcePackage resourcePackage = getSession().getPackageUnitManager().getCDOResourcePackage();
     CDOResourceFolderClass resourceFolderClass = resourcePackage.getCDOResourceFolderClass();
     if (folderRevision.getEClass() != resourceFolderClass)
     {
@@ -816,7 +816,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
 
   private String getResourcePath(InternalCDORevision revision)
   {
-    CDOResourcePackage resourcePackage = session.getPackageManager().getCDOResourcePackage();
+    CDOResourcePackage resourcePackage = session.getPackageUnitManager().getCDOResourcePackage();
     CDOResourceNodeClass resourceNodeClass = resourcePackage.getCDOResourceNodeClass();
     CDONameFeature nameFeature = resourceNodeClass.getCDONameFeature();
 

@@ -18,7 +18,7 @@ import org.eclipse.emf.cdo.tests.AbstractCDOTest;
 import org.eclipse.emf.cdo.tests.model1.Order;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 
-import org.eclipse.emf.internal.cdo.session.CDOSessionPackageManagerImpl;
+import org.eclipse.emf.internal.cdo.session._CDOSessionPackageManagerImpl;
 import org.eclipse.emf.internal.cdo.util.ModelUtil;
 
 import org.eclipse.emf.ecore.EAttribute;
@@ -90,8 +90,8 @@ public class Bugzilla_258933_Test extends AbstractCDOTest
 
       CDOSession session = openSession();
       session.getPackageRegistry().putEPackage(topPackage);
-      EPackage packageObject = ModelUtil.getEPackage(topPackage, (CDOSessionPackageManagerImpl)session
-          .getPackageManager());
+      EPackage packageObject = ModelUtil.getEPackage(topPackage, (_CDOSessionPackageManagerImpl)session
+          .getPackageUnitManager());
       assertNotNull(packageObject.getEcore());
 
       CDOTransaction transaction = session.openTransaction();

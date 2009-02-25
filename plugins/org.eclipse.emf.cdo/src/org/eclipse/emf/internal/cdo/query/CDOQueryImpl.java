@@ -16,7 +16,7 @@ import org.eclipse.emf.cdo.common.util.BlockingCloseableIterator;
 import org.eclipse.emf.cdo.internal.common.CDOQueryInfoImpl;
 import org.eclipse.emf.cdo.view.CDOQuery;
 
-import org.eclipse.emf.internal.cdo.session.CDOSessionPackageManagerImpl;
+import org.eclipse.emf.internal.cdo.session._CDOSessionPackageManagerImpl;
 import org.eclipse.emf.internal.cdo.util.FSMUtil;
 import org.eclipse.emf.internal.cdo.util.ModelUtil;
 
@@ -139,7 +139,7 @@ public class CDOQueryImpl extends CDOQueryInfoImpl implements CDOQuery
     if (object instanceof EClass)
     {
       EClass eClass = (EClass)object;
-      return ModelUtil.getEClass(eClass, (CDOSessionPackageManagerImpl)view.getSession().getPackageManager());
+      return ModelUtil.getEClass(eClass, (_CDOSessionPackageManagerImpl)view.getSession().getPackageUnitManager());
     }
     else if (object instanceof InternalCDOObject)
     {

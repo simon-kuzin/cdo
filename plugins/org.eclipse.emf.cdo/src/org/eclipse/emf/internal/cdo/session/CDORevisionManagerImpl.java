@@ -13,7 +13,6 @@ package org.eclipse.emf.internal.cdo.session;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDObjectFactory;
-import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.internal.common.revision.CDORevisionResolverImpl;
 import org.eclipse.emf.cdo.session.CDORevisionManager;
@@ -120,14 +119,5 @@ public class CDORevisionManagerImpl extends CDORevisionResolverImpl implements C
   protected List<InternalCDORevision> loadRevisionsByTime(Collection<CDOID> ids, int referenceChunk, long timeStamp)
   {
     return session.getSessionProtocol().loadRevisionsByTime(ids, referenceChunk, timeStamp);
-  }
-
-  /**
-   * @since 2.0
-   */
-  @Override
-  protected CDOPackageRegistry getPackageManager()
-  {
-    return session.getPackageManager();
   }
 }

@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * @author Eike Stepper
  */
-public class CDOSessionPackageManagerImpl extends CDOPackageManagerImpl implements CDOSessionPackageManager
+public class _CDOSessionPackageManagerImpl extends CDOPackageManagerImpl implements CDOSessionPackageManager
 {
   private InternalCDOSession session;
 
@@ -49,7 +49,7 @@ public class CDOSessionPackageManagerImpl extends CDOPackageManagerImpl implemen
   /**
    * @since 2.0
    */
-  public CDOSessionPackageManagerImpl(InternalCDOSession session)
+  public _CDOSessionPackageManagerImpl(InternalCDOSession session)
   {
     this.session = session;
     ModelUtil.addModelInfos(this);

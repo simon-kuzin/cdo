@@ -23,8 +23,8 @@ import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.model.CDOPackageURICompressor;
-import org.eclipse.emf.cdo.common.model.internal.CDOPackageInfoImpl;
-import org.eclipse.emf.cdo.common.model.internal.InternalCDOPackageInfo;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnitManager;
 import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDOListFactory;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
@@ -40,6 +40,8 @@ import org.eclipse.emf.cdo.internal.common.id.CDOIDMetaImpl;
 import org.eclipse.emf.cdo.internal.common.id.CDOIDMetaRangeImpl;
 import org.eclipse.emf.cdo.internal.common.id.CDOIDTempMetaImpl;
 import org.eclipse.emf.cdo.internal.common.id.CDOIDTempObjectImpl;
+import org.eclipse.emf.cdo.internal.common.model.CDOPackageInfoImpl;
+import org.eclipse.emf.cdo.internal.common.model.CDOPackageUnitImpl;
 import org.eclipse.emf.cdo.internal.common.revision.delta.CDOAddFeatureDeltaImpl;
 import org.eclipse.emf.cdo.internal.common.revision.delta.CDOClearFeatureDeltaImpl;
 import org.eclipse.emf.cdo.internal.common.revision.delta.CDOContainerFeatureDeltaImpl;
@@ -50,6 +52,8 @@ import org.eclipse.emf.cdo.internal.common.revision.delta.CDORevisionDeltaImpl;
 import org.eclipse.emf.cdo.internal.common.revision.delta.CDOSetFeatureDeltaImpl;
 import org.eclipse.emf.cdo.internal.common.revision.delta.CDOUnsetFeatureDeltaImpl;
 import org.eclipse.emf.cdo.spi.common.id.AbstractCDOID;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 
 import org.eclipse.net4j.util.ImplementationError;
 import org.eclipse.net4j.util.concurrent.RWLockManager;
@@ -183,9 +187,19 @@ public abstract class CDODataInputImpl implements CDODataInput
     return in.skipBytes(n);
   }
 
-  public CDOPackageInfo readCDOPackageInfo()
+  public CDOPackageUnit readCDOPackageUnit() throws IOException
+  {
+    boolean dynamic = in.readBoolean();
+    InternalCDOPackageUnit packageUnit = dynamic ? new CDOPackageUnitImpl.Dynamic()
+        : new CDOPackageUnitImpl.Generated();
+    packageUnit.read(this);
+    return packageUnit;
+  }
+
+  public CDOPackageInfo readCDOPackageInfo() throws IOException
   {
     InternalCDOPackageInfo packageInfo = new CDOPackageInfoImpl();
+    packageInfo.read(this);
     return packageInfo;
   }
 
@@ -199,11 +213,6 @@ public abstract class CDODataInputImpl implements CDODataInput
     TODO.readEPackage(this, cdoPackage);
   }
 
-  public EPackage readEPackageDescriptor() throws IOException
-  {
-    return TODO.readEPackageDescriptor(this, getPackageManager());
-  }
-
   public CDOClassifierRef readEClassifierRef() throws IOException
   {
     return new CDOClassifierRef(this);
@@ -212,8 +221,7 @@ public abstract class CDODataInputImpl implements CDODataInput
   public EClassifier readEClassifierRefAndResolve() throws IOException
   {
     CDOClassifierRef classRef = readEClassifierRef();
-    CDOPackageRegistry packageManager = getPackageManager();
-    EClassifier cdoClass = classRef.resolve(packageManager);
+    EClassifier cdoClass = classRef.resolve(getPackageRegistry());
     if (cdoClass == null)
     {
       throw new IllegalStateException("CDOClassifierRef unresolveable: " + classRef);
@@ -371,7 +379,12 @@ public abstract class CDODataInputImpl implements CDODataInput
     return CDORevisionUtil.read(this);
   }
 
-  protected abstract CDOPackageRegistry getPackageManager();
+  protected CDOPackageUnitManager getPackageUnitManager()
+  {
+    return getPackageRegistry().getPackageUnitManager();
+  }
+
+  protected abstract CDOPackageRegistry getPackageRegistry();
 
   protected abstract CDOPackageURICompressor getPackageURICompressor();
 

@@ -154,11 +154,11 @@ public class PackageRegistryTest extends AbstractCDOTest
     res.getContents().add(class1);
     transaction.commit();
 
-    EPackage model3Package = session.getPackageManager().lookupPackage(Model3Package.eINSTANCE.getNsURI());
+    EPackage model3Package = session.getPackageUnitManager().lookupPackage(Model3Package.eINSTANCE.getNsURI());
     assertEquals(11, model3Package.getMetaIDRange().size());
     assertNotNull(model3Package.getEcore());
 
-    EPackage subPackage = session.getPackageManager().lookupPackage(SubpackagePackage.eINSTANCE.getNsURI());
+    EPackage subPackage = session.getPackageUnitManager().lookupPackage(SubpackagePackage.eINSTANCE.getNsURI());
     assertNull(subPackage.getMetaIDRange());
     assertNull(subPackage.getEcore());
     session.close();
@@ -180,11 +180,11 @@ public class PackageRegistryTest extends AbstractCDOTest
     }
 
     CDOSession session = openSession();
-    EPackage model3Package = session.getPackageManager().lookupPackage(Model3Package.eINSTANCE.getNsURI());
+    EPackage model3Package = session.getPackageUnitManager().lookupPackage(Model3Package.eINSTANCE.getNsURI());
     assertEquals(11, model3Package.getMetaIDRange().size());
     assertNotNull(model3Package.getEcore());
 
-    EPackage subPackage = session.getPackageManager().lookupPackage(SubpackagePackage.eINSTANCE.getNsURI());
+    EPackage subPackage = session.getPackageUnitManager().lookupPackage(SubpackagePackage.eINSTANCE.getNsURI());
     assertNull(subPackage.getMetaIDRange());
     assertNull(subPackage.getEcore());
     session.close();

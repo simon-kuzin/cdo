@@ -20,7 +20,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.model.CDOPackageURICompressor;
-import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnitManager;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDOListFactory;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
@@ -176,7 +176,7 @@ public class CommitTransactionIndication extends IndicationWithMonitoring
       }
 
       @Override
-      protected CDOPackageRegistry getPackageManager()
+      protected CDOPackageUnitManager getPackageUnitManager()
       {
         return CommitTransactionIndication.this.getPackageManager();
       }

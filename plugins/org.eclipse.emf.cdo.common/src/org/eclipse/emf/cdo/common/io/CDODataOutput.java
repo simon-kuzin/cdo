@@ -17,6 +17,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
@@ -41,6 +42,8 @@ public interface CDODataOutput extends ExtendedDataOutput
   public CDOIDProvider getIDProvider();
 
   // /////////////////////////////////////////////////////////////////////////////////////////////////
+
+  public void writeCDOPackageUnit(CDOPackageUnit packageUnit) throws IOException;
 
   public void writeCDOPackageInfo(CDOPackageInfo packageInfo) throws IOException;
 

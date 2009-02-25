@@ -23,16 +23,18 @@ import org.eclipse.emf.cdo.common.id.CDOIDObject;
 import org.eclipse.emf.cdo.common.id.CDOIDObjectFactory;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
-import org.eclipse.emf.cdo.common.model.internal.CDOPackageRegistryImpl;
-import org.eclipse.emf.cdo.common.model.internal.InternalCDOPackageRegistry;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionFactory;
 import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
+import org.eclipse.emf.cdo.internal.common.model.CDOPackageRegistryImpl;
+import org.eclipse.emf.cdo.internal.common.model.CDOPackageUnitManagerImpl;
 import org.eclipse.emf.cdo.session.CDOCollectionLoadingPolicy;
 import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.session.CDOSessionInvalidationEvent;
-import org.eclipse.emf.cdo.session.CDOSession.Repository;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnitManager;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.transaction.CDOTimeStampContext;
 import org.eclipse.emf.cdo.util.CDOUtil;
@@ -56,7 +58,6 @@ import org.eclipse.net4j.util.io.IOUtil;
 import org.eclipse.net4j.util.io.StringCompressor;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
-import org.eclipse.net4j.util.options.IOptions;
 import org.eclipse.net4j.util.options.IOptionsContainer;
 import org.eclipse.net4j.util.options.OptionsEvent;
 
@@ -87,23 +88,19 @@ import java.util.Set;
 /**
  * @author Eike Stepper
  */
-public abstract class CDOSessionImpl extends Container<CDOView> implements InternalCDOSession, Repository
+public abstract class CDOSessionImpl extends Container<CDOView> implements InternalCDOSession
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_SESSION, CDOSessionImpl.class);
 
   private int sessionID;
 
-  private String repositoryName;
+  private CDOSession.Options options;
 
-  private String repositoryUUID;
-
-  private long repositoryCreationTime;
-
-  private RepositoryTimeResult repositoryTimeResult;
-
-  private boolean repositorySupportingAudits;
+  private CDOSession.Repository repository;
 
   private InternalCDOPackageRegistry packageRegistry;
+
+  private InternalCDOPackageUnitManager packageUnitManager;
 
   private CDORevisionManagerImpl revisionManager;
 
@@ -111,9 +108,11 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
 
   private Set<InternalCDOView> views = new HashSet<InternalCDOView>();
 
-  private QueueRunner invalidationRunner;
+  @ExcludeFromDump
+  private transient QueueRunner invalidationRunner;
 
-  private Object invalidationRunnerLock = new Object();
+  @ExcludeFromDump
+  private transient Object invalidationRunnerLock = new Object();
 
   @ExcludeFromDump
   private transient int lastViewID;
@@ -124,14 +123,10 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
   @ExcludeFromDump
   private CDOIDObjectFactory cdoidObjectFactory;
 
-  /**
-   * @since 2.0
-   */
-  protected IOptions options;
-
   public CDOSessionImpl()
   {
     options = createOptions();
+    packageUnitManager = createPackageUnitManager();
     revisionManager = createRevisionManager();
     remoteSessionManager = createRemoteSessionManager();
   }
@@ -144,15 +139,15 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
   /**
    * @since 2.0
    */
-  public OptionsImpl options()
+  public CDOSession.Options options()
   {
-    return (OptionsImpl)options;
+    return options;
   }
 
   /**
    * @since 2.0
    */
-  protected OptionsImpl createOptions()
+  protected CDOSession.Options createOptions()
   {
     return new OptionsImpl();
   }
@@ -160,9 +155,18 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
   /**
    * @since 2.0
    */
-  public Repository repository()
+  public CDOSession.Repository repository()
   {
-    return this;
+    return repository;
+  }
+
+  /**
+   * @param result
+   * @since 2.0
+   */
+  protected CDOSession.Repository createRepository(OpenSessionResult result)
+  {
+    return new RepositoryImpl(result);
   }
 
   public CDOIDObject createCDOIDObject(ExtendedDataInput in)
@@ -178,71 +182,6 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     return cdoidObjectFactory.createCDOIDObject(in);
   }
 
-  /**
-   * @since 2.0
-   */
-  public String getName()
-  {
-    return repositoryName;
-  }
-
-  public void setRepositoryName(String repositoryName)
-  {
-    this.repositoryName = repositoryName;
-  }
-
-  /**
-   * @since 2.0
-   */
-  public String getUUID()
-  {
-    return repositoryUUID;
-  }
-
-  /**
-   * @since 2.0
-   */
-  public long getCreationTime()
-  {
-    checkActive();
-    return repositoryCreationTime;
-  }
-
-  /**
-   * @since 2.0
-   */
-  public long getCurrentTime()
-  {
-    return getCurrentTime(false);
-  }
-
-  /**
-   * @since 2.0
-   */
-  public long getCurrentTime(boolean forceRefresh)
-  {
-    checkActive();
-    if (repositoryTimeResult == null || forceRefresh)
-    {
-      repositoryTimeResult = sendRepositoryTimeRequest();
-    }
-
-    return repositoryTimeResult.getAproximateRepositoryTime();
-  }
-
-  private RepositoryTimeResult sendRepositoryTimeRequest()
-  {
-    return getSessionProtocol().getRepositoryTime();
-  }
-
-  /**
-   * @since 2.0
-   */
-  public boolean isSupportingAudits()
-  {
-    return repositorySupportingAudits;
-  }
-
   public void close()
   {
     deactivate();
@@ -256,6 +195,11 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     return !isActive();
   }
 
+  public void setRepositoryName(String repositoryName)
+  {
+    repository = new TemporaryRepositoryName(repositoryName);
+  }
+
   /**
    * @since 2.0
    */
@@ -264,9 +208,14 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     this.packageRegistry = (InternalCDOPackageRegistry)packageRegistry;
   }
 
-  public CDOPackageRegistry getPackageRegistry()
+  public InternalCDOPackageRegistry getPackageRegistry()
   {
     return packageRegistry;
+  }
+
+  public InternalCDOPackageUnitManager getPackageUnitManager()
+  {
+    return packageUnitManager;
   }
 
   public CDORevisionManagerImpl getRevisionManager()
@@ -583,7 +532,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
   @Override
   public String toString()
   {
-    return MessageFormat.format("CDOSession[{0}, {1}]", repositoryName, sessionID);
+    return MessageFormat.format("CDOSession[{0}, {1}]", repository().getName(), sessionID);
   }
 
   /**
@@ -594,9 +543,9 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     return new CDOPackageRegistryImpl();
   }
 
-  protected CDOSessionPackageManagerImpl createPackageManager()
+  protected InternalCDOPackageUnitManager createPackageUnitManager()
   {
-    return new CDOSessionPackageManagerImpl(this);
+    return new CDOPackageUnitManagerImpl();
   }
 
   protected CDORevisionManagerImpl createRevisionManager()
@@ -653,30 +602,36 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
   {
     super.doBeforeActivate();
     checkState(getSessionProtocol(), "sessionProtocol");
-    checkState(repositoryName, "repositoryName");
+    checkState(repository().getName(), "repository().getName()");
   }
 
   @Override
   protected void doActivate() throws Exception
   {
     super.doActivate();
+    packageUnitManager.activate();
+    revisionManager.activate();
+    remoteSessionManager.activate();
     if (packageRegistry == null)
     {
       packageRegistry = createPackageRegistry();
     }
 
-    packageRegistry.setPackageUnitLoader(this);
+    packageRegistry.setPackageUnitManager(packageUnitManager);
 
-    OpenSessionResult result = getSessionProtocol().openSession(repositoryName, options().isPassiveUpdateEnabled());
+    String name = repository().getName();
+    boolean passiveUpdateEnabled = options().isPassiveUpdateEnabled();
+    OpenSessionResult result = getSessionProtocol().openSession(name, passiveUpdateEnabled);
+
     sessionID = result.getSessionID();
-    repositoryUUID = result.getRepositoryUUID();
-    repositoryCreationTime = result.getRepositoryCreationTime();
-    repositoryTimeResult = result.getRepositoryTimeResult();
-    repositorySupportingAudits = result.isRepositorySupportingAudits();
-    handleLibraryDescriptor(result.getLibraryDescriptor());
+    repository = createRepository(result);
     packageURICompressor = result.getCompressor();
-    packageRegistry.addPackageDescriptors(result.getPackageDescriptors());
-    revisionManager.activate();
+    handleLibraryDescriptor(result.getLibraryDescriptor());
+
+    for (CDOPackageUnit packageUnit : result.getPackageUnits())
+    {
+      packageUnitManager.addPackageUnit(packageUnit);
+    }
   }
 
   @Override
@@ -754,7 +709,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
   {
     String stateLocation = OM.BUNDLE.getStateLocation();
     File repos = new File(stateLocation, "repos");
-    return new File(repos, repositoryUUID);
+    return new File(repos, repository().getUUID());
   }
 
   private Set<String> createSet(String[] fileNames)
@@ -826,63 +781,6 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     }
 
     return Collections.emptyList();
-  }
-
-  /**
-   * @author Eike Stepper
-   */
-  private final class InvalidationEvent extends Event implements CDOSessionInvalidationEvent
-  {
-    private static final long serialVersionUID = 1L;
-
-    private InternalCDOView view;
-
-    private long timeStamp;
-
-    private Set<CDOIDAndVersion> dirtyOIDs;
-
-    private Collection<CDOID> detachedObjects;
-
-    public InvalidationEvent(InternalCDOView view, long timeStamp, Set<CDOIDAndVersion> dirtyOIDs,
-        Collection<CDOID> detachedObjects)
-    {
-      super(CDOSessionImpl.this);
-      this.view = view;
-      this.timeStamp = timeStamp;
-      this.dirtyOIDs = dirtyOIDs;
-      this.detachedObjects = detachedObjects;
-    }
-
-    public CDOSession getSession()
-    {
-      return (CDOSession)getSource();
-    }
-
-    public InternalCDOView getView()
-    {
-      return view;
-    }
-
-    public long getTimeStamp()
-    {
-      return timeStamp;
-    }
-
-    public Set<CDOIDAndVersion> getDirtyOIDs()
-    {
-      return dirtyOIDs;
-    }
-
-    public Collection<CDOID> getDetachedObjects()
-    {
-      return detachedObjects;
-    }
-
-    @Override
-    public String toString()
-    {
-      return "CDOSessionInvalidationEvent: " + dirtyOIDs;
-    }
   }
 
   /**
@@ -1024,6 +922,197 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       {
         super(OptionsImpl.this);
       }
+    }
+  }
+
+  /**
+   * @author Eike Stepper
+   */
+  private static final class TemporaryRepositoryName implements CDOSession.Repository
+  {
+    private String name;
+
+    public TemporaryRepositoryName(String name)
+    {
+      this.name = name;
+    }
+
+    public String getName()
+    {
+      return name;
+    }
+
+    public long getCreationTime()
+    {
+      throw new UnsupportedOperationException();
+    }
+
+    public long getCurrentTime()
+    {
+      throw new UnsupportedOperationException();
+    }
+
+    public long getCurrentTime(boolean forceRefresh)
+    {
+      throw new UnsupportedOperationException();
+    }
+
+    public String getUUID()
+    {
+      throw new UnsupportedOperationException();
+    }
+
+    public boolean isSupportingAudits()
+    {
+      throw new UnsupportedOperationException();
+    }
+  }
+
+  /**
+   * @author Eike Stepper
+   */
+  protected class RepositoryImpl implements CDOSession.Repository
+  {
+    private String name;
+
+    private String uuid;
+
+    private long creationTime;
+
+    private RepositoryTimeResult timeResult;
+
+    private boolean supportingAudits;
+
+    public RepositoryImpl(OpenSessionResult result)
+    {
+      uuid = result.getRepositoryUUID();
+      creationTime = result.getRepositoryCreationTime();
+      timeResult = result.getRepositoryTimeResult();
+      supportingAudits = result.isRepositorySupportingAudits();
+    }
+
+    /**
+     * @since 2.0
+     */
+    public String getName()
+    {
+      return name;
+    }
+
+    public void setName(String name)
+    {
+      this.name = name;
+    }
+
+    /**
+     * Must be callable before session activation has finished!
+     * 
+     * @since 2.0
+     */
+    public String getUUID()
+    {
+      return uuid;
+    }
+
+    /**
+     * @since 2.0
+     */
+    public long getCreationTime()
+    {
+      checkActive();
+      return creationTime;
+    }
+
+    /**
+     * @since 2.0
+     */
+    public long getCurrentTime()
+    {
+      return getCurrentTime(false);
+    }
+
+    /**
+     * @since 2.0
+     */
+    public long getCurrentTime(boolean forceRefresh)
+    {
+      checkActive();
+      if (timeResult == null || forceRefresh)
+      {
+        timeResult = refreshTime();
+      }
+
+      return timeResult.getAproximateRepositoryTime();
+    }
+
+    /**
+     * @since 2.0
+     */
+    public boolean isSupportingAudits()
+    {
+      return supportingAudits;
+    }
+
+    private RepositoryTimeResult refreshTime()
+    {
+      return getSessionProtocol().getRepositoryTime();
+    }
+  }
+
+  /**
+   * @author Eike Stepper
+   */
+  private final class InvalidationEvent extends Event implements CDOSessionInvalidationEvent
+  {
+    private static final long serialVersionUID = 1L;
+
+    private InternalCDOView view;
+
+    private long timeStamp;
+
+    private Set<CDOIDAndVersion> dirtyOIDs;
+
+    private Collection<CDOID> detachedObjects;
+
+    public InvalidationEvent(InternalCDOView view, long timeStamp, Set<CDOIDAndVersion> dirtyOIDs,
+        Collection<CDOID> detachedObjects)
+    {
+      super(CDOSessionImpl.this);
+      this.view = view;
+      this.timeStamp = timeStamp;
+      this.dirtyOIDs = dirtyOIDs;
+      this.detachedObjects = detachedObjects;
+    }
+
+    public CDOSession getSession()
+    {
+      return (CDOSession)getSource();
+    }
+
+    public InternalCDOView getView()
+    {
+      return view;
+    }
+
+    public long getTimeStamp()
+    {
+      return timeStamp;
+    }
+
+    public Set<CDOIDAndVersion> getDirtyOIDs()
+    {
+      return dirtyOIDs;
+    }
+
+    public Collection<CDOID> getDetachedObjects()
+    {
+      return detachedObjects;
+    }
+
+    @Override
+    public String toString()
+    {
+      return "CDOSessionInvalidationEvent: " + dirtyOIDs;
     }
   }
 }

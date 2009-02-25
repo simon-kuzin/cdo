@@ -13,7 +13,6 @@
 package org.eclipse.emf.cdo.internal.common.revision.cache.two;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
@@ -37,33 +36,12 @@ public class TwoLevelRevisionCache extends Lifecycle implements CDORevisionCache
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_REVISION, TwoLevelRevisionCache.class);
 
-  private CDOPackageRegistry packageManager;
-
   private CDORevisionCache level1;
 
   private CDORevisionCache level2;
 
   public TwoLevelRevisionCache()
   {
-  }
-
-  public CDOPackageRegistry getPackageManager()
-  {
-    return packageManager;
-  }
-
-  public void setPackageManager(CDOPackageRegistry packageManager)
-  {
-    this.packageManager = packageManager;
-    if (level1 != null)
-    {
-      level1.setPackageManager(packageManager);
-    }
-
-    if (level2 != null)
-    {
-      level2.setPackageManager(packageManager);
-    }
   }
 
   public CDORevisionCache getLevel1()
@@ -74,7 +52,6 @@ public class TwoLevelRevisionCache extends Lifecycle implements CDORevisionCache
   public void setLevel1(CDORevisionCache level1)
   {
     this.level1 = level1;
-    setPackageManager(packageManager);
   }
 
   public CDORevisionCache getLevel2()
@@ -85,12 +62,17 @@ public class TwoLevelRevisionCache extends Lifecycle implements CDORevisionCache
   public void setLevel2(CDORevisionCache level2)
   {
     this.level2 = level2;
-    setPackageManager(packageManager);
   }
 
   public EClass getObjectType(CDOID id)
   {
-    return null;
+    EClass objectType = level1.getObjectType(id);
+    if (objectType == null)
+    {
+      objectType = level2.getObjectType(id);
+    }
+
+    return objectType;
   }
 
   public InternalCDORevision getRevision(CDOID id)
