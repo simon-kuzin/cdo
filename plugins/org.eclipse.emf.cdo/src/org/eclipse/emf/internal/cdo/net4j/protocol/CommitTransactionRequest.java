@@ -269,8 +269,7 @@ public class CommitTransactionRequest extends RequestWithMonitoring<CommitTransa
   protected CommitTransactionResult confirmingTransactionResult(CDODataInput in) throws IOException
   {
     long timeStamp = in.readLong();
-    CommitTransactionResult result = new CommitTransactionResult(commitContext, timeStamp);
-    return result;
+    return new CommitTransactionResult(commitContext, timeStamp);
   }
 
   protected void confirmingNewPackage(CDODataInput in, CommitTransactionResult result) throws IOException
@@ -321,5 +320,4 @@ public class CommitTransactionRequest extends RequestWithMonitoring<CommitTransa
       out.writeCDORevision(revision, CDORevision.UNCHUNKED);
     }
   }
-
 }

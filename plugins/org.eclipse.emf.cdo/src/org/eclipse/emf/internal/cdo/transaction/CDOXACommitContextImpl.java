@@ -114,7 +114,7 @@ public class CDOXACommitContextImpl implements InternalCDOXACommitContext
 
   public List<EPackage> getNewPackages()
   {
-    return delegateCommitContext.getNewPackages();
+    return delegateCommitContext.getNewPackageUnits();
   }
 
   public Map<CDOID, CDOResource> getNewResources()
