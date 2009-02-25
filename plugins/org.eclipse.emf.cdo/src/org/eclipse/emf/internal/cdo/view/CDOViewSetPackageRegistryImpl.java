@@ -26,9 +26,9 @@ public class CDOViewSetPackageRegistryImpl extends CDOPackageRegistryImpl
 
   private CDOViewSet viewSet;
 
-  public CDOViewSetPackageRegistryImpl(CDOViewSet viewSet, EPackage.Registry delegateRegistry)
+  public CDOViewSetPackageRegistryImpl(CDOViewSet viewSet/* , EPackage.Registry delegateRegistry */)
   {
-    super(delegateRegistry);
+    // super(delegateRegistry);
     this.viewSet = viewSet;
   }
 
@@ -44,7 +44,7 @@ public class CDOViewSetPackageRegistryImpl extends CDOPackageRegistryImpl
       }
     }
 
-    return super.delegatedGetEPackage(nsURI);
+    return null; // super.delegatedGetEPackage(nsURI);
   }
 
   @Override
