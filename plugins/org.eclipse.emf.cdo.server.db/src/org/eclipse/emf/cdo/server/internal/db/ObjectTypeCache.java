@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Stefan Winkler - https://bugs.eclipse.org/bugs/show_bug.cgi?id=259402
  */
 package org.eclipse.emf.cdo.server.internal.db;
 
@@ -86,7 +87,8 @@ public class ObjectTypeCache extends Lifecycle implements IObjectTypeCache
       resultSet = statement.executeQuery(sql);
       if (!resultSet.next())
       {
-        throw new DBException("ClassID for CDOID " + id + " not found");
+        DBUtil.trace("ClassID for CDOID " + id + " not found");
+        return null;
       }
 
       int classID = resultSet.getInt(1);

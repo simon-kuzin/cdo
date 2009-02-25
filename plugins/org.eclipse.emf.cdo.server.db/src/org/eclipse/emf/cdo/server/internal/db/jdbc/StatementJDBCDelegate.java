@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Stefan Winkler - https://bugs.eclipse.org/bugs/show_bug.cgi?id=259402
  */
 package org.eclipse.emf.cdo.server.internal.db.jdbc;
 
@@ -20,6 +21,7 @@ import org.eclipse.emf.cdo.server.internal.db.ServerInfo;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
 
 import org.eclipse.net4j.db.DBException;
+import org.eclipse.net4j.util.collection.Pair;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
@@ -89,8 +91,8 @@ public class StatementJDBCDelegate extends AbstractJDBCDelegate
   }
 
   @Override
-  protected void doUpdateAttributes(String tableName, CDORevision revision, List<IAttributeMapping> attributeMappings,
-      boolean withFullRevisionInfo)
+  protected void doUpdateAttributes(String tableName, long cdoid, int newVersion, long created,
+      List<Pair<IAttributeMapping, Object>> attributeChanges, boolean hasFullRevisionInfo)
   {
     StringBuilder builder = new StringBuilder();
     builder.append("UPDATE ");
@@ -98,41 +100,88 @@ public class StatementJDBCDelegate extends AbstractJDBCDelegate
     builder.append(" SET ");
     builder.append(CDODBSchema.ATTRIBUTES_VERSION);
     builder.append(" = ");
-    builder.append(revision.getVersion());
+    builder.append(newVersion);
+    builder.append(", ");
+    builder.append(CDODBSchema.ATTRIBUTES_CREATED);
+    builder.append(" = ");
+    builder.append(created);
 
-    if (withFullRevisionInfo)
+    for (Pair<IAttributeMapping, Object> attributeChange : attributeChanges)
     {
-      CDORevisionData data = revision.data();
+      IAttributeMapping attributeMapping = attributeChange.getElement1();
       builder.append(", ");
-      builder.append(CDODBSchema.ATTRIBUTES_RESOURCE);
+      builder.append(attributeMapping.getField());
       builder.append(" = ");
-      builder.append(CDOIDUtil.getLong(data.getResourceID()));
-      builder.append(", ");
-      builder.append(CDODBSchema.ATTRIBUTES_CONTAINER);
-      builder.append(" = ");
-      builder.append(CDOIDUtil.getLong((CDOID)data.getContainerID()));
-      builder.append(", ");
-      builder.append(CDODBSchema.ATTRIBUTES_FEATURE);
-      builder.append(" = ");
-      builder.append(data.getContainingFeatureID());
-    }
-
-    if (attributeMappings != null)
-    {
-      for (IAttributeMapping attributeMapping : attributeMappings)
-      {
-        builder.append(", ");
-        builder.append(attributeMapping.getField());
-        builder.append(" = ");
-        attributeMapping.appendValue(builder, revision);
-      }
+      attributeMapping.appendValue(builder, attributeChange.getElement2());
     }
 
     builder.append(" WHERE ");
     builder.append(CDODBSchema.ATTRIBUTES_ID);
     builder.append(" = ");
-    builder.append(CDOIDUtil.getLong(revision.getID()));
+    builder.append(cdoid);
 
+    sqlUpdate(builder.toString());
+  }
+
+  @Override
+  protected void doUpdateAttributes(String tableName, long cdoid, int newVersion, long created, long newContainerId,
+      int newContainingFeatureId, long newResourceId, List<Pair<IAttributeMapping, Object>> attributeChanges,
+      boolean hasFullRevisionInfo)
+  {
+    StringBuilder builder = new StringBuilder();
+    builder.append("UPDATE ");
+    builder.append(tableName);
+    builder.append(" SET ");
+    builder.append(CDODBSchema.ATTRIBUTES_VERSION);
+    builder.append(" = ");
+    builder.append(newVersion);
+    builder.append(", ");
+    builder.append(CDODBSchema.ATTRIBUTES_CREATED);
+    builder.append(" = ");
+    builder.append(created);
+
+    builder.append(", ");
+    builder.append(CDODBSchema.ATTRIBUTES_CONTAINER);
+    builder.append(" = ");
+    builder.append(newContainerId);
+
+    builder.append(", ");
+    builder.append(CDODBSchema.ATTRIBUTES_FEATURE);
+    builder.append(" = ");
+    builder.append(newContainingFeatureId);
+
+    builder.append(", ");
+    builder.append(CDODBSchema.ATTRIBUTES_RESOURCE);
+    builder.append(" = ");
+    builder.append(newResourceId);
+
+    for (Pair<IAttributeMapping, Object> attributeChange : attributeChanges)
+    {
+      IAttributeMapping attributeMapping = attributeChange.getElement1();
+      builder.append(", ");
+      builder.append(attributeMapping.getField());
+      builder.append(" = ");
+      attributeMapping.appendValue(builder, attributeChange.getElement2());
+    }
+
+    builder.append(" WHERE ");
+    builder.append(CDODBSchema.ATTRIBUTES_ID);
+    builder.append(" = ");
+    builder.append(cdoid);
+
+    sqlUpdate(builder.toString());
+  }
+
+  @Override
+  protected void doDeleteAttributes(String name, long cdoid)
+  {
+    StringBuilder builder = new StringBuilder();
+    builder.append("DELETE FROM ");
+    builder.append(name);
+    builder.append(" WHERE ");
+    builder.append(CDODBSchema.ATTRIBUTES_ID);
+    builder.append(" = ");
+    builder.append(cdoid);
     sqlUpdate(builder.toString());
   }
 
@@ -158,19 +207,6 @@ public class StatementJDBCDelegate extends AbstractJDBCDelegate
   }
 
   @Override
-  protected void doDeleteAttributes(String name, long cdoid)
-  {
-    StringBuilder builder = new StringBuilder();
-    builder.append("DELETE FROM ");
-    builder.append(name);
-    builder.append(" WHERE ");
-    builder.append(CDODBSchema.ATTRIBUTES_ID);
-    builder.append(" = ");
-    builder.append(cdoid);
-    sqlUpdate(builder.toString());
-  }
-
-  @Override
   protected void doUpdateRevisedForDetach(String table, long revisedStamp, long cdoid)
   {
     StringBuilder builder = new StringBuilder();
@@ -188,6 +224,13 @@ public class StatementJDBCDelegate extends AbstractJDBCDelegate
     builder.append(CDODBSchema.ATTRIBUTES_REVISED);
     builder.append("=0");
     sqlUpdate(builder.toString());
+  }
+
+  @Override
+  protected void doInsertReferenceRow(String tableName, int dbId, long cdoid, int newVersion, long target, int index)
+  {
+    move1up(tableName, dbId, cdoid, newVersion, index, -1);
+    doInsertReference(tableName, dbId, cdoid, newVersion, index, target);
   }
 
   @Override
@@ -214,6 +257,33 @@ public class StatementJDBCDelegate extends AbstractJDBCDelegate
   }
 
   @Override
+  protected void doMoveReferenceRow(String tableName, int dbId, long cdoid, int newVersion, int oldPosition,
+      int newPosition)
+  {
+    if (oldPosition == newPosition)
+    {
+      return;
+    }
+
+    // move element away temporarily
+    updateOneIndex(tableName, dbId, cdoid, newVersion, oldPosition, -1);
+
+    // move elements in between
+    if (oldPosition < newPosition)
+    {
+      move1down(tableName, dbId, cdoid, newVersion, oldPosition, newPosition);
+    }
+    else
+    {
+      // oldPosition > newPosition -- equal case is handled above
+      move1up(tableName, dbId, cdoid, newVersion, newPosition, oldPosition);
+    }
+
+    // move temporary element to new position
+    updateOneIndex(tableName, dbId, cdoid, newVersion, -1, newPosition);
+  }
+
+  @Override
   protected void doDeleteReferences(String name, int dbId, long cdoid)
   {
     StringBuilder builder = new StringBuilder();
@@ -230,6 +300,64 @@ public class StatementJDBCDelegate extends AbstractJDBCDelegate
       builder.append(" = ");
       builder.append(dbId);
     }
+    sqlUpdate(builder.toString());
+  }
+
+  @Override
+  protected void doRemoveReferenceRow(String tableName, int dbId, long cdoid, int index, int newVersion)
+  {
+    deleteReferenceRow(tableName, dbId, cdoid, index);
+    move1down(tableName, dbId, cdoid, newVersion, index, -1);
+  }
+
+  @Override
+  protected void doUpdateReferenceVersion(String tableName, long cdoid, int newVersion)
+  {
+    StringBuilder builder = new StringBuilder();
+    builder.append("UPDATE ");
+    builder.append(tableName);
+    builder.append(" SET ");
+    builder.append(CDODBSchema.REFERENCES_VERSION);
+    builder.append(" = ");
+    builder.append(newVersion);
+    builder.append(" WHERE ");
+    builder.append(CDODBSchema.REFERENCES_SOURCE);
+    builder.append(" = ");
+    builder.append(cdoid);
+    sqlUpdate(builder.toString());
+  }
+
+  @Override
+  protected void doUpdateReference(String tableName, int dbId, long sourceId, int newVersion, int index, long targetId)
+  {
+    StringBuilder builder = new StringBuilder();
+    builder.append("UPDATE ");
+    builder.append(tableName);
+    builder.append(" SET ");
+    builder.append(CDODBSchema.REFERENCES_TARGET);
+    builder.append(" = ");
+    builder.append(targetId);
+    builder.append(", ");
+    builder.append(CDODBSchema.REFERENCES_VERSION);
+    builder.append(" = ");
+    builder.append(newVersion);
+    builder.append(" WHERE ");
+    builder.append(CDODBSchema.REFERENCES_SOURCE);
+    builder.append(" = ");
+    builder.append(sourceId);
+    builder.append(" AND ");
+    builder.append(CDODBSchema.REFERENCES_IDX);
+    builder.append(" = ");
+    builder.append(index);
+
+    if (dbId != 0)
+    {
+      builder.append(" AND ");
+      builder.append(CDODBSchema.REFERENCES_FEATURE);
+      builder.append(" = ");
+      builder.append(dbId);
+    }
+
     sqlUpdate(builder.toString());
   }
 
@@ -365,5 +493,154 @@ public class StatementJDBCDelegate extends AbstractJDBCDelegate
         }
       }
     }
+  }
+
+  private void deleteReferenceRow(String name, int dbId, long cdoid, int index)
+  {
+    StringBuilder builder = new StringBuilder();
+    builder.append("DELETE FROM ");
+    builder.append(name);
+    builder.append(" WHERE ");
+    builder.append(CDODBSchema.REFERENCES_SOURCE);
+    builder.append(" = ");
+    builder.append(cdoid);
+    builder.append(" AND ");
+    builder.append(CDODBSchema.REFERENCES_IDX);
+    builder.append(" = ");
+    builder.append(index);
+    if (dbId != 0)
+    {
+      builder.append(" AND ");
+      builder.append(CDODBSchema.REFERENCES_FEATURE);
+      builder.append(" = ");
+      builder.append(dbId);
+    }
+    sqlUpdate(builder.toString());
+  }
+
+  /**
+   * Move references upwards to make room at position <code>index</code>. If <code>upperIndex</code> is <code>-1</code>,
+   * then all indices beginning with <code>index</code> are moved. Else, only indexes starting with <code>index</code>
+   * and ending with <code>upperIndex - 1</code> are moved up.
+   */
+  private void move1up(String tableName, int dbId, long cdoid, int newVersion, int index, int upperIndex)
+  {
+    StringBuilder builder = new StringBuilder();
+    builder.append("UPDATE ");
+    builder.append(tableName);
+    builder.append(" SET ");
+    builder.append(CDODBSchema.REFERENCES_IDX);
+    builder.append(" = ");
+    builder.append(CDODBSchema.REFERENCES_IDX);
+    builder.append("+1 ,");
+    builder.append(CDODBSchema.REFERENCES_VERSION);
+    builder.append(" = ");
+    builder.append(newVersion);
+    builder.append(" WHERE ");
+    if (dbId != 0)
+    {
+      builder.append(CDODBSchema.REFERENCES_FEATURE);
+      builder.append("=");
+      builder.append(dbId);
+      builder.append(" AND ");
+    }
+
+    builder.append(CDODBSchema.REFERENCES_SOURCE);
+    builder.append("=");
+    builder.append(cdoid);
+    builder.append(" AND ");
+    builder.append(CDODBSchema.REFERENCES_IDX);
+    builder.append(" >= ");
+    builder.append(index);
+
+    if (upperIndex != -1)
+    {
+      builder.append(" AND ");
+      builder.append(CDODBSchema.REFERENCES_IDX);
+      builder.append(" < ");
+      builder.append(upperIndex);
+    }
+
+    sqlUpdate(builder.toString());
+  }
+
+  /**
+   * Move references downwards to close a gap at position <code>index</code>. If <code>upperIndex</code> is
+   * <code>-1</code>, then all indices beginning with <code>index + 1</code> are moved. Else, only indexes starting with
+   * <code>index + 1</code> and ending with <code>upperIndex</code> are moved down.
+   */
+  private void move1down(String tableName, int dbId, long cdoid, int newVersion, int index, int upperIndex)
+  {
+    StringBuilder builder = new StringBuilder();
+    builder.append("UPDATE ");
+    builder.append(tableName);
+    builder.append(" SET ");
+    builder.append(CDODBSchema.REFERENCES_IDX);
+    builder.append(" = ");
+    builder.append(CDODBSchema.REFERENCES_IDX);
+    builder.append("-1 ,");
+    builder.append(CDODBSchema.REFERENCES_VERSION);
+    builder.append(" = ");
+    builder.append(newVersion);
+    builder.append(" WHERE ");
+    if (dbId != 0)
+    {
+      builder.append(CDODBSchema.REFERENCES_FEATURE);
+      builder.append("=");
+      builder.append(dbId);
+      builder.append(" AND ");
+    }
+
+    builder.append(CDODBSchema.REFERENCES_SOURCE);
+    builder.append("=");
+    builder.append(cdoid);
+    builder.append(" AND ");
+    builder.append(CDODBSchema.REFERENCES_IDX);
+    builder.append(" > ");
+    builder.append(index);
+
+    if (upperIndex != -1)
+    {
+      builder.append(" AND ");
+      builder.append(CDODBSchema.REFERENCES_IDX);
+      builder.append(" <= ");
+      builder.append(upperIndex);
+    }
+
+    sqlUpdate(builder.toString());
+  }
+
+  private void updateOneIndex(String tableName, int dbId, long cdoid, int newVersion, int oldIndex, int newIndex)
+  {
+    StringBuilder builder = new StringBuilder();
+
+    builder.append("UPDATE ");
+    builder.append(tableName);
+    builder.append(" SET ");
+    builder.append(CDODBSchema.REFERENCES_IDX);
+    builder.append(" = ");
+    builder.append(newIndex);
+    builder.append(", ");
+    builder.append(CDODBSchema.REFERENCES_VERSION);
+    builder.append(" = ");
+    builder.append(newVersion);
+    builder.append(" WHERE ");
+    if (dbId != 0)
+    {
+      builder.append(CDODBSchema.REFERENCES_FEATURE);
+      builder.append("=");
+      builder.append(dbId);
+      builder.append(" AND ");
+    }
+
+    builder.append(CDODBSchema.REFERENCES_SOURCE);
+    builder.append("=");
+    builder.append(cdoid);
+    builder.append(" AND ");
+    builder.append(CDODBSchema.REFERENCES_IDX);
+    builder.append(" = ");
+    builder.append(oldIndex);
+
+    sqlUpdate(builder.toString());
   }
 }

@@ -10,6 +10,7 @@
  *    Simon McDuff - http://bugs.eclipse.org/201266
  *    Simon McDuff - http://bugs.eclipse.org/233273    
  *    Simon McDuff - http://bugs.eclipse.org/233490    
+ *    Stefan Winkler - changed order of determining audit and revision delta support.
  */
 package org.eclipse.emf.cdo.internal.server;
 
@@ -557,7 +558,6 @@ public class Repository extends Container<Object> implements IRepository
     lockManager.setRepository(this);
 
     checkState(store, "store");
-    supportingRevisionDeltas = store.getSupportedChangeFormats().contains(IStore.ChangeFormat.DELTA);
 
     {
       String value = getProperties().get(Props.SUPPORTING_AUDITS);
@@ -572,6 +572,8 @@ public class Repository extends Container<Object> implements IRepository
         supportingAudits = store.getRevisionTemporality() == IStore.RevisionTemporality.AUDITING;
       }
     }
+
+    supportingRevisionDeltas = store.getSupportedChangeFormats().contains(IStore.ChangeFormat.DELTA);
 
     {
       String value = getProperties().get(Props.VERIFYING_REVISIONS);

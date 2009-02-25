@@ -7,11 +7,13 @@
  *
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Stefan Winkler - https://bugs.eclipse.org/bugs/show_bug.cgi?id=259402
  */
 package org.eclipse.emf.cdo.server.internal.db;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.server.db.IAttributeMapping;
 import org.eclipse.emf.cdo.server.db.IClassMapping;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
@@ -111,5 +113,9 @@ public class NoClassMapping implements IClassMapping
   public boolean readRevisionByVersion(IDBStoreAccessor accessor, CDORevision revision, int version, int referenceChunk)
   {
     return false;
+  }
+
+  public void writeRevisionDelta(IDBStoreAccessor accessor, CDORevisionDelta delta, long created, OMMonitor monitor)
+  {
   }
 }

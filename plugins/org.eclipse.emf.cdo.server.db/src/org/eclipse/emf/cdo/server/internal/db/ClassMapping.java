@@ -7,11 +7,23 @@
  *
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Stefan Winkler - https://bugs.eclipse.org/bugs/show_bug.cgi?id=259402
  */
 package org.eclipse.emf.cdo.server.internal.db;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.common.revision.delta.CDOAddFeatureDelta;
+import org.eclipse.emf.cdo.common.revision.delta.CDOClearFeatureDelta;
+import org.eclipse.emf.cdo.common.revision.delta.CDOContainerFeatureDelta;
+import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
+import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDeltaVisitor;
+import org.eclipse.emf.cdo.common.revision.delta.CDOListFeatureDelta;
+import org.eclipse.emf.cdo.common.revision.delta.CDOMoveFeatureDelta;
+import org.eclipse.emf.cdo.common.revision.delta.CDORemoveFeatureDelta;
+import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
+import org.eclipse.emf.cdo.common.revision.delta.CDOSetFeatureDelta;
+import org.eclipse.emf.cdo.common.revision.delta.CDOUnsetFeatureDelta;
 import org.eclipse.emf.cdo.server.IStore;
 import org.eclipse.emf.cdo.server.db.IAttributeMapping;
 import org.eclipse.emf.cdo.server.db.IClassMapping;
@@ -28,7 +40,9 @@ import org.eclipse.net4j.db.ddl.IDBField;
 import org.eclipse.net4j.db.ddl.IDBIndex;
 import org.eclipse.net4j.db.ddl.IDBTable;
 import org.eclipse.net4j.util.ImplementationError;
+import org.eclipse.net4j.util.collection.Pair;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
+import org.eclipse.net4j.util.om.monitor.OMMonitor.Async;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EReference;
@@ -55,6 +69,15 @@ public abstract class ClassMapping implements IClassMapping
   private List<IAttributeMapping> attributeMappings;
 
   private List<IReferenceMapping> referenceMappings;
+
+  private ThreadLocal<FeatureDeltaWriter> deltaWriter = new ThreadLocal<FeatureDeltaWriter>()
+  {
+    @Override
+    protected FeatureDeltaWriter initialValue()
+    {
+      return new FeatureDeltaWriter();
+    };
+  };
 
   public ClassMapping(MappingStrategy mappingStrategy, EClass cdoClass, EStructuralFeature[] features)
   {
@@ -366,6 +389,11 @@ public abstract class ClassMapping implements IClassMapping
     return mappingStrategy.getStore().getRevisionTemporality() == IStore.RevisionTemporality.AUDITING;
   }
 
+  private boolean isDelta()
+  {
+    return mappingStrategy.getStore().getRepository().isSupportingRevisionDeltas();
+  }
+
   protected abstract void checkDuplicateResources(IDBStoreAccessor accessor, CDORevision revision)
       throws IllegalStateException;
 
@@ -461,6 +489,23 @@ public abstract class ClassMapping implements IClassMapping
     }
   }
 
+  public void writeRevisionDelta(IDBStoreAccessor accessor, CDORevisionDelta delta, long created, OMMonitor monitor)
+  {
+    monitor.begin();
+    Async async = monitor.forkAsync();
+
+    try
+    {
+      FeatureDeltaWriter writer = deltaWriter.get();
+      writer.process(accessor, delta, created);
+    }
+    finally
+    {
+      async.stop();
+      monitor.done();
+    }
+  }
+
   public boolean readRevision(IDBStoreAccessor accessor, CDORevision revision, int referenceChunk)
   {
     String where = mappingStrategy.createWhereClause(CDORevision.UNSPECIFIED_DATE);
@@ -516,6 +561,140 @@ public abstract class ClassMapping implements IClassMapping
     for (IReferenceMapping referenceMapping : referenceMappings)
     {
       referenceMapping.readReference(accessor, revision, referenceChunk);
+    }
+  }
+
+  private class FeatureDeltaWriter implements CDOFeatureDeltaVisitor
+  {
+    private CDOID id;
+
+    private int newVersion;
+
+    private long created;
+
+    private IDBStoreAccessor accessor;
+
+    private boolean updateContainer = false;
+
+    private List<Pair<IAttributeMapping, Object>> attributeChanges;
+
+    private int newContainingFeatureID;
+
+    private CDOID newContainerID;
+
+    private CDOID newResourceID;
+
+    public FeatureDeltaWriter()
+    {
+      attributeChanges = new ArrayList<Pair<IAttributeMapping, Object>>();
+    }
+
+    protected void reset()
+    {
+      attributeChanges.clear();
+      updateContainer = false;
+    }
+
+    public void process(IDBStoreAccessor a, CDORevisionDelta d, long c)
+    {
+      // set context
+
+      reset();
+      id = d.getID();
+      newVersion = d.getDirtyVersion();
+      created = c;
+      accessor = a;
+
+      // process revision delta tree
+      d.accept(this);
+
+      // update attributes
+      if (updateContainer)
+      {
+        accessor.getJDBCDelegate().updateAttributes(id, newVersion, created, newContainerID, newContainingFeatureID,
+            newResourceID, attributeChanges, ClassMapping.this);
+      }
+      else
+      {
+        accessor.getJDBCDelegate().updateAttributes(id, newVersion, created, attributeChanges, ClassMapping.this);
+      }
+
+      // update version number of all references to current version
+      if (referenceMappings != null)
+      {
+        for (IReferenceMapping referenceMapping : getReferenceMappings())
+        {
+          referenceMapping.updateReferenceVersion(accessor, id, newVersion);
+        }
+      }
+    }
+
+    public void visit(CDOMoveFeatureDelta delta)
+    {
+      getReferenceMapping(delta.getFeature()).moveReferenceEntry(accessor, id, newVersion, delta.getOldPosition(),
+          delta.getNewPosition());
+    }
+
+    public void visit(CDOSetFeatureDelta delta)
+    {
+      if (delta.getFeature().isMany())
+      {
+        IReferenceMapping rm = getReferenceMapping(delta.getFeature());
+        if (rm == null)
+        {
+          throw new IllegalArgumentException("ReferenceMapping for " + delta.getFeature() + " is null!");
+        }
+        rm.updateReference(accessor, id, newVersion, delta.getIndex(), (CDOID)delta.getValue());
+      }
+      else
+      {
+        IAttributeMapping am = getAttributeMapping(delta.getFeature());
+        if (am == null)
+        {
+          throw new IllegalArgumentException("AttributeMapping for " + delta.getFeature() + " is null!");
+        }
+        attributeChanges.add(new Pair<IAttributeMapping, Object>(am, delta.getValue()));
+      }
+    }
+
+    public void visit(CDOUnsetFeatureDelta delta)
+    {
+      // TODO: correct this when DBStore implements unsettable features
+      // see Bugs 259868 and 263010
+      IAttributeMapping am = getAttributeMapping(delta.getFeature());
+      attributeChanges.add(new Pair<IAttributeMapping, Object>(am, null));
+    }
+
+    public void visit(CDOListFeatureDelta delta)
+    {
+      for (CDOFeatureDelta listChange : delta.getListChanges())
+      {
+        listChange.accept(this);
+      }
+    }
+
+    public void visit(CDOClearFeatureDelta delta)
+    {
+      getReferenceMapping(delta.getFeature()).deleteReference(accessor, id);
+    }
+
+    public void visit(CDOAddFeatureDelta delta)
+    {
+      getReferenceMapping(delta.getFeature()).insertReferenceEntry(accessor, id, newVersion, delta.getIndex(),
+          (CDOID)delta.getValue());
+    }
+
+    public void visit(CDORemoveFeatureDelta delta)
+    {
+      getReferenceMapping(delta.getFeature()).removeReferenceEntry(accessor, id, newVersion, delta.getIndex());
+    }
+
+    public void visit(CDOContainerFeatureDelta delta)
+    {
+      newContainingFeatureID = delta.getContainerFeatureID();
+      newContainerID = (CDOID)delta.getContainerID();
+      newResourceID = delta.getResourceID();
+      updateContainer = true;
     }
   }
 }

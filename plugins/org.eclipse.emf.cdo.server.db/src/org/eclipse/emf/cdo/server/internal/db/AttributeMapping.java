@@ -7,9 +7,11 @@
  *
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Stefan Winkler - https://bugs.eclipse.org/bugs/show_bug.cgi?id=259402
  */
 package org.eclipse.emf.cdo.server.internal.db;
 
+import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.db.IAttributeMapping;
@@ -49,6 +51,13 @@ public abstract class AttributeMapping extends FeatureMapping implements IAttrib
     dbAdapter.appendValue(builder, field, value);
   }
 
+  public void appendValue(StringBuilder builder, Object value)
+  {
+    IDBAdapter dbAdapter = getDBAdapter();
+    Object dbValue = convertToDBType(value);
+    dbAdapter.appendValue(builder, field, dbValue);
+  }
+
   public Object getRevisionValue(CDORevision revision)
   {
     EStructuralFeature feature = getFeature();
@@ -74,6 +83,15 @@ public abstract class AttributeMapping extends FeatureMapping implements IAttrib
   }
 
   protected abstract Object getResultSetValue(ResultSet resultSet, int column) throws SQLException;
+
+  /**
+   * Convert a value to a DB compatible format. Needs to be overridden by those AttributeMappings for which
+   * <code>value.toString()</code> is not sufficient (e.g. for CDOID).
+   */
+  protected Object convertToDBType(Object value)
+  {
+    return value;
+  }
 
   /**
    * @author Eike Stepper
@@ -129,6 +147,12 @@ public abstract class AttributeMapping extends FeatureMapping implements IAttrib
       }
 
       return CDOIDUtil.createLong(id);
+    }
+
+    @Override
+    protected Object convertToDBType(Object value)
+    {
+      return CDOIDUtil.getLong((CDOID)value);
     }
   }
 

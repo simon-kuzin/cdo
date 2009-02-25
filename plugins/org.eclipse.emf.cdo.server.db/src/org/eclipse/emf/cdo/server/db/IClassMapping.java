@@ -7,11 +7,13 @@
  *
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Stefan Winkler - https://bugs.eclipse.org/bugs/show_bug.cgi?id=259402
  */
 package org.eclipse.emf.cdo.server.db;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 
 import org.eclipse.net4j.db.ddl.IDBTable;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
@@ -57,6 +59,11 @@ public interface IClassMapping
    * @since 2.0
    */
   public void writeRevision(IDBStoreAccessor accessor, CDORevision revision, OMMonitor monitor);
+
+  /**
+   * @since 2.0
+   */
+  public void writeRevisionDelta(IDBStoreAccessor accessor, CDORevisionDelta delta, long created, OMMonitor monitor);
 
   /**
    * @since 2.0

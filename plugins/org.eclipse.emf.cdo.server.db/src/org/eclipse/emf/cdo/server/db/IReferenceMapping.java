@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Stefan Winkler - https://bugs.eclipse.org/bugs/show_bug.cgi?id=259402
  */
 package org.eclipse.emf.cdo.server.db;
 
@@ -31,9 +32,61 @@ public interface IReferenceMapping extends IFeatureMapping
   public boolean isWithFeature();
 
   /**
+   * Write a list of references completely
+   * 
    * @since 2.0
    */
   public void writeReference(IDBStoreAccessor accessor, CDORevision revision);
+
+  /**
+   * Write one element of the list of references
+   * 
+   * @since 2.0
+   */
+  public void writeReferenceEntry(IDBStoreAccessor accessor, CDOID id, int version, int idx, CDOID targetId);
+
+  /**
+   * Insert a single reference (entry) and move all subsequent entries of the list upwards
+   * 
+   * @since 2.0
+   */
+  public void insertReferenceEntry(IDBStoreAccessor accessor, CDOID id, int newVersion, int index, CDOID value);
+
+  /**
+   * Moves a single reference (entry) from <code>oldPosition</code> to <code>newPosition</code> and update the list
+   * indexes of the entries in between.
+   * 
+   * @since 2.0
+   */
+  public void moveReferenceEntry(IDBStoreAccessor accessor, CDOID id, int newVersion, int oldPosition, int newPosition);
+
+  /**
+   * Remove a single reference (entry) and move all subsequent entries of the list downwards to fill the gap.
+   * 
+   * @since 2.0
+   */
+  public void removeReferenceEntry(IDBStoreAccessor accessor, CDOID id, int index, int newVersion);
+
+  /**
+   * Updates the value and version of a single reference (entry).
+   * 
+   * @since 2.0
+   */
+  public void updateReference(IDBStoreAccessor accessor, CDOID id, int newVersion, int index, CDOID value);
+
+  /**
+   * Updates the version of all entries of a reference (list) to <code>newVersion</code>.
+   * 
+   * @since 2.0
+   */
+  public void updateReferenceVersion(IDBStoreAccessor accessor, CDOID id, int newVersion);
+
+  /**
+   * Clears the list of references for the revision with ID <code>id</code>.
+   * 
+   * @since 2.0
+   */
+  public void deleteReference(IDBStoreAccessor accessor, CDOID id);
 
   /**
    * @since 2.0
@@ -41,9 +94,4 @@ public interface IReferenceMapping extends IFeatureMapping
   public void readReference(IDBStoreAccessor accessor, CDORevision revision, int referenceChunk);
 
   public void readChunks(IDBStoreChunkReader chunkReader, List<Chunk> chunks, String string);
-
-  /**
-   * @since 2.0
-   */
-  public void deleteReference(IDBStoreAccessor accessor, CDOID id);
 }

@@ -13,6 +13,7 @@ package org.eclipse.emf.cdo.server.internal.db.jdbc;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.IStoreChunkReader.Chunk;
+import org.eclipse.emf.cdo.server.db.IAttributeMapping;
 import org.eclipse.emf.cdo.server.db.IClassMapping;
 import org.eclipse.emf.cdo.server.db.IDBStoreChunkReader;
 import org.eclipse.emf.cdo.server.db.IJDBCDelegate;
@@ -20,6 +21,7 @@ import org.eclipse.emf.cdo.server.db.IReferenceMapping;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
 
 import org.eclipse.net4j.db.IDBConnectionProvider;
+import org.eclipse.net4j.util.collection.Pair;
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
@@ -86,10 +88,10 @@ public class JDBCPerformanceReporter extends Lifecycle implements IJDBCDelegate
     registerCall("insertAttributes", time);
   }
 
-  public void insertReference(CDORevision sourceRevision, int index, CDOID targetId, IReferenceMapping referenceMapping)
+  public void insertReference(CDOID id, int version, int index, CDOID targetId, IReferenceMapping referenceMapping)
   {
     long time = System.currentTimeMillis();
-    delegate.insertReference(sourceRevision, index, targetId, referenceMapping);
+    delegate.insertReference(id, version, index, targetId, referenceMapping);
     time = System.currentTimeMillis() - time;
     registerCall("insertReferenceDbId", time);
   }
@@ -175,7 +177,68 @@ public class JDBCPerformanceReporter extends Lifecycle implements IJDBCDelegate
     long time = System.currentTimeMillis();
     delegate.updateAttributes(revision, classMapping);
     time = System.currentTimeMillis() - time;
+    registerCall("updateAllAttributes", time);
+  }
+
+  public void updateAttributes(CDOID id, int newVersion, long created,
+      List<Pair<IAttributeMapping, Object>> attributeChanges, IClassMapping classMapping)
+  {
+    long time = System.currentTimeMillis();
+    delegate.updateAttributes(id, newVersion, created, attributeChanges, classMapping);
+    time = System.currentTimeMillis() - time;
     registerCall("updateAttributes", time);
+  }
+
+  public void updateReferenceVersion(CDOID id, int newVersion, IReferenceMapping referenceMapping)
+  {
+    long time = System.currentTimeMillis();
+    delegate.updateReferenceVersion(id, newVersion, referenceMapping);
+    time = System.currentTimeMillis() - time;
+    registerCall("updateReferenceVersion", time);
+  }
+
+  public void insertReferenceRow(CDOID id, int newVersion, int index, CDOID value, IReferenceMapping referenceMapping)
+  {
+    long time = System.currentTimeMillis();
+    delegate.insertReferenceRow(id, newVersion, index, value, referenceMapping);
+    time = System.currentTimeMillis() - time;
+    registerCall("insertReferenceRow", time);
+  }
+
+  public void updateReference(CDOID id, int newVersion, int index, CDOID value, IReferenceMapping referenceMapping)
+  {
+    long time = System.currentTimeMillis();
+    delegate.updateReference(id, newVersion, index, value, referenceMapping);
+    time = System.currentTimeMillis() - time;
+    registerCall("updateReference", time);
+  }
+
+  public void moveReferenceRow(CDOID id, int newVersion, int oldPosition, int newPosition,
+      IReferenceMapping referenceMapping)
+  {
+    long time = System.currentTimeMillis();
+    delegate.moveReferenceRow(id, newVersion, oldPosition, newPosition, referenceMapping);
+    time = System.currentTimeMillis() - time;
+    registerCall("moveReferenceRow", time);
+  }
+
+  public void removeReferenceRow(CDOID id, int index, int newVersion, IReferenceMapping referenceMapping)
+  {
+    long time = System.currentTimeMillis();
+    delegate.removeReferenceRow(id, index, newVersion, referenceMapping);
+    time = System.currentTimeMillis() - time;
+    registerCall("removeReferenceRow", time);
+  }
+
+  public void updateAttributes(CDOID id, int newVersion, long created, CDOID newContainerId,
+      int newContainingFeatureId, CDOID newResourceId, List<Pair<IAttributeMapping, Object>> attributeChanges,
+      IClassMapping classMapping)
+  {
+    long time = System.currentTimeMillis();
+    delegate.updateAttributes(id, newVersion, created, newContainerId, newContainingFeatureId, newResourceId,
+        attributeChanges, classMapping);
+    time = System.currentTimeMillis() - time;
+    registerCall("updateAttributes_with_containment", time);
   }
 
   public void setConnectionProvider(IDBConnectionProvider connectionProvider)

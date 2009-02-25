@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Stefan Winkler - https://bugs.eclipse.org/bugs/show_bug.cgi?id=259402
  */
 package org.eclipse.emf.cdo.server.internal.db;
 
@@ -21,11 +22,11 @@ import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.internal.server.StoreAccessor;
-import org.eclipse.emf.cdo.server.IPackageManager;
 import org.eclipse.emf.cdo.server.IQueryContext;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.ITransaction;
+import org.eclipse.emf.cdo.server.IStore.RevisionTemporality;
 import org.eclipse.emf.cdo.server.db.IClassMapping;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IJDBCDelegate;
@@ -284,6 +285,11 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     }
 
     EClass cdoClass = getObjectType(id);
+    if (cdoClass == null)
+    {
+      return null;
+    }
+
     InternalCDORevision revision = (InternalCDORevision)CDORevisionUtil.create(cdoClass, id);
 
     IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
@@ -363,7 +369,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     IRepository repository = getStore().getRepository();
     IPackageManager packageManager = repository.getPackageManager();
     CDOClassifierRef type = readObjectType(id);
-    return (EClass)type.resolve(packageManager);
+    return type == null ? null : (EClass)type.resolve(packageManager);
   }
 
   public CloseableIterator<Object> createQueryIterator(CDOQueryInfo queryInfo)
@@ -562,7 +568,30 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
   @Override
   protected void writeRevisionDeltas(CDORevisionDelta[] revisionDeltas, long created, OMMonitor monitor)
   {
-    throw new UnsupportedOperationException();
+    if (!(getStore().getRevisionTemporality() == RevisionTemporality.NONE))
+    {
+      throw new UnsupportedOperationException("Revision Deltas are only supported in non-auditing mode!");
+    }
+
+    monitor.begin(revisionDeltas.length);
+    try
+    {
+      for (CDORevisionDelta delta : revisionDeltas)
+      {
+        writeRevisionDelta(delta, created, monitor.fork());
+      }
+    }
+    finally
+    {
+      monitor.done();
+    }
+  }
+
+  protected void writeRevisionDelta(CDORevisionDelta delta, long created, OMMonitor monitor)
+  {
+    CDOClass cdoClass = getObjectType(delta.getID());
+    IClassMapping mapping = getStore().getMappingStrategy().getClassMapping(cdoClass);
+    mapping.writeRevisionDelta(this, delta, created, monitor);
   }
 
   @Override

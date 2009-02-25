@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Stefan Winkler - https://bugs.eclipse.org/bugs/show_bug.cgi?id=259402
  */
 package org.eclipse.emf.cdo.server.db;
 
@@ -27,6 +28,11 @@ public interface IAttributeMapping extends IFeatureMapping
    * @since 2.0
    */
   public void appendValue(StringBuilder builder, CDORevision revision);
+
+  /**
+   * @since 2.0
+   */
+  public void appendValue(StringBuilder builder, Object value);
 
   /**
    * @since 2.0

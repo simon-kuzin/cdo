@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Stefan Winkler - https://bugs.eclipse.org/bugs/show_bug.cgi?id=259402
  */
 package org.eclipse.emf.cdo.server.internal.db;
 
@@ -123,9 +124,22 @@ public class DBStore extends LongIDStore implements IDBStore
 
   public DBStore()
   {
-    super(TYPE, set(ChangeFormat.REVISION), set(RevisionTemporality.AUDITING, RevisionTemporality.NONE),
-        set(RevisionParallelism.NONE));
+    super(TYPE, set(ChangeFormat.REVISION, ChangeFormat.DELTA), set(RevisionTemporality.AUDITING,
+        RevisionTemporality.NONE), set(RevisionParallelism.NONE));
     setRevisionTemporality(RevisionTemporality.AUDITING);
+  }
+
+  @Override
+  public Set<ChangeFormat> getSupportedChangeFormats()
+  {
+    if (getRevisionTemporality() == RevisionTemporality.AUDITING)
+    {
+      return set(ChangeFormat.REVISION);
+    }
+    else
+    {
+      return set(ChangeFormat.REVISION, ChangeFormat.DELTA);
+    }
   }
 
   public IMappingStrategy getMappingStrategy()

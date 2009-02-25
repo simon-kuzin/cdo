@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Stefan Winkler - https://bugs.eclipse.org/bugs/show_bug.cgi?id=259402
  */
 package org.eclipse.emf.cdo.server.internal.db;
 
@@ -55,30 +56,9 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
     return table;
   }
 
-  public final void writeReference(IDBStoreAccessor accessor, CDORevision revision)
+  public boolean isWithFeature()
   {
-    IJDBCDelegate jdbcDelegate = accessor.getJDBCDelegate();
-
-    int idx = 0;
-    for (Object element : ((InternalCDORevision)revision).getList(getFeature()))
-    {
-      jdbcDelegate.insertReference(revision, idx++, (CDOID)element, this);
-    }
-  }
-
-  public void deleteReference(IDBStoreAccessor accessor, CDOID id)
-  {
-    accessor.getJDBCDelegate().deleteReferences(id, this);
-  }
-
-  public final void readReference(IDBStoreAccessor accessor, CDORevision revision, int referenceChunk)
-  {
-    accessor.getJDBCDelegate().selectRevisionReferences(revision, this, referenceChunk);
-  }
-
-  public final void readChunks(IDBStoreChunkReader chunkReader, List<Chunk> chunks, String where)
-  {
-    chunkReader.getAccessor().getJDBCDelegate().selectRevisionReferenceChunks(chunkReader, chunks, this, where);
+    return withFeature;
   }
 
   protected void mapReference(EClass cdoClass, EStructuralFeature cdoFeature)
@@ -153,8 +133,59 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
     return table;
   }
 
-  public boolean isWithFeature()
+  public final void writeReference(IDBStoreAccessor accessor, CDORevision revision)
   {
-    return withFeature;
+    int idx = 0;
+    for (Object element : ((InternalCDORevision)revision).getList(getFeature()))
+    {
+      writeReferenceEntry(accessor, revision.getID(), revision.getVersion(), idx++, (CDOID)element);
+    }
   }
+
+  public final void writeReferenceEntry(IDBStoreAccessor accessor, CDOID id, int version, int idx, CDOID targetId)
+  {
+    IJDBCDelegate jdbcDelegate = accessor.getJDBCDelegate();
+    jdbcDelegate.insertReference(id, version, idx++, targetId, this);
+  }
+
+  public void insertReferenceEntry(IDBStoreAccessor accessor, CDOID id, int newVersion, int index, CDOID value)
+  {
+    accessor.getJDBCDelegate().insertReferenceRow(id, newVersion, index, value, this);
+  }
+
+  public void moveReferenceEntry(IDBStoreAccessor accessor, CDOID id, int newVersion, int oldPosition, int newPosition)
+  {
+    accessor.getJDBCDelegate().moveReferenceRow(id, newVersion, oldPosition, newPosition, this);
+  }
+
+  public void removeReferenceEntry(IDBStoreAccessor accessor, CDOID id, int index, int newVersion)
+  {
+    accessor.getJDBCDelegate().removeReferenceRow(id, index, newVersion, this);
+  }
+
+  public void updateReference(IDBStoreAccessor accessor, CDOID id, int newVersion, int index, CDOID value)
+  {
+    accessor.getJDBCDelegate().updateReference(id, newVersion, index, value, this);
+  }
+
+  public void updateReferenceVersion(IDBStoreAccessor accessor, CDOID id, int newVersion)
+  {
+    accessor.getJDBCDelegate().updateReferenceVersion(id, newVersion, this);
+  }
+
+  public void deleteReference(IDBStoreAccessor accessor, CDOID id)
+  {
+    accessor.getJDBCDelegate().deleteReferences(id, this);
+  }
+
+  public final void readReference(IDBStoreAccessor accessor, CDORevision revision, int referenceChunk)
+  {
+    accessor.getJDBCDelegate().selectRevisionReferences(revision, this, referenceChunk);
+  }
+
+  public final void readChunks(IDBStoreChunkReader chunkReader, List<Chunk> chunks, String where)
+  {
+    chunkReader.getAccessor().getJDBCDelegate().selectRevisionReferenceChunks(chunkReader, chunks, this, where);
+  }
+
 }

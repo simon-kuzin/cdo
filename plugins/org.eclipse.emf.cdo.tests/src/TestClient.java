@@ -2,10 +2,13 @@ import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageAdapter;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
+import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.net4j.CDONet4jUtil;
 import org.eclipse.emf.cdo.net4j.CDOSession;
 import org.eclipse.emf.cdo.net4j.CDOSessionConfiguration;
+import org.eclipse.emf.cdo.tests.model1.Model1Factory;
 import org.eclipse.emf.cdo.tests.model1.Model1Package;
+import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.cdo.util.CDOUtil;
 
 import org.eclipse.net4j.Net4jUtil;
@@ -64,6 +67,11 @@ public class TestClient extends Assert
 
     CDOPackageInfo packageInfo = adapter.getPackageInfo();
     assertNotNull(packageInfo);
+
+    CDOTransaction transaction = session.openTransaction();
+    CDOResource resource = transaction.createResource("res" + System.currentTimeMillis());
+    resource.getContents().add(Model1Factory.eINSTANCE.createCompany());
+    transaction.commit();
 
     OMPlatform.INSTANCE.setDebugging(false);
     LifecycleUtil.deactivate(session);
