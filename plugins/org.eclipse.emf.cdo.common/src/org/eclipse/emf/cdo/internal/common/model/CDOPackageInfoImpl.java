@@ -20,6 +20,7 @@ import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 
 /**
  * @author Eike Stepper
@@ -84,8 +85,7 @@ public class CDOPackageInfoImpl implements InternalCDOPackageInfo
   {
     if (TRACER.isEnabled())
     {
-      TRACER.format("Writing package info: packageURI={0}, parentURI={1}, metaIDRange={2}", packageURI, parentURI,
-          metaIDRange);
+      TRACER.format("Writing {0}", this);
     }
 
     out.writeString(packageURI);
@@ -100,8 +100,15 @@ public class CDOPackageInfoImpl implements InternalCDOPackageInfo
     metaIDRange = in.readCDOIDMetaRange();
     if (TRACER.isEnabled())
     {
-      TRACER.format("Read package info: packageURI={0}, parentURI={1}, metaIDRange={2}", packageURI, parentURI,
-          metaIDRange);
+      TRACER.format("Read {0}", this);
     }
   }
+
+  @Override
+  public String toString()
+  {
+    return MessageFormat.format("CDOPackageInfo[packageURI={0}, parentURI={1}, metaIDRange={2}]", packageURI,
+        parentURI, metaIDRange);
+  }
+
 }

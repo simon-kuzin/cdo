@@ -67,7 +67,7 @@ public class CDOPackageUnitManagerImpl extends Container<CDOPackageUnit> impleme
   {
     if (TRACER.isEnabled())
     {
-      TRACER.format("Adding package Unit: {0}", packageUnit);
+      TRACER.format("Adding {0}", packageUnit);
     }
 
     synchronized (packageUnits)

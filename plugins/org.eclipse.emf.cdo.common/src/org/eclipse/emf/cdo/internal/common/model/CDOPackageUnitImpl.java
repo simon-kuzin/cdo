@@ -28,6 +28,7 @@ import org.eclipse.net4j.util.om.trace.ContextTracer;
 import org.eclipse.emf.ecore.EPackage;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -108,8 +109,7 @@ public abstract class CDOPackageUnitImpl implements InternalCDOPackageUnit
   {
     if (TRACER.isEnabled())
     {
-      TRACER.format("Writing package unit: id={0}, timeStamp={1,date} {1,time}, dynamic={2}, legacy={3}", id,
-          timeStamp, isDynamic(), isLegacy());
+      TRACER.format("Writing {0}", this);
     }
 
     out.writeString(id);
@@ -135,8 +135,7 @@ public abstract class CDOPackageUnitImpl implements InternalCDOPackageUnit
     timeStamp = in.readLong();
     if (TRACER.isEnabled())
     {
-      TRACER.format("Read package unit: id={0}, timeStamp={1,date} {1,time}, dynamic={2}, legacy={3}", id, timeStamp,
-          isDynamic(), isLegacy());
+      TRACER.format("Read {0}", this);
     }
 
     int size = in.readInt();
@@ -146,6 +145,13 @@ public abstract class CDOPackageUnitImpl implements InternalCDOPackageUnit
       packageInfos[i] = in.readCDOPackageInfo();
       ((InternalCDOPackageInfo)packageInfos[i]).setPackageUnit(this);
     }
+  }
+
+  @Override
+  public String toString()
+  {
+    return MessageFormat.format("CDOPackageUnit[id={0}, timeStamp={1,date} {1,time}, dynamic={2}, legacy={3}]", id,
+        timeStamp, isDynamic(), isLegacy());
   }
 
   protected void initNew(String id, CDOPackageRegistry packageRegistry, EPackage... topLevelPackages)
@@ -232,6 +238,8 @@ public abstract class CDOPackageUnitImpl implements InternalCDOPackageUnit
    */
   public static class Generated extends CDOPackageUnitImpl
   {
+    private boolean legacy;
+
     public Generated()
     {
     }
@@ -255,8 +263,26 @@ public abstract class CDOPackageUnitImpl implements InternalCDOPackageUnit
 
     public boolean isLegacy()
     {
-      // TODO: implement Generated.isLegacy()
-      throw new UnsupportedOperationException();
+      return legacy;
+    }
+
+    public void setLegacy(boolean legacy)
+    {
+      this.legacy = legacy;
+    }
+
+    @Override
+    public void read(CDODataInput in) throws IOException
+    {
+      legacy = in.readBoolean();
+      super.read(in);
+    }
+
+    @Override
+    public void write(CDODataOutput out) throws IOException
+    {
+      out.writeBoolean(legacy);
+      super.write(out);
     }
 
     protected void initBundle(CDOPackageRegistry packageRegistry, EPackage topLevelPackage)

@@ -15,6 +15,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDTempMeta;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
+import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageAdapter;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
@@ -27,8 +28,6 @@ import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnitManager;
 import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
-import org.eclipse.emf.common.notify.Adapter;
-import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.InternalEObject;
@@ -84,7 +83,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
   {
     if (TRACER.isEnabled())
     {
-      TRACER.format("Registering package: {0}", ePackage);
+      TRACER.format("Registering package: {0}", ePackage.getNsURI());
     }
 
     super.put(ePackage.getNsURI(), ePackage);
@@ -117,21 +116,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
   protected CDOPackageAdapter getPackageAdapter(EPackage ePackage)
   {
-    EList<Adapter> adapters = ePackage.eAdapters();
-    for (int i = 0, size = adapters.size(); i < size; ++i)
-    {
-      Adapter adapter = adapters.get(i);
-      if (adapter instanceof CDOPackageAdapter)
-      {
-        CDOPackageAdapter packageAdapter = (CDOPackageAdapter)adapter;
-        if (packageAdapter.getPackageRegistry() == this)
-        {
-          return packageAdapter;
-        }
-      }
-    }
-
-    return null;
+    return CDOModelUtil.getPackageAdapter(ePackage, this);
   }
 
   protected CDOPackageUnit createPackageUnit(EPackage topLevelPackage)

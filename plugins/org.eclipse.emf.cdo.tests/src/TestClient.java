@@ -1,3 +1,7 @@
+import org.eclipse.emf.cdo.common.model.CDOModelUtil;
+import org.eclipse.emf.cdo.common.model.CDOPackageAdapter;
+import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
+import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.net4j.CDONet4jUtil;
 import org.eclipse.emf.cdo.net4j.CDOSession;
 import org.eclipse.emf.cdo.net4j.CDOSessionConfiguration;
@@ -9,11 +13,12 @@ import org.eclipse.net4j.connector.IConnector;
 import org.eclipse.net4j.tcp.TCPUtil;
 import org.eclipse.net4j.util.container.ContainerUtil;
 import org.eclipse.net4j.util.container.IManagedContainer;
-import org.eclipse.net4j.util.io.IOUtil;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 import org.eclipse.net4j.util.om.OMPlatform;
 import org.eclipse.net4j.util.om.log.PrintLogHandler;
 import org.eclipse.net4j.util.om.trace.PrintTraceHandler;
+
+import junit.framework.Assert;
 
 /**
  * Copyright (c) 2004 - 2009 Eike Stepper (Berlin, Germany) and others.
@@ -29,7 +34,7 @@ import org.eclipse.net4j.util.om.trace.PrintTraceHandler;
 /**
  * @author Eike Stepper
  */
-public class TestClient
+public class TestClient extends Assert
 {
   public static void main(String[] args) throws Exception
   {
@@ -50,14 +55,17 @@ public class TestClient
     sessionConfiguration.setRepositoryName(TestServer.REPOSITORY_NAME);
     sessionConfiguration.setConnector(connector);
     CDOSession session = sessionConfiguration.openSession();
-    session.getPackageRegistry().putEPackage(Model1Package.eINSTANCE);
 
-    System.out.println("Press any key to shutdown");
-    while (IOUtil.IN().read() == -1)
-    {
-      Thread.sleep(200);
-    }
+    CDOPackageRegistry packageRegistry = session.getPackageRegistry();
+    packageRegistry.putEPackage(Model1Package.eINSTANCE);
 
+    CDOPackageAdapter adapter = CDOModelUtil.getPackageAdapter(Model1Package.eINSTANCE, packageRegistry);
+    assertEquals(packageRegistry, adapter.getPackageRegistry());
+
+    CDOPackageInfo packageInfo = adapter.getPackageInfo();
+    assertNotNull(packageInfo);
+
+    OMPlatform.INSTANCE.setDebugging(false);
     LifecycleUtil.deactivate(session);
     LifecycleUtil.deactivate(connector);
     LifecycleUtil.deactivate(container);

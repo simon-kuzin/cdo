@@ -30,6 +30,12 @@ public class CDOPackageAdapterImpl extends AdapterImpl implements CDOPackageAdap
   {
   }
 
+  @Override
+  public boolean isAdapterForType(Object type)
+  {
+    return EPackage.class.isInstance(type);
+  }
+
   public EPackage getPackage()
   {
     return (EPackage)getTarget();
