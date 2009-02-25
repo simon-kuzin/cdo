@@ -14,14 +14,12 @@ package org.eclipse.emf.internal.cdo.query;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.util.BlockingCloseableIterator;
 import org.eclipse.emf.cdo.internal.common.CDOQueryInfoImpl;
-import org.eclipse.emf.cdo.util.ModelUtil;
 import org.eclipse.emf.cdo.view.CDOQuery;
 
 import org.eclipse.emf.internal.cdo.util.FSMUtil;
 
 import org.eclipse.net4j.util.WrappedException;
 
-import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.spi.cdo.AbstractQueryIterator;
 import org.eclipse.emf.spi.cdo.InternalCDOObject;
 import org.eclipse.emf.spi.cdo.InternalCDOView;
@@ -135,12 +133,7 @@ public class CDOQueryImpl extends CDOQueryInfoImpl implements CDOQuery
 
   protected Object adapt(Object object)
   {
-    if (object instanceof EClass)
-    {
-      EClass eClass = (EClass)object;
-      return ModelUtil.getEClass(eClass, (_CDOSessionPackageManagerImpl)view.getSession().getPackageUnitManager());
-    }
-    else if (object instanceof InternalCDOObject)
+    if (object instanceof InternalCDOObject)
     {
       InternalCDOObject internalCDOObject = FSMUtil.adapt(object, view);
       if (internalCDOObject.cdoID() == null)
