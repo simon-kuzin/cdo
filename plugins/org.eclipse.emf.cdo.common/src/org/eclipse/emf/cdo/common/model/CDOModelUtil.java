@@ -39,7 +39,19 @@ public final class CDOModelUtil
         }
       }
     }
-
+  
     return null;
+  }
+
+  public static CDOPackageInfo getPackageInfo(EPackage ePackage, CDOPackageRegistry packageRegistry)
+  {
+    CDOPackageAdapter adapter = getPackageAdapter(ePackage, packageRegistry);
+    return adapter.getPackageInfo();
+  }
+
+  public static CDOPackageUnit getPackageUnit(EPackage ePackage, CDOPackageRegistry packageRegistry)
+  {
+    CDOPackageInfo packageInfo = getPackageInfo(ePackage, packageRegistry);
+    return packageInfo.getPackageUnit();
   }
 }

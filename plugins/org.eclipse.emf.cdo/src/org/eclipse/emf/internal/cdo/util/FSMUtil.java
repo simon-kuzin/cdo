@@ -15,6 +15,7 @@ import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.CDOState;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.util.InvalidObjectException;
 import org.eclipse.emf.cdo.util.ObjectNotFoundException;
 import org.eclipse.emf.cdo.view.CDOView;
@@ -83,7 +84,7 @@ public final class FSMUtil
       CDOObject cdoObject = (CDOObject)obj;
       return cdoObject.cdoState() == CDOState.CLEAN || cdoObject.cdoState() == CDOState.DIRTY;
     }
-    
+
     return false;
   }
 
@@ -133,7 +134,7 @@ public final class FSMUtil
       object = (InternalEObject)EcoreUtil.resolve(object, view.getResourceSet());
     }
 
-    CDOID id = ((InternalCDOView)view).getSession().lookupMetaInstanceID(object);
+    CDOID id = ((InternalCDOPackageRegistry)view.getSession().getPackageRegistry()).lookupMetaInstanceID(object);
     if (id != null)
     {
       return new CDOMetaWrapper((InternalCDOView)view, object, id);

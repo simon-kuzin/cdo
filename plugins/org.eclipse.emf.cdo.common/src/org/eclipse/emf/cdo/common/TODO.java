@@ -253,4 +253,10 @@ public final class TODO
     // TODO: implement TODO.isRoot(cdoClass)
     throw new UnsupportedOperationException();
   }
+
+  public static boolean isSystemPackage(EPackage ePackage)
+  {
+    // TODO: implement TODO.isSystemPackage(ePackage)
+    throw new UnsupportedOperationException();
+  }
 }

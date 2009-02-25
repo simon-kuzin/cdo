@@ -13,6 +13,7 @@ package org.eclipse.emf.cdo.tests;
 
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.CDOFetchRule;
+import org.eclipse.emf.cdo.common.model.ModelUtil;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.tests.model1.Company;
@@ -25,7 +26,6 @@ import org.eclipse.emf.cdo.util.CDOUtil;
 import org.eclipse.emf.internal.cdo.analyzer.CDOFeatureAnalyzerModelBased;
 import org.eclipse.emf.internal.cdo.analyzer.CDOFetchRuleManagerThreadLocal;
 import org.eclipse.emf.internal.cdo.session.CDORevisionManagerImpl;
-import org.eclipse.emf.internal.cdo.util.ModelUtil;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.spi.cdo.InternalCDOSession;

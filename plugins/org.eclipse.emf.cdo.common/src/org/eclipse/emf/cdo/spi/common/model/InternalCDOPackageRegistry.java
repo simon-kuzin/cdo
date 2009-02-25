@@ -10,11 +10,13 @@
  */
 package org.eclipse.emf.cdo.spi.common.model;
 
+import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnitManager;
 
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.InternalEObject;
 
 import java.util.List;
 
@@ -28,4 +30,10 @@ public interface InternalCDOPackageRegistry extends CDOPackageRegistry
   public void putEPackageBasic(EPackage ePackage);
 
   public void addPackageDescriptors(List<CDOPackageInfo> packageInfos);
+
+  public InternalEObject lookupMetaInstance(CDOID id);
+
+  public CDOID lookupMetaInstanceID(InternalEObject metaInstance);
+
+  public void remapMetaInstance(CDOID oldID, CDOID newID);
 }
