@@ -20,6 +20,7 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDMeta;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
+import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionResolver;
@@ -684,7 +685,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
         }
 
         // CDOResource have a special way to register to the view.
-        if (!TODO.isResource(localLookupObject.eClass()))
+        if (!CDOModelUtil.isResource(localLookupObject.eClass()))
         {
           registerObject(localLookupObject);
         }
@@ -785,7 +786,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
 
     EClass cdoClass = revision.getEClass();
     InternalCDOObject object;
-    if (TODO.isResource(cdoClass))
+    if (CDOModelUtil.isResource(cdoClass))
     {
       object = (InternalCDOObject)newResourceInstance(revision);
       // object is PROXY

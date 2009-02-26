@@ -62,7 +62,7 @@ public class RepositoryTest extends AbstractCDOTest
 
     getRepository().addHandler(new IRepository.WriteAccessHandler()
     {
-      EPackage model1Package = getRepository().getPackageManager().lookupPackage(getModel1Package().getNsURI());
+      EPackage model1Package = getRepository().getPackageRegistry().lookupPackage(getModel1Package().getNsURI());
 
       EClass customerClass = model1Package.lookupClass(getModel1Package().getCustomer().getClassifierID());
 
@@ -125,7 +125,7 @@ public class RepositoryTest extends AbstractCDOTest
 
     getRepository().addHandler(new CDOServerUtil.RepositoryReadAccessValidator()
     {
-      EPackage model1Package = getRepository().getPackageManager().lookupPackage(getModel1Package().getNsURI());
+      EPackage model1Package = getRepository().getPackageRegistry().lookupPackage(getModel1Package().getNsURI());
 
       EClass customerClass = model1Package.lookupClass(getModel1Package().getCustomer().getClassifierID());
 

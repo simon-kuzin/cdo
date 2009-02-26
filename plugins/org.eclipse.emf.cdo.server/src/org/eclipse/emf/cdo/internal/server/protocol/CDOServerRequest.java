@@ -87,7 +87,7 @@ public abstract class CDOServerRequest extends Request
 
   protected PackageManager getPackageManager()
   {
-    return getRepository().getPackageManager();
+    return getRepository().getPackageRegistry();
   }
 
   protected IStore getStore()

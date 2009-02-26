@@ -326,7 +326,7 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
 
   private CDOResourceNodeClass getResourceNodeClass()
   {
-    return getStore().getRepository().getPackageManager().getCDOResourcePackage().getCDOResourceNodeClass();
+    return getStore().getRepository().getPackageRegistry().getCDOResourcePackage().getCDOResourceNodeClass();
   }
 
   /**

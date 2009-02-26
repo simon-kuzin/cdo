@@ -48,7 +48,7 @@ public class CDORevisionImpl extends AbstractCDORevision
   {
     super(source);
     EStructuralFeature[] features = CDOModelUtil.getAllPersistentFeatures(getEClass());
-    initValues(features.length);
+    initValues(features);
     for (int i = 0; i < features.length; i++)
     {
       EStructuralFeature feature = features[i];

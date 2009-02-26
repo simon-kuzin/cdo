@@ -65,7 +65,7 @@ public class HorizontalClassMapping extends ClassMapping
   protected void checkDuplicateResources(IDBStoreAccessor accessor, CDORevision revision) throws IllegalStateException
   {
     IRepository repository = getMappingStrategy().getStore().getRepository();
-    IPackageManager packageManager = repository.getPackageManager();
+    IPackageManager packageManager = repository.getPackageRegistry();
     CDOResourceNodeClass resourceNodeClass = packageManager.getCDOResourcePackage().getCDOResourceNodeClass();
     EStructuralFeature resourceNameFeature = resourceNodeClass.getCDONameFeature();
 

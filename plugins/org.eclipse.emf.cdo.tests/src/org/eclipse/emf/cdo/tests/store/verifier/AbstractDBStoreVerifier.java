@@ -66,10 +66,10 @@ public abstract class AbstractDBStoreVerifier
   protected List<IClassMapping> getClassMappings()
   {
     ArrayList<IClassMapping> result = new ArrayList<IClassMapping>();
-    for (CDOPackage pkg : repository.getPackageManager().getPackages())
+    for (CDOPackage pkg : repository.getPackageRegistry().getPackages())
     {
       // CDO core package is not mapped in horizontal mapping
-      if (pkg.equals(repository.getPackageManager().getCDOCorePackage()))
+      if (pkg.equals(repository.getPackageRegistry().getCDOCorePackage()))
       {
         continue;
       }

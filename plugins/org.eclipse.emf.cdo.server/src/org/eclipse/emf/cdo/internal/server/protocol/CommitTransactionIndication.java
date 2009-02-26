@@ -19,8 +19,9 @@ import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
+import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.model.CDOPackageURICompressor;
-import org.eclipse.emf.cdo.common.model.CDOPackageUnitManager;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDOListFactory;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
@@ -35,7 +36,7 @@ import org.eclipse.emf.cdo.internal.server.Session;
 import org.eclipse.emf.cdo.internal.server.SessionManager;
 import org.eclipse.emf.cdo.internal.server.Transaction;
 import org.eclipse.emf.cdo.internal.server.Transaction.InternalCommitContext;
-import org.eclipse.emf.cdo.internal.server.TransactionCommitContextImpl.TransactionPackageManager;
+import org.eclipse.emf.cdo.internal.server.TransactionCommitContextImpl.TransactionPackageRegistry;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
 import org.eclipse.emf.cdo.server.IStore;
 import org.eclipse.emf.cdo.server.IView;
@@ -49,8 +50,6 @@ import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.monitor.ProgressDistributable;
 import org.eclipse.net4j.util.om.monitor.ProgressDistributor;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
-
-import org.eclipse.emf.ecore.EPackage;
 
 import java.io.IOException;
 import java.util.List;
@@ -148,9 +147,9 @@ public class CommitTransactionIndication extends IndicationWithMonitoring
     return getRepository().getRevisionManager();
   }
 
-  protected TransactionPackageManager getPackageManager()
+  protected TransactionPackageRegistry getPackageManager()
   {
-    return commitContext.getPackageManager();
+    return commitContext.getPackageRegistry();
   }
 
   protected IStore getStore()
@@ -176,7 +175,7 @@ public class CommitTransactionIndication extends IndicationWithMonitoring
       }
 
       @Override
-      protected CDOPackageUnitManager getPackageUnitManager()
+      protected CDOPackageRegistry getPackageRegistry()
       {
         return CommitTransactionIndication.this.getPackageManager();
       }
@@ -277,28 +276,26 @@ public class CommitTransactionIndication extends IndicationWithMonitoring
     boolean autoReleaseLocksEnabled = in.readBoolean();
     commitContext.setAutoReleaseLocksEnabled(autoReleaseLocksEnabled);
 
-    TransactionPackageManager packageManager = commitContext.getPackageManager();
-    EPackage[] newPackages = new EPackage[in.readInt()];
+    TransactionPackageRegistry packageManager = commitContext.getPackageRegistry();
+    CDOPackageUnit[] newPackageUnits = new CDOPackageUnit[in.readInt()];
     CDORevision[] newObjects = new CDORevision[in.readInt()];
     CDORevisionDelta[] dirtyObjectDeltas = new CDORevisionDelta[in.readInt()];
     CDOID[] detachedObjects = new CDOID[in.readInt()];
 
-    // New packages
-    if (PROTOCOL_TRACER.isEnabled())
-    {
-      PROTOCOL_TRACER.format("Reading {0} new packages", newPackages.length);
-    }
-
-    monitor.begin(newPackages.length + newObjects.length + dirtyObjectDeltas.length + detachedObjects.length);
+    monitor.begin(newPackageUnits.length + newObjects.length + dirtyObjectDeltas.length + detachedObjects.length);
 
     try
     {
-      for (int i = 0; i < newPackages.length; i++)
+      // New package units
+      if (PROTOCOL_TRACER.isEnabled())
       {
-        InternalEPackage newPackage = (InternalEPackage)in.readEPackageDescriptor();
-        newPackage.setEcore(in.readString());
-        newPackages[i] = newPackage;
-        packageManager.addPackage(newPackage);
+        PROTOCOL_TRACER.format("Reading {0} new package units", newPackageUnits.length);
+      }
+
+      for (int i = 0; i < newPackageUnits.length; i++)
+      {
+        newPackageUnits[i] = in.readCDOPackageUnit();
+        packageManager.addPackage(newPackageUnits[i]);
         monitor.worked();
       }
 
@@ -332,7 +329,7 @@ public class CommitTransactionIndication extends IndicationWithMonitoring
         monitor.worked();
       }
 
-      commitContext.setNewPackages(newPackages);
+      commitContext.setNewPackages(newPackageUnits);
       commitContext.setNewObjects(newObjects);
       commitContext.setDirtyObjectDeltas(dirtyObjectDeltas);
       commitContext.setDetachedObjects(detachedObjects);

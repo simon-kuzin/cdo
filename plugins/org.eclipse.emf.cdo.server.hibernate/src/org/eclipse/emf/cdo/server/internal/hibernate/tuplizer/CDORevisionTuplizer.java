@@ -92,7 +92,7 @@ public class CDORevisionTuplizer extends AbstractEntityTuplizer
 
     if (cdoClass == null && ePackageURI.compareTo(CDOResourcePackage.PACKAGE_URI) == 0)
     {
-      for (EClass localCdoClass : hbStore.getRepository().getPackageManager().getCDOResourcePackage().getClasses())
+      for (EClass localCdoClass : hbStore.getRepository().getPackageRegistry().getCDOResourcePackage().getClasses())
       {
         if (localCdoClass.getName().compareTo(entityName) == 0)
         {

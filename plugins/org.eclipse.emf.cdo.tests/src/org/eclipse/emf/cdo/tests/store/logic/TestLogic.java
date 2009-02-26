@@ -23,7 +23,7 @@ import org.eclipse.emf.cdo.internal.server.Repository;
 import org.eclipse.emf.cdo.internal.server.Session;
 import org.eclipse.emf.cdo.internal.server.Transaction;
 import org.eclipse.emf.cdo.internal.server.Transaction.InternalCommitContext;
-import org.eclipse.emf.cdo.internal.server.TransactionCommitContextImpl.TransactionPackageManager;
+import org.eclipse.emf.cdo.internal.server.TransactionCommitContextImpl.TransactionPackageRegistry;
 import org.eclipse.emf.cdo.internal.server.protocol.CDOServerProtocol;
 import org.eclipse.emf.cdo.server.IStore;
 import org.eclipse.emf.cdo.server.IRepository.Props;
@@ -251,7 +251,7 @@ public abstract class TestLogic extends AbstractOMTest
         idRange = SessionUtil.registerEPackage(ePackage, 1, null, null);
       }
 
-      TransactionPackageManager packageManager = transactionCommitContext.getPackageManager();
+      TransactionPackageRegistry packageManager = transactionCommitContext.getPackageRegistry();
       EPackage newPackage = CDOModelUtil.createPackage(packageManager, uri, name, ecore, dynamic, idRange, parentURI);
       ModelUtil.initializeEPackage(ePackage, newPackage);
       packageManager.addPackage(newPackage);
@@ -261,7 +261,7 @@ public abstract class TestLogic extends AbstractOMTest
 
     public TestRevision addNewResource(int id)
     {
-      CDOResourcePackage resourcePackage = repository.getPackageManager().getCDOResourcePackage();
+      CDOResourcePackage resourcePackage = repository.getPackageRegistry().getCDOResourcePackage();
       CDOResourceClass resourceClass = resourcePackage.getCDOResourceClass();
       return addRevision(id, resourceClass);
     }
@@ -271,7 +271,7 @@ public abstract class TestLogic extends AbstractOMTest
 
       String uri = eClass.getEPackage().getNsURI();
 
-      EPackage cdoPackage = transactionCommitContext.getPackageManager().lookupPackage(uri);
+      EPackage cdoPackage = transactionCommitContext.getPackageRegistry().lookupPackage(uri);
       EClass cdoClass = cdoPackage.lookupClass(eClass.getClassifierID());
       return addRevision(id, cdoClass);
     }

@@ -107,7 +107,7 @@ public class LoadRevisionIndication extends CDOReadIndication
 
       for (int i = 0; i < fetchSize; i++)
       {
-        CDOFetchRule fetchRule = new CDOFetchRule(in, getPackageManager());
+        CDOFetchRule fetchRule = new CDOFetchRule(in, getPackageRegistry());
         fetchRules.put(fetchRule.getEClass(), fetchRule);
       }
     }

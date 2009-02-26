@@ -19,6 +19,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
+import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
@@ -368,7 +369,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
   {
     // TODO Replace calls to getObjectType by optimized calls to RevisionManager.getObjectType (cache!)
     IRepository repository = getStore().getRepository();
-    IPackageManager packageManager = repository.getPackageManager();
+    IPackageManager packageManager = repository.getPackageRegistry();
     CDOClassifierRef type = readObjectType(id);
     return type == null ? null : (EClass)type.resolve(packageManager);
   }

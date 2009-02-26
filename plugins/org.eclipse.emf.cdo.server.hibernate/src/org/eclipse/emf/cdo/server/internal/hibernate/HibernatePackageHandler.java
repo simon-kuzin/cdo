@@ -90,7 +90,7 @@ public class HibernatePackageHandler extends Lifecycle
       }
     }
 
-    for (EPackage cdoPackage : hibernateStore.getRepository().getPackageManager().getPackages())
+    for (EPackage cdoPackage : hibernateStore.getRepository().getPackageRegistry().getPackages())
     {
       cdoPackages.add(cdoPackage);
     }
@@ -163,7 +163,7 @@ public class HibernatePackageHandler extends Lifecycle
 
   protected boolean cdoPackageExistsAndIsUnchanged(EPackage newEPackage)
   {
-    EPackage[] cdoPackages = hibernateStore.getRepository().getPackageManager().getPackages();
+    EPackage[] cdoPackages = hibernateStore.getRepository().getPackageRegistry().getPackages();
     for (EPackage cdoPackage : cdoPackages)
     {
       if (cdoPackage.getClassCount() > 0 && cdoPackage.getNsURI().equals(newEPackage.getNsURI()))
@@ -265,7 +265,7 @@ public class HibernatePackageHandler extends Lifecycle
         cdoClasses.add(cdoClass);
         for (EClassProxy proxy : ((InternalEClass)cdoClass).getSuperTypeProxies())
         {
-          proxy.setCDOPackageManager(hibernateStore.getRepository().getPackageManager());
+          proxy.setCDOPackageManager(hibernateStore.getRepository().getPackageRegistry());
         }
 
         for (EStructuralFeature cdoFeature : cdoClass.getFeatures())
@@ -275,7 +275,7 @@ public class HibernatePackageHandler extends Lifecycle
           if (internalFeature.getReferenceTypeProxy() != null)
           {
             internalFeature.getReferenceTypeProxy().setCDOPackageManager(
-                hibernateStore.getRepository().getPackageManager());
+                hibernateStore.getRepository().getPackageRegistry());
           }
         }
 
@@ -330,7 +330,7 @@ public class HibernatePackageHandler extends Lifecycle
 
           result.add(new CDOPackageInfo(cdoPackage.getNsURI(), cdoPackage.getParentURI(), cdoPackage.isDynamic(),
               cdoPackage.getMetaIDRange()));
-          ((InternalEPackage)cdoPackage).setPackageManager(hibernateStore.getRepository().getPackageManager());
+          ((InternalEPackage)cdoPackage).setPackageManager(hibernateStore.getRepository().getPackageRegistry());
         }
 
         cdoPackageInfos = result;

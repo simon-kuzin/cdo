@@ -14,6 +14,7 @@ import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
+import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.server.db.IClassMapping;
 import org.eclipse.emf.cdo.server.db.IDBStore;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
@@ -127,12 +128,12 @@ public class HorizontalMappingStrategy extends MappingStrategy
   protected List<EClass> getClassesWithObjectInfo()
   {
     List<EClass> result = new ArrayList<EClass>();
-    IPackageManager packageManager = getStore().getRepository().getPackageManager();
+    IPackageManager packageManager = getStore().getRepository().getPackageRegistry();
     for (EPackage cdoPackage : packageManager.getPackages())
     {
       for (EClass cdoClass : cdoPackage.getConcreteClasses())
       {
-        if (!TODO.isRoot(cdoClass))
+        if (!CDOModelUtil.isRoot(cdoClass))
         {
           result.add(cdoClass);
         }
@@ -156,7 +157,7 @@ public class HorizontalMappingStrategy extends MappingStrategy
   @Override
   protected String[] getResourceQueries(CDOID folderID, String name, boolean exactMatch)
   {
-    CDOResourcePackage resourcePackage = getStore().getRepository().getPackageManager().getCDOResourcePackage();
+    CDOResourcePackage resourcePackage = getStore().getRepository().getPackageRegistry().getCDOResourcePackage();
     String[] queries = new String[2];
 
     IClassMapping resourceFolderMapping = getClassMapping(resourcePackage.getCDOResourceFolderClass());
@@ -170,7 +171,7 @@ public class HorizontalMappingStrategy extends MappingStrategy
 
   protected String getResourceQuery(CDOID folderID, String name, boolean exactMatch, IClassMapping classMapping)
   {
-    CDOResourcePackage resourcePackage = getStore().getRepository().getPackageManager().getCDOResourcePackage();
+    CDOResourcePackage resourcePackage = getStore().getRepository().getPackageRegistry().getCDOResourcePackage();
     CDOResourceNodeClass resourceNodeClass = resourcePackage.getCDOResourceNodeClass();
 
     IDBTable table = classMapping.getTable();

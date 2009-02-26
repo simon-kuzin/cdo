@@ -146,21 +146,21 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
       {
       case ServerInfo.CDO_RESOURCE_NODE_CLASS_DBID:
       {
-        CDOResourcePackage resourcePackage = store.getRepository().getPackageManager().getCDOResourcePackage();
+        CDOResourcePackage resourcePackage = store.getRepository().getPackageRegistry().getCDOResourcePackage();
         classRef = resourcePackage.getCDOResourceNodeClass().createClassRef();
         break;
       }
 
       case ServerInfo.CDO_RESOURCE_FOLDER_CLASS_DBID:
       {
-        CDOResourcePackage resourcePackage = store.getRepository().getPackageManager().getCDOResourcePackage();
+        CDOResourcePackage resourcePackage = store.getRepository().getPackageRegistry().getCDOResourcePackage();
         classRef = resourcePackage.getCDOResourceFolderClass().createClassRef();
         break;
       }
 
       case ServerInfo.CDO_RESOURCE_CLASS_DBID:
       {
-        CDOResourcePackage resourcePackage = store.getRepository().getPackageManager().getCDOResourcePackage();
+        CDOResourcePackage resourcePackage = store.getRepository().getPackageRegistry().getCDOResourcePackage();
         classRef = resourcePackage.getCDOResourceClass().createClassRef();
         break;
       }
@@ -381,7 +381,7 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
 
   public void mapResourceTables(IDBAdapter dbAdapter, Connection connection)
   {
-    CDOResourcePackage resourcePackage = store.getRepository().getPackageManager().getCDOResourcePackage();
+    CDOResourcePackage resourcePackage = store.getRepository().getPackageRegistry().getCDOResourcePackage();
     CDOResourceNodeClass resourceNodeClass = resourcePackage.getCDOResourceNodeClass();
     CDOResourceFolderClass resourceFolderClass = resourcePackage.getCDOResourceFolderClass();
     CDOResourceClass resourceClass = resourcePackage.getCDOResourceClass();

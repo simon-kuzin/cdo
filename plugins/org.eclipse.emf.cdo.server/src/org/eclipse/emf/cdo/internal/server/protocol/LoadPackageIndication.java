@@ -52,7 +52,7 @@ public class LoadPackageIndication extends CDOReadIndication
       PROTOCOL_TRACER.format("Read onlyEcore: {0}", onlyEcore);
     }
 
-    cdoPackage = getPackageManager().lookupPackage(packageURI);
+    cdoPackage = getPackageRegistry().lookupPackage(packageURI);
     if (cdoPackage == null)
     {
       throw new IllegalStateException("CDO package not found: " + packageURI);

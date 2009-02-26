@@ -17,6 +17,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 
@@ -264,13 +265,13 @@ public interface IStoreAccessor extends IQueryHandler
      * <code>CommitContext</code>. In addition to the packages registered with the session this package manager also
      * contains the new packages that are part of this commit operation.
      */
-    public CDOPackageRegistry getPackageManager();
+    public CDOPackageRegistry getPackageRegistry();
 
     /**
-     * Returns an array of the new packages that are part of the commit operation represented by this
+     * Returns an array of the new package units that are part of the commit operation represented by this
      * <code>CommitContext</code>.
      */
-    public EPackage[] getNewPackages();
+    public CDOPackageUnit[] getNewPackageUnits();
 
     /**
      * Returns an array of the new objects that are part of the commit operation represented by this

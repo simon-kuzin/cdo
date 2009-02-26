@@ -11,6 +11,7 @@
 package org.eclipse.emf.cdo.server.internal.db;
 
 import org.eclipse.emf.cdo.common.TODO;
+import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.server.db.IClassMapping;
 
 import org.eclipse.net4j.util.ImplementationError;
@@ -61,7 +62,7 @@ public final class ClassServerInfo extends ServerInfo
     ClassServerInfo serverInfo = (ClassServerInfo)cdoClass.getServerInfo();
     if (serverInfo == null)
     {
-      if (TODO.isRoot(cdoClass))
+      if (CDOModelUtil.isRoot(cdoClass))
       {
         serverInfo = setDBID(cdoClass, CDO_OBJECT_CLASS_DBID);
       }

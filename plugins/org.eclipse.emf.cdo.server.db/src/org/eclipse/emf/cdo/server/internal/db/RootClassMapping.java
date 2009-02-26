@@ -44,6 +44,6 @@ public class RootClassMapping extends ClassMapping
 
   private static CDOObjectClass getRootClass(VerticalMappingStrategy mappingStrategy)
   {
-    return mappingStrategy.getStore().getRepository().getPackageManager().getCDOCorePackage().getCDOObjectClass();
+    return mappingStrategy.getStore().getRepository().getPackageRegistry().getCDOCorePackage().getCDOObjectClass();
   }
 }

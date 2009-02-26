@@ -220,7 +220,7 @@ public class CommitTransactionRequest extends RequestWithMonitoring<CommitTransa
 
     if (PROTOCOL_TRACER.isEnabled())
     {
-      PROTOCOL_TRACER.format("Writing {0} new packages", newPackageUnits.size());
+      PROTOCOL_TRACER.format("Writing {0} new package units", newPackageUnits.size());
     }
 
     for (CDOPackageUnit newPackageUnit : newPackageUnits)

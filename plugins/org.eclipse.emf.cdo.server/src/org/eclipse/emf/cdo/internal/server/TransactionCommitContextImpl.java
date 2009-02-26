@@ -15,6 +15,8 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
+import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionResolver;
@@ -22,6 +24,7 @@ import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.StoreThreadLocal;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.revision.CDOIDMapper;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
@@ -52,13 +55,13 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_TRANSACTION,
       TransactionCommitContextImpl.class);
 
-  private TransactionPackageManager packageManager;
+  private TransactionPackageRegistry packageRegistry;
 
   private IStoreAccessor accessor;
 
   private long timeStamp = CDORevision.UNSPECIFIED_DATE;
 
-  private EPackage[] newPackages;
+  private CDOPackageUnit[] newPackageUnits;
 
   private CDORevision[] newObjects;
 
@@ -87,7 +90,7 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
   public TransactionCommitContextImpl(Transaction transaction)
   {
     this.transaction = transaction;
-    packageManager = new TransactionPackageManager();
+    packageRegistry = new TransactionPackageRegistry();
   }
 
   public int getTransactionID()
@@ -105,14 +108,14 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
     return timeStamp;
   }
 
-  public TransactionPackageManager getPackageManager()
+  public TransactionPackageRegistry getPackageRegistry()
   {
-    return packageManager;
+    return packageRegistry;
   }
 
-  public EPackage[] getNewPackages()
+  public CDOPackageUnit[] getNewPackageUnits()
   {
-    return newPackages;
+    return newPackageUnits;
   }
 
   public CDORevision[] getNewObjects()
@@ -192,9 +195,9 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
     StoreThreadLocal.setAccessor(accessor);
   }
 
-  public void setNewPackages(EPackage[] newPackages)
+  public void setNewPackageUnits(CDOPackageUnit[] newPackageUnits)
   {
-    this.newPackages = newPackages;
+    this.newPackageUnits = newPackageUnits;
   }
 
   public void setNewObjects(CDORevision[] newObjects)
@@ -315,11 +318,11 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
       StoreThreadLocal.release();
       accessor = null;
       timeStamp = CDORevision.UNSPECIFIED_DATE;
-      packageManager.clear();
+      packageRegistry.clear();
       metaIDRanges.clear();
       idMappings.clear();
       rollbackMessage = null;
-      newPackages = null;
+      newPackageUnits = null;
       newObjects = null;
       dirtyObjectDeltas = null;
       dirtyObjects = null;
@@ -348,13 +351,10 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
   {
     try
     {
-      monitor.begin(newPackages.length);
-      for (EPackage newPackage : newPackages)
+      monitor.begin(newPackageUnits.length);
+      for (CDOPackageUnit newPackageUnit : newPackageUnits)
       {
-        if (newPackage.getParentURI() == null)
-        {
-          adjustMetaRange(newPackage, monitor.fork());
-        }
+        adjustMetaRange(newPackageUnit, monitor.fork());
       }
     }
     finally
@@ -363,7 +363,7 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
     }
   }
 
-  private void adjustMetaRange(EPackage newPackage, OMMonitor monitor)
+  private void adjustMetaRange(CDOPackageUnit newPackageUnit, OMMonitor monitor)
   {
     CDOIDMetaRange oldRange = newPackage.getMetaIDRange();
     if (!oldRange.isTemporary())
@@ -531,7 +531,7 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
     try
     {
       monitor.begin(6);
-      addNewPackages(monitor.fork());
+      addNewPackageUnits(monitor.fork());
       addRevisions(newObjects, monitor.fork());
       addRevisions(dirtyObjects, monitor.fork());
       revisedDetachObjects(monitor.fork());
@@ -556,16 +556,16 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
     }
   }
 
-  private void addNewPackages(OMMonitor monitor)
+  private void addNewPackageUnits(OMMonitor monitor)
   {
     try
     {
-      monitor.begin(newPackages.length);
-      PackageManager packageManager = (PackageManager)transaction.getRepository().getPackageManager();
-      for (int i = 0; i < newPackages.length; i++)
+      monitor.begin(newPackageUnits.length);
+      CDOPackageRegistry packageRegistry = transaction.getRepository().getPackageRegistry();
+      for (int i = 0; i < newPackageUnits.length; i++)
       {
-        EPackage cdoPackage = newPackages[i];
-        packageManager.addPackage(cdoPackage);
+        CDOPackageUnit packageUnit = newPackageUnits[i];
+        packageRegistry.addPackage(packageUnit);
         monitor.worked();
       }
     }
@@ -643,17 +643,17 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
   /**
    * @author Eike Stepper
    */
-  public final class TransactionPackageManager implements InternalCDOPackageManager
+  public final class TransactionPackageRegistry implements InternalCDOPackageRegistry
   {
     private List<EPackage> newPackages = new ArrayList<EPackage>();
 
-    private PackageManager repositoryPackageManager = (PackageManager)transaction.getRepository().getPackageManager();
+    private CDOPackageRegistry repositoryPackageRegistry = transaction.getRepository().getPackageRegistry();
 
-    public TransactionPackageManager()
+    public TransactionPackageRegistry()
     {
     }
 
-    public void addPackage(EPackage cdoPackage)
+    public void addPackageUnit(CDOPackageUnit packageUnit)
     {
       newPackages.add(cdoPackage);
     }
@@ -673,27 +673,27 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
         }
       }
 
-      return repositoryPackageManager.lookupPackage(uri);
+      return repositoryPackageRegistry.lookupPackage(uri);
     }
 
     public CDOCorePackage getCDOCorePackage()
     {
-      return repositoryPackageManager.getCDOCorePackage();
+      return repositoryPackageRegistry.getCDOCorePackage();
     }
 
     public CDOResourcePackage getCDOResourcePackage()
     {
-      return repositoryPackageManager.getCDOResourcePackage();
+      return repositoryPackageRegistry.getCDOResourcePackage();
     }
 
     public void loadPackage(EPackage cdoPackage)
     {
-      repositoryPackageManager.loadPackage(cdoPackage);
+      repositoryPackageRegistry.loadPackage(cdoPackage);
     }
 
     public void loadPackageEcore(EPackage cdoPackage)
     {
-      repositoryPackageManager.loadPackageEcore(cdoPackage);
+      repositoryPackageRegistry.loadPackageEcore(cdoPackage);
     }
 
     public int getPackageCount()

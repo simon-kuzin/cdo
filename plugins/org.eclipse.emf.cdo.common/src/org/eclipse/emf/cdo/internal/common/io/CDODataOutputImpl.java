@@ -17,6 +17,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOID.Type;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
+import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageURICompressor;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
@@ -332,7 +333,7 @@ public abstract class CDODataOutputImpl implements CDODataOutput
     }
     else
     {
-      type = TODO.getCDOType(value.getClass());
+      type = CDOModelUtil.getPrimitiveType(value.getClass());
       if (type == null)
       {
         throw new IllegalArgumentException("No type for object of class " + value.getClass());

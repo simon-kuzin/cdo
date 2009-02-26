@@ -16,9 +16,17 @@ import org.eclipse.emf.cdo.internal.common.model.CDOTypeImpl;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EClassifier;
+import org.eclipse.emf.ecore.EDataType;
+import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @since 2.0
@@ -35,6 +43,50 @@ public final class CDOModelUtil
   public static final String RESOURCE_FOLDER_CLASS_NAME = "CDOResourceFolder";
 
   public static final String RESOURCE_CLASS_NAME = "CDOResource";
+
+  public static final String ROOT_CLASS_NAME = "EObject";
+
+  private static CDOType[] coreTypes;
+
+  static
+  {
+    List<CDOType> types = new ArrayList<CDOType>();
+    registerCoreType(types, EcorePackage.eINSTANCE.getEBigDecimal(), null);
+    registerCoreType(types, EcorePackage.eINSTANCE.getEBigInteger(), null);
+    registerCoreType(types, EcorePackage.eINSTANCE.getEBooleanObject(), CDOType.BOOLEAN_OBJECT);
+    registerCoreType(types, EcorePackage.eINSTANCE.getEBoolean(), CDOType.BOOLEAN);
+    registerCoreType(types, EcorePackage.eINSTANCE.getEByteArray(), CDOType.BYTE_ARRAY);
+    registerCoreType(types, EcorePackage.eINSTANCE.getEByteObject(), CDOType.BYTE_OBJECT);
+    registerCoreType(types, EcorePackage.eINSTANCE.getEByte(), CDOType.BYTE);
+    registerCoreType(types, EcorePackage.eINSTANCE.getECharacterObject(), CDOType.CHARACTER_OBJECT);
+    registerCoreType(types, EcorePackage.eINSTANCE.getEChar(), CDOType.CHAR);
+    registerCoreType(types, EcorePackage.eINSTANCE.getEDate(), CDOType.DATE);
+    registerCoreType(types, EcorePackage.eINSTANCE.getEDoubleObject(), CDOType.DOUBLE_OBJECT);
+    registerCoreType(types, EcorePackage.eINSTANCE.getEDouble(), CDOType.DOUBLE);
+    registerCoreType(types, EcorePackage.eINSTANCE.getEFloatObject(), CDOType.FLOAT_OBJECT);
+    registerCoreType(types, EcorePackage.eINSTANCE.getEFloat(), CDOType.FLOAT);
+    registerCoreType(types, EcorePackage.eINSTANCE.getEIntegerObject(), CDOType.INTEGER_OBJECT);
+    registerCoreType(types, EcorePackage.eINSTANCE.getEInt(), CDOType.INT);
+    registerCoreType(types, EcorePackage.eINSTANCE.getEJavaClass(), null);
+    registerCoreType(types, EcorePackage.eINSTANCE.getEJavaObject(), null);
+    registerCoreType(types, EcorePackage.eINSTANCE.getELongObject(), CDOType.LONG_OBJECT);
+    registerCoreType(types, EcorePackage.eINSTANCE.getELong(), CDOType.LONG);
+    registerCoreType(types, EcorePackage.eINSTANCE.getEShortObject(), CDOType.SHORT_OBJECT);
+    registerCoreType(types, EcorePackage.eINSTANCE.getEShort(), CDOType.SHORT);
+    registerCoreType(types, EcorePackage.eINSTANCE.getEString(), CDOType.STRING);
+    coreTypes = types.toArray(new CDOType[types.size()]);
+  }
+
+  private static void registerCoreType(List<CDOType> types, EDataType eDataType, CDOType type)
+  {
+    int index = eDataType.getClassifierID();
+    while (index >= types.size())
+    {
+      types.add(null);
+    }
+
+    types.set(index, type);
+  }
 
   private CDOModelUtil()
   {
@@ -70,6 +122,11 @@ public final class CDOModelUtil
     return isResourcePackage(eClass.getEPackage()) && RESOURCE_NODE_CLASS_NAME.equals(eClass.getName());
   }
 
+  public static boolean isRoot(EClass eClass)
+  {
+    return isCorePackage(eClass.getEPackage()) && ROOT_CLASS_NAME.equals(eClass.getName());
+  }
+
   public static CDOType getType(int typeID)
   {
     CDOTypeImpl type = CDOTypeImpl.ids.get(typeID);
@@ -79,6 +136,78 @@ public final class CDOModelUtil
     }
 
     return type;
+  }
+
+  public static CDOType getType(EClassifier eClassifier)
+  {
+    if (eClassifier instanceof EClass)
+    {
+      return CDOType.OBJECT;
+    }
+
+    if (eClassifier instanceof EEnum)
+    {
+      return CDOType.ENUM;
+    }
+
+    EDataType eDataType = (EDataType)eClassifier;
+    if (isCorePackage(eDataType.getEPackage()))
+    {
+      int index = eDataType.getClassifierID();
+      return coreTypes[index];
+    }
+
+    return CDOType.CUSTOM;
+  }
+
+  public static CDOType getPrimitiveType(Class<? extends Object> primitiveType)
+  {
+    if (primitiveType == String.class)
+    {
+      return CDOType.STRING;
+    }
+
+    if (primitiveType == Boolean.class)
+    {
+      return CDOType.BOOLEAN;
+    }
+
+    if (primitiveType == Integer.class)
+    {
+      return CDOType.INT;
+    }
+
+    if (primitiveType == Double.class)
+    {
+      return CDOType.DOUBLE;
+    }
+
+    if (primitiveType == Float.class)
+    {
+      return CDOType.FLOAT;
+    }
+
+    if (primitiveType == Long.class)
+    {
+      return CDOType.LONG;
+    }
+
+    if (primitiveType == Date.class)
+    {
+      return CDOType.DATE;
+    }
+
+    if (primitiveType == Byte.class)
+    {
+      return CDOType.BYTE;
+    }
+
+    if (primitiveType == Character.class)
+    {
+      return CDOType.CHAR;
+    }
+
+    throw new IllegalArgumentException("Not a primitive type nor String nor Date: " + primitiveType);
   }
 
   public static CDOPackageAdapter getPackageAdapter(EPackage ePackage, CDOPackageRegistry packageRegistry)

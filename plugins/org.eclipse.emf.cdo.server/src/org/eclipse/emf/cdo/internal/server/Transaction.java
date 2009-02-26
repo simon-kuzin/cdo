@@ -15,15 +15,14 @@ package org.eclipse.emf.cdo.internal.server;
 import org.eclipse.emf.cdo.common.CDOCommonView;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
-import org.eclipse.emf.cdo.internal.server.TransactionCommitContextImpl.TransactionPackageManager;
+import org.eclipse.emf.cdo.internal.server.TransactionCommitContextImpl.TransactionPackageRegistry;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.ITransaction;
 
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
-
-import org.eclipse.emf.ecore.EPackage;
 
 import java.text.MessageFormat;
 import java.util.List;
@@ -99,7 +98,7 @@ public class Transaction extends View implements ITransaction
   {
     public Transaction getTransaction();
 
-    public TransactionPackageManager getPackageManager();
+    public TransactionPackageRegistry getPackageRegistry();
 
     public void preCommit();
 
@@ -115,7 +114,7 @@ public class Transaction extends View implements ITransaction
 
     public List<CDOIDMetaRange> getMetaIDRanges();
 
-    public void setNewPackages(EPackage[] newPackages);
+    public void setNewPackageUnits(CDOPackageUnit[] newPackageUnits);
 
     public void setNewObjects(CDORevision[] newObjects);
 
@@ -127,5 +126,4 @@ public class Transaction extends View implements ITransaction
 
     public boolean isAutoReleaseLocksEnabled();
   }
-
 }
