@@ -15,11 +15,11 @@
 package org.eclipse.emf.cdo.internal.server;
 
 import org.eclipse.emf.cdo.common.CDOCommonSession;
-import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
+import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageURICompressor;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
@@ -371,7 +371,7 @@ public class Session extends Container<IView> implements ISession, CDOIDProvider
   {
     RevisionManager revisionManager = (RevisionManager)getSessionManager().getRepository().getRevisionManager();
     EClass cdoClass = revision.getEClass();
-    EStructuralFeature[] features = TODO.getAllPersistentFeatures(cdoClass);
+    EStructuralFeature[] features = CDOModelUtil.getAllPersistentFeatures(cdoClass);
     for (int i = 0; i < features.length; i++)
     {
       EStructuralFeature feature = features[i];

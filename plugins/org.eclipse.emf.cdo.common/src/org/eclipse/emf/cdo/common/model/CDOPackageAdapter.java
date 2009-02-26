@@ -23,4 +23,10 @@ public interface CDOPackageAdapter extends Adapter
   public CDOPackageRegistry getPackageRegistry();
 
   public CDOPackageInfo getPackageInfo();
+
+  public boolean isCorePackage();
+
+  public boolean isResourcePackage();
+
+  public boolean isSystemPackage();
 }

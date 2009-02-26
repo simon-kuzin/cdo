@@ -10,8 +10,8 @@
  */
 package org.eclipse.emf.cdo.server.internal.db;
 
-import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
@@ -29,7 +29,7 @@ public class HorizontalClassMapping extends ClassMapping
 {
   public HorizontalClassMapping(HorizontalMappingStrategy mappingStrategy, EClass cdoClass)
   {
-    super(mappingStrategy, cdoClass, TODO.getAllPersistentFeatures(cdoClass));
+    super(mappingStrategy, cdoClass, CDOModelUtil.getAllPersistentFeatures(cdoClass));
   }
 
   @Override

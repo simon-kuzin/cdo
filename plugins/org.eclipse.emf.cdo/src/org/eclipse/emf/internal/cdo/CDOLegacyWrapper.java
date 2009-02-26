@@ -12,8 +12,8 @@ package org.eclipse.emf.internal.cdo;
 
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.CDOState;
-import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
@@ -257,7 +257,7 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper
     // Handle values
     CDOPackageRegistry packageRegistry = cdoView().getSession().getPackageRegistry();
     EClass cdoClass = revision.getEClass();
-    for (EStructuralFeature feature : TODO.getAllPersistentFeatures(cdoClass))
+    for (EStructuralFeature feature : CDOModelUtil.getAllPersistentFeatures(cdoClass))
     {
       instanceToRevisionFeature(feature, packageRegistry);
     }
@@ -343,7 +343,7 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper
       // Handle values
       CDOPackageRegistry packageRegistry = cdoView().getSession().getPackageRegistry();
       EClass cdoClass = revision.getEClass();
-      for (EStructuralFeature feature : TODO.getAllPersistentFeatures(cdoClass))
+      for (EStructuralFeature feature : CDOModelUtil.getAllPersistentFeatures(cdoClass))
       {
         revisionToInstanceFeature(feature, packageRegistry);
       }
@@ -580,7 +580,7 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper
     {
       CDOPackageRegistry packageRegistry = cdoView().getSession().getPackageRegistry();
       EClass cdoClass = revision.getEClass();
-      for (EStructuralFeature feature : TODO.getAllPersistentFeatures(cdoClass))
+      for (EStructuralFeature feature : CDOModelUtil.getAllPersistentFeatures(cdoClass))
       {
         if (feature instanceof EReference)
         {

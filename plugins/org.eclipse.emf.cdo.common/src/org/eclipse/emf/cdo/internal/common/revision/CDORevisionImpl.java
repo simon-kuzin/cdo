@@ -16,6 +16,7 @@ package org.eclipse.emf.cdo.internal.common.revision;
 import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
+import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.AbstractCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDOList;
@@ -46,7 +47,7 @@ public class CDORevisionImpl extends AbstractCDORevision
   public CDORevisionImpl(CDORevisionImpl source)
   {
     super(source);
-    EStructuralFeature[] features = TODO.getAllPersistentFeatures(getEClass());
+    EStructuralFeature[] features = CDOModelUtil.getAllPersistentFeatures(getEClass());
     initValues(features.length);
     for (int i = 0; i < features.length; i++)
     {
@@ -73,20 +74,20 @@ public class CDORevisionImpl extends AbstractCDORevision
   }
 
   @Override
-  protected void initValues(int size)
+  protected void initValues(EStructuralFeature[] allPersistentFeatures)
   {
-    values = new Object[size];
+    values = new Object[allPersistentFeatures.length];
   }
 
   @Override
-  protected Object getValue(int i)
+  protected Object getValue(int featureIndex)
   {
-    return values[i];
+    return values[featureIndex];
   }
 
   @Override
-  protected void setValue(int i, Object value)
+  protected void setValue(int featureIndex, Object value)
   {
-    values[i] = value;
+    values[featureIndex] = value;
   }
 }

@@ -12,7 +12,6 @@ package org.eclipse.emf.cdo.common;
 
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
-import org.eclipse.emf.cdo.common.model.CDOClassAdapter;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.common.revision.CDOList;
@@ -20,23 +19,18 @@ import org.eclipse.emf.cdo.common.revision.CDOListFactory;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
-import org.eclipse.emf.cdo.internal.common.model.CDOClassAdapterImpl;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDOList;
 
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
-import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
-import org.eclipse.emf.ecore.util.EcoreUtil;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /**
  * @author Eike Stepper
@@ -65,29 +59,6 @@ public final class TODO
   {
     // TODO: implement TODO.getAllPersistentClasses(cdoPackage)
     throw new UnsupportedOperationException();
-  }
-
-  public static EStructuralFeature[] getAllPersistentFeatures(EClass cdoClass)
-  {
-    EList<Adapter> adapters = cdoClass.eAdapters();
-    CDOClassAdapter adapter = (CDOClassAdapter)EcoreUtil.getAdapter(adapters, CDOClassAdapter.class);
-    if (adapter == null)
-    {
-      List<EStructuralFeature> result = new ArrayList<EStructuralFeature>();
-      for (EStructuralFeature feature : cdoClass.getEAllStructuralFeatures())
-      {
-        if (!feature.isTransient())
-        {
-          result.add(feature);
-        }
-      }
-
-      adapter = new CDOClassAdapterImpl();
-      ((CDOClassAdapterImpl)adapter).setAllPersistentFeatures(result.toArray(new EStructuralFeature[result.size()]));
-      adapters.add(adapter);
-    }
-
-    return adapter.getAllPersistentFeatures();
   }
 
   public static EClassifier getClassifier(EPackage cdoPackage, int classifierID)
@@ -195,12 +166,6 @@ public final class TODO
   public static boolean isRoot(EClass cdoClass)
   {
     // TODO: implement TODO.isRoot(cdoClass)
-    throw new UnsupportedOperationException();
-  }
-
-  public static boolean isSystemPackage(EPackage ePackage)
-  {
-    // TODO: implement TODO.isSystemPackage(ePackage)
     throw new UnsupportedOperationException();
   }
 

@@ -14,7 +14,6 @@ package org.eclipse.emf.internal.cdo.transaction;
 
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.CDOState;
-import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
@@ -1035,7 +1034,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
         EPackage topLevelPackage = EMFUtil.getTopLevelPackage(ePackage);
         if (ePackage == topLevelPackage || usedPackages.add(topLevelPackage))
         {
-          if (!TODO.isSystemPackage(topLevelPackage))
+          if (!CDOModelUtil.isSystemPackage(topLevelPackage))
           {
             CDOPackageUnit packageUnit = CDOModelUtil.getPackageUnit(topLevelPackage, packageRegistry);
             if (packageUnit.getState() == CDOPackageUnit.State.NEW)
@@ -1073,7 +1072,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
 
     for (EPackage usedPackage : usedTopLevelPackages)
     {
-      if (!TODO.isSystemPackage(usedPackage))
+      if (!CDOModelUtil.isSystemPackage(usedPackage))
       {
         CDOPackageUnit packageUnit = CDOModelUtil.getPackageUnit(usedPackage, packageRegistry);
         if (packageUnit.getState() == CDOPackageUnit.State.NEW)

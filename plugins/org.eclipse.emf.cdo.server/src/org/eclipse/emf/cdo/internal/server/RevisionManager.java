@@ -12,9 +12,9 @@
  */
 package org.eclipse.emf.cdo.internal.server;
 
-import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDObjectFactory;
+import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.internal.common.revision.CDORevisionResolverImpl;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.IRevisionManager;
@@ -93,7 +93,7 @@ public class RevisionManager extends CDORevisionResolverImpl implements IRevisio
   protected void ensureChunks(InternalCDORevision revision, int referenceChunk, IStoreAccessor accessor)
   {
     EClass cdoClass = revision.getEClass();
-    EStructuralFeature[] features = TODO.getAllPersistentFeatures(cdoClass);
+    EStructuralFeature[] features = CDOModelUtil.getAllPersistentFeatures(cdoClass);
     for (int i = 0; i < features.length; i++)
     {
       EStructuralFeature feature = features[i];

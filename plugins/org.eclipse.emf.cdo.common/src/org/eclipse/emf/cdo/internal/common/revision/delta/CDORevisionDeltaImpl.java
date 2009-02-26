@@ -12,10 +12,10 @@
  */
 package org.eclipse.emf.cdo.internal.common.revision.delta;
 
-import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
+import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionData;
@@ -224,7 +224,7 @@ public class CDORevisionDeltaImpl implements InternalCDORevisionDelta
 
   private void compare(CDORevision originRevision, CDORevision dirtyRevision)
   {
-    EStructuralFeature[] features = TODO.getAllPersistentFeatures(cdoClass);
+    EStructuralFeature[] features = CDOModelUtil.getAllPersistentFeatures(cdoClass);
     int count = cdoClass.getFeatureCount();
     for (int i = 0; i < count; i++)
     {

@@ -21,5 +21,15 @@ public interface CDOClassAdapter extends Adapter
 {
   public EClass getEClass();
 
+  public boolean isResourceNode();
+
+  public boolean isResourceFolder();
+
+  public boolean isResource();
+
   public EStructuralFeature[] getAllPersistentFeatures();
+
+  public int getFeatureIndex(EStructuralFeature feature);
+
+  public int getFeatureIndex(int featureID);
 }

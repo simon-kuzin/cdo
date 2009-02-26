@@ -10,6 +10,7 @@
  */
 package org.eclipse.emf.cdo.internal.common.model;
 
+import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageAdapter;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
@@ -59,5 +60,20 @@ public class CDOPackageAdapterImpl extends AdapterImpl implements CDOPackageAdap
   public void setPackageInfo(CDOPackageInfo packageInfo)
   {
     this.packageInfo = packageInfo;
+  }
+
+  public boolean isCorePackage()
+  {
+    return CDOModelUtil.isCorePackage(getEPackage());
+  }
+
+  public boolean isResourcePackage()
+  {
+    return CDOModelUtil.isResourcePackage(getEPackage());
+  }
+
+  public boolean isSystemPackage()
+  {
+    return CDOModelUtil.isSystemPackage(getEPackage());
   }
 }
