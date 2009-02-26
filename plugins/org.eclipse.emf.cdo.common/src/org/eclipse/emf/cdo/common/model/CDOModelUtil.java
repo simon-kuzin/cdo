@@ -153,11 +153,16 @@ public final class CDOModelUtil
     EDataType eDataType = (EDataType)eClassifier;
     if (isCorePackage(eDataType.getEPackage()))
     {
-      int index = eDataType.getClassifierID();
-      return coreTypes[index];
+      return getCoreType(eDataType);
     }
 
     return CDOType.CUSTOM;
+  }
+
+  public static CDOType getCoreType(EDataType eDataType)
+  {
+    int index = eDataType.getClassifierID();
+    return coreTypes[index];
   }
 
   public static CDOType getPrimitiveType(Class<? extends Object> primitiveType)

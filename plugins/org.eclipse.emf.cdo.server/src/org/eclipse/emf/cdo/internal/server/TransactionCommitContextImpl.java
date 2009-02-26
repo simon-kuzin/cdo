@@ -15,29 +15,26 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
+import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionResolver;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
+import org.eclipse.emf.cdo.internal.common.model.CDOPackageRegistryImpl;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.StoreThreadLocal;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.revision.CDOIDMapper;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
 
-import org.eclipse.net4j.util.ObjectUtil;
 import org.eclipse.net4j.util.StringUtil;
 import org.eclipse.net4j.util.concurrent.RWLockManager;
 import org.eclipse.net4j.util.concurrent.TimeoutRuntimeException;
-import org.eclipse.net4j.util.event.IListener;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
-
-import org.eclipse.emf.ecore.EPackage;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -90,7 +87,7 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
   public TransactionCommitContextImpl(Transaction transaction)
   {
     this.transaction = transaction;
-    packageRegistry = new TransactionPackageRegistry();
+    packageRegistry = new TransactionPackageRegistry(transaction.getRepository().getPackageRegistry());
   }
 
   public int getTransactionID()
@@ -643,87 +640,22 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
   /**
    * @author Eike Stepper
    */
-  public final class TransactionPackageRegistry implements InternalCDOPackageRegistry
+  public static final class TransactionPackageRegistry extends CDOPackageRegistryImpl
   {
-    private List<EPackage> newPackages = new ArrayList<EPackage>();
+    private List<CDOPackageUnit> packageUnits = new ArrayList<CDOPackageUnit>();
 
-    private CDOPackageRegistry repositoryPackageRegistry = transaction.getRepository().getPackageRegistry();
-
-    public TransactionPackageRegistry()
+    public TransactionPackageRegistry(CDOPackageRegistry repositoryPackageRegistry)
     {
+      super(repositoryPackageRegistry);
     }
 
     public void addPackageUnit(CDOPackageUnit packageUnit)
     {
-      newPackages.add(cdoPackage);
-    }
-
-    public void clear()
-    {
-      newPackages.clear();
-    }
-
-    public EPackage lookupPackage(String uri)
-    {
-      for (EPackage cdoPackage : newPackages)
+      packageUnits.add(packageUnit);
+      for (CDOPackageInfo packageInfo : packageUnit.getPackageInfos())
       {
-        if (ObjectUtil.equals(cdoPackage.getNsURI(), uri))
-        {
-          return cdoPackage;
-        }
+
       }
-
-      return repositoryPackageRegistry.lookupPackage(uri);
-    }
-
-    public CDOCorePackage getCDOCorePackage()
-    {
-      return repositoryPackageRegistry.getCDOCorePackage();
-    }
-
-    public CDOResourcePackage getCDOResourcePackage()
-    {
-      return repositoryPackageRegistry.getCDOResourcePackage();
-    }
-
-    public void loadPackage(EPackage cdoPackage)
-    {
-      repositoryPackageRegistry.loadPackage(cdoPackage);
-    }
-
-    public void loadPackageEcore(EPackage cdoPackage)
-    {
-      repositoryPackageRegistry.loadPackageEcore(cdoPackage);
-    }
-
-    public int getPackageCount()
-    {
-      throw new UnsupportedOperationException();
-    }
-
-    public EPackage[] getPackages()
-    {
-      throw new UnsupportedOperationException();
-    }
-
-    public EPackage[] getElements()
-    {
-      throw new UnsupportedOperationException();
-    }
-
-    public boolean isEmpty()
-    {
-      throw new UnsupportedOperationException();
-    }
-
-    public void addListener(IListener listener)
-    {
-      throw new UnsupportedOperationException();
-    }
-
-    public void removeListener(IListener listener)
-    {
-      throw new UnsupportedOperationException();
     }
   }
 }
