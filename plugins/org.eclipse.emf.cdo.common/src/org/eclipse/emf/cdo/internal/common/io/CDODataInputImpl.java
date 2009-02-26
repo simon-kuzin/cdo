@@ -20,11 +20,13 @@ import org.eclipse.emf.cdo.common.id.CDOIDObjectFactory;
 import org.eclipse.emf.cdo.common.id.CDOID.Type;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
+import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.model.CDOPackageURICompressor;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnitManager;
+import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDOListFactory;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
@@ -230,6 +232,13 @@ public abstract class CDODataInputImpl implements CDODataInput
     return cdoClass;
   }
 
+  public CDOType readCDOType() throws IOException
+  {
+    // TODO Use byte IDs
+    int typeID = readInt();
+    return CDOModelUtil.getType(typeID);
+  }
+
   public CDOID readCDOID() throws IOException
   {
     byte ordinal = readByte();
@@ -355,13 +364,14 @@ public abstract class CDODataInputImpl implements CDODataInput
 
   public Object readCDORevisionOrPrimitive() throws IOException
   {
-    return TODO.readCDORevisionOrPrimitive(this);
+    CDOType type = readCDOType();
+    return type.readValue(this);
   }
 
-  public Object readCDORevisionOrPrimitiveOrClass() throws IOException
+  public Object readCDORevisionOrPrimitiveOrClassifier() throws IOException
   {
-    boolean isClass = readBoolean();
-    if (isClass)
+    boolean isClassifier = readBoolean();
+    if (isClassifier)
     {
       return readEClassifierRefAndResolve();
     }

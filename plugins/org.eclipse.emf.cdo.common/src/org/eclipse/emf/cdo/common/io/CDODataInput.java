@@ -17,6 +17,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
+import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
@@ -52,6 +53,8 @@ public interface CDODataInput extends ExtendedDataInput
 
   public void readEPackage(EPackage cdoPackage) throws IOException;
 
+  public CDOType readCDOType() throws IOException;
+
   // /////////////////////////////////////////////////////////////////////////////////////////////////
 
   public CDOID readCDOID() throws IOException;
@@ -78,7 +81,7 @@ public interface CDODataInput extends ExtendedDataInput
   /**
    * Read either a CDORevision, a primitive value or a EClass.
    */
-  public Object readCDORevisionOrPrimitiveOrClass() throws IOException;
+  public Object readCDORevisionOrPrimitiveOrClassifier() throws IOException;
 
   // /////////////////////////////////////////////////////////////////////////////////////////////////
 

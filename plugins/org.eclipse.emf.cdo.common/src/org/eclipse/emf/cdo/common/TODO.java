@@ -10,26 +10,33 @@
  */
 package org.eclipse.emf.cdo.common;
 
-import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
+import org.eclipse.emf.cdo.common.model.CDOClassAdapter;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
+import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDOListFactory;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
+import org.eclipse.emf.cdo.internal.common.model.CDOClassAdapterImpl;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDOList;
 
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
+import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Eike Stepper
@@ -62,8 +69,25 @@ public final class TODO
 
   public static EStructuralFeature[] getAllPersistentFeatures(EClass cdoClass)
   {
-    // TODO: implement TODO.getAllPersistentFeatures(cdoClass)
-    throw new UnsupportedOperationException();
+    EList<Adapter> adapters = cdoClass.eAdapters();
+    CDOClassAdapter adapter = (CDOClassAdapter)EcoreUtil.getAdapter(adapters, CDOClassAdapter.class);
+    if (adapter == null)
+    {
+      List<EStructuralFeature> result = new ArrayList<EStructuralFeature>();
+      for (EStructuralFeature feature : cdoClass.getEAllStructuralFeatures())
+      {
+        if (!feature.isTransient())
+        {
+          result.add(feature);
+        }
+      }
+
+      adapter = new CDOClassAdapterImpl();
+      ((CDOClassAdapterImpl)adapter).setAllPersistentFeatures(result.toArray(new EStructuralFeature[result.size()]));
+      adapters.add(adapter);
+    }
+
+    return adapter.getAllPersistentFeatures();
   }
 
   public static EClassifier getClassifier(EPackage cdoPackage, int classifierID)
@@ -94,10 +118,54 @@ public final class TODO
     return null;
   }
 
-  public static EClassifier getEClassifier(Class<? extends Object> primitiveType)
+  public static CDOType getCDOType(Class<? extends Object> primitiveType)
   {
-    // TODO: implement TODO.getEClassifier(primitiveType)
-    throw new UnsupportedOperationException();
+    if (primitiveType == String.class)
+    {
+      return CDOType.STRING;
+    }
+
+    if (primitiveType == Boolean.class)
+    {
+      return CDOType.BOOLEAN;
+    }
+
+    if (primitiveType == Integer.class)
+    {
+      return CDOType.INT;
+    }
+
+    if (primitiveType == Double.class)
+    {
+      return CDOType.DOUBLE;
+    }
+
+    if (primitiveType == Float.class)
+    {
+      return CDOType.FLOAT;
+    }
+
+    if (primitiveType == Long.class)
+    {
+      return CDOType.LONG;
+    }
+
+    if (primitiveType == Date.class)
+    {
+      return CDOType.DATE;
+    }
+
+    if (primitiveType == Byte.class)
+    {
+      return CDOType.BYTE;
+    }
+
+    if (primitiveType == Character.class)
+    {
+      return CDOType.CHAR;
+    }
+
+    throw new IllegalArgumentException("Not a primitive type nor String nor Date: " + primitiveType);
   }
 
   public static EClass getResourceNodeClass(CDOPackageRegistry packageManager)
@@ -121,6 +189,18 @@ public final class TODO
   public static boolean isResourceNode(EClass cdoClass)
   {
     // TODO: implement TODO.isResourceNode(cdoClass)
+    throw new UnsupportedOperationException();
+  }
+
+  public static boolean isRoot(EClass cdoClass)
+  {
+    // TODO: implement TODO.isRoot(cdoClass)
+    throw new UnsupportedOperationException();
+  }
+
+  public static boolean isSystemPackage(EPackage ePackage)
+  {
+    // TODO: implement TODO.isSystemPackage(ePackage)
     throw new UnsupportedOperationException();
   }
 
@@ -165,12 +245,6 @@ public final class TODO
     return list;
   }
 
-  public static Object readCDORevisionOrPrimitive(CDODataInput in) throws IOException
-  {
-    // TODO: implement TODO.readCDORevisionOrPrimitive(in)
-    throw new UnsupportedOperationException();
-  }
-
   public static void readEPackage(CDODataInput in, EPackage cdoPackage) throws IOException
   {
     // TODO: implement TODO.readEPackage(in, cdoPackage)
@@ -195,41 +269,6 @@ public final class TODO
     throw new UnsupportedOperationException();
   }
 
-  public static void writeCDORevisionOrPrimitive(CDODataOutput out, Object value) throws IOException
-  {
-    if (value == null)
-    {
-      value = CDOID.NULL;
-    }
-    else if (value instanceof CDORevision)
-    {
-      value = ((CDORevision)value).getID();
-    }
-
-    EClassifier type = null;
-    if (value instanceof CDOID)
-    {
-      CDOID id = (CDOID)value;
-      if (id.isTemporary())
-      {
-        throw new IllegalArgumentException("Temporary ID not supported: " + value);
-      }
-
-      // TODO: type = id.getEClass();
-    }
-    else
-    {
-      type = TODO.getEClassifier(value.getClass());
-      if (type == null)
-      {
-        throw new IllegalArgumentException("No type for object of class " + value.getClass());
-      }
-    }
-
-    out.writeEClassifierRef(type);
-    writeValue(out, value, type);
-  }
-
   public static void writeEPackage(CDODataOutput out, EPackage cdoPackage) throws IOException
   {
     // TODO: implement TODO.writeEPackage(cdoDataOutputImpl, cdoPackage)
@@ -245,18 +284,6 @@ public final class TODO
   public static void writeValue(CDODataOutput out, Object value, EClassifier type)
   {
     // TODO: implement TODO.writeValue(out, value, type)
-    throw new UnsupportedOperationException();
-  }
-
-  public static boolean isRoot(EClass cdoClass)
-  {
-    // TODO: implement TODO.isRoot(cdoClass)
-    throw new UnsupportedOperationException();
-  }
-
-  public static boolean isSystemPackage(EPackage ePackage)
-  {
-    // TODO: implement TODO.isSystemPackage(ePackage)
     throw new UnsupportedOperationException();
   }
 }

@@ -11,16 +11,15 @@
 package org.eclipse.emf.cdo.common.model;
 
 import org.eclipse.emf.common.notify.Adapter;
-import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 /**
  * @author Eike Stepper
  */
-public interface CDOPackageAdapter extends Adapter
+public interface CDOClassAdapter extends Adapter
 {
-  public EPackage getEPackage();
+  public EClass getEClass();
 
-  public CDOPackageRegistry getPackageRegistry();
-
-  public CDOPackageInfo getPackageInfo();
+  public EStructuralFeature[] getAllPersistentFeatures();
 }

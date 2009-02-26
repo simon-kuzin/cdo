@@ -18,6 +18,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
+import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
@@ -55,6 +56,8 @@ public interface CDODataOutput extends ExtendedDataOutput
 
   public void writeEPackage(EPackage cdoPackage) throws IOException;
 
+  public void writeCDOType(CDOType cdoType) throws IOException;
+
   // /////////////////////////////////////////////////////////////////////////////////////////////////
 
   public void writeCDOID(CDOID id) throws IOException;
@@ -81,7 +84,7 @@ public interface CDODataOutput extends ExtendedDataOutput
   /**
    * Write either a CDORevision, a primitive value or a EClass.
    */
-  public void writeCDORevisionOrPrimitiveOrClass(Object value) throws IOException;
+  public void writeCDORevisionOrPrimitiveOrClassifier(Object value) throws IOException;
 
   // /////////////////////////////////////////////////////////////////////////////////////////////////
 

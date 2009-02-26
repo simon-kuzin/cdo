@@ -20,6 +20,7 @@ import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageURICompressor;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
+import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
@@ -27,6 +28,7 @@ import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.internal.common.id.CDOIDAndVersionImpl;
+import org.eclipse.emf.cdo.internal.common.model.CDOTypeImpl;
 import org.eclipse.emf.cdo.internal.common.revision.delta.CDOFeatureDeltaImpl;
 import org.eclipse.emf.cdo.internal.common.revision.delta.CDORevisionDeltaImpl;
 import org.eclipse.emf.cdo.spi.common.id.AbstractCDOID;
@@ -181,6 +183,11 @@ public abstract class CDODataOutputImpl implements CDODataOutput
     TODO.writeEPackage(this, cdoPackage);
   }
 
+  public void writeCDOType(CDOType cdoType) throws IOException
+  {
+    ((CDOTypeImpl)cdoType).write(this);
+  }
+
   public void writeCDOID(CDOID id) throws IOException
   {
     if (id == null)
@@ -303,12 +310,42 @@ public abstract class CDODataOutputImpl implements CDODataOutput
 
   public void writeCDORevisionOrPrimitive(Object value) throws IOException
   {
-    TODO.writeCDORevisionOrPrimitive(this, value);
+    if (value == null)
+    {
+      value = CDOID.NULL;
+    }
+    else if (value instanceof CDORevision)
+    {
+      value = ((CDORevision)value).getID();
+    }
+
+    CDOType type = null;
+    if (value instanceof CDOID)
+    {
+      CDOID id = (CDOID)value;
+      if (id.isTemporary())
+      {
+        throw new IllegalArgumentException("Temporary ID not supported: " + value);
+      }
+
+      type = CDOType.OBJECT;
+    }
+    else
+    {
+      type = TODO.getCDOType(value.getClass());
+      if (type == null)
+      {
+        throw new IllegalArgumentException("No type for object of class " + value.getClass());
+      }
+    }
+
+    writeCDOType(type);
+    type.writeValue(this, value);
   }
 
-  public void writeCDORevisionOrPrimitiveOrClass(Object value) throws IOException
+  public void writeCDORevisionOrPrimitiveOrClassifier(Object value) throws IOException
   {
-    if (value instanceof EClass)
+    if (value instanceof EClassifier)
     {
       writeBoolean(true);
       writeEClassifierRef((EClass)value);

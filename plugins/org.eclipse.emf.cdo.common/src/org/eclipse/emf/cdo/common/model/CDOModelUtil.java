@@ -10,6 +10,8 @@
  */
 package org.eclipse.emf.cdo.common.model;
 
+import org.eclipse.emf.cdo.internal.common.model.CDOTypeImpl;
+
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EPackage;
@@ -22,6 +24,17 @@ public final class CDOModelUtil
 {
   private CDOModelUtil()
   {
+  }
+
+  public static CDOType getType(int typeID)
+  {
+    CDOTypeImpl type = CDOTypeImpl.ids.get(typeID);
+    if (type == null)
+    {
+      throw new IllegalStateException("No type for id " + typeID);
+    }
+
+    return type;
   }
 
   public static CDOPackageAdapter getPackageAdapter(EPackage ePackage, CDOPackageRegistry packageRegistry)
@@ -39,7 +52,7 @@ public final class CDOModelUtil
         }
       }
     }
-  
+
     return null;
   }
 
