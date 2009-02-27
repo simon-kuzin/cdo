@@ -133,10 +133,6 @@ public abstract class CDOPackageUnitImpl implements InternalCDOPackageUnit
   {
     id = in.readString();
     timeStamp = in.readLong();
-    if (TRACER.isEnabled())
-    {
-      TRACER.format("Read {0}", this);
-    }
 
     int size = in.readInt();
     packageInfos = new InternalCDOPackageInfo[size];
@@ -144,6 +140,11 @@ public abstract class CDOPackageUnitImpl implements InternalCDOPackageUnit
     {
       packageInfos[i] = in.readCDOPackageInfo();
       ((InternalCDOPackageInfo)packageInfos[i]).setPackageUnit(this);
+    }
+
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("Read {0}", this);
     }
   }
 
