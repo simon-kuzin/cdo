@@ -28,7 +28,7 @@ public interface InternalCDOPackageRegistry extends CDOPackageRegistry
 
   public void setPackageUnitManager(InternalCDOPackageUnitManager packageUnitManager);
 
-  public void putEPackageBasic(EPackage ePackage);
+  public void basicPutEPackage(EPackage ePackage);
 
   public void addPackageDescriptors(List<CDOPackageInfo> packageInfos);
 

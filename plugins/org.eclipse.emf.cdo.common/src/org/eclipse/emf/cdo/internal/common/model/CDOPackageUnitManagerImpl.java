@@ -72,14 +72,20 @@ public class CDOPackageUnitManagerImpl extends Container<CDOPackageUnit> impleme
 
   public void addPackageUnit(InternalCDOPackageUnit packageUnit)
   {
-    if (TRACER.isEnabled())
-    {
-      TRACER.format("Adding {0}", packageUnit);
-    }
-
     synchronized (packageUnits)
     {
-      packageUnits.put(packageUnit.getID(), packageUnit);
+      String id = packageUnit.getID();
+      if (packageUnits.containsKey(id))
+      {
+        throw new IllegalStateException("Duplicate ID: " + packageUnit);
+      }
+
+      packageUnits.put(id, packageUnit);
+    }
+
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("Added {0}", packageUnit);
     }
 
     fireElementAddedEvent(packageUnit);

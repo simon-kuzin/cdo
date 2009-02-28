@@ -84,7 +84,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     throw new UnsupportedOperationException();
   }
 
-  public void putEPackageBasic(EPackage ePackage)
+  public void basicPutEPackage(EPackage ePackage)
   {
     if (TRACER.isEnabled())
     {
@@ -114,6 +114,12 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       InternalCDOPackageUnit packageUnit = createPackageUnit(ePackage);
       packageUnitManager.addPackageUnit(packageUnit);
       return null;
+    }
+
+    if (value instanceof InternalCDOPackageUnit)
+    {
+      InternalCDOPackageUnit packageUnit = (InternalCDOPackageUnit)value;
+      packageUnitManager.addPackageUnit(packageUnit);
     }
 
     return super.put(nsURI, value);

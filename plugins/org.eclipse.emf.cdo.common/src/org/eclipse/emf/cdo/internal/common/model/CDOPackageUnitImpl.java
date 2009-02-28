@@ -12,7 +12,6 @@ package org.eclipse.emf.cdo.internal.common.model;
 
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
-import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
@@ -133,7 +132,7 @@ public abstract class CDOPackageUnitImpl implements InternalCDOPackageUnit
 
     InternalCDOPackageInfo[] packageInfos = getPackageInfos();
     out.writeInt(packageInfos.length);
-    for (CDOPackageInfo packageInfo : packageInfos)
+    for (InternalCDOPackageInfo packageInfo : packageInfos)
     {
       out.writeCDOPackageInfo(packageInfo);
     }
