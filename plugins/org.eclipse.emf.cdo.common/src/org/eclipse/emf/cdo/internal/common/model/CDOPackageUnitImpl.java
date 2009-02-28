@@ -16,7 +16,6 @@ import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnitManager;
 
@@ -28,9 +27,9 @@ import org.eclipse.emf.ecore.EPackage;
 
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -46,7 +45,7 @@ public abstract class CDOPackageUnitImpl implements InternalCDOPackageUnit
 
   private long timeStamp;
 
-  private InternalCDOPackageInfo[] packageInfos;
+  private Map<String, InternalCDOPackageInfo> packageInfos = new HashMap<String, InternalCDOPackageInfo>();
 
   private boolean loaded;
 
@@ -84,25 +83,42 @@ public abstract class CDOPackageUnitImpl implements InternalCDOPackageUnit
     this.timeStamp = timeStamp;
   }
 
+  public InternalCDOPackageInfo getPackageInfo(String packageURI)
+  {
+    return packageInfos.get(packageURI);
+  }
+
   public InternalCDOPackageInfo[] getPackageInfos()
   {
-    return packageInfos;
+    return packageInfos.values().toArray(new InternalCDOPackageInfo[packageInfos.size()]);
   }
 
-  public void setPackageInfos(InternalCDOPackageInfo[] packageInfos)
+  public void addPackageInfo(InternalCDOPackageInfo packageInfo)
   {
-    this.packageInfos = packageInfos;
+    packageInfos.put(packageInfo.getPackageURI(), packageInfo);
   }
 
-  public boolean isLoaded()
+  public synchronized boolean isLoaded()
   {
     return loaded;
   }
 
-  public void load()
+  public synchronized void load()
   {
-    // TODO: implement CDOPackageUnitImpl.load()
-    throw new UnsupportedOperationException();
+    if (loaded)
+    {
+      return;
+    }
+
+    EPackage[] ePackages = manager.loadPackageUnit(this);
+    for (EPackage ePackage : ePackages)
+    {
+      String packageURI = ePackage.getNsURI();
+      InternalCDOPackageInfo packageInfo = getPackageInfo(packageURI);
+      packageInfo.setEPackage(ePackage);
+    }
+
+    loaded = true;
   }
 
   public void write(CDODataOutput out) throws IOException
@@ -115,17 +131,11 @@ public abstract class CDOPackageUnitImpl implements InternalCDOPackageUnit
     out.writeString(id);
     out.writeLong(timeStamp);
 
-    if (packageInfos == null)
+    InternalCDOPackageInfo[] packageInfos = getPackageInfos();
+    out.writeInt(packageInfos.length);
+    for (CDOPackageInfo packageInfo : packageInfos)
     {
-      out.writeInt(0);
-    }
-    else
-    {
-      out.writeInt(packageInfos.length);
-      for (CDOPackageInfo packageInfo : packageInfos)
-      {
-        out.writeCDOPackageInfo(packageInfo);
-      }
+      out.writeCDOPackageInfo(packageInfo);
     }
   }
 
@@ -135,11 +145,11 @@ public abstract class CDOPackageUnitImpl implements InternalCDOPackageUnit
     timeStamp = in.readLong();
 
     int size = in.readInt();
-    packageInfos = new InternalCDOPackageInfo[size];
     for (int i = 0; i < size; i++)
     {
-      packageInfos[i] = (InternalCDOPackageInfo)in.readCDOPackageInfo();
-      packageInfos[i].setPackageUnit(this);
+      InternalCDOPackageInfo packageInfo = (InternalCDOPackageInfo)in.readCDOPackageInfo();
+      packageInfo.setPackageUnit(this);
+      addPackageInfo(packageInfo);
     }
 
     if (TRACER.isEnabled())
@@ -155,32 +165,19 @@ public abstract class CDOPackageUnitImpl implements InternalCDOPackageUnit
         timeStamp, isDynamic(), isLegacy());
   }
 
-  protected void initNew(String id, EPackage... topLevelPackages)
-  {
-    setID(id);
-    List<InternalCDOPackageInfo> result = new ArrayList<InternalCDOPackageInfo>();
-    for (EPackage topLevelPackage : topLevelPackages)
-    {
-      initNewPackages(topLevelPackage, result);
-    }
-
-    packageInfos = result.toArray(new InternalCDOPackageInfo[result.size()]);
-  }
-
-  protected void initNewPackages(EPackage ePackage, List<InternalCDOPackageInfo> result)
+  public void initNew(EPackage ePackage)
   {
     InternalCDOPackageInfo packageInfo = initNewPackage(ePackage);
-    result.add(packageInfo);
+    addPackageInfo(packageInfo);
 
     for (EPackage subPackage : ePackage.getESubpackages())
     {
-      initNewPackages(subPackage, result);
+      initNew(subPackage);
     }
   }
 
   protected InternalCDOPackageInfo initNewPackage(EPackage ePackage)
   {
-    InternalCDOPackageRegistry packageRegistry = manager.getPackageRegistry();
     CDOPackageInfoImpl packageInfo = new CDOPackageInfoImpl();
     packageInfo.setPackageUnit(this);
     packageInfo.setPackageURI(ePackage.getNsURI());
@@ -188,12 +185,13 @@ public abstract class CDOPackageUnitImpl implements InternalCDOPackageUnit
     EPackage parentPackage = ePackage.getESuperPackage();
     packageInfo.setParentURI(parentPackage == null ? null : parentPackage.getNsURI());
 
-    CDOPackageAdapterImpl packageAdapter = new CDOPackageAdapterImpl();
-    packageAdapter.setPackageRegistry(packageRegistry);
-    packageAdapter.setPackageInfo(packageInfo);
-
-    ePackage.eAdapters().add(packageAdapter);
-    packageRegistry.putEPackageBasic(ePackage);
+    // InternalCDOPackageRegistry packageRegistry = manager.getPackageRegistry();
+    // CDOPackageAdapterImpl packageAdapter = new CDOPackageAdapterImpl();
+    // packageAdapter.setPackageRegistry(packageRegistry);
+    // packageAdapter.setPackageInfo(packageInfo);
+    //
+    // ePackage.eAdapters().add(packageAdapter);
+    // packageRegistry.putEPackageBasic(ePackage);
     return packageInfo;
   }
 
@@ -217,11 +215,6 @@ public abstract class CDOPackageUnitImpl implements InternalCDOPackageUnit
     {
     }
 
-    public Dynamic(EPackage topLevelPackage)
-    {
-      initNew(topLevelPackage.getNsURI(), topLevelPackage);
-    }
-
     public boolean isDynamic()
     {
       return true;
@@ -230,6 +223,13 @@ public abstract class CDOPackageUnitImpl implements InternalCDOPackageUnit
     public boolean isLegacy()
     {
       return true;
+    }
+
+    @Override
+    public void initNew(EPackage topLevelPackage)
+    {
+      setID(topLevelPackage.getNsURI());
+      super.initNew(topLevelPackage);
     }
   }
 
@@ -242,18 +242,6 @@ public abstract class CDOPackageUnitImpl implements InternalCDOPackageUnit
 
     public Generated()
     {
-    }
-
-    public Generated(EPackage topLevelPackage)
-    {
-      if (OMPlatform.INSTANCE.isOSGiRunning())
-      {
-        initBundle(topLevelPackage);
-      }
-      else
-      {
-        initStandalone(topLevelPackage);
-      }
     }
 
     public boolean isDynamic()
@@ -283,6 +271,21 @@ public abstract class CDOPackageUnitImpl implements InternalCDOPackageUnit
     {
       out.writeBoolean(legacy);
       super.write(out);
+    }
+
+    @Override
+    public void initNew(EPackage topLevelPackage)
+    {
+      if (OMPlatform.INSTANCE.isOSGiRunning())
+      {
+        initBundle(topLevelPackage);
+      }
+      else
+      {
+        initStandalone(topLevelPackage);
+      }
+
+      super.initNew(topLevelPackage);
     }
 
     protected void initBundle(EPackage topLevelPackage)

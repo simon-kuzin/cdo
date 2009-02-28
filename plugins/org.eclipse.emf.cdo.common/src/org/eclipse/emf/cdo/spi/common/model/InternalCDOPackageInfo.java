@@ -15,6 +15,8 @@ import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 
+import org.eclipse.emf.ecore.EPackage;
+
 import java.io.IOException;
 
 /**
@@ -32,7 +34,7 @@ public interface InternalCDOPackageInfo extends CDOPackageInfo
 
   public void setMetaIDRange(CDOIDMetaRange metaIdRange);
 
-  public InternalCDOPackageAdapter getPackageAdapter(boolean loadOnDemand);
+  public void setEPackage(EPackage ePackage);
 
   public void write(CDODataOutput out) throws IOException;
 

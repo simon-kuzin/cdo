@@ -14,11 +14,12 @@ import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageAdapter;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 
 import org.eclipse.net4j.util.om.trace.ContextTracer;
+
+import org.eclipse.emf.ecore.EPackage;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -38,7 +39,7 @@ public class CDOPackageInfoImpl implements InternalCDOPackageInfo
 
   private CDOIDMetaRange metaIDRange;
 
-  private InternalCDOPackageAdapter packageAdapter;
+  private EPackage ePackage;
 
   public CDOPackageInfoImpl()
   {
@@ -84,13 +85,19 @@ public class CDOPackageInfoImpl implements InternalCDOPackageInfo
     metaIDRange = metaIdRange;
   }
 
-  public InternalCDOPackageAdapter getPackageAdapter(boolean loadOnDemand)
+  public EPackage getEPackage(boolean loadOnDemand)
   {
-    if (packageAdapter == null && loadOnDemand)
+    if (ePackage == null && loadOnDemand)
     {
+      packageUnit.load();
     }
 
-    return packageAdapter;
+    return ePackage;
+  }
+
+  public void setEPackage(EPackage ePackage)
+  {
+    this.ePackage = ePackage;
   }
 
   public void write(CDODataOutput out) throws IOException

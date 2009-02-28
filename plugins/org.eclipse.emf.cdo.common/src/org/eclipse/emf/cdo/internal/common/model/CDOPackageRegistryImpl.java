@@ -126,22 +126,28 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
   protected InternalCDOPackageUnit createPackageUnit(EPackage topLevelPackage)
   {
+    InternalCDOPackageUnit packageUnit;
     if (EMFUtil.isDynamicEPackage(topLevelPackage))
     {
-      return createDynamicPackageUnit(topLevelPackage);
+      packageUnit = createDynamicPackageUnit();
+    }
+    else
+    {
+      packageUnit = createGeneratedPackageUnit();
     }
 
-    return createGeneratedPackageUnit(topLevelPackage);
+    packageUnit.initNew(topLevelPackage);
+    return packageUnit;
   }
 
-  protected InternalCDOPackageUnit createDynamicPackageUnit(EPackage topLevelPackage)
+  protected InternalCDOPackageUnit createDynamicPackageUnit()
   {
-    return new CDOPackageUnitImpl.Dynamic(topLevelPackage);
+    return new CDOPackageUnitImpl.Dynamic();
   }
 
-  protected InternalCDOPackageUnit createGeneratedPackageUnit(EPackage topLevelPackage)
+  protected InternalCDOPackageUnit createGeneratedPackageUnit()
   {
-    return new CDOPackageUnitImpl.Generated(topLevelPackage);
+    return new CDOPackageUnitImpl.Generated();
   }
 
   public CDOIDMetaRange getTempMetaIDRange(int count)

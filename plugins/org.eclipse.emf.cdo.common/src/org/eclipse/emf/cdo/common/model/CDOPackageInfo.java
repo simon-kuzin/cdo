@@ -12,6 +12,8 @@ package org.eclipse.emf.cdo.common.model;
 
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 
+import org.eclipse.emf.ecore.EPackage;
+
 /**
  * @author Eike Stepper
  */
@@ -25,5 +27,5 @@ public interface CDOPackageInfo
 
   public CDOIDMetaRange getMetaIDRange();
 
-  public CDOPackageAdapter getPackageAdapter(boolean loadOnDemand);
+  public EPackage getEPackage(boolean loadOnDemand);
 }

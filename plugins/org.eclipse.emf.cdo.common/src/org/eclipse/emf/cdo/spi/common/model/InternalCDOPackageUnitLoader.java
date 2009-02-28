@@ -8,26 +8,16 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  */
-package org.eclipse.emf.cdo.common.model;
+package org.eclipse.emf.cdo.spi.common.model;
+
+import org.eclipse.emf.ecore.EPackage;
 
 /**
  * @author Eike Stepper
  */
-public interface CDOPackageUnit
+public interface InternalCDOPackageUnitLoader
 {
-  public CDOPackageUnitManager getManager();
+  public boolean canLoad(InternalCDOPackageUnit packageUnit);
 
-  public String getID();
-
-  public long getTimeStamp();
-
-  public boolean isDynamic();
-
-  public boolean isLegacy();
-
-  public CDOPackageInfo getPackageInfo(String packageURI);
-
-  public CDOPackageInfo[] getPackageInfos();
-
-  public boolean isLoaded();
+  public EPackage[] load(InternalCDOPackageUnit packageUnit);
 }

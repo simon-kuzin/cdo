@@ -14,12 +14,17 @@ import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnitLoader;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnitManager;
 
 import org.eclipse.net4j.util.container.Container;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
+import org.eclipse.emf.ecore.EPackage;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,6 +37,8 @@ public class CDOPackageUnitManagerImpl extends Container<CDOPackageUnit> impleme
   private InternalCDOPackageRegistry packageRegistry;
 
   private Map<String, InternalCDOPackageUnit> packageUnits = new HashMap<String, InternalCDOPackageUnit>();
+
+  private List<InternalCDOPackageUnitLoader> packageUnitLoaders = new ArrayList<InternalCDOPackageUnitLoader>();
 
   public CDOPackageUnitManagerImpl()
   {
@@ -76,6 +83,36 @@ public class CDOPackageUnitManagerImpl extends Container<CDOPackageUnit> impleme
     }
 
     fireElementAddedEvent(packageUnit);
+  }
+
+  public List<InternalCDOPackageUnitLoader> getPackageUnitLoaders()
+  {
+    return packageUnitLoaders;
+  }
+
+  public EPackage[] loadPackageUnit(InternalCDOPackageUnit packageUnit)
+  {
+    InternalCDOPackageUnitLoader packageUnitLoader = getCDOPackageUnitLoader(packageUnit);
+    return packageUnitLoader.load(packageUnit);
+  }
+
+  protected InternalCDOPackageUnitLoader getCDOPackageUnitLoader(InternalCDOPackageUnit packageUnit)
+  {
+    for (InternalCDOPackageUnitLoader packageUnitLoader : packageUnitLoaders)
+    {
+      if (canLoadPackageUnit(packageUnit, packageUnitLoader))
+      {
+        return packageUnitLoader;
+      }
+    }
+
+    throw new IllegalStateException("No loader found for " + packageUnit);
+  }
+
+  protected boolean canLoadPackageUnit(InternalCDOPackageUnit packageUnit,
+      InternalCDOPackageUnitLoader packageUnitLoader)
+  {
+    return packageUnitLoader.canLoad(packageUnit);
   }
 
   public CDOPackageUnit[] getElements()
