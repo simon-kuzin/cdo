@@ -17,7 +17,9 @@ import org.eclipse.emf.ecore.EPackage;
  */
 public interface CDOPackageUnitLoader
 {
-  public boolean canLoad(CDOPackageUnit packageUnit);
+  public CDOPackageUnit[] loadPackageUnits();
 
-  public EPackage[] load(CDOPackageUnit packageUnit);
+  public boolean canLoadPackages(CDOPackageUnit packageUnit);
+
+  public EPackage[] loadPackages(CDOPackageUnit packageUnit);
 }

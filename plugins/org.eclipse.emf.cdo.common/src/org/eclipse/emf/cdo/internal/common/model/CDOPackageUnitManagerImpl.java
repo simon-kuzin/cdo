@@ -99,7 +99,7 @@ public class CDOPackageUnitManagerImpl extends Container<CDOPackageUnit> impleme
   public EPackage[] loadPackageUnit(InternalCDOPackageUnit packageUnit)
   {
     CDOPackageUnitLoader packageUnitLoader = getCDOPackageUnitLoader(packageUnit);
-    return packageUnitLoader.load(packageUnit);
+    return packageUnitLoader.loadPackages(packageUnit);
   }
 
   protected CDOPackageUnitLoader getCDOPackageUnitLoader(InternalCDOPackageUnit packageUnit)
@@ -115,10 +115,9 @@ public class CDOPackageUnitManagerImpl extends Container<CDOPackageUnit> impleme
     throw new IllegalStateException("No loader found for " + packageUnit);
   }
 
-  protected boolean canLoadPackageUnit(InternalCDOPackageUnit packageUnit,
-      CDOPackageUnitLoader packageUnitLoader)
+  protected boolean canLoadPackageUnit(InternalCDOPackageUnit packageUnit, CDOPackageUnitLoader packageUnitLoader)
   {
-    return packageUnitLoader.canLoad(packageUnit);
+    return packageUnitLoader.canLoadPackages(packageUnit);
   }
 
   public CDOPackageUnit[] getElements()

@@ -275,7 +275,7 @@ public abstract class CDOPackageUnitImpl implements InternalCDOPackageUnit
     @Override
     public void initNew(EPackage topLevelPackage)
     {
-      if (OMPlatform.INSTANCE.isOSGiRunning())
+      if (OMPlatform.INSTANCE.isExtensionRegistryAvailable())
       {
         initBundle(topLevelPackage);
       }
