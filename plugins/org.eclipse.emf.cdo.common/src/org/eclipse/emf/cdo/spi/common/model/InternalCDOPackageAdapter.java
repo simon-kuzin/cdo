@@ -8,25 +8,22 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  */
-package org.eclipse.emf.cdo.common.model;
+package org.eclipse.emf.cdo.spi.common.model;
+
+import org.eclipse.emf.cdo.common.model.CDOPackageAdapter;
 
 import org.eclipse.emf.common.notify.Adapter;
-import org.eclipse.emf.ecore.EPackage;
 
 /**
  * @author Eike Stepper
  */
-public interface CDOPackageAdapter extends Adapter
+public interface InternalCDOPackageAdapter extends CDOPackageAdapter, Adapter.Internal
 {
-  public CDOPackageRegistry getPackageRegistry();
+  public InternalCDOPackageRegistry getPackageRegistry();
 
-  public CDOPackageInfo getPackageInfo();
+  public void setPackageRegistry(InternalCDOPackageRegistry packageRegistry);
 
-  public EPackage getEPackage();
+  public InternalCDOPackageInfo getPackageInfo();
 
-  public boolean isCorePackage();
-
-  public boolean isResourcePackage();
-
-  public boolean isSystemPackage();
+  public void setPackageInfo(InternalCDOPackageInfo packageInfo);
 }

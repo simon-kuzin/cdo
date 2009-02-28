@@ -11,9 +11,9 @@
 package org.eclipse.emf.cdo.internal.common.model;
 
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
-import org.eclipse.emf.cdo.common.model.CDOPackageAdapter;
-import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
-import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageAdapter;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 
 import org.eclipse.emf.common.notify.impl.AdapterImpl;
 import org.eclipse.emf.ecore.EPackage;
@@ -21,11 +21,11 @@ import org.eclipse.emf.ecore.EPackage;
 /**
  * @author Eike Stepper
  */
-public class CDOPackageAdapterImpl extends AdapterImpl implements CDOPackageAdapter
+public class CDOPackageAdapterImpl extends AdapterImpl implements InternalCDOPackageAdapter
 {
-  private CDOPackageRegistry packageRegistry;
+  private InternalCDOPackageRegistry packageRegistry;
 
-  private CDOPackageInfo packageInfo;
+  private InternalCDOPackageInfo packageInfo;
 
   public CDOPackageAdapterImpl()
   {
@@ -37,29 +37,29 @@ public class CDOPackageAdapterImpl extends AdapterImpl implements CDOPackageAdap
     return EPackage.class.isInstance(type);
   }
 
-  public EPackage getEPackage()
-  {
-    return (EPackage)getTarget();
-  }
-
-  public CDOPackageRegistry getPackageRegistry()
+  public InternalCDOPackageRegistry getPackageRegistry()
   {
     return packageRegistry;
   }
 
-  public void setPackageRegistry(CDOPackageRegistry packageRegistry)
+  public void setPackageRegistry(InternalCDOPackageRegistry packageRegistry)
   {
     this.packageRegistry = packageRegistry;
   }
 
-  public CDOPackageInfo getPackageInfo()
+  public InternalCDOPackageInfo getPackageInfo()
   {
     return packageInfo;
   }
 
-  public void setPackageInfo(CDOPackageInfo packageInfo)
+  public void setPackageInfo(InternalCDOPackageInfo packageInfo)
   {
     this.packageInfo = packageInfo;
+  }
+
+  public EPackage getEPackage()
+  {
+    return (EPackage)getTarget();
   }
 
   public boolean isCorePackage()

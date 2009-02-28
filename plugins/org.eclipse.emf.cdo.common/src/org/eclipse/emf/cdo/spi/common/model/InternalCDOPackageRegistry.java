@@ -13,7 +13,6 @@ package org.eclipse.emf.cdo.spi.common.model;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
-import org.eclipse.emf.cdo.common.model.CDOPackageUnitManager;
 
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.InternalEObject;
@@ -25,7 +24,9 @@ import java.util.List;
  */
 public interface InternalCDOPackageRegistry extends CDOPackageRegistry
 {
-  public void setPackageUnitManager(CDOPackageUnitManager packageUnitManager);
+  public InternalCDOPackageUnitManager getPackageUnitManager();
+
+  public void setPackageUnitManager(InternalCDOPackageUnitManager packageUnitManager);
 
   public void putEPackageBasic(EPackage ePackage);
 

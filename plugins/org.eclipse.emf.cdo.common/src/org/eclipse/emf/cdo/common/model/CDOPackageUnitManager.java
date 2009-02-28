@@ -17,6 +17,8 @@ import org.eclipse.net4j.util.container.IContainer;
  */
 public interface CDOPackageUnitManager extends IContainer<CDOPackageUnit>
 {
+  public CDOPackageRegistry getPackageRegistry();
+
   public CDOPackageUnit[] getPackageUnits();
 
   public CDOPackageUnit getPackageUnit(String id);

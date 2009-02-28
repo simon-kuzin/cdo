@@ -24,4 +24,6 @@ public interface CDOPackageInfo
   public String getParentURI();
 
   public CDOIDMetaRange getMetaIDRange();
+
+  public CDOPackageAdapter getPackageAdapter(boolean loadOnDemand);
 }

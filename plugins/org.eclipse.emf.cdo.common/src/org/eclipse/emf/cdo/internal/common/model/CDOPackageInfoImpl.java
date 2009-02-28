@@ -13,9 +13,10 @@ package org.eclipse.emf.cdo.internal.common.model;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
-import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageAdapter;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
@@ -29,7 +30,7 @@ public class CDOPackageInfoImpl implements InternalCDOPackageInfo
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, CDOPackageInfoImpl.class);
 
-  private CDOPackageUnit packageUnit;
+  private InternalCDOPackageUnit packageUnit;
 
   private String packageURI;
 
@@ -37,16 +38,18 @@ public class CDOPackageInfoImpl implements InternalCDOPackageInfo
 
   private CDOIDMetaRange metaIDRange;
 
+  private InternalCDOPackageAdapter packageAdapter;
+
   public CDOPackageInfoImpl()
   {
   }
 
-  public CDOPackageUnit getPackageUnit()
+  public InternalCDOPackageUnit getPackageUnit()
   {
     return packageUnit;
   }
 
-  public void setPackageUnit(CDOPackageUnit packageUnit)
+  public void setPackageUnit(InternalCDOPackageUnit packageUnit)
   {
     this.packageUnit = packageUnit;
   }
@@ -79,6 +82,15 @@ public class CDOPackageInfoImpl implements InternalCDOPackageInfo
   public void setMetaIDRange(CDOIDMetaRange metaIdRange)
   {
     metaIDRange = metaIdRange;
+  }
+
+  public InternalCDOPackageAdapter getPackageAdapter(boolean loadOnDemand)
+  {
+    if (packageAdapter == null && loadOnDemand)
+    {
+    }
+
+    return packageAdapter;
   }
 
   public void write(CDODataOutput out) throws IOException

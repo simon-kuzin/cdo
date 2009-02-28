@@ -214,7 +214,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
           int classifierID = (Integer)values[5];
           boolean containment = getBoolean(values[7]);
           CDOClassifierRef classRef = CDOModelUtil.createClassRef(packageURI, classifierID);
-          EClassProxy referenceType = new EClassProxy(classRef, cdoClass.getPackageUnitManager());
+          EClassProxy referenceType = new EClassProxy(classRef, cdoClass.getManager());
           feature = CDOModelUtil.createReference(cdoClass, featureID, name, referenceType, many, containment);
         }
         else

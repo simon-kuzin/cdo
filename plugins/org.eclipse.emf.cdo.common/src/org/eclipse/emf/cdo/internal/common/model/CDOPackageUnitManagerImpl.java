@@ -12,6 +12,8 @@ package org.eclipse.emf.cdo.internal.common.model;
 
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnitManager;
 
 import org.eclipse.net4j.util.container.Container;
@@ -27,13 +29,25 @@ public class CDOPackageUnitManagerImpl extends Container<CDOPackageUnit> impleme
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, CDOPackageUnitManagerImpl.class);
 
-  private Map<String, CDOPackageUnit> packageUnits = new HashMap<String, CDOPackageUnit>();
+  private InternalCDOPackageRegistry packageRegistry;
+
+  private Map<String, InternalCDOPackageUnit> packageUnits = new HashMap<String, InternalCDOPackageUnit>();
 
   public CDOPackageUnitManagerImpl()
   {
   }
 
-  public CDOPackageUnit getPackageUnit(String id)
+  public InternalCDOPackageRegistry getPackageRegistry()
+  {
+    return packageRegistry;
+  }
+
+  public void setPackageRegistry(InternalCDOPackageRegistry packageRegistry)
+  {
+    this.packageRegistry = packageRegistry;
+  }
+
+  public InternalCDOPackageUnit getPackageUnit(String id)
   {
     synchronized (packageUnits)
     {
@@ -41,12 +55,27 @@ public class CDOPackageUnitManagerImpl extends Container<CDOPackageUnit> impleme
     }
   }
 
-  public CDOPackageUnit[] getPackageUnits()
+  public InternalCDOPackageUnit[] getPackageUnits()
   {
     synchronized (packageUnits)
     {
-      return packageUnits.values().toArray(new CDOPackageUnit[packageUnits.size()]);
+      return packageUnits.values().toArray(new InternalCDOPackageUnit[packageUnits.size()]);
     }
+  }
+
+  public void addPackageUnit(InternalCDOPackageUnit packageUnit)
+  {
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("Adding {0}", packageUnit);
+    }
+
+    synchronized (packageUnits)
+    {
+      packageUnits.put(packageUnit.getID(), packageUnit);
+    }
+
+    fireElementAddedEvent(packageUnit);
   }
 
   public CDOPackageUnit[] getElements()
@@ -61,20 +90,5 @@ public class CDOPackageUnitManagerImpl extends Container<CDOPackageUnit> impleme
     {
       return packageUnits.isEmpty();
     }
-  }
-
-  public void addPackageUnit(CDOPackageUnit packageUnit)
-  {
-    if (TRACER.isEnabled())
-    {
-      TRACER.format("Adding {0}", packageUnit);
-    }
-
-    synchronized (packageUnits)
-    {
-      packageUnits.put(packageUnit.getID(), packageUnit);
-    }
-
-    fireElementAddedEvent(packageUnit);
   }
 }

@@ -2,9 +2,7 @@ package org.eclipse.emf.cdo.spi.common.model;
 
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
-import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
-import org.eclipse.emf.cdo.common.model.CDOPackageUnitManager;
 
 import java.io.IOException;
 
@@ -13,15 +11,19 @@ import java.io.IOException;
  */
 public interface InternalCDOPackageUnit extends CDOPackageUnit
 {
-  public void setPackageUnitManager(CDOPackageUnitManager packageUnitManager);
+  public InternalCDOPackageUnitManager getManager();
+
+  public void setManager(InternalCDOPackageUnitManager manager);
 
   public void setID(String id);
 
-  public void setState(State state);
-
   public void setTimeStamp(long timeStamp);
 
-  public void setPackageInfos(CDOPackageInfo[] packageInfos);
+  public InternalCDOPackageInfo[] getPackageInfos();
+
+  public void setPackageInfos(InternalCDOPackageInfo[] packageInfos);
+
+  public void load();
 
   public void write(CDODataOutput out) throws IOException;
 

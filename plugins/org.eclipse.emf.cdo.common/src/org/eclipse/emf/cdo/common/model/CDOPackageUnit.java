@@ -15,11 +15,9 @@ package org.eclipse.emf.cdo.common.model;
  */
 public interface CDOPackageUnit
 {
-  public CDOPackageUnitManager getPackageUnitManager();
+  public CDOPackageUnitManager getManager();
 
   public String getID();
-
-  public State getState();
 
   public long getTimeStamp();
 
@@ -29,11 +27,5 @@ public interface CDOPackageUnit
 
   public CDOPackageInfo[] getPackageInfos();
 
-  /**
-   * @author Eike Stepper
-   */
-  public enum State
-  {
-    NEW, LOADED, PROXY
-  }
+  public boolean isLoaded();
 }

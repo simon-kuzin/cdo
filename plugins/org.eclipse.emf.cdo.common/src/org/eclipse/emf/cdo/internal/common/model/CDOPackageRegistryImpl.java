@@ -16,13 +16,13 @@ import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDTempMeta;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
-import org.eclipse.emf.cdo.common.model.CDOPackageAdapter;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
-import org.eclipse.emf.cdo.common.model.CDOPackageUnitManager;
 import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageAdapter;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnitManager;
 
 import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
@@ -46,7 +46,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, CDOPackageRegistryImpl.class);
 
-  private CDOPackageUnitManager packageUnitManager;
+  private InternalCDOPackageUnitManager packageUnitManager;
 
   @ExcludeFromDump
   private transient Map<CDOID, InternalEObject> idToMetaInstanceMap = new HashMap<CDOID, InternalEObject>();
@@ -68,12 +68,12 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     super(delegateRegistry);
   }
 
-  public CDOPackageUnitManager getPackageUnitManager()
+  public InternalCDOPackageUnitManager getPackageUnitManager()
   {
     return packageUnitManager;
   }
 
-  public void setPackageUnitManager(CDOPackageUnitManager packageUnitManager)
+  public void setPackageUnitManager(InternalCDOPackageUnitManager packageUnitManager)
   {
     this.packageUnitManager = packageUnitManager;
   }
@@ -105,26 +105,26 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     if (value instanceof EPackage)
     {
       EPackage ePackage = (EPackage)value;
-      CDOPackageAdapter adapter = getPackageAdapter(ePackage);
+      InternalCDOPackageAdapter adapter = getPackageAdapter(ePackage);
       if (adapter != null)
       {
         return ePackage;
       }
 
-      CDOPackageUnit packageUnit = createPackageUnit(ePackage);
-      ((InternalCDOPackageUnitManager)packageUnitManager).addPackageUnit(packageUnit);
+      InternalCDOPackageUnit packageUnit = createPackageUnit(ePackage);
+      packageUnitManager.addPackageUnit(packageUnit);
       return null;
     }
 
     return super.put(nsURI, value);
   }
 
-  protected CDOPackageAdapter getPackageAdapter(EPackage ePackage)
+  protected InternalCDOPackageAdapter getPackageAdapter(EPackage ePackage)
   {
-    return CDOModelUtil.getPackageAdapter(ePackage, this);
+    return (InternalCDOPackageAdapter)CDOModelUtil.getPackageAdapter(ePackage, this);
   }
 
-  protected CDOPackageUnit createPackageUnit(EPackage topLevelPackage)
+  protected InternalCDOPackageUnit createPackageUnit(EPackage topLevelPackage)
   {
     if (EMFUtil.isDynamicEPackage(topLevelPackage))
     {
@@ -134,14 +134,14 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     return createGeneratedPackageUnit(topLevelPackage);
   }
 
-  protected CDOPackageUnit createDynamicPackageUnit(EPackage topLevelPackage)
+  protected InternalCDOPackageUnit createDynamicPackageUnit(EPackage topLevelPackage)
   {
-    return new CDOPackageUnitImpl.Dynamic(this, topLevelPackage);
+    return new CDOPackageUnitImpl.Dynamic(topLevelPackage);
   }
 
-  protected CDOPackageUnit createGeneratedPackageUnit(EPackage topLevelPackage)
+  protected InternalCDOPackageUnit createGeneratedPackageUnit(EPackage topLevelPackage)
   {
-    return new CDOPackageUnitImpl.Generated(this, topLevelPackage);
+    return new CDOPackageUnitImpl.Generated(topLevelPackage);
   }
 
   public CDOIDMetaRange getTempMetaIDRange(int count)
