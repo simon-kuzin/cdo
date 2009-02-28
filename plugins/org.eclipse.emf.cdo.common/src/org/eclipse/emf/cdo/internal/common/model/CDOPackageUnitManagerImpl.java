@@ -11,10 +11,10 @@
 package org.eclipse.emf.cdo.internal.common.model;
 
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnitLoader;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnitLoader;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnitManager;
 
 import org.eclipse.net4j.util.container.Container;
@@ -38,7 +38,7 @@ public class CDOPackageUnitManagerImpl extends Container<CDOPackageUnit> impleme
 
   private Map<String, InternalCDOPackageUnit> packageUnits = new HashMap<String, InternalCDOPackageUnit>();
 
-  private List<InternalCDOPackageUnitLoader> packageUnitLoaders = new ArrayList<InternalCDOPackageUnitLoader>();
+  private List<CDOPackageUnitLoader> packageUnitLoaders = new ArrayList<CDOPackageUnitLoader>();
 
   public CDOPackageUnitManagerImpl()
   {
@@ -91,20 +91,20 @@ public class CDOPackageUnitManagerImpl extends Container<CDOPackageUnit> impleme
     fireElementAddedEvent(packageUnit);
   }
 
-  public List<InternalCDOPackageUnitLoader> getPackageUnitLoaders()
+  public List<CDOPackageUnitLoader> getPackageUnitLoaders()
   {
     return packageUnitLoaders;
   }
 
   public EPackage[] loadPackageUnit(InternalCDOPackageUnit packageUnit)
   {
-    InternalCDOPackageUnitLoader packageUnitLoader = getCDOPackageUnitLoader(packageUnit);
+    CDOPackageUnitLoader packageUnitLoader = getCDOPackageUnitLoader(packageUnit);
     return packageUnitLoader.load(packageUnit);
   }
 
-  protected InternalCDOPackageUnitLoader getCDOPackageUnitLoader(InternalCDOPackageUnit packageUnit)
+  protected CDOPackageUnitLoader getCDOPackageUnitLoader(InternalCDOPackageUnit packageUnit)
   {
-    for (InternalCDOPackageUnitLoader packageUnitLoader : packageUnitLoaders)
+    for (CDOPackageUnitLoader packageUnitLoader : packageUnitLoaders)
     {
       if (canLoadPackageUnit(packageUnit, packageUnitLoader))
       {
@@ -116,7 +116,7 @@ public class CDOPackageUnitManagerImpl extends Container<CDOPackageUnit> impleme
   }
 
   protected boolean canLoadPackageUnit(InternalCDOPackageUnit packageUnit,
-      InternalCDOPackageUnitLoader packageUnitLoader)
+      CDOPackageUnitLoader packageUnitLoader)
   {
     return packageUnitLoader.canLoad(packageUnit);
   }

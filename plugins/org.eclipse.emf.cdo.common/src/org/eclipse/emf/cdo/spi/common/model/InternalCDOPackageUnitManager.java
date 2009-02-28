@@ -1,6 +1,7 @@
 package org.eclipse.emf.cdo.spi.common.model;
 
 import org.eclipse.emf.cdo.common.model.CDOPackageUnitManager;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnitLoader;
 
 import org.eclipse.net4j.util.lifecycle.ILifecycle;
 
@@ -23,7 +24,7 @@ public interface InternalCDOPackageUnitManager extends CDOPackageUnitManager, IL
 
   public void addPackageUnit(InternalCDOPackageUnit packageUnit);
 
-  public List<InternalCDOPackageUnitLoader> getPackageUnitLoaders();
+  public List<CDOPackageUnitLoader> getPackageUnitLoaders();
 
   public EPackage[] loadPackageUnit(InternalCDOPackageUnit packageUnit);
 }

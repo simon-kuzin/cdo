@@ -8,16 +8,16 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  */
-package org.eclipse.emf.cdo.spi.common.model;
+package org.eclipse.emf.cdo.common.model;
 
 import org.eclipse.emf.ecore.EPackage;
 
 /**
  * @author Eike Stepper
  */
-public interface InternalCDOPackageUnitLoader
+public interface CDOPackageUnitLoader
 {
-  public boolean canLoad(InternalCDOPackageUnit packageUnit);
+  public boolean canLoad(CDOPackageUnit packageUnit);
 
-  public EPackage[] load(InternalCDOPackageUnit packageUnit);
+  public EPackage[] load(CDOPackageUnit packageUnit);
 }
