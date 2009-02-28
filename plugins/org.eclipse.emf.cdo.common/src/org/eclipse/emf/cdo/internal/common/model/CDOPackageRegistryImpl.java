@@ -21,6 +21,8 @@ import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageAdapter;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageDescriptor;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnitManager;
@@ -34,7 +36,6 @@ import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.EPackageRegistryImpl;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -78,22 +79,6 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     this.packageUnitManager = packageUnitManager;
   }
 
-  public void addPackageDescriptors(List<CDOPackageInfo> packageInfos)
-  {
-    // TODO: implement CDOPackageRegistryImpl.addPackageDescriptors(packageInfos)
-    throw new UnsupportedOperationException();
-  }
-
-  public void basicPutEPackage(EPackage ePackage)
-  {
-    if (TRACER.isEnabled())
-    {
-      TRACER.format("Registering package: {0}", ePackage.getNsURI());
-    }
-
-    super.put(ePackage.getNsURI(), ePackage);
-  }
-
   public void putEPackage(EPackage ePackage)
   {
     put(ePackage.getNsURI(), ePackage);
@@ -112,22 +97,80 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       }
 
       InternalCDOPackageUnit packageUnit = createPackageUnit(ePackage);
-      packageUnitManager.addPackageUnit(packageUnit);
+      addPackageUnit(packageUnit);
       return null;
     }
 
     if (value instanceof InternalCDOPackageUnit)
     {
       InternalCDOPackageUnit packageUnit = (InternalCDOPackageUnit)value;
-      packageUnitManager.addPackageUnit(packageUnit);
+      addPackageUnit(packageUnit);
     }
 
     return super.put(nsURI, value);
   }
 
+  protected void addPackageUnit(InternalCDOPackageUnit packageUnit)
+  {
+    for (InternalCDOPackageInfo packageInfo : packageUnit.getPackageInfos())
+    {
+      EPackage ePackage = packageInfo.getEPackage(false);
+      if (ePackage != null)
+      {
+        InternalCDOPackageAdapter adapter = createPackageAdapter();
+        adapter.setPackageRegistry(this);
+        adapter.setPackageInfo(packageInfo);
+
+        ePackage.eAdapters().add(adapter);
+        registerPackage(ePackage);
+      }
+      else
+      {
+        InternalCDOPackageDescriptor packageDescriptor = createPackageDescriptor();
+        packageDescriptor.setPackageRegistry(this);
+        packageDescriptor.setPackageInfo(packageInfo);
+        registerPackageDescriptor(packageDescriptor);
+      }
+    }
+
+    packageUnitManager.addPackageUnit(packageUnit);
+  }
+
+  protected void registerPackage(EPackage ePackage)
+  {
+    String packageURI = ePackage.getNsURI();
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("Registering package: {0}", packageURI);
+    }
+  
+    super.put(packageURI, ePackage);
+  }
+
+  protected void registerPackageDescriptor(InternalCDOPackageDescriptor packageDescriptor)
+  {
+    String packageURI = packageDescriptor.getPackageInfo().getPackageURI();
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("Registering package descriptor: {0}", packageURI);
+    }
+  
+    super.put(packageURI, packageDescriptor);
+  }
+
   protected InternalCDOPackageAdapter getPackageAdapter(EPackage ePackage)
   {
     return (InternalCDOPackageAdapter)CDOModelUtil.getPackageAdapter(ePackage, this);
+  }
+
+  protected InternalCDOPackageAdapter createPackageAdapter()
+  {
+    return new CDOPackageAdapterImpl();
+  }
+
+  protected InternalCDOPackageDescriptor createPackageDescriptor()
+  {
+    return new CDOPackageDescriptorImpl();
   }
 
   protected InternalCDOPackageUnit createPackageUnit(EPackage topLevelPackage)
