@@ -22,14 +22,13 @@ import org.eclipse.emf.cdo.internal.common.io.CDODataInputImpl;
 import org.eclipse.emf.cdo.internal.common.io.CDODataOutputImpl;
 import org.eclipse.emf.cdo.internal.common.revision.CDOListImpl;
 import org.eclipse.emf.cdo.internal.server.Repository;
-import org.eclipse.emf.cdo.internal.server.RevisionManager;
 import org.eclipse.emf.cdo.internal.server.Session;
-import org.eclipse.emf.cdo.internal.server.SessionManager;
 import org.eclipse.emf.cdo.server.IStore;
 
 import org.eclipse.net4j.signal.IndicationWithResponse;
 import org.eclipse.net4j.util.io.ExtendedDataInputStream;
 import org.eclipse.net4j.util.io.ExtendedDataOutputStream;
+import org.eclipse.net4j.util.io.StringIO;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 
 import java.io.IOException;
@@ -52,53 +51,18 @@ public abstract class CDOServerIndication extends IndicationWithResponse
 
   protected Session getSession()
   {
-    return getProtocol().getSession();
-  }
-
-  protected CDOPackageUnitManager getPackageUnitManager()
-  {
-    return getRepository().getPackageUnitManager();
-  }
-
-  protected CDOPackageRegistry getPackageRegistry()
-  {
-    return getRepository().getPackageRegistry();
-  }
-
-  protected CDOPackageURICompressor getPackageURICompressor()
-  {
-    return getSession();
-  }
-
-  protected CDOIDProvider getIDProvider()
-  {
-    return getSession();
-  }
-
-  protected CDOIDObjectFactory getIDFactory()
-  {
-    return getStore().getCDOIDObjectFactory();
-  }
-
-  protected SessionManager getSessionManager()
-  {
-    return getSession().getSessionManager();
+    return (Session)getProtocol().getSession();
   }
 
   protected Repository getRepository()
   {
-    Repository repository = (Repository)getSessionManager().getRepository();
-    if (!repository.isActive())
+    Repository repository = (Repository)getSession().getSessionManager().getRepository();
+    if (!LifecycleUtil.isActive(repository))
     {
       throw new IllegalStateException("Repository has been deactivated");
     }
 
     return repository;
-  }
-
-  protected RevisionManager getRevisionManager()
-  {
-    return getRepository().getRevisionManager();
   }
 
   protected IStore getStore()
@@ -120,25 +84,25 @@ public abstract class CDOServerIndication extends IndicationWithResponse
       @Override
       protected CDORevisionResolver getRevisionResolver()
       {
-        return CDOServerIndication.this.getRevisionManager();
+        return getRepository().getRevisionManager();
       }
 
       @Override
       protected CDOPackageRegistry getPackageRegistry()
       {
-        return CDOServerIndication.this.getPackageRegistry();
+        return getRepository().getPackageRegistry();
       }
 
       @Override
-      protected CDOPackageURICompressor getPackageURICompressor()
+      protected StringIO getPackageURICompressor()
       {
-        return CDOServerIndication.this.getPackageURICompressor();
+        return getProtocol().getPackageURICompressor();
       }
 
       @Override
       protected CDOIDObjectFactory getIDFactory()
       {
-        return CDOServerIndication.this.getIDFactory();
+        return getStore().getCDOIDObjectFactory();
       }
 
       @Override
@@ -155,14 +119,14 @@ public abstract class CDOServerIndication extends IndicationWithResponse
     responding(new CDODataOutputImpl(out)
     {
       @Override
-      protected CDOPackageURICompressor getPackageURICompressor()
+      protected StringIO getPackageURICompressor()
       {
-        return CDOServerIndication.this.getPackageURICompressor();
+        return getProtocol().getPackageURICompressor();
       }
 
       public CDOIDProvider getIDProvider()
       {
-        return CDOServerIndication.this.getIDProvider();
+        return getSession();
       }
     });
   }

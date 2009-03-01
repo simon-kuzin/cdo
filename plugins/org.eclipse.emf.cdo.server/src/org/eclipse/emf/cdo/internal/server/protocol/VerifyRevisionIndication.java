@@ -46,7 +46,7 @@ public class VerifyRevisionIndication extends CDOReadIndication
       PROTOCOL_TRACER.format("Reading {0} IDs and versions", size);
     }
 
-    RevisionManager revisionManager = getRevisionManager();
+    RevisionManager revisionManager = getRepository().getRevisionManager();
     timeStamps = new long[size];
     for (int i = 0; i < size; i++)
     {

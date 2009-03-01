@@ -10,7 +10,7 @@
  *    Simon McDuff - http://bugs.eclipse.org/201266
  *    Simon McDuff - http://bugs.eclipse.org/213402
  */
-package org.eclipse.emf.cdo.internal.server;
+package org.eclipse.emf.cdo.spi.server;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
@@ -21,7 +21,6 @@ import org.eclipse.emf.cdo.internal.server.bundle.OM;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.ITransaction;
-import org.eclipse.emf.cdo.server.StoreUtil;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
@@ -107,7 +106,7 @@ public abstract class StoreAccessor extends Lifecycle implements IStoreAccessor
   public CDOID readResourceID(CDOID folderID, String name, long timeStamp)
   {
     IStoreAccessor.QueryResourcesContext.ExactMatch context = //
-    StoreUtil.createExactMatchContext(folderID, name, timeStamp);
+    Store.createExactMatchContext(folderID, name, timeStamp);
 
     queryResources(context);
     return context.getResourceID();

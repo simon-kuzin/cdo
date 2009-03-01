@@ -107,7 +107,7 @@ public class LoadRevisionIndication extends CDOReadIndication
 
       for (int i = 0; i < fetchSize; i++)
       {
-        CDOFetchRule fetchRule = new CDOFetchRule(in, getPackageRegistry());
+        CDOFetchRule fetchRule = new CDOFetchRule(in, getRepository().getPackageRegistry());
         fetchRules.put(fetchRule.getEClass(), fetchRule);
       }
     }
@@ -174,7 +174,7 @@ public class LoadRevisionIndication extends CDOReadIndication
 
   protected InternalCDORevision getRevision(CDOID id)
   {
-    RevisionManager revisionManager = getRevisionManager();
+    RevisionManager revisionManager = getRepository().getRevisionManager();
     return revisionManager.getRevision(id, referenceChunk);
   }
 
@@ -190,7 +190,8 @@ public class LoadRevisionIndication extends CDOReadIndication
 
     visitedFetchRules.add(fetchRule);
 
-    RevisionManager revisionManager = (RevisionManager)getSessionManager().getRepository().getRevisionManager();
+    RevisionManager revisionManager = (RevisionManager)getSession().getSessionManager().getRepository()
+        .getRevisionManager();
     for (EStructuralFeature feature : fetchRule.getFeatures())
     {
       if (feature.isMany())

@@ -62,8 +62,7 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * @author Eike Stepper
  */
-public class Session extends Container<IView> implements ISession, CDOIDProvider, CDOPackageURICompressor,
-    CDOCommonSession.Options
+public class Session extends Container<IView> implements ISession, CDOIDProvider, CDOCommonSession.Options
 {
   private SessionManager sessionManager;
 

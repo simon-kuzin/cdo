@@ -50,7 +50,7 @@ public abstract class CDOClientRequest<RESULT> extends RequestWithConfirmation<R
 
   protected InternalCDOSession getSession()
   {
-    return (InternalCDOSession)getProtocol().getInfraStructure();
+    return (InternalCDOSession)getProtocol().getSession();
   }
 
   @Override

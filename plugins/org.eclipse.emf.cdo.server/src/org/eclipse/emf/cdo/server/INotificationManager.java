@@ -11,8 +11,6 @@
  */
 package org.eclipse.emf.cdo.server;
 
-import org.eclipse.emf.cdo.internal.server.Session;
-
 /**
  * @author Simon McDuff
  * @since 2.0
@@ -23,10 +21,11 @@ public interface INotificationManager
 
   /**
    * Internal.
-   * 
-   * @since 2.0
    */
   public void setRepository(IRepository repository);
 
-  public void notifyCommit(Session session, IStoreAccessor.CommitContext commitContext);
+  /**
+   * Internal.
+   */
+  public void notifyCommit(ISession session, IStoreAccessor.CommitContext commitContext);
 }

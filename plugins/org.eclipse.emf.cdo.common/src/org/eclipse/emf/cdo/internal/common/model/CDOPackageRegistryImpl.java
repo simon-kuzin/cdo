@@ -64,7 +64,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
   }
 
   @Override
-  public Object put(String nsURI, Object value)
+  public synchronized Object put(String nsURI, Object value)
   {
     if (value instanceof EPackage)
     {
@@ -83,12 +83,12 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     return basicPut(nsURI, value);
   }
 
-  public Object putEPackage(EPackage ePackage)
+  public synchronized Object putEPackage(EPackage ePackage)
   {
     return put(ePackage.getNsURI(), ePackage);
   }
 
-  public void putPackageUnit(InternalCDOPackageUnit packageUnit)
+  public synchronized void putPackageUnit(InternalCDOPackageUnit packageUnit)
   {
     packageUnit.setPackageRegistry(this);
     for (InternalCDOPackageInfo packageInfo : packageUnit.getPackageInfos())
@@ -106,7 +106,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     }
   }
 
-  public InternalCDOPackageInfo getPackageInfo(Object value)
+  public synchronized InternalCDOPackageInfo getPackageInfo(Object value)
   {
     if (value instanceof CDOPackageInfo)
     {

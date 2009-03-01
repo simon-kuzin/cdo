@@ -8,25 +8,25 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  */
-package org.eclipse.emf.cdo.server;
+package org.eclipse.emf.cdo.server.mem;
 
-import org.eclipse.emf.cdo.common.CDOCommonView;
-import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.internal.server.mem.MEMStore;
+import org.eclipse.emf.cdo.server.IMEMStore;
 
 /**
  * @author Eike Stepper
  */
-public interface IView extends CDOCommonView
+public final class MEMStoreUtil
 {
-  /**
-   * @since 2.0
-   */
-  public IRepository getRepository();
-
-  public ISession getSession();
+  private MEMStoreUtil()
+  {
+  }
 
   /**
    * @since 2.0
    */
-  public CDOID getResourceID(String path);
+  public static IMEMStore createMEMStore()
+  {
+    return new MEMStore();
+  }
 }

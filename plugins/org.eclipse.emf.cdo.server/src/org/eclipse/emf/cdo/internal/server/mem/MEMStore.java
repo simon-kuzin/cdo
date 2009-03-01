@@ -10,7 +10,7 @@
  *    Simon McDuff - http://bugs.eclipse.org/233273    
  *    Eike Stepper - maintenance
  */
-package org.eclipse.emf.cdo.internal.server;
+package org.eclipse.emf.cdo.internal.server.mem;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
@@ -23,6 +23,8 @@ import org.eclipse.emf.cdo.server.ITransaction;
 import org.eclipse.emf.cdo.server.IView;
 import org.eclipse.emf.cdo.server.StoreThreadLocal;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
+import org.eclipse.emf.cdo.spi.server.LongIDStore;
+import org.eclipse.emf.cdo.spi.server.StoreAccessorPool;
 
 import org.eclipse.net4j.util.ObjectUtil;
 

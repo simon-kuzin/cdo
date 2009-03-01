@@ -65,12 +65,6 @@ public class CDOClientProtocol extends CDOProtocolImpl implements CDOSessionProt
   {
   }
 
-  @Override
-  public CDOSession getSession()
-  {
-    return (CDOSession)super.getSession();
-  }
-
   public StringIO getPackageURICompressor()
   {
     return packageURICompressor;

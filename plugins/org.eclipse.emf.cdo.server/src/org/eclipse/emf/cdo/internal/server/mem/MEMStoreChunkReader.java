@@ -9,11 +9,12 @@
  *    Simon McDuff - initial API and implementation
  *    Eike Stepper - maintenance
  */
-package org.eclipse.emf.cdo.internal.server;
+package org.eclipse.emf.cdo.internal.server.mem;
 
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
+import org.eclipse.emf.cdo.spi.server.StoreChunkReader;
 
 import org.eclipse.emf.ecore.EStructuralFeature;
 

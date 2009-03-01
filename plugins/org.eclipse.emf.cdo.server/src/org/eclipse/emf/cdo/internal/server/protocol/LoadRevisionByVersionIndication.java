@@ -49,6 +49,6 @@ public class LoadRevisionByVersionIndication extends LoadRevisionIndication
   @Override
   protected InternalCDORevision getRevision(CDOID id)
   {
-    return getRevisionManager().getRevisionByVersion(id, referenceChunk, version);
+    return getRepository().getRevisionManager().getRevisionByVersion(id, referenceChunk, version);
   }
 }

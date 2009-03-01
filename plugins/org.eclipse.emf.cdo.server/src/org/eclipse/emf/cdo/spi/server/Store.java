@@ -8,9 +8,10 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  */
-package org.eclipse.emf.cdo.internal.server;
+package org.eclipse.emf.cdo.spi.server;
 
 import org.eclipse.emf.cdo.common.CDOCommonView;
+import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.ISessionManager;
@@ -330,6 +331,54 @@ public abstract class Store extends Lifecycle implements IStore
    * @since 2.0
    */
   protected abstract IStoreAccessor createWriter(ITransaction transaction);
+
+  /**
+   * @since 2.0
+   */
+  public static IStoreAccessor.QueryResourcesContext.ExactMatch createExactMatchContext(final CDOID folderID,
+      final String name, final long timeStamp)
+  {
+    return new IStoreAccessor.QueryResourcesContext.ExactMatch()
+    {
+      private CDOID resourceID;
+
+      public CDOID getResourceID()
+      {
+        return resourceID;
+      }
+
+      public long getTimeStamp()
+      {
+        return timeStamp;
+      }
+
+      public CDOID getFolderID()
+      {
+        return folderID;
+      }
+
+      public String getName()
+      {
+        return name;
+      }
+
+      public boolean exactMatch()
+      {
+        return true;
+      }
+
+      public int getMaxResults()
+      {
+        return 1;
+      }
+
+      public boolean addResource(CDOID resourceID)
+      {
+        this.resourceID = resourceID;
+        return false;
+      }
+    };
+  }
 
   /**
    * @since 2.0

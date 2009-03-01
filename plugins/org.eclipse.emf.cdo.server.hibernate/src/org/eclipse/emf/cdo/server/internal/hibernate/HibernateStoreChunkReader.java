@@ -11,8 +11,8 @@
 package org.eclipse.emf.cdo.server.internal.hibernate;
 
 import org.eclipse.emf.cdo.common.revision.CDORevision;
-import org.eclipse.emf.cdo.internal.server.StoreChunkReader;
 import org.eclipse.emf.cdo.server.hibernate.IHibernateStoreChunkReader;
+import org.eclipse.emf.cdo.spi.server.StoreChunkReader;
 
 import org.eclipse.emf.ecore.EStructuralFeature;
 

@@ -18,6 +18,8 @@ import org.eclipse.emf.cdo.common.CDOQueryInfo;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
+import org.eclipse.emf.cdo.common.model.CDOPackageLoader;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.internal.common.model.CDOPackageRegistryImpl;
@@ -39,6 +41,8 @@ import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 import org.eclipse.net4j.util.om.OMPlatform;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 
+import org.eclipse.emf.ecore.EPackage;
+
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,7 +54,7 @@ import java.util.UUID;
  * @author Eike Stepper
  * @since 2.0
  */
-public class Repository extends Container<Object> implements IRepository
+public class Repository extends Container<Object> implements IRepository, CDOPackageLoader
 {
   private String name;
 
@@ -65,8 +69,6 @@ public class Repository extends Container<Object> implements IRepository
   private boolean supportingAudits;
 
   private boolean verifyingRevisions;
-
-  private InternalCDOPackageUnitManager packageUnitManager;
 
   private InternalCDOPackageRegistry packageRegistry;
 
@@ -170,14 +172,10 @@ public class Repository extends Container<Object> implements IRepository
     return verifyingRevisions;
   }
 
-  public InternalCDOPackageUnitManager getPackageUnitManager()
+  public EPackage[] loadPackages(CDOPackageUnit packageUnit)
   {
-    return packageUnitManager;
-  }
-
-  public void setPackageUnitManager(InternalCDOPackageUnitManager packageUnitManager)
-  {
-    this.packageUnitManager = packageUnitManager;
+    // TODO: implement Repository.loadPackages(packageUnit)
+    throw new UnsupportedOperationException();
   }
 
   public InternalCDOPackageRegistry getPackageRegistry()
@@ -360,8 +358,8 @@ public class Repository extends Container<Object> implements IRepository
 
   public Object[] getElements()
   {
-    final Object[] elements = { packageUnitManager, packageRegistry, sessionManager, revisionManager, queryManager,
-        notificationManager, commitManager, lockManager, store };
+    final Object[] elements = { packageRegistry, sessionManager, revisionManager, queryManager, notificationManager,
+        commitManager, lockManager, store };
     return elements;
   }
 
@@ -538,7 +536,6 @@ public class Repository extends Container<Object> implements IRepository
   {
     super.doBeforeActivate();
     checkState(!StringUtil.isEmpty(name), "name is empty");
-    checkState(packageUnitManager, "packageUnitManager");
     checkState(packageRegistry, "packageRegistry");
     checkState(sessionManager, "sessionManager");
     checkState(revisionManager, "revisionManager");
@@ -547,7 +544,7 @@ public class Repository extends Container<Object> implements IRepository
     checkState(commitManager, "commitManager");
     checkState(lockManager, "lockingManager");
 
-    packageRegistry.setPackageUnitManager(packageUnitManager);
+    packageRegistry.setPackageLoader(this);
     sessionManager.setRepository(this);
     revisionManager.setRepository(this);
     queryManager.setRepository(this);
@@ -584,7 +581,6 @@ public class Repository extends Container<Object> implements IRepository
   {
     super.doActivate();
     LifecycleUtil.activate(store);
-    LifecycleUtil.activate(packageUnitManager);
     LifecycleUtil.activate(packageRegistry);
     if (store.wasCrashed())
     {
@@ -616,7 +612,6 @@ public class Repository extends Container<Object> implements IRepository
     LifecycleUtil.deactivate(sessionManager);
 
     LifecycleUtil.deactivate(packageRegistry);
-    LifecycleUtil.deactivate(packageUnitManager);
     LifecycleUtil.deactivate(store);
     super.doDeactivate();
   }
@@ -634,11 +629,6 @@ public class Repository extends Container<Object> implements IRepository
     @Override
     protected void doBeforeActivate() throws Exception
     {
-      if (getPackageUnitManager() == null)
-      {
-        setPackageUnitManager(createPackageUnitManager());
-      }
-
       if (getPackageRegistry() == null)
       {
         setPackageRegistry(createPackageRegistry());
@@ -680,11 +670,6 @@ public class Repository extends Container<Object> implements IRepository
     protected InternalCDOPackageRegistry createPackageRegistry()
     {
       return new CDOPackageRegistryImpl();
-    }
-
-    protected InternalCDOPackageUnitManager createPackageUnitManager()
-    {
-      return new CDOPackageUnitManagerImpl();
     }
 
     protected SessionManager createSessionManager()

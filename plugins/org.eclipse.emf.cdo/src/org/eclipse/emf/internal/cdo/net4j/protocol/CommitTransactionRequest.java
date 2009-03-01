@@ -89,7 +89,7 @@ public class CommitTransactionRequest extends RequestWithMonitoring<CommitTransa
 
   protected InternalCDOSession getSession()
   {
-    return (InternalCDOSession)getProtocol().getInfraStructure();
+    return (InternalCDOSession)getProtocol().getSession();
   }
 
   @Override

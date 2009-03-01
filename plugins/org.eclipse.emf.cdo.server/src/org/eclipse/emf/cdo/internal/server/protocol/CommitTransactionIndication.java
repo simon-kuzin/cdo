@@ -30,9 +30,7 @@ import org.eclipse.emf.cdo.internal.common.io.CDODataInputImpl;
 import org.eclipse.emf.cdo.internal.common.io.CDODataOutputImpl;
 import org.eclipse.emf.cdo.internal.common.revision.CDOListImpl;
 import org.eclipse.emf.cdo.internal.server.Repository;
-import org.eclipse.emf.cdo.internal.server.RevisionManager;
 import org.eclipse.emf.cdo.internal.server.Session;
-import org.eclipse.emf.cdo.internal.server.SessionManager;
 import org.eclipse.emf.cdo.internal.server.Transaction;
 import org.eclipse.emf.cdo.internal.server.Transaction.InternalCommitContext;
 import org.eclipse.emf.cdo.internal.server.TransactionCommitContextImpl.TransactionPackageRegistry;
@@ -44,6 +42,7 @@ import org.eclipse.net4j.signal.IndicationWithMonitoring;
 import org.eclipse.net4j.util.WrappedException;
 import org.eclipse.net4j.util.io.ExtendedDataInputStream;
 import org.eclipse.net4j.util.io.ExtendedDataOutputStream;
+import org.eclipse.net4j.util.io.StringIO;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.monitor.ProgressDistributable;
@@ -107,48 +106,18 @@ public class CommitTransactionIndication extends IndicationWithMonitoring
 
   protected Session getSession()
   {
-    return getProtocol().getSession();
-  }
-
-  protected CDOPackageURICompressor getPackageURICompressor()
-  {
-    return getSession();
-  }
-
-  protected CDOIDProvider getIDProvider()
-  {
-    return getSession();
-  }
-
-  protected CDOIDObjectFactory getIDFactory()
-  {
-    return getStore().getCDOIDObjectFactory();
-  }
-
-  protected SessionManager getSessionManager()
-  {
-    return getSession().getSessionManager();
+    return (Session)getProtocol().getSession();
   }
 
   protected Repository getRepository()
   {
-    Repository repository = (Repository)getSessionManager().getRepository();
-    if (!repository.isActive())
+    Repository repository = (Repository)getSession().getSessionManager().getRepository();
+    if (!LifecycleUtil.isActive(repository))
     {
       throw new IllegalStateException("Repository has been deactivated");
     }
 
     return repository;
-  }
-
-  protected RevisionManager getRevisionManager()
-  {
-    return getRepository().getRevisionManager();
-  }
-
-  protected TransactionPackageRegistry getPackageManager()
-  {
-    return commitContext.getPackageRegistry();
   }
 
   protected IStore getStore()
@@ -170,25 +139,25 @@ public class CommitTransactionIndication extends IndicationWithMonitoring
       @Override
       protected CDORevisionResolver getRevisionResolver()
       {
-        return CommitTransactionIndication.this.getRevisionManager();
+        return CommitTransactionIndication.this.getRepository().getRevisionManager();
       }
 
       @Override
       protected CDOPackageRegistry getPackageRegistry()
       {
-        return CommitTransactionIndication.this.getPackageManager();
+        return commitContext.getPackageRegistry();
       }
 
       @Override
-      protected CDOPackageURICompressor getPackageURICompressor()
+      protected StringIO getPackageURICompressor()
       {
-        return CommitTransactionIndication.this.getPackageURICompressor();
+        return getProtocol().getPackageURICompressor();
       }
 
       @Override
       protected CDOIDObjectFactory getIDFactory()
       {
-        return CommitTransactionIndication.this.getIDFactory();
+        return CommitTransactionIndication.this.getStore().getCDOIDObjectFactory();
       }
 
       @Override
@@ -205,14 +174,14 @@ public class CommitTransactionIndication extends IndicationWithMonitoring
     responding(new CDODataOutputImpl(out)
     {
       @Override
-      protected CDOPackageURICompressor getPackageURICompressor()
+      protected StringIO getPackageURICompressor()
       {
-        return CommitTransactionIndication.this.getPackageURICompressor();
+        return getProtocol().getPackageURICompressor();
       }
 
       public CDOIDProvider getIDProvider()
       {
-        return CommitTransactionIndication.this.getIDProvider();
+        return CommitTransactionIndication.this.getSession();
       }
     }, monitor);
   }

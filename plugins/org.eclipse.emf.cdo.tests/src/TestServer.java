@@ -1,7 +1,7 @@
 import org.eclipse.emf.cdo.server.CDOServerUtil;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.IStore;
-import org.eclipse.emf.cdo.server.StoreUtil;
+import org.eclipse.emf.cdo.server.mem.MEMStoreUtil;
 
 import org.eclipse.net4j.Net4jUtil;
 import org.eclipse.net4j.acceptor.IAcceptor;
@@ -48,7 +48,7 @@ public class TestServer
     CDOServerUtil.prepareContainer(container);
     LifecycleUtil.activate(container);
 
-    IStore store = StoreUtil.createMEMStore();
+    IStore store = MEMStoreUtil.createMEMStore();
     Map<String, String> props = new HashMap<String, String>();
     IRepository repository = CDOServerUtil.createRepository(REPOSITORY_NAME, store, props);
     CDOServerUtil.addRepository(container, repository);

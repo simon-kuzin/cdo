@@ -17,11 +17,11 @@ import org.eclipse.emf.cdo.server.CDOServerUtil;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.IRepositoryProvider;
 import org.eclipse.emf.cdo.server.IStore;
-import org.eclipse.emf.cdo.server.StoreUtil;
 import org.eclipse.emf.cdo.server.IRepository.Props;
 import org.eclipse.emf.cdo.server.db.CDODBUtil;
 import org.eclipse.emf.cdo.server.db.IJDBCDelegateProvider;
 import org.eclipse.emf.cdo.server.db.IMappingStrategy;
+import org.eclipse.emf.cdo.server.mem.MEMStoreUtil;
 import org.eclipse.emf.cdo.tests.bundle.OM;
 import org.eclipse.emf.cdo.tests.config.IRepositoryConfig;
 import org.eclipse.emf.cdo.tests.store.verifier.AuditDBStoreIntegrityVerifier;
@@ -213,7 +213,7 @@ public abstract class RepositoryConfig extends Config implements IRepositoryConf
     @Override
     protected IStore createStore()
     {
-      return StoreUtil.createMEMStore();
+      return MEMStoreUtil.createMEMStore();
     }
   }
 

@@ -12,7 +12,6 @@ package org.eclipse.emf.cdo.server;
 
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
-import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 
 import org.eclipse.net4j.util.container.IContainer;
@@ -57,13 +56,6 @@ public interface IRepository extends IContainer<Object>, IQueryHandlerProvider
    * @see #getPackageUnitManager()
    */
   public CDOPackageRegistry getPackageRegistry();
-
-  /**
-   * Returns the {@link CDOPackageUnitManager package unit manager} that represents the {@link CDOPackageUnit package
-   * units} currently available in this repository. The package unit manager can be used to query information about the
-   * packages in the repository.
-   */
-  public CDOPackageUnitManager getPackageUnitManager();
 
   public ISessionManager getSessionManager();
 

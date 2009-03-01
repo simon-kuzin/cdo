@@ -16,10 +16,11 @@ package org.eclipse.emf.cdo.internal.server.protocol;
 
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.internal.common.protocol.CDOProtocolImpl;
-import org.eclipse.emf.cdo.internal.server.Session;
 import org.eclipse.emf.cdo.server.IRepositoryProvider;
 
 import org.eclipse.net4j.signal.SignalReactor;
+import org.eclipse.net4j.util.io.StringCompressor;
+import org.eclipse.net4j.util.io.StringIO;
 
 /**
  * @author Eike Stepper
@@ -27,6 +28,8 @@ import org.eclipse.net4j.signal.SignalReactor;
 public class CDOServerProtocol extends CDOProtocolImpl
 {
   private IRepositoryProvider repositoryProvider;
+
+  private StringCompressor packageURICompressor = new StringCompressor(false);
 
   public CDOServerProtocol(IRepositoryProvider repositoryProvider)
   {
@@ -38,10 +41,9 @@ public class CDOServerProtocol extends CDOProtocolImpl
     return repositoryProvider;
   }
 
-  @Override
-  public Session getSession()
+  public StringIO getPackageURICompressor()
   {
-    return (Session)super.getSession();
+    return packageURICompressor;
   }
 
   @Override

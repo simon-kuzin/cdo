@@ -72,7 +72,7 @@ public class SyncRevisionsIndication extends CDOReadIndication
       {
         try
         {
-          InternalCDORevision revision = getRevisionManager().getRevision(id, referenceChunk);
+          InternalCDORevision revision = getRepository().getRevisionManager().getRevision(id, referenceChunk);
           if (revision == null)
           {
             detachedObjects.add(new Pair<CDOID, Long>(id, getTimestamp(id, version)));
@@ -92,7 +92,7 @@ public class SyncRevisionsIndication extends CDOReadIndication
 
   private long getTimestamp(CDOID id, int version)
   {
-    CDORevision revision = getRevisionManager().getRevisionByVersion(id, 0, version, false);
+    CDORevision revision = getRepository().getRevisionManager().getRevisionByVersion(id, 0, version, false);
     if (revision != null)
     {
       return revision.getRevised() + 1;

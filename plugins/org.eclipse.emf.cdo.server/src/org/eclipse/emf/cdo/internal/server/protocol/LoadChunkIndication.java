@@ -88,8 +88,8 @@ public class LoadChunkIndication extends CDOReadIndication
   @Override
   protected void responding(CDODataOutput out) throws IOException
   {
-    InternalCDORevision revision = getRevisionManager().getRevisionByVersion(id, 0, version);
-    getRevisionManager().ensureChunk(revision, feature, fromIndex, toIndex + 1);
+    InternalCDORevision revision = getRepository().getRevisionManager().getRevisionByVersion(id, 0, version);
+    getRepository().getRevisionManager().ensureChunk(revision, feature, fromIndex, toIndex + 1);
 
     MoveableList<Object> list = revision.getList(feature);
     for (int i = fromIndex; i <= toIndex; i++)
