@@ -79,7 +79,7 @@ public class SyncRevisionsRequest extends CDOClientRequest<Collection<CDOTimeSta
   @Override
   protected Collection<CDOTimeStampContext> confirming(CDODataInput in) throws IOException
   {
-    CDORevisionManagerImpl revisionManager = (CDORevisionManagerImpl)getRevisionManager();
+    CDORevisionManagerImpl revisionManager = (CDORevisionManagerImpl)getSession().getRevisionManager();
     TreeMap<Long, CDOTimeStampContext> mapofContext = new TreeMap<Long, CDOTimeStampContext>();
 
     int size = in.readInt();

@@ -28,7 +28,6 @@ import org.eclipse.net4j.util.io.ExtendedDataInput;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
-import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.io.IOException;
@@ -50,8 +49,6 @@ public interface CDODataInput extends ExtendedDataInput
   public EClassifier readEClassifierRefAndResolve() throws IOException;
 
   public String readEPackageURI() throws IOException;
-
-  public void readEPackage(EPackage cdoPackage) throws IOException;
 
   public CDOType readCDOType() throws IOException;
 

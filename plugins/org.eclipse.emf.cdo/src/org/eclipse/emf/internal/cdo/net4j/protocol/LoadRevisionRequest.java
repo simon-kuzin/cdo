@@ -77,7 +77,7 @@ public class LoadRevisionRequest extends CDOClientRequest<List<InternalCDORevisi
       out.writeCDOID(id);
     }
 
-    CDORevisionManagerImpl revisionManager = (CDORevisionManagerImpl)getRevisionManager();
+    CDORevisionManagerImpl revisionManager = (CDORevisionManagerImpl)getSession().getRevisionManager();
     CDOFetchRuleManager ruleManager = revisionManager.getRuleManager();
     List<CDOFetchRule> fetchRules = ruleManager.getFetchRules(ids);
     if (fetchRules == null || fetchRules.size() <= 0)
@@ -125,7 +125,7 @@ public class LoadRevisionRequest extends CDOClientRequest<List<InternalCDORevisi
         PROTOCOL_TRACER.format("Reading {0} additional revisions", additionalSize);
       }
 
-      CDORevisionManagerImpl revisionManager = (CDORevisionManagerImpl)getRevisionManager();
+      CDORevisionManagerImpl revisionManager = (CDORevisionManagerImpl)getSession().getRevisionManager();
       for (int i = 0; i < additionalSize; i++)
       {
         InternalCDORevision revision = (InternalCDORevision)in.readCDORevision();

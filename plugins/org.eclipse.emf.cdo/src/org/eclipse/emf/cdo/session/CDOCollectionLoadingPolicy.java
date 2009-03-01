@@ -55,8 +55,8 @@ public interface CDOCollectionLoadingPolicy
 
   /**
    * Defines a strategy to be used when the collection needs to resolve one element.
-   * {@link CDORevisionManager#loadChunkByRange(CDORevision, EStructuralFeature, int, int, int, int)} should be used to resolve
-   * them.
+   * {@link CDORevisionManager#loadChunkByRange(CDORevision, EStructuralFeature, int, int, int, int)} should be used to
+   * resolve them.
    */
   public Object resolveProxy(CDORevisionManager revisionManager, CDORevision revision, EStructuralFeature feature,
       int accessIndex, int serverIndex);

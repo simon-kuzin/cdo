@@ -14,14 +14,9 @@ package org.eclipse.emf.internal.cdo.net4j.protocol;
 import org.eclipse.emf.cdo.common.id.CDOIDObjectFactory;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
-import org.eclipse.emf.cdo.common.model.CDOPackageURICompressor;
-import org.eclipse.emf.cdo.common.model.CDOPackageUnitManager;
 import org.eclipse.emf.cdo.common.revision.CDOListFactory;
-import org.eclipse.emf.cdo.common.revision.CDORevision;
-import org.eclipse.emf.cdo.common.revision.CDORevisionFactory;
 import org.eclipse.emf.cdo.common.revision.CDORevisionResolver;
 import org.eclipse.emf.cdo.internal.common.io.CDODataInputImpl;
-import org.eclipse.emf.cdo.session.CDORevisionManager;
 
 import org.eclipse.emf.internal.cdo.revision.CDOListWithElementProxiesImpl;
 
@@ -53,65 +48,15 @@ public abstract class CDOClientIndication extends Indication
     return (InternalCDOSession)getProtocol().getInfraStructure();
   }
 
-  protected CDORevisionManager getRevisionManager()
-  {
-    return getSession().getRevisionManager();
-  }
-
-  protected CDOPackageRegistry getPackageRegistry()
-  {
-    return getSession().getPackageRegistry();
-  }
-
-  protected CDOPackageUnitManager getPackageUnitManager()
-  {
-    return getSession().getPackageUnitManager();
-  }
-
-  protected CDOPackageURICompressor getPackageURICompressor()
-  {
-    return getSession();
-  }
-
-  protected CDOIDObjectFactory getIDFactory()
-  {
-    return getSession();
-  }
-
   @Override
   protected final void indicating(ExtendedDataInputStream in) throws Exception
   {
     indicating(new CDODataInputImpl(in)
     {
       @Override
-      protected CDORevision readCDORevisionData() throws IOException
-      {
-        CDORevisionFactory factory = getSession().options().getRevisionFactory();
-        return factory.createRevision(this);
-      }
-
-      @Override
-      protected CDORevisionResolver getRevisionResolver()
-      {
-        return CDOClientIndication.this.getRevisionManager();
-      }
-
-      @Override
-      protected CDOPackageRegistry getPackageRegistry()
-      {
-        return CDOClientIndication.this.getPackageRegistry();
-      }
-
-      @Override
-      protected CDOPackageURICompressor getPackageURICompressor()
-      {
-        return CDOClientIndication.this.getPackageURICompressor();
-      }
-
-      @Override
       protected CDOIDObjectFactory getIDFactory()
       {
-        return CDOClientIndication.this.getIDFactory();
+        return getSession();
       }
 
       @Override
@@ -119,6 +64,19 @@ public abstract class CDOClientIndication extends Indication
       {
         return CDOListWithElementProxiesImpl.FACTORY;
       }
+
+      @Override
+      protected CDOPackageRegistry getPackageRegistry()
+      {
+        return getSession().getPackageRegistry();
+      }
+
+      @Override
+      protected CDORevisionResolver getRevisionResolver()
+      {
+        return getSession().getRevisionManager();
+      }
+
     });
   }
 

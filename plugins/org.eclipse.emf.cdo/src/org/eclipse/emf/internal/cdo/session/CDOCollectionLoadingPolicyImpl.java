@@ -47,8 +47,8 @@ public class CDOCollectionLoadingPolicyImpl implements CDOCollectionLoadingPolic
     return resolveChunkSize;
   }
 
-  public Object resolveProxy(CDORevisionManager revisionManager, CDORevision rev, EStructuralFeature feature, int accessIndex,
-      int serverIndex)
+  public Object resolveProxy(CDORevisionManager revisionManager, CDORevision rev, EStructuralFeature feature,
+      int accessIndex, int serverIndex)
   {
     // Get proxy values
     InternalCDORevision revision = (InternalCDORevision)rev;

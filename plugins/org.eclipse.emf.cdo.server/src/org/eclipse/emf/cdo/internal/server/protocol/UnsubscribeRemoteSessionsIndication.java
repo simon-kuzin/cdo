@@ -30,7 +30,8 @@ import java.util.List;
  */
 public class UnsubscribeRemoteSessionsIndication extends CDOReadIndication
 {
-  private static final ContextTracer PROTOCOL_TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, UnsubscribeRemoteSessionsIndication.class);
+  private static final ContextTracer PROTOCOL_TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
+      UnsubscribeRemoteSessionsIndication.class);
 
   private List<CDORevision> revisions;
 

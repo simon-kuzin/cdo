@@ -12,7 +12,6 @@ package org.eclipse.emf.cdo.server.internal.db;
 
 import org.eclipse.emf.ecore.EModelElement;
 
-
 /**
  * @author Eike Stepper
  */

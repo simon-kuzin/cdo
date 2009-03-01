@@ -12,6 +12,7 @@ package org.eclipse.emf.internal.cdo.net4j.protocol;
 
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 
 import org.eclipse.emf.ecore.EPackage;
@@ -21,42 +22,32 @@ import java.io.IOException;
 /**
  * @author Eike Stepper
  */
-public class LoadPackageRequest extends CDOClientRequest<Object>
+public class LoadPackagesRequest extends CDOClientRequest<EPackage[]>
 {
-  private EPackage cdoPackage;
+  private CDOPackageUnit packageUnit;
 
-  private boolean onlyEcore;
-
-  public LoadPackageRequest(CDOClientProtocol protocol, EPackage cdoPackage, boolean onlyEcore)
+  public LoadPackagesRequest(CDOClientProtocol protocol, CDOPackageUnit packageUnit)
   {
-    super(protocol, CDOProtocolConstants.SIGNAL_LOAD_PACKAGE);
-    this.cdoPackage = cdoPackage;
-    this.onlyEcore = onlyEcore;
+    super(protocol, CDOProtocolConstants.SIGNAL_LOAD_PACKAGES);
+    this.packageUnit = packageUnit;
   }
 
   @Override
   protected void requesting(CDODataOutput out) throws IOException
   {
-    out.writeEPackageURI(cdoPackage.getNsURI());
-    out.writeBoolean(onlyEcore);
+    out.writeEPackageURI(packageUnit.getID());
   }
 
   @Override
-  protected Object confirming(CDODataInput in) throws IOException
+  protected EPackage[] confirming(CDODataInput in) throws IOException
   {
-    if (onlyEcore)
-    {
-      // TODO: implement LoadPackageRequest.confirming(in)
-      throw new UnsupportedOperationException();
-
-      // String ecore = in.readString();
-      // ((InternalEPackage)cdoPackage).setEcore(ecore);
-    }
-    else
+    int size = in.readInt();
+    EPackage[] ePackages = new EPackage[size];
+    for (int i = 0; i < ePackages.length; i++)
     {
       in.readEPackage(cdoPackage);
     }
 
-    return null;
+    return ePackages;
   }
 }

@@ -22,6 +22,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDLibraryDescriptor;
 import org.eclipse.emf.cdo.common.id.CDOIDObject;
 import org.eclipse.emf.cdo.common.id.CDOIDObjectFactory;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
+import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
@@ -29,12 +30,11 @@ import org.eclipse.emf.cdo.common.revision.CDORevisionFactory;
 import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.internal.common.model.CDOPackageRegistryImpl;
-import org.eclipse.emf.cdo.internal.common.model.CDOPackageUnitManagerImpl;
 import org.eclipse.emf.cdo.session.CDOCollectionLoadingPolicy;
 import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.session.CDOSessionInvalidationEvent;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnitManager;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.transaction.CDOTimeStampContext;
 import org.eclipse.emf.cdo.util.CDOUtil;
@@ -53,15 +53,14 @@ import org.eclipse.net4j.util.container.Container;
 import org.eclipse.net4j.util.event.Event;
 import org.eclipse.net4j.util.event.Notifier;
 import org.eclipse.net4j.util.io.ExtendedDataInput;
-import org.eclipse.net4j.util.io.ExtendedDataOutput;
 import org.eclipse.net4j.util.io.IOUtil;
-import org.eclipse.net4j.util.io.StringCompressor;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 import org.eclipse.net4j.util.options.IOptionsContainer;
 import org.eclipse.net4j.util.options.OptionsEvent;
 
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.spi.cdo.InternalCDOObject;
@@ -100,8 +99,6 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
 
   private InternalCDOPackageRegistry packageRegistry;
 
-  private InternalCDOPackageUnitManager packageUnitManager;
-
   private CDORevisionManagerImpl revisionManager;
 
   private InternalCDORemoteSessionManager remoteSessionManager;
@@ -118,15 +115,11 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
   private transient int lastViewID;
 
   @ExcludeFromDump
-  private transient StringCompressor packageURICompressor;
-
-  @ExcludeFromDump
   private CDOIDObjectFactory cdoidObjectFactory;
 
   public CDOSessionImpl()
   {
     options = createOptions();
-    packageUnitManager = createPackageUnitManager();
     revisionManager = createRevisionManager();
     remoteSessionManager = createRemoteSessionManager();
   }
@@ -213,9 +206,24 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     return packageRegistry;
   }
 
-  public InternalCDOPackageUnitManager getPackageUnitManager()
+  public EPackage[] loadPackages(CDOPackageUnit packageUnit)
   {
-    return packageUnitManager;
+    EPackage[] ePackages;
+    if (packageUnit.isDynamic())
+    {
+      ePackages = getSessionProtocol().loadPackages(packageUnit);
+
+    }
+    else
+    {
+    }
+
+    for (CDOPackageInfo packageInfo : packageUnit.getPackageInfos())
+    {
+      // getSessionProtocol().loadPackage()
+    }
+
+    return ePackages;
   }
 
   public CDORevisionManagerImpl getRevisionManager()
@@ -513,22 +521,6 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     fireEvent(new InvalidationEvent(excludedView, timeStamp, dirtyOIDs, detachedObjects));
   }
 
-  /**
-   * @since 2.0
-   */
-  public void writePackageURI(ExtendedDataOutput out, String uri) throws IOException
-  {
-    packageURICompressor.write(out, uri);
-  }
-
-  /**
-   * @since 2.0
-   */
-  public String readPackageURI(ExtendedDataInput in) throws IOException
-  {
-    return packageURICompressor.read(in);
-  }
-
   @Override
   public String toString()
   {
@@ -541,11 +533,6 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
   protected InternalCDOPackageRegistry createPackageRegistry()
   {
     return new CDOPackageRegistryImpl();
-  }
-
-  protected InternalCDOPackageUnitManager createPackageUnitManager()
-  {
-    return new CDOPackageUnitManagerImpl();
   }
 
   protected CDORevisionManagerImpl createRevisionManager()
@@ -609,7 +596,6 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
   protected void doActivate() throws Exception
   {
     super.doActivate();
-    packageUnitManager.activate();
     revisionManager.activate();
     remoteSessionManager.activate();
     if (packageRegistry == null)
@@ -617,7 +603,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       packageRegistry = createPackageRegistry();
     }
 
-    packageRegistry.setPackageUnitManager(packageUnitManager);
+    packageRegistry.setPackageLoader(this);
 
     String name = repository().getName();
     boolean passiveUpdateEnabled = options().isPassiveUpdateEnabled();
@@ -625,12 +611,11 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
 
     sessionID = result.getSessionID();
     repository = createRepository(result);
-    packageURICompressor = result.getCompressor();
     handleLibraryDescriptor(result.getLibraryDescriptor());
 
     for (CDOPackageUnit packageUnit : result.getPackageUnits())
     {
-      packageUnitManager.putPackageUnit(packageUnit);
+      packageRegistry.putPackageUnit((InternalCDOPackageUnit)packageUnit);
     }
   }
 
@@ -928,49 +913,6 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
   /**
    * @author Eike Stepper
    */
-  private static final class TemporaryRepositoryName implements CDOSession.Repository
-  {
-    private String name;
-
-    public TemporaryRepositoryName(String name)
-    {
-      this.name = name;
-    }
-
-    public String getName()
-    {
-      return name;
-    }
-
-    public long getCreationTime()
-    {
-      throw new UnsupportedOperationException();
-    }
-
-    public long getCurrentTime()
-    {
-      throw new UnsupportedOperationException();
-    }
-
-    public long getCurrentTime(boolean forceRefresh)
-    {
-      throw new UnsupportedOperationException();
-    }
-
-    public String getUUID()
-    {
-      throw new UnsupportedOperationException();
-    }
-
-    public boolean isSupportingAudits()
-    {
-      throw new UnsupportedOperationException();
-    }
-  }
-
-  /**
-   * @author Eike Stepper
-   */
   protected class RepositoryImpl implements CDOSession.Repository
   {
     private String name;
@@ -1001,7 +943,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
 
     public void setName(String name)
     {
-      this.name = name;
+      name = name;
     }
 
     /**
@@ -1056,6 +998,49 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     private RepositoryTimeResult refreshTime()
     {
       return getSessionProtocol().getRepositoryTime();
+    }
+  }
+
+  /**
+   * @author Eike Stepper
+   */
+  private static final class TemporaryRepositoryName implements CDOSession.Repository
+  {
+    private String name;
+
+    public TemporaryRepositoryName(String name)
+    {
+      this.name = name;
+    }
+
+    public String getName()
+    {
+      return name;
+    }
+
+    public long getCreationTime()
+    {
+      throw new UnsupportedOperationException();
+    }
+
+    public long getCurrentTime()
+    {
+      throw new UnsupportedOperationException();
+    }
+
+    public long getCurrentTime(boolean forceRefresh)
+    {
+      throw new UnsupportedOperationException();
+    }
+
+    public String getUUID()
+    {
+      throw new UnsupportedOperationException();
+    }
+
+    public boolean isSupportingAudits()
+    {
+      throw new UnsupportedOperationException();
     }
   }
 

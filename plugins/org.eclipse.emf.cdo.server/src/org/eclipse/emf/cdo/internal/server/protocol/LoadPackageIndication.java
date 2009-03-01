@@ -34,7 +34,7 @@ public class LoadPackageIndication extends CDOReadIndication
 
   public LoadPackageIndication(CDOServerProtocol protocol)
   {
-    super(protocol, CDOProtocolConstants.SIGNAL_LOAD_PACKAGE);
+    super(protocol, CDOProtocolConstants.SIGNAL_LOAD_PACKAGES);
   }
 
   @Override

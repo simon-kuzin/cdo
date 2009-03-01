@@ -128,7 +128,8 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
   {
     if (!loaded)
     {
-      for (EPackage ePackage : packageRegistry.getPackageLoader().loadPackages(this))
+      EPackage[] ePackages = packageRegistry.getPackageLoader().loadPackages(this);
+      for (EPackage ePackage : ePackages)
       {
         String packageURI = ePackage.getNsURI();
         InternalCDOPackageInfo packageInfo = getPackageInfo(packageURI);

@@ -19,7 +19,6 @@ import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
-import org.eclipse.emf.cdo.common.model.CDOPackageURICompressor;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.common.revision.CDOList;
@@ -39,6 +38,7 @@ import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.util.concurrent.RWLockManager;
 import org.eclipse.net4j.util.io.ExtendedDataOutput;
+import org.eclipse.net4j.util.io.StringIO;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.emf.ecore.EClass;
@@ -52,105 +52,13 @@ import java.io.IOException;
 /**
  * @author Eike Stepper
  */
-public abstract class CDODataOutputImpl implements CDODataOutput
+public abstract class CDODataOutputImpl extends ExtendedDataOutput.Delegating implements CDODataOutput
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, CDODataOutputImpl.class);
 
-  private ExtendedDataOutput out;
-
-  public CDODataOutputImpl(ExtendedDataOutput out)
+  public CDODataOutputImpl(ExtendedDataOutput delegate)
   {
-    this.out = out;
-  }
-
-  public ExtendedDataOutput getDelegate()
-  {
-    return out;
-  }
-
-  public void write(byte[] b, int off, int len) throws IOException
-  {
-    out.write(b, off, len);
-  }
-
-  public void write(byte[] b) throws IOException
-  {
-    out.write(b);
-  }
-
-  public void write(int b) throws IOException
-  {
-    out.write(b);
-  }
-
-  public void writeBoolean(boolean v) throws IOException
-  {
-    out.writeBoolean(v);
-  }
-
-  public void writeByte(int v) throws IOException
-  {
-    out.writeByte(v);
-  }
-
-  public void writeByteArray(byte[] b) throws IOException
-  {
-    out.writeByteArray(b);
-  }
-
-  public void writeBytes(String s) throws IOException
-  {
-    out.writeBytes(s);
-  }
-
-  public void writeChar(int v) throws IOException
-  {
-    out.writeChar(v);
-  }
-
-  public void writeChars(String s) throws IOException
-  {
-    out.writeChars(s);
-  }
-
-  public void writeDouble(double v) throws IOException
-  {
-    out.writeDouble(v);
-  }
-
-  public void writeFloat(float v) throws IOException
-  {
-    out.writeFloat(v);
-  }
-
-  public void writeInt(int v) throws IOException
-  {
-    out.writeInt(v);
-  }
-
-  public void writeLong(long v) throws IOException
-  {
-    out.writeLong(v);
-  }
-
-  public void writeObject(Object object) throws IOException
-  {
-    out.writeObject(object);
-  }
-
-  public void writeShort(int v) throws IOException
-  {
-    out.writeShort(v);
-  }
-
-  public void writeString(String str) throws IOException
-  {
-    out.writeString(str);
-  }
-
-  public void writeUTF(String str) throws IOException
-  {
-    out.writeUTF(str);
+    super(delegate);
   }
 
   public void writeCDOPackageUnit(CDOPackageUnit packageUnit) throws IOException
@@ -176,7 +84,7 @@ public abstract class CDODataOutputImpl implements CDODataOutput
 
   public void writeEPackageURI(String uri) throws IOException
   {
-    getPackageURICompressor().writePackageURI(this, uri);
+    getPackageURICompressor().write(this, uri);
   }
 
   public void writeEPackage(EPackage cdoPackage) throws IOException
@@ -268,8 +176,8 @@ public abstract class CDODataOutputImpl implements CDODataOutput
         TRACER.format("Writing feature {0}: size={1}, referenceChunk={2}", feature, size, referenceChunk);
       }
 
-      out.writeInt(-size);
-      out.writeInt(referenceChunk);
+      writeInt(-size);
+      writeInt(referenceChunk);
       size = referenceChunk;
     }
     else
@@ -279,7 +187,7 @@ public abstract class CDODataOutputImpl implements CDODataOutput
         TRACER.format("Writing feature {0}: size={1}", feature, size);
       }
 
-      out.writeInt(size);
+      writeInt(size);
     }
 
     for (int j = 0; j < size; j++)
@@ -363,5 +271,8 @@ public abstract class CDODataOutputImpl implements CDODataOutput
     writeBoolean(lockType == RWLockManager.LockType.WRITE ? true : false);
   }
 
-  protected abstract CDOPackageURICompressor getPackageURICompressor();
+  protected StringIO getPackageURICompressor()
+  {
+    return StringIO.DIRECT;
+  }
 }

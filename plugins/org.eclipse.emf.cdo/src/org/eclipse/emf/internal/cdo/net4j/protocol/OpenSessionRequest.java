@@ -12,23 +12,17 @@
 package org.eclipse.emf.internal.cdo.net4j.protocol;
 
 import org.eclipse.emf.cdo.common.id.CDOIDLibraryDescriptor;
-import org.eclipse.emf.cdo.common.id.CDOIDObjectFactory;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
-import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
-import org.eclipse.emf.cdo.common.model.CDOPackageURICompressor;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
-import org.eclipse.emf.cdo.common.model.CDOPackageUnitManager;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.util.ServerException;
 
 import org.eclipse.emf.internal.cdo.bundle.OM;
-import org.eclipse.emf.internal.cdo.session.CDORevisionManagerImpl;
 
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
-import org.eclipse.emf.spi.cdo.InternalCDOSession;
 import org.eclipse.emf.spi.cdo.CDOSessionProtocol.OpenSessionResult;
 
 import java.io.IOException;
@@ -52,47 +46,6 @@ public class OpenSessionRequest extends CDOTimeRequest<OpenSessionResult>
     super(protocol, CDOProtocolConstants.SIGNAL_OPEN_SESSION);
     this.repositoryName = repositoryName;
     this.passiveUpdateEnabled = passiveUpdateEnabled;
-  }
-
-  @Override
-  protected InternalCDOSession getSession()
-  {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  protected CDORevisionManagerImpl getRevisionManager()
-  {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  protected CDOPackageRegistry getPackageRegistry()
-  {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  protected CDOPackageUnitManager getPackageUnitManager()
-  {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  protected CDOPackageURICompressor getPackageURICompressor()
-  {
-    if (result == null)
-    {
-      throw new IllegalStateException("result == null");
-    }
-
-    return result;
-  }
-
-  @Override
-  protected CDOIDObjectFactory getIDFactory()
-  {
-    throw new UnsupportedOperationException();
   }
 
   @Override

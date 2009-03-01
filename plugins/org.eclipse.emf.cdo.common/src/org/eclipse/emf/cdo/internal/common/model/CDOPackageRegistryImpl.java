@@ -88,17 +88,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     return put(ePackage.getNsURI(), ePackage);
   }
 
-  protected InternalCDOPackageUnit createPackageUnit(EPackage topLevelPackage)
-  {
-    return new CDOPackageUnitImpl(topLevelPackage);
-  }
-
-  protected Object basicPut(String nsURI, Object value)
-  {
-    return super.put(nsURI, value);
-  }
-
-  protected void putPackageUnit(InternalCDOPackageUnit packageUnit)
+  public void putPackageUnit(InternalCDOPackageUnit packageUnit)
   {
     packageUnit.setPackageRegistry(this);
     for (InternalCDOPackageInfo packageInfo : packageUnit.getPackageInfos())
@@ -116,18 +106,18 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     }
   }
 
-  protected InternalCDOPackageInfo getPackageInfo(Object value)
+  public InternalCDOPackageInfo getPackageInfo(Object value)
   {
     if (value instanceof CDOPackageInfo)
     {
       return (InternalCDOPackageInfo)value;
     }
-
+  
     if (value instanceof EPackage)
     {
       return (InternalCDOPackageInfo)CDOModelUtil.getPackageInfo((EPackage)value, this);
     }
-
+  
     return null;
   }
 
@@ -144,6 +134,16 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
   public void remapMetaInstance(CDOID oldId, CDOID newId)
   {
     metaInstanceMapper.remapMetaInstance(oldId, newId);
+  }
+
+  protected InternalCDOPackageUnit createPackageUnit(EPackage topLevelPackage)
+  {
+    return new CDOPackageUnitImpl(topLevelPackage);
+  }
+
+  protected Object basicPut(String nsURI, Object value)
+  {
+    return super.put(nsURI, value);
   }
 
   /**

@@ -48,7 +48,8 @@ public class CDOManyReferenceGetter extends CDOPropertyGetter
   public Object get(Object target) throws HibernateException
   {
     // Check if there is already a persistentcollection
-    PersistentCollection collection = PersistableListHolder.getInstance().getListMapping(target, getEStructuralFeature());
+    PersistentCollection collection = PersistableListHolder.getInstance().getListMapping(target,
+        getEStructuralFeature());
     if (collection != null)
     {
       return collection;

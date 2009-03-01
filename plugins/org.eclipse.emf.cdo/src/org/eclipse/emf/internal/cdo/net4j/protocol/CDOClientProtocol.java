@@ -12,6 +12,7 @@ package org.eclipse.emf.internal.cdo.net4j.protocol;
 
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.util.TransportException;
@@ -30,6 +31,8 @@ import org.eclipse.net4j.signal.RequestWithConfirmation;
 import org.eclipse.net4j.signal.SignalReactor;
 import org.eclipse.net4j.util.WrappedException;
 import org.eclipse.net4j.util.concurrent.RWLockManager.LockType;
+import org.eclipse.net4j.util.io.StringCompressor;
+import org.eclipse.net4j.util.io.StringIO;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.trace.PerfTracer;
 
@@ -56,6 +59,8 @@ public class CDOClientProtocol extends CDOProtocolImpl implements CDOSessionProt
   private static final PerfTracer REVISION_LOADING = new PerfTracer(OM.PERF_REVISION_LOADING,
       CDORevisionManagerImpl.class);
 
+  private StringCompressor packageURICompressor = new StringCompressor(true);
+
   public CDOClientProtocol()
   {
   }
@@ -64,6 +69,11 @@ public class CDOClientProtocol extends CDOProtocolImpl implements CDOSessionProt
   public CDOSession getSession()
   {
     return (CDOSession)super.getSession();
+  }
+
+  public StringIO getPackageURICompressor()
+  {
+    return packageURICompressor;
   }
 
   public OpenSessionResult openSession(String repositoryName, boolean passiveUpdateEnabled)
@@ -87,9 +97,9 @@ public class CDOClientProtocol extends CDOProtocolImpl implements CDOSessionProt
     return send(new RepositoryTimeRequest(this));
   }
 
-  public void loadPackage(EPackage cdoPackage, boolean onlyEcore)
+  public EPackage[] loadPackages(CDOPackageUnit packageUnit)
   {
-    send(new LoadPackageRequest(this, cdoPackage, onlyEcore));
+    return send(new LoadPackagesRequest(this, packageUnit));
   }
 
   public Object loadChunk(InternalCDORevision revision, EStructuralFeature feature, int accessIndex, int fetchIndex,

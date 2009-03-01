@@ -15,7 +15,6 @@ package org.eclipse.emf.cdo.session;
 import org.eclipse.emf.cdo.common.CDOCommonSession;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
-import org.eclipse.emf.cdo.common.model.CDOPackageUnitManager;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionFactory;
 import org.eclipse.emf.cdo.session.remote.CDORemoteSessionManager;
@@ -68,13 +67,6 @@ public interface CDOSession extends CDOCommonSession, IContainer<CDOView>, IOpti
    * @see #getPackageUnitManager()
    */
   public CDOPackageRegistry getPackageRegistry();
-
-  /**
-   * Returns the {@link CDOPackageUnitManager package unit manager} that represents the {@link CDOPackageUnit package
-   * units} currently available in the repository of this session. The package unit manager can be used to query
-   * information about the packages in the repository.
-   */
-  public CDOPackageUnitManager getPackageUnitManager();
 
   /**
    * Returns the CDO {@link CDORevisionManager revision manager} that manages the {@link CDORevision revisions} of the

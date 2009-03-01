@@ -23,9 +23,7 @@ import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
-import org.eclipse.emf.cdo.common.model.CDOPackageURICompressor;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
-import org.eclipse.emf.cdo.common.model.CDOPackageUnitManager;
 import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDOListFactory;
@@ -60,12 +58,11 @@ import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.net4j.util.ImplementationError;
 import org.eclipse.net4j.util.concurrent.RWLockManager;
 import org.eclipse.net4j.util.io.ExtendedDataInput;
-import org.eclipse.net4j.util.io.ExtendedIOUtil.ClassResolver;
+import org.eclipse.net4j.util.io.StringIO;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
-import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.io.IOException;
@@ -73,127 +70,18 @@ import java.io.IOException;
 /**
  * @author Eike Stepper
  */
-public abstract class CDODataInputImpl implements CDODataInput
+public abstract class CDODataInputImpl extends ExtendedDataInput.Delegating implements CDODataInput
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, CDODataInputImpl.class);
 
-  private ExtendedDataInput in;
-
-  public CDODataInputImpl(ExtendedDataInput in)
+  public CDODataInputImpl(ExtendedDataInput delegate)
   {
-    this.in = in;
-  }
-
-  public ExtendedDataInput getDelegate()
-  {
-    return in;
-  }
-
-  public boolean readBoolean() throws IOException
-  {
-    return in.readBoolean();
-  }
-
-  public byte readByte() throws IOException
-  {
-    return in.readByte();
-  }
-
-  public byte[] readByteArray() throws IOException
-  {
-    return in.readByteArray();
-  }
-
-  public char readChar() throws IOException
-  {
-    return in.readChar();
-  }
-
-  public double readDouble() throws IOException
-  {
-    return in.readDouble();
-  }
-
-  public float readFloat() throws IOException
-  {
-    return in.readFloat();
-  }
-
-  public void readFully(byte[] b, int off, int len) throws IOException
-  {
-    in.readFully(b, off, len);
-  }
-
-  public void readFully(byte[] b) throws IOException
-  {
-    in.readFully(b);
-  }
-
-  public int readInt() throws IOException
-  {
-    return in.readInt();
-  }
-
-  public String readLine() throws IOException
-  {
-    return in.readLine();
-  }
-
-  public long readLong() throws IOException
-  {
-    return in.readLong();
-  }
-
-  public Object readObject() throws IOException
-  {
-    return in.readObject();
-  }
-
-  public Object readObject(ClassLoader classLoader) throws IOException
-  {
-    return in.readObject(classLoader);
-  }
-
-  public Object readObject(ClassResolver classResolver) throws IOException
-  {
-    return in.readObject(classResolver);
-  }
-
-  public short readShort() throws IOException
-  {
-    return in.readShort();
-  }
-
-  public String readString() throws IOException
-  {
-    return in.readString();
-  }
-
-  public int readUnsignedByte() throws IOException
-  {
-    return in.readUnsignedByte();
-  }
-
-  public int readUnsignedShort() throws IOException
-  {
-    return in.readUnsignedShort();
-  }
-
-  public String readUTF() throws IOException
-  {
-    return in.readUTF();
-  }
-
-  public int skipBytes(int n) throws IOException
-  {
-    return in.skipBytes(n);
+    super(delegate);
   }
 
   public CDOPackageUnit readCDOPackageUnit() throws IOException
   {
-    boolean dynamic = in.readBoolean();
-    InternalCDOPackageUnit packageUnit = dynamic ? new CDOPackageUnitImpl.Dynamic()
-        : new CDOPackageUnitImpl.Generated();
+    InternalCDOPackageUnit packageUnit = new CDOPackageUnitImpl();
     packageUnit.read(this);
     return packageUnit;
   }
@@ -207,12 +95,7 @@ public abstract class CDODataInputImpl implements CDODataInput
 
   public String readEPackageURI() throws IOException
   {
-    return getPackageURICompressor().readPackageURI(this);
-  }
-
-  public void readEPackage(EPackage cdoPackage) throws IOException
-  {
-    TODO.readEPackage(this, cdoPackage);
+    return getPackageURICompressor().read(this);
   }
 
   public CDOClassifierRef readEClassifierRef() throws IOException
@@ -311,7 +194,7 @@ public abstract class CDODataInputImpl implements CDODataInput
     boolean notNull = readBoolean();
     if (notNull)
     {
-      return readCDORevisionData();
+      return CDORevisionUtil.read(this);
     }
 
     return null;
@@ -384,19 +267,12 @@ public abstract class CDODataInputImpl implements CDODataInput
     return readBoolean() ? RWLockManager.LockType.WRITE : RWLockManager.LockType.READ;
   }
 
-  protected CDORevision readCDORevisionData() throws IOException
+  protected StringIO getPackageURICompressor()
   {
-    return CDORevisionUtil.read(this);
-  }
-
-  protected CDOPackageUnitManager getPackageUnitManager()
-  {
-    return getPackageRegistry().getPackageUnitManager();
+    return StringIO.DIRECT;
   }
 
   protected abstract CDOPackageRegistry getPackageRegistry();
-
-  protected abstract CDOPackageURICompressor getPackageURICompressor();
 
   protected abstract CDORevisionResolver getRevisionResolver();
 

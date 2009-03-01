@@ -19,4 +19,8 @@ import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 public interface InternalCDOPackageRegistry extends CDOPackageRegistry, CDOMetaInstanceMapper
 {
   public void setPackageLoader(CDOPackageLoader packageLoader);
+
+  public void putPackageUnit(InternalCDOPackageUnit packageUnit);
+
+  public InternalCDOPackageInfo getPackageInfo(Object value);
 }
