@@ -10,23 +10,13 @@
  */
 package org.eclipse.emf.cdo.spi.common.model;
 
-import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.model.CDOPackageLoader;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
-
-import org.eclipse.emf.ecore.InternalEObject;
 
 /**
  * @author Eike Stepper
  */
-public interface InternalCDOPackageRegistry extends CDOPackageRegistry
+public interface InternalCDOPackageRegistry extends CDOPackageRegistry, CDOMetaInstanceMapper
 {
-  public InternalCDOPackageUnitManager getPackageUnitManager();
-
-  public void setPackageUnitManager(InternalCDOPackageUnitManager packageUnitManager);
-
-  public InternalEObject lookupMetaInstance(CDOID id);
-
-  public CDOID lookupMetaInstanceID(InternalEObject metaInstance);
-
-  public void remapMetaInstance(CDOID oldID, CDOID newID);
+  public void setPackageLoader(CDOPackageLoader packageLoader);
 }

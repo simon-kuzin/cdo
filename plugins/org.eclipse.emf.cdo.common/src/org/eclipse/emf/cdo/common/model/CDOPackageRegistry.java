@@ -17,10 +17,10 @@ import org.eclipse.emf.ecore.EPackage;
  */
 public interface CDOPackageRegistry extends EPackage.Registry
 {
-  public CDOPackageUnitManager getPackageUnitManager();
+  public CDOPackageLoader getPackageLoader();
 
   /**
    * Registers an {@link EPackage} with this package registry.
    */
-  public void putEPackage(EPackage ePackage);
+  public Object putEPackage(EPackage ePackage);
 }

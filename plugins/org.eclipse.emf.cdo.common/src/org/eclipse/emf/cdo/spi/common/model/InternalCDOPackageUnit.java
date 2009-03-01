@@ -4,8 +4,6 @@ import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 
-import org.eclipse.emf.ecore.EPackage;
-
 import java.io.IOException;
 
 /**
@@ -13,21 +11,21 @@ import java.io.IOException;
  */
 public interface InternalCDOPackageUnit extends CDOPackageUnit
 {
-  public InternalCDOPackageUnitManager getManager();
+  public InternalCDOPackageRegistry getPackageRegistry();
 
-  public void setManager(InternalCDOPackageUnitManager manager);
-
-  public void setID(String id);
+  public void setPackageRegistry(InternalCDOPackageRegistry packageRegistry);
 
   public void setTimeStamp(long timeStamp);
+
+  public void setDynamic(boolean dynamic);
+
+  public void setLegacy(boolean legacy);
 
   public InternalCDOPackageInfo getPackageInfo(String packageURI);
 
   public InternalCDOPackageInfo[] getPackageInfos();
 
-  public void addPackageInfo(InternalCDOPackageInfo packageInfo);
-
-  public void initNew(EPackage topLevelPackage);
+  public void setPackageInfos(InternalCDOPackageInfo[] packageInfos);
 
   public void load();
 

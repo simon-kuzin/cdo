@@ -13,12 +13,15 @@ package org.eclipse.emf.cdo.internal.common.model;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
+import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
+import org.eclipse.emf.common.notify.impl.AdapterImpl;
+import org.eclipse.emf.ecore.EFactory;
 import org.eclipse.emf.ecore.EPackage;
 
 import java.io.IOException;
@@ -27,7 +30,7 @@ import java.text.MessageFormat;
 /**
  * @author Eike Stepper
  */
-public class CDOPackageInfoImpl implements InternalCDOPackageInfo
+public class CDOPackageInfoImpl extends AdapterImpl implements InternalCDOPackageInfo
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, CDOPackageInfoImpl.class);
 
@@ -38,8 +41,6 @@ public class CDOPackageInfoImpl implements InternalCDOPackageInfo
   private String parentURI;
 
   private CDOIDMetaRange metaIDRange;
-
-  private EPackage ePackage;
 
   public CDOPackageInfoImpl()
   {
@@ -85,21 +86,6 @@ public class CDOPackageInfoImpl implements InternalCDOPackageInfo
     metaIDRange = metaIdRange;
   }
 
-  public EPackage getEPackage(boolean loadOnDemand)
-  {
-    if (ePackage == null && loadOnDemand)
-    {
-      packageUnit.load();
-    }
-
-    return ePackage;
-  }
-
-  public void setEPackage(EPackage ePackage)
-  {
-    this.ePackage = ePackage;
-  }
-
   public void write(CDODataOutput out) throws IOException
   {
     if (TRACER.isEnabled())
@@ -121,6 +107,54 @@ public class CDOPackageInfoImpl implements InternalCDOPackageInfo
     {
       TRACER.format("Read {0}", this);
     }
+  }
+
+  @Override
+  public boolean isAdapterForType(Object type)
+  {
+    return EPackage.class.isInstance(type);
+  }
+
+  public EFactory getEFactory()
+  {
+    return getEPackage().getEFactoryInstance();
+  }
+
+  public EPackage getEPackage()
+  {
+    return getEPackage(true);
+  }
+
+  public EPackage getEPackage(boolean loadOnDemand)
+  {
+    EPackage ePackage = (EPackage)getTarget();
+    if (ePackage != null)
+    {
+      return ePackage;
+    }
+
+    if (loadOnDemand)
+    {
+      packageUnit.load();
+      return (EPackage)getTarget();
+    }
+
+    return null;
+  }
+
+  public boolean isCorePackage()
+  {
+    return CDOModelUtil.isCorePackage(getEPackage());
+  }
+
+  public boolean isResourcePackage()
+  {
+    return CDOModelUtil.isResourcePackage(getEPackage());
+  }
+
+  public boolean isSystemPackage()
+  {
+    return CDOModelUtil.isSystemPackage(getEPackage());
   }
 
   @Override

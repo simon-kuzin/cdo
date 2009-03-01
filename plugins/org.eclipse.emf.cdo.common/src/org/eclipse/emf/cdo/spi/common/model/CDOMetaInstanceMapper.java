@@ -8,18 +8,20 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  */
-package org.eclipse.emf.cdo.common.model;
+package org.eclipse.emf.cdo.spi.common.model;
 
-import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.cdo.common.id.CDOID;
+
+import org.eclipse.emf.ecore.InternalEObject;
 
 /**
  * @author Eike Stepper
  */
-public interface CDOPackageUnitLoader
+public interface CDOMetaInstanceMapper
 {
-  public CDOPackageUnit[] loadPackageUnits();
+  public InternalEObject lookupMetaInstance(CDOID id);
 
-  public boolean canLoadPackages(CDOPackageUnit packageUnit);
+  public CDOID lookupMetaInstanceID(InternalEObject metaInstance);
 
-  public EPackage[] loadPackages(CDOPackageUnit packageUnit);
+  public void remapMetaInstance(CDOID oldID, CDOID newID);
 }

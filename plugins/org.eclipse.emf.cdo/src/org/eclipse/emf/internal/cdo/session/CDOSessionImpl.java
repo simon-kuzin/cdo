@@ -630,7 +630,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
 
     for (CDOPackageUnit packageUnit : result.getPackageUnits())
     {
-      packageUnitManager.addPackageUnit(packageUnit);
+      packageUnitManager.putPackageUnit(packageUnit);
     }
   }
 

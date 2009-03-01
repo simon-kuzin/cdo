@@ -15,9 +15,9 @@ import org.eclipse.emf.ecore.EPackage;
 /**
  * @author Eike Stepper
  */
-public interface CDOPackageDescriptor extends EPackage.Descriptor
+public interface CDOPackageLoader
 {
-  public CDOPackageRegistry getPackageRegistry();
+  public boolean canLoadPackages(CDOPackageUnit packageUnit);
 
-  public CDOPackageInfo getPackageInfo();
+  public EPackage[] loadPackages(CDOPackageUnit packageUnit);
 }

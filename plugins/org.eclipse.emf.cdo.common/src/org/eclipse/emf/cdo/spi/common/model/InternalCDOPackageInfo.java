@@ -15,14 +15,14 @@ import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 
-import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.common.notify.Adapter;
 
 import java.io.IOException;
 
 /**
  * @author Eike Stepper
  */
-public interface InternalCDOPackageInfo extends CDOPackageInfo
+public interface InternalCDOPackageInfo extends CDOPackageInfo, Adapter.Internal
 {
   public InternalCDOPackageUnit getPackageUnit();
 
@@ -33,8 +33,6 @@ public interface InternalCDOPackageInfo extends CDOPackageInfo
   public void setParentURI(String parentUri);
 
   public void setMetaIDRange(CDOIDMetaRange metaIdRange);
-
-  public void setEPackage(EPackage ePackage);
 
   public void write(CDODataOutput out) throws IOException;
 

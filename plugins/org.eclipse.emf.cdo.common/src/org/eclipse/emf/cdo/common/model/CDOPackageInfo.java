@@ -12,12 +12,13 @@ package org.eclipse.emf.cdo.common.model;
 
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 
+import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.ecore.EPackage;
 
 /**
  * @author Eike Stepper
  */
-public interface CDOPackageInfo
+public interface CDOPackageInfo extends Adapter, EPackage.Descriptor
 {
   public CDOPackageUnit getPackageUnit();
 
@@ -28,4 +29,11 @@ public interface CDOPackageInfo
   public CDOIDMetaRange getMetaIDRange();
 
   public EPackage getEPackage(boolean loadOnDemand);
+
+  public boolean isCorePackage();
+
+  public boolean isResourcePackage();
+
+  public boolean isSystemPackage();
+
 }

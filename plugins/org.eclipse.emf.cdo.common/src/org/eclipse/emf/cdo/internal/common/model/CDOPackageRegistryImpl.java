@@ -17,15 +17,13 @@ import org.eclipse.emf.cdo.common.id.CDOIDTempMeta;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
-import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
+import org.eclipse.emf.cdo.common.model.CDOPackageLoader;
 import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageAdapter;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageDescriptor;
+import org.eclipse.emf.cdo.spi.common.model.CDOMetaInstanceMapper;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnitManager;
 
 import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
@@ -47,41 +45,42 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, CDOPackageRegistryImpl.class);
 
-  private InternalCDOPackageUnitManager packageUnitManager;
+  private CDOPackageLoader packageLoader;
 
-  @ExcludeFromDump
-  private transient Map<CDOID, InternalEObject> idToMetaInstanceMap = new HashMap<CDOID, InternalEObject>();
-
-  @ExcludeFromDump
-  private transient Map<InternalEObject, CDOID> metaInstanceToIDMap = new HashMap<InternalEObject, CDOID>();
-
-  @ExcludeFromDump
-  private transient int lastTempMetaID;
-
-  private transient Object lastTempMetaIDLock = new Object();
+  private MetaInstanceMapper metaInstanceMapper = new MetaInstanceMapper();
 
   public CDOPackageRegistryImpl()
   {
   }
 
-  public CDOPackageRegistryImpl(EPackage.Registry delegateRegistry)
+  protected CDOPackageRegistryImpl(EPackage.Registry delegateRegistry)
   {
     super(delegateRegistry);
   }
 
-  public InternalCDOPackageUnitManager getPackageUnitManager()
+  public InternalEObject lookupMetaInstance(CDOID id)
   {
-    return packageUnitManager;
+    return metaInstanceMapper.lookupMetaInstance(id);
   }
 
-  public void setPackageUnitManager(InternalCDOPackageUnitManager packageUnitManager)
+  public CDOID lookupMetaInstanceID(InternalEObject metaInstance)
   {
-    this.packageUnitManager = packageUnitManager;
+    return metaInstanceMapper.lookupMetaInstanceID(metaInstance);
   }
 
-  public void putEPackage(EPackage ePackage)
+  public void remapMetaInstance(CDOID oldId, CDOID newId)
   {
-    put(ePackage.getNsURI(), ePackage);
+    metaInstanceMapper.remapMetaInstance(oldId, newId);
+  }
+
+  public CDOPackageLoader getPackageLoader()
+  {
+    return packageLoader;
+  }
+
+  public void setPackageLoader(CDOPackageLoader packageLoader)
+  {
+    this.packageLoader = packageLoader;
   }
 
   @Override
@@ -90,238 +89,218 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     if (value instanceof EPackage)
     {
       EPackage ePackage = (EPackage)value;
-      InternalCDOPackageAdapter adapter = getPackageAdapter(ePackage);
-      if (adapter != null)
+      InternalCDOPackageInfo packageInfo = getPackageInfo(ePackage);
+      if (packageInfo == null)
       {
-        return ePackage;
+        EPackage topLevelPackage = EMFUtil.getTopLevelPackage(ePackage);
+        InternalCDOPackageUnit packageUnit = createPackageUnit(topLevelPackage);
+        putPackageUnit(packageUnit);
       }
 
-      InternalCDOPackageUnit packageUnit = createPackageUnit(ePackage);
-      addPackageUnit(packageUnit);
       return null;
     }
 
-    if (value instanceof InternalCDOPackageUnit)
-    {
-      InternalCDOPackageUnit packageUnit = (InternalCDOPackageUnit)value;
-      addPackageUnit(packageUnit);
-    }
+    return basicPut(nsURI, value);
+  }
 
+  public Object putEPackage(EPackage ePackage)
+  {
+    return put(ePackage.getNsURI(), ePackage);
+  }
+
+  protected InternalCDOPackageUnit createPackageUnit(EPackage topLevelPackage)
+  {
+    return new CDOPackageUnitImpl(topLevelPackage);
+  }
+
+  private Object basicPut(String nsURI, Object value)
+  {
     return super.put(nsURI, value);
   }
 
-  protected void addPackageUnit(InternalCDOPackageUnit packageUnit)
+  private void putPackageUnit(InternalCDOPackageUnit packageUnit)
   {
+    packageUnit.setPackageRegistry(this);
     for (InternalCDOPackageInfo packageInfo : packageUnit.getPackageInfos())
     {
       EPackage ePackage = packageInfo.getEPackage(false);
       if (ePackage != null)
       {
-        InternalCDOPackageAdapter adapter = createPackageAdapter();
-        adapter.setPackageRegistry(this);
-        adapter.setPackageInfo(packageInfo);
-
-        ePackage.eAdapters().add(adapter);
-        registerPackage(ePackage);
+        ePackage.eAdapters().add(packageInfo);
+        basicPut(ePackage.getNsURI(), ePackage);
       }
       else
       {
-        InternalCDOPackageDescriptor packageDescriptor = createPackageDescriptor();
-        packageDescriptor.setPackageRegistry(this);
-        packageDescriptor.setPackageInfo(packageInfo);
-        registerPackageDescriptor(packageDescriptor);
+        basicPut(packageInfo.getPackageURI(), packageInfo);
       }
     }
-
-    packageUnitManager.addPackageUnit(packageUnit);
   }
 
-  protected void registerPackage(EPackage ePackage)
+  private InternalCDOPackageInfo getPackageInfo(Object value)
   {
-    String packageURI = ePackage.getNsURI();
-    if (TRACER.isEnabled())
+    if (value instanceof CDOPackageInfo)
     {
-      TRACER.format("Registering package: {0}", packageURI);
-    }
-  
-    super.put(packageURI, ePackage);
-  }
-
-  protected void registerPackageDescriptor(InternalCDOPackageDescriptor packageDescriptor)
-  {
-    String packageURI = packageDescriptor.getPackageInfo().getPackageURI();
-    if (TRACER.isEnabled())
-    {
-      TRACER.format("Registering package descriptor: {0}", packageURI);
-    }
-  
-    super.put(packageURI, packageDescriptor);
-  }
-
-  protected InternalCDOPackageAdapter getPackageAdapter(EPackage ePackage)
-  {
-    return (InternalCDOPackageAdapter)CDOModelUtil.getPackageAdapter(ePackage, this);
-  }
-
-  protected InternalCDOPackageAdapter createPackageAdapter()
-  {
-    return new CDOPackageAdapterImpl();
-  }
-
-  protected InternalCDOPackageDescriptor createPackageDescriptor()
-  {
-    return new CDOPackageDescriptorImpl();
-  }
-
-  protected InternalCDOPackageUnit createPackageUnit(EPackage topLevelPackage)
-  {
-    InternalCDOPackageUnit packageUnit;
-    if (EMFUtil.isDynamicEPackage(topLevelPackage))
-    {
-      packageUnit = createDynamicPackageUnit();
-    }
-    else
-    {
-      packageUnit = createGeneratedPackageUnit();
+      return (InternalCDOPackageInfo)value;
     }
 
-    packageUnit.initNew(topLevelPackage);
-    return packageUnit;
-  }
-
-  protected InternalCDOPackageUnit createDynamicPackageUnit()
-  {
-    return new CDOPackageUnitImpl.Dynamic();
-  }
-
-  protected InternalCDOPackageUnit createGeneratedPackageUnit()
-  {
-    return new CDOPackageUnitImpl.Generated();
-  }
-
-  public CDOIDMetaRange getTempMetaIDRange(int count)
-  {
-    CDOIDTemp lowerBound;
-    synchronized (lastTempMetaIDLock)
+    if (value instanceof EPackage)
     {
-      lowerBound = CDOIDUtil.createTempMeta(lastTempMetaID + 1);
-      lastTempMetaID += count;
+      return (InternalCDOPackageInfo)CDOModelUtil.getPackageInfo((EPackage)value, this);
     }
 
-    return CDOIDUtil.createMetaRange(lowerBound, count);
+    return null;
   }
 
-  public InternalEObject lookupMetaInstance(CDOID id)
+  /**
+   * @author Eike Stepper
+   */
+  public class MetaInstanceMapper implements CDOMetaInstanceMapper
   {
-    InternalEObject metaInstance = idToMetaInstanceMap.get(id);
-    if (metaInstance == null)
+    private transient Map<CDOID, InternalEObject> idToMetaInstanceMap = new HashMap<CDOID, InternalEObject>();
+
+    private transient Map<InternalEObject, CDOID> metaInstanceToIDMap = new HashMap<InternalEObject, CDOID>();
+
+    @ExcludeFromDump
+    private transient int lastTempMetaID;
+
+    @ExcludeFromDump
+    private transient Object lastTempMetaIDLock = new Object();
+
+    public MetaInstanceMapper()
     {
-      for (CDOPackageUnit packageUnit : packageUnitManager.getPackageUnits())
+    }
+
+    public InternalEObject lookupMetaInstance(CDOID id)
+    {
+      InternalEObject metaInstance = idToMetaInstanceMap.get(id);
+      if (metaInstance == null)
       {
-        for (CDOPackageInfo packageInfo : packageUnit.getPackageInfos())
+        for (Object value : values())
         {
-          CDOIDMetaRange metaIDRange = packageInfo.getMetaIDRange();
-          if (metaIDRange != null && metaIDRange.contains(id))
+          CDOPackageInfo packageInfo = getPackageInfo(value);
+          if (packageInfo != null)
           {
-            EPackage ePackage = getEPackage(packageInfo.getPackageURI());
-            mapMetaInstances(ePackage);
-            metaInstance = idToMetaInstanceMap.get(id);
-            break;
+            CDOIDMetaRange metaIDRange = packageInfo.getMetaIDRange();
+            if (metaIDRange != null && metaIDRange.contains(id))
+            {
+              EPackage ePackage = packageInfo.getEPackage(true);
+              mapMetaInstances(ePackage);
+              metaInstance = idToMetaInstanceMap.get(id);
+              break;
+            }
           }
         }
       }
+
+      return metaInstance;
     }
 
-    return metaInstance;
-  }
-
-  public CDOID lookupMetaInstanceID(InternalEObject metaInstance)
-  {
-    return metaInstanceToIDMap.get(metaInstance);
-  }
-
-  public void mapMetaInstances(EPackage ePackage, CDOIDMetaRange metaIDRange)
-  {
-    if (metaIDRange.isTemporary())
+    public CDOID lookupMetaInstanceID(InternalEObject metaInstance)
     {
-      throw new IllegalArgumentException("metaIDRange.isTemporary()");
+      return metaInstanceToIDMap.get(metaInstance);
     }
 
-    CDOIDMetaRange range = CDOIDUtil.createMetaRange(metaIDRange.getLowerBound(), 0);
-    range = mapMetaInstance((InternalEObject)ePackage, range, idToMetaInstanceMap, metaInstanceToIDMap);
-    if (range.size() != metaIDRange.size())
+    public void remapMetaInstance(CDOID oldID, CDOID newID)
     {
-      throw new IllegalStateException("range.size() != metaIDRange.size()");
-    }
-  }
+      InternalEObject metaInstance = idToMetaInstanceMap.remove(oldID);
+      if (metaInstance == null)
+      {
+        throw new IllegalArgumentException("Unknown meta instance id: " + oldID);
+      }
 
-  public CDOIDMetaRange mapMetaInstances(EPackage ePackage)
-  {
-    synchronized (lastTempMetaIDLock)
+      if (TRACER.isEnabled())
+      {
+        TRACER.format("Remapping meta instance: {0} --> {1} <-> {2}", oldID, newID, metaInstance);
+      }
+
+      idToMetaInstanceMap.put(newID, metaInstance);
+      metaInstanceToIDMap.put(metaInstance, newID);
+    }
+
+    public void mapMetaInstances(EPackage ePackage, CDOIDMetaRange metaIDRange)
     {
-      CDOIDMetaRange range = mapMetaInstances(ePackage, lastTempMetaID + 1, idToMetaInstanceMap, metaInstanceToIDMap);
-      lastTempMetaID = ((CDOIDTempMeta)range.getUpperBound()).getIntValue();
+      if (metaIDRange.isTemporary())
+      {
+        throw new IllegalArgumentException("metaIDRange.isTemporary()");
+      }
+
+      CDOIDMetaRange range = CDOIDUtil.createMetaRange(metaIDRange.getLowerBound(), 0);
+      range = mapMetaInstance((InternalEObject)ePackage, range, idToMetaInstanceMap, metaInstanceToIDMap);
+      if (range.size() != metaIDRange.size())
+      {
+        throw new IllegalStateException("range.size() != metaIDRange.size()");
+      }
+    }
+
+    public CDOIDMetaRange mapMetaInstances(EPackage ePackage)
+    {
+      synchronized (lastTempMetaIDLock)
+      {
+        CDOIDMetaRange range = mapMetaInstances(ePackage, lastTempMetaID + 1, idToMetaInstanceMap, metaInstanceToIDMap);
+        lastTempMetaID = ((CDOIDTempMeta)range.getUpperBound()).getIntValue();
+        return range;
+      }
+    }
+
+    /**
+     * TODO Remove map params?
+     */
+    public CDOIDMetaRange mapMetaInstances(EPackage ePackage, int firstMetaID,
+        Map<CDOID, InternalEObject> idToMetaInstances, Map<InternalEObject, CDOID> metaInstanceToIDs)
+    {
+      CDOIDTemp lowerBound = CDOIDUtil.createTempMeta(firstMetaID);
+      CDOIDMetaRange range = CDOIDUtil.createMetaRange(lowerBound, 0);
+      range = mapMetaInstance((InternalEObject)ePackage, range, idToMetaInstances, metaInstanceToIDs);
       return range;
     }
-  }
 
-  public CDOIDMetaRange mapMetaInstances(EPackage ePackage, int firstMetaID,
-      Map<CDOID, InternalEObject> idToMetaInstances, Map<InternalEObject, CDOID> metaInstanceToIDs)
-  {
-    CDOIDTemp lowerBound = CDOIDUtil.createTempMeta(firstMetaID);
-    CDOIDMetaRange range = CDOIDUtil.createMetaRange(lowerBound, 0);
-    range = mapMetaInstance((InternalEObject)ePackage, range, idToMetaInstances, metaInstanceToIDs);
-    return range;
-  }
-
-  public CDOIDMetaRange mapMetaInstance(InternalEObject metaInstance, CDOIDMetaRange range,
-      Map<CDOID, InternalEObject> idToMetaInstances, Map<InternalEObject, CDOID> metaInstanceToIDs)
-  {
-    range = range.increase();
-    CDOID id = range.getUpperBound();
-    if (TRACER.isEnabled())
+    /**
+     * TODO Remove map params?
+     */
+    public CDOIDMetaRange mapMetaInstance(InternalEObject metaInstance, CDOIDMetaRange range,
+        Map<CDOID, InternalEObject> idToMetaInstances, Map<InternalEObject, CDOID> metaInstanceToIDs)
     {
-      TRACER.format("Registering meta instance: {0} <-> {1}", id, metaInstance);
-    }
-
-    if (idToMetaInstances != null)
-    {
-      if (idToMetaInstances.put(id, metaInstance) != null)
+      range = range.increase();
+      CDOID id = range.getUpperBound();
+      if (TRACER.isEnabled())
       {
-        throw new IllegalStateException("Duplicate meta ID: " + id + " --> " + metaInstance);
+        TRACER.format("Registering meta instance: {0} <-> {1}", id, metaInstance);
       }
-    }
 
-    if (metaInstanceToIDs != null)
-    {
-      if (metaInstanceToIDs.put(metaInstance, id) != null)
+      if (idToMetaInstances != null)
       {
-        throw new IllegalStateException("Duplicate metaInstance: " + metaInstance + " --> " + id);
+        if (idToMetaInstances.put(id, metaInstance) != null)
+        {
+          throw new IllegalStateException("Duplicate meta ID: " + id + " --> " + metaInstance);
+        }
       }
+
+      if (metaInstanceToIDs != null)
+      {
+        if (metaInstanceToIDs.put(metaInstance, id) != null)
+        {
+          throw new IllegalStateException("Duplicate metaInstance: " + metaInstance + " --> " + id);
+        }
+      }
+
+      for (EObject content : metaInstance.eContents())
+      {
+        range = mapMetaInstance((InternalEObject)content, range, idToMetaInstances, metaInstanceToIDs);
+      }
+
+      return range;
     }
 
-    for (EObject content : metaInstance.eContents())
+    public CDOIDMetaRange getTempMetaIDRange(int count)
     {
-      range = mapMetaInstance((InternalEObject)content, range, idToMetaInstances, metaInstanceToIDs);
+      CDOIDTemp lowerBound;
+      synchronized (lastTempMetaIDLock)
+      {
+        lowerBound = CDOIDUtil.createTempMeta(lastTempMetaID + 1);
+        lastTempMetaID += count;
+      }
+
+      return CDOIDUtil.createMetaRange(lowerBound, count);
     }
-
-    return range;
-  }
-
-  public void remapMetaInstance(CDOID oldID, CDOID newID)
-  {
-    InternalEObject metaInstance = idToMetaInstanceMap.remove(oldID);
-    if (metaInstance == null)
-    {
-      throw new IllegalArgumentException("Unknown meta instance id: " + oldID);
-    }
-
-    if (TRACER.isEnabled())
-    {
-      TRACER.format("Remapping meta instance: {0} --> {1} <-> {2}", oldID, newID, metaInstance);
-    }
-
-    idToMetaInstanceMap.put(newID, metaInstance);
-    metaInstanceToIDMap.put(metaInstance, newID);
   }
 }

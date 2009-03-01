@@ -15,7 +15,7 @@ package org.eclipse.emf.cdo.common.model;
  */
 public interface CDOPackageUnit
 {
-  public CDOPackageUnitManager getManager();
+  public CDOPackageRegistry getPackageRegistry();
 
   public String getID();
 
