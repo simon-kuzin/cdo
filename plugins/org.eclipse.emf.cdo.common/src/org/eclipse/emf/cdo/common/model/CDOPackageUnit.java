@@ -19,6 +19,8 @@ public interface CDOPackageUnit
 
   public String getID();
 
+  public State getState();
+
   public long getTimeStamp();
 
   public boolean isDynamic();
@@ -29,5 +31,11 @@ public interface CDOPackageUnit
 
   public CDOPackageInfo[] getPackageInfos();
 
-  public boolean isLoaded();
+  /**
+   * @author Eike Stepper
+   */
+  public enum State
+  {
+    NEW, LOADED, NOT_LOADED
+  }
 }

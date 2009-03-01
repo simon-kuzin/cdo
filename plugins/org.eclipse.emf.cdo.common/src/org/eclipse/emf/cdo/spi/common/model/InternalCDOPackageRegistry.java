@@ -20,6 +20,8 @@ public interface InternalCDOPackageRegistry extends CDOPackageRegistry, CDOMetaI
 {
   public void setPackageLoader(CDOPackageLoader packageLoader);
 
+  public Object basicPut(String nsURI, Object value);
+
   public void putPackageUnit(InternalCDOPackageUnit packageUnit);
 
   public InternalCDOPackageInfo getPackageInfo(Object value);

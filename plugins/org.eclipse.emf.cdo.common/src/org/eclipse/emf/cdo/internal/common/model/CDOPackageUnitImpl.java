@@ -12,6 +12,7 @@ package org.eclipse.emf.cdo.internal.common.model;
 
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
+import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
@@ -23,6 +24,8 @@ import org.eclipse.emf.ecore.EPackage;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Eike Stepper
@@ -33,6 +36,8 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
 
   private InternalCDOPackageRegistry packageRegistry;
 
+  private State state = State.NOT_LOADED;
+
   private long timeStamp;
 
   private boolean dynamic;
@@ -41,13 +46,7 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
 
   private InternalCDOPackageInfo[] packageInfos;
 
-  private transient boolean loaded;
-
   public CDOPackageUnitImpl()
-  {
-  }
-
-  public CDOPackageUnitImpl(EPackage topLevelPackage)
   {
   }
 
@@ -114,19 +113,45 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
     return packageInfos;
   }
 
-  public void setPackageInfos(InternalCDOPackageInfo[] packageInfos)
+  public State getState()
   {
-    this.packageInfos = packageInfos;
+    return state;
   }
 
-  public synchronized boolean isLoaded()
+  public void setState(State state)
   {
-    return loaded;
+    this.state = state;
+  }
+
+  public void init(EPackage ePackage)
+  {
+    state = State.NEW;
+    EPackage topLevelPackage = EMFUtil.getTopLevelPackage(ePackage);
+    List<InternalCDOPackageInfo> result = new ArrayList<InternalCDOPackageInfo>();
+    initPackageInfos(topLevelPackage, result);
+    packageInfos = result.toArray(new InternalCDOPackageInfo[result.size()]);
+  }
+
+  protected void initPackageInfos(EPackage ePackage, List<InternalCDOPackageInfo> result)
+  {
+    CDOPackageInfoImpl packageInfo = new CDOPackageInfoImpl();
+    packageInfo.setPackageUnit(this);
+    packageInfo.setPackageURI(ePackage.getNsURI());
+    packageInfo.setParentURI(ePackage.getESuperPackage() == null ? null : ePackage.getESuperPackage().getNsURI());
+
+    result.add(packageInfo);
+    ePackage.eAdapters().add(packageInfo);
+    packageRegistry.basicPut(ePackage.getNsURI(), ePackage);
+
+    for (EPackage subPackage : ePackage.getESubpackages())
+    {
+      initPackageInfos(subPackage, result);
+    }
   }
 
   public synchronized void load()
   {
-    if (!loaded)
+    if (state == State.NOT_LOADED)
     {
       EPackage[] ePackages = packageRegistry.getPackageLoader().loadPackages(this);
       for (EPackage ePackage : ePackages)
@@ -136,7 +161,7 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
         ePackage.eAdapters().add(packageInfo);
       }
 
-      loaded = true;
+      state = State.LOADED;
     }
   }
 
@@ -178,7 +203,8 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
   @Override
   public String toString()
   {
-    return MessageFormat.format("CDOPackageUnit[id={0}, timeStamp={1,date} {1,time}, dynamic={2}, legacy={3}]",
-        getID(), timeStamp, isDynamic(), isLegacy());
+    return MessageFormat.format(
+        "CDOPackageUnit[id={0}, state={1}, timeStamp={2,date} {2,time}, dynamic={3}, legacy={4}]", getID(), getState(),
+        timeStamp, isDynamic(), isLegacy());
   }
 }

@@ -4,6 +4,8 @@ import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 
+import org.eclipse.emf.ecore.EPackage;
+
 import java.io.IOException;
 
 /**
@@ -25,11 +27,13 @@ public interface InternalCDOPackageUnit extends CDOPackageUnit
 
   public InternalCDOPackageInfo[] getPackageInfos();
 
-  public void setPackageInfos(InternalCDOPackageInfo[] packageInfos);
+  public void setState(State state);
 
   public void load();
 
   public void write(CDODataOutput out) throws IOException;
 
   public void read(CDODataInput in) throws IOException;
+
+  public void init(EPackage ePackage);
 }

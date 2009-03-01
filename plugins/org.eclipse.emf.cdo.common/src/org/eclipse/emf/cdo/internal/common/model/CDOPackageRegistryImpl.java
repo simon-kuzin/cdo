@@ -18,7 +18,6 @@ import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageLoader;
-import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.model.CDOMetaInstanceMapper;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
@@ -68,6 +67,11 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     this.packageLoader = packageLoader;
   }
 
+  public Object basicPut(String nsURI, Object value)
+  {
+    return super.put(nsURI, value);
+  }
+
   @Override
   public synchronized Object put(String nsURI, Object value)
   {
@@ -77,9 +81,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       InternalCDOPackageInfo packageInfo = getPackageInfo(ePackage);
       if (packageInfo == null)
       {
-        EPackage topLevelPackage = EMFUtil.getTopLevelPackage(ePackage);
-        InternalCDOPackageUnit packageUnit = createPackageUnit(topLevelPackage);
-        putPackageUnit(packageUnit);
+        initPackageUnit(ePackage);
       }
 
       return null;
@@ -162,14 +164,17 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     metaInstanceMapper.remapMetaInstance(oldId, newId);
   }
 
-  protected InternalCDOPackageUnit createPackageUnit(EPackage topLevelPackage)
+  protected void initPackageUnit(EPackage ePackage)
   {
-    return new CDOPackageUnitImpl(topLevelPackage);
+    InternalCDOPackageUnit packageUnit = createPackageUnit();
+    packageUnit.setPackageRegistry(this);
+    packageUnit.init(ePackage);
+    packageunits = null;
   }
 
-  protected Object basicPut(String nsURI, Object value)
+  protected InternalCDOPackageUnit createPackageUnit()
   {
-    return super.put(nsURI, value);
+    return new CDOPackageUnitImpl();
   }
 
   /**

@@ -1037,7 +1037,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
           if (!CDOModelUtil.isSystemPackage(topLevelPackage))
           {
             CDOPackageUnit packageUnit = CDOModelUtil.getPackageUnit(topLevelPackage, packageRegistry);
-            if (packageUnit.getState() == null)
+            if (packageUnit.getState() == CDOPackageUnit.State.NEW)
             {
               usedNewPackages.add(topLevelPackage);
             }
@@ -1075,7 +1075,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
       if (!CDOModelUtil.isSystemPackage(usedPackage))
       {
         CDOPackageUnit packageUnit = CDOModelUtil.getPackageUnit(usedPackage, packageRegistry);
-        if (packageUnit.getState() == null)
+        if (packageUnit.getState() == CDOPackageUnit.State.NEW)
         {
           newPackages.add(usedPackage);
         }
