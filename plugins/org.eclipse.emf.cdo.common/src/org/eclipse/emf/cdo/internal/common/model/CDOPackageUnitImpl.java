@@ -126,20 +126,17 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
 
   public synchronized void load()
   {
-    if (loaded)
+    if (!loaded)
     {
-      return;
-    }
+      for (EPackage ePackage : packageRegistry.getPackageLoader().loadPackages(this))
+      {
+        String packageURI = ePackage.getNsURI();
+        InternalCDOPackageInfo packageInfo = getPackageInfo(packageURI);
+        ePackage.eAdapters().add(packageInfo);
+      }
 
-    EPackage[] ePackages = packageRegistry.getPackageLoader().loadPackages(this);
-    for (EPackage ePackage : ePackages)
-    {
-      String packageURI = ePackage.getNsURI();
-      InternalCDOPackageInfo packageInfo = getPackageInfo(packageURI);
-      ePackage.eAdapters().add(packageInfo);
+      loaded = true;
     }
-
-    loaded = true;
   }
 
   public void write(CDODataOutput out) throws IOException
@@ -150,6 +147,8 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
     }
 
     out.writeLong(timeStamp);
+    out.writeBoolean(dynamic);
+    out.writeBoolean(legacy);
     out.writeInt(packageInfos.length);
     for (InternalCDOPackageInfo packageInfo : packageInfos)
     {
@@ -160,6 +159,8 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
   public void read(CDODataInput in) throws IOException
   {
     timeStamp = in.readLong();
+    dynamic = in.readBoolean();
+    legacy = in.readBoolean();
     packageInfos = new InternalCDOPackageInfo[in.readInt()];
     for (int i = 0; i < packageInfos.length; i++)
     {

@@ -53,26 +53,6 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
   {
   }
 
-  protected CDOPackageRegistryImpl(EPackage.Registry delegateRegistry)
-  {
-    super(delegateRegistry);
-  }
-
-  public InternalEObject lookupMetaInstance(CDOID id)
-  {
-    return metaInstanceMapper.lookupMetaInstance(id);
-  }
-
-  public CDOID lookupMetaInstanceID(InternalEObject metaInstance)
-  {
-    return metaInstanceMapper.lookupMetaInstanceID(metaInstance);
-  }
-
-  public void remapMetaInstance(CDOID oldId, CDOID newId)
-  {
-    metaInstanceMapper.remapMetaInstance(oldId, newId);
-  }
-
   public CDOPackageLoader getPackageLoader()
   {
     return packageLoader;
@@ -113,12 +93,12 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     return new CDOPackageUnitImpl(topLevelPackage);
   }
 
-  private Object basicPut(String nsURI, Object value)
+  protected Object basicPut(String nsURI, Object value)
   {
     return super.put(nsURI, value);
   }
 
-  private void putPackageUnit(InternalCDOPackageUnit packageUnit)
+  protected void putPackageUnit(InternalCDOPackageUnit packageUnit)
   {
     packageUnit.setPackageRegistry(this);
     for (InternalCDOPackageInfo packageInfo : packageUnit.getPackageInfos())
@@ -136,7 +116,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     }
   }
 
-  private InternalCDOPackageInfo getPackageInfo(Object value)
+  protected InternalCDOPackageInfo getPackageInfo(Object value)
   {
     if (value instanceof CDOPackageInfo)
     {
@@ -151,26 +131,38 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     return null;
   }
 
+  public InternalEObject lookupMetaInstance(CDOID id)
+  {
+    return metaInstanceMapper.lookupMetaInstance(id);
+  }
+
+  public CDOID lookupMetaInstanceID(InternalEObject metaInstance)
+  {
+    return metaInstanceMapper.lookupMetaInstanceID(metaInstance);
+  }
+
+  public void remapMetaInstance(CDOID oldId, CDOID newId)
+  {
+    metaInstanceMapper.remapMetaInstance(oldId, newId);
+  }
+
   /**
    * @author Eike Stepper
    */
   public class MetaInstanceMapper implements CDOMetaInstanceMapper
   {
-    private transient Map<CDOID, InternalEObject> idToMetaInstanceMap = new HashMap<CDOID, InternalEObject>();
+    private Map<CDOID, InternalEObject> idToMetaInstanceMap = new HashMap<CDOID, InternalEObject>();
 
-    private transient Map<InternalEObject, CDOID> metaInstanceToIDMap = new HashMap<InternalEObject, CDOID>();
+    private Map<InternalEObject, CDOID> metaInstanceToIDMap = new HashMap<InternalEObject, CDOID>();
 
     @ExcludeFromDump
     private transient int lastTempMetaID;
-
-    @ExcludeFromDump
-    private transient Object lastTempMetaIDLock = new Object();
 
     public MetaInstanceMapper()
     {
     }
 
-    public InternalEObject lookupMetaInstance(CDOID id)
+    public synchronized InternalEObject lookupMetaInstance(CDOID id)
     {
       InternalEObject metaInstance = idToMetaInstanceMap.get(id);
       if (metaInstance == null)
@@ -195,12 +187,12 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       return metaInstance;
     }
 
-    public CDOID lookupMetaInstanceID(InternalEObject metaInstance)
+    public synchronized CDOID lookupMetaInstanceID(InternalEObject metaInstance)
     {
       return metaInstanceToIDMap.get(metaInstance);
     }
 
-    public void remapMetaInstance(CDOID oldID, CDOID newID)
+    public synchronized void remapMetaInstance(CDOID oldID, CDOID newID)
     {
       InternalEObject metaInstance = idToMetaInstanceMap.remove(oldID);
       if (metaInstance == null)
@@ -234,12 +226,9 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
     public CDOIDMetaRange mapMetaInstances(EPackage ePackage)
     {
-      synchronized (lastTempMetaIDLock)
-      {
-        CDOIDMetaRange range = mapMetaInstances(ePackage, lastTempMetaID + 1, idToMetaInstanceMap, metaInstanceToIDMap);
-        lastTempMetaID = ((CDOIDTempMeta)range.getUpperBound()).getIntValue();
-        return range;
-      }
+      CDOIDMetaRange range = mapMetaInstances(ePackage, lastTempMetaID + 1, idToMetaInstanceMap, metaInstanceToIDMap);
+      lastTempMetaID = ((CDOIDTempMeta)range.getUpperBound()).getIntValue();
+      return range;
     }
 
     /**
@@ -293,13 +282,8 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
     public CDOIDMetaRange getTempMetaIDRange(int count)
     {
-      CDOIDTemp lowerBound;
-      synchronized (lastTempMetaIDLock)
-      {
-        lowerBound = CDOIDUtil.createTempMeta(lastTempMetaID + 1);
-        lastTempMetaID += count;
-      }
-
+      CDOIDTemp lowerBound = CDOIDUtil.createTempMeta(lastTempMetaID + 1);
+      lastTempMetaID += count;
       return CDOIDUtil.createMetaRange(lowerBound, count);
     }
   }
