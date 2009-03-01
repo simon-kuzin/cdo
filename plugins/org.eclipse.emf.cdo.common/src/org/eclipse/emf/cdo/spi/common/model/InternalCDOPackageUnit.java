@@ -19,10 +19,6 @@ public interface InternalCDOPackageUnit extends CDOPackageUnit
 
   public void setTimeStamp(long timeStamp);
 
-  public void setDynamic(boolean dynamic);
-
-  public void setLegacy(boolean legacy);
-
   public InternalCDOPackageInfo getPackageInfo(String packageURI);
 
   public InternalCDOPackageInfo[] getPackageInfos();

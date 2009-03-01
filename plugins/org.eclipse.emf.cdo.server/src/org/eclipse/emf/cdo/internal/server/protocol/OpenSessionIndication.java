@@ -109,7 +109,14 @@ public class OpenSessionIndication extends RepositoryTimeIndication
       out.writeLong(repository.getCreationTime());
       out.writeBoolean(repository.isSupportingAudits());
       repository.getStore().getCDOIDLibraryDescriptor().write(out);
-      writePackageUnits(out);
+
+      CDOPackageUnit[] packageUnits = repository.getPackageRegistry().getPackageUnits();
+      out.writeInt(packageUnits.length);
+      for (CDOPackageUnit packageUnit : packageUnits)
+      {
+        out.writeCDOPackageUnit(packageUnit);
+        out.writeBoolean(packageUnit.isDynamic());
+      }
     }
     catch (RepositoryNotFoundException ex)
     {
@@ -132,15 +139,5 @@ public class OpenSessionIndication extends RepositoryTimeIndication
     }
 
     super.responding(out);
-  }
-
-  private void writePackageUnits(CDODataOutput out) throws IOException
-  {
-    CDOPackageUnit[] packageUnits = getRepository().getPackageRegistry().getPackageUnits();
-    out.writeInt(packageUnits.length);
-    for (CDOPackageUnit packageUnit : packageUnits)
-    {
-      out.writeCDOPackageUnit(packageUnit);
-    }
   }
 }

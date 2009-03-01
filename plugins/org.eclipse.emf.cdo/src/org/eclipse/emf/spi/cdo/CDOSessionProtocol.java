@@ -16,10 +16,10 @@ import org.eclipse.emf.cdo.common.id.CDOIDLibraryDescriptor;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.model.CDOPackageLoader;
-import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.session.remote.CDORemoteSession;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.CDOIDMapper;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.transaction.CDOTimeStampContext;
@@ -38,6 +38,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -119,7 +120,9 @@ public interface CDOSessionProtocol extends CDOPackageLoader
 
     private CDOIDLibraryDescriptor libraryDescriptor;
 
-    private List<CDOPackageUnit> packageUnits = new ArrayList<CDOPackageUnit>();
+    private List<InternalCDOPackageUnit> packageUnits = new ArrayList<InternalCDOPackageUnit>();
+
+    private Set<InternalCDOPackageUnit> dynamicPackageUnits = new HashSet<InternalCDOPackageUnit>();
 
     public OpenSessionResult(int sessionID, String repositoryUUID, long repositoryCreationTime,
         boolean repositorySupportingAudits, CDOIDLibraryDescriptor libraryDescriptor)
@@ -166,14 +169,23 @@ public interface CDOSessionProtocol extends CDOPackageLoader
       return libraryDescriptor;
     }
 
-    public List<CDOPackageUnit> getPackageUnits()
+    public List<InternalCDOPackageUnit> getPackageUnits()
     {
       return packageUnits;
     }
 
-    public void addPackageUnit(CDOPackageUnit packageUnit)
+    public Set<InternalCDOPackageUnit> getDynamicPackageUnits()
+    {
+      return dynamicPackageUnits;
+    }
+
+    public void addPackageUnit(InternalCDOPackageUnit packageUnit, boolean dynamic)
     {
       packageUnits.add(packageUnit);
+      if (dynamic)
+      {
+        dynamicPackageUnits.add(packageUnit);
+      }
     }
   }
 

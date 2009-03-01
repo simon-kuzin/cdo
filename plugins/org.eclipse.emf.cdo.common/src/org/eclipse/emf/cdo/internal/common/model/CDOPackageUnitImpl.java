@@ -38,11 +38,11 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
 
   private State state = State.NOT_LOADED;
 
-  private long timeStamp;
-
   private boolean dynamic;
 
   private boolean legacy;
+
+  private long timeStamp;
 
   private InternalCDOPackageInfo[] packageInfos;
 
@@ -77,22 +77,22 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
 
   public boolean isDynamic()
   {
-    return dynamic;
-  }
+    if (state == State.NOT_LOADED)
+    {
+      throw new IllegalStateException();
+    }
 
-  public void setDynamic(boolean dynamic)
-  {
-    this.dynamic = dynamic;
+    return dynamic;
   }
 
   public boolean isLegacy()
   {
-    return legacy;
-  }
+    if (state == State.NOT_LOADED)
+    {
+      throw new IllegalStateException();
+    }
 
-  public void setLegacy(boolean legacy)
-  {
-    this.legacy = legacy;
+    return legacy;
   }
 
   public InternalCDOPackageInfo getPackageInfo(String packageURI)
@@ -125,11 +125,14 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
 
   public void init(EPackage ePackage)
   {
-    state = State.NEW;
     EPackage topLevelPackage = EMFUtil.getTopLevelPackage(ePackage);
     List<InternalCDOPackageInfo> result = new ArrayList<InternalCDOPackageInfo>();
     initPackageInfos(topLevelPackage, result);
     packageInfos = result.toArray(new InternalCDOPackageInfo[result.size()]);
+
+    state = State.NEW;
+    dynamic = EMFUtil.isDynamicEPackage(topLevelPackage);
+    legacy = false;
   }
 
   protected void initPackageInfos(EPackage ePackage, List<InternalCDOPackageInfo> result)
@@ -162,6 +165,8 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
       }
 
       state = State.LOADED;
+      dynamic = EMFUtil.isDynamicEPackage(ePackages[0]);
+      legacy = false;
     }
   }
 
@@ -173,8 +178,6 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
     }
 
     out.writeLong(timeStamp);
-    out.writeBoolean(dynamic);
-    out.writeBoolean(legacy);
     out.writeInt(packageInfos.length);
     for (InternalCDOPackageInfo packageInfo : packageInfos)
     {
@@ -185,8 +188,6 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
   public void read(CDODataInput in) throws IOException
   {
     timeStamp = in.readLong();
-    dynamic = in.readBoolean();
-    legacy = in.readBoolean();
     packageInfos = new InternalCDOPackageInfo[in.readInt()];
     for (int i = 0; i < packageInfos.length; i++)
     {

@@ -15,8 +15,6 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
-import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
-import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
@@ -26,6 +24,9 @@ import org.eclipse.emf.cdo.internal.common.model.CDOPackageRegistryImpl;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.StoreThreadLocal;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.CDOIDMapper;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
@@ -35,6 +36,8 @@ import org.eclipse.net4j.util.concurrent.RWLockManager;
 import org.eclipse.net4j.util.concurrent.TimeoutRuntimeException;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
+
+import org.eclipse.emf.ecore.EPackage;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,7 +61,7 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
 
   private long timeStamp = CDORevision.UNSPECIFIED_DATE;
 
-  private CDOPackageUnit[] newPackageUnits;
+  private InternalCDOPackageUnit[] newPackageUnits;
 
   private CDORevision[] newObjects;
 
@@ -87,7 +90,8 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
   public TransactionCommitContextImpl(Transaction transaction)
   {
     this.transaction = transaction;
-    packageRegistry = new TransactionPackageRegistry(transaction.getRepository().getPackageRegistry());
+    packageRegistry = new TransactionPackageRegistry((InternalCDOPackageRegistry)transaction.getRepository()
+        .getPackageRegistry());
   }
 
   public int getTransactionID()
@@ -192,7 +196,7 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
     StoreThreadLocal.setAccessor(accessor);
   }
 
-  public void setNewPackageUnits(CDOPackageUnit[] newPackageUnits)
+  public void setNewPackageUnits(InternalCDOPackageUnit[] newPackageUnits)
   {
     this.newPackageUnits = newPackageUnits;
   }
@@ -349,7 +353,7 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
     try
     {
       monitor.begin(newPackageUnits.length);
-      for (CDOPackageUnit newPackageUnit : newPackageUnits)
+      for (InternalCDOPackageUnit newPackageUnit : newPackageUnits)
       {
         adjustMetaRange(newPackageUnit, monitor.fork());
       }
@@ -360,19 +364,38 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
     }
   }
 
-  private void adjustMetaRange(CDOPackageUnit newPackageUnit, OMMonitor monitor)
+  private void adjustMetaRange(InternalCDOPackageUnit packageUnit, OMMonitor monitor)
   {
-    CDOIDMetaRange oldRange = newPackage.getMetaIDRange();
+    InternalCDOPackageInfo[] packageInfos = packageUnit.getPackageInfos();
+    monitor.begin(packageInfos.length);
+
+    try
+    {
+      for (InternalCDOPackageInfo packageInfo : packageInfos)
+      {
+        adjustMetaRange(packageInfo, monitor.fork());
+      }
+    }
+    finally
+    {
+      monitor.done();
+    }
+  }
+
+  private void adjustMetaRange(InternalCDOPackageInfo packageInfo, OMMonitor monitor)
+  {
+    CDOIDMetaRange oldRange = packageInfo.getMetaIDRange();
     if (!oldRange.isTemporary())
     {
       throw new IllegalStateException("!oldRange.isTemporary()");
     }
 
+    monitor.begin(oldRange.size());
+
     try
     {
-      monitor.begin(oldRange.size());
       CDOIDMetaRange newRange = transaction.getRepository().getMetaIDRange(oldRange.size());
-      ((InternalEPackage)newPackage).setMetaIDRange(newRange);
+      packageInfo.setMetaIDRange(newRange);
       for (int l = 0; l < oldRange.size(); l++)
       {
         CDOIDTemp oldID = (CDOIDTemp)oldRange.get(l);
@@ -558,11 +581,16 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
     try
     {
       monitor.begin(newPackageUnits.length);
-      CDOPackageRegistry packageRegistry = transaction.getRepository().getPackageRegistry();
+      InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)transaction.getRepository()
+          .getPackageRegistry();
       for (int i = 0; i < newPackageUnits.length; i++)
       {
-        CDOPackageUnit packageUnit = newPackageUnits[i];
-        packageRegistry.addPackage(packageUnit);
+        for (InternalCDOPackageInfo packageInfo : newPackageUnits[i].getPackageInfos())
+        {
+          EPackage ePackage = packageInfo.getEPackage();
+          packageRegistry.basicPut(ePackage.getNsURI(), ePackage);
+        }
+
         monitor.worked();
       }
     }
@@ -642,17 +670,17 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
    */
   public static final class TransactionPackageRegistry extends CDOPackageRegistryImpl
   {
-    private List<CDOPackageUnit> packageUnits = new ArrayList<CDOPackageUnit>();
+    private List<InternalCDOPackageUnit> packageUnits = new ArrayList<InternalCDOPackageUnit>();
 
-    public TransactionPackageRegistry(CDOPackageRegistry repositoryPackageRegistry)
+    public TransactionPackageRegistry(InternalCDOPackageRegistry repositoryPackageRegistry)
     {
-      super(repositoryPackageRegistry);
+      delegateRegistry = repositoryPackageRegistry;
     }
 
-    public void addPackageUnit(CDOPackageUnit packageUnit)
+    public void addPackageUnit(InternalCDOPackageUnit packageUnit)
     {
       packageUnits.add(packageUnit);
-      for (CDOPackageInfo packageInfo : packageUnit.getPackageInfos())
+      for (InternalCDOPackageInfo packageInfo : packageUnit.getPackageInfos())
       {
 
       }

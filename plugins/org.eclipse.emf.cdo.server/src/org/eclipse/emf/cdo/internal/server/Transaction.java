@@ -15,12 +15,12 @@ package org.eclipse.emf.cdo.internal.server;
 import org.eclipse.emf.cdo.common.CDOCommonView;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
-import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.internal.server.TransactionCommitContextImpl.TransactionPackageRegistry;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.ITransaction;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 
@@ -114,7 +114,7 @@ public class Transaction extends View implements ITransaction
 
     public List<CDOIDMetaRange> getMetaIDRanges();
 
-    public void setNewPackageUnits(CDOPackageUnit[] newPackageUnits);
+    public void setNewPackageUnits(InternalCDOPackageUnit[] newPackageUnits);
 
     public void setNewObjects(CDORevision[] newObjects);
 

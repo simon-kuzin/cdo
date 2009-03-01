@@ -97,6 +97,8 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
 
   private CDOSession.Repository repository;
 
+  private Set<InternalCDOPackageUnit> repositoryDynamicPackageUnits;
+
   private InternalCDOPackageRegistry packageRegistry;
 
   private CDORevisionManagerImpl revisionManager;
@@ -106,6 +108,9 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
   private Set<InternalCDOView> views = new HashSet<InternalCDOView>();
 
   @ExcludeFromDump
+  private CDOIDObjectFactory cdoidObjectFactory;
+
+  @ExcludeFromDump
   private transient QueueRunner invalidationRunner;
 
   @ExcludeFromDump
@@ -113,9 +118,6 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
 
   @ExcludeFromDump
   private transient int lastViewID;
-
-  @ExcludeFromDump
-  private CDOIDObjectFactory cdoidObjectFactory;
 
   public CDOSessionImpl()
   {
@@ -613,6 +615,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     repository = createRepository(result);
     handleLibraryDescriptor(result.getLibraryDescriptor());
 
+    repositoryDynamicPackageUnits = result.getDynamicPackageUnits();
     for (CDOPackageUnit packageUnit : result.getPackageUnits())
     {
       packageRegistry.putPackageUnit((InternalCDOPackageUnit)packageUnit);
