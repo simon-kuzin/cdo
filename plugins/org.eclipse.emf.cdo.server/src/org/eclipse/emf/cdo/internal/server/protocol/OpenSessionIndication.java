@@ -136,7 +136,7 @@ public class OpenSessionIndication extends RepositoryTimeIndication
 
   private void writePackageUnits(CDODataOutput out) throws IOException
   {
-    CDOPackageUnit[] packageUnits = getPackageUnitManager().getPackageUnits();
+    CDOPackageUnit[] packageUnits = getRepository().getPackageRegistry().getPackageUnits();
     out.writeInt(packageUnits.length);
     for (CDOPackageUnit packageUnit : packageUnits)
     {

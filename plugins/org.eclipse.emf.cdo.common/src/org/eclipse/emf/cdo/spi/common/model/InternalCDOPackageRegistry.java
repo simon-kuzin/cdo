@@ -23,4 +23,6 @@ public interface InternalCDOPackageRegistry extends CDOPackageRegistry, CDOMetaI
   public void putPackageUnit(InternalCDOPackageUnit packageUnit);
 
   public InternalCDOPackageInfo getPackageInfo(Object value);
+
+  public InternalCDOPackageUnit[] getPackageUnits();
 }

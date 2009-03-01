@@ -34,7 +34,9 @@ import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.EPackageRegistryImpl;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Eike Stepper
@@ -48,6 +50,9 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
   private CDOPackageLoader packageLoader;
 
   private MetaInstanceMapper metaInstanceMapper = new MetaInstanceMapper();
+
+  @ExcludeFromDump
+  private transient InternalCDOPackageUnit[] packageunits;
 
   public CDOPackageRegistryImpl()
   {
@@ -90,6 +95,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
   public synchronized void putPackageUnit(InternalCDOPackageUnit packageUnit)
   {
+    packageunits = null;
     packageUnit.setPackageRegistry(this);
     for (InternalCDOPackageInfo packageInfo : packageUnit.getPackageInfos())
     {
@@ -119,6 +125,26 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     }
 
     return null;
+  }
+
+  public synchronized InternalCDOPackageUnit[] getPackageUnits()
+  {
+    if (packageunits == null)
+    {
+      Set<InternalCDOPackageUnit> result = new HashSet<InternalCDOPackageUnit>();
+      for (Object value : values())
+      {
+        InternalCDOPackageInfo packageInfo = getPackageInfo(value);
+        if (packageInfo != null)
+        {
+          result.add(packageInfo.getPackageUnit());
+        }
+      }
+
+      packageunits = result.toArray(new InternalCDOPackageUnit[result.size()]);
+    }
+
+    return packageunits;
   }
 
   public InternalEObject lookupMetaInstance(CDOID id)
