@@ -45,20 +45,6 @@ public interface CDOSessionConfiguration
   public void setPackageRegistry(CDOPackageRegistry packageRegistry);
 
   /**
-   * The package registry must be set <b>before</b> the session is opened and can not be changed thereafter.
-   * 
-   * @see CDOSession#getPackageRegistry()
-   */
-  public void setEagerPackageRegistry();
-
-  /**
-   * The package registry must be set <b>before</b> the session is opened and can not be changed thereafter.
-   * 
-   * @see CDOSession#getPackageRegistry()
-   */
-  public void setLazyPackageRegistry();
-
-  /**
    * @see CDORevisionManagerImpl#getCache()
    */
   public CDORevisionCache getRevisionCache();

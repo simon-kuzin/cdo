@@ -15,6 +15,7 @@ import org.eclipse.emf.cdo.server.IMEMStore;
 
 /**
  * @author Eike Stepper
+ * @since 2.0
  */
 public final class MEMStoreUtil
 {
@@ -22,9 +23,6 @@ public final class MEMStoreUtil
   {
   }
 
-  /**
-   * @since 2.0
-   */
   public static IMEMStore createMEMStore()
   {
     return new MEMStore();

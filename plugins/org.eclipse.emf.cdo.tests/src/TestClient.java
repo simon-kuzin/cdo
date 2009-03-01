@@ -61,11 +61,8 @@ public class TestClient extends Assert
     CDOPackageRegistry packageRegistry = session.getPackageRegistry();
     packageRegistry.putEPackage(Model1Package.eINSTANCE);
 
-    CDOPackageAdapter adapter = CDOModelUtil.getPackageAdapter(Model1Package.eINSTANCE, packageRegistry);
-    assertEquals(packageRegistry, adapter.getPackageRegistry());
-
-    CDOPackageInfo packageInfo = adapter.getPackageInfo();
-    assertNotNull(packageInfo);
+    CDOPackageInfo packageInfo = CDOModelUtil.getPackageInfo(Model1Package.eINSTANCE, packageRegistry);
+    assertEquals(packageRegistry, packageInfo.getPackageUnit().getPackageRegistry());
 
     CDOTransaction transaction = session.openTransaction();
     CDOResource resource = transaction.createResource("res" + System.currentTimeMillis());
