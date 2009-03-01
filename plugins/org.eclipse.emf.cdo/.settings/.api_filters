@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.emf.cdo" version="2">
-    <resource path="src/org/eclipse/emf/internal/cdo/CDOStateMachine.java" type="org.eclipse.emf.internal.cdo.CDOStateMachine">
-        <filter id="643846161">
-            <message_arguments>
-                <message_argument value="CommitTransactionResult"/>
-                <message_argument value="CDOStateMachine"/>
-                <message_argument value="commit(InternalCDOObject, CommitTransactionResult)"/>
-            </message_arguments>
-        </filter>
-    </resource>
     <resource path="src/org/eclipse/emf/internal/cdo/session/CDOSessionImpl.java" type="org.eclipse.emf.internal.cdo.session.CDOSessionImpl">
         <filter id="574660632">
             <message_arguments>

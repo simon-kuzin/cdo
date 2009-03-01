@@ -693,7 +693,7 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
    * @author Eike Stepper
    * @since 2.0
    */
-  protected class ConflictTransition extends InvalidateTransition
+  private class ConflictTransition extends InvalidateTransition
   {
     @Override
     public void execute(InternalCDOObject object, CDOState state, CDOEvent event, Integer version)

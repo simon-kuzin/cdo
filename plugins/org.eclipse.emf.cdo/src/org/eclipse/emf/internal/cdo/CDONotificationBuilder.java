@@ -11,7 +11,6 @@
  */
 package org.eclipse.emf.internal.cdo;
 
-import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.revision.delta.CDOAddFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOClearFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOContainerFeatureDelta;
@@ -41,11 +40,8 @@ public class CDONotificationBuilder implements CDOFeatureDeltaVisitor
 
   private InternalEObject internalObject;
 
-  private CDOPackageRegistry packageRegistry;
-
-  public CDONotificationBuilder(CDOPackageRegistry packageRegistry)
+  public CDONotificationBuilder()
   {
-    this.packageRegistry = packageRegistry;
   }
 
   public synchronized NotificationImpl buildNotification(InternalEObject internalObject, CDORevisionDelta delta)

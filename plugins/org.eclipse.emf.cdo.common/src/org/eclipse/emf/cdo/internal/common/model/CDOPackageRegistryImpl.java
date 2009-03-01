@@ -112,12 +112,12 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     {
       return (InternalCDOPackageInfo)value;
     }
-  
+
     if (value instanceof EPackage)
     {
       return (InternalCDOPackageInfo)CDOModelUtil.getPackageInfo((EPackage)value, this);
     }
-  
+
     return null;
   }
 

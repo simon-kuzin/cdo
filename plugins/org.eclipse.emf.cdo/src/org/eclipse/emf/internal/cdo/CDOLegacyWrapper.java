@@ -21,7 +21,6 @@ import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.internal.common.model.GenUtil;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
-import org.eclipse.emf.cdo.util.ModelUtil;
 
 import org.eclipse.emf.internal.cdo.bundle.OM;
 import org.eclipse.emf.internal.cdo.session.CDORevisionManagerImpl;
@@ -429,8 +428,7 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper
   private Object getInstanceValue(InternalEObject instance, EStructuralFeature feature,
       CDOPackageRegistry packageRegistry)
   {
-    EStructuralFeature eFeature = ModelUtil.getEFeature(feature, packageRegistry);
-    return instance.eGet(eFeature);
+    return instance.eGet(feature);
   }
 
   private void setInstanceResource(Resource.Internal resource)
@@ -560,9 +558,7 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper
    */
   private InternalEObject createProxy(InternalCDOView view, EStructuralFeature feature, CDOID id)
   {
-    CDOPackageRegistry packageRegistry = view.getSession().getPackageRegistry();
-    EStructuralFeature eFeature = ModelUtil.getEFeature(feature, packageRegistry);
-    EClassifier eType = eFeature.getEType();
+    EClassifier eType = feature.getEType();
     Class<?> instanceClass = eType.getInstanceClass();
 
     Class<?>[] interfaces = { instanceClass, InternalEObject.class, LegacyProxy.class };

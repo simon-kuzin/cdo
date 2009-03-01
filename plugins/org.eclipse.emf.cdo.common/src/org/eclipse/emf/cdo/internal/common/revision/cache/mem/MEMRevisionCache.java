@@ -329,7 +329,8 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
         CDOID revisionFolderID = (CDOID)revision.getContainerID();
         if (CDOIDUtil.equals(revisionFolderID, folderID))
         {
-          EStructuralFeature feature = revision.getEClass().getEStructuralFeature(CDOModelConstants.RESOURCE_NODE_NAME_ATTRIBUTE);
+          EStructuralFeature feature = revision.getEClass().getEStructuralFeature(
+              CDOModelConstants.RESOURCE_NODE_NAME_ATTRIBUTE);
           String revisionName = (String)revision.getValue(feature);
           if (ObjectUtil.equals(revisionName, name))
           {
