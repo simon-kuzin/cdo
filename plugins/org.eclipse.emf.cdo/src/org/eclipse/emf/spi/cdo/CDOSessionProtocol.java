@@ -124,6 +124,8 @@ public interface CDOSessionProtocol extends CDOPackageLoader
 
     private Set<InternalCDOPackageUnit> dynamicPackageUnits = new HashSet<InternalCDOPackageUnit>();
 
+    private Set<InternalCDOPackageUnit> newPackageUnits = new HashSet<InternalCDOPackageUnit>();
+
     public OpenSessionResult(int sessionID, String repositoryUUID, long repositoryCreationTime,
         boolean repositorySupportingAudits, CDOIDLibraryDescriptor libraryDescriptor)
     {
@@ -174,14 +176,24 @@ public interface CDOSessionProtocol extends CDOPackageLoader
       return packageUnits;
     }
 
+    public Set<InternalCDOPackageUnit> getNewPackageUnits()
+    {
+      return newPackageUnits;
+    }
+
     public Set<InternalCDOPackageUnit> getDynamicPackageUnits()
     {
       return dynamicPackageUnits;
     }
 
-    public void addPackageUnit(InternalCDOPackageUnit packageUnit, boolean dynamic)
+    public void addPackageUnit(InternalCDOPackageUnit packageUnit, boolean isNew, boolean dynamic)
     {
       packageUnits.add(packageUnit);
+      if (isNew)
+      {
+        newPackageUnits.add(packageUnit);
+      }
+
       if (dynamic)
       {
         dynamicPackageUnits.add(packageUnit);

@@ -133,7 +133,6 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
     state = State.NEW;
     dynamic = EMFUtil.isDynamicEPackage(topLevelPackage);
     legacy = false;
-    timeStamp = -1; // TODO Replace by UNSPECIFIED_DATE
   }
 
   protected void initPackageInfos(EPackage ePackage, List<InternalCDOPackageInfo> result)

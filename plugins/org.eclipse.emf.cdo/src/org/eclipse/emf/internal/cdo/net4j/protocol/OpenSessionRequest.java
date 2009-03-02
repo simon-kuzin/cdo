@@ -119,8 +119,9 @@ public class OpenSessionRequest extends CDOTimeRequest<OpenSessionResult>
     for (int i = 0; i < size; i++)
     {
       InternalCDOPackageUnit packageUnit = (InternalCDOPackageUnit)in.readCDOPackageUnit();
+      boolean isNew = in.readBoolean();
       boolean dynamic = in.readBoolean();
-      result.addPackageUnit(packageUnit, dynamic);
+      result.addPackageUnit(packageUnit, isNew, dynamic);
     }
 
     super.confirming(in);

@@ -97,6 +97,8 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
 
   private CDOSession.Repository repository;
 
+  private Set<InternalCDOPackageUnit> repositoryNewPackageUnits;
+
   private Set<InternalCDOPackageUnit> repositoryDynamicPackageUnits;
 
   private InternalCDOPackageRegistry packageRegistry;
@@ -615,6 +617,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     repository = createRepository(result);
     handleLibraryDescriptor(result.getLibraryDescriptor());
 
+    repositoryNewPackageUnits = result.getNewPackageUnits();
     repositoryDynamicPackageUnits = result.getDynamicPackageUnits();
     for (CDOPackageUnit packageUnit : result.getPackageUnits())
     {
@@ -946,7 +949,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
 
     public void setName(String name)
     {
-      name = name;
+      this.name = name;
     }
 
     /**
