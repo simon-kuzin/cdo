@@ -163,7 +163,7 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
     out.writeBoolean(withPackages);
     if (withPackages)
     {
-      EMFUtil.writePackage(out, packageInfos[0].getEPackage());
+      EMFUtil.writePackage(out, packageInfos[0].getEPackage(), true);
     }
 
     out.writeLong(timeStamp);

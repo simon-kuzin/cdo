@@ -55,7 +55,7 @@ public class CDOServerProtocol extends CDOProtocolImpl
     out.writeInt(packageUnits.length);
     for (CDOPackageUnit packageUnit : packageUnits)
     {
-      out.writeCDOPackageUnit(packageUnit);
+      out.writeCDOPackageUnit(packageUnit, false);
       out.writeBoolean(packageUnit.getState() == CDOPackageUnit.State.NEW);
       out.writeBoolean(packageUnit.isDynamic());
     }

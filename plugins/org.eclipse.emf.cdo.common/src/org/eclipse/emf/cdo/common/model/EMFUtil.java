@@ -12,9 +12,8 @@
  */
 package org.eclipse.emf.cdo.common.model;
 
-import org.eclipse.emf.cdo.common.io.CDODataInput;
-import org.eclipse.emf.cdo.common.io.CDODataOutput;
-
+import org.eclipse.net4j.util.io.ExtendedDataInput;
+import org.eclipse.net4j.util.io.ExtendedDataOutput;
 import org.eclipse.net4j.util.io.IORuntimeException;
 
 import org.eclipse.emf.common.util.EList;
@@ -45,7 +44,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Eike Stepper
@@ -349,6 +350,7 @@ public final class EMFUtil
     }
   }
 
+  @Deprecated
   public static String ePackageToString(EPackage ePackage, EPackage.Registry packageRegistry)
   {
     synchronized (EMFUtil.class)
@@ -390,15 +392,44 @@ public final class EMFUtil
     return resource;
   }
 
-  public static void writePackage(CDODataOutput out, EPackage ePackage)
+  public static void writePackage(ExtendedDataOutput out, EPackage ePackage, boolean zipped) throws IOException
   {
-    // TODO: implement EMFUtil.writePackage(out, ePackage)
-    throw new UnsupportedOperationException();
+    Resource resource = ePackage.eResource();
+    if (resource == null)
+    {
+      throw new IllegalStateException("Package is not contained in a resource: " + ePackage);
+    }
+
+    out.writeString(resource.getURI().toString());
+    out.writeBoolean(zipped);
+    Map<String, Object> options = createResourceOptions(zipped);
+
+    resource.save(new ExtendedDataOutput.Stream(out), options);
   }
 
-  public static EPackage readPackage(CDODataInput in)
+  public static EPackage readPackage(ExtendedDataInput in) throws IOException
   {
-    // TODO: implement EMFUtil.readPackage(in)
-    throw new UnsupportedOperationException();
+    String uri = in.readString();
+    boolean zipped = in.readBoolean();
+    Map<String, Object> options = createResourceOptions(zipped);
+
+    ResourceSet resourceSet = new ResourceSetImpl();
+    Resource resource = resourceSet.createResource(URI.createURI(uri));
+    resource.load(new ExtendedDataInput.Stream(in), options);
+
+    EList<EObject> contents = resource.getContents();
+    EPackage ePackage = (EPackage)contents.get(0);
+    contents.clear();
+    return ePackage;
+  }
+
+  private static Map<String, Object> createResourceOptions(boolean zipped)
+  {
+    Map<String, Object> options = new HashMap<String, Object>();
+    if (zipped)
+    {
+      options.put(Resource.OPTION_ZIP, true);
+    }
+    return options;
   }
 }

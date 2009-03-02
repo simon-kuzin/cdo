@@ -10,7 +10,6 @@
  */
 package org.eclipse.emf.cdo.common.model;
 
-import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.internal.common.model.CDOClassAdapterImpl;
 import org.eclipse.emf.cdo.internal.common.model.CDOTypeImpl;
 
