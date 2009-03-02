@@ -49,6 +49,8 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
   private boolean replacingDescriptors;
 
+  private boolean ignoringDuplicates = true;
+
   private CDOPackageLoader packageLoader;
 
   @ExcludeFromDump
@@ -71,6 +73,16 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
   public void setReplacingDescriptors(boolean replacingDescriptors)
   {
     this.replacingDescriptors = replacingDescriptors;
+  }
+
+  public boolean isIgnoringDuplicates()
+  {
+    return ignoringDuplicates;
+  }
+
+  public void setIgnoringDuplicates(boolean ignoringDuplicates)
+  {
+    this.ignoringDuplicates = ignoringDuplicates;
   }
 
   public CDOPackageLoader getPackageLoader()
@@ -96,6 +108,16 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
   @Override
   public synchronized Object put(String nsURI, Object value)
   {
+    if (containsKey(nsURI))
+    {
+      if (ignoringDuplicates)
+      {
+        return null;
+      }
+
+      throw new IllegalArgumentException("Duplicate package URI: " + nsURI);
+    }
+
     if (replacingDescriptors && value instanceof EPackage.Descriptor)
     {
       EPackage.Descriptor descriptor = (EPackage.Descriptor)value;
@@ -114,7 +136,8 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       return null;
     }
 
-    return basicPut(nsURI, value);
+    basicPut(nsURI, value);
+    return null;
   }
 
   public synchronized Object putEPackage(EPackage ePackage)

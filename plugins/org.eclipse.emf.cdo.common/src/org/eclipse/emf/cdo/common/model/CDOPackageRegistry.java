@@ -19,6 +19,10 @@ public interface CDOPackageRegistry extends EPackage.Registry
 {
   public boolean isReplacingDescriptors();
 
+  public boolean isIgnoringDuplicates();
+
+  public void setIgnoringDuplicates(boolean ignoringDuplicates);
+
   public CDOPackageLoader getPackageLoader();
 
   /**

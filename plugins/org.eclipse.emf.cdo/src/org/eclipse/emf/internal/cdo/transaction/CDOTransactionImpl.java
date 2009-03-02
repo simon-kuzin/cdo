@@ -928,6 +928,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
       TRACER.format("Registering new object {0}", object);
     }
 
+    getSession().getPackageRegistry().putEPackage(object.eClass().getEPackage());
     for (CDOTransactionHandler handler : getHandlers())
     {
       handler.attachingObject(this, object);
