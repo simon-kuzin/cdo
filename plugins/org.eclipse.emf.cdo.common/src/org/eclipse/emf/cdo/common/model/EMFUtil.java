@@ -400,22 +400,26 @@ public final class EMFUtil
       throw new IllegalStateException("Package is not contained in a resource: " + ePackage);
     }
 
+    Map<String, Object> options = createResourceOptions(zipped);
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    resource.save(baos, options);
+
     out.writeString(resource.getURI().toString());
     out.writeBoolean(zipped);
-    Map<String, Object> options = createResourceOptions(zipped);
-
-    resource.save(new ExtendedDataOutput.Stream(out), options);
+    out.writeByteArray(baos.toByteArray());
   }
 
   public static EPackage readPackage(ExtendedDataInput in) throws IOException
   {
     String uri = in.readString();
     boolean zipped = in.readBoolean();
-    Map<String, Object> options = createResourceOptions(zipped);
+    ByteArrayInputStream bais = new ByteArrayInputStream(in.readByteArray());
 
-    ResourceSet resourceSet = new ResourceSetImpl();
-    Resource resource = resourceSet.createResource(URI.createURI(uri));
-    resource.load(new ExtendedDataInput.Stream(in), options);
+    Resource.Factory resourceFactory = new EcoreResourceFactoryImpl();
+    Resource resource = resourceFactory.createResource(URI.createURI(uri));
+
+    Map<String, Object> options = createResourceOptions(zipped);
+    resource.load(bais, options);
 
     EList<EObject> contents = resource.getContents();
     EPackage ePackage = (EPackage)contents.get(0);
