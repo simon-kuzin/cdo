@@ -1,4 +1,3 @@
-import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.net4j.CDONet4jUtil;
@@ -63,11 +62,11 @@ public class TestClient extends Assert
     CDOSession session = sessionConfiguration.openSession();
 
     InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)session.getPackageRegistry();
-    // packageRegistry.putEPackage(Model1Package.eINSTANCE);
+    packageRegistry.putEPackage(Model1Package.eINSTANCE);
 
-    CDOPackageInfo packageInfo = packageRegistry.getPackageInfo(Model1Package.eINSTANCE.getNsURI());
-    assertNotNull(packageInfo);
-    assertEquals(packageRegistry, packageInfo.getPackageUnit().getPackageRegistry());
+    // CDOPackageInfo packageInfo = packageRegistry.getPackageInfo(Model1Package.eINSTANCE.getNsURI());
+    // assertNotNull(packageInfo);
+    // assertEquals(packageRegistry, packageInfo.getPackageUnit().getPackageRegistry());
 
     CDOTransaction transaction = session.openTransaction();
     CDOResource resource = transaction.createResource("res" + System.currentTimeMillis());

@@ -60,7 +60,7 @@ public class TestServer
     IRepository repository = CDOServerUtil.createRepository(REPOSITORY_NAME, store, props);
     CDOServerUtil.addRepository(container, repository);
     EMFUtil.registerPackage(repository.getPackageRegistry(), EresourcePackage.eINSTANCE);
-    EMFUtil.registerPackage(repository.getPackageRegistry(), Model1Package.eINSTANCE);
+    // EMFUtil.registerPackage(repository.getPackageRegistry(), Model1Package.eINSTANCE);
 
     IAcceptor acceptor = (IAcceptor)container.getElement("org.eclipse.net4j.acceptors", "tcp", null);
 

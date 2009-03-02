@@ -670,6 +670,8 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
    */
   public static final class TransactionPackageRegistry extends CDOPackageRegistryImpl
   {
+    private static final long serialVersionUID = 1L;
+
     private List<InternalCDOPackageUnit> packageUnits = new ArrayList<InternalCDOPackageUnit>();
 
     public TransactionPackageRegistry(InternalCDOPackageRegistry repositoryPackageRegistry)
@@ -677,12 +679,14 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
       delegateRegistry = repositoryPackageRegistry;
     }
 
-    public void addPackageUnit(InternalCDOPackageUnit packageUnit)
+    @Override
+    public void putPackageUnit(InternalCDOPackageUnit packageUnit)
     {
       packageUnits.add(packageUnit);
       for (InternalCDOPackageInfo packageInfo : packageUnit.getPackageInfos())
       {
-
+        EPackage ePackage = packageInfo.getEPackage();
+        putEPackage(ePackage);
       }
     }
   }
