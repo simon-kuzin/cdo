@@ -20,6 +20,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageLoader;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
+import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.internal.common.model.CDOPackageRegistryImpl;
@@ -42,6 +43,7 @@ import org.eclipse.net4j.util.om.OMPlatform;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EcorePackage;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -546,6 +548,8 @@ public class Repository extends Container<Object> implements IRepository, CDOPac
 
     packageRegistry.setReplacingDescriptors(true);
     packageRegistry.setPackageLoader(this);
+    EMFUtil.registerPackage(packageRegistry, EcorePackage.eINSTANCE);
+
     sessionManager.setRepository(this);
     revisionManager.setRepository(this);
     queryManager.setRepository(this);

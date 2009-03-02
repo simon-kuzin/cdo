@@ -95,6 +95,11 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
     return legacy;
   }
 
+  public boolean isSystem()
+  {
+    return packageInfos == null ? false : packageInfos[0].isSystemPackage();
+  }
+
   public InternalCDOPackageInfo getPackageInfo(String packageURI)
   {
     for (InternalCDOPackageInfo packageInfo : packageInfos)

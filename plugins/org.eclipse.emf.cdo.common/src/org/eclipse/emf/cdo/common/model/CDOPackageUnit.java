@@ -27,6 +27,8 @@ public interface CDOPackageUnit
 
   public boolean isLegacy();
 
+  public boolean isSystem();
+
   public CDOPackageInfo getPackageInfo(String packageURI);
 
   public CDOPackageInfo[] getPackageInfos();

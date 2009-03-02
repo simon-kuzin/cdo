@@ -928,7 +928,8 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
       TRACER.format("Registering new object {0}", object);
     }
 
-    getSession().getPackageRegistry().putEPackage(object.eClass().getEPackage());
+    registerNewPackage(object.eClass().getEPackage());
+
     for (CDOTransactionHandler handler : getHandlers())
     {
       handler.attachingObject(this, object);
@@ -941,6 +942,15 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     else
     {
       registerNew(lastSavepoint.getNewObjects(), object);
+    }
+  }
+
+  private void registerNewPackage(EPackage ePackage)
+  {
+    CDOPackageRegistry packageRegistry = getSession().getPackageRegistry();
+    if (!packageRegistry.containsKey(ePackage.getNsURI()))
+    {
+      packageRegistry.putEPackage(ePackage);
     }
   }
 

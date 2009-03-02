@@ -168,5 +168,4 @@ public class CDOPackageInfoImpl extends AdapterImpl implements InternalCDOPackag
     return MessageFormat.format("CDOPackageInfo[packageURI={0}, parentURI={1}, metaIDRange={2}]", packageURI,
         parentURI, metaIDRange);
   }
-
 }
