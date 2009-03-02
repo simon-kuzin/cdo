@@ -17,7 +17,6 @@ import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDOListFactory;
-import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDOList;
@@ -41,12 +40,6 @@ public final class TODO
 
   private TODO()
   {
-  }
-
-  public static Object adjustReferences(CDOReferenceAdjuster revisionAdjuster, Object element, EClass type)
-  {
-    // TODO: implement TODO.adjustReferences(revisionAdjuster, element, type)
-    throw new UnsupportedOperationException();
   }
 
   public static Object copyValue(Object value, EClassifier type)

@@ -100,7 +100,7 @@ public class CDOPackageInfoImpl extends AdapterImpl implements InternalCDOPackag
 
     out.writeCDOPackageURI(packageURI);
     out.writeCDOPackageURI(parentURI);
-    out.writeCDOIDMetaRange(metaIDRange);
+    out.writeCDOIDMetaRange(getMetaIDRange());
   }
 
   public void read(CDODataInput in) throws IOException

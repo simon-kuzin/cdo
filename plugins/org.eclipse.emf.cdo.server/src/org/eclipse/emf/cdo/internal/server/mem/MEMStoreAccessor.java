@@ -16,6 +16,7 @@ import org.eclipse.emf.cdo.common.CDOQueryInfo;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.server.IQueryContext;
@@ -172,7 +173,7 @@ public class MEMStoreAccessor extends StoreAccessor
   }
 
   @Override
-  protected void writePackages(EPackage[] cdoPackages, OMMonitor monitor)
+  protected void writePackageUnits(CDOPackageUnit[] packageUnits, OMMonitor monitor)
   {
     // Do nothing
   }

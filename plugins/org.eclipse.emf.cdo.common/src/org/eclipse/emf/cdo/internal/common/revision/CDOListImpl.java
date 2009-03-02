@@ -12,6 +12,8 @@
 package org.eclipse.emf.cdo.internal.common.revision;
 
 import org.eclipse.emf.cdo.common.TODO;
+import org.eclipse.emf.cdo.common.model.CDOModelUtil;
+import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDOListFactory;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
@@ -65,14 +67,15 @@ public class CDOListImpl extends MoveableArrayList<Object> implements InternalCD
     return super.get(index);
   }
 
-  public void adjustReferences(CDOReferenceAdjuster revisionAdjuster, EClass type)
+  public void adjustReferences(CDOReferenceAdjuster revisionAdjuster, EClass classifier)
   {
+    CDOType type = CDOModelUtil.getType(classifier);
     int size = size();
     for (int i = 0; i < size; i++)
     {
       Object element = super.get(i);
       handleAdjustReference(i, element);
-      Object newID = TODO.adjustReferences(revisionAdjuster, element, type);
+      Object newID = type.adjustReferences(revisionAdjuster, element);
       if (newID != element)
       {
         super.set(i, newID);

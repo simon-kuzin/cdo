@@ -19,6 +19,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
@@ -391,14 +392,14 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
   }
 
   @Override
-  protected final void writePackages(EPackage[] cdoPackages, OMMonitor monitor)
+  protected final void writePackageUnits(CDOPackageUnit[] packageUnits, OMMonitor monitor)
   {
     try
     {
       monitor.begin(2);
-      fillSystemTables(cdoPackages, monitor.fork());
+      fillSystemTables(packageUnits, monitor.fork());
 
-      createModelTables(cdoPackages, monitor);
+      createModelTables(packageUnits, monitor);
     }
     finally
     {

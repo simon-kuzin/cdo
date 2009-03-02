@@ -15,6 +15,7 @@ package org.eclipse.emf.cdo.spi.server;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
@@ -26,8 +27,6 @@ import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
-
-import org.eclipse.emf.ecore.EPackage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -133,15 +132,15 @@ public abstract class StoreAccessor extends Lifecycle implements IStoreAccessor
     commitContexts.add(context);
     long timeStamp = context.getTimeStamp();
     boolean deltas = store.getRepository().isSupportingRevisionDeltas();
-    EPackage[] newPackages = context.getNewPackages();
+    CDOPackageUnit[] newPackageUnits = context.getNewPackageUnits();
     CDORevision[] newObjects = context.getNewObjects();
     CDOID[] detachedObjects = context.getDetachedObjects();
     int dirtyCount = deltas ? context.getDirtyObjectDeltas().length : context.getDirtyObjects().length;
 
     try
     {
-      monitor.begin(newPackages.length + newObjects.length + detachedObjects.length + dirtyCount + 2);
-      writePackages(newPackages, monitor.fork(newPackages.length));
+      monitor.begin(newPackageUnits.length + newObjects.length + detachedObjects.length + dirtyCount + 2);
+      writePackageUnits(newPackageUnits, monitor.fork(newPackageUnits.length));
       addIDMappings(context, monitor.fork());
       context.applyIDMappings(monitor.fork());
 
@@ -225,7 +224,7 @@ public abstract class StoreAccessor extends Lifecycle implements IStoreAccessor
   /**
    * @since 2.0
    */
-  protected abstract void writePackages(EPackage[] cdoPackages, OMMonitor monitor);
+  protected abstract void writePackageUnits(CDOPackageUnit[] packageUnits, OMMonitor monitor);
 
   /**
    * @since 2.0

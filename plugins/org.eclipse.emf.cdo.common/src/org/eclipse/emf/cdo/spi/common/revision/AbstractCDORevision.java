@@ -22,6 +22,7 @@ import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.model.CDOClassAdapter;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
+import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDOListFactory;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
@@ -493,7 +494,8 @@ public abstract class AbstractCDORevision implements InternalCDORevision
         }
         else
         {
-          setValue(i, TODO.adjustReferences(revisionAdjuster, getValue(i), reference.getEReferenceType()));
+          CDOType type = CDOModelUtil.getType(feature.getEType());
+          setValue(i, type.adjustReferences(revisionAdjuster, getValue(i)));
         }
       }
     }
@@ -565,6 +567,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
       list = CDOListFactory.DEFAULT.createList(size, 0, 0);
       setValue(featureIndex, list);
     }
+
     return list;
   }
 

@@ -17,6 +17,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.server.IQueryContext;
@@ -354,7 +355,7 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
     HibernateThreadContext.setCommitContext(context);
     if (context.getNewPackages().length > 0)
     {
-      writePackages(context.getNewPackages(), monitor);
+      writePackageUnits(context.getNewPackages(), monitor);
     }
     try
     {
@@ -470,11 +471,11 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
   }
 
   @Override
-  protected void writePackages(EPackage[] cdoPackages, OMMonitor monitor)
+  protected void writePackageUnits(CDOPackageUnit[] packageUnits, OMMonitor monitor)
   {
-    if (cdoPackages != null && cdoPackages.length != 0)
+    if (packageUnits != null && packageUnits.length != 0)
     {
-      getStore().getPackageHandler().writePackages(cdoPackages);
+      getStore().getPackageHandler().writePackages(packageUnits);
     }
 
     // Set a new hibernatesession in the thread

@@ -19,7 +19,6 @@ import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageLoader;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
-import org.eclipse.emf.cdo.spi.common.model.CDOMetaInstanceMapper;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
@@ -46,17 +45,22 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, CDOPackageRegistryImpl.class);
 
+  private MetaInstanceMapper metaInstanceMapper = new MetaInstanceMapperImpl();
+
   private boolean replacingDescriptors;
 
   private CDOPackageLoader packageLoader;
-
-  private MetaInstanceMapper metaInstanceMapper = new MetaInstanceMapper();
 
   @ExcludeFromDump
   private transient InternalCDOPackageUnit[] packageUnits;
 
   public CDOPackageRegistryImpl()
   {
+  }
+
+  public MetaInstanceMapper getMetaInstanceMapper()
+  {
+    return metaInstanceMapper;
   }
 
   public boolean isReplacingDescriptors()
@@ -172,21 +176,6 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     return packageUnits;
   }
 
-  public InternalEObject lookupMetaInstance(CDOID id)
-  {
-    return metaInstanceMapper.lookupMetaInstance(id);
-  }
-
-  public CDOID lookupMetaInstanceID(InternalEObject metaInstance)
-  {
-    return metaInstanceMapper.lookupMetaInstanceID(metaInstance);
-  }
-
-  public void remapMetaInstance(CDOID oldId, CDOID newId)
-  {
-    metaInstanceMapper.remapMetaInstance(oldId, newId);
-  }
-
   protected void initPackageUnit(EPackage ePackage)
   {
     InternalCDOPackageUnit packageUnit = createPackageUnit();
@@ -203,7 +192,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
   /**
    * @author Eike Stepper
    */
-  public class MetaInstanceMapper implements CDOMetaInstanceMapper
+  public class MetaInstanceMapperImpl implements MetaInstanceMapper
   {
     private Map<CDOID, InternalEObject> idToMetaInstanceMap = new HashMap<CDOID, InternalEObject>();
 
@@ -212,7 +201,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     @ExcludeFromDump
     private transient int lastTempMetaID;
 
-    public MetaInstanceMapper()
+    public MetaInstanceMapperImpl()
     {
     }
 
