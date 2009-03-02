@@ -60,6 +60,12 @@ public final class EMFUtil
   {
   }
 
+  public static void registerPackage(EPackage.Registry packageRegistry, EPackage ePackage)
+  {
+    ePackage.getClass(); // Initialize package in standalone mode
+    packageRegistry.put(ePackage.getNsURI(), ePackage);
+  }
+
   public static EClassifier getClassifier(EPackage cdoPackage, int classifierID)
   {
     EList<EClassifier> classifiers = cdoPackage.getEClassifiers();

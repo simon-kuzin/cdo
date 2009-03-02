@@ -81,6 +81,11 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
   public Object basicPut(String nsURI, Object value)
   {
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("Registering {0} --> {1}", nsURI, value);
+    }
+
     return super.put(nsURI, value);
   }
 

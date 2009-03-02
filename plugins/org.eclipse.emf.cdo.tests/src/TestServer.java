@@ -9,6 +9,8 @@
  *    Eike Stepper - initial API and implementation
  */
 
+import org.eclipse.emf.cdo.common.model.EMFUtil;
+import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.server.CDOServerUtil;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.IStore;
@@ -52,6 +54,7 @@ public class TestServer
     Map<String, String> props = new HashMap<String, String>();
     IRepository repository = CDOServerUtil.createRepository(REPOSITORY_NAME, store, props);
     CDOServerUtil.addRepository(container, repository);
+    EMFUtil.registerPackage(repository.getPackageRegistry(), EresourcePackage.eINSTANCE);
 
     IAcceptor acceptor = (IAcceptor)container.getElement("org.eclipse.net4j.acceptors", "tcp", null);
 
