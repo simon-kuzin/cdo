@@ -93,15 +93,15 @@ public class CDOPackageInfoImpl extends AdapterImpl implements InternalCDOPackag
       TRACER.format("Writing {0}", this);
     }
 
-    out.writeString(packageURI);
-    out.writeString(parentURI);
+    out.writeCDOPackageURI(packageURI);
+    out.writeCDOPackageURI(parentURI);
     out.writeCDOIDMetaRange(metaIDRange);
   }
 
   public void read(CDODataInput in) throws IOException
   {
-    packageURI = in.readEPackageURI();
-    parentURI = in.readEPackageURI();
+    packageURI = in.readCDOPackageURI();
+    parentURI = in.readCDOPackageURI();
     metaIDRange = in.readCDOIDMetaRange();
     if (TRACER.isEnabled())
     {

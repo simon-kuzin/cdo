@@ -46,15 +46,27 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, CDOPackageRegistryImpl.class);
 
+  private boolean replacingDescriptors;
+
   private CDOPackageLoader packageLoader;
 
   private MetaInstanceMapper metaInstanceMapper = new MetaInstanceMapper();
 
   @ExcludeFromDump
-  private transient InternalCDOPackageUnit[] packageunits;
+  private transient InternalCDOPackageUnit[] packageUnits;
 
   public CDOPackageRegistryImpl()
   {
+  }
+
+  public boolean isReplacingDescriptors()
+  {
+    return replacingDescriptors;
+  }
+
+  public void setReplacingDescriptors(boolean replacingDescriptors)
+  {
+    this.replacingDescriptors = replacingDescriptors;
   }
 
   public CDOPackageLoader getPackageLoader()
@@ -75,6 +87,12 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
   @Override
   public synchronized Object put(String nsURI, Object value)
   {
+    if (replacingDescriptors && value instanceof EPackage.Descriptor)
+    {
+      EPackage.Descriptor descriptor = (EPackage.Descriptor)value;
+      value = descriptor.getEPackage();
+    }
+
     if (value instanceof EPackage)
     {
       EPackage ePackage = (EPackage)value;
@@ -97,7 +115,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
   public synchronized void putPackageUnit(InternalCDOPackageUnit packageUnit)
   {
-    packageunits = null;
+    packageUnits = null;
     packageUnit.setPackageRegistry(this);
     for (InternalCDOPackageInfo packageInfo : packageUnit.getPackageInfos())
     {
@@ -131,7 +149,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
   public synchronized InternalCDOPackageUnit[] getPackageUnits()
   {
-    if (packageunits == null)
+    if (packageUnits == null)
     {
       Set<InternalCDOPackageUnit> result = new HashSet<InternalCDOPackageUnit>();
       for (Object value : values())
@@ -143,10 +161,10 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
         }
       }
 
-      packageunits = result.toArray(new InternalCDOPackageUnit[result.size()]);
+      packageUnits = result.toArray(new InternalCDOPackageUnit[result.size()]);
     }
 
-    return packageunits;
+    return packageUnits;
   }
 
   public InternalEObject lookupMetaInstance(CDOID id)
@@ -169,7 +187,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     InternalCDOPackageUnit packageUnit = createPackageUnit();
     packageUnit.setPackageRegistry(this);
     packageUnit.init(ePackage);
-    packageunits = null;
+    packageUnits = null;
   }
 
   protected InternalCDOPackageUnit createPackageUnit()

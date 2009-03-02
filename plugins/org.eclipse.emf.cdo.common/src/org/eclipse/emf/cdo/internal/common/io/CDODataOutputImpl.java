@@ -63,7 +63,6 @@ public abstract class CDODataOutputImpl extends ExtendedDataOutput.Delegating im
 
   public void writeCDOPackageUnit(CDOPackageUnit packageUnit) throws IOException
   {
-    writeBoolean(packageUnit.isDynamic());
     ((InternalCDOPackageUnit)packageUnit).write(this);
   }
 
@@ -72,17 +71,17 @@ public abstract class CDODataOutputImpl extends ExtendedDataOutput.Delegating im
     ((InternalCDOPackageInfo)packageInfo).write(this);
   }
 
-  public void writeEClassifierRef(CDOClassifierRef eClassifierRef) throws IOException
+  public void writeCDOClassifierRef(CDOClassifierRef eClassifierRef) throws IOException
   {
     eClassifierRef.write(this);
   }
 
-  public void writeEClassifierRef(EClassifier eClassifier) throws IOException
+  public void writeCDOClassifierRef(EClassifier eClassifier) throws IOException
   {
-    writeEClassifierRef(new CDOClassifierRef(eClassifier));
+    writeCDOClassifierRef(new CDOClassifierRef(eClassifier));
   }
 
-  public void writeEPackageURI(String uri) throws IOException
+  public void writeCDOPackageURI(String uri) throws IOException
   {
     getPackageURICompressor().write(this, uri);
   }
@@ -257,7 +256,7 @@ public abstract class CDODataOutputImpl extends ExtendedDataOutput.Delegating im
     if (value instanceof EClassifier)
     {
       writeBoolean(true);
-      writeEClassifierRef((EClass)value);
+      writeCDOClassifierRef((EClass)value);
     }
     else
     {

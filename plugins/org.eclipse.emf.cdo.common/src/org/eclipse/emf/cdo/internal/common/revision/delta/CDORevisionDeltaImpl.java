@@ -100,7 +100,7 @@ public class CDORevisionDeltaImpl implements InternalCDORevisionDelta
 
   public CDORevisionDeltaImpl(CDODataInput in) throws IOException
   {
-    cdoClass = (EClass)in.readEClassifierRefAndResolve();
+    cdoClass = (EClass)in.readCDOClassifierRefAndResolve();
     cdoID = in.readCDOID();
     originVersion = in.readInt();
     dirtyVersion = in.readInt();
@@ -114,7 +114,7 @@ public class CDORevisionDeltaImpl implements InternalCDORevisionDelta
 
   public void write(CDODataOutput out) throws IOException
   {
-    out.writeEClassifierRef(cdoClass);
+    out.writeCDOClassifierRef(cdoClass);
     out.writeCDOID(cdoID);
     out.writeInt(originVersion);
     out.writeInt(dirtyVersion);

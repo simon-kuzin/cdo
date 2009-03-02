@@ -544,6 +544,7 @@ public class Repository extends Container<Object> implements IRepository, CDOPac
     checkState(commitManager, "commitManager");
     checkState(lockManager, "lockingManager");
 
+    packageRegistry.setReplacingDescriptors(true);
     packageRegistry.setPackageLoader(this);
     sessionManager.setRepository(this);
     revisionManager.setRepository(this);

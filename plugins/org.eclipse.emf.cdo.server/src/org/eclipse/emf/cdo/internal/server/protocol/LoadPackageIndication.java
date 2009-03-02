@@ -40,7 +40,7 @@ public class LoadPackageIndication extends CDOReadIndication
   @Override
   protected void indicating(CDODataInput in) throws IOException
   {
-    String packageURI = in.readEPackageURI();
+    String packageURI = in.readCDOPackageURI();
     if (PROTOCOL_TRACER.isEnabled())
     {
       PROTOCOL_TRACER.format("Read packageURI: {0}", packageURI);

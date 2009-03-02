@@ -39,7 +39,7 @@ public final class CDOFetchRule
 
   public CDOFetchRule(CDODataInput in, CDOPackageRegistry packageManager) throws IOException
   {
-    cdoClass = (EClass)in.readEClassifierRefAndResolve();
+    cdoClass = (EClass)in.readCDOClassifierRefAndResolve();
     int size = in.readInt();
     for (int i = 0; i < size; i++)
     {
@@ -51,7 +51,7 @@ public final class CDOFetchRule
 
   public void write(CDODataOutput out) throws IOException
   {
-    out.writeEClassifierRef(cdoClass);
+    out.writeCDOClassifierRef(cdoClass);
     out.writeInt(features.size());
     for (EStructuralFeature feature : features)
     {

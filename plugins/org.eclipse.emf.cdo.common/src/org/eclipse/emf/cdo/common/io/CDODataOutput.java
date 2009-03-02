@@ -48,11 +48,11 @@ public interface CDODataOutput extends ExtendedDataOutput
 
   public void writeCDOPackageInfo(CDOPackageInfo packageInfo) throws IOException;
 
-  public void writeEClassifierRef(CDOClassifierRef eClassifierRef) throws IOException;
+  public void writeCDOClassifierRef(CDOClassifierRef eClassifierRef) throws IOException;
 
-  public void writeEClassifierRef(EClassifier eClassifier) throws IOException;
+  public void writeCDOClassifierRef(EClassifier eClassifier) throws IOException;
 
-  public void writeEPackageURI(String uri) throws IOException;
+  public void writeCDOPackageURI(String uri) throws IOException;
 
   public void writeEPackage(EPackage cdoPackage) throws IOException;
 

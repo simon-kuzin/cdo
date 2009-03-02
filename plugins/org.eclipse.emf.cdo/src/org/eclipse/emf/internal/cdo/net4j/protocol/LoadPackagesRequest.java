@@ -35,7 +35,7 @@ public class LoadPackagesRequest extends CDOClientRequest<EPackage[]>
   @Override
   protected void requesting(CDODataOutput out) throws IOException
   {
-    out.writeEPackageURI(packageUnit.getID());
+    out.writeCDOPackageURI(packageUnit.getID());
   }
 
   @Override

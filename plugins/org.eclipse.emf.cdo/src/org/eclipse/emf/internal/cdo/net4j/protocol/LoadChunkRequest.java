@@ -84,7 +84,7 @@ public class LoadChunkRequest extends CDOClientRequest<Object>
       PROTOCOL_TRACER.format("Writing feature: {0}", feature);
     }
 
-    out.writeEClassifierRef(feature.getEContainingClass());
+    out.writeCDOClassifierRef(feature.getEContainingClass());
     out.writeInt(feature.getFeatureID());
     if (PROTOCOL_TRACER.isEnabled())
     {

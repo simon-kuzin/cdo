@@ -17,6 +17,8 @@ import org.eclipse.emf.ecore.EPackage;
  */
 public interface CDOPackageRegistry extends EPackage.Registry
 {
+  public boolean isReplacingDescriptors();
+
   public CDOPackageLoader getPackageLoader();
 
   /**

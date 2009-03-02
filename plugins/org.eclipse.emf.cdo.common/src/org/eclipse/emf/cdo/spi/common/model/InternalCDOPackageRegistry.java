@@ -18,6 +18,8 @@ import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
  */
 public interface InternalCDOPackageRegistry extends CDOPackageRegistry, CDOMetaInstanceMapper
 {
+  public void setReplacingDescriptors(boolean replacingDescriptors);
+
   public void setPackageLoader(CDOPackageLoader packageLoader);
 
   public Object basicPut(String nsURI, Object value);

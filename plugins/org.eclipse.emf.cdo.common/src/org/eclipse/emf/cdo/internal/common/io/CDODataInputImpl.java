@@ -93,26 +93,20 @@ public abstract class CDODataInputImpl extends ExtendedDataInput.Delegating impl
     return packageInfo;
   }
 
-  public String readEPackageURI() throws IOException
+  public String readCDOPackageURI() throws IOException
   {
     return getPackageURICompressor().read(this);
   }
 
-  public CDOClassifierRef readEClassifierRef() throws IOException
+  public CDOClassifierRef readCDOClassifierRef() throws IOException
   {
     return new CDOClassifierRef(this);
   }
 
-  public EClassifier readEClassifierRefAndResolve() throws IOException
+  public EClassifier readCDOClassifierRefAndResolve() throws IOException
   {
-    CDOClassifierRef classRef = readEClassifierRef();
-    EClassifier cdoClass = classRef.resolve(getPackageRegistry());
-    if (cdoClass == null)
-    {
-      throw new IllegalStateException("CDOClassifierRef unresolveable: " + classRef);
-    }
-
-    return cdoClass;
+    CDOClassifierRef classRef = readCDOClassifierRef();
+    return classRef.resolve(getPackageRegistry());
   }
 
   public CDOType readCDOType() throws IOException
@@ -256,7 +250,7 @@ public abstract class CDODataInputImpl extends ExtendedDataInput.Delegating impl
     boolean isClassifier = readBoolean();
     if (isClassifier)
     {
-      return readEClassifierRefAndResolve();
+      return readCDOClassifierRefAndResolve();
     }
 
     return readCDORevisionOrPrimitive();

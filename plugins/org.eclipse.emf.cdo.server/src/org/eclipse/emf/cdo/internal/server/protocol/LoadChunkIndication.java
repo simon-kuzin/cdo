@@ -64,7 +64,7 @@ public class LoadChunkIndication extends CDOReadIndication
       PROTOCOL_TRACER.format("Read revision version: {0}", version);
     }
 
-    EClass cdoClass = (EClass)in.readEClassifierRefAndResolve();
+    EClass cdoClass = (EClass)in.readCDOClassifierRefAndResolve();
     int featureID = in.readInt();
     feature = cdoClass.getEStructuralFeature(featureID);
     if (PROTOCOL_TRACER.isEnabled())

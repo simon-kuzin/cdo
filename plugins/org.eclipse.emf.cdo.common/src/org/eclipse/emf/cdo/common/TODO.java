@@ -25,7 +25,6 @@ import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
-import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EPackage;
@@ -60,20 +59,6 @@ public final class TODO
   {
     // TODO: implement TODO.getAllPersistentClasses(cdoPackage)
     throw new UnsupportedOperationException();
-  }
-
-  public static EClassifier getClassifier(EPackage cdoPackage, int classifierID)
-  {
-    EList<EClassifier> classifiers = cdoPackage.getEClassifiers();
-    for (EClassifier classifier : classifiers)
-    {
-      if (classifier.getClassifierID() == classifierID)
-      {
-        return classifier;
-      }
-    }
-
-    return null;
   }
 
   public static CDOList readCDOList(CDODataInput in, CDORevision revision, EStructuralFeature feature,

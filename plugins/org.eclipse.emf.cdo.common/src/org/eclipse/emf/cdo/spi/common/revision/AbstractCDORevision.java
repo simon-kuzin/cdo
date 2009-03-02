@@ -109,7 +109,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
   public AbstractCDORevision(CDODataInput in) throws IOException
   {
     READING.start(this);
-    classAdapter = CDOModelUtil.getClassAdapter((EClass)in.readEClassifierRefAndResolve());
+    classAdapter = CDOModelUtil.getClassAdapter((EClass)in.readCDOClassifierRefAndResolve());
 
     id = in.readCDOID();
     version = in.readInt();
@@ -147,7 +147,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     }
 
     WRITING.start(this);
-    out.writeEClassifierRef(classRef);
+    out.writeCDOClassifierRef(classRef);
     out.writeCDOID(id);
     out.writeInt(getVersion());
     if (!id.isTemporary())

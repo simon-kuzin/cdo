@@ -44,11 +44,11 @@ public interface CDODataInput extends ExtendedDataInput
 
   public CDOPackageInfo readCDOPackageInfo() throws IOException;
 
-  public CDOClassifierRef readEClassifierRef() throws IOException;
+  public CDOClassifierRef readCDOClassifierRef() throws IOException;
 
-  public EClassifier readEClassifierRefAndResolve() throws IOException;
+  public EClassifier readCDOClassifierRefAndResolve() throws IOException;
 
-  public String readEPackageURI() throws IOException;
+  public String readCDOPackageURI() throws IOException;
 
   public CDOType readCDOType() throws IOException;
 

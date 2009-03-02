@@ -56,6 +56,20 @@ public final class EMFUtil
   {
   }
 
+  public static EClassifier getClassifier(EPackage cdoPackage, int classifierID)
+  {
+    EList<EClassifier> classifiers = cdoPackage.getEClassifiers();
+    for (EClassifier classifier : classifiers)
+    {
+      if (classifier.getClassifierID() == classifierID)
+      {
+        return classifier;
+      }
+    }
+  
+    return null;
+  }
+
   public static String getParentURI(EPackage ePackage)
   {
     EPackage superPackage = ePackage.getESuperPackage();

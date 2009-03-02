@@ -10,7 +10,6 @@
  */
 package org.eclipse.emf.cdo.common.model;
 
-import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 
@@ -48,13 +47,13 @@ public final class CDOClassifierRef
 
   public CDOClassifierRef(CDODataInput in) throws IOException
   {
-    packageURI = in.readEPackageURI();
+    packageURI = in.readCDOPackageURI();
     classifierID = in.readInt();
   }
 
   public void write(CDODataOutput out) throws IOException
   {
-    out.writeEPackageURI(packageURI);
+    out.writeCDOPackageURI(packageURI);
     out.writeInt(classifierID);
   }
 
@@ -68,15 +67,15 @@ public final class CDOClassifierRef
     return classifierID;
   }
 
-  public EClassifier resolve(EPackage.Registry packageManager)
+  public EClassifier resolve(EPackage.Registry packageRegistry)
   {
-    EPackage cdoPackage = packageManager.getEPackage(packageURI);
-    if (cdoPackage != null)
+    EPackage cdoPackage = packageRegistry.getEPackage(packageURI);
+    if (cdoPackage == null)
     {
-      return TODO.getClassifier(cdoPackage, classifierID);
+      throw new IllegalStateException("Package not found: " + packageURI);
     }
 
-    return null;
+    return EMFUtil.getClassifier(cdoPackage, classifierID);
   }
 
   @Override

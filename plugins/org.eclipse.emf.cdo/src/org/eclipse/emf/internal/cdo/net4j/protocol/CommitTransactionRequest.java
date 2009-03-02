@@ -194,6 +194,9 @@ public class CommitTransactionRequest extends RequestWithMonitoring<CommitTransa
     for (CDOPackageUnit newPackageUnit : newPackageUnits)
     {
       out.writeCDOPackageUnit(newPackageUnit);
+      if (getSession().isDynamicOnServer(newPackageUnit))
+      {
+      }
     }
 
     if (PROTOCOL_TRACER.isEnabled())
