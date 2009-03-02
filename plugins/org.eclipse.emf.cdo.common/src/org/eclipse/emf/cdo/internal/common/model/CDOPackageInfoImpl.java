@@ -76,12 +76,17 @@ public class CDOPackageInfoImpl extends AdapterImpl implements InternalCDOPackag
     parentURI = parentUri;
   }
 
-  public CDOIDMetaRange getMetaIDRange()
+  public synchronized CDOIDMetaRange getMetaIDRange()
   {
+    if (metaIDRange == null)
+    {
+      metaIDRange = packageUnit.getPackageRegistry().getMetaInstanceMapper().mapMetaInstances(getEPackage());
+    }
+
     return metaIDRange;
   }
 
-  public void setMetaIDRange(CDOIDMetaRange metaIdRange)
+  public synchronized void setMetaIDRange(CDOIDMetaRange metaIdRange)
   {
     metaIDRange = metaIdRange;
   }

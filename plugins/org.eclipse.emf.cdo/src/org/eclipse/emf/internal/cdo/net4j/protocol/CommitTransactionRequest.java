@@ -254,7 +254,7 @@ public class CommitTransactionRequest extends RequestWithMonitoring<CommitTransa
         {
           CDOIDTemp oldID = (CDOIDTemp)oldRange.get(i);
           CDOID newID = newRange.get(i);
-          packageRegistry.remapMetaInstance(oldID, newID);
+          packageRegistry.getMetaInstanceMapper().remapMetaInstance(oldID, newID);
           result.addIDMapping(oldID, newID);
         }
       }

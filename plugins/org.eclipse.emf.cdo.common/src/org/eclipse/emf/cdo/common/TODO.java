@@ -67,7 +67,6 @@ public final class TODO
     // TODO Simon: Could most of this stuff be moved into the list?
     // (only if protected methods of this class don't need to become public)
 
-    EClassifier type = feature.getEType();
     int referenceChunk;
     int size = in.readInt();
     if (size < 0)
@@ -88,10 +87,11 @@ public final class TODO
       }
     }
 
+    CDOType type = CDOModelUtil.getType(feature.getEType());
     InternalCDOList list = (InternalCDOList)listFactory.createList(size, size, referenceChunk);
     for (int j = 0; j < referenceChunk; j++)
     {
-      Object value = readValue(in, type);
+      Object value = type.readValue(in);
       list.set(j, value);
       if (TRACER.isEnabled())
       {
@@ -116,8 +116,16 @@ public final class TODO
 
   public static Object readFeatureValue(CDODataInput in, EStructuralFeature feature) throws IOException
   {
-    // TODO: implement TODO.readFeatureValue(feature)
-    throw new UnsupportedOperationException();
+    CDOType type = CDOModelUtil.getType(feature.getEType());
+    if (type.canBeNull() && !feature.isMany())
+    {
+      if (in.readBoolean())
+      {
+        return InternalCDORevision.NIL;
+      }
+    }
+
+    return type.readValue(in);
   }
 
   public static Object readValue(CDODataInput in, EClassifier type)
@@ -133,7 +141,8 @@ public final class TODO
   }
 
   public static void writeFeatureValue(CDODataOutput out, Object value, EStructuralFeature feature) throws IOException
-  { // TODO We could certainly optimized this: When a feature is a reference, NIL is only possible in the case where
+  {
+    // TODO We could certainly optimized this: When a feature is a reference, NIL is only possible in the case where
     // unsettable == true. (TO be verified)
 
     CDOType type = CDOModelUtil.getType(feature.getEType());

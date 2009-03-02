@@ -15,6 +15,7 @@ import org.eclipse.emf.cdo.server.CDOServerUtil;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.IStore;
 import org.eclipse.emf.cdo.server.mem.MEMStoreUtil;
+import org.eclipse.emf.cdo.tests.model1.Model1Package;
 
 import org.eclipse.net4j.Net4jUtil;
 import org.eclipse.net4j.acceptor.IAcceptor;
@@ -55,6 +56,7 @@ public class TestServer
     IRepository repository = CDOServerUtil.createRepository(REPOSITORY_NAME, store, props);
     CDOServerUtil.addRepository(container, repository);
     EMFUtil.registerPackage(repository.getPackageRegistry(), EresourcePackage.eINSTANCE);
+    EMFUtil.registerPackage(repository.getPackageRegistry(), Model1Package.eINSTANCE);
 
     IAcceptor acceptor = (IAcceptor)container.getElement("org.eclipse.net4j.acceptors", "tcp", null);
 

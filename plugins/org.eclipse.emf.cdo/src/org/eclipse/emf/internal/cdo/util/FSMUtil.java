@@ -134,7 +134,8 @@ public final class FSMUtil
       object = (InternalEObject)EcoreUtil.resolve(object, view.getResourceSet());
     }
 
-    CDOID id = ((InternalCDOPackageRegistry)view.getSession().getPackageRegistry()).lookupMetaInstanceID(object);
+    InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)view.getSession().getPackageRegistry();
+    CDOID id = packageRegistry.getMetaInstanceMapper().lookupMetaInstanceID(object);
     if (id != null)
     {
       return new CDOMetaWrapper((InternalCDOView)view, object, id);
