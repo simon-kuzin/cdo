@@ -1,10 +1,10 @@
-import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
-import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
+import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.net4j.CDONet4jUtil;
 import org.eclipse.emf.cdo.net4j.CDOSession;
 import org.eclipse.emf.cdo.net4j.CDOSessionConfiguration;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.tests.model1.Model1Factory;
 import org.eclipse.emf.cdo.tests.model1.Model1Package;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
@@ -19,6 +19,8 @@ import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 import org.eclipse.net4j.util.om.OMPlatform;
 import org.eclipse.net4j.util.om.log.PrintLogHandler;
 import org.eclipse.net4j.util.om.trace.PrintTraceHandler;
+
+import org.eclipse.emf.ecore.EPackage;
 
 import junit.framework.Assert;
 
@@ -40,6 +42,8 @@ public class TestClient extends Assert
 {
   public static void main(String[] args) throws Exception
   {
+    EMFUtil.registerPackage(EPackage.Registry.INSTANCE, Model1Package.eINSTANCE);
+
     PrintTraceHandler.CONSOLE.setShortContext(true);
     OMPlatform.INSTANCE.addTraceHandler(PrintTraceHandler.CONSOLE);
     OMPlatform.INSTANCE.addLogHandler(PrintLogHandler.CONSOLE);
@@ -58,10 +62,11 @@ public class TestClient extends Assert
     sessionConfiguration.setConnector(connector);
     CDOSession session = sessionConfiguration.openSession();
 
-    CDOPackageRegistry packageRegistry = session.getPackageRegistry();
-    packageRegistry.putEPackage(Model1Package.eINSTANCE);
+    InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)session.getPackageRegistry();
+    // packageRegistry.putEPackage(Model1Package.eINSTANCE);
 
-    CDOPackageInfo packageInfo = CDOModelUtil.getPackageInfo(Model1Package.eINSTANCE, packageRegistry);
+    CDOPackageInfo packageInfo = packageRegistry.getPackageInfo(Model1Package.eINSTANCE.getNsURI());
+    assertNotNull(packageInfo);
     assertEquals(packageRegistry, packageInfo.getPackageUnit().getPackageRegistry());
 
     CDOTransaction transaction = session.openTransaction();

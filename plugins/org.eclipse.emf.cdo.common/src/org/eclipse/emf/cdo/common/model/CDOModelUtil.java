@@ -237,7 +237,12 @@ public final class CDOModelUtil
   public static CDOPackageUnit getPackageUnit(EPackage ePackage, CDOPackageRegistry packageRegistry)
   {
     CDOPackageInfo packageInfo = getPackageInfo(ePackage, packageRegistry);
-    return packageInfo.getPackageUnit();
+    if (packageInfo != null)
+    {
+      return packageInfo.getPackageUnit();
+    }
+
+    return null;
   }
 
   public static CDOClassAdapter getClassAdapter(EClass eClass)

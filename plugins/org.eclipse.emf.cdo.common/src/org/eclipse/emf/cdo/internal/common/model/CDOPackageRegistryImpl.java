@@ -141,16 +141,22 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     }
   }
 
-  public synchronized InternalCDOPackageInfo getPackageInfo(Object value)
+  public synchronized InternalCDOPackageInfo getPackageInfo(Object keyOrValue)
   {
-    if (value instanceof CDOPackageInfo)
+    if (keyOrValue instanceof CDOPackageInfo)
     {
-      return (InternalCDOPackageInfo)value;
+      return (InternalCDOPackageInfo)keyOrValue;
     }
 
-    if (value instanceof EPackage)
+    if (keyOrValue instanceof EPackage)
     {
-      return (InternalCDOPackageInfo)CDOModelUtil.getPackageInfo((EPackage)value, this);
+      return (InternalCDOPackageInfo)CDOModelUtil.getPackageInfo((EPackage)keyOrValue, this);
+    }
+
+    if (keyOrValue instanceof String)
+    {
+      Object value = get(keyOrValue);
+      return getPackageInfo(value);
     }
 
     return null;

@@ -33,7 +33,7 @@ public interface InternalCDOPackageRegistry extends CDOPackageRegistry
 
   public void putPackageUnit(InternalCDOPackageUnit packageUnit);
 
-  public InternalCDOPackageInfo getPackageInfo(Object value);
+  public InternalCDOPackageInfo getPackageInfo(Object keyOrValue);
 
   public InternalCDOPackageUnit[] getPackageUnits();
 

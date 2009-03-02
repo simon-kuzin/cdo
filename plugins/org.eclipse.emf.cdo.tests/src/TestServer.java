@@ -28,6 +28,8 @@ import org.eclipse.net4j.util.om.OMPlatform;
 import org.eclipse.net4j.util.om.log.PrintLogHandler;
 import org.eclipse.net4j.util.om.trace.PrintTraceHandler;
 
+import org.eclipse.emf.ecore.EPackage;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,6 +42,8 @@ public class TestServer
 
   public static void main(String[] args) throws Exception
   {
+    EMFUtil.registerPackage(EPackage.Registry.INSTANCE, Model1Package.eINSTANCE);
+
     PrintTraceHandler.CONSOLE.setShortContext(true);
     OMPlatform.INSTANCE.addTraceHandler(PrintTraceHandler.CONSOLE);
     OMPlatform.INSTANCE.addLogHandler(PrintLogHandler.CONSOLE);

@@ -139,7 +139,12 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
   {
     if (state == State.NOT_LOADED)
     {
-      EPackage[] ePackages = packageRegistry.getPackageLoader().loadPackages(this);
+      EPackage[] ePackages = loadPackagesFromGlobalRegistry();
+      if (ePackages == null)
+      {
+        ePackages = packageRegistry.getPackageLoader().loadPackages(this);
+      }
+
       for (EPackage ePackage : ePackages)
       {
         String packageURI = ePackage.getNsURI();
@@ -238,5 +243,20 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
     {
       attachPackageInfos(subPackage);
     }
+  }
+
+  private EPackage[] loadPackagesFromGlobalRegistry()
+  {
+    EPackage[] ePackages = new EPackage[packageInfos.length];
+    for (int i = 0; i < ePackages.length; i++)
+    {
+      ePackages[i] = EPackage.Registry.INSTANCE.getEPackage(packageInfos[i].getPackageURI());
+      if (ePackages[i] == null)
+      {
+        return null;
+      }
+    }
+
+    return ePackages;
   }
 }
