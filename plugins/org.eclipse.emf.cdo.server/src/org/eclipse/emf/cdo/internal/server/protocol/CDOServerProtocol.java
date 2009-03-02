@@ -52,7 +52,7 @@ public class CDOServerProtocol extends CDOProtocolImpl
 
   public void sendPackageUnits(CDODataOutput out, CDOPackageUnit[] packageUnits) throws IOException
   {
-    out.writeInt(packageUnits.length);
+    out.writeInt(packageUnits.length - 2); // TODO Do not expect 2 system package units
     for (CDOPackageUnit packageUnit : packageUnits)
     {
       if (!packageUnit.isSystem())

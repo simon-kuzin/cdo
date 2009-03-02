@@ -231,6 +231,12 @@ public final class CDOModelUtil
       }
     }
 
+    Object value = packageRegistry.get(ePackage.getNsURI());
+    if (value instanceof CDOPackageInfo)
+    {
+      return (CDOPackageInfo)value;
+    }
+
     return null;
   }
 
