@@ -15,6 +15,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDObjectFactory;
 import org.eclipse.emf.cdo.common.model.CDOPackageLoader;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.session.CDOSession;
 
@@ -34,6 +35,10 @@ public interface InternalCDOSession extends CDOSession, CDOIDObjectFactory, CDOP
   public void setRepositoryName(String repositoryName);
 
   public void setPackageRegistry(CDOPackageRegistry packageRegistry);
+
+  public boolean isNewPackageUnitInRepository(CDOPackageUnit packageUnit);
+
+  public boolean isDynamicPackageUnitInRepository(CDOPackageUnit packageUnit);
 
   public void viewDetached(InternalCDOView view);
 

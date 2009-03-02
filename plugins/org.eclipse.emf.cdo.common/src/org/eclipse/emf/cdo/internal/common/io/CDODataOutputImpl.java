@@ -61,9 +61,9 @@ public abstract class CDODataOutputImpl extends ExtendedDataOutput.Delegating im
     super(delegate);
   }
 
-  public void writeCDOPackageUnit(CDOPackageUnit packageUnit) throws IOException
+  public void writeCDOPackageUnit(CDOPackageUnit packageUnit, boolean withPackages) throws IOException
   {
-    ((InternalCDOPackageUnit)packageUnit).write(this);
+    ((InternalCDOPackageUnit)packageUnit).write(this, withPackages);
   }
 
   public void writeCDOPackageInfo(CDOPackageInfo packageInfo) throws IOException

@@ -12,6 +12,9 @@
  */
 package org.eclipse.emf.cdo.common.model;
 
+import org.eclipse.emf.cdo.common.io.CDODataInput;
+import org.eclipse.emf.cdo.common.io.CDODataOutput;
+
 import org.eclipse.net4j.util.io.IORuntimeException;
 
 import org.eclipse.emf.common.util.EList;
@@ -66,7 +69,7 @@ public final class EMFUtil
         return classifier;
       }
     }
-  
+
     return null;
   }
 
@@ -385,5 +388,17 @@ public final class EMFUtil
     Resource resource = resourceSet.createResource(uri);
     resource.getContents().add(ePackage);
     return resource;
+  }
+
+  public static void writePackage(CDODataOutput out, EPackage ePackage)
+  {
+    // TODO: implement EMFUtil.writePackage(out, ePackage)
+    throw new UnsupportedOperationException();
+  }
+
+  public static EPackage readPackage(CDODataInput in)
+  {
+    // TODO: implement EMFUtil.readPackage(in)
+    throw new UnsupportedOperationException();
   }
 }

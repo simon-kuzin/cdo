@@ -135,23 +135,6 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
     legacy = false;
   }
 
-  protected void initPackageInfos(EPackage ePackage, List<InternalCDOPackageInfo> result)
-  {
-    CDOPackageInfoImpl packageInfo = new CDOPackageInfoImpl();
-    packageInfo.setPackageUnit(this);
-    packageInfo.setPackageURI(ePackage.getNsURI());
-    packageInfo.setParentURI(ePackage.getESuperPackage() == null ? null : ePackage.getESuperPackage().getNsURI());
-
-    result.add(packageInfo);
-    ePackage.eAdapters().add(packageInfo);
-    packageRegistry.basicPut(ePackage.getNsURI(), ePackage);
-
-    for (EPackage subPackage : ePackage.getESubpackages())
-    {
-      initPackageInfos(subPackage, result);
-    }
-  }
-
   public synchronized void load()
   {
     if (state == State.NOT_LOADED)
@@ -170,11 +153,17 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
     }
   }
 
-  public void write(CDODataOutput out) throws IOException
+  public void write(CDODataOutput out, boolean withPackages) throws IOException
   {
     if (TRACER.isEnabled())
     {
       TRACER.format("Writing {0}", this);
+    }
+
+    out.writeBoolean(withPackages);
+    if (withPackages)
+    {
+      EMFUtil.writePackage(out, packageInfos[0].getEPackage());
     }
 
     out.writeLong(timeStamp);
@@ -187,12 +176,24 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
 
   public void read(CDODataInput in) throws IOException
   {
+    EPackage ePackage = null;
+    boolean withPackages = in.readBoolean();
+    if (withPackages)
+    {
+      ePackage = EMFUtil.readPackage(in);
+    }
+
     timeStamp = in.readLong();
     packageInfos = new InternalCDOPackageInfo[in.readInt()];
     for (int i = 0; i < packageInfos.length; i++)
     {
       packageInfos[i] = (InternalCDOPackageInfo)in.readCDOPackageInfo();
       packageInfos[i].setPackageUnit(this);
+    }
+
+    if (ePackage != null)
+    {
+      attachPackageInfos(ePackage);
     }
 
     if (TRACER.isEnabled())
@@ -206,5 +207,36 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
   {
     return MessageFormat.format("CDOPackageUnit[id={0}, state={1}, timeStamp={2,date} {2,time}]", getID(), getState(),
         timeStamp);
+  }
+
+  private void initPackageInfos(EPackage ePackage, List<InternalCDOPackageInfo> result)
+  {
+    CDOPackageInfoImpl packageInfo = new CDOPackageInfoImpl();
+    packageInfo.setPackageUnit(this);
+    packageInfo.setPackageURI(ePackage.getNsURI());
+    packageInfo.setParentURI(ePackage.getESuperPackage() == null ? null : ePackage.getESuperPackage().getNsURI());
+
+    result.add(packageInfo);
+    ePackage.eAdapters().add(packageInfo);
+    packageRegistry.basicPut(ePackage.getNsURI(), ePackage);
+
+    for (EPackage subPackage : ePackage.getESubpackages())
+    {
+      initPackageInfos(subPackage, result);
+    }
+  }
+
+  private void attachPackageInfos(EPackage ePackage)
+  {
+    InternalCDOPackageInfo packageInfo = getPackageInfo(ePackage.getNsURI());
+    if (packageInfo != null)
+    {
+      ePackage.eAdapters().add(packageInfo);
+    }
+
+    for (EPackage subPackage : ePackage.getESubpackages())
+    {
+      attachPackageInfos(subPackage);
+    }
   }
 }

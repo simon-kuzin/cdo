@@ -27,7 +27,7 @@ public interface InternalCDOPackageUnit extends CDOPackageUnit
 
   public void load();
 
-  public void write(CDODataOutput out) throws IOException;
+  public void write(CDODataOutput out, boolean withPackages) throws IOException;
 
   public void read(CDODataInput in) throws IOException;
 

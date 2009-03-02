@@ -210,6 +210,16 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     return packageRegistry;
   }
 
+  public boolean isNewPackageUnitInRepository(CDOPackageUnit packageUnit)
+  {
+    return repositoryNewPackageUnits.contains(packageUnit);
+  }
+
+  public boolean isDynamicPackageUnitInRepository(CDOPackageUnit packageUnit)
+  {
+    return repositoryDynamicPackageUnits.contains(packageUnit);
+  }
+
   public EPackage[] loadPackages(CDOPackageUnit packageUnit)
   {
     EPackage[] ePackages;
