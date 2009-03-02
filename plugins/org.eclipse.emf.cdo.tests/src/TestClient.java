@@ -3,7 +3,6 @@ import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.net4j.CDONet4jUtil;
 import org.eclipse.emf.cdo.net4j.CDOSession;
 import org.eclipse.emf.cdo.net4j.CDOSessionConfiguration;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.tests.model1.Model1Factory;
 import org.eclipse.emf.cdo.tests.model1.Model1Package;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
@@ -61,15 +60,14 @@ public class TestClient extends Assert
     sessionConfiguration.setConnector(connector);
     CDOSession session = sessionConfiguration.openSession();
 
-    InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)session.getPackageRegistry();
-    if (!TestServer.REGISTER_MODEL_ON_SERVER)
-    {
-      EMFUtil.registerPackage(packageRegistry, Model1Package.eINSTANCE);
-    }
-
+    // InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)session.getPackageRegistry();
+    // if (!TestServer.REGISTER_MODEL_ON_SERVER)
+    // {
+    // EMFUtil.registerPackage(packageRegistry, Model1Package.eINSTANCE);
     // CDOPackageInfo packageInfo = packageRegistry.getPackageInfo(Model1Package.eINSTANCE.getNsURI());
     // assertNotNull(packageInfo);
     // assertEquals(packageRegistry, packageInfo.getPackageUnit().getPackageRegistry());
+    // }
 
     CDOTransaction transaction = session.openTransaction();
     CDOResource resource = transaction.createResource("res" + System.currentTimeMillis());
