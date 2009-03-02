@@ -109,9 +109,8 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       if (packageInfo == null)
       {
         initPackageUnit(ePackage);
+        return null;
       }
-
-      return null;
     }
 
     basicPut(nsURI, value);
@@ -151,7 +150,11 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
     if (keyOrValue instanceof EPackage)
     {
-      return (InternalCDOPackageInfo)CDOModelUtil.getPackageInfo((EPackage)keyOrValue, this);
+      CDOPackageInfo packageInfo = CDOModelUtil.getPackageInfo((EPackage)keyOrValue, this);
+      if (packageInfo != null)
+      {
+        return (InternalCDOPackageInfo)packageInfo;
+      }
     }
 
     if (keyOrValue instanceof String)

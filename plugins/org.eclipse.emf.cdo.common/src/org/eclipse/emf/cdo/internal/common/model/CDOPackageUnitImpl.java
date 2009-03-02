@@ -193,6 +193,7 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
       ePackage = EMFUtil.readPackage(in);
     }
 
+    state = State.LOADED;
     timeStamp = in.readLong();
     packageInfos = new InternalCDOPackageInfo[in.readInt()];
     for (int i = 0; i < packageInfos.length; i++)

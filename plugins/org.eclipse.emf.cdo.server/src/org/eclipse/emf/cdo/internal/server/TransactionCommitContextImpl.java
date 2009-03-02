@@ -682,11 +682,12 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
     @Override
     public void putPackageUnit(InternalCDOPackageUnit packageUnit)
     {
+      packageUnit.setPackageRegistry(this);
       packageUnits.add(packageUnit);
       for (InternalCDOPackageInfo packageInfo : packageUnit.getPackageInfos())
       {
         EPackage ePackage = packageInfo.getEPackage();
-        putEPackage(ePackage);
+        basicPut(ePackage.getNsURI(), ePackage);
       }
     }
   }

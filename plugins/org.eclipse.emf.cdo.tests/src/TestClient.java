@@ -62,7 +62,10 @@ public class TestClient extends Assert
     CDOSession session = sessionConfiguration.openSession();
 
     InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)session.getPackageRegistry();
-    packageRegistry.putEPackage(Model1Package.eINSTANCE);
+    if (!TestServer.REGISTER_MODEL_ON_SERVER)
+    {
+      EMFUtil.registerPackage(packageRegistry, Model1Package.eINSTANCE);
+    }
 
     // CDOPackageInfo packageInfo = packageRegistry.getPackageInfo(Model1Package.eINSTANCE.getNsURI());
     // assertNotNull(packageInfo);
