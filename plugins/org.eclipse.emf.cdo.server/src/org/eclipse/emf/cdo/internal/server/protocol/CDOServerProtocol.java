@@ -14,8 +14,6 @@
  */
 package org.eclipse.emf.cdo.internal.server.protocol;
 
-import org.eclipse.emf.cdo.common.io.CDODataOutput;
-import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.internal.common.protocol.CDOProtocolImpl;
 import org.eclipse.emf.cdo.server.IRepositoryProvider;
@@ -23,8 +21,6 @@ import org.eclipse.emf.cdo.server.IRepositoryProvider;
 import org.eclipse.net4j.signal.SignalReactor;
 import org.eclipse.net4j.util.io.StringCompressor;
 import org.eclipse.net4j.util.io.StringIO;
-
-import java.io.IOException;
 
 /**
  * @author Eike Stepper
@@ -48,20 +44,6 @@ public class CDOServerProtocol extends CDOProtocolImpl
   public StringIO getPackageURICompressor()
   {
     return packageURICompressor;
-  }
-
-  public void sendPackageUnits(CDODataOutput out, CDOPackageUnit[] packageUnits) throws IOException
-  {
-    out.writeInt(packageUnits.length - 2); // TODO Do not expect 2 system package units
-    for (CDOPackageUnit packageUnit : packageUnits)
-    {
-      if (!packageUnit.isSystem())
-      {
-        out.writeCDOPackageUnit(packageUnit, false);
-        out.writeBoolean(packageUnit.getState() == CDOPackageUnit.State.NEW);
-        out.writeBoolean(packageUnit.isDynamic());
-      }
-    }
   }
 
   @Override

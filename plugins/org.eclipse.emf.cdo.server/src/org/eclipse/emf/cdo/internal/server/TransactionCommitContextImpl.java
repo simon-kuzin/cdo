@@ -585,11 +585,12 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
           .getPackageRegistry();
       for (int i = 0; i < newPackageUnits.length; i++)
       {
-        for (InternalCDOPackageInfo packageInfo : newPackageUnits[i].getPackageInfos())
-        {
-          EPackage ePackage = packageInfo.getEPackage();
-          packageRegistry.basicPut(ePackage.getNsURI(), ePackage);
-        }
+        packageRegistry.putPackageUnit(newPackageUnits[i]);
+        // for (InternalCDOPackageInfo packageInfo : newPackageUnits[i].getPackageInfos())
+        // {
+        // EPackage ePackage = packageInfo.getEPackage();
+        // packageRegistry.basicPut(ePackage.getNsURI(), ePackage);
+        // }
 
         monitor.worked();
       }

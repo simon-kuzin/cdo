@@ -116,6 +116,11 @@ public class OpenSessionRequest extends CDOTimeRequest<OpenSessionResult>
         libraryDescriptor);
 
     int size = in.readInt();
+    if (PROTOCOL_TRACER.isEnabled())
+    {
+      PROTOCOL_TRACER.format("Reading {0} package units", size);
+    }
+
     for (int i = 0; i < size; i++)
     {
       InternalCDOPackageUnit packageUnit = (InternalCDOPackageUnit)in.readCDOPackageUnit();

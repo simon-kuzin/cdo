@@ -111,7 +111,7 @@ public class OpenSessionIndication extends RepositoryTimeIndication
       repository.getStore().getCDOIDLibraryDescriptor().write(out);
 
       CDOPackageUnit[] packageUnits = repository.getPackageRegistry().getPackageUnits();
-      getProtocol().sendPackageUnits(out, packageUnits);
+      sendPackageUnits(out, packageUnits);
     }
     catch (RepositoryNotFoundException ex)
     {
@@ -134,5 +134,25 @@ public class OpenSessionIndication extends RepositoryTimeIndication
     }
 
     super.responding(out);
+  }
+
+  private static void sendPackageUnits(CDODataOutput out, CDOPackageUnit[] packageUnits) throws IOException
+  {
+    int size = packageUnits.length - 2; // TODO Do not expect 2 system package units
+    out.writeInt(size);
+    if (PROTOCOL_TRACER.isEnabled())
+    {
+      PROTOCOL_TRACER.format("Writing {0} package units", size);
+    }
+
+    for (CDOPackageUnit packageUnit : packageUnits)
+    {
+      if (!packageUnit.isSystem())
+      {
+        out.writeCDOPackageUnit(packageUnit, false);
+        out.writeBoolean(packageUnit.getState() == CDOPackageUnit.State.NEW);
+        out.writeBoolean(packageUnit.isDynamic());
+      }
+    }
   }
 }
