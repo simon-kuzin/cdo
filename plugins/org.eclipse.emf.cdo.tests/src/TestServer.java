@@ -59,7 +59,7 @@ public class TestServer
     Map<String, String> props = new HashMap<String, String>();
     IRepository repository = CDOServerUtil.createRepository(REPOSITORY_NAME, store, props);
     CDOServerUtil.addRepository(container, repository);
-    EMFUtil.registerPackage(EresourcePackage.eINSTANCE, repository.getPackageRegistry());
+    EMFUtil.registerPackage(EresourcePackage.eINSTANCE, repository.getPackageRegistry()); // XXX FAKE!
     if (REGISTER_MODEL_ON_SERVER)
     {
       EMFUtil.registerPackage(Model1Package.eINSTANCE, repository.getPackageRegistry());

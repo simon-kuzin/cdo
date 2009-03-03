@@ -240,7 +240,6 @@ public class PackageRegistryTest extends AbstractCDOTest
         CDOSessionConfiguration configuration = CDONet4jUtil.createSessionConfiguration();
         configuration.setConnector(getConnector());
         configuration.setRepositoryName(IRepositoryConfig.REPOSITORY_NAME);
-        configuration.setEagerPackageRegistry();
 
         CDOSession session = configuration.openSession();
         CDOTransaction transaction = session.openTransaction();
@@ -273,7 +272,6 @@ public class PackageRegistryTest extends AbstractCDOTest
       CDOSessionConfiguration configuration = CDONet4jUtil.createSessionConfiguration();
       configuration.setConnector(getConnector());
       configuration.setRepositoryName(IRepositoryConfig.REPOSITORY_NAME);
-      configuration.setLazyPackageRegistry();
 
       CDOSession session = configuration.openSession();
       CDOTransaction transaction = session.openTransaction();
@@ -312,7 +310,7 @@ public class PackageRegistryTest extends AbstractCDOTest
     EPackage.Registry.INSTANCE.put(p.getNsURI(), p);
     CDOPackageTypeRegistry.INSTANCE.registerNative(p.getNsURI());
 
-    CDOSession session = openEagerSession();
+    CDOSession session = openSession();
     CDOTransaction transaction = session.openTransaction();
     CDOResource res = transaction.createResource("/res");
 
@@ -342,7 +340,7 @@ public class PackageRegistryTest extends AbstractCDOTest
     CDOFactoryImpl.prepareDynamicEPackage(p);
     EPackage.Registry.INSTANCE.put(p.getNsURI(), p);
 
-    CDOSession session = openLazySession();
+    CDOSession session = openSession();
     CDOTransaction transaction = session.openTransaction();
     CDOResource res = transaction.createResource("/res");
 

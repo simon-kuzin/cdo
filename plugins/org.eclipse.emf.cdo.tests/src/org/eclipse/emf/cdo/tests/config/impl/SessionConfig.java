@@ -91,20 +91,6 @@ public abstract class SessionConfig extends Config implements ISessionConfig
     return openSession(getCurrentTest().getModel3Package());
   }
 
-  public CDOSession openEagerSession()
-  {
-    CDOSessionConfiguration configuration = createSessionConfiguration(IRepositoryConfig.REPOSITORY_NAME);
-    configuration.setEagerPackageRegistry();
-    return configuration.openSession();
-  }
-
-  public CDOSession openLazySession()
-  {
-    CDOSessionConfiguration configuration = createSessionConfiguration(IRepositoryConfig.REPOSITORY_NAME);
-    configuration.setLazyPackageRegistry();
-    return configuration.openSession();
-  }
-
   public CDOSession openSession(EPackage ePackage)
   {
     CDOSession session = openSession();
