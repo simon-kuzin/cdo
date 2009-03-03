@@ -117,7 +117,8 @@ public class ExternalReferenceTest extends AbstractCDOTest
 
       ResourceSet resourceSet = new ResourceSetImpl();
 
-      sessionA.getPackageRegistry().putEPackage(model4Package.eINSTANCE);
+      sessionA.getPackageRegistry().putEPackage(getModel4Package());
+      sessionA.getPackageRegistry().putEPackage(getModel4InterfacesPackage());
 
       CDOTransaction transactionA1 = sessionA.openTransaction(resourceSet);
       CDOResource resA = transactionA1.createResource("/resA");
