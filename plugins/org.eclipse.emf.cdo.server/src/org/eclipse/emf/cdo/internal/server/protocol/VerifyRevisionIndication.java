@@ -27,8 +27,7 @@ import java.io.IOException;
  */
 public class VerifyRevisionIndication extends CDOReadIndication
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
-      VerifyRevisionIndication.class);
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, VerifyRevisionIndication.class);
 
   protected long[] timeStamps;
 

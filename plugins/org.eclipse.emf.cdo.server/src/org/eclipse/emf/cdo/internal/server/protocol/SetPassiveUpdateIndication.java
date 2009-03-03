@@ -25,8 +25,7 @@ import java.io.IOException;
  */
 public class SetPassiveUpdateIndication extends SyncRevisionsIndication
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
-      SetPassiveUpdateIndication.class);
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, SetPassiveUpdateIndication.class);
 
   public SetPassiveUpdateIndication(CDOServerProtocol protocol)
   {

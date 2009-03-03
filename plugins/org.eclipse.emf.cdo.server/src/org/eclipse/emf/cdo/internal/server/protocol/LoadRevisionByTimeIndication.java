@@ -25,8 +25,7 @@ import java.io.IOException;
  */
 public class LoadRevisionByTimeIndication extends LoadRevisionIndication
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
-      LoadRevisionByTimeIndication.class);
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, LoadRevisionByTimeIndication.class);
 
   private long timeStamp;
 

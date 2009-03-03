@@ -54,6 +54,7 @@ import org.eclipse.emf.cdo.spi.common.id.AbstractCDOID;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDOList;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.util.ImplementationError;
 import org.eclipse.net4j.util.concurrent.RWLockManager;
@@ -229,6 +230,20 @@ public abstract class CDODataInputImpl extends ExtendedDataInput.Delegating impl
     }
 
     return list;
+  }
+
+  public Object readCDOFeatureValue(EStructuralFeature feature) throws IOException
+  {
+    CDOType type = CDOModelUtil.getType(feature.getEType());
+    if (type.canBeNull() && !feature.isMany())
+    {
+      if (readBoolean())
+      {
+        return InternalCDORevision.NIL;
+      }
+    }
+
+    return type.readValue(this);
   }
 
   public CDORevisionDelta readCDORevisionDelta() throws IOException

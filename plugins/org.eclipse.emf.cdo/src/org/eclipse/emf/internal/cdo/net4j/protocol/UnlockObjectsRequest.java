@@ -64,8 +64,8 @@ public class UnlockObjectsRequest extends CDOClientRequest<Boolean>
     {
       if (TRACER.isEnabled())
       {
-        TRACER.format("Unlocking of type {0} requested for view {1}",
-            lockType == RWLockManager.LockType.READ ? "read" : "write", view.getViewID());
+        TRACER.format("Unlocking of type {0} requested for view {1}", lockType == RWLockManager.LockType.READ ? "read"
+            : "write", view.getViewID());
       }
 
       out.writeInt(objects.size());

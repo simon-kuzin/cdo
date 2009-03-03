@@ -11,7 +11,6 @@
  */
 package org.eclipse.emf.cdo.internal.common.revision;
 
-import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.common.revision.CDOList;
@@ -49,14 +48,15 @@ public class CDOListImpl extends MoveableArrayList<Object> implements InternalCD
     }
   }
 
-  public InternalCDOList clone(EClassifier type)
+  public InternalCDOList clone(EClassifier classifier)
   {
+    CDOType type = CDOModelUtil.getType(classifier);
     int size = size();
     InternalCDOList list = new CDOListImpl(size, 0);
     for (int j = 0; j < size; j++)
     {
       Object value = this.get(j);
-      list.add(j, TODO.copyValue(value, type));
+      list.add(j, type.copyValue(value));
     }
 
     return list;

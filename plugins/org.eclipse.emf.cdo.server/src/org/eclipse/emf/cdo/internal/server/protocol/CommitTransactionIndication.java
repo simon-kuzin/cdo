@@ -59,8 +59,7 @@ import java.util.Map.Entry;
  */
 public class CommitTransactionIndication extends IndicationWithMonitoring
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
-      CommitTransactionIndication.class);
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, CommitTransactionIndication.class);
 
   @SuppressWarnings("unchecked")
   private static final ProgressDistributable<InternalCommitContext>[] ops = ProgressDistributor.array( //

@@ -30,8 +30,7 @@ import java.util.List;
  */
 public class CommitNotificationRequest extends CDOServerRequest
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
-      CommitNotificationRequest.class);
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, CommitNotificationRequest.class);
 
   private long timeStamp;
 

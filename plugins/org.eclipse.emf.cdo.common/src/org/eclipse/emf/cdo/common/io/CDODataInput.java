@@ -66,6 +66,8 @@ public interface CDODataInput extends ExtendedDataInput
 
   public CDOList readCDOList(CDORevision revision, EStructuralFeature feature) throws IOException;
 
+  public Object readCDOFeatureValue(EStructuralFeature feature) throws IOException;
+
   public CDORevisionDelta readCDORevisionDelta() throws IOException;
 
   public CDOFeatureDelta readCDOFeatureDelta(EClass cdoClass) throws IOException;

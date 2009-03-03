@@ -29,8 +29,7 @@ import java.util.List;
  */
 public class ChangeSubscriptionRequest extends CDOClientRequest<Boolean>
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
-      ChangeSubscriptionRequest.class);
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, ChangeSubscriptionRequest.class);
 
   private int viewID;
 

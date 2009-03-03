@@ -13,10 +13,10 @@
  */
 package org.eclipse.emf.cdo.internal.common.revision;
 
-import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
+import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.AbstractCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDOList;
@@ -52,18 +52,19 @@ public class CDORevisionImpl extends AbstractCDORevision
     for (int i = 0; i < features.length; i++)
     {
       EStructuralFeature feature = features[i];
-      EClassifier type = feature.getEType();
+      EClassifier classifier = feature.getEType();
       if (feature.isMany())
       {
         InternalCDOList sourceList = (InternalCDOList)source.values[i];
         if (sourceList != null)
         {
-          setValue(i, sourceList.clone(type));
+          setValue(i, sourceList.clone(classifier));
         }
       }
       else
       {
-        setValue(i, TODO.copyValue(source.values[i], type));
+        CDOType type = CDOModelUtil.getType(classifier);
+        setValue(i, type.copyValue(source.values[i]));
       }
     }
   }

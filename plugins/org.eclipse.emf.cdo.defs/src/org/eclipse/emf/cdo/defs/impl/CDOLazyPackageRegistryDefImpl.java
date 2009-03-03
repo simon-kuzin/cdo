@@ -56,6 +56,6 @@ public class CDOLazyPackageRegistryDefImpl extends CDOPackageRegistryDefImpl imp
   {
     // TODO: implement CDOLazyPackageRegistryDefImpl.createInstance()
     throw new UnsupportedOperationException();
-//    return addPackages(CDOUtil.createLazyPackageRegistry());
+    // return addPackages(CDOUtil.createLazyPackageRegistry());
   }
 } // LazyPackageRegistryDefImpl

@@ -25,8 +25,7 @@ import java.io.IOException;
  */
 public class CDOIDLibraryDescriptorImpl implements CDOIDLibraryDescriptor
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
-      CDOIDLibraryDescriptorImpl.class);
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, CDOIDLibraryDescriptorImpl.class);
 
   private String factoryName;
 

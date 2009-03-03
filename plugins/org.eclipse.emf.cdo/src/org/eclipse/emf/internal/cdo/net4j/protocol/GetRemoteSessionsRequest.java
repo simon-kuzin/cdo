@@ -30,8 +30,7 @@ import java.util.List;
  */
 public class GetRemoteSessionsRequest extends CDOClientRequest<List<CDORemoteSession>>
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
-      GetRemoteSessionsRequest.class);
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, GetRemoteSessionsRequest.class);
 
   private InternalCDORemoteSessionManager manager;
 

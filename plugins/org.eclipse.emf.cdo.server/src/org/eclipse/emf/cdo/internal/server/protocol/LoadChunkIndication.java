@@ -11,10 +11,11 @@
  */
 package org.eclipse.emf.cdo.internal.server.protocol;
 
-import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
+import org.eclipse.emf.cdo.common.model.CDOModelUtil;
+import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
@@ -91,10 +92,11 @@ public class LoadChunkIndication extends CDOReadIndication
     InternalCDORevision revision = getRepository().getRevisionManager().getRevisionByVersion(id, 0, version);
     getRepository().getRevisionManager().ensureChunk(revision, feature, fromIndex, toIndex + 1);
 
+    CDOType type = CDOModelUtil.getType(feature.getEType());
     MoveableList<Object> list = revision.getList(feature);
     for (int i = fromIndex; i <= toIndex; i++)
     {
-      TODO.writeValue(out, list.get(i), feature.getEType());
+      type.writeValue(out, list.get(i));
     }
   }
 }

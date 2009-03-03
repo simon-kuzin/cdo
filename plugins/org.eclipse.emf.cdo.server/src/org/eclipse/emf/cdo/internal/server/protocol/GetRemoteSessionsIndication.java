@@ -25,8 +25,7 @@ import java.io.IOException;
  */
 public class GetRemoteSessionsIndication extends CDOReadIndication
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
-      GetRemoteSessionsIndication.class);
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, GetRemoteSessionsIndication.class);
 
   private boolean subscribe;
 

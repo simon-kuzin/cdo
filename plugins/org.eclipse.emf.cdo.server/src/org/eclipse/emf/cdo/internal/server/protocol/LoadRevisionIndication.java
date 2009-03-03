@@ -40,8 +40,7 @@ import java.util.Set;
  */
 public class LoadRevisionIndication extends CDOReadIndication
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
-      LoadRevisionIndication.class);
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, LoadRevisionIndication.class);
 
   protected CDOID[] ids;
 

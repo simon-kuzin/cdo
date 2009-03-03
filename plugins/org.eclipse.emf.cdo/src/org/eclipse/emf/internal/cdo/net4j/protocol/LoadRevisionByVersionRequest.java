@@ -27,8 +27,7 @@ import java.util.Collections;
  */
 public class LoadRevisionByVersionRequest extends LoadRevisionRequest
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
-      LoadRevisionByVersionRequest.class);
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, LoadRevisionByVersionRequest.class);
 
   private int version;
 

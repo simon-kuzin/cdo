@@ -29,8 +29,7 @@ import java.util.Map;
  */
 public class SetPassiveUpdateRequest extends SyncRevisionsRequest
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
-      SetPassiveUpdateRequest.class);
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, SetPassiveUpdateRequest.class);
 
   private boolean passiveUpdateEnabled;
 

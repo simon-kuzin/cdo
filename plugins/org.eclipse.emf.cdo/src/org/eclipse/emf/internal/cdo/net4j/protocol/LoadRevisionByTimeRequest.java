@@ -27,8 +27,7 @@ import java.util.Collection;
  */
 public class LoadRevisionByTimeRequest extends LoadRevisionRequest
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
-      LoadRevisionByTimeRequest.class);
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, LoadRevisionByTimeRequest.class);
 
   private long timeStamp;
 

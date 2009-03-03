@@ -60,8 +60,7 @@ import java.util.List;
  */
 public class CommitTransactionRequest extends RequestWithMonitoring<CommitTransactionResult>
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
-      CommitTransactionRequest.class);
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, CommitTransactionRequest.class);
 
   protected InternalCDOCommitContext commitContext;
 

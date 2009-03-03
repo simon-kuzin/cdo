@@ -13,7 +13,6 @@
  */
 package org.eclipse.emf.cdo.spi.common.revision;
 
-import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
@@ -609,7 +608,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
       }
       else
       {
-        setValue(i, TODO.readFeatureValue(in, feature));
+        setValue(i, in.readCDOFeatureValue(feature));
         if (TRACER.isEnabled())
         {
           TRACER.format("Read feature {0}: {1}", feature.getName(), getValue(i));
@@ -641,7 +640,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
           TRACER.format("Writing feature {0}: {1}", feature.getName(), value);
         }
 
-        TODO.writeFeatureValue(out, value, feature);
+        out.writeCDOFeatureValue(value, feature);
       }
     }
   }

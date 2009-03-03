@@ -72,6 +72,8 @@ public interface CDODataOutput extends ExtendedDataOutput
 
   public void writeCDOList(CDOList list, EStructuralFeature feature, int referenceChunk) throws IOException;
 
+  public void writeCDOFeatureValue(Object value, EStructuralFeature feature) throws IOException;
+
   public void writeCDORevisionDelta(CDORevisionDelta revisionDelta) throws IOException;
 
   public void writeCDOFeatureDelta(CDOFeatureDelta featureDelta, EClass cdoClass) throws IOException;

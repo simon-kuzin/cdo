@@ -56,7 +56,7 @@ public class CDOEagerPackageRegistryDefImpl extends CDOPackageRegistryDefImpl im
   {
     // TODO: implement CDOEagerPackageRegistryDefImpl.createInstance()
     throw new UnsupportedOperationException();
-//    return addPackages(CDOUtil.createEagerPackageRegistry());
+    // return addPackages(CDOUtil.createEagerPackageRegistry());
   }
 
 } // EagerPackageRegistryDefImpl

@@ -10,10 +10,11 @@
  **************************************************************************/
 package org.eclipse.emf.internal.cdo.net4j.protocol;
 
-import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
+import org.eclipse.emf.cdo.common.model.CDOModelUtil;
+import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
@@ -103,11 +104,12 @@ public class LoadChunkRequest extends CDOClientRequest<Object>
   @Override
   protected Object confirming(CDODataInput in) throws IOException
   {
+    CDOType type = CDOModelUtil.getType(feature.getEType());
     Object accessID = null;
     MoveableList<Object> list = revision.getList(feature);
     for (int i = fromIndex; i <= toIndex; i++)
     {
-      Object value = TODO.readValue(in, feature.getEType());
+      Object value = type.readValue(in);
       list.set(i, value);
       if (i == accessIndex)
       {

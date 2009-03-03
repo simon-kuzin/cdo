@@ -11,7 +11,8 @@
  */
 package org.eclipse.emf.internal.cdo.revision;
 
-import org.eclipse.emf.cdo.common.TODO;
+import org.eclipse.emf.cdo.common.model.CDOModelUtil;
+import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDOListFactory;
 import org.eclipse.emf.cdo.internal.common.revision.CDOListImpl;
@@ -69,8 +70,9 @@ public class CDOListWithElementProxiesImpl extends CDOListImpl
   }
 
   @Override
-  public InternalCDOList clone(EClassifier type)
+  public InternalCDOList clone(EClassifier classifier)
   {
+    CDOType type = CDOModelUtil.getType(classifier);
     int size = size();
     InternalCDOList list = new CDOListWithElementProxiesImpl(size, 0, 0);
     for (int j = 0; j < size; j++)
@@ -83,7 +85,7 @@ public class CDOListWithElementProxiesImpl extends CDOListImpl
       }
       else
       {
-        list.add(j, TODO.copyValue(value, type));
+        list.add(j, type.copyValue(value));
       }
     }
 

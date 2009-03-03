@@ -34,8 +34,7 @@ import java.util.Set;
  */
 public class CommitNotificationIndication extends CDOClientIndication
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
-      CommitNotificationIndication.class);
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, CommitNotificationIndication.class);
 
   public CommitNotificationIndication(CDOClientProtocol protocol)
   {

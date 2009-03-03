@@ -24,8 +24,7 @@ import java.io.IOException;
  */
 public class RepositoryTimeIndication extends CDOServerIndication
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
-      RepositoryTimeIndication.class);
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, RepositoryTimeIndication.class);
 
   private long indicated;
 

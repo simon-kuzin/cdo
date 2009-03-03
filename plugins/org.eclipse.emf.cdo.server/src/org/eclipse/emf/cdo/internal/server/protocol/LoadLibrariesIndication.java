@@ -27,8 +27,7 @@ import java.io.InputStream;
  */
 public class LoadLibrariesIndication extends CDOServerIndication
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
-      LoadLibrariesIndication.class);
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, LoadLibrariesIndication.class);
 
   private String[] libraryNames;
 

@@ -10,7 +10,6 @@
  */
 package org.eclipse.emf.cdo.internal.common.io;
 
-import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
@@ -203,8 +202,40 @@ public abstract class CDODataOutputImpl extends ExtendedDataOutput.Delegating im
         TRACER.trace("    " + value);
       }
 
-      TODO.writeFeatureValue(this, value, feature);
+      writeCDOFeatureValue(value, feature);
     }
+  }
+
+  public void writeCDOFeatureValue(Object value, EStructuralFeature feature) throws IOException
+  {
+    // TODO We could certainly optimized this: When a feature is a reference, NIL is only possible in the case where
+    // unsettable == true. (TO be verified)
+
+    CDOType type = CDOModelUtil.getType(feature.getEType());
+    if (type.canBeNull())
+    {
+      if (!feature.isMany())
+      {
+        if (value == InternalCDORevision.NIL)
+        {
+          writeBoolean(true);
+          return;
+        }
+        else
+        {
+          writeBoolean(false);
+        }
+      }
+    }
+    else
+    {
+      if (value == null)
+      {
+        value = feature.getDefaultValue();
+      }
+    }
+
+    type.writeValue(this, value);
   }
 
   public void writeCDORevisionDelta(CDORevisionDelta revisionDelta) throws IOException
