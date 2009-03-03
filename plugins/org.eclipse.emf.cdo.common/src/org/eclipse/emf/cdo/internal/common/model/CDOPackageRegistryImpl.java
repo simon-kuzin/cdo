@@ -128,6 +128,13 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
         initPackageUnit(ePackage);
         return null;
       }
+      
+      // Make sure the EPackage is loaded
+      if (packageInfo.getEPackage() != ePackage)
+      {
+        // TODO Is it possible that loaded package is different from the one passed in parameters ?
+        throw new IllegalArgumentException("Different package instances with the same URI " + nsURI);
+      }
     }
 
     basicPut(nsURI, value);

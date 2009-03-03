@@ -15,6 +15,8 @@
 package org.eclipse.emf.internal.cdo;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.model.CDOModelUtil;
+import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
 import org.eclipse.emf.cdo.eresource.CDOResource;
@@ -373,7 +375,12 @@ public final class CDOStore implements EStore
       }
       else if (feature.getEType() instanceof EDataType)
       {
-        value = EcoreUtil.createFromString((EDataType)feature.getEType(), (String)value);
+        EDataType eType = (EDataType)feature.getEType();
+        CDOType type = CDOModelUtil.getCoreType(eType);
+        if (type == null)
+        {
+          value = EcoreUtil.createFromString(eType, (String)value);
+        }
       }
       // TODO Handle feature maps! else if (feature.getType() == CDOType.FEATURE_MAP_ENTRY)
       // {
@@ -411,7 +418,12 @@ public final class CDOStore implements EStore
       // }
       else if (feature.getEType() instanceof EDataType)
       {
-        value = EcoreUtil.convertToString((EDataType)feature.getEType(), value);
+        EDataType eType = (EDataType)feature.getEType();
+        CDOType type = CDOModelUtil.getCoreType(eType);
+        if (type == null)
+        {
+          value = EcoreUtil.convertToString(eType, value);
+        }
       }
     }
 

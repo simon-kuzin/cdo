@@ -18,7 +18,6 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EDataType;
-import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EcorePackage;
@@ -74,12 +73,14 @@ public final class CDOModelUtil
     registerCoreType(types, EcorePackage.eINSTANCE.getEShortObject(), CDOType.SHORT_OBJECT);
     registerCoreType(types, EcorePackage.eINSTANCE.getEShort(), CDOType.SHORT);
     registerCoreType(types, EcorePackage.eINSTANCE.getEString(), CDOType.STRING);
+    registerCoreType(types, EcorePackage.eINSTANCE.getEEnum(), CDOType.ENUM);
+
     coreTypes = types.toArray(new CDOType[types.size()]);
   }
 
-  private static void registerCoreType(List<CDOType> types, EDataType eDataType, CDOType type)
+  private static void registerCoreType(List<CDOType> types, EClassifier classifier, CDOType type)
   {
-    int index = eDataType.getClassifierID();
+    int index = classifier.getClassifierID();
     while (index >= types.size())
     {
       types.add(null);
@@ -140,28 +141,26 @@ public final class CDOModelUtil
     return type;
   }
 
-  public static CDOType getType(EClassifier eClassifier)
+  public static CDOType getType(EClassifier classifier)
   {
-    if (eClassifier instanceof EClass)
+    if (classifier instanceof EClass)
     {
       return CDOType.OBJECT;
     }
 
-    if (eClassifier instanceof EEnum)
+    if (isCorePackage(classifier.getEPackage()))
     {
-      return CDOType.ENUM;
-    }
-
-    EDataType eDataType = (EDataType)eClassifier;
-    if (isCorePackage(eDataType.getEPackage()))
-    {
+      EDataType eDataType = (EDataType)classifier;
       return getCoreType(eDataType);
     }
 
     return CDOType.CUSTOM;
   }
 
-  public static CDOType getCoreType(EDataType eDataType)
+  /**
+   * Core types includes also complex data like EAnnotation, and EEnum
+   */
+  public static CDOType getCoreType(EClassifier eDataType)
   {
     int index = eDataType.getClassifierID();
     return coreTypes[index];
