@@ -31,7 +31,7 @@ import java.io.IOException;
  */
 public class OpenSessionIndication extends RepositoryTimeIndication
 {
-  private static final ContextTracer PROTOCOL_TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, OpenSessionIndication.class);
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, OpenSessionIndication.class);
 
   private String repositoryName;
 
@@ -63,15 +63,15 @@ public class OpenSessionIndication extends RepositoryTimeIndication
   {
     super.indicating(in);
     repositoryName = in.readString();
-    if (PROTOCOL_TRACER.isEnabled())
+    if (TRACER.isEnabled())
     {
-      PROTOCOL_TRACER.format("Read repositoryName: {0}", repositoryName);
+      TRACER.format("Read repositoryName: {0}", repositoryName);
     }
 
     passiveUpdateEnabled = in.readBoolean();
-    if (PROTOCOL_TRACER.isEnabled())
+    if (TRACER.isEnabled())
     {
-      PROTOCOL_TRACER.format("Read passiveUpdateEnabled: {0}", passiveUpdateEnabled);
+      TRACER.format("Read passiveUpdateEnabled: {0}", passiveUpdateEnabled);
     }
   }
 
@@ -94,15 +94,15 @@ public class OpenSessionIndication extends RepositoryTimeIndication
 
       // Adjust the infra structure (was IRepositoryProvider)
       protocol.setInfraStructure(session);
-      if (PROTOCOL_TRACER.isEnabled())
+      if (TRACER.isEnabled())
       {
-        PROTOCOL_TRACER.format("Writing sessionID: {0}", session.getSessionID());
+        TRACER.format("Writing sessionID: {0}", session.getSessionID());
       }
 
       out.writeInt(session.getSessionID());
-      if (PROTOCOL_TRACER.isEnabled())
+      if (TRACER.isEnabled())
       {
-        PROTOCOL_TRACER.format("Writing repositoryUUID: {0}", repository.getUUID());
+        TRACER.format("Writing repositoryUUID: {0}", repository.getUUID());
       }
 
       out.writeString(repository.getUUID());
@@ -111,22 +111,22 @@ public class OpenSessionIndication extends RepositoryTimeIndication
       repository.getStore().getCDOIDLibraryDescriptor().write(out);
 
       CDOPackageUnit[] packageUnits = repository.getPackageRegistry().getPackageUnits();
-      sendPackageUnits(out, packageUnits);
+      LoadPackageUnitIndication.sendPackageUnits(out, packageUnits);
     }
     catch (RepositoryNotFoundException ex)
     {
-      if (PROTOCOL_TRACER.isEnabled())
+      if (TRACER.isEnabled())
       {
-        PROTOCOL_TRACER.format("Repository {0} not found", repositoryName);
+        TRACER.format("Repository {0} not found", repositoryName);
       }
 
       out.writeInt(CDOProtocolConstants.ERROR_REPOSITORY_NOT_FOUND);
     }
     catch (SessionCreationException ex)
     {
-      if (PROTOCOL_TRACER.isEnabled())
+      if (TRACER.isEnabled())
       {
-        PROTOCOL_TRACER.format("Failed to open session for repository {0}", repositoryName);
+        TRACER.format("Failed to open session for repository {0}", repositoryName);
       }
 
       out.writeInt(CDOProtocolConstants.ERROR_NO_SESSION);
@@ -134,25 +134,5 @@ public class OpenSessionIndication extends RepositoryTimeIndication
     }
 
     super.responding(out);
-  }
-
-  private static void sendPackageUnits(CDODataOutput out, CDOPackageUnit[] packageUnits) throws IOException
-  {
-    int size = packageUnits.length - 2; // TODO Do not expect 2 system package units
-    out.writeInt(size);
-    if (PROTOCOL_TRACER.isEnabled())
-    {
-      PROTOCOL_TRACER.format("Writing {0} package units", size);
-    }
-
-    for (CDOPackageUnit packageUnit : packageUnits)
-    {
-      if (!packageUnit.isSystem())
-      {
-        out.writeCDOPackageUnit(packageUnit, false);
-        out.writeBoolean(packageUnit.getState() == CDOPackageUnit.State.NEW);
-        out.writeBoolean(packageUnit.isDynamic());
-      }
-    }
   }
 }

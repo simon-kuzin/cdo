@@ -77,21 +77,13 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
 
   public boolean isDynamic()
   {
-    if (state == State.NOT_LOADED)
-    {
-      throw new IllegalStateException();
-    }
-
+    checkLoaded();
     return dynamic;
   }
 
   public boolean isLegacy()
   {
-    if (state == State.NOT_LOADED)
-    {
-      throw new IllegalStateException();
-    }
-
+    checkLoaded();
     return legacy;
   }
 
@@ -147,7 +139,7 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
       EPackage[] ePackages = loadPackagesFromGlobalRegistry();
       if (ePackages == null)
       {
-        ePackages = packageRegistry.getPackageLoader().loadPackages(this);
+        ePackages = packageRegistry.getPackageLoader().loadPackageUnit(this);
       }
 
       for (EPackage ePackage : ePackages)
@@ -191,9 +183,9 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
     if (withPackages)
     {
       ePackage = EMFUtil.readPackage(in);
+      state = State.LOADED;
     }
 
-    state = State.LOADED;
     timeStamp = in.readLong();
     packageInfos = new InternalCDOPackageInfo[in.readInt()];
     for (int i = 0; i < packageInfos.length; i++)
@@ -264,5 +256,13 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
     }
 
     return ePackages;
+  }
+
+  private void checkLoaded()
+  {
+    if (state == State.NOT_LOADED)
+    {
+      throw new IllegalStateException("Package unit not loaded: " + this);
+    }
   }
 }

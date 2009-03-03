@@ -12,8 +12,8 @@ package org.eclipse.emf.internal.cdo.net4j.protocol;
 
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
-import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 
 import org.eclipse.emf.ecore.EPackage;
 
@@ -22,13 +22,13 @@ import java.io.IOException;
 /**
  * @author Eike Stepper
  */
-public class LoadPackagesRequest extends CDOClientRequest<EPackage[]>
+public class LoadPackageUnitRequest extends CDOClientRequest<EPackage[]>
 {
-  private CDOPackageUnit packageUnit;
+  private InternalCDOPackageUnit packageUnit;
 
-  public LoadPackagesRequest(CDOClientProtocol protocol, CDOPackageUnit packageUnit)
+  public LoadPackageUnitRequest(CDOClientProtocol protocol, InternalCDOPackageUnit packageUnit)
   {
-    super(protocol, CDOProtocolConstants.SIGNAL_LOAD_PACKAGES);
+    super(protocol, CDOProtocolConstants.SIGNAL_LOAD_PACKAGE_UNIT);
     this.packageUnit = packageUnit;
   }
 

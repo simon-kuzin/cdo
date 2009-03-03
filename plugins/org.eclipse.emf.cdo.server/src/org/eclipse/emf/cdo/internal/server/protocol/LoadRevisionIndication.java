@@ -40,7 +40,7 @@ import java.util.Set;
  */
 public class LoadRevisionIndication extends CDOReadIndication
 {
-  private static final ContextTracer PROTOCOL_TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
       LoadRevisionIndication.class);
 
   protected CDOID[] ids;
@@ -67,24 +67,24 @@ public class LoadRevisionIndication extends CDOReadIndication
   protected void indicating(CDODataInput in) throws IOException
   {
     referenceChunk = in.readInt();
-    if (PROTOCOL_TRACER.isEnabled())
+    if (TRACER.isEnabled())
     {
-      PROTOCOL_TRACER.format("Read referenceChunk: {0}", referenceChunk);
+      TRACER.format("Read referenceChunk: {0}", referenceChunk);
     }
 
     int size = in.readInt();
-    if (PROTOCOL_TRACER.isEnabled())
+    if (TRACER.isEnabled())
     {
-      PROTOCOL_TRACER.format("Reading {0} IDs", size);
+      TRACER.format("Reading {0} IDs", size);
     }
 
     ids = new CDOID[size];
     for (int i = 0; i < size; i++)
     {
       CDOID id = in.readCDOID();
-      if (PROTOCOL_TRACER.isEnabled())
+      if (TRACER.isEnabled())
       {
-        PROTOCOL_TRACER.format("Read ID: {0}", id);
+        TRACER.format("Read ID: {0}", id);
       }
 
       ids[i] = id;
@@ -100,9 +100,9 @@ public class LoadRevisionIndication extends CDOReadIndication
       }
 
       contextID = in.readCDOID();
-      if (PROTOCOL_TRACER.isEnabled())
+      if (TRACER.isEnabled())
       {
-        PROTOCOL_TRACER.format("Reading fetch rules for context {0}", contextID);
+        TRACER.format("Reading fetch rules for context {0}", contextID);
       }
 
       for (int i = 0; i < fetchSize; i++)
@@ -118,9 +118,9 @@ public class LoadRevisionIndication extends CDOReadIndication
   {
     List<CDORevision> additionalRevisions = new ArrayList<CDORevision>();
     Set<CDOID> revisionIDs = new HashSet<CDOID>();
-    if (PROTOCOL_TRACER.isEnabled())
+    if (TRACER.isEnabled())
     {
-      PROTOCOL_TRACER.format("Writing {0} revisions", ids.length);
+      TRACER.format("Writing {0} revisions", ids.length);
     }
 
     for (CDOID id : ids)
@@ -132,9 +132,9 @@ public class LoadRevisionIndication extends CDOReadIndication
     Set<CDOFetchRule> visitedFetchRules = new HashSet<CDOFetchRule>();
     if (!CDOIDUtil.isNull(contextID) && fetchRules.size() > 0)
     {
-      if (PROTOCOL_TRACER.isEnabled())
+      if (TRACER.isEnabled())
       {
-        PROTOCOL_TRACER.format("Collecting more revisions based on rules");
+        TRACER.format("Collecting more revisions based on rules");
       }
 
       InternalCDORevision revisionContext = getRevision(contextID);
@@ -160,9 +160,9 @@ public class LoadRevisionIndication extends CDOReadIndication
     }
 
     int additionalSize = additionalRevisions.size();
-    if (PROTOCOL_TRACER.isEnabled())
+    if (TRACER.isEnabled())
     {
-      PROTOCOL_TRACER.format("Writing {0} additional revisions", additionalSize);
+      TRACER.format("Writing {0} additional revisions", additionalSize);
     }
 
     out.writeInt(additionalSize);

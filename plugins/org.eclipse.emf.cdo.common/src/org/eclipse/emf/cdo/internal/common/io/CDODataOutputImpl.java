@@ -172,7 +172,7 @@ public abstract class CDODataOutputImpl extends ExtendedDataOutput.Delegating im
       // This happens only on server-side
       if (TRACER.isEnabled())
       {
-        TRACER.format("Writing feature {0}: size={1}, referenceChunk={2}", feature, size, referenceChunk);
+        TRACER.format("Writing feature {0}: size={1}, referenceChunk={2}", feature.getName(), size, referenceChunk);
       }
 
       writeInt(-size);
@@ -183,7 +183,7 @@ public abstract class CDODataOutputImpl extends ExtendedDataOutput.Delegating im
     {
       if (TRACER.isEnabled())
       {
-        TRACER.format("Writing feature {0}: size={1}", feature, size);
+        TRACER.format("Writing feature {0}: size={1}", feature.getName(), size);
       }
 
       writeInt(size);

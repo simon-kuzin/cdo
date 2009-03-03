@@ -25,7 +25,7 @@ import java.io.IOException;
  */
 public class CDOIDLibraryDescriptorImpl implements CDOIDLibraryDescriptor
 {
-  private static final ContextTracer PROTOCOL_TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
       CDOIDLibraryDescriptorImpl.class);
 
   private String factoryName;
@@ -41,24 +41,24 @@ public class CDOIDLibraryDescriptorImpl implements CDOIDLibraryDescriptor
   public CDOIDLibraryDescriptorImpl(ExtendedDataInput in) throws IOException
   {
     factoryName = in.readString();
-    if (PROTOCOL_TRACER.isEnabled())
+    if (TRACER.isEnabled())
     {
-      PROTOCOL_TRACER.format("Read factory name: {0}", factoryName);
+      TRACER.format("Read factory name: {0}", factoryName);
     }
 
     int size = in.readInt();
-    if (PROTOCOL_TRACER.isEnabled())
+    if (TRACER.isEnabled())
     {
-      PROTOCOL_TRACER.format("Reading {0} library names", size);
+      TRACER.format("Reading {0} library names", size);
     }
 
     libraryNames = new String[size];
     for (int i = 0; i < size; i++)
     {
       libraryNames[i] = in.readString();
-      if (PROTOCOL_TRACER.isEnabled())
+      if (TRACER.isEnabled())
       {
-        PROTOCOL_TRACER.format("Read library name: {0}", libraryNames[i]);
+        TRACER.format("Read library name: {0}", libraryNames[i]);
       }
     }
   }
@@ -75,23 +75,23 @@ public class CDOIDLibraryDescriptorImpl implements CDOIDLibraryDescriptor
 
   public void write(ExtendedDataOutput out) throws IOException
   {
-    if (PROTOCOL_TRACER.isEnabled())
+    if (TRACER.isEnabled())
     {
-      PROTOCOL_TRACER.format("Writing factory name: {0}", factoryName);
+      TRACER.format("Writing factory name: {0}", factoryName);
     }
 
     out.writeString(factoryName);
-    if (PROTOCOL_TRACER.isEnabled())
+    if (TRACER.isEnabled())
     {
-      PROTOCOL_TRACER.format("Writing {0} library names", libraryNames.length);
+      TRACER.format("Writing {0} library names", libraryNames.length);
     }
 
     out.writeInt(libraryNames.length);
     for (String libraryName : libraryNames)
     {
-      if (PROTOCOL_TRACER.isEnabled())
+      if (TRACER.isEnabled())
       {
-        PROTOCOL_TRACER.format("Writing library name: {0}", libraryName);
+        TRACER.format("Writing library name: {0}", libraryName);
       }
 
       out.writeString(libraryName);

@@ -60,7 +60,7 @@ import java.util.List;
  */
 public class CommitTransactionRequest extends RequestWithMonitoring<CommitTransactionResult>
 {
-  private static final ContextTracer PROTOCOL_TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
       CommitTransactionRequest.class);
 
   protected InternalCDOCommitContext commitContext;
@@ -186,9 +186,9 @@ public class CommitTransactionRequest extends RequestWithMonitoring<CommitTransa
     out.writeInt(revisionDeltas.size());
     out.writeInt(detachedObjects.size());
 
-    if (PROTOCOL_TRACER.isEnabled())
+    if (TRACER.isEnabled())
     {
-      PROTOCOL_TRACER.format("Writing {0} new package units", newPackageUnits.size());
+      TRACER.format("Writing {0} new package units", newPackageUnits.size());
     }
 
     for (CDOPackageUnit newPackageUnit : newPackageUnits)
@@ -196,17 +196,17 @@ public class CommitTransactionRequest extends RequestWithMonitoring<CommitTransa
       out.writeCDOPackageUnit(newPackageUnit, true);
     }
 
-    if (PROTOCOL_TRACER.isEnabled())
+    if (TRACER.isEnabled())
     {
-      PROTOCOL_TRACER.format("Writing {0} new objects", newResources.size() + newObjects.size());
+      TRACER.format("Writing {0} new objects", newResources.size() + newObjects.size());
     }
 
     writeRevisions(out, newResources);
     writeRevisions(out, newObjects);
 
-    if (PROTOCOL_TRACER.isEnabled())
+    if (TRACER.isEnabled())
     {
-      PROTOCOL_TRACER.format("Writing {0} dirty objects", revisionDeltas.size());
+      TRACER.format("Writing {0} dirty objects", revisionDeltas.size());
     }
 
     for (CDORevisionDelta revisionDelta : revisionDeltas)

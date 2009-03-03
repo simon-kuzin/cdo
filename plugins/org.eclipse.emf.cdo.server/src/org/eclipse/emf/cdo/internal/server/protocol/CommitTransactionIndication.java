@@ -59,7 +59,7 @@ import java.util.Map.Entry;
  */
 public class CommitTransactionIndication extends IndicationWithMonitoring
 {
-  private static final ContextTracer PROTOCOL_TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
       CommitTransactionIndication.class);
 
   @SuppressWarnings("unchecked")
@@ -255,9 +255,9 @@ public class CommitTransactionIndication extends IndicationWithMonitoring
     try
     {
       // New package units
-      if (PROTOCOL_TRACER.isEnabled())
+      if (TRACER.isEnabled())
       {
-        PROTOCOL_TRACER.format("Reading {0} new package units", newPackageUnits.length);
+        TRACER.format("Reading {0} new package units", newPackageUnits.length);
       }
 
       for (int i = 0; i < newPackageUnits.length; i++)
@@ -268,9 +268,9 @@ public class CommitTransactionIndication extends IndicationWithMonitoring
       }
 
       // New objects
-      if (PROTOCOL_TRACER.isEnabled())
+      if (TRACER.isEnabled())
       {
-        PROTOCOL_TRACER.format("Reading {0} new objects", newObjects.length);
+        TRACER.format("Reading {0} new objects", newObjects.length);
       }
 
       for (int i = 0; i < newObjects.length; i++)
@@ -280,9 +280,9 @@ public class CommitTransactionIndication extends IndicationWithMonitoring
       }
 
       // Dirty objects
-      if (PROTOCOL_TRACER.isEnabled())
+      if (TRACER.isEnabled())
       {
-        PROTOCOL_TRACER.format("Reading {0} dirty object deltas", dirtyObjectDeltas.length);
+        TRACER.format("Reading {0} dirty object deltas", dirtyObjectDeltas.length);
       }
 
       for (int i = 0; i < dirtyObjectDeltas.length; i++)

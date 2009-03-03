@@ -35,6 +35,9 @@ public interface InternalCDOPackageRegistry extends CDOPackageRegistry
 
   public InternalCDOPackageInfo getPackageInfo(Object keyOrValue);
 
+  /**
+   * Returns all but the system package units that are registered in this package registry.
+   */
   public InternalCDOPackageUnit[] getPackageUnits();
 
   /**

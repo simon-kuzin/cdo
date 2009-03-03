@@ -119,7 +119,9 @@ public final class CDOModelUtil
 
   public static boolean isResourceNode(EClass eClass)
   {
-    return isResourcePackage(eClass.getEPackage()) && RESOURCE_NODE_CLASS_NAME.equals(eClass.getName());
+    return isResourcePackage(eClass.getEPackage())
+        && (RESOURCE_NODE_CLASS_NAME.equals(eClass.getName()) || RESOURCE_CLASS_NAME.equals(eClass.getName()) || RESOURCE_FOLDER_CLASS_NAME
+            .equals(eClass.getName()));
   }
 
   public static boolean isRoot(EClass eClass)

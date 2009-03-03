@@ -33,7 +33,7 @@ public interface CDOProtocolConstants
 
   public static final short SIGNAL_RESOURCE_ID = 4;
 
-  public static final short SIGNAL_LOAD_PACKAGES = 6;
+  public static final short SIGNAL_LOAD_PACKAGE_UNIT = 6;
 
   public static final short SIGNAL_LOAD_REVISION = 7;
 

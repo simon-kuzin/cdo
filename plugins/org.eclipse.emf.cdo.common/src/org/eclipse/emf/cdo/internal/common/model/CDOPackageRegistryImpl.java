@@ -177,7 +177,11 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
         InternalCDOPackageInfo packageInfo = getPackageInfo(value);
         if (packageInfo != null)
         {
-          result.add(packageInfo.getPackageUnit());
+          InternalCDOPackageUnit packageUnit = packageInfo.getPackageUnit();
+          if (!packageUnit.isSystem())
+          {
+            result.add(packageUnit);
+          }
         }
       }
 

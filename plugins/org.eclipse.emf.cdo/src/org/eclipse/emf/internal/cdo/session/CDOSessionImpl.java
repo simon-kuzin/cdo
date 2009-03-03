@@ -22,7 +22,6 @@ import org.eclipse.emf.cdo.common.id.CDOIDLibraryDescriptor;
 import org.eclipse.emf.cdo.common.id.CDOIDObject;
 import org.eclipse.emf.cdo.common.id.CDOIDObjectFactory;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
-import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.model.EMFUtil;
@@ -223,24 +222,15 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     return repositoryDynamicPackageUnits.contains(packageUnit);
   }
 
-  public EPackage[] loadPackages(CDOPackageUnit packageUnit)
+  public EPackage[] loadPackageUnit(CDOPackageUnit packageUnit)
   {
-    EPackage[] ePackages;
-    if (packageUnit.isDynamic())
-    {
-      ePackages = getSessionProtocol().loadPackages(packageUnit);
+    // XXX
+    // if (!isDynamicPackageUnitInRepository(packageUnit))
+    // {
+    // throw new CDOException("Generated package unit not available: " + packageUnit);
+    // }
 
-    }
-    else
-    {
-    }
-
-    for (CDOPackageInfo packageInfo : packageUnit.getPackageInfos())
-    {
-      // getSessionProtocol().loadPackage()
-    }
-
-    return ePackages;
+    return getSessionProtocol().loadPackageUnit(packageUnit);
   }
 
   public CDORevisionManagerImpl getRevisionManager()

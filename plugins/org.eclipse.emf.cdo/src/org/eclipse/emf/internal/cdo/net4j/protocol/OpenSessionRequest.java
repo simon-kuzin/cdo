@@ -33,7 +33,7 @@ import java.text.MessageFormat;
  */
 public class OpenSessionRequest extends CDOTimeRequest<OpenSessionResult>
 {
-  private static final ContextTracer PROTOCOL_TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, OpenSessionRequest.class);
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, OpenSessionRequest.class);
 
   private String repositoryName;
 
@@ -52,16 +52,16 @@ public class OpenSessionRequest extends CDOTimeRequest<OpenSessionResult>
   protected void requesting(CDODataOutput out) throws IOException
   {
     super.requesting(out);
-    if (PROTOCOL_TRACER.isEnabled())
+    if (TRACER.isEnabled())
     {
-      PROTOCOL_TRACER.format("Writing repositoryName: {0}", repositoryName);
+      TRACER.format("Writing repositoryName: {0}", repositoryName);
     }
 
     out.writeString(repositoryName);
 
-    if (PROTOCOL_TRACER.isEnabled())
+    if (TRACER.isEnabled())
     {
-      PROTOCOL_TRACER.format("Writing passiveUpdateEnabled: {0}", passiveUpdateEnabled);
+      TRACER.format("Writing passiveUpdateEnabled: {0}", passiveUpdateEnabled);
     }
 
     out.writeBoolean(passiveUpdateEnabled);
@@ -83,42 +83,42 @@ public class OpenSessionRequest extends CDOTimeRequest<OpenSessionResult>
       throw new ServerException(msg);
     }
 
-    if (PROTOCOL_TRACER.isEnabled())
+    if (TRACER.isEnabled())
     {
-      PROTOCOL_TRACER.format("Read sessionID: {0}", sessionID);
+      TRACER.format("Read sessionID: {0}", sessionID);
     }
 
     String repositoryUUID = in.readString();
-    if (PROTOCOL_TRACER.isEnabled())
+    if (TRACER.isEnabled())
     {
-      PROTOCOL_TRACER.format("Read repositoryUUID: {0}", repositoryUUID);
+      TRACER.format("Read repositoryUUID: {0}", repositoryUUID);
     }
 
     long repositoryCreationTime = in.readLong();
-    if (PROTOCOL_TRACER.isEnabled())
+    if (TRACER.isEnabled())
     {
-      PROTOCOL_TRACER.format("Read repositoryCreationTime: {0,date} {0,time}", repositoryCreationTime);
+      TRACER.format("Read repositoryCreationTime: {0,date} {0,time}", repositoryCreationTime);
     }
 
     boolean repositorySupportingAudits = in.readBoolean();
-    if (PROTOCOL_TRACER.isEnabled())
+    if (TRACER.isEnabled())
     {
-      PROTOCOL_TRACER.format("Read repositorySupportingAudits: {0}", repositorySupportingAudits);
+      TRACER.format("Read repositorySupportingAudits: {0}", repositorySupportingAudits);
     }
 
     CDOIDLibraryDescriptor libraryDescriptor = CDOIDUtil.readLibraryDescriptor(in);
-    if (PROTOCOL_TRACER.isEnabled())
+    if (TRACER.isEnabled())
     {
-      PROTOCOL_TRACER.format("Read libraryDescriptor: {0}", libraryDescriptor);
+      TRACER.format("Read libraryDescriptor: {0}", libraryDescriptor);
     }
 
     result = new OpenSessionResult(sessionID, repositoryUUID, repositoryCreationTime, repositorySupportingAudits,
         libraryDescriptor);
 
     int size = in.readInt();
-    if (PROTOCOL_TRACER.isEnabled())
+    if (TRACER.isEnabled())
     {
-      PROTOCOL_TRACER.format("Reading {0} package units", size);
+      TRACER.format("Reading {0} package units", size);
     }
 
     for (int i = 0; i < size; i++)

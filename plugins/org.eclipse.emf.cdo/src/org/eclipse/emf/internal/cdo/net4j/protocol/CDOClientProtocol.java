@@ -19,6 +19,7 @@ import org.eclipse.emf.cdo.common.util.TransportException;
 import org.eclipse.emf.cdo.internal.common.protocol.CDOProtocolImpl;
 import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.session.remote.CDORemoteSession;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.transaction.CDOTimeStampContext;
 import org.eclipse.emf.cdo.view.CDOView;
@@ -91,9 +92,9 @@ public class CDOClientProtocol extends CDOProtocolImpl implements CDOSessionProt
     return send(new RepositoryTimeRequest(this));
   }
 
-  public EPackage[] loadPackages(CDOPackageUnit packageUnit)
+  public EPackage[] loadPackageUnit(CDOPackageUnit packageUnit)
   {
-    return send(new LoadPackagesRequest(this, packageUnit));
+    return send(new LoadPackageUnitRequest(this, (InternalCDOPackageUnit)packageUnit));
   }
 
   public Object loadChunk(InternalCDORevision revision, EStructuralFeature feature, int accessIndex, int fetchIndex,

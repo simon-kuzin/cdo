@@ -34,7 +34,7 @@ import java.util.Set;
  */
 public class CommitNotificationIndication extends CDOClientIndication
 {
-  private static final ContextTracer PROTOCOL_TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
       CommitNotificationIndication.class);
 
   public CommitNotificationIndication(CDOClientProtocol protocol)
@@ -46,15 +46,15 @@ public class CommitNotificationIndication extends CDOClientIndication
   protected void indicating(CDODataInput in) throws IOException
   {
     long timeStamp = in.readLong();
-    if (PROTOCOL_TRACER.isEnabled())
+    if (TRACER.isEnabled())
     {
-      PROTOCOL_TRACER.format("Read timeStamp: {0,date} {0,time}", timeStamp);
+      TRACER.format("Read timeStamp: {0,date} {0,time}", timeStamp);
     }
 
     int size = in.readInt();
-    if (PROTOCOL_TRACER.isEnabled())
+    if (TRACER.isEnabled())
     {
-      PROTOCOL_TRACER.format("Reading {0} dirty IDs", size);
+      TRACER.format("Reading {0} dirty IDs", size);
     }
 
     InternalCDOSession session = getSession();
@@ -62,18 +62,18 @@ public class CommitNotificationIndication extends CDOClientIndication
     for (int i = 0; i < size; i++)
     {
       CDOIDAndVersion dirtyOID = in.readCDOIDAndVersion();
-      if (PROTOCOL_TRACER.isEnabled())
+      if (TRACER.isEnabled())
       {
-        PROTOCOL_TRACER.format("Read dirty ID: {0}", dirtyOID);
+        TRACER.format("Read dirty ID: {0}", dirtyOID);
       }
 
       dirtyOIDs.add(dirtyOID);
     }
 
     size = in.readInt();
-    if (PROTOCOL_TRACER.isEnabled())
+    if (TRACER.isEnabled())
     {
-      PROTOCOL_TRACER.format("Reading {0} Deltas", size);
+      TRACER.format("Reading {0} Deltas", size);
     }
 
     List<CDORevisionDelta> deltas = new ArrayList<CDORevisionDelta>();
@@ -84,9 +84,9 @@ public class CommitNotificationIndication extends CDOClientIndication
     }
 
     size = in.readInt();
-    if (PROTOCOL_TRACER.isEnabled())
+    if (TRACER.isEnabled())
     {
-      PROTOCOL_TRACER.format("Reading {0} Detach Objects", size);
+      TRACER.format("Reading {0} Detach Objects", size);
     }
 
     List<CDOID> detachedObjects = new ArrayList<CDOID>();

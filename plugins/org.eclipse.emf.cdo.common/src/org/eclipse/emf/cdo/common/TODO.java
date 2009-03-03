@@ -68,7 +68,7 @@ public final class TODO
       referenceChunk = in.readInt();
       if (TRACER.isEnabled())
       {
-        TRACER.format("Read feature {0}: size={1}, referenceChunk={2}", feature, size, referenceChunk);
+        TRACER.format("Read feature {0}: size={1}, referenceChunk={2}", feature.getName(), size, referenceChunk);
       }
     }
     else
@@ -76,7 +76,7 @@ public final class TODO
       referenceChunk = size;
       if (TRACER.isEnabled())
       {
-        TRACER.format("Read feature {0}: size={1}", feature, size);
+        TRACER.format("Read feature {0}: size={1}", feature.getName(), size);
       }
     }
 

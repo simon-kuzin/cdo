@@ -17,5 +17,5 @@ import org.eclipse.emf.ecore.EPackage;
  */
 public interface CDOPackageLoader
 {
-  public EPackage[] loadPackages(CDOPackageUnit packageUnit);
+  public EPackage[] loadPackageUnit(CDOPackageUnit packageUnit);
 }

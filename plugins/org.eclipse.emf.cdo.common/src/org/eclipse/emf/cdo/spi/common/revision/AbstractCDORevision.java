@@ -127,7 +127,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     {
       TRACER
           .format(
-              "Reading revision: ID={0}, className={1}, version={2}, created={3}, revised={4}, resource={5}, container={6}, feature={7}",
+              "Reading revision: ID={0}, className={1}, version={2}, created={3}, revised={4}, resource={5}, container={6}, featureID={7}",
               id, getEClass().getName(), version, created, revised, resourceID, containerID, containingFeatureID);
     }
 
@@ -142,9 +142,8 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     {
       TRACER
           .format(
-              "Writing revision: ID={0}, classRef={1}, className={2}, version={3}, created={4}, revised={5}, resource={6}, container={7}, feature={8}",
-              id, classRef, getEClass().getName(), getVersion(), created, revised, resourceID, containerID,
-              containingFeatureID);
+              "Writing revision: ID={0}, className={1}, version={2}, created={3}, revised={4}, resource={5}, container={6}, featureID={7}",
+              id, getEClass().getName(), getVersion(), created, revised, resourceID, containerID, containingFeatureID);
     }
 
     WRITING.start(this);
@@ -613,7 +612,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
         setValue(i, TODO.readFeatureValue(in, feature));
         if (TRACER.isEnabled())
         {
-          TRACER.format("Read feature {0}: {1}", feature, getValue(i));
+          TRACER.format("Read feature {0}: {1}", feature.getName(), getValue(i));
         }
       }
     }
@@ -639,7 +638,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
 
         if (TRACER.isEnabled())
         {
-          TRACER.format("Writing feature {0}: {1}", feature, value);
+          TRACER.format("Writing feature {0}: {1}", feature.getName(), value);
         }
 
         TODO.writeFeatureValue(out, value, feature);

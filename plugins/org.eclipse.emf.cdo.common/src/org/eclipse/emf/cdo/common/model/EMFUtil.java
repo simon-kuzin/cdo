@@ -461,6 +461,5 @@ public final class EMFUtil
     {
       adapters.add(adapter);
     }
-
   }
 }

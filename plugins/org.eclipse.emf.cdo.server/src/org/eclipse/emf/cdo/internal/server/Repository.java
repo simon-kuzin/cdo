@@ -174,7 +174,7 @@ public class Repository extends Container<Object> implements IRepository, CDOPac
     return verifyingRevisions;
   }
 
-  public EPackage[] loadPackages(CDOPackageUnit packageUnit)
+  public EPackage[] loadPackageUnit(CDOPackageUnit packageUnit)
   {
     // TODO: implement Repository.loadPackages(packageUnit)
     throw new UnsupportedOperationException();

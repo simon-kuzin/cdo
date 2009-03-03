@@ -30,7 +30,7 @@ import java.util.List;
  */
 public class CommitNotificationRequest extends CDOServerRequest
 {
-  private static final ContextTracer PROTOCOL_TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
       CommitNotificationRequest.class);
 
   private long timeStamp;
@@ -54,23 +54,23 @@ public class CommitNotificationRequest extends CDOServerRequest
   @Override
   protected void requesting(CDODataOutput out) throws IOException
   {
-    if (PROTOCOL_TRACER.isEnabled())
+    if (TRACER.isEnabled())
     {
-      PROTOCOL_TRACER.format("Writing timeStamp: {0,date} {0,time}", timeStamp);
+      TRACER.format("Writing timeStamp: {0,date} {0,time}", timeStamp);
     }
 
     out.writeLong(timeStamp);
-    if (PROTOCOL_TRACER.isEnabled())
+    if (TRACER.isEnabled())
     {
-      PROTOCOL_TRACER.format("Writing {0} dirty IDs", dirtyIDs.size());
+      TRACER.format("Writing {0} dirty IDs", dirtyIDs.size());
     }
 
     out.writeInt(dirtyIDs == null ? 0 : dirtyIDs.size());
     for (CDOIDAndVersion dirtyID : dirtyIDs)
     {
-      if (PROTOCOL_TRACER.isEnabled())
+      if (TRACER.isEnabled())
       {
-        PROTOCOL_TRACER.format("Writing dirty ID: {0}", dirtyID);
+        TRACER.format("Writing dirty ID: {0}", dirtyID);
       }
 
       out.writeCDOIDAndVersion(dirtyID);

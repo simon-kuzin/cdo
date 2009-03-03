@@ -2,7 +2,6 @@ import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.net4j.CDONet4jUtil;
 import org.eclipse.emf.cdo.net4j.CDOSession;
 import org.eclipse.emf.cdo.net4j.CDOSessionConfiguration;
-import org.eclipse.emf.cdo.tests.model1.Model1Factory;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.cdo.util.CDOUtil;
 
@@ -15,6 +14,8 @@ import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 import org.eclipse.net4j.util.om.OMPlatform;
 import org.eclipse.net4j.util.om.log.PrintLogHandler;
 import org.eclipse.net4j.util.om.trace.PrintTraceHandler;
+
+import org.eclipse.emf.ecore.EObject;
 
 import junit.framework.Assert;
 
@@ -32,10 +33,12 @@ import junit.framework.Assert;
 /**
  * @author Eike Stepper
  */
-public class TestClient extends Assert
+public class TestClient2 extends Assert
 {
   public static void main(String[] args) throws Exception
   {
+    // EMFUtil.registerPackage(Model1Package.eINSTANCE);
+
     PrintTraceHandler.CONSOLE.setShortContext(true);
     OMPlatform.INSTANCE.addTraceHandler(PrintTraceHandler.CONSOLE);
     OMPlatform.INSTANCE.addLogHandler(PrintLogHandler.CONSOLE);
@@ -55,9 +58,11 @@ public class TestClient extends Assert
     CDOSession session = sessionConfiguration.openSession();
 
     CDOTransaction transaction = session.openTransaction();
-    CDOResource resource = transaction.getOrCreateResource("res");
-    resource.getContents().add(Model1Factory.eINSTANCE.createCompany());
-    transaction.commit();
+    CDOResource resource = transaction.getResource("res");
+    for (EObject object : resource.getContents())
+    {
+      System.out.println(object);
+    }
 
     OMPlatform.INSTANCE.setDebugging(false);
     LifecycleUtil.deactivate(session);
