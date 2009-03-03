@@ -548,7 +548,7 @@ public class Repository extends Container<Object> implements IRepository, CDOPac
 
     packageRegistry.setReplacingDescriptors(true);
     packageRegistry.setPackageLoader(this);
-    EMFUtil.registerPackage(packageRegistry, EcorePackage.eINSTANCE);
+    EMFUtil.registerPackage(EcorePackage.eINSTANCE, packageRegistry);
 
     sessionManager.setRepository(this);
     revisionManager.setRepository(this);

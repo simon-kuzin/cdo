@@ -60,10 +60,19 @@ public final class EMFUtil
   {
   }
 
-  public static void registerPackage(EPackage.Registry packageRegistry, EPackage ePackage)
+  public static void registerPackage(EPackage ePackage, EPackage.Registry... packageRegistries)
   {
     ePackage.getClass(); // Initialize package in standalone mode
-    packageRegistry.put(ePackage.getNsURI(), ePackage);
+    if (packageRegistries == null || packageRegistries.length == 0)
+    {
+      EPackage.Registry[] globalRegistry = { EPackage.Registry.INSTANCE };
+      packageRegistries = globalRegistry;
+    }
+
+    for (EPackage.Registry packageRegistry : packageRegistries)
+    {
+      packageRegistry.put(ePackage.getNsURI(), ePackage);
+    }
   }
 
   public static EClassifier getClassifier(EPackage cdoPackage, int classifierID)

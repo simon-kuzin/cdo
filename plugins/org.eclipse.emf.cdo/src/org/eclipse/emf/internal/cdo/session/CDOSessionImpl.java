@@ -621,8 +621,8 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     }
 
     packageRegistry.setPackageLoader(this);
-    EMFUtil.registerPackage(packageRegistry, EcorePackage.eINSTANCE);
-    EMFUtil.registerPackage(packageRegistry, EresourcePackage.eINSTANCE);
+    EMFUtil.registerPackage(EcorePackage.eINSTANCE, packageRegistry);
+    EMFUtil.registerPackage(EresourcePackage.eINSTANCE, packageRegistry);
 
     String name = repository().getName();
     boolean passiveUpdateEnabled = options().isPassiveUpdateEnabled();

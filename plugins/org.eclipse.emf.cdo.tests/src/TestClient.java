@@ -18,8 +18,6 @@ import org.eclipse.net4j.util.om.OMPlatform;
 import org.eclipse.net4j.util.om.log.PrintLogHandler;
 import org.eclipse.net4j.util.om.trace.PrintTraceHandler;
 
-import org.eclipse.emf.ecore.EPackage;
-
 import junit.framework.Assert;
 
 /**
@@ -40,7 +38,7 @@ public class TestClient extends Assert
 {
   public static void main(String[] args) throws Exception
   {
-    EMFUtil.registerPackage(EPackage.Registry.INSTANCE, Model1Package.eINSTANCE);
+    EMFUtil.registerPackage(Model1Package.eINSTANCE);
 
     PrintTraceHandler.CONSOLE.setShortContext(true);
     OMPlatform.INSTANCE.addTraceHandler(PrintTraceHandler.CONSOLE);

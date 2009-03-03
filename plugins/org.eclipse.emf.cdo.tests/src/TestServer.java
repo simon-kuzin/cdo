@@ -28,8 +28,6 @@ import org.eclipse.net4j.util.om.OMPlatform;
 import org.eclipse.net4j.util.om.log.PrintLogHandler;
 import org.eclipse.net4j.util.om.trace.PrintTraceHandler;
 
-import org.eclipse.emf.ecore.EPackage;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,12 +36,13 @@ import java.util.Map;
  */
 public class TestServer
 {
-  public static final boolean REGISTER_MODEL_ON_SERVER = false;
   public static final String REPOSITORY_NAME = "repo1";
+
+  public static final boolean REGISTER_MODEL_ON_SERVER = false;
 
   public static void main(String[] args) throws Exception
   {
-    EMFUtil.registerPackage(EPackage.Registry.INSTANCE, Model1Package.eINSTANCE);
+    EMFUtil.registerPackage(Model1Package.eINSTANCE);
 
     PrintTraceHandler.CONSOLE.setShortContext(true);
     OMPlatform.INSTANCE.addTraceHandler(PrintTraceHandler.CONSOLE);
@@ -60,10 +59,10 @@ public class TestServer
     Map<String, String> props = new HashMap<String, String>();
     IRepository repository = CDOServerUtil.createRepository(REPOSITORY_NAME, store, props);
     CDOServerUtil.addRepository(container, repository);
-    EMFUtil.registerPackage(repository.getPackageRegistry(), EresourcePackage.eINSTANCE);
+    EMFUtil.registerPackage(EresourcePackage.eINSTANCE, repository.getPackageRegistry());
     if (REGISTER_MODEL_ON_SERVER)
     {
-      EMFUtil.registerPackage(repository.getPackageRegistry(), Model1Package.eINSTANCE);
+      EMFUtil.registerPackage(Model1Package.eINSTANCE, repository.getPackageRegistry());
     }
 
     IAcceptor acceptor = (IAcceptor)container.getElement("org.eclipse.net4j.acceptors", "tcp", null);
