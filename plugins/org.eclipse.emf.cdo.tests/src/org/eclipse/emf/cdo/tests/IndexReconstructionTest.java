@@ -433,7 +433,7 @@ public class IndexReconstructionTest extends AbstractCDOTest
           {
             System.out.print(revisionDelta.getID());
             System.out.print(": ");
-            System.out.print(featureDelta.getFeature().getContainingClass().getName());
+            System.out.print(featureDelta.getFeature().getEContainingClass().getName());
             System.out.print(".");
             System.out.print(featureDelta.getFeature().getName());
             System.out.print("=");
@@ -451,8 +451,7 @@ public class IndexReconstructionTest extends AbstractCDOTest
 
   private void expectIndex(CDOID id, EStructuralFeature eFeature, int index)
   {
-    EStructuralFeature feature = transaction.getSession().getPackageUnitManager().convert(eFeature);
-    ReconstructedIndex expectedIndex = new ReconstructedIndex(id, feature, index);
+    ReconstructedIndex expectedIndex = new ReconstructedIndex(id, eFeature, index);
     if (!expectedIndices.add(expectedIndex))
     {
       fail("Duplicate expected ids: " + expectedIndex);
@@ -535,7 +534,7 @@ public class IndexReconstructionTest extends AbstractCDOTest
     @Override
     public String toString()
     {
-      return MessageFormat.format("{0}: {1}.{2}={3}", id, feature.getContainingClass().getName(), feature.getName(),
+      return MessageFormat.format("{0}: {1}.{2}={3}", id, feature.getEContainingClass().getName(), feature.getName(),
           index);
     }
   }

@@ -43,8 +43,7 @@ public class Bugzilla_246622_Test extends AbstractCDOTest
 
     res.getContents().add(order);
     order.getOrderDetails().add(orderDetail);
-    EStructuralFeature order_OrderDetailFeature = session.getPackageUnitManager().convert(
-        getModel1Package().getOrder_OrderDetails());
+    EStructuralFeature order_OrderDetailFeature = getModel1Package().getOrder_OrderDetails();
     assertEquals(orderDetail, CDOUtil.getCDOObject(order).cdoRevision().data().get(order_OrderDetailFeature, 0));
 
     assertEquals(order, CDOUtil.getCDOObject(orderDetail).cdoRevision().data().getContainerID());
@@ -100,10 +99,8 @@ public class Bugzilla_246622_Test extends AbstractCDOTest
     res.getContents().add(purchaseOrder);
     res.getContents().add(supplier);
 
-    EStructuralFeature supplier_PurchaseOrder = session.getPackageUnitManager().convert(
-        getModel1Package().getSupplier_PurchaseOrders());
-    EStructuralFeature purchaseOrder_Supplier = session.getPackageUnitManager().convert(
-        getModel1Package().getPurchaseOrder_Supplier());
+    EStructuralFeature supplier_PurchaseOrder = getModel1Package().getSupplier_PurchaseOrders();
+    EStructuralFeature purchaseOrder_Supplier = getModel1Package().getPurchaseOrder_Supplier();
 
     assertEquals(supplier, CDOUtil.getCDOObject(purchaseOrder).cdoRevision().data().get(purchaseOrder_Supplier, 0));
     assertEquals(purchaseOrder, CDOUtil.getCDOObject(supplier).cdoRevision().data().get(supplier_PurchaseOrder, 0));
