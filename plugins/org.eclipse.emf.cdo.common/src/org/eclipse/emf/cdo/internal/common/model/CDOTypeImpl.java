@@ -358,7 +358,7 @@ public abstract class CDOTypeImpl implements CDOType
     }
   };
 
-  public static final CDOType ENUM = new CDOTypeImpl("ENUM", 998, true)
+  public static final CDOType ENUM = new ObjectType("ENUM", 998)
   {
     @SuppressWarnings("cast")
     @Override
@@ -367,12 +367,14 @@ public abstract class CDOTypeImpl implements CDOType
       return (Integer)value;
     }
 
-    public void writeValue(CDODataOutput out, Object value) throws IOException
+    @Override
+    public void doWriteValue(CDODataOutput out, Object value) throws IOException
     {
       out.writeInt((Integer)value);
     }
 
-    public Object readValue(CDODataInput in) throws IOException
+    @Override
+    public Object doReadValue(CDODataInput in) throws IOException
     {
       return in.readInt();
     }
