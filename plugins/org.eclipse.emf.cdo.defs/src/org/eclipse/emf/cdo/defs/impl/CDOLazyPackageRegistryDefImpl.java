@@ -13,7 +13,6 @@ package org.eclipse.emf.cdo.defs.impl;
 
 import org.eclipse.emf.cdo.defs.CDODefsPackage;
 import org.eclipse.emf.cdo.defs.CDOLazyPackageRegistryDef;
-import org.eclipse.emf.cdo.util.CDOUtil;
 
 import org.eclipse.emf.ecore.EClass;
 
@@ -55,6 +54,8 @@ public class CDOLazyPackageRegistryDefImpl extends CDOPackageRegistryDefImpl imp
    */
   protected Object createInstance()
   {
-    return addPackages(CDOUtil.createLazyPackageRegistry());
+    // TODO: implement CDOLazyPackageRegistryDefImpl.createInstance()
+    throw new UnsupportedOperationException();
+//    return addPackages(CDOUtil.createLazyPackageRegistry());
   }
 } // LazyPackageRegistryDefImpl

@@ -14,7 +14,6 @@ package org.eclipse.emf.cdo.defs.impl;
 import org.eclipse.emf.cdo.defs.CDODefsPackage;
 import org.eclipse.emf.cdo.defs.CDOPackageRegistryDef;
 import org.eclipse.emf.cdo.defs.EPackageDef;
-import org.eclipse.emf.cdo.internal.common.model.CDOPackageRegistryImpl;
 
 import org.eclipse.net4j.util.defs.impl.DefImpl;
 
@@ -202,7 +201,9 @@ public class CDOPackageRegistryDefImpl extends DefImpl implements CDOPackageRegi
    */
   protected Object createInstance()
   {
-    return addPackages(new CDOPackageRegistryImpl());
+    // TODO: implement CDOPackageRegistryDefImpl.createInstance()
+    throw new UnsupportedOperationException();
+    // return addPackages(new CDOPackageRegistryImpl());
   }
 
   /**
