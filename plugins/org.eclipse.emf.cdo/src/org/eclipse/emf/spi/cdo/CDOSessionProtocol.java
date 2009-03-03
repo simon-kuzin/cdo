@@ -15,11 +15,11 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDLibraryDescriptor;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
-import org.eclipse.emf.cdo.common.model.CDOPackageLoader;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.session.remote.CDORemoteSession;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry.PackageLoader;
 import org.eclipse.emf.cdo.spi.common.revision.CDOIDMapper;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.transaction.CDOTimeStampContext;
@@ -47,7 +47,7 @@ import java.util.Set;
  * @author Eike Stepper
  * @since 2.0
  */
-public interface CDOSessionProtocol extends CDOPackageLoader
+public interface CDOSessionProtocol extends PackageLoader
 {
   public OpenSessionResult openSession(String repositoryName, boolean passiveUpdateEnabled);
 

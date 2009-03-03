@@ -139,7 +139,7 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
       EPackage[] ePackages = loadPackagesFromGlobalRegistry();
       if (ePackages == null)
       {
-        ePackages = packageRegistry.getPackageLoader().loadPackageUnit(this);
+        ePackages = packageRegistry.getPackageLoader().loadPackages(this);
       }
 
       for (EPackage ePackage : ePackages)

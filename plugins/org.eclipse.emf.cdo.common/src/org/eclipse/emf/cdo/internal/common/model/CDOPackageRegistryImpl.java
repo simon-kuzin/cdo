@@ -17,7 +17,6 @@ import org.eclipse.emf.cdo.common.id.CDOIDTempMeta;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
-import org.eclipse.emf.cdo.common.model.CDOPackageLoader;
 import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
@@ -50,7 +49,9 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
   private boolean replacingDescriptors;
 
-  private CDOPackageLoader packageLoader;
+  private PackageProcessor packageProcessor;
+
+  private PackageLoader packageLoader;
 
   @ExcludeFromDump
   private transient InternalCDOPackageUnit[] packageUnits;
@@ -74,12 +75,22 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     this.replacingDescriptors = replacingDescriptors;
   }
 
-  public CDOPackageLoader getPackageLoader()
+  public PackageProcessor getPackageProcessor()
+  {
+    return packageProcessor;
+  }
+
+  public void setPackageProcessor(PackageProcessor packageProcessor)
+  {
+    this.packageProcessor = packageProcessor;
+  }
+
+  public PackageLoader getPackageLoader()
   {
     return packageLoader;
   }
 
-  public void setPackageLoader(CDOPackageLoader packageLoader)
+  public void setPackageLoader(PackageLoader packageLoader)
   {
     this.packageLoader = packageLoader;
   }
@@ -97,6 +108,11 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
   @Override
   public synchronized Object put(String nsURI, Object value)
   {
+    if (packageProcessor != null)
+    {
+      value = packageProcessor.processPackage(value);
+    }
+
     if (replacingDescriptors && value instanceof EPackage.Descriptor)
     {
       EPackage.Descriptor descriptor = (EPackage.Descriptor)value;

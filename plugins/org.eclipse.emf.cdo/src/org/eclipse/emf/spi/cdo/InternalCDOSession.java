@@ -13,11 +13,12 @@ package org.eclipse.emf.spi.cdo;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDObjectFactory;
-import org.eclipse.emf.cdo.common.model.CDOPackageLoader;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.session.CDOSession;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry.PackageLoader;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry.PackageProcessor;
 
 import org.eclipse.net4j.util.lifecycle.ILifecycle;
 
@@ -28,7 +29,8 @@ import java.util.Set;
  * @author Eike Stepper
  * @since 2.0
  */
-public interface InternalCDOSession extends CDOSession, CDOIDObjectFactory, CDOPackageLoader, ILifecycle.Introspection
+public interface InternalCDOSession extends CDOSession, CDOIDObjectFactory, PackageProcessor, PackageLoader,
+    ILifecycle.Introspection
 {
   public CDOSessionProtocol getSessionProtocol();
 

@@ -12,8 +12,8 @@ package org.eclipse.emf.cdo.spi.common.model;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
-import org.eclipse.emf.cdo.common.model.CDOPackageLoader;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.InternalEObject;
@@ -27,7 +27,13 @@ public interface InternalCDOPackageRegistry extends CDOPackageRegistry
 
   public void setReplacingDescriptors(boolean replacingDescriptors);
 
-  public void setPackageLoader(CDOPackageLoader packageLoader);
+  public PackageProcessor getPackageProcessor();
+
+  public void setPackageProcessor(PackageProcessor packageProcessor);
+
+  public PackageLoader getPackageLoader();
+
+  public void setPackageLoader(PackageLoader packageLoader);
 
   public Object basicPut(String nsURI, Object value);
 
@@ -39,6 +45,22 @@ public interface InternalCDOPackageRegistry extends CDOPackageRegistry
    * Returns all but the system package units that are registered in this package registry.
    */
   public InternalCDOPackageUnit[] getPackageUnits();
+
+  /**
+   * @author Eike Stepper
+   */
+  public interface PackageProcessor
+  {
+    public Object processPackage(Object value);
+  }
+
+  /**
+   * @author Eike Stepper
+   */
+  public interface PackageLoader
+  {
+    public EPackage[] loadPackages(CDOPackageUnit packageUnit);
+  }
 
   /**
    * @author Eike Stepper

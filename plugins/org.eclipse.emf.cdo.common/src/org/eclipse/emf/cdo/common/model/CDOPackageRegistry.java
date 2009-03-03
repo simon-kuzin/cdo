@@ -19,8 +19,6 @@ public interface CDOPackageRegistry extends EPackage.Registry
 {
   public boolean isReplacingDescriptors();
 
-  public CDOPackageLoader getPackageLoader();
-
   /**
    * Registers an {@link EPackage} with this package registry.
    */

@@ -37,12 +37,16 @@ public class CDOFactoryImpl extends EFactoryImpl implements CDOFactory
   /**
    * @since 2.0
    */
-  public static boolean prepareDynamicEPackage(EPackage ePackage)
+  public static boolean prepareDynamicEPackage(Object value)
   {
-    if (EMFUtil.isDynamicEPackage(ePackage))
+    if (EMFUtil.isDynamicEPackage(value))
     {
-      ePackage.setEFactoryInstance(new CDOFactoryImpl(ePackage));
-      return true;
+      EPackage ePackage = (EPackage)value;
+      if (!(ePackage.getEFactoryInstance() instanceof CDOFactory))
+      {
+        ePackage.setEFactoryInstance(new CDOFactoryImpl(ePackage));
+        return true;
+      }
     }
 
     return false;

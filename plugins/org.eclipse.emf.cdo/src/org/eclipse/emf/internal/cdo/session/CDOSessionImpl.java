@@ -41,6 +41,7 @@ import org.eclipse.emf.cdo.transaction.CDOTimeStampContext;
 import org.eclipse.emf.cdo.util.CDOUtil;
 import org.eclipse.emf.cdo.view.CDOView;
 
+import org.eclipse.emf.internal.cdo.CDOFactoryImpl;
 import org.eclipse.emf.internal.cdo.bundle.OM;
 import org.eclipse.emf.internal.cdo.session.remote.CDORemoteSessionManagerImpl;
 import org.eclipse.emf.internal.cdo.transaction.CDOTransactionImpl;
@@ -222,7 +223,13 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     return repositoryDynamicPackageUnits.contains(packageUnit);
   }
 
-  public EPackage[] loadPackageUnit(CDOPackageUnit packageUnit)
+  public Object processPackage(Object value)
+  {
+    CDOFactoryImpl.prepareDynamicEPackage(value);
+    return value;
+  }
+
+  public EPackage[] loadPackages(CDOPackageUnit packageUnit)
   {
     // XXX
     // if (!isDynamicPackageUnitInRepository(packageUnit))
@@ -230,7 +237,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     // throw new CDOException("Generated package unit not available: " + packageUnit);
     // }
 
-    return getSessionProtocol().loadPackageUnit(packageUnit);
+    return getSessionProtocol().loadPackages(packageUnit);
   }
 
   public CDORevisionManagerImpl getRevisionManager()
@@ -610,6 +617,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       packageRegistry = createPackageRegistry();
     }
 
+    packageRegistry.setPackageProcessor(this);
     packageRegistry.setPackageLoader(this);
     EMFUtil.registerPackage(EcorePackage.eINSTANCE, packageRegistry);
     EMFUtil.registerPackage(EresourcePackage.eINSTANCE, packageRegistry);

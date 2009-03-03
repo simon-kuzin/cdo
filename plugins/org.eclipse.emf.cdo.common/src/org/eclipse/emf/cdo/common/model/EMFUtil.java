@@ -440,7 +440,7 @@ public final class EMFUtil
 
     EList<EObject> contents = resource.getContents();
     EPackage ePackage = (EPackage)contents.get(0);
-    contents.clear();
+    // contents.clear();
     return ePackage;
   }
 

@@ -18,7 +18,6 @@ import org.eclipse.emf.cdo.common.CDOQueryInfo;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
-import org.eclipse.emf.cdo.common.model.CDOPackageLoader;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
@@ -32,6 +31,7 @@ import org.eclipse.emf.cdo.server.IStore;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.StoreThreadLocal;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry.PackageLoader;
 
 import org.eclipse.net4j.util.StringUtil;
 import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
@@ -56,7 +56,7 @@ import java.util.UUID;
  * @author Eike Stepper
  * @since 2.0
  */
-public class Repository extends Container<Object> implements IRepository, CDOPackageLoader
+public class Repository extends Container<Object> implements IRepository, PackageLoader
 {
   private String name;
 
@@ -174,7 +174,7 @@ public class Repository extends Container<Object> implements IRepository, CDOPac
     return verifyingRevisions;
   }
 
-  public EPackage[] loadPackageUnit(CDOPackageUnit packageUnit)
+  public EPackage[] loadPackages(CDOPackageUnit packageUnit)
   {
     // TODO: implement Repository.loadPackages(packageUnit)
     throw new UnsupportedOperationException();

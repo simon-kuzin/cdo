@@ -97,7 +97,7 @@ public class CDOClientProtocol extends CDOProtocolImpl implements CDOSessionProt
     return send(new RepositoryTimeRequest(this));
   }
 
-  public EPackage[] loadPackageUnit(CDOPackageUnit packageUnit)
+  public EPackage[] loadPackages(CDOPackageUnit packageUnit)
   {
     return send(new LoadPackagesRequest(this, (InternalCDOPackageUnit)packageUnit));
   }
