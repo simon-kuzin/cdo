@@ -793,7 +793,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
    */
   protected class OptionsImpl extends Notifier implements Options
   {
-    private boolean generatedPackageEmulationEnabled = true;
+    private boolean generatedPackageEmulationEnabled = false;
 
     private boolean passiveUpdateEnabled = true;
 
