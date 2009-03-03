@@ -462,4 +462,20 @@ public final class EMFUtil
       adapters.add(adapter);
     }
   }
+
+  public static EPackage[] getAllPackages(EPackage ePackage)
+  {
+    List<EPackage> result = new ArrayList<EPackage>();
+    getAllPackages(ePackage, result);
+    return result.toArray(new EPackage[result.size()]);
+  }
+
+  private static void getAllPackages(EPackage ePackage, List<EPackage> result)
+  {
+    result.add(ePackage);
+    for (EPackage subPackage : ePackage.getESubpackages())
+    {
+      getAllPackages(subPackage, result);
+    }
+  }
 }

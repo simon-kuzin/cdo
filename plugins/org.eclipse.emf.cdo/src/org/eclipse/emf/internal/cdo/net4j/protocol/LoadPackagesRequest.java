@@ -12,8 +12,13 @@ package org.eclipse.emf.internal.cdo.net4j.protocol;
 
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
+import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
+
+import org.eclipse.emf.internal.cdo.bundle.OM;
+
+import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.emf.ecore.EPackage;
 
@@ -22,32 +27,34 @@ import java.io.IOException;
 /**
  * @author Eike Stepper
  */
-public class LoadPackageUnitRequest extends CDOClientRequest<EPackage[]>
+public class LoadPackagesRequest extends CDOClientRequest<EPackage[]>
 {
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, LoadPackagesRequest.class);
+
   private InternalCDOPackageUnit packageUnit;
 
-  public LoadPackageUnitRequest(CDOClientProtocol protocol, InternalCDOPackageUnit packageUnit)
+  public LoadPackagesRequest(CDOClientProtocol protocol, InternalCDOPackageUnit packageUnit)
   {
-    super(protocol, CDOProtocolConstants.SIGNAL_LOAD_PACKAGE_UNIT);
+    super(protocol, CDOProtocolConstants.SIGNAL_LOAD_PACKAGES);
     this.packageUnit = packageUnit;
   }
 
   @Override
   protected void requesting(CDODataOutput out) throws IOException
   {
-    out.writeCDOPackageURI(packageUnit.getID());
+    String packageUnitID = packageUnit.getID();
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("Writing packageUnitID: {0}", packageUnitID);
+    }
+
+    out.writeCDOPackageURI(packageUnitID);
   }
 
   @Override
   protected EPackage[] confirming(CDODataInput in) throws IOException
   {
-    int size = in.readInt();
-    EPackage[] ePackages = new EPackage[size];
-    for (int i = 0; i < ePackages.length; i++)
-    {
-      in.readEPackage(cdoPackage);
-    }
-
-    return ePackages;
+    EPackage ePackage = EMFUtil.readPackage(in);
+    return EMFUtil.getAllPackages(ePackage);
   }
 }

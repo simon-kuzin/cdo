@@ -185,20 +185,6 @@ public interface CDOSessionProtocol extends CDOPackageLoader
     {
       return dynamicPackageUnits;
     }
-
-    public void addPackageUnit(InternalCDOPackageUnit packageUnit, boolean isNew, boolean dynamic)
-    {
-      packageUnits.add(packageUnit);
-      if (isNew)
-      {
-        newPackageUnits.add(packageUnit);
-      }
-
-      if (dynamic)
-      {
-        dynamicPackageUnits.add(packageUnit);
-      }
-    }
   }
 
   /**
