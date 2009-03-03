@@ -11,7 +11,6 @@
  */
 package org.eclipse.emf.cdo.internal.common.io;
 
-import org.eclipse.emf.cdo.common.TODO;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
@@ -54,6 +53,7 @@ import org.eclipse.emf.cdo.internal.common.revision.delta.CDOUnsetFeatureDeltaIm
 import org.eclipse.emf.cdo.spi.common.id.AbstractCDOID;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDOList;
 
 import org.eclipse.net4j.util.ImplementationError;
 import org.eclipse.net4j.util.concurrent.RWLockManager;
@@ -196,7 +196,39 @@ public abstract class CDODataInputImpl extends ExtendedDataInput.Delegating impl
 
   public CDOList readCDOList(CDORevision revision, EStructuralFeature feature) throws IOException
   {
-    return TODO.readCDOList(this, revision, feature, getListFactory());
+    int referenceChunk;
+    int size = readInt();
+    if (size < 0)
+    {
+      size = -size;
+      referenceChunk = readInt();
+      if (TRACER.isEnabled())
+      {
+        TRACER.format("Read feature {0}: size={1}, referenceChunk={2}", feature.getName(), size, referenceChunk);
+      }
+    }
+    else
+    {
+      referenceChunk = size;
+      if (TRACER.isEnabled())
+      {
+        TRACER.format("Read feature {0}: size={1}", feature.getName(), size);
+      }
+    }
+
+    CDOType type = CDOModelUtil.getType(feature.getEType());
+    InternalCDOList list = (InternalCDOList)getListFactory().createList(size, size, referenceChunk);
+    for (int j = 0; j < referenceChunk; j++)
+    {
+      Object value = type.readValue(this);
+      list.set(j, value);
+      if (TRACER.isEnabled())
+      {
+        TRACER.trace("    " + value);
+      }
+    }
+
+    return list;
   }
 
   public CDORevisionDelta readCDORevisionDelta() throws IOException
