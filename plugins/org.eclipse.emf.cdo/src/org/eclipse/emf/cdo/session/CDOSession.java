@@ -163,6 +163,11 @@ public interface CDOSession extends CDOCommonSession, IContainer<CDOView>, IOpti
    */
   public interface Options extends CDOCommonSession.Options
   {
+
+    public boolean isGeneratedPackageEmulationEnabled();
+
+    public void setGeneratedPackageEmulationEnabled(boolean generatedPackageEmulationEnabled);
+
     /**
      * Specifies whether objects will be invalidated due by other users changes.
      * <p>
@@ -214,14 +219,30 @@ public interface CDOSession extends CDOCommonSession, IContainer<CDOView>, IOpti
      */
     public void setRevisionFactory(CDORevisionFactory factory);
 
+    /**
+     * @author Eike Stepper
+     */
+    public interface GeneratedPackageEmulationEvent extends IOptionsEvent, CDOEvent
+    {
+    }
+
+    /**
+     * @author Eike Stepper
+     */
     public interface PassiveUpdateEvent extends IOptionsEvent, CDOEvent
     {
     }
 
+    /**
+     * @author Eike Stepper
+     */
     public interface CollectionLoadingPolicyEvent extends IOptionsEvent, CDOEvent
     {
     }
 
+    /**
+     * @author Eike Stepper
+     */
     public interface RevisionFactoryEvent extends IOptionsEvent, CDOEvent
     {
     }

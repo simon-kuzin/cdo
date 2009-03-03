@@ -29,6 +29,7 @@ import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionFactory;
 import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
+import org.eclipse.emf.cdo.common.util.CDOException;
 import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.internal.common.model.CDOPackageRegistryImpl;
 import org.eclipse.emf.cdo.session.CDOCollectionLoadingPolicy;
@@ -231,11 +232,10 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
 
   public EPackage[] loadPackages(CDOPackageUnit packageUnit)
   {
-    // XXX
-    // if (!isDynamicPackageUnitInRepository(packageUnit))
-    // {
-    // throw new CDOException("Generated package unit not available: " + packageUnit);
-    // }
+    if (!isDynamicPackageUnitInRepository(packageUnit) && !options().isGeneratedPackageEmulationEnabled())
+    {
+      throw new CDOException("Generated package unit not available: " + packageUnit);
+    }
 
     return getSessionProtocol().loadPackages(packageUnit);
   }
@@ -793,6 +793,8 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
    */
   protected class OptionsImpl extends Notifier implements Options
   {
+    private boolean generatedPackageEmulationEnabled = true;
+
     private boolean passiveUpdateEnabled = true;
 
     private CDOCollectionLoadingPolicy collectionLoadingPolicy;
@@ -811,6 +813,28 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       return CDOSessionImpl.this;
     }
 
+    public boolean isGeneratedPackageEmulationEnabled()
+    {
+      return generatedPackageEmulationEnabled;
+    }
+
+    public void setGeneratedPackageEmulationEnabled(boolean generatedPackageEmulationEnabled)
+    {
+      this.generatedPackageEmulationEnabled = generatedPackageEmulationEnabled;
+      if (this.generatedPackageEmulationEnabled != generatedPackageEmulationEnabled)
+      {
+        this.generatedPackageEmulationEnabled = generatedPackageEmulationEnabled;
+        // TODO Check inconsistent state if switching off?
+
+        fireEvent(new GeneratedPackageEmulationEventImpl());
+      }
+    }
+
+    public boolean isPassiveUpdateEnabled()
+    {
+      return passiveUpdateEnabled;
+    }
+
     public void setPassiveUpdateEnabled(boolean passiveUpdateEnabled)
     {
       if (this.passiveUpdateEnabled != passiveUpdateEnabled)
@@ -827,11 +851,6 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
 
         fireEvent(new PassiveUpdateEventImpl());
       }
-    }
-
-    public boolean isPassiveUpdateEnabled()
-    {
-      return passiveUpdateEnabled;
     }
 
     public CDOCollectionLoadingPolicy getCollectionLoadingPolicy()
@@ -886,6 +905,20 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       {
         this.revisionFactory = revisionFactory;
         fireEvent(new RevisionFactoryEventImpl());
+      }
+    }
+
+    /**
+     * @author Eike Stepper
+     */
+    private final class GeneratedPackageEmulationEventImpl extends OptionsEvent implements
+        GeneratedPackageEmulationEvent
+    {
+      private static final long serialVersionUID = 1L;
+
+      public GeneratedPackageEmulationEventImpl()
+      {
+        super(OptionsImpl.this);
       }
     }
 
