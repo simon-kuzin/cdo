@@ -111,7 +111,7 @@ public class OpenSessionIndication extends RepositoryTimeIndication
       repository.getStore().getCDOIDLibraryDescriptor().write(out);
 
       CDOPackageUnit[] packageUnits = repository.getPackageRegistry().getPackageUnits();
-      CDOServerProtocol.sendPackageUnits(out, packageUnits);
+      getProtocol().sendPackageUnits(out, packageUnits);
     }
     catch (RepositoryNotFoundException ex)
     {
