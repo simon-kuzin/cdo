@@ -18,6 +18,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageLoader;
+import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
@@ -131,7 +132,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       EPackage ePackage = packageInfo.getEPackage(false);
       if (ePackage != null)
       {
-        ePackage.eAdapters().add(packageInfo);
+        EMFUtil.addAdapter(ePackage, packageInfo);
         basicPut(ePackage.getNsURI(), ePackage);
       }
       else

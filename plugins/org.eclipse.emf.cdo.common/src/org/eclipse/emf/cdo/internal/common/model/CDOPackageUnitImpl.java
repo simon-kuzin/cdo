@@ -154,7 +154,7 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
       {
         String packageURI = ePackage.getNsURI();
         InternalCDOPackageInfo packageInfo = getPackageInfo(packageURI);
-        ePackage.eAdapters().add(packageInfo);
+        EMFUtil.addAdapter(ePackage, packageInfo);
       }
 
       state = State.LOADED;
@@ -228,7 +228,7 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
     packageInfo.setParentURI(ePackage.getESuperPackage() == null ? null : ePackage.getESuperPackage().getNsURI());
 
     result.add(packageInfo);
-    ePackage.eAdapters().add(packageInfo);
+    EMFUtil.addAdapter(ePackage, packageInfo);
     packageRegistry.basicPut(ePackage.getNsURI(), ePackage);
 
     for (EPackage subPackage : ePackage.getESubpackages())
@@ -242,7 +242,7 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
     InternalCDOPackageInfo packageInfo = getPackageInfo(ePackage.getNsURI());
     if (packageInfo != null)
     {
-      ePackage.eAdapters().add(packageInfo);
+      EMFUtil.addAdapter(ePackage, packageInfo);
     }
 
     for (EPackage subPackage : ePackage.getESubpackages())

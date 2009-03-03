@@ -16,6 +16,8 @@ import org.eclipse.net4j.util.io.ExtendedDataInput;
 import org.eclipse.net4j.util.io.ExtendedDataOutput;
 import org.eclipse.net4j.util.io.IORuntimeException;
 
+import org.eclipse.emf.common.notify.Adapter;
+import org.eclipse.emf.common.notify.Notifier;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
@@ -450,5 +452,15 @@ public final class EMFUtil
       options.put(Resource.OPTION_ZIP, true);
     }
     return options;
+  }
+
+  public static void addAdapter(Notifier notifier, Adapter adapter)
+  {
+    EList<Adapter> adapters = notifier.eAdapters();
+    if (!adapters.contains(adapter))
+    {
+      adapters.add(adapter);
+    }
+
   }
 }
