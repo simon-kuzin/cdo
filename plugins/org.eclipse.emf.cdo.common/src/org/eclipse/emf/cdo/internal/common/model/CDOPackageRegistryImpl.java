@@ -107,17 +107,17 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       TRACER.format("Registering {0} --> {1}", nsURI, value);
     }
 
+    if (packageProcessor != null)
+    {
+      value = packageProcessor.processPackage(value);
+    }
+
     return super.put(nsURI, value);
   }
 
   @Override
   public synchronized Object put(String nsURI, Object value)
   {
-    if (packageProcessor != null)
-    {
-      value = packageProcessor.processPackage(value);
-    }
-
     if (replacingDescriptors && value instanceof EPackage.Descriptor)
     {
       EPackage.Descriptor descriptor = (EPackage.Descriptor)value;
