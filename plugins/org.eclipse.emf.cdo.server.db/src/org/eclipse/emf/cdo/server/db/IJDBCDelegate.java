@@ -18,7 +18,6 @@ import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.IStoreChunkReader.Chunk;
 import org.eclipse.emf.cdo.server.internal.db.jdbc.AbstractJDBCDelegate;
 
-import org.eclipse.net4j.db.IDBConnectionProvider;
 import org.eclipse.net4j.util.collection.Pair;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 
@@ -56,21 +55,7 @@ public interface IJDBCDelegate
    */
   public PreparedStatement getPreparedStatement(String sql);
 
-  /**
-   * Set a connection provider to provide the delegate with the DB connection. This may only be called before
-   * activation.
-   */
-  public void setConnectionProvider(IDBConnectionProvider connectionProvider);
-
-  /**
-   * Set a flag indicating that this delegate maintains a read-only DB connection. This may only be called before
-   * activation.
-   */
-  public void setReadOnly(boolean reader);
-
-  // --------------------------------------------------------------
-  // Transaction handling
-  // --------------------------------------------------------------
+  public void setStoreAccessor(IDBStoreAccessor storeAccessor);
 
   /**
    * Do any outstanding writes (e.g. execute batches). Called any number of times - but at least once immediately before

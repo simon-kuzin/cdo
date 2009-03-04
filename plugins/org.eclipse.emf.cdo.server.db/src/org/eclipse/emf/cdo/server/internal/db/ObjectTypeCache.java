@@ -17,6 +17,7 @@ import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IMappingStrategy;
 import org.eclipse.emf.cdo.server.db.IObjectTypeCache;
+import org.eclipse.emf.cdo.server.internal.db.ServerInfo.ClassServerInfo;
 
 import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.db.DBType;
@@ -115,7 +116,7 @@ public class ObjectTypeCache extends Lifecycle implements IObjectTypeCache
     builder.append(" VALUES (");
     builder.append(CDOIDUtil.getLong(id));
     builder.append(", ");
-    builder.append(ClassServerInfo.getDBID(type));
+    builder.append(ClassServerInfo.getID(type, mappingStrategy.getStore()));
     builder.append(")");
     String sql = builder.toString();
     DBUtil.trace(sql);

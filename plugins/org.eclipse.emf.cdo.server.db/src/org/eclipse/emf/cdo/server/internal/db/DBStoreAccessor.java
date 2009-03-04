@@ -33,6 +33,9 @@ import org.eclipse.emf.cdo.server.db.IClassMapping;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IJDBCDelegate;
 import org.eclipse.emf.cdo.server.db.IMappingStrategy;
+import org.eclipse.emf.cdo.server.internal.db.ServerInfo.ClassServerInfo;
+import org.eclipse.emf.cdo.server.internal.db.ServerInfo.FeatureServerInfo;
+import org.eclipse.emf.cdo.server.internal.db.ServerInfo.PackageServerInfo;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.server.StoreAccessor;
@@ -87,20 +90,19 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
   public DBStoreAccessor(DBStore store, ISession session) throws DBException
   {
     super(store, session);
-    initJDBCDelegate(store);
+    initJDBCDelegate();
   }
 
   public DBStoreAccessor(DBStore store, ITransaction transaction) throws DBException
   {
     super(store, transaction);
-    initJDBCDelegate(store);
+    initJDBCDelegate();
   }
 
-  private void initJDBCDelegate(DBStore store)
+  private void initJDBCDelegate()
   {
-    jdbcDelegate = store.getJDBCDelegateProvider().getJDBCDelegate();
-    jdbcDelegate.setConnectionProvider(store.getDBConnectionProvider());
-    jdbcDelegate.setReadOnly(isReader());
+    jdbcDelegate = getStore().getJDBCDelegateProvider().getJDBCDelegate();
+    jdbcDelegate.setStoreAccessor(this);
   }
 
   public IJDBCDelegate getJDBCDelegate()
@@ -149,7 +151,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     String where = CDODBSchema.PACKAGES_URI.getName() + " = '" + ePackage.getNsURI() + "'";
     Object[] values = DBUtil.select(jdbcDelegate.getConnection(), where, CDODBSchema.PACKAGES_ID,
         CDODBSchema.PACKAGES_NAME);
-    PackageServerInfo.setDBID(ePackage, (Integer)values[0]);
+    new PackageServerInfo(getStore(), ePackage, (Integer)values[0]);
     ((InternalEPackage)ePackage).setName((String)values[1]);
     readClasses(ePackage);
     mapPackages(ePackage);
@@ -166,7 +168,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
         String name = (String)values[2];
         boolean isAbstract = getBoolean(values[3]);
         EClass eClass = CDOModelUtil.createClass(ePackage, classifierID, name, isAbstract);
-        ClassServerInfo.setDBID(eClass, classID);
+        new ClassServerInfo(getStore(), eClass, classID);
         ((InternalEPackage)ePackage).addClass(eClass);
         readSuperTypes(eClass, classID);
         readFeatures(eClass, classID);
@@ -174,7 +176,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
       }
     };
 
-    String where = CDODBSchema.CLASSES_PACKAGE.getName() + "=" + ServerInfo.getDBID(ePackage);
+    String where = CDODBSchema.CLASSES_PACKAGE.getName() + "=" + ServerInfo.getID(ePackage, getStore());
     DBUtil.select(jdbcDelegate.getConnection(), rowHandler, where, CDODBSchema.CLASSES_ID,
         CDODBSchema.CLASSES_CLASSIFIER, CDODBSchema.CLASSES_NAME, CDODBSchema.CLASSES_ABSTRACT);
   }
@@ -223,7 +225,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
           feature = CDOModelUtil.createAttribute(eClass, featureID, name, type, null, many);
         }
 
-        FeatureServerInfo.setDBID(feature, (Integer)values[0]);
+        new FeatureServerInfo(getStore(), feature, (Integer)values[0]);
         ((InternalEClass)eClass).addFeature(feature);
         return true;
       }

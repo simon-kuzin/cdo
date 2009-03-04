@@ -14,6 +14,7 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
+import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.server.db.IClassMapping;
 import org.eclipse.emf.cdo.server.db.IDBStore;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
@@ -156,13 +157,12 @@ public class HorizontalMappingStrategy extends MappingStrategy
   @Override
   protected String[] getResourceQueries(CDOID folderID, String name, boolean exactMatch)
   {
-    CDOResourcePackage resourcePackage = getStore().getRepository().getPackageRegistry().getCDOResourcePackage();
     String[] queries = new String[2];
 
-    IClassMapping resourceFolderMapping = getClassMapping(resourcePackage.getCDOResourceFolderClass());
+    IClassMapping resourceFolderMapping = getClassMapping(EresourcePackage.eINSTANCE.getCDOResourceFolder());
     queries[0] = getResourceQuery(folderID, name, exactMatch, resourceFolderMapping);
 
-    IClassMapping resourceMapping = getClassMapping(resourcePackage.getCDOResourceClass());
+    IClassMapping resourceMapping = getClassMapping(EresourcePackage.eINSTANCE.getCDOResource());
     queries[1] = getResourceQuery(folderID, name, exactMatch, resourceMapping);
 
     return queries;
@@ -170,17 +170,11 @@ public class HorizontalMappingStrategy extends MappingStrategy
 
   protected String getResourceQuery(CDOID folderID, String name, boolean exactMatch, IClassMapping classMapping)
   {
-    CDOResourcePackage resourcePackage = getStore().getRepository().getPackageRegistry().getCDOResourcePackage();
-    CDOResourceNodeClass resourceNodeClass = resourcePackage.getCDOResourceNodeClass();
-
-    IDBTable table = classMapping.getTable();
-    IDBField nameField = classMapping.getAttributeMapping(resourceNodeClass.getCDONameFeature()).getField();
-
     StringBuilder builder = new StringBuilder();
     builder.append("SELECT ");
     builder.append(CDODBSchema.ATTRIBUTES_ID);
     builder.append(" FROM ");
-    builder.append(table);
+    builder.append(classMapping.getTable());
     builder.append(" WHERE ");
     builder.append(CDODBSchema.ATTRIBUTES_CONTAINER);
     builder.append("=");
@@ -188,7 +182,8 @@ public class HorizontalMappingStrategy extends MappingStrategy
     if (exactMatch || name != null)
     {
       builder.append(" AND ");
-      builder.append(nameField);
+      builder.append(classMapping.getAttributeMapping(EresourcePackage.eINSTANCE.getCDOResourceNode_Name())
+          .getField());
       if (exactMatch)
       {
         if (name == null)

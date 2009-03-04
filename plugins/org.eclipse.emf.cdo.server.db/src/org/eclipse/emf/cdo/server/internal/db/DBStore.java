@@ -310,7 +310,7 @@ public class DBStore extends LongIDStore implements IDBStore
         DBUtil.insertRow(connection, dbAdapter, CDODBSchema.REPOSITORY, creationTime, 1, startupTime, 0, CRASHED,
             CRASHED);
 
-        mappingStrategy.mapResourceTables(dbAdapter, connection);
+        mappingStrategy.mapSystemTables(dbAdapter, connection);
       }
       else
       {
@@ -354,7 +354,7 @@ public class DBStore extends LongIDStore implements IDBStore
           throw new DBException("No row updated in table " + CDODBSchema.REPOSITORY);
         }
 
-        getMappingStrategy().mapResourceTables(null, null);
+        getMappingStrategy().mapSystemTables(null, null);
       }
 
       nextPackageID = DBUtil.selectMaximumInt(connection, CDODBSchema.PACKAGES_ID) + 1;

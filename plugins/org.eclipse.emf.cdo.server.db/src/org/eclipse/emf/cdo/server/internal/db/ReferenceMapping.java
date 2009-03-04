@@ -82,7 +82,7 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
 
     case PER_PACKAGE:
       withFeature = true;
-      EPackage ePackage = eClass.getContainingPackage();
+      EPackage ePackage = eClass.getEPackage();
       table = mapReferenceTable(ePackage, mappingStrategy.getReferenceTableName(ePackage));
       break;
 
