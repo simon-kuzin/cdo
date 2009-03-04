@@ -11,24 +11,24 @@
  */
 package org.eclipse.emf.internal.cdo.view;
 
-import org.eclipse.emf.cdo.internal.common.model.CDOPackageRegistryImpl;
 import org.eclipse.emf.cdo.view.CDOView;
 import org.eclipse.emf.cdo.view.CDOViewSet;
 
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.impl.EPackageRegistryImpl;
 
 /**
  * @author Simon McDuff
  */
-public class CDOViewSetPackageRegistryImpl extends CDOPackageRegistryImpl
+public class CDOViewSetPackageRegistryImpl extends EPackageRegistryImpl
 {
   private static final long serialVersionUID = 1L;
 
   private CDOViewSet viewSet;
 
-  public CDOViewSetPackageRegistryImpl(CDOViewSet viewSet/* , EPackage.Registry delegateRegistry */)
+  public CDOViewSetPackageRegistryImpl(CDOViewSet viewSet, EPackage.Registry delegateRegistry)
   {
-    // super(delegateRegistry);
+    super(delegateRegistry);
     this.viewSet = viewSet;
   }
 
@@ -44,7 +44,7 @@ public class CDOViewSetPackageRegistryImpl extends CDOPackageRegistryImpl
       }
     }
 
-    return null; // super.delegatedGetEPackage(nsURI);
+    return super.delegatedGetEPackage(nsURI);
   }
 
   @Override

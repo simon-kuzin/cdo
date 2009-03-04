@@ -200,8 +200,8 @@ public class CDOViewSetImpl extends NotifierImpl implements InternalCDOViewSet
     }
 
     resourceSet = (ResourceSet)newTarget;
-    // EPackage.Registry oldPackageRegistry = resourceSet.getPackageRegistry();
-    packageRegistry = new CDOViewSetPackageRegistryImpl(this/* , oldPackageRegistry */);
+    EPackage.Registry oldPackageRegistry = resourceSet.getPackageRegistry();
+    packageRegistry = new CDOViewSetPackageRegistryImpl(this, oldPackageRegistry);
     resourceSet.setPackageRegistry(packageRegistry);
 
     Registry registry = resourceSet.getResourceFactoryRegistry();
