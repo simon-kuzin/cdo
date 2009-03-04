@@ -38,6 +38,7 @@ import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 
 import java.io.ByteArrayInputStream;
@@ -59,9 +60,9 @@ public class ExternalReferenceTest extends AbstractCDOTest
       resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap().put("test", new XMIResourceFactoryImpl());
 
       EPackage schoolPackage = createDynamicEPackage();
-      EClass classifier = (EClass)schoolPackage.getEClassifier("SchoolBook");
+      EClass eClass = (EClass)schoolPackage.getEClassifier("SchoolBook");
 
-      EObject schoolbook = schoolPackage.getEFactoryInstance().create(classifier);
+      EObject schoolbook = EcoreUtil.create(eClass);
       sessionA.getPackageRegistry().putEPackage(model4Package.eINSTANCE);
       CDOTransaction transactionA1 = sessionA.openTransaction(resourceSet);
 

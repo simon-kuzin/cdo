@@ -1086,6 +1086,11 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
       if (!CDOModelUtil.isSystemPackage(usedPackage))
       {
         CDOPackageUnit packageUnit = CDOModelUtil.getPackageUnit(usedPackage, packageRegistry);
+        if (packageUnit == null)
+        {
+          throw new CDOException("No package unit for " + usedPackage);
+        }
+
         if (packageUnit.getState() == CDOPackageUnit.State.NEW)
         {
           newPackages.add(usedPackage);
