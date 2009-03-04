@@ -12,12 +12,14 @@
 package org.eclipse.emf.cdo.internal.ui.editor;
 
 import org.eclipse.emf.cdo.CDOObject;
+import org.eclipse.emf.cdo.common.model.CDOModelUtil;
+import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.internal.ui.SharedIcons;
 import org.eclipse.emf.cdo.internal.ui.bundle.OM;
 import org.eclipse.emf.cdo.internal.ui.dialogs.BulkAddDialog;
 import org.eclipse.emf.cdo.internal.ui.dialogs.RollbackTransactionDialog;
-import org.eclipse.emf.cdo.session.CDOSessionPackageManager;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.cdo.ui.CDOEditorInput;
 import org.eclipse.emf.cdo.ui.CDOEventHandler;
@@ -49,6 +51,7 @@ import org.eclipse.emf.common.util.Diagnostic;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
@@ -77,7 +80,6 @@ import org.eclipse.emf.edit.ui.util.EditUIMarkerHelper;
 import org.eclipse.emf.edit.ui.util.EditUIUtil;
 import org.eclipse.emf.edit.ui.view.ExtendedPropertySheetPage;
 import org.eclipse.emf.spi.cdo.InternalCDOObject;
-import org.eclipse.emf.spi.cdo.InternalCDOTransaction;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -152,9 +154,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -2075,39 +2077,59 @@ public class CDOEditor extends MultiPageEditorPart implements IEditingDomainProv
   protected boolean populateNewRoot(MenuManager menuManager)
   {
     boolean populated = false;
-    CDOSessionPackageManager packageManager = view.getSession().getPackageUnitManager();
-    List<EPackage> cdoPackages = Arrays.asList(packageManager.getPackages());
-    Collections.sort(cdoPackages);
-
-    for (EPackage cdoPackage : cdoPackages)
+    CDOPackageRegistry packageRegistry = view.getSession().getPackageRegistry();
+    List<EPackage> ePackages = new ArrayList<EPackage>();
+    for (String uri : packageRegistry.keySet())
     {
-      if (!cdoPackage.isSystem())
+      ePackages.add(packageRegistry.getEPackage(uri));
+    }
+
+    Collections.sort(ePackages, new Comparator<EPackage>()
+    {
+      public int compare(EPackage o1, EPackage o2)
       {
-        try
+        return o1.getNsURI().compareTo(o2.getNsURI());
+      }
+    });
+
+    for (Object entry : ePackages)
+    {
+      EPackage ePackage = (EPackage)entry;
+      CDOPackageUnit packageUnit = CDOModelUtil.getPackageUnit(ePackage, view.getSession().getPackageRegistry());
+
+      // TODO Allow system packages?
+      if (packageUnit.isSystem())
+      {
+        continue;
+      }
+
+      List<EClass> eClasses = new ArrayList<EClass>();
+      for (EClassifier eClassifier : ePackage.getEClassifiers())
+      {
+        if (eClassifier instanceof EClass)
         {
-          packageManager.convert(cdoPackage);
+          eClasses.add((EClass)eClassifier);
         }
-        catch (Exception ex)
+      }
+
+      Collections.sort(eClasses, new Comparator<EClass>()
+      {
+        public int compare(EClass o1, EClass o2)
         {
-          continue;
+          return o1.getName().compareTo(o2.getName());
         }
+      });
 
-        List<EClass> cdoClasses = Arrays.asList(cdoPackage.getConcreteClasses());
-        Collections.sort(cdoClasses);
-        // TODO Sorting by class name may not have the desired effect if the labels are computed by an ItemProvider!
+      if (!eClasses.isEmpty())
+      {
+        MenuManager submenuManager = new MenuManager(ePackage.getNsURI());
 
-        if (!cdoClasses.isEmpty())
+        for (EClass eClass : eClasses)
         {
-          MenuManager submenuManager = new MenuManager(cdoPackage.getNsURI());
-
-          for (EClass cdoClass : cdoClasses)
-          {
-            // TODO Optimize/cache this?
-            CreateRootAction action = new CreateRootAction(cdoClass);
-            submenuManager.add(action);
-            populated = true;
-          }
-
+          // TODO Optimize/cache this?
+          CreateRootAction action = new CreateRootAction(eClass);
+          submenuManager.add(action);
+          populated = true;
           menuManager.add(submenuManager);
         }
       }
@@ -2345,12 +2367,12 @@ public class CDOEditor extends MultiPageEditorPart implements IEditingDomainProv
    */
   private final class CreateRootAction extends LongRunningAction
   {
-    private EClass cdoClass;
+    private EClass eClass;
 
     private CreateRootAction(EClass cdoClass)
     {
       super(getEditorSite().getPage(), cdoClass.getName(), SharedIcons.getDescriptor(SharedIcons.OBJ_ECLASS));
-      this.cdoClass = cdoClass;
+      eClass = cdoClass;
     }
 
     @Override
@@ -2380,7 +2402,7 @@ public class CDOEditor extends MultiPageEditorPart implements IEditingDomainProv
 
       if (resource != null)
       {
-        InternalCDOObject object = (InternalCDOObject)((InternalCDOTransaction)view).newInstance(cdoClass);
+        InternalCDOObject object = (InternalCDOObject)EcoreUtil.create(eClass);
         resource.getContents().add(object.cdoInternalInstance());
       }
     }

@@ -7,16 +7,16 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Victor Roldan Betancort - maintenance
  */
 package org.eclipse.emf.cdo.internal.ui.dialogs;
 
-import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
+import org.eclipse.emf.cdo.common.model.CDOModelUtil;
+import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.internal.ui.SharedIcons;
 import org.eclipse.emf.cdo.internal.ui.actions.RegisterFilesystemPackagesAction;
 import org.eclipse.emf.cdo.internal.ui.actions.RegisterGeneratedPackagesAction;
 import org.eclipse.emf.cdo.internal.ui.actions.RegisterWorkspacePackagesAction;
-import org.eclipse.emf.cdo.session.CDOPackageType;
-import org.eclipse.emf.cdo.session.CDOPackageTypeRegistry;
 import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.ui.CDOItemProvider;
 
@@ -24,8 +24,6 @@ import org.eclipse.net4j.util.ObjectUtil;
 import org.eclipse.net4j.util.ui.UIUtil;
 
 import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.emf.ecore.EcorePackage;
-import org.eclipse.emf.ecore.impl.EPackageImpl;
 
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
@@ -43,12 +41,9 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.IWorkbenchPage;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
+import javax.swing.text.AbstractDocument.Content;
+
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * @author Eike Stepper
@@ -62,8 +57,6 @@ public class PackageManagerDialog extends TitleAreaDialog
   private static final int REGISTER_FILESYSTEM_PACKAGES_ID = IDialogConstants.CLIENT_ID + 3;
 
   private static final String TITLE = "CDO Package Manager";
-
-  private static final String EMPTY = "";
 
   private IWorkbenchPage page;
 
@@ -99,11 +92,12 @@ public class PackageManagerDialog extends TitleAreaDialog
     table.setHeaderVisible(true);
     table.setLayoutData(UIUtil.createGridData());
     addColumn(table, "Package", 400, SWT.LEFT);
-    addColumn(table, "Registry", 80, SWT.CENTER);
-    addColumn(table, "Repository", 80, SWT.CENTER);
+    addColumn(table, "State", 80, SWT.CENTER);
+    addColumn(table, "Type", 80, SWT.CENTER);
+    addColumn(table, "Original Type", 80, SWT.CENTER);
 
-    viewer.setContentProvider(new ContentProvider());
-    viewer.setLabelProvider(new LabelProvider());
+    viewer.setContentProvider(new EPackageContentProvider());
+    viewer.setLabelProvider(new EPackageLabelProvider());
     viewer.setInput(session);
 
     return composite;
@@ -162,70 +156,16 @@ public class PackageManagerDialog extends TitleAreaDialog
     }
   }
 
-  protected Image getContentIcon(Content content)
-  {
-    return null;
-  }
-
-  protected String getEPackageText(Object ePackage)
-  {
-    if (ePackage == EcorePackage.eINSTANCE)
-    {
-      return "ECORE";
-    }
-
-    if (ePackage.getClass() == EPackageImpl.class)
-    {
-      return "DYNAMIC";
-    }
-
-    String uri = EMPTY;
-    if (ePackage instanceof EPackage.Descriptor)
-    {
-      CDOPackageRegistry registry = session.getPackageRegistry();
-      for (Map.Entry<String, Object> entry : registry.entrySet())
-      {
-        if (entry.getValue() == ePackage)
-        {
-          uri = entry.getKey();
-          break;
-        }
-      }
-    }
-    else
-    {
-      uri = ((EPackage)ePackage).getNsURI();
-    }
-
-    CDOPackageType packageType = CDOPackageTypeRegistry.INSTANCE.get(uri);
-    if (packageType == null)
-    {
-      return "?";
-    }
-
-    return packageType.toString();
-  }
-
-  protected String getEPackageText(EPackage cdoPackage)
-  {
-    if (cdoPackage.isSystem())
-    {
-      return "SYSTEM";
-    }
-
-    if (!cdoPackage.isPersistent())
-    {
-      return EMPTY;
-    }
-
-    return cdoPackage.isDynamic() ? "DYNAMIC" : "STATIC";
-  }
-
   private void addColumn(Table table, String title, int width, int alignment)
   {
     TableColumn column = new TableColumn(table, alignment);
     column.setText(title);
     column.setWidth(width);
+  }
+
+  protected Image getContentIcon(Content content)
+  {
+    return null;
   }
 
   protected void refreshViewer()
@@ -248,25 +188,30 @@ public class PackageManagerDialog extends TitleAreaDialog
   /**
    * @author Eike Stepper
    */
-  public class LabelProvider extends BaseLabelProvider implements ITableLabelProvider
+  public class EPackageLabelProvider extends BaseLabelProvider implements ITableLabelProvider
   {
-    public LabelProvider()
+    public EPackageLabelProvider()
     {
     }
 
     public String getColumnText(Object element, int columnIndex)
     {
-      if (element instanceof Content)
+      if (element instanceof EPackage)
       {
-        Content content = (Content)element;
+        CDOPackageInfo packageInfo = CDOModelUtil.getPackageInfo((EPackage)element, session.getPackageRegistry());
         switch (columnIndex)
         {
         case 0:
-          return content.getPackageURI();
+          return packageInfo.getPackageURI();
+
         case 1:
-          return content.getEPackage() == null ? EMPTY : getEPackageText(content.getEPackage());
+          return packageInfo.getPackageUnit().getState().toString();
+
         case 2:
-          return content.getEPackage() == null ? EMPTY : getEPackageText(content.getEPackage());
+          return packageInfo.getPackageUnit().getType().toString();
+
+        case 3:
+          return packageInfo.getPackageUnit().getOriginalType().toString();
         }
       }
 
@@ -291,13 +236,13 @@ public class PackageManagerDialog extends TitleAreaDialog
   /**
    * @author Eike Stepper
    */
-  public static class ContentProvider implements IStructuredContentProvider
+  public static class EPackageContentProvider implements IStructuredContentProvider
   {
     private static final Object[] NO_ELEMENTS = {};
 
     private CDOSession session;
 
-    public ContentProvider()
+    public EPackageContentProvider()
     {
     }
 
@@ -323,107 +268,7 @@ public class PackageManagerDialog extends TitleAreaDialog
         return NO_ELEMENTS;
       }
 
-      Map<String, Content> map = new HashMap<String, Content>();
-      for (Entry<String, Object> entry : session.getPackageRegistry().entrySet())
-      {
-        String packageURI = entry.getKey();
-        Content content = new Content(packageURI);
-        map.put(packageURI, content);
-        content.setEPackage(entry.getValue());
-      }
-
-      for (EPackage cdoPackage : session.getPackageUnitManager().getPackages())
-      {
-        String packageURI = cdoPackage.getNsURI();
-        Content content = map.get(packageURI);
-        if (content == null)
-        {
-          content = new Content(packageURI);
-          map.put(packageURI, content);
-        }
-
-        content.setEPackage(cdoPackage);
-      }
-
-      ArrayList<Content> list = new ArrayList<Content>(map.values());
-      Collections.sort(list);
-      return list.toArray(new Content[list.size()]);
-    }
-  }
-
-  /**
-   * @author Eike Stepper
-   */
-  public static final class Content implements Comparable<Content>
-  {
-    private String packageURI;
-
-    private Object ePackage;
-
-    private EPackage cdoPackage;
-
-    public Content(String packageURI)
-    {
-      this.packageURI = packageURI;
-    }
-
-    public String getPackageURI()
-    {
-      return packageURI;
-    }
-
-    public Object getEPackage()
-    {
-      return ePackage;
-    }
-
-    public void setEPackage(Object ePackage)
-    {
-      this.ePackage = ePackage;
-    }
-
-    public EPackage getEPackage()
-    {
-      return cdoPackage;
-    }
-
-    public void setEPackage(EPackage cdoPackage)
-    {
-      this.cdoPackage = cdoPackage;
-    }
-
-    public int compareTo(Content content)
-    {
-      return packageURI.compareTo(content.packageURI);
-    }
-
-    @Override
-    public boolean equals(Object obj)
-    {
-      if (obj == this)
-      {
-        return true;
-      }
-
-      if (obj instanceof Content)
-      {
-        Content that = (Content)obj;
-        return ObjectUtil.equals(packageURI, that.packageURI);
-      }
-
-      return false;
-    }
-
-    @Override
-    public int hashCode()
-    {
-      return ObjectUtil.hashCode(packageURI);
-    }
-
-    @Override
-    public String toString()
-    {
-      return packageURI;
+      return session.getPackageRegistry().values().toArray();
     }
   }
 }
