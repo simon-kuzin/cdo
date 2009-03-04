@@ -16,7 +16,6 @@ import org.eclipse.emf.cdo.tests.model1.Category;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.util.EcoreUtil;
 
 /**
  * [CDO] Remove poor performance
@@ -51,10 +50,12 @@ public class Bugzilla_261218_Test extends AbstractCDOTest
     long start = System.currentTimeMillis();
     for (int i = 9999; i >= 0; --i)
     {
-      EcoreUtil.remove(folder.getCategories().get(i));
+      // EcoreUtil.remove(folder.getCategories().get(i));
+      folder.getCategories().remove(i);
     }
     // =>90 seconds
     transaction.commit();
+    // TODO: SIMON BETTER ASSERTION
     assertTrue(System.currentTimeMillis() - start < 10000);
   }
 
