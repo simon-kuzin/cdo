@@ -144,18 +144,18 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     return result;
   }
 
-  public final void readPackage(EPackage cdoPackage)
+  public final void readPackage(EPackage ePackage)
   {
-    String where = CDODBSchema.PACKAGES_URI.getName() + " = '" + cdoPackage.getNsURI() + "'";
+    String where = CDODBSchema.PACKAGES_URI.getName() + " = '" + ePackage.getNsURI() + "'";
     Object[] values = DBUtil.select(jdbcDelegate.getConnection(), where, CDODBSchema.PACKAGES_ID,
         CDODBSchema.PACKAGES_NAME);
-    PackageServerInfo.setDBID(cdoPackage, (Integer)values[0]);
-    ((InternalEPackage)cdoPackage).setName((String)values[1]);
-    readClasses(cdoPackage);
-    mapPackages(cdoPackage);
+    PackageServerInfo.setDBID(ePackage, (Integer)values[0]);
+    ((InternalEPackage)ePackage).setName((String)values[1]);
+    readClasses(ePackage);
+    mapPackages(ePackage);
   }
 
-  protected final void readClasses(final EPackage cdoPackage)
+  protected final void readClasses(final EPackage ePackage)
   {
     IDBRowHandler rowHandler = new IDBRowHandler()
     {
@@ -165,21 +165,21 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
         int classifierID = (Integer)values[1];
         String name = (String)values[2];
         boolean isAbstract = getBoolean(values[3]);
-        EClass cdoClass = CDOModelUtil.createClass(cdoPackage, classifierID, name, isAbstract);
-        ClassServerInfo.setDBID(cdoClass, classID);
-        ((InternalEPackage)cdoPackage).addClass(cdoClass);
-        readSuperTypes(cdoClass, classID);
-        readFeatures(cdoClass, classID);
+        EClass eClass = CDOModelUtil.createClass(ePackage, classifierID, name, isAbstract);
+        ClassServerInfo.setDBID(eClass, classID);
+        ((InternalEPackage)ePackage).addClass(eClass);
+        readSuperTypes(eClass, classID);
+        readFeatures(eClass, classID);
         return true;
       }
     };
 
-    String where = CDODBSchema.CLASSES_PACKAGE.getName() + "=" + ServerInfo.getDBID(cdoPackage);
+    String where = CDODBSchema.CLASSES_PACKAGE.getName() + "=" + ServerInfo.getDBID(ePackage);
     DBUtil.select(jdbcDelegate.getConnection(), rowHandler, where, CDODBSchema.CLASSES_ID,
         CDODBSchema.CLASSES_CLASSIFIER, CDODBSchema.CLASSES_NAME, CDODBSchema.CLASSES_ABSTRACT);
   }
 
-  protected final void readSuperTypes(final EClass cdoClass, int classID)
+  protected final void readSuperTypes(final EClass eClass, int classID)
   {
     IDBRowHandler rowHandler = new IDBRowHandler()
     {
@@ -187,7 +187,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
       {
         String packageURI = (String)values[0];
         int classifierID = (Integer)values[1];
-        ((InternalEClass)cdoClass).addSuperType(CDOModelUtil.createClassRef(packageURI, classifierID));
+        ((InternalEClass)eClass).addSuperType(CDOModelUtil.createClassRef(packageURI, classifierID));
         return true;
       }
     };
@@ -197,7 +197,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
         CDODBSchema.SUPERTYPES_SUPERTYPE_CLASSIFIER);
   }
 
-  protected final void readFeatures(final EClass cdoClass, int classID)
+  protected final void readFeatures(final EClass eClass, int classID)
   {
     IDBRowHandler rowHandler = new IDBRowHandler()
     {
@@ -215,16 +215,16 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
           int classifierID = (Integer)values[5];
           boolean containment = getBoolean(values[7]);
           CDOClassifierRef classRef = CDOModelUtil.createClassRef(packageURI, classifierID);
-          EClassProxy referenceType = new EClassProxy(classRef, cdoClass.getManager());
-          feature = CDOModelUtil.createReference(cdoClass, featureID, name, referenceType, many, containment);
+          EClassProxy referenceType = new EClassProxy(classRef, eClass.getManager());
+          feature = CDOModelUtil.createReference(eClass, featureID, name, referenceType, many, containment);
         }
         else
         {
-          feature = CDOModelUtil.createAttribute(cdoClass, featureID, name, type, null, many);
+          feature = CDOModelUtil.createAttribute(eClass, featureID, name, type, null, many);
         }
 
         FeatureServerInfo.setDBID(feature, (Integer)values[0]);
-        ((InternalEClass)cdoClass).addFeature(feature);
+        ((InternalEClass)eClass).addFeature(feature);
         return true;
       }
     };
@@ -236,11 +236,11 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
         CDODBSchema.FEATURES_CONTAINMENT);
   }
 
-  public final void readPackageEcore(EPackage cdoPackage)
+  public final void readPackageEcore(EPackage ePackage)
   {
-    String where = CDODBSchema.PACKAGES_URI.getName() + " = '" + cdoPackage.getNsURI() + "'";
+    String where = CDODBSchema.PACKAGES_URI.getName() + " = '" + ePackage.getNsURI() + "'";
     Object[] values = DBUtil.select(jdbcDelegate.getConnection(), where, CDODBSchema.PACKAGES_ECORE);
-    ((InternalEPackage)cdoPackage).setEcore((String)values[0]);
+    ((InternalEPackage)ePackage).setEcore((String)values[0]);
   }
 
   public final String readPackageURI(int packageID)
@@ -287,16 +287,16 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
       TRACER.format("Selecting revision: {0}", id);
     }
 
-    EClass cdoClass = getObjectType(id);
-    if (cdoClass == null)
+    EClass eClass = getObjectType(id);
+    if (eClass == null)
     {
       return null;
     }
 
-    InternalCDORevision revision = (InternalCDORevision)CDORevisionUtil.create(cdoClass, id);
+    InternalCDORevision revision = (InternalCDORevision)CDORevisionUtil.create(eClass, id);
 
     IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
-    IClassMapping mapping = mappingStrategy.getClassMapping(cdoClass);
+    IClassMapping mapping = mappingStrategy.getClassMapping(eClass);
     if (mapping.readRevision(this, revision, referenceChunk))
     {
       return revision;
@@ -313,11 +313,11 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
       TRACER.format("Selecting revision: {0}, timestamp={1,date} {1,time}", id, timeStamp);
     }
 
-    EClass cdoClass = getObjectType(id);
-    InternalCDORevision revision = (InternalCDORevision)CDORevisionUtil.create(cdoClass, id);
+    EClass eClass = getObjectType(id);
+    InternalCDORevision revision = (InternalCDORevision)CDORevisionUtil.create(eClass, id);
 
     IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
-    IClassMapping mapping = mappingStrategy.getClassMapping(cdoClass);
+    IClassMapping mapping = mappingStrategy.getClassMapping(eClass);
     if (mapping.readRevisionByTime(this, revision, timeStamp, referenceChunk))
     {
       return revision;
@@ -334,11 +334,11 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
       TRACER.format("Selecting revision: {0}, version={1}", id, version);
     }
 
-    EClass cdoClass = getObjectType(id);
-    InternalCDORevision revision = (InternalCDORevision)CDORevisionUtil.create(cdoClass, id);
+    EClass eClass = getObjectType(id);
+    InternalCDORevision revision = (InternalCDORevision)CDORevisionUtil.create(eClass, id);
 
     IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
-    IClassMapping mapping = mappingStrategy.getClassMapping(cdoClass);
+    IClassMapping mapping = mappingStrategy.getClassMapping(eClass);
     if (mapping.readRevisionByVersion(this, revision, version, referenceChunk))
     {
       return revision;
@@ -407,28 +407,28 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     }
   }
 
-  private void fillSystemTables(EPackage[] cdoPackages, OMMonitor monitor)
+  private void fillSystemTables(EPackage[] ePackages, OMMonitor monitor)
   {
-    // new PackageWriter(cdoPackages, monitor)
+    // new PackageWriter(ePackages, monitor)
     // {
     // @Override
-    // protected void writePackage(InternalEPackage cdoPackage, OMMonitor monitor)
+    // protected void writePackage(InternalEPackage ePackage, OMMonitor monitor)
     // {
     // int id = getStore().getNextPackageID();
-    // PackageServerInfo.setDBID(cdoPackage, id);
+    // PackageServerInfo.setDBID(ePackage, id);
     // if (TRACER.isEnabled())
     // {
-    // TRACER.format("Writing package: {0} --> {1}", cdoPackage, id);
+    // TRACER.format("Writing package: {0} --> {1}", ePackage, id);
     // }
     //
-    // String packageURI = cdoPackage.getPackageURI();
-    // String name = cdoPackage.getName();
-    // String ecore = cdoPackage.getEcore();
-    // boolean dynamic = cdoPackage.isDynamic();
-    // CDOIDMetaRange metaIDRange = cdoPackage.getMetaIDRange();
+    // String packageURI = ePackage.getPackageURI();
+    // String name = ePackage.getName();
+    // String ecore = ePackage.getEcore();
+    // boolean dynamic = ePackage.isDynamic();
+    // CDOIDMetaRange metaIDRange = ePackage.getMetaIDRange();
     // long lowerBound = metaIDRange == null ? 0L : ((CDOIDMeta)metaIDRange.getLowerBound()).getLongValue();
     // long upperBound = metaIDRange == null ? 0L : ((CDOIDMeta)metaIDRange.getUpperBound()).getLongValue();
-    // String parentURI = cdoPackage.getParentURI();
+    // String parentURI = ePackage.getParentURI();
     //
     // String sql = "INSERT INTO " + CDODBSchema.PACKAGES + " VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     // DBUtil.trace(sql);
@@ -472,7 +472,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     // }
     //
     // @Override
-    // protected final void writeClass(InternalEClass cdoClass, OMMonitor monitor)
+    // protected final void writeClass(InternalEClass eClass, OMMonitor monitor)
     // {
     // monitor.begin();
     // Async async = monitor.forkAsync();
@@ -480,13 +480,13 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     // try
     // {
     // int id = getStore().getNextClassID();
-    // ClassServerInfo.setDBID(cdoClass, id);
+    // ClassServerInfo.setDBID(eClass, id);
     //
-    // EPackage cdoPackage = cdoClass.getContainingPackage();
-    // int packageID = ServerInfo.getDBID(cdoPackage);
-    // int classifierID = cdoClass.getClassifierID();
-    // String name = cdoClass.getName();
-    // boolean isAbstract = cdoClass.isAbstract();
+    // EPackage ePackage = eClass.getContainingPackage();
+    // int packageID = ServerInfo.getDBID(ePackage);
+    // int classifierID = eClass.getClassifierID();
+    // String name = eClass.getName();
+    // boolean isAbstract = eClass.isAbstract();
     // DBUtil.insertRow(jdbcDelegate.getConnection(), getStore().getDBAdapter(), CDODBSchema.CLASSES, id, packageID,
     // classifierID, name, isAbstract);
     // }
@@ -551,14 +551,14 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     // }.run();
   }
 
-  private void createModelTables(EPackage[] cdoPackages, OMMonitor monitor)
+  private void createModelTables(EPackage[] ePackages, OMMonitor monitor)
   {
     monitor.begin();
     Async async = monitor.forkAsync();
 
     try
     {
-      Set<IDBTable> affectedTables = mapPackages(cdoPackages);
+      Set<IDBTable> affectedTables = mapPackages(ePackages);
       getStore().getDBAdapter().createTables(affectedTables, jdbcDelegate.getConnection());
     }
     finally
@@ -592,8 +592,8 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
 
   protected void writeRevisionDelta(CDORevisionDelta delta, long created, OMMonitor monitor)
   {
-    CDOClass cdoClass = getObjectType(delta.getID());
-    IClassMapping mapping = getStore().getMappingStrategy().getClassMapping(cdoClass);
+    CDOClass eClass = getObjectType(delta.getID());
+    IClassMapping mapping = getStore().getMappingStrategy().getClassMapping(eClass);
     mapping.writeRevisionDelta(this, delta, created, monitor);
   }
 
@@ -621,8 +621,8 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
       TRACER.format("Writing revision: {0}", revision);
     }
 
-    EClass cdoClass = revision.getEClass();
-    IClassMapping mapping = getStore().getMappingStrategy().getClassMapping(cdoClass);
+    EClass eClass = revision.getEClass();
+    IClassMapping mapping = getStore().getMappingStrategy().getClassMapping(eClass);
     mapping.writeRevision(this, revision, monitor);
   }
 
@@ -653,8 +653,8 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
       TRACER.format("Detaching object: {0}", id);
     }
 
-    EClass cdoClass = getObjectType(id);
-    IClassMapping mapping = getStore().getMappingStrategy().getClassMapping(cdoClass);
+    EClass eClass = getObjectType(id);
+    IClassMapping mapping = getStore().getMappingStrategy().getClassMapping(eClass);
     mapping.detachObject(this, id, revised, monitor);
   }
 
@@ -681,14 +681,14 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     throw new IllegalArgumentException("Not a boolean value: " + value);
   }
 
-  protected Set<IDBTable> mapPackages(EPackage... cdoPackages)
+  protected Set<IDBTable> mapPackages(EPackage... ePackages)
   {
     Set<IDBTable> affectedTables = new HashSet<IDBTable>();
-    if (cdoPackages != null && cdoPackages.length != 0)
+    if (ePackages != null && ePackages.length != 0)
     {
-      for (EPackage cdoPackage : cdoPackages)
+      for (EPackage ePackage : ePackages)
       {
-        Set<IDBTable> tables = mapClasses(EMFUtil.getPersistentClasses(cdoPackage));
+        Set<IDBTable> tables = mapClasses(EMFUtil.getPersistentClasses(ePackage));
         affectedTables.addAll(tables);
       }
     }
@@ -696,15 +696,15 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     return affectedTables;
   }
 
-  protected Set<IDBTable> mapClasses(EClass... cdoClasses)
+  protected Set<IDBTable> mapClasses(EClass... eClasses)
   {
     Set<IDBTable> affectedTables = new HashSet<IDBTable>();
-    if (cdoClasses != null && cdoClasses.length != 0)
+    if (eClasses != null && eClasses.length != 0)
     {
       IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
-      for (EClass cdoClass : cdoClasses)
+      for (EClass eClass : eClasses)
       {
-        IClassMapping mapping = mappingStrategy.getClassMapping(cdoClass);
+        IClassMapping mapping = mappingStrategy.getClassMapping(eClass);
         if (mapping != null)
         {
           affectedTables.addAll(mapping.getAffectedTables());

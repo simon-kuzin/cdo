@@ -50,13 +50,13 @@ public class CDOListFeatureDeltaImpl extends CDOFeatureDeltaImpl implements CDOL
     super(feature);
   }
 
-  public CDOListFeatureDeltaImpl(CDODataInput in, EClass cdoClass) throws IOException
+  public CDOListFeatureDeltaImpl(CDODataInput in, EClass eClass) throws IOException
   {
-    super(in, cdoClass);
+    super(in, eClass);
     int size = in.readInt();
     for (int i = 0; i < size; i++)
     {
-      featureDeltas.add(in.readCDOFeatureDelta(cdoClass));
+      featureDeltas.add(in.readCDOFeatureDelta(eClass));
     }
   }
 
@@ -73,13 +73,13 @@ public class CDOListFeatureDeltaImpl extends CDOFeatureDeltaImpl implements CDOL
   }
 
   @Override
-  public void write(CDODataOutput out, EClass cdoClass) throws IOException
+  public void write(CDODataOutput out, EClass eClass) throws IOException
   {
-    super.write(out, cdoClass);
+    super.write(out, eClass);
     out.writeInt(featureDeltas.size());
     for (CDOFeatureDelta featureDelta : featureDeltas)
     {
-      out.writeCDOFeatureDelta(featureDelta, cdoClass);
+      out.writeCDOFeatureDelta(featureDelta, eClass);
     }
   }
 

@@ -72,9 +72,9 @@ public class HorizontalMappingStrategy extends MappingStrategy
   {
     String prefix = "SELECT DISTINCT " + CDODBSchema.ATTRIBUTES_CLASS + " FROM ";
     String suffix = " WHERE " + CDODBSchema.ATTRIBUTES_ID + "=" + id;
-    for (EClass cdoClass : getClassesWithObjectInfo())
+    for (EClass eClass : getClassesWithObjectInfo())
     {
-      IClassMapping mapping = getClassMapping(cdoClass);
+      IClassMapping mapping = getClassMapping(eClass);
       if (mapping != null)
       {
         IDBTable table = mapping.getTable();
@@ -113,14 +113,14 @@ public class HorizontalMappingStrategy extends MappingStrategy
   }
 
   @Override
-  protected IClassMapping createClassMapping(EClass cdoClass)
+  protected IClassMapping createClassMapping(EClass eClass)
   {
-    if (cdoClass.isAbstract())
+    if (eClass.isAbstract())
     {
       return null;
     }
 
-    return new HorizontalClassMapping(this, cdoClass);
+    return new HorizontalClassMapping(this, eClass);
   }
 
   @Override
@@ -128,13 +128,13 @@ public class HorizontalMappingStrategy extends MappingStrategy
   {
     List<EClass> result = new ArrayList<EClass>();
     IPackageManager packageManager = getStore().getRepository().getPackageRegistry();
-    for (EPackage cdoPackage : packageManager.getPackages())
+    for (EPackage ePackage : packageManager.getPackages())
     {
-      for (EClass cdoClass : cdoPackage.getConcreteClasses())
+      for (EClass eClass : ePackage.getConcreteClasses())
       {
-        if (!CDOModelUtil.isRoot(cdoClass))
+        if (!CDOModelUtil.isRoot(eClass))
         {
-          result.add(cdoClass);
+          result.add(eClass);
         }
       }
     }

@@ -29,61 +29,61 @@ public final class ClassServerInfo extends ServerInfo
     super(id);
   }
 
-  public static ClassServerInfo setDBID(EClass cdoClass, int id)
+  public static ClassServerInfo setDBID(EClass eClass, int id)
   {
     ClassServerInfo serverInfo = new ClassServerInfo(id);
-    ((InternalEClass)cdoClass).setServerInfo(serverInfo);
+    ((InternalEClass)eClass).setServerInfo(serverInfo);
     return serverInfo;
   }
 
   /*
    * Should only be called from MappingStrategy#getClassMapping(EClass).
    */
-  public static IClassMapping getClassMapping(EClass cdoClass)
+  public static IClassMapping getClassMapping(EClass eClass)
   {
-    ClassServerInfo serverInfo = getServerInfo(cdoClass);
+    ClassServerInfo serverInfo = getServerInfo(eClass);
     return serverInfo == null ? null : serverInfo.classMapping;
   }
 
-  public static void setClassMapping(EClass cdoClass, IClassMapping classMapping)
+  public static void setClassMapping(EClass eClass, IClassMapping classMapping)
   {
-    ClassServerInfo serverInfo = getServerInfo(cdoClass);
+    ClassServerInfo serverInfo = getServerInfo(eClass);
     if (serverInfo == null)
     {
-      throw new ImplementationError("No serverInfo for class " + cdoClass);
+      throw new ImplementationError("No serverInfo for class " + eClass);
     }
 
     serverInfo.classMapping = classMapping;
   }
 
-  private static ClassServerInfo getServerInfo(EClass cdoClass)
+  private static ClassServerInfo getServerInfo(EClass eClass)
   {
-    ClassServerInfo serverInfo = (ClassServerInfo)cdoClass.getServerInfo();
+    ClassServerInfo serverInfo = (ClassServerInfo)eClass.getServerInfo();
     if (serverInfo == null)
     {
-      if (CDOModelUtil.isRoot(cdoClass))
+      if (CDOModelUtil.isRoot(eClass))
       {
-        serverInfo = setDBID(cdoClass, CDO_OBJECT_CLASS_DBID);
+        serverInfo = setDBID(eClass, CDO_OBJECT_CLASS_DBID);
       }
-      // else if (cdoClass.isResource())
+      // else if (eClass.isResource())
       // {
-      // CDOResourceClass c = (CDOResourceClass)cdoClass;
+      // CDOResourceClass c = (CDOResourceClass)eClass;
       // FeatureServerInfo.setDBID(c.getCDOContentsFeature(), CDO_CONTENTS_FEATURE_DBID);
       // serverInfo = setDBID(c, CDO_RESOURCE_CLASS_DBID);
       // }
-      // else if (cdoClass.isResourceFolder())
+      // else if (eClass.isResourceFolder())
       // {
-      // CDOResourceFolderClass c = (CDOResourceFolderClass)cdoClass;
+      // CDOResourceFolderClass c = (CDOResourceFolderClass)eClass;
       // FeatureServerInfo.setDBID(c.getCDONodesFeature(), CDO_NODES_FEATURE_DBID);
       // serverInfo = setDBID(c, CDO_RESOURCE_FOLDER_CLASS_DBID);
       // }
-      // else if (cdoClass.isResourceNode())
+      // else if (eClass.isResourceNode())
       // {
       // // Important to check the abstract class *after* the concrete ones!
-      // CDOResourceNodeClass c = (CDOResourceNodeClass)cdoClass;
+      // CDOResourceNodeClass c = (CDOResourceNodeClass)eClass;
       // FeatureServerInfo.setDBID(c.getCDOFolderFeature(), CDO_FOLDER_FEATURE_DBID);
       // FeatureServerInfo.setDBID(c.getCDONameFeature(), CDO_NAME_FEATURE_DBID);
-      // serverInfo = setDBID(cdoClass, CDO_RESOURCE_NODE_CLASS_DBID);
+      // serverInfo = setDBID(eClass, CDO_RESOURCE_NODE_CLASS_DBID);
       // }
     }
 

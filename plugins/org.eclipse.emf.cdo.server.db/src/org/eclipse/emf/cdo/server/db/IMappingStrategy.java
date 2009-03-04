@@ -87,7 +87,7 @@ public interface IMappingStrategy
 
   public void setProperties(Map<String, String> properties);
 
-  public IClassMapping getClassMapping(EClass cdoClass);
+  public IClassMapping getClassMapping(EClass eClass);
 
   /**
    * @since 2.0

@@ -35,16 +35,16 @@ public abstract class CDOFeatureDeltaImpl implements InternalCDOFeatureDelta
     this.feature = feature;
   }
 
-  public CDOFeatureDeltaImpl(CDODataInput in, EClass cdoClass) throws IOException
+  public CDOFeatureDeltaImpl(CDODataInput in, EClass eClass) throws IOException
   {
     int featureID = in.readInt();
-    feature = cdoClass.getEStructuralFeature(featureID);
+    feature = eClass.getEStructuralFeature(featureID);
   }
 
-  public void write(CDODataOutput out, EClass cdoClass) throws IOException
+  public void write(CDODataOutput out, EClass eClass) throws IOException
   {
     out.writeInt(getType().ordinal());
-    out.writeInt(cdoClass.getFeatureID(feature));
+    out.writeInt(eClass.getFeatureID(feature));
   }
 
   public EStructuralFeature getFeature()

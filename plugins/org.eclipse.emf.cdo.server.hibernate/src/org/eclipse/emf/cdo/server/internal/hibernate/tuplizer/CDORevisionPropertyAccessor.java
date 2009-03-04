@@ -61,13 +61,13 @@ public class CDORevisionPropertyAccessor implements PropertyAccessor
   {
     private CDORevisionPropertyAccessor propertyAccessor;
 
-    private EStructuralFeature cdoFeature;
+    private EStructuralFeature feature;
 
     public BaseAccessor(CDORevisionPropertyAccessor propertyAccessor, String propertyName)
     {
       this.propertyAccessor = propertyAccessor;
-      cdoFeature = propertyAccessor.getTuplizer().getEClass().lookupFeature(propertyName);
-      if (cdoFeature == null)
+      feature = propertyAccessor.getTuplizer().getEClass().lookupFeature(propertyName);
+      if (feature == null)
       {
         throw new IllegalStateException("Feature not found: " + propertyName);
       }
@@ -80,7 +80,7 @@ public class CDORevisionPropertyAccessor implements PropertyAccessor
 
     public EStructuralFeature getEStructuralFeature()
     {
-      return cdoFeature;
+      return feature;
     }
   }
 

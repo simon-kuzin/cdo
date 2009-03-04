@@ -69,13 +69,13 @@ public final class CDOClassifierRef
 
   public EClassifier resolve(EPackage.Registry packageRegistry)
   {
-    EPackage cdoPackage = packageRegistry.getEPackage(packageURI);
-    if (cdoPackage == null)
+    EPackage ePackage = packageRegistry.getEPackage(packageURI);
+    if (ePackage == null)
     {
       throw new IllegalStateException("Package not found: " + packageURI);
     }
 
-    return EMFUtil.getClassifier(cdoPackage, classifierID);
+    return EMFUtil.getClassifier(ePackage, classifierID);
   }
 
   @Override

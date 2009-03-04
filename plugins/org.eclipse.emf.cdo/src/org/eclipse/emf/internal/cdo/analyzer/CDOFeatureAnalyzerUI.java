@@ -58,9 +58,9 @@ public class CDOFeatureAnalyzerUI extends CDOAbstractFeatureRuleAnalyzer
     return lastTraverseCDOObject.cdoID();
   }
 
-  public synchronized CDOClusterOfFetchRule getFeatureRule(EClass cdoClass, EStructuralFeature cdoFeature)
+  public synchronized CDOClusterOfFetchRule getFeatureRule(EClass eClass, EStructuralFeature feature)
   {
-    CDOClusterOfFetchRule search = new CDOClusterOfFetchRule(cdoClass, cdoFeature);
+    CDOClusterOfFetchRule search = new CDOClusterOfFetchRule(eClass, feature);
     CDOClusterOfFetchRule featureRule = featureRules.get(search);
     if (featureRule == null)
     {

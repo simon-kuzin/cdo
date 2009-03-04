@@ -58,7 +58,7 @@ public interface CDODataOutput extends ExtendedDataOutput
 
   public void writeCDOPackageURI(String uri) throws IOException;
 
-  public void writeEPackage(EPackage cdoPackage) throws IOException;
+  public void writeEPackage(EPackage ePackage) throws IOException;
 
   public void writeCDOType(CDOType cdoType) throws IOException;
 
@@ -80,7 +80,7 @@ public interface CDODataOutput extends ExtendedDataOutput
 
   public void writeCDORevisionDelta(CDORevisionDelta revisionDelta) throws IOException;
 
-  public void writeCDOFeatureDelta(CDOFeatureDelta featureDelta, EClass cdoClass) throws IOException;
+  public void writeCDOFeatureDelta(CDOFeatureDelta featureDelta, EClass eClass) throws IOException;
 
   /**
    * Write either a CDORevision or a primitive value.

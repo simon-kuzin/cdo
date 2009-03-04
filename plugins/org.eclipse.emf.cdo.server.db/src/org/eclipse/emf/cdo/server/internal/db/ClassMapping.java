@@ -62,7 +62,7 @@ public abstract class ClassMapping implements IClassMapping
 {
   private MappingStrategy mappingStrategy;
 
-  private EClass cdoClass;
+  private EClass eClass;
 
   private IDBTable table;
 
@@ -81,12 +81,12 @@ public abstract class ClassMapping implements IClassMapping
     };
   };
 
-  public ClassMapping(MappingStrategy mappingStrategy, EClass cdoClass, EStructuralFeature[] features)
+  public ClassMapping(MappingStrategy mappingStrategy, EClass eClass, EStructuralFeature[] features)
   {
     this.mappingStrategy = mappingStrategy;
-    this.cdoClass = cdoClass;
+    this.eClass = eClass;
 
-    String tableName = mappingStrategy.getTableName(cdoClass);
+    String tableName = mappingStrategy.getTableName(eClass);
     table = addTable(tableName);
     initTable(table, hasFullRevisionInfo());
 
@@ -97,7 +97,7 @@ public abstract class ClassMapping implements IClassMapping
 
       // // Special handling of CDOResource table
       // CDOResourceClass resourceClass = getResourceClass();
-      // if (cdoClass == resourceClass)
+      // if (eClass == resourceClass)
       // {
       // // Create a unique ids to prevent duplicate resource paths
       // for (IAttributeMapping attributeMapping : attributeMappings)
@@ -131,7 +131,7 @@ public abstract class ClassMapping implements IClassMapping
 
   public EClass getEClass()
   {
-    return cdoClass;
+    return eClass;
   }
 
   public IDBTable getTable()
@@ -168,26 +168,26 @@ public abstract class ClassMapping implements IClassMapping
     return table;
   }
 
-  protected IDBField addField(EStructuralFeature cdoFeature, IDBTable table) throws DBException
+  protected IDBField addField(EStructuralFeature feature, IDBTable table) throws DBException
   {
-    String fieldName = mappingStrategy.getFieldName(cdoFeature);
-    DBType fieldType = getDBType(cdoFeature);
-    int fieldLength = getDBLength(cdoFeature);
+    String fieldName = mappingStrategy.getFieldName(feature);
+    DBType fieldType = getDBType(feature);
+    int fieldLength = getDBLength(feature);
 
     IDBField field = table.addField(fieldName, fieldType, fieldLength);
     affectedTables.add(table);
     return field;
   }
 
-  protected DBType getDBType(EStructuralFeature cdoFeature)
+  protected DBType getDBType(EStructuralFeature feature)
   {
-    return DBStore.getDBType(cdoFeature.getEType());
+    return DBStore.getDBType(feature.getEType());
   }
 
-  protected int getDBLength(EStructuralFeature cdoFeature)
+  protected int getDBLength(EStructuralFeature feature)
   {
     // Derby: The maximum length for a VARCHAR string is 32,672 characters.
-    CDOType type = CDOModelUtil.getType(cdoFeature.getEType());
+    CDOType type = CDOModelUtil.getType(feature.getEType());
     return type == CDOType.STRING || type == CDOType.CUSTOM ? 32672 : IDBField.DEFAULT;
   }
 
@@ -341,9 +341,9 @@ public abstract class ClassMapping implements IClassMapping
     return new ReferenceMapping(this, feature, ToMany.PER_REFERENCE);
   }
 
-  public Object createReferenceMappingKey(EStructuralFeature cdoFeature)
+  public Object createReferenceMappingKey(EStructuralFeature feature)
   {
-    return cdoFeature;
+    return feature;
   }
 
   public void writeRevision(IDBStoreAccessor accessor, CDORevision revision, OMMonitor monitor)

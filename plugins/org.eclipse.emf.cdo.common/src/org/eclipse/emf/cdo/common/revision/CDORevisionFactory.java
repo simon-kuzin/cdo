@@ -23,7 +23,7 @@ import java.io.IOException;
  */
 public interface CDORevisionFactory
 {
-  public CDORevision createRevision(EClass cdoClass, CDOID id);
+  public CDORevision createRevision(EClass eClass, CDOID id);
 
   public CDORevision createRevision(CDODataInput in) throws IOException;
 }

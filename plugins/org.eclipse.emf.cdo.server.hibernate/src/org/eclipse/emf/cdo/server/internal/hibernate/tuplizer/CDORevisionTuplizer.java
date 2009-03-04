@@ -40,7 +40,7 @@ public class CDORevisionTuplizer extends AbstractEntityTuplizer
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, CDORevisionTuplizer.class);
 
-  private EClass cdoClass;
+  private EClass eClass;
 
   public CDORevisionTuplizer(EntityMetamodel entityMetamodel, PersistentClass mappingInfo)
   {
@@ -55,7 +55,7 @@ public class CDORevisionTuplizer extends AbstractEntityTuplizer
 
   private void initEClass(PersistentClass mappingInfo)
   {
-    if (cdoClass != null)
+    if (eClass != null)
     {
       return;
     }
@@ -73,30 +73,30 @@ public class CDORevisionTuplizer extends AbstractEntityTuplizer
       TRACER.trace("EntityName/packageURI " + entityName + " " + ePackageURI);
     }
 
-    for (EPackage cdoPackage : hbStore.getPackageHandler().getEPackages())
+    for (EPackage ePackage : hbStore.getPackageHandler().getEPackages())
     {
-      if (cdoPackage.getNsURI().compareTo(ePackageURI) != 0)
+      if (ePackage.getNsURI().compareTo(ePackageURI) != 0)
       {
         continue;
       }
 
-      for (EClass localCdoClass : cdoPackage.getClasses())
+      for (EClass localCdoClass : ePackage.getClasses())
       {
         if (localCdoClass.getName().compareTo(entityName) == 0)
         {
-          cdoClass = localCdoClass;
+          eClass = localCdoClass;
           break;
         }
       }
     }
 
-    if (cdoClass == null && ePackageURI.compareTo(CDOResourcePackage.PACKAGE_URI) == 0)
+    if (eClass == null && ePackageURI.compareTo(CDOResourcePackage.PACKAGE_URI) == 0)
     {
       for (EClass localCdoClass : hbStore.getRepository().getPackageRegistry().getCDOResourcePackage().getClasses())
       {
         if (localCdoClass.getName().compareTo(entityName) == 0)
         {
-          cdoClass = localCdoClass;
+          eClass = localCdoClass;
           if (TRACER.isEnabled())
           {
             TRACER.trace("Class is CDOResource class");
@@ -107,10 +107,10 @@ public class CDORevisionTuplizer extends AbstractEntityTuplizer
       }
     }
 
-    if (cdoClass == null)
+    if (eClass == null)
     {
       throw new IllegalArgumentException("The mapped class " + mappingInfo.getEntityName()
-          + " does not have a cdoClass equivalent");
+          + " does not have a eClass equivalent");
     }
   }
 
@@ -179,7 +179,7 @@ public class CDORevisionTuplizer extends AbstractEntityTuplizer
 
   public EClass getEClass()
   {
-    return cdoClass;
+    return eClass;
   }
 
   @Override
@@ -188,7 +188,7 @@ public class CDORevisionTuplizer extends AbstractEntityTuplizer
     initEClass(mappedEntity);
     if (TRACER.isEnabled())
     {
-      TRACER.trace("Building property getter for " + cdoClass.getName() + "." + mappedProperty.getName());
+      TRACER.trace("Building property getter for " + eClass.getName() + "." + mappedProperty.getName());
     }
 
     if (mappedProperty.isBackRef())
@@ -216,12 +216,12 @@ public class CDORevisionTuplizer extends AbstractEntityTuplizer
       return new CDOContainingFeatureIDGetter(this, mappedProperty.getName());
     }
 
-    EStructuralFeature cdoFeature = getEClass().lookupFeature(mappedProperty.getName());
-    if (cdoFeature instanceof EReference && cdoFeature.isMany())
+    EStructuralFeature feature = getEClass().lookupFeature(mappedProperty.getName());
+    if (feature instanceof EReference && feature.isMany())
     {
       return new CDOManyReferenceGetter(this, mappedProperty.getName());
     }
-    else if (cdoFeature instanceof EReference)
+    else if (feature instanceof EReference)
     {
       return new CDOReferenceGetter(this, mappedProperty.getName());
     }
@@ -235,7 +235,7 @@ public class CDORevisionTuplizer extends AbstractEntityTuplizer
     initEClass(mappedEntity);
     if (TRACER.isEnabled())
     {
-      TRACER.trace("Building property setter for " + cdoClass.getName() + "." + mappedProperty.getName());
+      TRACER.trace("Building property setter for " + eClass.getName() + "." + mappedProperty.getName());
     }
 
     if (mappedProperty.isBackRef())
@@ -264,12 +264,12 @@ public class CDORevisionTuplizer extends AbstractEntityTuplizer
       return new CDOContainingFeatureIDSetter(this, mappedProperty.getName());
     }
 
-    EStructuralFeature cdoFeature = getEClass().lookupFeature(mappedProperty.getName());
-    if (cdoFeature instanceof EReference && cdoFeature.isMany())
+    EStructuralFeature feature = getEClass().lookupFeature(mappedProperty.getName());
+    if (feature instanceof EReference && feature.isMany())
     {
       return new CDOManyReferenceSetter(this, mappedProperty.getName());
     }
-    else if (cdoFeature instanceof EReference)
+    else if (feature instanceof EReference)
     {
       return new CDOReferenceSetter(this, mappedProperty.getName());
     }

@@ -77,9 +77,9 @@ public final class EMFUtil
     }
   }
 
-  public static EClassifier getClassifier(EPackage cdoPackage, int classifierID)
+  public static EClassifier getClassifier(EPackage ePackage, int classifierID)
   {
-    EList<EClassifier> classifiers = cdoPackage.getEClassifiers();
+    EList<EClassifier> classifiers = ePackage.getEClassifiers();
     for (EClassifier classifier : classifiers)
     {
       if (classifier.getClassifierID() == classifierID)

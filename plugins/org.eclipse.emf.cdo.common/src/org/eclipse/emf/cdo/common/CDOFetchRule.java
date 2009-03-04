@@ -28,30 +28,30 @@ import java.util.List;
  */
 public final class CDOFetchRule
 {
-  private EClass cdoClass;
+  private EClass eClass;
 
   private List<EStructuralFeature> features = new ArrayList<EStructuralFeature>(0);
 
-  public CDOFetchRule(EClass cdoClass)
+  public CDOFetchRule(EClass eClass)
   {
-    this.cdoClass = cdoClass;
+    this.eClass = eClass;
   }
 
   public CDOFetchRule(CDODataInput in, CDOPackageRegistry packageManager) throws IOException
   {
-    cdoClass = (EClass)in.readCDOClassifierRefAndResolve();
+    eClass = (EClass)in.readCDOClassifierRefAndResolve();
     int size = in.readInt();
     for (int i = 0; i < size; i++)
     {
       int featureID = in.readInt();
-      EStructuralFeature feature = cdoClass.getEStructuralFeature(featureID);
+      EStructuralFeature feature = eClass.getEStructuralFeature(featureID);
       features.add(feature);
     }
   }
 
   public void write(CDODataOutput out) throws IOException
   {
-    out.writeCDOClassifierRef(cdoClass);
+    out.writeCDOClassifierRef(eClass);
     out.writeInt(features.size());
     for (EStructuralFeature feature : features)
     {
@@ -61,7 +61,7 @@ public final class CDOFetchRule
 
   public EClass getEClass()
   {
-    return cdoClass;
+    return eClass;
   }
 
   public List<EStructuralFeature> getFeatures()

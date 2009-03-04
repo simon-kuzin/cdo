@@ -61,7 +61,7 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
     return withFeature;
   }
 
-  protected void mapReference(EClass cdoClass, EStructuralFeature cdoFeature)
+  protected void mapReference(EClass eClass, EStructuralFeature feature)
   {
     MappingStrategy mappingStrategy = getClassMapping().getMappingStrategy();
     switch (toMany)
@@ -69,21 +69,21 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
     case PER_REFERENCE:
     {
       withFeature = false;
-      String tableName = mappingStrategy.getReferenceTableName(cdoClass, cdoFeature);
-      Object referenceMappingKey = getReferenceMappingKey(cdoFeature);
+      String tableName = mappingStrategy.getReferenceTableName(eClass, feature);
+      Object referenceMappingKey = getReferenceMappingKey(feature);
       table = mapReferenceTable(referenceMappingKey, tableName);
       break;
     }
 
     case PER_CLASS:
       withFeature = true;
-      table = mapReferenceTable(cdoClass, mappingStrategy.getReferenceTableName(cdoClass));
+      table = mapReferenceTable(eClass, mappingStrategy.getReferenceTableName(eClass));
       break;
 
     case PER_PACKAGE:
       withFeature = true;
-      EPackage cdoPackage = cdoClass.getContainingPackage();
-      table = mapReferenceTable(cdoPackage, mappingStrategy.getReferenceTableName(cdoPackage));
+      EPackage ePackage = eClass.getContainingPackage();
+      table = mapReferenceTable(ePackage, mappingStrategy.getReferenceTableName(ePackage));
       break;
 
     case PER_REPOSITORY:
@@ -97,9 +97,9 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
     }
   }
 
-  protected Object getReferenceMappingKey(EStructuralFeature cdoFeature)
+  protected Object getReferenceMappingKey(EStructuralFeature feature)
   {
-    return getClassMapping().createReferenceMappingKey(cdoFeature);
+    return getClassMapping().createReferenceMappingKey(feature);
   }
 
   protected IDBTable mapReferenceTable(Object key, String tableName)

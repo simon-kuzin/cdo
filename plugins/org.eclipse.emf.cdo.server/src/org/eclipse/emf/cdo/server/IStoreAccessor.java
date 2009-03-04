@@ -79,7 +79,7 @@ public interface IStoreAccessor extends IQueryHandler
    * @see InternalEPackage
    * @since 2.0
    */
-  public void readPackage(EPackage cdoPackage);
+  public void readPackage(EPackage ePackage);
 
   /**
    * Loads the {@link EPackage#getEcore() ecore xml} of the given package.
@@ -87,7 +87,7 @@ public interface IStoreAccessor extends IQueryHandler
    * @see InternalEPackage#setEcore(String)
    * @since 2.0
    */
-  public void readPackageEcore(EPackage cdoPackage);
+  public void readPackageEcore(EPackage ePackage);
 
   /**
    * Returns an iterator that iterates over all objects in the store and makes their CDOIDs available for processing.

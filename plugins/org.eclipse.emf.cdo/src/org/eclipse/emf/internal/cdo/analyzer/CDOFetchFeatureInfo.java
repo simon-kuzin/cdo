@@ -25,26 +25,26 @@ public class CDOFetchFeatureInfo
 
   private boolean active;
 
-  private EClass cdoClass;
+  private EClass eClass;
 
-  private EStructuralFeature cdoFeature;
+  private EStructuralFeature feature;
 
-  public CDOFetchFeatureInfo(EClass cdoClass, EStructuralFeature cdoFeature)
+  public CDOFetchFeatureInfo(EClass eClass, EStructuralFeature feature)
   {
-    this.cdoClass = cdoClass;
-    this.cdoFeature = cdoFeature;
+    this.eClass = eClass;
+    this.feature = feature;
     active = false;
     latencyTime = -1;
   }
 
   public EClass getEClass()
   {
-    return cdoClass;
+    return eClass;
   }
 
   public EStructuralFeature getEStructuralFeature()
   {
-    return cdoFeature;
+    return feature;
   }
 
   public boolean isActive()
@@ -104,7 +104,7 @@ public class CDOFetchFeatureInfo
   @Override
   public int hashCode()
   {
-    return cdoClass.hashCode() ^ cdoFeature.hashCode();
+    return eClass.hashCode() ^ feature.hashCode();
   }
 
   @Override
@@ -118,7 +118,7 @@ public class CDOFetchFeatureInfo
     if (obj instanceof CDOFetchFeatureInfo)
     {
       CDOFetchFeatureInfo featureInfo = (CDOFetchFeatureInfo)obj;
-      return featureInfo.cdoClass == cdoClass && featureInfo.cdoFeature == cdoFeature;
+      return featureInfo.eClass == eClass && featureInfo.feature == feature;
     }
 
     return false;

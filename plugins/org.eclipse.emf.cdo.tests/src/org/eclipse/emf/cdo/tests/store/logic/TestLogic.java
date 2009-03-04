@@ -271,15 +271,15 @@ public abstract class TestLogic extends AbstractOMTest
 
       String uri = eClass.getEPackage().getNsURI();
 
-      EPackage cdoPackage = transactionCommitContext.getPackageRegistry().lookupPackage(uri);
-      EClass cdoClass = cdoPackage.lookupClass(eClass.getClassifierID());
-      return addRevision(id, cdoClass);
+      EPackage ePackage = transactionCommitContext.getPackageRegistry().lookupPackage(uri);
+      EClass eClass = ePackage.lookupClass(eClass.getClassifierID());
+      return addRevision(id, eClass);
     }
 
-    private TestRevision addRevision(int id, EClass cdoClass)
+    private TestRevision addRevision(int id, EClass eClass)
     {
       CDOIDTemp tempID = CDOIDUtil.createTempObject(id);
-      TestRevision newObject = new TestRevision(cdoClass, tempID);
+      TestRevision newObject = new TestRevision(eClass, tempID);
       newObjects.add(newObject);
       return newObject;
     }
@@ -325,9 +325,9 @@ public abstract class TestLogic extends AbstractOMTest
    */
   protected class TestRevision extends CDORevisionImpl
   {
-    public TestRevision(EClass cdoClass, CDOID id)
+    public TestRevision(EClass eClass, CDOID id)
     {
-      super(cdoClass, id);
+      super(eClass, id);
     }
 
     public void set(String featureName, Object value)
@@ -337,8 +337,8 @@ public abstract class TestLogic extends AbstractOMTest
 
     public void set(String featureName, int index, Object value)
     {
-      EStructuralFeature cdoFeature = getEClass().lookupFeature(featureName);
-      set(cdoFeature, index, value);
+      EStructuralFeature feature = getEClass().lookupFeature(featureName);
+      set(feature, index, value);
     }
   }
 }

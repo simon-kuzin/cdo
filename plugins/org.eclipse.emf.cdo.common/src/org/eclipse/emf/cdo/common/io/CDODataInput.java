@@ -74,7 +74,7 @@ public interface CDODataInput extends ExtendedDataInput
 
   public CDORevisionDelta readCDORevisionDelta() throws IOException;
 
-  public CDOFeatureDelta readCDOFeatureDelta(EClass cdoClass) throws IOException;
+  public CDOFeatureDelta readCDOFeatureDelta(EClass eClass) throws IOException;
 
   /**
    * Read either a CDORevision or a primitive value.

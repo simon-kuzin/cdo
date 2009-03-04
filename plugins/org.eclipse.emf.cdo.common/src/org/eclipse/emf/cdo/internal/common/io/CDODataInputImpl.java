@@ -273,35 +273,35 @@ public abstract class CDODataInputImpl extends ExtendedDataInput.Delegating impl
     return new CDORevisionDeltaImpl(this);
   }
 
-  public CDOFeatureDelta readCDOFeatureDelta(EClass cdoClass) throws IOException
+  public CDOFeatureDelta readCDOFeatureDelta(EClass eClass) throws IOException
   {
     int typeOrdinal = readInt();
     CDOFeatureDelta.Type type = CDOFeatureDelta.Type.values()[typeOrdinal];
     switch (type)
     {
     case ADD:
-      return new CDOAddFeatureDeltaImpl(this, cdoClass);
+      return new CDOAddFeatureDeltaImpl(this, eClass);
 
     case SET:
-      return new CDOSetFeatureDeltaImpl(this, cdoClass);
+      return new CDOSetFeatureDeltaImpl(this, eClass);
 
     case LIST:
-      return new CDOListFeatureDeltaImpl(this, cdoClass);
+      return new CDOListFeatureDeltaImpl(this, eClass);
 
     case MOVE:
-      return new CDOMoveFeatureDeltaImpl(this, cdoClass);
+      return new CDOMoveFeatureDeltaImpl(this, eClass);
 
     case CLEAR:
-      return new CDOClearFeatureDeltaImpl(this, cdoClass);
+      return new CDOClearFeatureDeltaImpl(this, eClass);
 
     case REMOVE:
-      return new CDORemoveFeatureDeltaImpl(this, cdoClass);
+      return new CDORemoveFeatureDeltaImpl(this, eClass);
 
     case CONTAINER:
-      return new CDOContainerFeatureDeltaImpl(this, cdoClass);
+      return new CDOContainerFeatureDeltaImpl(this, eClass);
 
     case UNSET:
-      return new CDOUnsetFeatureDeltaImpl(this, cdoClass);
+      return new CDOUnsetFeatureDeltaImpl(this, eClass);
 
     default:
       throw new IOException("Invalid type " + typeOrdinal);

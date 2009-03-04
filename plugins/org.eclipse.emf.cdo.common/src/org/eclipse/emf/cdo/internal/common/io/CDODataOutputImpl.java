@@ -106,9 +106,9 @@ public abstract class CDODataOutputImpl extends ExtendedDataOutput.Delegating im
     getPackageURICompressor().write(this, uri);
   }
 
-  public void writeEPackage(EPackage cdoPackage) throws IOException
+  public void writeEPackage(EPackage ePackage) throws IOException
   {
-    EMFUtil.writePackage(this, cdoPackage, true);
+    EMFUtil.writePackage(this, ePackage, true);
   }
 
   public void writeCDOType(CDOType cdoType) throws IOException
@@ -263,9 +263,9 @@ public abstract class CDODataOutputImpl extends ExtendedDataOutput.Delegating im
     ((CDORevisionDeltaImpl)revisionDelta).write(this);
   }
 
-  public void writeCDOFeatureDelta(CDOFeatureDelta featureDelta, EClass cdoClass) throws IOException
+  public void writeCDOFeatureDelta(CDOFeatureDelta featureDelta, EClass eClass) throws IOException
   {
-    ((CDOFeatureDeltaImpl)featureDelta).write(this, cdoClass);
+    ((CDOFeatureDeltaImpl)featureDelta).write(this, eClass);
   }
 
   public void writeCDORevisionOrPrimitive(Object value) throws IOException

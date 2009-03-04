@@ -33,9 +33,9 @@ public class CDOUnsetFeatureDeltaImpl extends CDOFeatureDeltaImpl implements CDO
     super(feature);
   }
 
-  public CDOUnsetFeatureDeltaImpl(CDODataInput in, EClass cdoClass) throws IOException
+  public CDOUnsetFeatureDeltaImpl(CDODataInput in, EClass eClass) throws IOException
   {
-    super(in, cdoClass);
+    super(in, eClass);
   }
 
   public Type getType()

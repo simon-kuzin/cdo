@@ -460,9 +460,9 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
       changeState(object, CDOState.PREPARED);
 
       // Create new revision
-      EClass cdoClass = object.eClass();
+      EClass eClass = object.eClass();
       CDORevisionFactory factory = transaction.getSession().options().getRevisionFactory();
-      InternalCDORevision revision = (InternalCDORevision)factory.createRevision(cdoClass, id);
+      InternalCDORevision revision = (InternalCDORevision)factory.createRevision(eClass, id);
       revision.setVersion(-1);
 
       object.cdoInternalSetRevision(revision);

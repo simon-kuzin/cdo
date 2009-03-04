@@ -27,9 +27,9 @@ import org.eclipse.emf.ecore.EStructuralFeature;
  */
 public class HorizontalClassMapping extends ClassMapping
 {
-  public HorizontalClassMapping(HorizontalMappingStrategy mappingStrategy, EClass cdoClass)
+  public HorizontalClassMapping(HorizontalMappingStrategy mappingStrategy, EClass eClass)
   {
-    super(mappingStrategy, cdoClass, CDOModelUtil.getAllPersistentFeatures(cdoClass));
+    super(mappingStrategy, eClass, CDOModelUtil.getAllPersistentFeatures(eClass));
   }
 
   @Override
@@ -80,9 +80,9 @@ public class HorizontalClassMapping extends ClassMapping
   }
 
   @Override
-  public Object createReferenceMappingKey(EStructuralFeature cdoFeature)
+  public Object createReferenceMappingKey(EStructuralFeature feature)
   {
-    return new Pair<EClass, EStructuralFeature>(getEClass(), cdoFeature);
+    return new Pair<EClass, EStructuralFeature>(getEClass(), feature);
   }
 
   public boolean hasFullRevisionInfo()

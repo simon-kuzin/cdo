@@ -255,8 +255,8 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper
 
     // Handle values
     CDOPackageRegistry packageRegistry = cdoView().getSession().getPackageRegistry();
-    EClass cdoClass = revision.getEClass();
-    for (EStructuralFeature feature : CDOModelUtil.getAllPersistentFeatures(cdoClass))
+    EClass eClass = revision.getEClass();
+    for (EStructuralFeature feature : CDOModelUtil.getAllPersistentFeatures(eClass))
     {
       instanceToRevisionFeature(feature, packageRegistry);
     }
@@ -341,8 +341,8 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper
 
       // Handle values
       CDOPackageRegistry packageRegistry = cdoView().getSession().getPackageRegistry();
-      EClass cdoClass = revision.getEClass();
-      for (EStructuralFeature feature : CDOModelUtil.getAllPersistentFeatures(cdoClass))
+      EClass eClass = revision.getEClass();
+      for (EStructuralFeature feature : CDOModelUtil.getAllPersistentFeatures(eClass))
       {
         revisionToInstanceFeature(feature, packageRegistry);
       }
@@ -575,8 +575,8 @@ public final class CDOLegacyWrapper extends CDOObjectWrapper
     // if (!allProxiesResolved)
     {
       CDOPackageRegistry packageRegistry = cdoView().getSession().getPackageRegistry();
-      EClass cdoClass = revision.getEClass();
-      for (EStructuralFeature feature : CDOModelUtil.getAllPersistentFeatures(cdoClass))
+      EClass eClass = revision.getEClass();
+      for (EStructuralFeature feature : CDOModelUtil.getAllPersistentFeatures(eClass))
       {
         if (feature instanceof EReference)
         {

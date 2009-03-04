@@ -867,9 +867,9 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       {
         revisionFactory = new CDORevisionFactory()
         {
-          public CDORevision createRevision(EClass cdoClass, CDOID id)
+          public CDORevision createRevision(EClass eClass, CDOID id)
           {
-            return CDORevisionUtil.create(cdoClass, id);
+            return CDORevisionUtil.create(eClass, id);
           }
 
           public CDORevision createRevision(CDODataInput in) throws IOException

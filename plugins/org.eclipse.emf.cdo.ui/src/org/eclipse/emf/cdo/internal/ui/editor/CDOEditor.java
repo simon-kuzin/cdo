@@ -2366,10 +2366,10 @@ public class CDOEditor extends MultiPageEditorPart implements IEditingDomainProv
   {
     private EClass eClass;
 
-    private CreateRootAction(EClass cdoClass)
+    private CreateRootAction(EClass eClass)
     {
-      super(getEditorSite().getPage(), cdoClass.getName(), SharedIcons.getDescriptor(SharedIcons.OBJ_ECLASS));
-      eClass = cdoClass;
+      super(getEditorSite().getPage(), eClass.getName(), SharedIcons.getDescriptor(SharedIcons.OBJ_ECLASS));
+      eClass = eClass;
     }
 
     @Override

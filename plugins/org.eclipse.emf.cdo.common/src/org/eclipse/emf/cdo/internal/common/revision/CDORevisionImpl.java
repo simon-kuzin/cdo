@@ -34,9 +34,9 @@ public class CDORevisionImpl extends AbstractCDORevision
 {
   private Object[] values;
 
-  public CDORevisionImpl(EClass cdoClass, CDOID id)
+  public CDORevisionImpl(EClass eClass, CDOID id)
   {
-    super(cdoClass, id);
+    super(eClass, id);
   }
 
   public CDORevisionImpl(CDODataInput in) throws IOException

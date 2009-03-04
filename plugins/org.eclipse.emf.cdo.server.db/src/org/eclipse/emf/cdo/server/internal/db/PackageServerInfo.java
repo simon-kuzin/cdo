@@ -26,20 +26,20 @@ public final class PackageServerInfo extends ServerInfo
     super(id);
   }
 
-  public static PackageServerInfo setDBID(EPackage cdoPackage, int id)
+  public static PackageServerInfo setDBID(EPackage ePackage, int id)
   {
     PackageServerInfo serverInfo = new PackageServerInfo(id);
-    ((InternalEPackage)cdoPackage).setServerInfo(serverInfo);
+    ((InternalEPackage)ePackage).setServerInfo(serverInfo);
     return serverInfo;
   }
 
-  public static IDBSchema getSchema(EPackage cdoPackage)
+  public static IDBSchema getSchema(EPackage ePackage)
   {
-    return ((PackageServerInfo)cdoPackage.getServerInfo()).schema;
+    return ((PackageServerInfo)ePackage.getServerInfo()).schema;
   }
 
-  public static void setSchema(EPackage cdoPackage, IDBSchema schema)
+  public static void setSchema(EPackage ePackage, IDBSchema schema)
   {
-    ((PackageServerInfo)cdoPackage.getServerInfo()).schema = schema;
+    ((PackageServerInfo)ePackage.getServerInfo()).schema = schema;
   }
 }

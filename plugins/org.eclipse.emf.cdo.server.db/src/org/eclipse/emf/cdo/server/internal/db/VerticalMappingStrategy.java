@@ -53,9 +53,9 @@ public class VerticalMappingStrategy extends MappingStrategy
   }
 
   @Override
-  protected IClassMapping createClassMapping(EClass cdoClass)
+  protected IClassMapping createClassMapping(EClass eClass)
   {
-    return new VerticalClassMapping(this, cdoClass);
+    return new VerticalClassMapping(this, eClass);
   }
 
   @Override

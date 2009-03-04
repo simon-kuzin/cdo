@@ -26,22 +26,22 @@ public abstract class CDOPropertyHandler
 
   private CDORevisionTuplizer tuplizer;
 
-  private EStructuralFeature cdoFeature;
+  private EStructuralFeature feature;
 
   private boolean virtualProperty = false;
 
   public CDOPropertyHandler(CDORevisionTuplizer tuplizer, String propertyName)
   {
     this.tuplizer = tuplizer;
-    cdoFeature = tuplizer.getEClass().lookupFeature(propertyName);
+    feature = tuplizer.getEClass().lookupFeature(propertyName);
     if (getTracer().isEnabled())
     {
       getTracer().trace(
-          "Created " + this.getClass().getName() + " for cdoClass/feature: " + tuplizer.getEClass().getName() + "."
+          "Created " + this.getClass().getName() + " for eClass/feature: " + tuplizer.getEClass().getName() + "."
               + propertyName);
     }
 
-    if (cdoFeature == null)
+    if (feature == null)
     {
       if (isVirtualPropertyAllowed())
       {
@@ -70,7 +70,7 @@ public abstract class CDOPropertyHandler
 
   public EStructuralFeature getEStructuralFeature()
   {
-    return cdoFeature;
+    return feature;
   }
 
   protected boolean isVirtualPropertyAllowed()

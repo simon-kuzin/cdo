@@ -40,14 +40,14 @@ public class CDOAnalyzerFeatureInfo
   {
   }
 
-  public Collection<CDOFetchRule> getRules(EClass cdoClass, EStructuralFeature cdoFeature)
+  public Collection<CDOFetchRule> getRules(EClass eClass, EStructuralFeature feature)
   {
     return fetchRules.values();
   }
 
-  public synchronized CDOFetchFeatureInfo getFeatureStat(EClass cdoClass, EStructuralFeature cdoFeature)
+  public synchronized CDOFetchFeatureInfo getFeatureStat(EClass eClass, EStructuralFeature feature)
   {
-    CDOFetchFeatureInfo search = new CDOFetchFeatureInfo(cdoClass, cdoFeature);
+    CDOFetchFeatureInfo search = new CDOFetchFeatureInfo(eClass, feature);
     CDOFetchFeatureInfo featureRule = featureStats.get(search);
     if (featureRule == null)
     {
@@ -58,63 +58,63 @@ public class CDOAnalyzerFeatureInfo
     return featureRule;
   }
 
-  public boolean isActive(EClass cdoClass, EStructuralFeature cdoFeature)
+  public boolean isActive(EClass eClass, EStructuralFeature feature)
   {
-    CDOFetchFeatureInfo search = new CDOFetchFeatureInfo(cdoClass, cdoFeature);
+    CDOFetchFeatureInfo search = new CDOFetchFeatureInfo(eClass, feature);
     CDOFetchFeatureInfo featureRule = featureStats.get(search);
     return featureRule != null && featureRule.isActive();
   }
 
-  public void activate(EClass cdoClass, EStructuralFeature cdoFeature)
+  public void activate(EClass eClass, EStructuralFeature feature)
   {
-    CDOFetchFeatureInfo info = getFeatureStat(cdoClass, cdoFeature);
+    CDOFetchFeatureInfo info = getFeatureStat(eClass, feature);
     if (!info.isActive())
     {
       info.setActive(true);
-      addRule(cdoClass, cdoFeature);
+      addRule(eClass, feature);
     }
   }
 
-  public void deactivate(EClass cdoClass, EStructuralFeature cdoFeature)
+  public void deactivate(EClass eClass, EStructuralFeature feature)
   {
-    CDOFetchFeatureInfo info = getFeatureStat(cdoClass, cdoFeature);
+    CDOFetchFeatureInfo info = getFeatureStat(eClass, feature);
     if (info.isActive())
     {
       info.setActive(false);
-      removeRule(cdoClass, cdoFeature);
+      removeRule(eClass, feature);
     }
   }
 
-  private void addRule(EClass cdoClass, EStructuralFeature cdoFeature)
+  private void addRule(EClass eClass, EStructuralFeature feature)
   {
     if (TRACER.isEnabled())
     {
-      TRACER.format("Adding rule : {0}.{1}", cdoClass.getName(), cdoFeature.getName());
+      TRACER.format("Adding rule : {0}.{1}", eClass.getName(), feature.getName());
     }
 
-    CDOFetchRule fetchRule = fetchRules.get(cdoClass);
+    CDOFetchRule fetchRule = fetchRules.get(eClass);
     if (fetchRule == null)
     {
-      fetchRule = new CDOFetchRule(cdoClass);
-      fetchRules.put(cdoClass, fetchRule);
+      fetchRule = new CDOFetchRule(eClass);
+      fetchRules.put(eClass, fetchRule);
     }
 
-    fetchRule.addFeature(cdoFeature);
+    fetchRule.addFeature(feature);
   }
 
-  private void removeRule(EClass cdoClass, EStructuralFeature cdoFeature)
+  private void removeRule(EClass eClass, EStructuralFeature feature)
   {
     if (TRACER.isEnabled())
     {
-      TRACER.format("Removing rule : {0}.{1}", cdoClass.getName(), cdoFeature.getName());
+      TRACER.format("Removing rule : {0}.{1}", eClass.getName(), feature.getName());
     }
 
-    CDOFetchRule fetchRule = fetchRules.get(cdoClass);
+    CDOFetchRule fetchRule = fetchRules.get(eClass);
     if (fetchRule == null)
     {
       return;
     }
 
-    fetchRule.removeFeature(cdoFeature);
+    fetchRule.removeFeature(feature);
   }
 }

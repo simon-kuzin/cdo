@@ -28,11 +28,11 @@ public class CDORevisionInstantiator implements Instantiator
 {
   private static final long serialVersionUID = 1L;
 
-  private EClass cdoClass;
+  private EClass eClass;
 
   public CDORevisionInstantiator(CDORevisionTuplizer tuplizer, PersistentClass mappingInfo)
   {
-    cdoClass = tuplizer.getEClass();
+    eClass = tuplizer.getEClass();
   }
 
   public Object instantiate()
@@ -44,7 +44,7 @@ public class CDORevisionInstantiator implements Instantiator
   public Object instantiate(Serializable id)
   {
     return CDORevisionUtil
-        .create(cdoClass, CDOIDHibernateFactoryImpl.getInstance().createCDOID(id, cdoClass.getName()));
+        .create(eClass, CDOIDHibernateFactoryImpl.getInstance().createCDOID(id, eClass.getName()));
   }
 
   public boolean isInstance(Object object)

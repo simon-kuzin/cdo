@@ -362,8 +362,8 @@ public class Session extends Container<IView> implements ISession, CDOIDProvider
       List<CDORevision> additionalRevisions)
   {
     RevisionManager revisionManager = (RevisionManager)getSessionManager().getRepository().getRevisionManager();
-    EClass cdoClass = revision.getEClass();
-    EStructuralFeature[] features = CDOModelUtil.getAllPersistentFeatures(cdoClass);
+    EClass eClass = revision.getEClass();
+    EStructuralFeature[] features = CDOModelUtil.getAllPersistentFeatures(eClass);
     for (int i = 0; i < features.length; i++)
     {
       EStructuralFeature feature = features[i];

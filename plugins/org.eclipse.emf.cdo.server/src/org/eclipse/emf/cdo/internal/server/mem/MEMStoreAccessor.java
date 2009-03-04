@@ -77,7 +77,7 @@ public class MEMStoreAccessor extends StoreAccessor
     return Collections.emptySet();
   }
 
-  public void readPackage(EPackage cdoPackage)
+  public void readPackage(EPackage ePackage)
   {
     throw new UnsupportedOperationException();
   }
@@ -85,7 +85,7 @@ public class MEMStoreAccessor extends StoreAccessor
   /**
    * @since 2.0
    */
-  public void readPackageEcore(EPackage cdoPackage)
+  public void readPackageEcore(EPackage ePackage)
   {
     throw new UnsupportedOperationException();
   }
@@ -259,14 +259,14 @@ public class MEMStoreAccessor extends StoreAccessor
     {
       if (context instanceof EClass)
       {
-        final EClass cdoClass = (EClass)context;
+        final EClass eClass = (EClass)context;
         filters.add(new Object()
         {
           @Override
           public boolean equals(Object obj)
           {
             CDORevision revision = (CDORevision)obj;
-            return revision.getEClass().equals(cdoClass);
+            return revision.getEClass().equals(eClass);
           }
         });
       }

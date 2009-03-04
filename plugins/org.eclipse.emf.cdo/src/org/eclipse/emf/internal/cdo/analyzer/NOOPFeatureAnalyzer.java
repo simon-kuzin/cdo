@@ -25,11 +25,11 @@ public class NOOPFeatureAnalyzer implements CDOFeatureAnalyzer
   {
   }
 
-  public void preTraverseFeature(CDOObject cdoClass, EStructuralFeature feature, int index)
+  public void preTraverseFeature(CDOObject eClass, EStructuralFeature feature, int index)
   {
   }
 
-  public void postTraverseFeature(CDOObject cdoClass, EStructuralFeature feature, int index, Object value)
+  public void postTraverseFeature(CDOObject eClass, EStructuralFeature feature, int index, Object value)
   {
   }
 }

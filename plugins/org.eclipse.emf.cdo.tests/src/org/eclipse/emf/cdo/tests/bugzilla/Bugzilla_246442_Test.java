@@ -80,16 +80,16 @@ public class Bugzilla_246442_Test extends AbstractCDOTest
   // CDOSession session = openSession();
   // session.getPackageRegistry().putEPackage(topPackage);
   //
-  // EClass cdoClass1 = ModelUtil.getEClass(class1Class,
+  // EClass eClass1 = ModelUtil.getEClass(class1Class,
   // (_CDOSessionPackageManagerImpl)session.getPackageUnitManager());
-  // EClass cdoClass2 = ModelUtil.getEClass(class2Class,
+  // EClass eClass2 = ModelUtil.getEClass(class2Class,
   // (_CDOSessionPackageManagerImpl)session.getPackageUnitManager());
-  // EClass cdoClass3 = ModelUtil.getEClass(class3Class,
+  // EClass eClass3 = ModelUtil.getEClass(class3Class,
   // (_CDOSessionPackageManagerImpl)session.getPackageUnitManager());
   //
-  // assertEquals(class1Class.getName(), cdoClass1.getName());
-  // assertEquals(class2Class.getName(), cdoClass2.getName());
-  // assertEquals(class3Class.getName(), cdoClass3.getName());
+  // assertEquals(class1Class.getName(), eClass1.getName());
+  // assertEquals(class2Class.getName(), eClass2.getName());
+  // assertEquals(class3Class.getName(), eClass3.getName());
   // }
 
   private EPackage createDynamicEPackage()

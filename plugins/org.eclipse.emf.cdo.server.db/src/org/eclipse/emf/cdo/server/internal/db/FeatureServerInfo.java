@@ -22,10 +22,10 @@ public final class FeatureServerInfo extends ServerInfo
     super(id);
   }
 
-  public static FeatureServerInfo setDBID(EStructuralFeature cdoFeature, int id)
+  public static FeatureServerInfo setDBID(EStructuralFeature feature, int id)
   {
     FeatureServerInfo serverInfo = new FeatureServerInfo(id);
-    ((InternalCDOFeature)cdoFeature).setServerInfo(serverInfo);
+    ((InternalCDOFeature)feature).setServerInfo(serverInfo);
     return serverInfo;
   }
 }

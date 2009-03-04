@@ -28,10 +28,10 @@ public class VerticalClassMapping extends ClassMapping
 {
   private List<IClassMapping> superMappings;
 
-  public VerticalClassMapping(VerticalMappingStrategy mappingStrategy, EClass cdoClass)
+  public VerticalClassMapping(VerticalMappingStrategy mappingStrategy, EClass eClass)
   {
-    super(mappingStrategy, cdoClass, cdoClass.getFeatures());
-    for (EClass superType : cdoClass.getSuperTypes())
+    super(mappingStrategy, eClass, eClass.getFeatures());
+    for (EClass superType : eClass.getSuperTypes())
     {
       IClassMapping superMapping = mappingStrategy.getClassMapping(superType);
       if (superMapping != null)

@@ -28,9 +28,9 @@ public final class ModelUtil
   {
   }
 
-  public static EPackage getGeneratedEPackage(EPackage cdoPackage)
+  public static EPackage getGeneratedEPackage(EPackage ePackage)
   {
-    String packageURI = cdoPackage.getNsURI();
+    String packageURI = ePackage.getNsURI();
     if (packageURI.equals(EcorePackage.eINSTANCE.getNsURI()))
     {
       return EcorePackage.eINSTANCE;

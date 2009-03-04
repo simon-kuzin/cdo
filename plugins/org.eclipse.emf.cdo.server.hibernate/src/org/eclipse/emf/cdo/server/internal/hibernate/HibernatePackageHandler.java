@@ -76,41 +76,41 @@ public class HibernatePackageHandler extends Lifecycle
 
   public List<EPackage> getEPackages()
   {
-    List<EPackage> cdoPackages = new ArrayList<EPackage>();
+    List<EPackage> ePackages = new ArrayList<EPackage>();
     if (HibernateThreadContext.isHibernateCommitContextSet())
     {
       CommitContext cc = HibernateThreadContext.getHibernateCommitContext().getCommitContext();
       if (cc instanceof TransactionCommitContextImpl)
       {
         TransactionCommitContextImpl tx = (TransactionCommitContextImpl)cc;
-        for (EPackage cdoPackage : tx.getNewPackages())
+        for (EPackage ePackage : tx.getNewPackages())
         {
-          cdoPackages.add(cdoPackage);
+          ePackages.add(ePackage);
         }
       }
     }
 
-    for (EPackage cdoPackage : hibernateStore.getRepository().getPackageRegistry().getPackages())
+    for (EPackage ePackage : hibernateStore.getRepository().getPackageRegistry().getPackages())
     {
-      cdoPackages.add(cdoPackage);
+      ePackages.add(ePackage);
     }
 
-    for (EPackage cdoPackage : cdoPackages)
+    for (EPackage ePackage : ePackages)
     {
       // force resolve
-      if (cdoPackage.getClassCount() == 0)
+      if (ePackage.getClassCount() == 0)
       {
         if (TRACER.isEnabled())
         {
-          TRACER.trace("Returning " + cdoPackage.getNsURI());
+          TRACER.trace("Returning " + ePackage.getNsURI());
         }
       }
     }
 
-    return cdoPackages;
+    return ePackages;
   }
 
-  public void writePackages(EPackage... cdoPackages)
+  public void writePackages(EPackage... ePackages)
   {
     if (TRACER.isEnabled())
     {
@@ -124,20 +124,20 @@ public class HibernatePackageHandler extends Lifecycle
 
     try
     {
-      for (EPackage cdoPackage : cdoPackages)
+      for (EPackage ePackage : ePackages)
       {
-        if (cdoPackageExistsAndIsUnchanged(cdoPackage))
+        if (ePackageExistsAndIsUnchanged(ePackage))
         {
-          OM.LOG.warn("EPackage " + cdoPackage.getNsURI() + " already exists not persisting it again!");
+          OM.LOG.warn("EPackage " + ePackage.getNsURI() + " already exists not persisting it again!");
           continue;
         }
 
         if (TRACER.isEnabled())
         {
-          TRACER.trace("Persisting EPackage " + cdoPackage.getNsURI());
+          TRACER.trace("Persisting EPackage " + ePackage.getNsURI());
         }
 
-        session.saveOrUpdate(cdoPackage);
+        session.saveOrUpdate(ePackage);
         updated = true;
       }
 
@@ -161,14 +161,14 @@ public class HibernatePackageHandler extends Lifecycle
     }
   }
 
-  protected boolean cdoPackageExistsAndIsUnchanged(EPackage newEPackage)
+  protected boolean ePackageExistsAndIsUnchanged(EPackage newEPackage)
   {
-    EPackage[] cdoPackages = hibernateStore.getRepository().getPackageRegistry().getPackages();
-    for (EPackage cdoPackage : cdoPackages)
+    EPackage[] ePackages = hibernateStore.getRepository().getPackageRegistry().getPackages();
+    for (EPackage ePackage : ePackages)
     {
-      if (cdoPackage.getClassCount() > 0 && cdoPackage.getNsURI().equals(newEPackage.getNsURI()))
+      if (ePackage.getClassCount() > 0 && ePackage.getNsURI().equals(newEPackage.getNsURI()))
       {
-        String ecore = cdoPackage.getEcore();
+        String ecore = ePackage.getEcore();
         String newEcore = newEPackage.getEcore();
         return ObjectUtil.equals(ecore, newEcore);
       }
@@ -177,11 +177,11 @@ public class HibernatePackageHandler extends Lifecycle
     return false;
   }
 
-  public void writePackage(EPackage cdoPackage)
+  public void writePackage(EPackage ePackage)
   {
-    if (cdoPackageExistsAndIsUnchanged(cdoPackage))
+    if (ePackageExistsAndIsUnchanged(ePackage))
     {
-      OM.LOG.warn("EPackage " + cdoPackage.getNsURI() + " already exists not persisting it again!");
+      OM.LOG.warn("EPackage " + ePackage.getNsURI() + " already exists not persisting it again!");
       return;
     }
 
@@ -192,10 +192,10 @@ public class HibernatePackageHandler extends Lifecycle
     {
       if (TRACER.isEnabled())
       {
-        TRACER.trace("Persisting EPackage " + cdoPackage.getNsURI());
+        TRACER.trace("Persisting EPackage " + ePackage.getNsURI());
       }
 
-      session.saveOrUpdate(cdoPackage);
+      session.saveOrUpdate(ePackage);
       tx.commit();
       err = false;
     }
@@ -219,16 +219,16 @@ public class HibernatePackageHandler extends Lifecycle
     return packageInfos;
   }
 
-  protected void readPackage(EPackage cdoPackage)
+  protected void readPackage(EPackage ePackage)
   {
-    if (cdoPackage.getClassCount() > 0)
+    if (ePackage.getClassCount() > 0)
     { // already initialized go away
       return;
     }
 
     if (TRACER.isEnabled())
     {
-      TRACER.trace("Reading EPackage with uri " + cdoPackage.getNsURI() + " from db");
+      TRACER.trace("Reading EPackage with uri " + ePackage.getNsURI() + " from db");
     }
 
     Session session = getSessionFactory().openSession();
@@ -236,11 +236,11 @@ public class HibernatePackageHandler extends Lifecycle
     try
     {
       Criteria criteria = session.createCriteria(EPackage.class);
-      criteria.add(Expression.eq("packageURI", cdoPackage.getNsURI()));
+      criteria.add(Expression.eq("packageURI", ePackage.getNsURI()));
       List<?> list = criteria.list();
       if (list.size() != 1)
       {
-        throw new IllegalArgumentException("EPackage with uri " + cdoPackage.getNsURI() + " not present in the db");
+        throw new IllegalArgumentException("EPackage with uri " + ePackage.getNsURI() + " not present in the db");
       }
 
       if (TRACER.isEnabled())
@@ -251,27 +251,27 @@ public class HibernatePackageHandler extends Lifecycle
       EPackage dbPackage = (EPackage)list.get(0);
       if (TRACER.isEnabled())
       {
-        TRACER.trace("Read EPackage: " + cdoPackage.getName());
+        TRACER.trace("Read EPackage: " + ePackage.getName());
       }
 
-      ((InternalEPackage)cdoPackage).setServerInfo(dbPackage.getServerInfo());
-      ((InternalEPackage)cdoPackage).setName(dbPackage.getName());
-      ((InternalEPackage)cdoPackage).setEcore(dbPackage.getEcore());
-      ((InternalEPackage)cdoPackage).setMetaIDRange(cdoPackage.getMetaIDRange());
+      ((InternalEPackage)ePackage).setServerInfo(dbPackage.getServerInfo());
+      ((InternalEPackage)ePackage).setName(dbPackage.getName());
+      ((InternalEPackage)ePackage).setEcore(dbPackage.getEcore());
+      ((InternalEPackage)ePackage).setMetaIDRange(ePackage.getMetaIDRange());
 
-      final List<EClass> cdoClasses = new ArrayList<EClass>();
-      for (EClass cdoClass : dbPackage.getClasses())
+      final List<EClass> eClasses = new ArrayList<EClass>();
+      for (EClass eClass : dbPackage.getClasses())
       {
-        cdoClasses.add(cdoClass);
-        for (EClassProxy proxy : ((InternalEClass)cdoClass).getSuperTypeProxies())
+        eClasses.add(eClass);
+        for (EClassProxy proxy : ((InternalEClass)eClass).getSuperTypeProxies())
         {
           proxy.setCDOPackageManager(hibernateStore.getRepository().getPackageRegistry());
         }
 
-        for (EStructuralFeature cdoFeature : cdoClass.getFeatures())
+        for (EStructuralFeature feature : eClass.getFeatures())
         {
-          final InternalCDOFeature internalFeature = (InternalCDOFeature)cdoFeature;
-          internalFeature.setContainingClass(cdoClass);
+          final InternalCDOFeature internalFeature = (InternalCDOFeature)feature;
+          internalFeature.setContainingClass(eClass);
           if (internalFeature.getReferenceTypeProxy() != null)
           {
             internalFeature.getReferenceTypeProxy().setCDOPackageManager(
@@ -280,13 +280,13 @@ public class HibernatePackageHandler extends Lifecycle
         }
 
         // // force indices to be set
-        // if (TODO.getAllPersistentFeatures(cdoClass).length > 0)
+        // if (TODO.getAllPersistentFeatures(eClass).length > 0)
         // {
-        // ((InternalEClass)cdoClass).getFeatureIndex(0);
+        // ((InternalEClass)eClass).getFeatureIndex(0);
         // }
       }
 
-      ((InternalEPackage)cdoPackage).setClasses(cdoClasses);
+      ((InternalEPackage)ePackage).setClasses(eClasses);
     }
     finally
     {
@@ -322,15 +322,15 @@ public class HibernatePackageHandler extends Lifecycle
 
         for (Object object : list)
         {
-          EPackage cdoPackage = (EPackage)object;
+          EPackage ePackage = (EPackage)object;
           if (TRACER.isEnabled())
           {
-            TRACER.trace("Read EPackage: " + cdoPackage.getName());
+            TRACER.trace("Read EPackage: " + ePackage.getName());
           }
 
-          result.add(new CDOPackageInfo(cdoPackage.getNsURI(), cdoPackage.getParentURI(), cdoPackage.isDynamic(),
-              cdoPackage.getMetaIDRange()));
-          ((InternalEPackage)cdoPackage).setPackageManager(hibernateStore.getRepository().getPackageRegistry());
+          result.add(new CDOPackageInfo(ePackage.getNsURI(), ePackage.getParentURI(), ePackage.isDynamic(),
+              ePackage.getMetaIDRange()));
+          ((InternalEPackage)ePackage).setPackageManager(hibernateStore.getRepository().getPackageRegistry());
         }
 
         packageInfos = result;

@@ -783,16 +783,16 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     InternalCDORevision revision = getRevision(id, true);
     FSMUtil.validate(id, revision);
 
-    EClass cdoClass = revision.getEClass();
+    EClass eClass = revision.getEClass();
     InternalCDOObject object;
-    if (CDOModelUtil.isResource(cdoClass))
+    if (CDOModelUtil.isResource(eClass))
     {
       object = (InternalCDOObject)newResourceInstance(revision);
       // object is PROXY
     }
     else
     {
-      object = newInstance(cdoClass);
+      object = newInstance(eClass);
       // object is TRANSIENT
     }
 

@@ -92,8 +92,8 @@ public class RevisionManager extends CDORevisionResolverImpl implements IRevisio
    */
   protected void ensureChunks(InternalCDORevision revision, int referenceChunk, IStoreAccessor accessor)
   {
-    EClass cdoClass = revision.getEClass();
-    EStructuralFeature[] features = CDOModelUtil.getAllPersistentFeatures(cdoClass);
+    EClass eClass = revision.getEClass();
+    EStructuralFeature[] features = CDOModelUtil.getAllPersistentFeatures(eClass);
     for (int i = 0; i < features.length; i++)
     {
       EStructuralFeature feature = features[i];

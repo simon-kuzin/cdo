@@ -33,9 +33,9 @@ public class CDOSetFeatureDeltaImpl extends CDOSingleValueFeatureDeltaImpl imple
     super(feature, index, value);
   }
 
-  public CDOSetFeatureDeltaImpl(CDODataInput in, EClass cdoClass) throws IOException
+  public CDOSetFeatureDeltaImpl(CDODataInput in, EClass eClass) throws IOException
   {
-    super(in, cdoClass);
+    super(in, eClass);
   }
 
   public Type getType()

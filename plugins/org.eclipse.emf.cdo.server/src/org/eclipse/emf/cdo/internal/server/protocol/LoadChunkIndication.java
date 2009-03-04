@@ -65,9 +65,9 @@ public class LoadChunkIndication extends CDOReadIndication
       TRACER.format("Read revision version: {0}", version);
     }
 
-    EClass cdoClass = (EClass)in.readCDOClassifierRefAndResolve();
+    EClass eClass = (EClass)in.readCDOClassifierRefAndResolve();
     int featureID = in.readInt();
-    feature = cdoClass.getEStructuralFeature(featureID);
+    feature = eClass.getEStructuralFeature(featureID);
     if (TRACER.isEnabled())
     {
       TRACER.format("Read feature: {0}", feature);

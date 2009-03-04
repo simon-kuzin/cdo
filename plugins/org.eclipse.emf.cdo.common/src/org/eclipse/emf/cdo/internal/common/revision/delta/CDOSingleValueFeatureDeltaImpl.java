@@ -39,17 +39,17 @@ public abstract class CDOSingleValueFeatureDeltaImpl extends CDOFeatureDeltaImpl
     newValue = value;
   }
 
-  public CDOSingleValueFeatureDeltaImpl(CDODataInput in, EClass cdoClass) throws IOException
+  public CDOSingleValueFeatureDeltaImpl(CDODataInput in, EClass eClass) throws IOException
   {
-    super(in, cdoClass);
+    super(in, eClass);
     index = in.readInt();
     newValue = in.readCDOFeatureValue(getFeature());
   }
 
   @Override
-  public void write(CDODataOutput out, EClass cdoClass) throws IOException
+  public void write(CDODataOutput out, EClass eClass) throws IOException
   {
-    super.write(out, cdoClass);
+    super.write(out, eClass);
     out.writeInt(index);
     Object valueToWrite = newValue;
     EStructuralFeature feature = getFeature();

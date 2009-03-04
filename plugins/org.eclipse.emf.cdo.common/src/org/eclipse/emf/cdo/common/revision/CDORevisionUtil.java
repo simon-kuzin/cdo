@@ -34,9 +34,9 @@ public final class CDORevisionUtil
   /**
    * @since 2.0
    */
-  public static CDORevision create(EClass cdoClass, CDOID id)
+  public static CDORevision create(EClass eClass, CDOID id)
   {
-    return new CDORevisionImpl(cdoClass, id);
+    return new CDORevisionImpl(eClass, id);
   }
 
   /**

@@ -175,9 +175,9 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
     return classRef;
   }
 
-  public IClassMapping getClassMapping(EClass cdoClass)
+  public IClassMapping getClassMapping(EClass eClass)
   {
-    IClassMapping mapping = ClassServerInfo.getClassMapping(cdoClass);
+    IClassMapping mapping = ClassServerInfo.getClassMapping(eClass);
     if (mapping == NoClassMapping.INSTANCE)
     {
       return null;
@@ -185,51 +185,51 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
 
     if (mapping == null)
     {
-      mapping = createClassMapping(cdoClass);
-      ClassServerInfo.setClassMapping(cdoClass, mapping == null ? NoClassMapping.INSTANCE : mapping);
+      mapping = createClassMapping(eClass);
+      ClassServerInfo.setClassMapping(eClass, mapping == null ? NoClassMapping.INSTANCE : mapping);
     }
 
     return mapping;
   }
 
-  public String getTableName(EPackage cdoPackage)
+  public String getTableName(EPackage ePackage)
   {
-    String name = isQualifiedNames() ? cdoPackage.getQualifiedName().replace('.', '_') : cdoPackage.getName();
-    return getTableName(name, "P" + PackageServerInfo.getDBID(cdoPackage));
+    String name = isQualifiedNames() ? ePackage.getQualifiedName().replace('.', '_') : ePackage.getName();
+    return getTableName(name, "P" + PackageServerInfo.getDBID(ePackage));
   }
 
-  public String getTableName(EClass cdoClass)
+  public String getTableName(EClass eClass)
   {
-    String name = isQualifiedNames() ? cdoClass.getQualifiedName().replace('.', '_') : cdoClass.getName();
-    return getTableName(name, "C" + ClassServerInfo.getDBID(cdoClass));
+    String name = isQualifiedNames() ? eClass.getQualifiedName().replace('.', '_') : eClass.getName();
+    return getTableName(name, "C" + ClassServerInfo.getDBID(eClass));
   }
 
-  public String getReferenceTableName(EClass cdoClass, EStructuralFeature cdoFeature)
+  public String getReferenceTableName(EClass eClass, EStructuralFeature feature)
   {
-    String name = isQualifiedNames() ? cdoClass.getQualifiedName().replace('.', '_') : cdoClass.getName();
+    String name = isQualifiedNames() ? eClass.getQualifiedName().replace('.', '_') : eClass.getName();
     name += "_";
-    name += cdoFeature.getName();
+    name += feature.getName();
     name += "_refs";
-    return getTableName(name, "F" + FeatureServerInfo.getDBID(cdoFeature));
+    return getTableName(name, "F" + FeatureServerInfo.getDBID(feature));
   }
 
-  public String getReferenceTableName(EClass cdoClass)
+  public String getReferenceTableName(EClass eClass)
   {
-    String name = isQualifiedNames() ? cdoClass.getQualifiedName().replace('.', '_') : cdoClass.getName();
+    String name = isQualifiedNames() ? eClass.getQualifiedName().replace('.', '_') : eClass.getName();
     name += "_refs";
-    return getTableName(name, "F" + ClassServerInfo.getDBID(cdoClass));
+    return getTableName(name, "F" + ClassServerInfo.getDBID(eClass));
   }
 
-  public String getReferenceTableName(EPackage cdoPackage)
+  public String getReferenceTableName(EPackage ePackage)
   {
-    String name = isQualifiedNames() ? cdoPackage.getQualifiedName().replace('.', '_') : cdoPackage.getName();
+    String name = isQualifiedNames() ? ePackage.getQualifiedName().replace('.', '_') : ePackage.getName();
     name += "_refs";
-    return getTableName(name, "F" + PackageServerInfo.getDBID(cdoPackage));
+    return getTableName(name, "F" + PackageServerInfo.getDBID(ePackage));
   }
 
-  public String getFieldName(EStructuralFeature cdoFeature)
+  public String getFieldName(EStructuralFeature feature)
   {
-    return getName(cdoFeature.getName(), "F" + FeatureServerInfo.getDBID(cdoFeature), getMaxFieldNameLength());
+    return getName(feature.getName(), "F" + FeatureServerInfo.getDBID(feature), getMaxFieldNameLength());
   }
 
   private String getTableName(String name, String suffix)
@@ -297,8 +297,8 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
       {
         while (classIt.hasNext())
         {
-          EClass cdoClass = classIt.next();
-          IClassMapping mapping = getClassMapping(cdoClass);
+          EClass eClass = classIt.next();
+          IClassMapping mapping = getClassMapping(eClass);
           if (mapping != null)
           {
             IDBTable table = mapping.getTable();
@@ -409,9 +409,9 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
     }
   }
 
-  private void addResourceTables(EClass cdoClass, Set<IDBTable> tables)
+  private void addResourceTables(EClass eClass, Set<IDBTable> tables)
   {
-    IClassMapping mapping = getClassMapping(cdoClass);
+    IClassMapping mapping = getClassMapping(eClass);
     if (mapping != null)
     {
       Set<IDBTable> affectedTables = mapping.getAffectedTables();
@@ -448,7 +448,7 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
   /**
    * The implementation of this method must take care of creating a unique ids to prevent duplicate resource paths.
    */
-  protected abstract IClassMapping createClassMapping(EClass cdoClass);
+  protected abstract IClassMapping createClassMapping(EClass eClass);
 
   protected abstract List<EClass> getClassesWithObjectInfo();
 
