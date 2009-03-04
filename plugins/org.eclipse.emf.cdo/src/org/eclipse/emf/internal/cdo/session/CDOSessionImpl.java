@@ -606,6 +606,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
 
     packageRegistry.setPackageProcessor(this);
     packageRegistry.setPackageLoader(this);
+    packageRegistry.activate();
     EMFUtil.registerPackage(EcorePackage.eINSTANCE, packageRegistry);
     EMFUtil.registerPackage(EresourcePackage.eINSTANCE, packageRegistry);
 
@@ -648,6 +649,9 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
 
     revisionManager.deactivate();
     revisionManager = null;
+
+    packageRegistry.deactivate();
+    packageRegistry = null;
     super.doDeactivate();
   }
 

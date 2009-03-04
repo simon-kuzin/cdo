@@ -162,6 +162,21 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
     originalType = getType();
   }
 
+  public void dispose()
+  {
+    for (InternalCDOPackageInfo packageInfo : packageInfos)
+    {
+      EPackage ePackage = packageInfo.getEPackage(false);
+      if (ePackage != null)
+      {
+        ePackage.eAdapters().remove(packageInfo);
+      }
+    }
+
+    packageInfos = null;
+    state = State.DISPOSED;
+  }
+
   public synchronized void load()
   {
     if (state == State.PROXY)

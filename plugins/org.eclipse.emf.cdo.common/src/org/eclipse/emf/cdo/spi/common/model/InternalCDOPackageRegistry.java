@@ -15,13 +15,15 @@ import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 
+import org.eclipse.net4j.util.lifecycle.ILifecycle;
+
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.InternalEObject;
 
 /**
  * @author Eike Stepper
  */
-public interface InternalCDOPackageRegistry extends CDOPackageRegistry
+public interface InternalCDOPackageRegistry extends CDOPackageRegistry, ILifecycle.Introspection
 {
   public MetaInstanceMapper getMetaInstanceMapper();
 
@@ -74,5 +76,7 @@ public interface InternalCDOPackageRegistry extends CDOPackageRegistry
     public CDOIDMetaRange mapMetaInstances(EPackage ePackage);
 
     public void remapMetaInstance(CDOID oldID, CDOID newID);
+
+    public void dispose();
   }
 }

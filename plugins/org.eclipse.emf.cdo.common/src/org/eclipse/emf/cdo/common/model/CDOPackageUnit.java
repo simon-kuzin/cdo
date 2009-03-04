@@ -40,7 +40,7 @@ public interface CDOPackageUnit
    */
   public enum State
   {
-    NEW, LOADED, PROXY
+    NEW, LOADED, PROXY, DISPOSED
   }
 
   /**

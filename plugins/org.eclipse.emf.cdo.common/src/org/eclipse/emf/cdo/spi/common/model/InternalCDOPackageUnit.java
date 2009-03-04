@@ -36,4 +36,6 @@ public interface InternalCDOPackageUnit extends CDOPackageUnit
   public void read(CDODataInput in) throws IOException;
 
   public void init(EPackage ePackage);
+
+  public void dispose();
 }

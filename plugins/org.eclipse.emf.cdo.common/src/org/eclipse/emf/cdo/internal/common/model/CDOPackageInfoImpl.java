@@ -78,11 +78,6 @@ public class CDOPackageInfoImpl extends AdapterImpl implements InternalCDOPackag
 
   public synchronized CDOIDMetaRange getMetaIDRange()
   {
-    // if (metaIDRange == null)
-    // {
-    // metaIDRange = packageUnit.getPackageRegistry().getMetaInstanceMapper().mapMetaInstances(getEPackage());
-    // }
-
     return metaIDRange;
   }
 

@@ -548,7 +548,6 @@ public class Repository extends Container<Object> implements IRepository, Packag
 
     packageRegistry.setReplacingDescriptors(true);
     packageRegistry.setPackageLoader(this);
-    EMFUtil.registerPackage(EcorePackage.eINSTANCE, packageRegistry);
 
     sessionManager.setRepository(this);
     revisionManager.setRepository(this);
@@ -587,6 +586,9 @@ public class Repository extends Container<Object> implements IRepository, Packag
     super.doActivate();
     LifecycleUtil.activate(store);
     LifecycleUtil.activate(packageRegistry);
+    packageRegistry.activate();
+    EMFUtil.registerPackage(EcorePackage.eINSTANCE, packageRegistry);
+
     if (store.wasCrashed())
     {
       OM.LOG.info("Crash of repository " + name + " detected");

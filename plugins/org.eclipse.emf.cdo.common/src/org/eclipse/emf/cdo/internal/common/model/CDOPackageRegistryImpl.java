@@ -23,7 +23,10 @@ import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 
+import org.eclipse.net4j.util.CheckUtil;
 import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
+import org.eclipse.net4j.util.lifecycle.ILifecycleState;
+import org.eclipse.net4j.util.lifecycle.LifecycleException;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.emf.ecore.EObject;
@@ -52,6 +55,8 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
   private PackageProcessor packageProcessor;
 
   private PackageLoader packageLoader;
+
+  private transient boolean active;
 
   @ExcludeFromDump
   private transient InternalCDOPackageUnit[] packageUnits;
@@ -128,7 +133,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
         initPackageUnit(ePackage);
         return null;
       }
-      
+
       // Make sure the EPackage is loaded
       if (packageInfo.getEPackage() != ePackage)
       {
@@ -212,6 +217,42 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     }
 
     return packageUnits;
+  }
+
+  public synchronized boolean isActive()
+  {
+    return active;
+  }
+
+  public synchronized ILifecycleState getLifecycleState()
+  {
+    return active ? ILifecycleState.ACTIVE : ILifecycleState.INACTIVE;
+  }
+
+  public synchronized void activate() throws LifecycleException
+  {
+    if (!active)
+    {
+      CheckUtil.checkState(packageLoader, "packageLoader");
+      active = true;
+    }
+  }
+
+  public synchronized Exception deactivate()
+  {
+    if (active)
+    {
+      for (InternalCDOPackageUnit packageUnit : getPackageUnits())
+      {
+        packageUnit.dispose();
+      }
+
+      clear();
+      metaInstanceMapper.dispose();
+      active = false;
+    }
+
+    return null;
   }
 
   protected void initPackageUnit(EPackage ePackage)
@@ -298,7 +339,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       }
 
       CDOIDMetaRange range = CDOIDUtil.createMetaRange(metaIDRange.getLowerBound(), 0);
-      range = mapMetaInstance((InternalEObject)ePackage, range, idToMetaInstanceMap, metaInstanceToIDMap);
+      range = mapMetaInstance((InternalEObject)ePackage, range);
       if (range.size() != metaIDRange.size())
       {
         throw new IllegalStateException("range.size() != metaIDRange.size()");
@@ -307,28 +348,20 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
     public CDOIDMetaRange mapMetaInstances(EPackage ePackage)
     {
-      CDOIDMetaRange range = mapMetaInstances(ePackage, lastTempMetaID + 1, idToMetaInstanceMap, metaInstanceToIDMap);
+      CDOIDMetaRange range = mapMetaInstances(ePackage, lastTempMetaID + 1);
       lastTempMetaID = ((CDOIDTempMeta)range.getUpperBound()).getIntValue();
       return range;
     }
 
-    /**
-     * TODO Remove map params?
-     */
-    public CDOIDMetaRange mapMetaInstances(EPackage ePackage, int firstMetaID,
-        Map<CDOID, InternalEObject> idToMetaInstances, Map<InternalEObject, CDOID> metaInstanceToIDs)
+    public CDOIDMetaRange mapMetaInstances(EPackage ePackage, int firstMetaID)
     {
       CDOIDTemp lowerBound = CDOIDUtil.createTempMeta(firstMetaID);
       CDOIDMetaRange range = CDOIDUtil.createMetaRange(lowerBound, 0);
-      range = mapMetaInstance((InternalEObject)ePackage, range, idToMetaInstances, metaInstanceToIDs);
+      range = mapMetaInstance((InternalEObject)ePackage, range);
       return range;
     }
 
-    /**
-     * TODO Remove map params?
-     */
-    public CDOIDMetaRange mapMetaInstance(InternalEObject metaInstance, CDOIDMetaRange range,
-        Map<CDOID, InternalEObject> idToMetaInstances, Map<InternalEObject, CDOID> metaInstanceToIDs)
+    public CDOIDMetaRange mapMetaInstance(InternalEObject metaInstance, CDOIDMetaRange range)
     {
       range = range.increase();
       CDOID id = range.getUpperBound();
@@ -337,17 +370,17 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
         TRACER.format("Registering meta instance: {0} <-> {1}", id, metaInstance);
       }
 
-      if (idToMetaInstances != null)
+      if (idToMetaInstanceMap != null)
       {
-        if (idToMetaInstances.put(id, metaInstance) != null)
+        if (idToMetaInstanceMap.put(id, metaInstance) != null)
         {
           throw new IllegalStateException("Duplicate meta ID: " + id + " --> " + metaInstance);
         }
       }
 
-      if (metaInstanceToIDs != null)
+      if (metaInstanceToIDMap != null)
       {
-        if (metaInstanceToIDs.put(metaInstance, id) != null)
+        if (metaInstanceToIDMap.put(metaInstance, id) != null)
         {
           throw new IllegalStateException("Duplicate metaInstance: " + metaInstance + " --> " + id);
         }
@@ -355,7 +388,10 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
       for (EObject content : metaInstance.eContents())
       {
-        range = mapMetaInstance((InternalEObject)content, range, idToMetaInstances, metaInstanceToIDs);
+        if (!(content instanceof EPackage))
+        {
+          range = mapMetaInstance((InternalEObject)content, range);
+        }
       }
 
       return range;
@@ -366,6 +402,12 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       CDOIDTemp lowerBound = CDOIDUtil.createTempMeta(lastTempMetaID + 1);
       lastTempMetaID += count;
       return CDOIDUtil.createMetaRange(lowerBound, count);
+    }
+
+    public void dispose()
+    {
+      idToMetaInstanceMap.clear();
+      metaInstanceToIDMap.clear();
     }
   }
 }
