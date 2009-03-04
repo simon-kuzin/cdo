@@ -116,10 +116,10 @@ public class OpenSessionRequest extends CDOTimeRequest<OpenSessionResult>
     result = new OpenSessionResult(sessionID, repositoryUUID, repositoryCreationTime, repositorySupportingAudits,
         libraryDescriptor);
 
-    CDOPackageUnit[] cdoPackageUnits = in.readCDOPackageUnits();
-    for (int i = 0; i < cdoPackageUnits.length; i++)
+    CDOPackageUnit[] packageUnits = in.readCDOPackageUnits();
+    for (int i = 0; i < packageUnits.length; i++)
     {
-      result.getPackageUnits().add((InternalCDOPackageUnit)cdoPackageUnits[i]);
+      result.getPackageUnits().add((InternalCDOPackageUnit)packageUnits[i]);
     }
 
     super.confirming(in);

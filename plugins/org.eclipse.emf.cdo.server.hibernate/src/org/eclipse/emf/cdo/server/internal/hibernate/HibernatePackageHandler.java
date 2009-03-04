@@ -62,7 +62,7 @@ public class HibernatePackageHandler extends Lifecycle
 
   private int nextFeatureID;
 
-  private Collection<CDOPackageInfo> cdoPackageInfos = null;
+  private Collection<CDOPackageInfo> packageInfos = null;
 
   private HibernateStore hibernateStore;
 
@@ -216,7 +216,7 @@ public class HibernatePackageHandler extends Lifecycle
   public Collection<CDOPackageInfo> getEPackageDescriptors()
   {
     readPackageInfos();
-    return cdoPackageInfos;
+    return packageInfos;
   }
 
   protected void readPackage(EPackage cdoPackage)
@@ -301,7 +301,7 @@ public class HibernatePackageHandler extends Lifecycle
 
   protected void readPackageInfos()
   {
-    if (cdoPackageInfos == null || cdoPackageInfos.size() == 0)
+    if (packageInfos == null || packageInfos.size() == 0)
     {
       if (TRACER.isEnabled())
       {
@@ -333,7 +333,7 @@ public class HibernatePackageHandler extends Lifecycle
           ((InternalEPackage)cdoPackage).setPackageManager(hibernateStore.getRepository().getPackageRegistry());
         }
 
-        cdoPackageInfos = result;
+        packageInfos = result;
       }
       finally
       {
@@ -380,7 +380,7 @@ public class HibernatePackageHandler extends Lifecycle
 
   public void reset()
   {
-    cdoPackageInfos = null;
+    packageInfos = null;
   }
 
   @Override

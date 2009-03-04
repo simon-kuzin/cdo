@@ -95,13 +95,13 @@ public abstract class CDODataInputImpl extends ExtendedDataInput.Delegating impl
       TRACER.format("Reading {0} package units", size);
     }
     
-    CDOPackageUnit[] cdoPackageUnits = new CDOPackageUnit[size];
+    CDOPackageUnit[] packageUnits = new CDOPackageUnit[size];
     for (int i = 0; i < size; i++)
     {
-      cdoPackageUnits[i] = readCDOPackageUnit();
+      packageUnits[i] = readCDOPackageUnit();
     }
     
-    return cdoPackageUnits;
+    return packageUnits;
   }
 
   public CDOPackageUnit.Type readCDOPackageUnitType() throws IOException

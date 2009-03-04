@@ -263,7 +263,7 @@ public class Session extends Container<IView> implements ISession, CDOIDProvider
   /**
    * @since 2.0
    */
-  public void handleCommitNotification(long timeStamp, CDOPackageUnit[] cdoPackageUnits,
+  public void handleCommitNotification(long timeStamp, CDOPackageUnit[] packageUnits,
       List<CDOIDAndVersion> dirtyIDs, List<CDOID> detachedObjects, List<CDORevisionDelta> deltas)
   {
     if (!isPassiveUpdateEnabled())
@@ -305,12 +305,12 @@ public class Session extends Container<IView> implements ISession, CDOIDProvider
 
     try
     {
-      if (!dirtyIDs.isEmpty() || !newDeltas.isEmpty() || !detachedObjects.isEmpty() || cdoPackageUnits.length > 0)
+      if (!dirtyIDs.isEmpty() || !newDeltas.isEmpty() || !detachedObjects.isEmpty() || packageUnits.length > 0)
       {
         IChannel channel = protocol.getChannel();
         if (LifecycleUtil.isActive(channel))
         {
-          new CommitNotificationRequest(channel, timeStamp, cdoPackageUnits, dirtyIDs, detachedObjects, newDeltas)
+          new CommitNotificationRequest(channel, timeStamp, packageUnits, dirtyIDs, detachedObjects, newDeltas)
               .sendAsync();
         }
         else
