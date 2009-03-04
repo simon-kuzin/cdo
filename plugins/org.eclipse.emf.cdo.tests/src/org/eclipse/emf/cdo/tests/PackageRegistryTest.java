@@ -21,13 +21,11 @@ import org.eclipse.emf.cdo.tests.config.IRepositoryConfig;
 import org.eclipse.emf.cdo.tests.mango.Value;
 import org.eclipse.emf.cdo.tests.model1.Company;
 import org.eclipse.emf.cdo.tests.model1.PurchaseOrder;
-import org.eclipse.emf.cdo.tests.model2.Model2Package;
 import org.eclipse.emf.cdo.tests.model2.SpecialPurchaseOrder;
 import org.eclipse.emf.cdo.tests.model3.Class1;
 import org.eclipse.emf.cdo.tests.model3.Model3Package;
 import org.eclipse.emf.cdo.tests.model3.subpackage.Class2;
 import org.eclipse.emf.cdo.tests.model3.subpackage.SubpackageFactory;
-import org.eclipse.emf.cdo.tests.model3.subpackage.SubpackagePackage;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 
 import org.eclipse.emf.internal.cdo.CDOFactoryImpl;
@@ -78,7 +76,7 @@ public class PackageRegistryTest extends AbstractCDOTest
     {
       CDOSession session = openSession();
       session.getPackageRegistry().putEPackage(getModel1Package());
-      session.getPackageRegistry().putEPackage(Model2Package.eINSTANCE);
+      session.getPackageRegistry().putEPackage(getModel2Package());
       CDOTransaction transaction = session.openTransaction();
       CDOResource res = transaction.createResource("/res");
 
@@ -125,16 +123,10 @@ public class PackageRegistryTest extends AbstractCDOTest
   public void testCommitNestedPackages() throws Exception
   {
     CDOSession session = openSession();
-    assertEquals(0, session.getPackageRegistry().size());
+    assertEquals(2, session.getPackageRegistry().size());
 
-    try
-    {
-      session.getPackageRegistry().putEPackage(SubpackagePackage.eINSTANCE);
-      fail("IllegalArgumentException expected");
-    }
-    catch (IllegalArgumentException success)
-    {
-    }
+    session.getPackageRegistry().putEPackage(getModel3SubpackagePackage());
+    assertEquals(4, session.getPackageRegistry().size());
 
     session.close();
   }
@@ -142,10 +134,10 @@ public class PackageRegistryTest extends AbstractCDOTest
   public void testCommitTopLevelPackages() throws Exception
   {
     CDOSession session = openSession();
-    assertEquals(0, session.getPackageRegistry().size());
-
-    session.getPackageRegistry().putEPackage(Model3Package.eINSTANCE);
     assertEquals(2, session.getPackageRegistry().size());
+
+    session.getPackageRegistry().putEPackage(getModel3Package());
+    assertEquals(4, session.getPackageRegistry().size());
 
     CDOTransaction transaction = session.openTransaction();
     CDOResource res = transaction.createResource("/res");
@@ -154,13 +146,8 @@ public class PackageRegistryTest extends AbstractCDOTest
     res.getContents().add(class1);
     transaction.commit();
 
-    EPackage model3Package = session.getPackageUnitManager().lookupPackage(Model3Package.eINSTANCE.getNsURI());
-    assertEquals(11, model3Package.getMetaIDRange().size());
-    assertNotNull(model3Package.getEcore());
-
-    EPackage subPackage = session.getPackageUnitManager().lookupPackage(SubpackagePackage.eINSTANCE.getNsURI());
-    assertNull(subPackage.getMetaIDRange());
-    assertNull(subPackage.getEcore());
+    EPackage model3Package = session.getPackageRegistry().getEPackage(getModel3Package().getNsURI());
+    assertNotNull(model3Package);
     session.close();
   }
 
@@ -168,7 +155,7 @@ public class PackageRegistryTest extends AbstractCDOTest
   {
     {
       CDOSession session = openSession();
-      session.getPackageRegistry().putEPackage(Model3Package.eINSTANCE);
+      session.getPackageRegistry().putEPackage(getModel3Package());
 
       CDOTransaction transaction = session.openTransaction();
       CDOResource res = transaction.createResource("/res");
@@ -180,13 +167,11 @@ public class PackageRegistryTest extends AbstractCDOTest
     }
 
     CDOSession session = openSession();
-    EPackage model3Package = session.getPackageUnitManager().lookupPackage(Model3Package.eINSTANCE.getNsURI());
-    assertEquals(11, model3Package.getMetaIDRange().size());
-    assertNotNull(model3Package.getEcore());
+    EPackage model3Package = session.getPackageRegistry().getEPackage(getModel3Package().getNsURI());
+    assertNotNull(model3Package);
 
-    EPackage subPackage = session.getPackageUnitManager().lookupPackage(SubpackagePackage.eINSTANCE.getNsURI());
-    assertNull(subPackage.getMetaIDRange());
-    assertNull(subPackage.getEcore());
+    EPackage subPackage = session.getPackageRegistry().getEPackage(getModel3SubpackagePackage().getNsURI());
+    assertNull(subPackage);
     session.close();
   }
 
