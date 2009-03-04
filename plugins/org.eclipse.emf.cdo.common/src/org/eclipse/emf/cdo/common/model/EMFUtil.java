@@ -270,7 +270,7 @@ public final class EMFUtil
     return count;
   }
 
-  public static List<EClass> getPersistentClasses(EPackage ePackage)
+  public static EClass[] getPersistentClasses(EPackage ePackage)
   {
     List<EClass> result = new ArrayList<EClass>();
     for (EClassifier classifier : ePackage.getEClassifiers())
@@ -281,7 +281,7 @@ public final class EMFUtil
       }
     }
 
-    return result;
+    return result.toArray(new EClass[result.size()]);
   }
 
   public static List<EStructuralFeature> getPersistentFeatures(EList<EStructuralFeature> eFeatures)

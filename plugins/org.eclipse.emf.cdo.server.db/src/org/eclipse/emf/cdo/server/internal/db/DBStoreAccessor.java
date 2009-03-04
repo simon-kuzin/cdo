@@ -20,6 +20,7 @@ import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.model.CDOType;
+import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
@@ -687,18 +688,12 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     {
       for (EPackage cdoPackage : cdoPackages)
       {
-        Set<IDBTable> tables = mapClasses(getAllPersistentClasses(cdoPackage));
+        Set<IDBTable> tables = mapClasses(EMFUtil.getPersistentClasses(cdoPackage));
         affectedTables.addAll(tables);
       }
     }
 
     return affectedTables;
-  }
-
-  public static EClass[] getAllPersistentClasses(EPackage cdoPackage)
-  {
-    // TODO: implement TODO.getAllPersistentClasses(cdoPackage)
-    throw new UnsupportedOperationException();
   }
 
   protected Set<IDBTable> mapClasses(EClass... cdoClasses)

@@ -13,13 +13,13 @@ package org.eclipse.emf.cdo.internal.ui.editor;
 
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
-import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.internal.ui.SharedIcons;
 import org.eclipse.emf.cdo.internal.ui.bundle.OM;
 import org.eclipse.emf.cdo.internal.ui.dialogs.BulkAddDialog;
 import org.eclipse.emf.cdo.internal.ui.dialogs.RollbackTransactionDialog;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.cdo.ui.CDOEditorInput;
 import org.eclipse.emf.cdo.ui.CDOEventHandler;
@@ -154,6 +154,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -2077,14 +2078,10 @@ public class CDOEditor extends MultiPageEditorPart implements IEditingDomainProv
   protected boolean populateNewRoot(MenuManager menuManager)
   {
     boolean populated = false;
-    CDOPackageRegistry packageRegistry = view.getSession().getPackageRegistry();
-    List<EPackage> ePackages = new ArrayList<EPackage>();
-    for (String uri : packageRegistry.keySet())
-    {
-      ePackages.add(packageRegistry.getEPackage(uri));
-    }
+    InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)view.getSession().getPackageRegistry();
+    EPackage[] ePackages = packageRegistry.getEPackages();
 
-    Collections.sort(ePackages, new Comparator<EPackage>()
+    Arrays.sort(ePackages, new Comparator<EPackage>()
     {
       public int compare(EPackage o1, EPackage o2)
       {

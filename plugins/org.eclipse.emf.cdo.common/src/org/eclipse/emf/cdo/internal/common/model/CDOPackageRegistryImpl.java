@@ -34,8 +34,10 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.EPackageRegistryImpl;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -57,6 +59,9 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
   private PackageLoader packageLoader;
 
   private transient boolean active;
+
+  @ExcludeFromDump
+  private transient InternalCDOPackageInfo[] packageInfos;
 
   @ExcludeFromDump
   private transient InternalCDOPackageUnit[] packageUnits;
@@ -153,6 +158,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
   public synchronized void putPackageUnit(InternalCDOPackageUnit packageUnit)
   {
+    packageInfos = null;
     packageUnits = null;
     packageUnit.setPackageRegistry(this);
     for (InternalCDOPackageInfo packageInfo : packageUnit.getPackageInfos())
@@ -195,6 +201,26 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     return null;
   }
 
+  public synchronized InternalCDOPackageInfo[] getPackageInfos()
+  {
+    if (packageInfos == null)
+    {
+      List<InternalCDOPackageInfo> result = new ArrayList<InternalCDOPackageInfo>();
+      for (Object value : values())
+      {
+        InternalCDOPackageInfo packageInfo = getPackageInfo(value);
+        if (packageInfo != null)
+        {
+          result.add(packageInfo);
+        }
+      }
+
+      packageInfos = result.toArray(new InternalCDOPackageInfo[result.size()]);
+    }
+
+    return packageInfos;
+  }
+
   public synchronized InternalCDOPackageUnit[] getPackageUnits()
   {
     if (packageUnits == null)
@@ -217,6 +243,21 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     }
 
     return packageUnits;
+  }
+
+  public synchronized EPackage[] getEPackages()
+  {
+    List<EPackage> result = new ArrayList<EPackage>();
+    for (String packageURI : keySet())
+    {
+      EPackage ePackage = getEPackage(packageURI);
+      if (ePackage != null)
+      {
+        result.add(ePackage);
+      }
+    }
+
+    return result.toArray(new EPackage[result.size()]);
   }
 
   public synchronized boolean isActive()
@@ -260,6 +301,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     InternalCDOPackageUnit packageUnit = createPackageUnit();
     packageUnit.setPackageRegistry(this);
     packageUnit.init(ePackage);
+    packageInfos = null;
     packageUnits = null;
   }
 
