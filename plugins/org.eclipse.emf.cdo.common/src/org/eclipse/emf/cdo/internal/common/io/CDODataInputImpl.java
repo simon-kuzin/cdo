@@ -87,6 +87,11 @@ public abstract class CDODataInputImpl extends ExtendedDataInput.Delegating impl
     return packageUnit;
   }
 
+  public CDOPackageUnit.Type readCDOPackageUnitType() throws IOException
+  {
+    return CDOPackageUnit.Type.values()[readByte()];
+  }
+
   public CDOPackageInfo readCDOPackageInfo() throws IOException
   {
     InternalCDOPackageInfo packageInfo = new CDOPackageInfoImpl();

@@ -21,23 +21,47 @@ public interface CDOPackageUnit
 
   public State getState();
 
+  public Type getType();
+
+  public Type getOriginalType();
+
   public long getTimeStamp();
 
-  public boolean isDynamic();
-
-  public boolean isLegacy();
-
-  public boolean isSystem();
+  public CDOPackageInfo getTopLevelPackageInfo();
 
   public CDOPackageInfo getPackageInfo(String packageURI);
 
   public CDOPackageInfo[] getPackageInfos();
+
+  public boolean isSystem();
 
   /**
    * @author Eike Stepper
    */
   public enum State
   {
-    NEW, LOADED, NOT_LOADED
+    NEW, LOADED, PROXY
+  }
+
+  /**
+   * @author Eike Stepper
+   */
+  public enum Type
+  {
+    NATIVE, LEGACY, DYNAMIC, UNKNOWN;
+
+    public boolean isGenerated()
+    {
+      checkNotUnknown();
+      return this == NATIVE || this == LEGACY;
+    }
+
+    public void checkNotUnknown()
+    {
+      if (this == UNKNOWN)
+      {
+        throw new IllegalStateException("Package unit type is unknown");
+      }
+    }
   }
 }

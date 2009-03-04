@@ -113,8 +113,7 @@ public class OpenSessionRequest extends CDOTimeRequest<OpenSessionResult>
 
     result = new OpenSessionResult(sessionID, repositoryUUID, repositoryCreationTime, repositorySupportingAudits,
         libraryDescriptor);
-    getProtocol().readPackageUnits(in, result.getPackageUnits(), result.getNewPackageUnits(),
-        result.getDynamicPackageUnits());
+    getProtocol().readPackageUnits(in, result.getPackageUnits());
 
     super.confirming(in);
     result.setRepositoryTimeResult(getRepositoryTimeResult());

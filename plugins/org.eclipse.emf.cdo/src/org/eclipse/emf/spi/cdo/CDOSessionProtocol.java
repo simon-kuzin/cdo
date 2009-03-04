@@ -38,7 +38,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -122,9 +121,8 @@ public interface CDOSessionProtocol extends PackageLoader
 
     private List<InternalCDOPackageUnit> packageUnits = new ArrayList<InternalCDOPackageUnit>();
 
-    private Set<InternalCDOPackageUnit> dynamicPackageUnits = new HashSet<InternalCDOPackageUnit>();
-
-    private Set<InternalCDOPackageUnit> newPackageUnits = new HashSet<InternalCDOPackageUnit>();
+    // private Map<InternalCDOPackageUnit, CDOPackageUnit.Type> repositoryActualTypes = new
+    // HashMap<InternalCDOPackageUnit, CDOPackageUnit.Type>();
 
     public OpenSessionResult(int sessionID, String repositoryUUID, long repositoryCreationTime,
         boolean repositorySupportingAudits, CDOIDLibraryDescriptor libraryDescriptor)
@@ -176,15 +174,10 @@ public interface CDOSessionProtocol extends PackageLoader
       return packageUnits;
     }
 
-    public Set<InternalCDOPackageUnit> getNewPackageUnits()
-    {
-      return newPackageUnits;
-    }
-
-    public Set<InternalCDOPackageUnit> getDynamicPackageUnits()
-    {
-      return dynamicPackageUnits;
-    }
+    // public Map<InternalCDOPackageUnit, CDOPackageUnit.Type> getRepositoryActualTypes()
+    // {
+    // return repositoryActualTypes;
+    // }
   }
 
   /**

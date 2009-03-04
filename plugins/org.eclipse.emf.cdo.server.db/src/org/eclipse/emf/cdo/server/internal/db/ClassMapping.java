@@ -180,13 +180,13 @@ public abstract class ClassMapping implements IClassMapping
 
   protected DBType getDBType(EStructuralFeature cdoFeature)
   {
-    return DBStore.getDBType(cdoFeature.getType());
+    return DBStore.getDBType(cdoFeature.getOriginalType());
   }
 
   protected int getDBLength(EStructuralFeature cdoFeature)
   {
     // Derby: The maximum length for a VARCHAR string is 32,672 characters.
-    CDOType type = cdoFeature.getType();
+    CDOType type = cdoFeature.getOriginalType();
     return type == CDOType.STRING || type == CDOType.CUSTOM ? 32672 : IDBField.DEFAULT;
   }
 
@@ -281,7 +281,7 @@ public abstract class ClassMapping implements IClassMapping
 
   protected AttributeMapping createAttributeMapping(EStructuralFeature feature)
   {
-    CDOType type = feature.getType();
+    CDOType type = feature.getOriginalType();
     if (type == CDOType.BOOLEAN || type == CDOType.BOOLEAN_OBJECT)
     {
       return new AttributeMapping.AMBoolean(this, feature);

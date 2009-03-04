@@ -101,10 +101,6 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
 
   private CDOSession.Repository repository;
 
-  private Set<InternalCDOPackageUnit> repositoryNewPackageUnits;
-
-  private Set<InternalCDOPackageUnit> repositoryDynamicPackageUnits;
-
   private InternalCDOPackageRegistry packageRegistry;
 
   private CDORevisionManagerImpl revisionManager;
@@ -214,16 +210,6 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     return packageRegistry;
   }
 
-  public boolean isNewPackageUnitInRepository(CDOPackageUnit packageUnit)
-  {
-    return repositoryNewPackageUnits.contains(packageUnit);
-  }
-
-  public boolean isDynamicPackageUnitInRepository(CDOPackageUnit packageUnit)
-  {
-    return repositoryDynamicPackageUnits.contains(packageUnit);
-  }
-
   public Object processPackage(Object value)
   {
     CDOFactoryImpl.prepareDynamicEPackage(value);
@@ -232,9 +218,12 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
 
   public EPackage[] loadPackages(CDOPackageUnit packageUnit)
   {
-    if (!isDynamicPackageUnitInRepository(packageUnit) && !options().isGeneratedPackageEmulationEnabled())
+    if (packageUnit.getOriginalType().isGenerated())
     {
-      throw new CDOException("Generated package unit not available: " + packageUnit);
+      if (!options().isGeneratedPackageEmulationEnabled())
+      {
+        throw new CDOException("Generated packages locally not available: " + packageUnit);
+      }
     }
 
     return getSessionProtocol().loadPackages(packageUnit);
@@ -345,8 +334,6 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       try
       {
         LifecycleUtil.deactivate(view);
-        // new ViewsChangedRequest(protocol, view.getViewID(), CDOProtocolConstants.VIEW_CLOSED,
-        // CDOCommonView.UNSPECIFIED_DATE).send();
       }
       catch (Exception ex)
       {
@@ -630,8 +617,6 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     repository = createRepository(result);
     handleLibraryDescriptor(result.getLibraryDescriptor());
 
-    repositoryNewPackageUnits = result.getNewPackageUnits();
-    repositoryDynamicPackageUnits = result.getDynamicPackageUnits();
     for (CDOPackageUnit packageUnit : result.getPackageUnits())
     {
       packageRegistry.putPackageUnit((InternalCDOPackageUnit)packageUnit);

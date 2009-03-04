@@ -414,12 +414,12 @@ public final class EMFUtil
     Resource resource = ePackage.eResource();
     if (resource == null)
     {
-      throw new IllegalStateException("Package is not contained in a resource: " + ePackage);
+      resource = createPackageResource(ePackage.getNsURI());
+      resource.getContents().add(ePackage);
     }
 
-    Map<String, Object> options = createResourceOptions(zipped);
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    resource.save(baos, options);
+    ByteArrayOutputStream baos = new ByteArrayOutputStream(); // TODO Use ExtendedDataOutput.Stream
+    resource.save(baos, createResourceOptions(zipped));
 
     out.writeString(resource.getURI().toString());
     out.writeBoolean(zipped);
@@ -430,18 +430,21 @@ public final class EMFUtil
   {
     String uri = in.readString();
     boolean zipped = in.readBoolean();
-    ByteArrayInputStream bais = new ByteArrayInputStream(in.readByteArray());
+    ByteArrayInputStream bais = new ByteArrayInputStream(in.readByteArray()); // TODO Use ExtendedDataInput.Stream
 
-    Resource.Factory resourceFactory = new EcoreResourceFactoryImpl();
-    Resource resource = resourceFactory.createResource(URI.createURI(uri));
-
-    Map<String, Object> options = createResourceOptions(zipped);
-    resource.load(bais, options);
+    Resource resource = createPackageResource(uri);
+    resource.load(bais, createResourceOptions(zipped));
 
     EList<EObject> contents = resource.getContents();
     EPackage ePackage = (EPackage)contents.get(0);
     // contents.clear();
     return ePackage;
+  }
+
+  private static Resource createPackageResource(String uri)
+  {
+    Resource.Factory resourceFactory = new EcoreResourceFactoryImpl();
+    return resourceFactory.createResource(URI.createURI(uri));
   }
 
   private static Map<String, Object> createResourceOptions(boolean zipped)
@@ -451,6 +454,7 @@ public final class EMFUtil
     {
       options.put(Resource.OPTION_ZIP, true);
     }
+
     return options;
   }
 

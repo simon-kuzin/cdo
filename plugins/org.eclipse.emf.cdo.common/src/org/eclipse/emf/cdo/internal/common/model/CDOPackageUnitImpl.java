@@ -36,11 +36,9 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
 
   private InternalCDOPackageRegistry packageRegistry;
 
-  private State state = State.NOT_LOADED;
+  private State state = State.PROXY;
 
-  private boolean dynamic;
-
-  private boolean legacy;
+  private Type originalType;
 
   private long timeStamp;
 
@@ -62,7 +60,52 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
 
   public String getID()
   {
-    return packageInfos == null ? "" : packageInfos[0].getPackageURI();
+    try
+    {
+      return getTopLevelPackageInfo().getPackageURI();
+    }
+    catch (RuntimeException ex)
+    {
+      return "UNINITIALIZED";
+    }
+  }
+
+  public State getState()
+  {
+    return state;
+  }
+
+  public void setState(State state)
+  {
+    this.state = state;
+  }
+
+  public Type getType()
+  {
+    if (state == State.PROXY)
+    {
+      return Type.UNKNOWN;
+    }
+
+    InternalCDOPackageInfo packageInfo = getTopLevelPackageInfo();
+    EPackage ePackage = packageInfo.getEPackage();
+    if (EMFUtil.isDynamicEPackage(ePackage))
+    {
+      return Type.DYNAMIC;
+    }
+
+    // TODO Legacy
+    return Type.NATIVE;
+  }
+
+  public Type getOriginalType()
+  {
+    return originalType;
+  }
+
+  public void setOriginalType(Type originalType)
+  {
+    this.originalType = originalType;
   }
 
   public long getTimeStamp()
@@ -75,21 +118,14 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
     this.timeStamp = timeStamp;
   }
 
-  public boolean isDynamic()
+  public InternalCDOPackageInfo getTopLevelPackageInfo()
   {
-    checkLoaded();
-    return dynamic;
-  }
+    if (packageInfos == null || packageInfos.length == 0)
+    {
+      throw new IllegalStateException("Not initialized: " + this);
+    }
 
-  public boolean isLegacy()
-  {
-    checkLoaded();
-    return legacy;
-  }
-
-  public boolean isSystem()
-  {
-    return packageInfos == null ? false : packageInfos[0].isSystemPackage();
+    return packageInfos[0];
   }
 
   public InternalCDOPackageInfo getPackageInfo(String packageURI)
@@ -110,14 +146,9 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
     return packageInfos;
   }
 
-  public State getState()
+  public boolean isSystem()
   {
-    return state;
-  }
-
-  public void setState(State state)
-  {
-    this.state = state;
+    return getTopLevelPackageInfo().isSystemPackage();
   }
 
   public void init(EPackage ePackage)
@@ -128,13 +159,12 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
     packageInfos = result.toArray(new InternalCDOPackageInfo[result.size()]);
 
     state = State.NEW;
-    dynamic = EMFUtil.isDynamicEPackage(topLevelPackage);
-    legacy = false;
+    originalType = getType();
   }
 
   public synchronized void load()
   {
-    if (state == State.NOT_LOADED)
+    if (state == State.PROXY)
     {
       EPackage[] ePackages = loadPackagesFromGlobalRegistry();
       if (ePackages == null)
@@ -150,8 +180,6 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
       }
 
       state = State.LOADED;
-      dynamic = EMFUtil.isDynamicEPackage(ePackages[0]);
-      legacy = false;
     }
   }
 
@@ -168,6 +196,7 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
       EMFUtil.writePackage(out, packageInfos[0].getEPackage(), true);
     }
 
+    out.writeCDOPackageUnitType(originalType);
     out.writeLong(timeStamp);
     out.writeInt(packageInfos.length);
     for (InternalCDOPackageInfo packageInfo : packageInfos)
@@ -186,6 +215,7 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
       state = State.LOADED;
     }
 
+    originalType = in.readCDOPackageUnitType();
     timeStamp = in.readLong();
     packageInfos = new InternalCDOPackageInfo[in.readInt()];
     for (int i = 0; i < packageInfos.length; i++)
@@ -208,8 +238,8 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
   @Override
   public String toString()
   {
-    return MessageFormat.format("CDOPackageUnit[id={0}, state={1}, timeStamp={2,date} {2,time}]", getID(), getState(),
-        timeStamp);
+    String fmt = "CDOPackageUnit[id={0}, state={1}, type={2}, originalType={3}, timeStamp={4,date} {4,time}]";
+    return MessageFormat.format(fmt, getID(), getState(), getType(), getOriginalType(), getTimeStamp());
   }
 
   private void initPackageInfos(EPackage ePackage, List<InternalCDOPackageInfo> result)
@@ -256,13 +286,5 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
     }
 
     return ePackages;
-  }
-
-  private void checkLoaded()
-  {
-    if (state == State.NOT_LOADED)
-    {
-      throw new IllegalStateException("Package unit not loaded: " + this);
-    }
   }
 }

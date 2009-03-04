@@ -252,8 +252,7 @@ public class CDOClientProtocol extends CDOProtocolImpl implements CDOSessionProt
     send(new UnsubscribeRemoteSessionsRequest(this));
   }
 
-  public void readPackageUnits(CDODataInput in, List<InternalCDOPackageUnit> packageUnits,
-      Set<InternalCDOPackageUnit> newPackageUnits, Set<InternalCDOPackageUnit> dynamicPackageUnits) throws IOException
+  public void readPackageUnits(CDODataInput in, List<InternalCDOPackageUnit> packageUnits) throws IOException
   {
     int size = in.readInt();
     if (TRACER.isEnabled())
@@ -264,18 +263,7 @@ public class CDOClientProtocol extends CDOProtocolImpl implements CDOSessionProt
     for (int i = 0; i < size; i++)
     {
       InternalCDOPackageUnit packageUnit = (InternalCDOPackageUnit)in.readCDOPackageUnit();
-      boolean isNew = in.readBoolean();
-      boolean dynamic = in.readBoolean();
       packageUnits.add(packageUnit);
-      if (isNew)
-      {
-        newPackageUnits.add(packageUnit);
-      }
-
-      if (dynamic)
-      {
-        dynamicPackageUnits.add(packageUnit);
-      }
     }
   }
 

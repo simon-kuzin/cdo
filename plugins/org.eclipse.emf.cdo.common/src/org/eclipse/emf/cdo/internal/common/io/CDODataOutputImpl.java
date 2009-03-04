@@ -66,6 +66,11 @@ public abstract class CDODataOutputImpl extends ExtendedDataOutput.Delegating im
     ((InternalCDOPackageUnit)packageUnit).write(this, withPackages);
   }
 
+  public void writeCDOPackageUnitType(CDOPackageUnit.Type type) throws IOException
+  {
+    writeByte(type.ordinal());
+  }
+
   public void writeCDOPackageInfo(CDOPackageInfo packageInfo) throws IOException
   {
     ((InternalCDOPackageInfo)packageInfo).write(this);
