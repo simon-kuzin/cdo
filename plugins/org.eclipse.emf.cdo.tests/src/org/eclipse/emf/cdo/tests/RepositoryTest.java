@@ -62,11 +62,11 @@ public class RepositoryTest extends AbstractCDOTest
 
     getRepository().addHandler(new IRepository.WriteAccessHandler()
     {
-      EPackage model1Package = getRepository().getPackageRegistry().lookupPackage(getModel1Package().getNsURI());
+      EPackage model1Package = getRepository().getPackageRegistry().getEPackage(getModel1Package().getNsURI());
 
-      EClass customerClass = model1Package.lookupClass(getModel1Package().getCustomer().getClassifierID());
+      EClass customerClass = (EClass)model1Package.getEClassifier("Customer");
 
-      EStructuralFeature nameFeature = customerClass.lookupFeature("name");
+      EStructuralFeature nameFeature = customerClass.getEStructuralFeature("name");
 
       public void handleTransactionBeforeCommitting(ITransaction transaction,
           IStoreAccessor.CommitContext commitContext, OMMonitor monitor) throws RuntimeException
@@ -125,11 +125,11 @@ public class RepositoryTest extends AbstractCDOTest
 
     getRepository().addHandler(new CDOServerUtil.RepositoryReadAccessValidator()
     {
-      EPackage model1Package = getRepository().getPackageRegistry().lookupPackage(getModel1Package().getNsURI());
+      EPackage model1Package = getRepository().getPackageRegistry().getEPackage(getModel1Package().getNsURI());
 
-      EClass customerClass = model1Package.lookupClass(getModel1Package().getCustomer().getClassifierID());
+      EClass customerClass = (EClass)model1Package.getEClassifier("Customer");
 
-      EStructuralFeature nameFeature = customerClass.lookupFeature("name");
+      EStructuralFeature nameFeature = customerClass.getEStructuralFeature("name");
 
       @Override
       protected String validate(ISession session, CDORevision revision)
