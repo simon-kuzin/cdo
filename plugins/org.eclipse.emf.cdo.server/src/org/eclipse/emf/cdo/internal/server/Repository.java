@@ -22,6 +22,7 @@ import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.internal.common.model.CDOPackageRegistryImpl;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
 import org.eclipse.emf.cdo.server.IQueryHandler;
@@ -548,7 +549,6 @@ public class Repository extends Container<Object> implements IRepository, Packag
 
     packageRegistry.setReplacingDescriptors(true);
     packageRegistry.setPackageLoader(this);
-
     sessionManager.setRepository(this);
     revisionManager.setRepository(this);
     queryManager.setRepository(this);
@@ -586,8 +586,8 @@ public class Repository extends Container<Object> implements IRepository, Packag
     super.doActivate();
     LifecycleUtil.activate(store);
     LifecycleUtil.activate(packageRegistry);
-    packageRegistry.activate();
     EMFUtil.registerPackage(EcorePackage.eINSTANCE, packageRegistry);
+    EMFUtil.registerPackage(EresourcePackage.eINSTANCE, packageRegistry);
 
     if (store.wasCrashed())
     {

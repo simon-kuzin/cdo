@@ -11,8 +11,6 @@
  */
 package org.eclipse.emf.cdo.tests.config.impl;
 
-import org.eclipse.emf.cdo.common.model.EMFUtil;
-import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.internal.server.Repository;
 import org.eclipse.emf.cdo.internal.server.RevisionManager;
 import org.eclipse.emf.cdo.server.CDOServerUtil;
@@ -119,8 +117,6 @@ public abstract class RepositoryConfig extends Config implements IRepositoryConf
 
       repositories.put(name, repository);
       LifecycleUtil.activate(repository);
-
-      EMFUtil.registerPackage(EresourcePackage.eINSTANCE, repository.getPackageRegistry()); // XXX FAKE!
     }
 
     return repository;
