@@ -61,8 +61,8 @@ public class ExternalReferenceTest extends AbstractCDOTest
 
       EPackage schoolPackage = createDynamicEPackage();
       EClass eClass = (EClass)schoolPackage.getEClassifier("SchoolBook");
-
       EObject schoolbook = EcoreUtil.create(eClass);
+
       sessionA.getPackageRegistry().putEPackage(model4Package.eINSTANCE);
       CDOTransaction transactionA1 = sessionA.openTransaction(resourceSet);
 
@@ -74,7 +74,6 @@ public class ExternalReferenceTest extends AbstractCDOTest
       resD.getContents().add(schoolbook);
 
       resA.getContents().add(objectFromResA);
-
       transactionA1.commit();
     }
   }
@@ -83,11 +82,9 @@ public class ExternalReferenceTest extends AbstractCDOTest
   {
     {
       CDOSession sessionA = openSession();
-
-      ResourceSet resourceSet = new ResourceSetImpl();
-
       sessionA.getPackageRegistry().putEPackage(model4Package.eINSTANCE);
 
+      ResourceSet resourceSet = new ResourceSetImpl();
       CDOTransaction transactionA1 = sessionA.openTransaction(resourceSet);
       CDOResource resA = transactionA1.createResource("/resA");
       GenRefSingleNonContained objectFromResA = getModel4Factory().createGenRefSingleNonContained();
@@ -98,7 +95,6 @@ public class ExternalReferenceTest extends AbstractCDOTest
     clearCache(getRepository().getRevisionManager());
     {
       CDOSession sessionA = openSession();
-
       ResourceSet resourceSet = new ResourceSetImpl();
       resourceSet.getPackageRegistry().put(getModel1Package().getNsURI(), getModel1Package());
 
