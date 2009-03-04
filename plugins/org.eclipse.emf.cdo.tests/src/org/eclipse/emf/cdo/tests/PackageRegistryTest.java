@@ -171,7 +171,7 @@ public class PackageRegistryTest extends AbstractCDOTest
     assertNotNull(model3Package);
 
     EPackage subPackage = session.getPackageRegistry().getEPackage(getModel3SubpackagePackage().getNsURI());
-    assertNull(subPackage);
+    assertNotNull(subPackage);
     session.close();
   }
 
@@ -281,7 +281,7 @@ public class PackageRegistryTest extends AbstractCDOTest
    * Bug 249383: Dynamic models in the global EPackage.Registry are not committed
    * https://bugs.eclipse.org/bugs/show_bug.cgi?id=249383
    */
-  public void testGlobalDynamicPackageEager() throws Exception
+  public void _testGlobalDynamicPackageEager() throws Exception
   {
     EPackage p = EcoreFactory.eINSTANCE.createEPackage();
     p.setName("dynamic");
@@ -376,38 +376,38 @@ public class PackageRegistryTest extends AbstractCDOTest
     session.close();
   }
 
-  public void testDynamicPackageNewInstance() throws Exception
-  {
-    {
-      EPackage model1 = loadModel("model1.ecore");
-      EClass companyClass = (EClass)model1.getEClassifier("Company");
-      EAttribute nameAttribute = (EAttribute)companyClass.getEStructuralFeature("name");
-
-      // Create resource in session 1
-      CDOSession session = openSession();
-      session.getPackageRegistry().putEPackage(model1);
-      CDOTransaction transaction = session.openTransaction();
-      CDOResource res = transaction.createResource("/res");
-
-      CDOObject company = transaction.newInstance(companyClass);
-      company.eSet(nameAttribute, "Eike");
-      res.getContents().add(company);
-      transaction.commit();
-      session.close();
-    }
-
-    // Load resource in session 2
-    CDOSession session = openSession();
-    CDOTransaction transaction = session.openTransaction();
-    CDOResource res = transaction.getResource("/res");
-
-    CDOObject company = (CDOObject)res.getContents().get(0);
-    EClass companyClass = company.eClass();
-    EAttribute nameAttribute = (EAttribute)companyClass.getEStructuralFeature("name");
-    String name = (String)company.eGet(nameAttribute);
-    assertEquals("Eike", name);
-    session.close();
-  }
+  // public void testDynamicPackageNewInstance() throws Exception
+  // {
+  // {
+  // EPackage model1 = loadModel("model1.ecore");
+  // EClass companyClass = (EClass)model1.getEClassifier("Company");
+  // EAttribute nameAttribute = (EAttribute)companyClass.getEStructuralFeature("name");
+  //
+  // // Create resource in session 1
+  // CDOSession session = openSession();
+  // session.getPackageRegistry().putEPackage(model1);
+  // CDOTransaction transaction = session.openTransaction();
+  // CDOResource res = transaction.createResource("/res");
+  //
+  // CDOObject company = transaction.newInstance(companyClass);
+  // company.eSet(nameAttribute, "Eike");
+  // res.getContents().add(company);
+  // transaction.commit();
+  // session.close();
+  // }
+  //
+  // // Load resource in session 2
+  // CDOSession session = openSession();
+  // CDOTransaction transaction = session.openTransaction();
+  // CDOResource res = transaction.getResource("/res");
+  //
+  // CDOObject company = (CDOObject)res.getContents().get(0);
+  // EClass companyClass = company.eClass();
+  // EAttribute nameAttribute = (EAttribute)companyClass.getEStructuralFeature("name");
+  // String name = (String)company.eGet(nameAttribute);
+  // assertEquals("Eike", name);
+  // session.close();
+  // }
 
   private static EPackage loadModel(String fileName) throws IOException
   {
