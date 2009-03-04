@@ -15,7 +15,9 @@ import org.eclipse.emf.cdo.common.id.CDOIDLibraryDescriptor;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.util.ServerException;
 
 import org.eclipse.emf.internal.cdo.bundle.OM;
@@ -113,7 +115,12 @@ public class OpenSessionRequest extends CDOTimeRequest<OpenSessionResult>
 
     result = new OpenSessionResult(sessionID, repositoryUUID, repositoryCreationTime, repositorySupportingAudits,
         libraryDescriptor);
-    getProtocol().readPackageUnits(in, result.getPackageUnits());
+
+    CDOPackageUnit[] cdoPackageUnits = in.readCDOPackageUnits();
+    for (int i = 0; i < cdoPackageUnits.length; i++)
+    {
+      result.getPackageUnits().add((InternalCDOPackageUnit)cdoPackageUnits[i]);
+    }
 
     super.confirming(in);
     result.setRepositoryTimeResult(getRepositoryTimeResult());

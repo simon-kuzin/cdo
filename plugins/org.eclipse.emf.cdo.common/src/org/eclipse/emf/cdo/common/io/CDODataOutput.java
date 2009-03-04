@@ -46,6 +46,8 @@ public interface CDODataOutput extends ExtendedDataOutput
 
   public void writeCDOPackageUnit(CDOPackageUnit packageUnit, boolean withPackages) throws IOException;
 
+  public void writeCDOPackageUnits(CDOPackageUnit... packageUnit) throws IOException;
+
   public void writeCDOPackageUnitType(CDOPackageUnit.Type type) throws IOException;
 
   public void writeCDOPackageInfo(CDOPackageInfo packageInfo) throws IOException;

@@ -14,8 +14,11 @@ package org.eclipse.emf.internal.cdo.net4j.protocol;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 
 import org.eclipse.emf.internal.cdo.bundle.OM;
 
@@ -49,7 +52,14 @@ public class CommitNotificationIndication extends CDOClientIndication
     {
       TRACER.format("Read timeStamp: {0,date} {0,time}", timeStamp);
     }
-
+    
+    CDOPackageUnit[] packageUnits = in.readCDOPackageUnits();
+    InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)getSession().getPackageRegistry();
+    for (int i = 0; i < packageUnits.length; i++)
+    {
+      packageRegistry.putPackageUnit((InternalCDOPackageUnit)packageUnits[i]);
+    }
+    
     int size = in.readInt();
     if (TRACER.isEnabled())
     {

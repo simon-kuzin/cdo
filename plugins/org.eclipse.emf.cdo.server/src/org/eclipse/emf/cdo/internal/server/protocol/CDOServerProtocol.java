@@ -14,27 +14,19 @@
  */
 package org.eclipse.emf.cdo.internal.server.protocol;
 
-import org.eclipse.emf.cdo.common.io.CDODataOutput;
-import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.internal.common.protocol.CDOProtocolImpl;
-import org.eclipse.emf.cdo.internal.server.bundle.OM;
 import org.eclipse.emf.cdo.server.IRepositoryProvider;
 
 import org.eclipse.net4j.signal.SignalReactor;
 import org.eclipse.net4j.util.io.StringCompressor;
 import org.eclipse.net4j.util.io.StringIO;
-import org.eclipse.net4j.util.om.trace.ContextTracer;
-
-import java.io.IOException;
 
 /**
  * @author Eike Stepper
  */
 public class CDOServerProtocol extends CDOProtocolImpl
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, CDOServerProtocol.class);
-
   private IRepositoryProvider repositoryProvider;
 
   private StringCompressor packageURICompressor = new StringCompressor(false);
@@ -52,21 +44,6 @@ public class CDOServerProtocol extends CDOProtocolImpl
   public StringIO getPackageURICompressor()
   {
     return packageURICompressor;
-  }
-
-  public void sendPackageUnits(CDODataOutput out, CDOPackageUnit... packageUnits) throws IOException
-  {
-    int size = packageUnits.length;
-    out.writeInt(size);
-    if (TRACER.isEnabled())
-    {
-      TRACER.format("Writing {0} package units", size);
-    }
-
-    for (CDOPackageUnit packageUnit : packageUnits)
-    {
-      out.writeCDOPackageUnit(packageUnit, false);
-    }
   }
 
   @Override

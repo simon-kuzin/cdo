@@ -74,8 +74,8 @@ public class NotificationManager extends Lifecycle implements INotificationManag
       }
 
       SessionManager sessionManager = (SessionManager)repository.getSessionManager();
-      sessionManager.handleCommitNotification(commitContext.getTimeStamp(), dirtyIDs, detachedObjects, deltas,
-          (Session)session);
+      sessionManager.handleCommitNotification(commitContext.getTimeStamp(), commitContext.getNewPackageUnits(),
+          dirtyIDs, detachedObjects, deltas, (Session)session);
     }
   }
 }

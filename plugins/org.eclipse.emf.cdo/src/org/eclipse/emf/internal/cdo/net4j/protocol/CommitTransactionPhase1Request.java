@@ -10,6 +10,7 @@
  **************************************************************************/
 package org.eclipse.emf.internal.cdo.net4j.protocol;
 
+import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
@@ -34,6 +35,12 @@ public class CommitTransactionPhase1Request extends CommitTransactionRequest
   public CommitTransactionPhase1Request(CDOClientProtocol protocol, InternalCDOXACommitContext xaContext)
   {
     super(protocol, CDOProtocolConstants.SIGNAL_COMMIT_TRANSACTION_PHASE1, xaContext);
+  }
+
+  @Override
+  protected CDOIDProvider getIDProvider()
+  {
+    return (CDOIDProvider)commitContext;
   }
 
   @Override

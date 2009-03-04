@@ -42,6 +42,8 @@ public interface CDODataInput extends ExtendedDataInput
 
   public CDOPackageUnit readCDOPackageUnit() throws IOException;
 
+  public CDOPackageUnit[] readCDOPackageUnits() throws IOException;
+
   public CDOPackageUnit.Type readCDOPackageUnitType() throws IOException;
 
   public CDOPackageInfo readCDOPackageInfo() throws IOException;

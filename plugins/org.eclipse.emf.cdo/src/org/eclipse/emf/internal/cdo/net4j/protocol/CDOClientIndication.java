@@ -22,6 +22,7 @@ import org.eclipse.emf.internal.cdo.revision.CDOListWithElementProxiesImpl;
 
 import org.eclipse.net4j.signal.Indication;
 import org.eclipse.net4j.util.io.ExtendedDataInputStream;
+import org.eclipse.net4j.util.io.StringIO;
 
 import org.eclipse.emf.spi.cdo.InternalCDOSession;
 
@@ -57,6 +58,12 @@ public abstract class CDOClientIndication extends Indication
       protected CDOIDObjectFactory getIDFactory()
       {
         return getSession();
+      }
+
+      @Override
+      protected StringIO getPackageURICompressor()
+      {
+        return getProtocol().getPackageURICompressor();
       }
 
       @Override

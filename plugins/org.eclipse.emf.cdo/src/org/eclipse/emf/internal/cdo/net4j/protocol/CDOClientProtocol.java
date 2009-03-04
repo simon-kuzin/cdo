@@ -12,7 +12,6 @@ package org.eclipse.emf.internal.cdo.net4j.protocol;
 
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
@@ -36,7 +35,6 @@ import org.eclipse.net4j.util.concurrent.RWLockManager.LockType;
 import org.eclipse.net4j.util.io.StringCompressor;
 import org.eclipse.net4j.util.io.StringIO;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
-import org.eclipse.net4j.util.om.trace.ContextTracer;
 import org.eclipse.net4j.util.om.trace.PerfTracer;
 
 import org.eclipse.emf.ecore.EPackage;
@@ -49,7 +47,6 @@ import org.eclipse.emf.spi.cdo.InternalCDOTransaction.InternalCDOCommitContext;
 import org.eclipse.emf.spi.cdo.InternalCDOXATransaction.InternalCDOXACommitContext;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -60,8 +57,6 @@ import java.util.Set;
  */
 public class CDOClientProtocol extends CDOProtocolImpl implements CDOSessionProtocol
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, CDOClientProtocol.class);
-
   private static final PerfTracer REVISION_LOADING = new PerfTracer(OM.PERF_REVISION_LOADING,
       CDORevisionManagerImpl.class);
 
@@ -250,21 +245,6 @@ public class CDOClientProtocol extends CDOProtocolImpl implements CDOSessionProt
   public void unsubscribeRemoteSessions()
   {
     send(new UnsubscribeRemoteSessionsRequest(this));
-  }
-
-  public void readPackageUnits(CDODataInput in, List<InternalCDOPackageUnit> packageUnits) throws IOException
-  {
-    int size = in.readInt();
-    if (TRACER.isEnabled())
-    {
-      TRACER.format("Reading {0} package units", size);
-    }
-
-    for (int i = 0; i < size; i++)
-    {
-      InternalCDOPackageUnit packageUnit = (InternalCDOPackageUnit)in.readCDOPackageUnit();
-      packageUnits.add(packageUnit);
-    }
   }
 
   @Override

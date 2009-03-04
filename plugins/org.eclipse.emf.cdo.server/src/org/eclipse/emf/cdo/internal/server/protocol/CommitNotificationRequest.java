@@ -15,6 +15,7 @@ package org.eclipse.emf.cdo.internal.server.protocol;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
@@ -34,17 +35,20 @@ public class CommitNotificationRequest extends CDOServerRequest
 
   private long timeStamp;
 
+  private final CDOPackageUnit[] packageUnits;
+
   private List<CDOIDAndVersion> dirtyIDs;
 
   private List<CDORevisionDelta> deltas;
 
   private List<CDOID> detachedObjects;
 
-  public CommitNotificationRequest(IChannel channel, long timeStamp, List<CDOIDAndVersion> dirtyIDs,
-      List<CDOID> detachedObjects, List<CDORevisionDelta> deltas)
+  public CommitNotificationRequest(IChannel channel, long timeStamp, CDOPackageUnit[] packageUnits,
+      List<CDOIDAndVersion> dirtyIDs, List<CDOID> detachedObjects, List<CDORevisionDelta> deltas)
   {
     super(channel, CDOProtocolConstants.SIGNAL_COMMIT_NOTIFICATION);
     this.timeStamp = timeStamp;
+    this.packageUnits = packageUnits;
     this.dirtyIDs = dirtyIDs;
     this.deltas = deltas;
     this.detachedObjects = detachedObjects;
@@ -63,6 +67,8 @@ public class CommitNotificationRequest extends CDOServerRequest
     {
       TRACER.format("Writing {0} dirty IDs", dirtyIDs.size());
     }
+
+    out.writeCDOPackageUnits(packageUnits);
 
     out.writeInt(dirtyIDs == null ? 0 : dirtyIDs.size());
     for (CDOIDAndVersion dirtyID : dirtyIDs)

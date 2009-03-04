@@ -91,6 +91,11 @@ public class CommitTransactionRequest extends RequestWithMonitoring<CommitTransa
     return (InternalCDOSession)getProtocol().getSession();
   }
 
+  protected CDOIDProvider getIDProvider()
+  {
+    return commitContext.getTransaction();
+  }
+
   @Override
   protected final void requesting(ExtendedDataOutputStream out, OMMonitor monitor) throws Exception
   {
@@ -104,7 +109,7 @@ public class CommitTransactionRequest extends RequestWithMonitoring<CommitTransa
 
       public CDOIDProvider getIDProvider()
       {
-        return commitContext.getTransaction();
+        return CommitTransactionRequest.this.getIDProvider();
       }
     }, monitor);
   }
