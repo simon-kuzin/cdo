@@ -12,6 +12,7 @@
 package org.eclipse.emf.cdo.server.internal.db;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDOAddFeatureDelta;
@@ -180,13 +181,13 @@ public abstract class ClassMapping implements IClassMapping
 
   protected DBType getDBType(EStructuralFeature cdoFeature)
   {
-    return DBStore.getDBType(cdoFeature.getOriginalType());
+    return DBStore.getDBType(cdoFeature.getEType());
   }
 
   protected int getDBLength(EStructuralFeature cdoFeature)
   {
     // Derby: The maximum length for a VARCHAR string is 32,672 characters.
-    CDOType type = cdoFeature.getOriginalType();
+    CDOType type = CDOModelUtil.getType(cdoFeature.getEType());
     return type == CDOType.STRING || type == CDOType.CUSTOM ? 32672 : IDBField.DEFAULT;
   }
 
@@ -281,7 +282,7 @@ public abstract class ClassMapping implements IClassMapping
 
   protected AttributeMapping createAttributeMapping(EStructuralFeature feature)
   {
-    CDOType type = feature.getOriginalType();
+    CDOType type = CDOModelUtil.getType(feature.getEType());
     if (type == CDOType.BOOLEAN || type == CDOType.BOOLEAN_OBJECT)
     {
       return new AttributeMapping.AMBoolean(this, feature);
