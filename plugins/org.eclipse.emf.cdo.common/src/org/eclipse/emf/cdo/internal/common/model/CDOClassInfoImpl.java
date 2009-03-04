@@ -10,7 +10,7 @@
  */
 package org.eclipse.emf.cdo.internal.common.model;
 
-import org.eclipse.emf.cdo.common.model.CDOClassAdapter;
+import org.eclipse.emf.cdo.common.model.CDOClassInfo;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 
 import org.eclipse.emf.common.notify.Notifier;
@@ -24,13 +24,13 @@ import java.util.List;
 /**
  * @author Eike Stepper
  */
-public class CDOClassAdapterImpl extends AdapterImpl implements CDOClassAdapter
+public class CDOClassInfoImpl extends AdapterImpl implements CDOClassInfo
 {
   private EStructuralFeature[] allPersistentFeatures;
 
   private int[] featureIDMappings;
 
-  public CDOClassAdapterImpl()
+  public CDOClassInfoImpl()
   {
   }
 

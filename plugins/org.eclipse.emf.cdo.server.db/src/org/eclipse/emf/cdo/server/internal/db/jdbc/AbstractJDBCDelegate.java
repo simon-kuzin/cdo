@@ -18,10 +18,11 @@ import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.IStoreChunkReader.Chunk;
 import org.eclipse.emf.cdo.server.db.IAttributeMapping;
 import org.eclipse.emf.cdo.server.db.IClassMapping;
+import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IDBStoreChunkReader;
 import org.eclipse.emf.cdo.server.db.IJDBCDelegate;
 import org.eclipse.emf.cdo.server.db.IReferenceMapping;
-import org.eclipse.emf.cdo.server.internal.db.FeatureServerInfo;
+import org.eclipse.emf.cdo.server.internal.db.ServerInfo;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.db.DBException;
@@ -55,9 +56,7 @@ import java.util.List;
  */
 public abstract class AbstractJDBCDelegate extends Lifecycle implements IJDBCDelegate
 {
-  private IDBConnectionProvider connectionProvider;
-
-  private boolean readOnly;
+  private IDBStoreAccessor storeAccessor;
 
   private Connection connection;
 
@@ -71,8 +70,8 @@ public abstract class AbstractJDBCDelegate extends Lifecycle implements IJDBCDel
   protected void doActivate() throws Exception
   {
     super.doActivate();
-    connection = connectionProvider.getConnection();
-    connection.setAutoCommit(readOnly);
+    connection = getConnectionProvider().getConnection();
+    connection.setAutoCommit(isReadOnly());
   }
 
   @Override
@@ -87,26 +86,25 @@ public abstract class AbstractJDBCDelegate extends Lifecycle implements IJDBCDel
     super.doDeactivate();
   }
 
-  public IDBConnectionProvider getConnectionProvider()
+  public IDBStoreAccessor getStoreAccessor()
   {
-    return connectionProvider;
+    return storeAccessor;
   }
 
-  public void setConnectionProvider(IDBConnectionProvider connectionProvider)
+  public void setStoreAccessor(IDBStoreAccessor storeAccessor)
   {
     checkInactive();
-    this.connectionProvider = connectionProvider;
+    this.storeAccessor = storeAccessor;
+  }
+
+  public IDBConnectionProvider getConnectionProvider()
+  {
+    return storeAccessor.getStore().getDBConnectionProvider();
   }
 
   public boolean isReadOnly()
   {
-    return readOnly;
-  }
-
-  public void setReadOnly(boolean readOnly)
-  {
-    checkInactive();
-    this.readOnly = readOnly;
+    return storeAccessor.isReader();
   }
 
   public final Connection getConnection()
@@ -237,39 +235,38 @@ public abstract class AbstractJDBCDelegate extends Lifecycle implements IJDBCDel
 
   public final void insertReference(CDOID id, int version, int index, CDOID targetId, IReferenceMapping referenceMapping)
   {
-    doInsertReference(referenceMapping.getTable().getName(), referenceMapping.isWithFeature() ? FeatureServerInfo
-        .getDBID(referenceMapping.getFeature()) : 0, CDOIDUtil.getLong(id), version, index, CDOIDUtil.getLong(targetId));
+    doInsertReference(referenceMapping.getTable().getName(), getDBID(referenceMapping), CDOIDUtil.getLong(id), version,
+        index, CDOIDUtil.getLong(targetId));
   }
 
   public void insertReferenceRow(CDOID id, int newVersion, int index, CDOID value, IReferenceMapping referenceMapping)
   {
-    doInsertReferenceRow(referenceMapping.getTable().getName(), referenceMapping.isWithFeature() ? FeatureServerInfo
-        .getDBID(referenceMapping.getFeature()) : 0, CDOIDUtil.getLong(id), newVersion, CDOIDUtil.getLong(value), index);
+    doInsertReferenceRow(referenceMapping.getTable().getName(), getDBID(referenceMapping), CDOIDUtil.getLong(id),
+        newVersion, CDOIDUtil.getLong(value), index);
   }
 
   public void moveReferenceRow(CDOID id, int newVersion, int oldPosition, int newPosition,
       IReferenceMapping referenceMapping)
   {
-    doMoveReferenceRow(referenceMapping.getTable().getName(), referenceMapping.isWithFeature() ? FeatureServerInfo
-        .getDBID(referenceMapping.getFeature()) : 0, CDOIDUtil.getLong(id), newVersion, oldPosition, newPosition);
+    doMoveReferenceRow(referenceMapping.getTable().getName(), getDBID(referenceMapping), CDOIDUtil.getLong(id),
+        newVersion, oldPosition, newPosition);
   }
 
   public void removeReferenceRow(CDOID id, int index, int newVersion, IReferenceMapping referenceMapping)
   {
-    doRemoveReferenceRow(referenceMapping.getTable().getName(), referenceMapping.isWithFeature() ? FeatureServerInfo
-        .getDBID(referenceMapping.getFeature()) : 0, CDOIDUtil.getLong(id), index, newVersion);
+    doRemoveReferenceRow(referenceMapping.getTable().getName(), getDBID(referenceMapping), CDOIDUtil.getLong(id),
+        index, newVersion);
   }
 
   public final void deleteReferences(CDOID id, IReferenceMapping referenceMapping)
   {
-    doDeleteReferences(referenceMapping.getTable().getName(), referenceMapping.isWithFeature() ? FeatureServerInfo
-        .getDBID(referenceMapping.getFeature()) : 0, CDOIDUtil.getLong(id));
+    doDeleteReferences(referenceMapping.getTable().getName(), getDBID(referenceMapping), CDOIDUtil.getLong(id));
   }
 
   public void updateReference(CDOID id, int version, int index, CDOID targetId, IReferenceMapping referenceMapping)
   {
-    doUpdateReference(referenceMapping.getTable().getName(), referenceMapping.isWithFeature() ? FeatureServerInfo
-        .getDBID(referenceMapping.getFeature()) : 0, CDOIDUtil.getLong(id), version, index, CDOIDUtil.getLong(targetId));
+    doUpdateReference(referenceMapping.getTable().getName(), getDBID(referenceMapping), CDOIDUtil.getLong(id), version,
+        index, CDOIDUtil.getLong(targetId));
   }
 
   public final void updateReferenceVersion(CDOID id, int newVersion, IReferenceMapping referenceMapping)
@@ -340,8 +337,8 @@ public abstract class AbstractJDBCDelegate extends Lifecycle implements IJDBCDel
     ResultSet resultSet = null;
     try
     {
-      resultSet = doSelectRevisionReferences(referenceMapping.getTable().getName(), sourceId, version, referenceMapping
-          .isWithFeature() ? FeatureServerInfo.getDBID(referenceMapping.getFeature()) : 0, "");
+      resultSet = doSelectRevisionReferences(referenceMapping.getTable().getName(), sourceId, version,
+          getDBID(referenceMapping), "");
 
       while (resultSet.next() && (referenceChunk == CDORevision.UNCHUNKED || --referenceChunk >= 0))
       {
@@ -376,8 +373,8 @@ public abstract class AbstractJDBCDelegate extends Lifecycle implements IJDBCDel
 
     try
     {
-      resultSet = doSelectRevisionReferences(referenceMapping.getTable().getName(), sourceId, version, referenceMapping
-          .isWithFeature() ? FeatureServerInfo.getDBID(referenceMapping.getFeature()) : 0, where);
+      resultSet = doSelectRevisionReferences(referenceMapping.getTable().getName(), sourceId, version,
+          getDBID(referenceMapping), where);
 
       Chunk chunk = null;
       int chunkSize = 0;
@@ -409,6 +406,16 @@ public abstract class AbstractJDBCDelegate extends Lifecycle implements IJDBCDel
     {
       close(resultSet);
     }
+  }
+
+  private int getDBID(IReferenceMapping referenceMapping)
+  {
+    if (referenceMapping.isWithFeature())
+    {
+      return ServerInfo.getID(referenceMapping.getFeature(), storeAccessor.getStore());
+    }
+
+    return 0;
   }
 
   /**

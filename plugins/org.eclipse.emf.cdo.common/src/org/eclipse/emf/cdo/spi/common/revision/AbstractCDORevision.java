@@ -18,7 +18,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
-import org.eclipse.emf.cdo.common.model.CDOClassAdapter;
+import org.eclipse.emf.cdo.common.model.CDOClassInfo;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOType;
@@ -55,7 +55,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
 
   private static final PerfTracer WRITING = new PerfTracer(OM.PERF_REVISION_WRITING, AbstractCDORevision.class);
 
-  private CDOClassAdapter classAdapter;
+  private CDOClassInfo classAdapter;
 
   private CDOID id;
 
@@ -83,7 +83,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
       throw new IllegalArgumentException("CDOID is null");
     }
 
-    classAdapter = CDOModelUtil.getClassAdapter(eClass);
+    classAdapter = CDOModelUtil.getClassInfo(eClass);
     this.id = id;
     version = 0;
     created = UNSPECIFIED_DATE;
@@ -109,7 +109,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
   public AbstractCDORevision(CDODataInput in) throws IOException
   {
     READING.start(this);
-    classAdapter = CDOModelUtil.getClassAdapter((EClass)in.readCDOClassifierRefAndResolve());
+    classAdapter = CDOModelUtil.getClassInfo((EClass)in.readCDOClassifierRefAndResolve());
 
     id = in.readCDOID();
     version = in.readInt();

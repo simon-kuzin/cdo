@@ -15,12 +15,12 @@ import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.IStoreChunkReader.Chunk;
 import org.eclipse.emf.cdo.server.db.IAttributeMapping;
 import org.eclipse.emf.cdo.server.db.IClassMapping;
+import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IDBStoreChunkReader;
 import org.eclipse.emf.cdo.server.db.IJDBCDelegate;
 import org.eclipse.emf.cdo.server.db.IReferenceMapping;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
 
-import org.eclipse.net4j.db.IDBConnectionProvider;
 import org.eclipse.net4j.util.collection.Pair;
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
@@ -241,14 +241,9 @@ public class JDBCPerformanceReporter extends Lifecycle implements IJDBCDelegate
     registerCall("updateAttributes_with_containment", time);
   }
 
-  public void setConnectionProvider(IDBConnectionProvider connectionProvider)
+  public void setStoreAccessor(IDBStoreAccessor storeAccessor)
   {
-    delegate.setConnectionProvider(connectionProvider);
-  }
-
-  public void setReadOnly(boolean reader)
-  {
-    delegate.setReadOnly(reader);
+    delegate.setStoreAccessor(storeAccessor);
   }
 
   @Override

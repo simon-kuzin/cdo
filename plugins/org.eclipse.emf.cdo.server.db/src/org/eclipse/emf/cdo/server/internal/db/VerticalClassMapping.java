@@ -31,7 +31,7 @@ public class VerticalClassMapping extends ClassMapping
   public VerticalClassMapping(VerticalMappingStrategy mappingStrategy, EClass eClass)
   {
     super(mappingStrategy, eClass, eClass.getFeatures());
-    for (EClass superType : eClass.getSuperTypes())
+    for (EClass superType : eClass.getESuperTypes())
     {
       IClassMapping superMapping = mappingStrategy.getClassMapping(superType);
       if (superMapping != null)

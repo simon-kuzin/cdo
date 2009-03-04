@@ -64,7 +64,7 @@ public class StatementJDBCDelegate extends AbstractJDBCDelegate
     {
       CDORevisionData data = revision.data();
       builder.append(", ");
-      builder.append(ServerInfo.getDBID(revision.getEClass()));
+      builder.append(ServerInfo.getID(revision.getEClass(), getStoreAccessor().getStore()));
       builder.append(", ");
       builder.append(revision.getCreated());
       builder.append(", ");

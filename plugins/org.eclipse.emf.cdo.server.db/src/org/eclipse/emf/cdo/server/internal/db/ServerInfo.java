@@ -27,26 +27,6 @@ import org.eclipse.emf.ecore.EStructuralFeature;
  */
 public abstract class ServerInfo extends AdapterImpl
 {
-  public static final int CDO_CORE_PACKAGE_DBID = -1;
-
-  public static final int CDO_RESOURCE_PACKAGE_DBID = -2;
-
-  public static final int CDO_OBJECT_CLASS_DBID = -1;
-
-  public static final int CDO_RESOURCE_CLASS_DBID = -2;
-
-  public static final int CDO_RESOURCE_NODE_CLASS_DBID = -3;
-
-  public static final int CDO_RESOURCE_FOLDER_CLASS_DBID = -4;
-
-  public static final int CDO_FOLDER_FEATURE_DBID = -1;
-
-  public static final int CDO_NAME_FEATURE_DBID = -2;
-
-  public static final int CDO_NODES_FEATURE_DBID = -3;
-
-  public static final int CDO_CONTENTS_FEATURE_DBID = -4;
-
   private IDBStore store;
 
   private int id;
@@ -107,6 +87,12 @@ public abstract class ServerInfo extends AdapterImpl
     {
       super(store, ePackage, id);
     }
+
+    @Override
+    public boolean isAdapterForType(Object type)
+    {
+      return EPackage.class.isInstance(type);
+    }
   }
 
   /**
@@ -130,6 +116,12 @@ public abstract class ServerInfo extends AdapterImpl
     {
       this.classMapping = classMapping;
     }
+
+    @Override
+    public boolean isAdapterForType(Object type)
+    {
+      return EClass.class.isInstance(type);
+    }
   }
 
   /**
@@ -140,6 +132,12 @@ public abstract class ServerInfo extends AdapterImpl
     public FeatureServerInfo(IDBStore store, EStructuralFeature feature, int id)
     {
       super(store, feature, id);
+    }
+
+    @Override
+    public boolean isAdapterForType(Object type)
+    {
+      return EStructuralFeature.class.isInstance(type);
     }
   }
 }

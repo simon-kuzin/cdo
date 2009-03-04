@@ -333,7 +333,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
       stmt.setInt(col++, revision.getVersion());
       if (withFullRevisionInfo)
       {
-        stmt.setInt(col++, ServerInfo.getDBID(revision.getEClass()));
+        stmt.setInt(col++, ServerInfo.getID(revision.getEClass(), getStoreAccessor().getStore()));
         stmt.setLong(col++, revision.getCreated());
         stmt.setLong(col++, revision.getRevised());
         stmt.setLong(col++, CDOIDUtil.getLong(revision.getResourceID()));

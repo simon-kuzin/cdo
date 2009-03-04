@@ -10,7 +10,7 @@
  */
 package org.eclipse.emf.cdo.common.model;
 
-import org.eclipse.emf.cdo.internal.common.model.CDOClassAdapterImpl;
+import org.eclipse.emf.cdo.internal.common.model.CDOClassInfoImpl;
 import org.eclipse.emf.cdo.internal.common.model.CDOTypeImpl;
 
 import org.eclipse.emf.common.notify.Adapter;
@@ -252,22 +252,22 @@ public final class CDOModelUtil
     return null;
   }
 
-  public static CDOClassAdapter getClassAdapter(EClass eClass)
+  public static CDOClassInfo getClassInfo(EClass eClass)
   {
     EList<Adapter> adapters = eClass.eAdapters();
-    CDOClassAdapter adapter = (CDOClassAdapter)EcoreUtil.getAdapter(adapters, CDOClassAdapter.class);
-    if (adapter == null)
+    CDOClassInfo classInfo = (CDOClassInfo)EcoreUtil.getAdapter(adapters, CDOClassInfo.class);
+    if (classInfo == null)
     {
-      adapter = new CDOClassAdapterImpl();
-      adapters.add(adapter);
+      classInfo = new CDOClassInfoImpl();
+      adapters.add(classInfo);
     }
 
-    return adapter;
+    return classInfo;
   }
 
   public static EStructuralFeature[] getAllPersistentFeatures(EClass eClass)
   {
-    CDOClassAdapter adapter = getClassAdapter(eClass);
-    return adapter.getAllPersistentFeatures();
+    CDOClassInfo classInfo = getClassInfo(eClass);
+    return classInfo.getAllPersistentFeatures();
   }
 }

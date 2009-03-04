@@ -17,7 +17,7 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 /**
  * @author Eike Stepper
  */
-public interface CDOClassAdapter extends Adapter
+public interface CDOClassInfo extends Adapter
 {
   public EClass getEClass();
 
