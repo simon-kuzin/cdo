@@ -416,6 +416,7 @@ public abstract class ClassMapping implements IClassMapping
           deleteRevision(accessor, id, monitor.fork(1));
         }
       }
+
       // TODO handle !hasFullRevisionInfo() case
     }
     finally
