@@ -38,6 +38,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EcoreFactory;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 
@@ -376,38 +377,38 @@ public class PackageRegistryTest extends AbstractCDOTest
     session.close();
   }
 
-  // public void testDynamicPackageNewInstance() throws Exception
-  // {
-  // {
-  // EPackage model1 = loadModel("model1.ecore");
-  // EClass companyClass = (EClass)model1.getEClassifier("Company");
-  // EAttribute nameAttribute = (EAttribute)companyClass.getEStructuralFeature("name");
-  //
-  // // Create resource in session 1
-  // CDOSession session = openSession();
-  // session.getPackageRegistry().putEPackage(model1);
-  // CDOTransaction transaction = session.openTransaction();
-  // CDOResource res = transaction.createResource("/res");
-  //
-  // CDOObject company = transaction.newInstance(companyClass);
-  // company.eSet(nameAttribute, "Eike");
-  // res.getContents().add(company);
-  // transaction.commit();
-  // session.close();
-  // }
-  //
-  // // Load resource in session 2
-  // CDOSession session = openSession();
-  // CDOTransaction transaction = session.openTransaction();
-  // CDOResource res = transaction.getResource("/res");
-  //
-  // CDOObject company = (CDOObject)res.getContents().get(0);
-  // EClass companyClass = company.eClass();
-  // EAttribute nameAttribute = (EAttribute)companyClass.getEStructuralFeature("name");
-  // String name = (String)company.eGet(nameAttribute);
-  // assertEquals("Eike", name);
-  // session.close();
-  // }
+  public void testDynamicPackageNewInstance() throws Exception
+  {
+    {
+      EPackage model1 = loadModel("model1.ecore");
+      EClass companyClass = (EClass)model1.getEClassifier("Company");
+      EAttribute nameAttribute = (EAttribute)companyClass.getEStructuralFeature("name");
+
+      // Create resource in session 1
+      CDOSession session = openSession();
+      session.getPackageRegistry().putEPackage(model1);
+      CDOTransaction transaction = session.openTransaction();
+      CDOResource res = transaction.createResource("/res");
+
+      CDOObject company = (CDOObject)EcoreUtil.create(companyClass);
+      company.eSet(nameAttribute, "Eike");
+      res.getContents().add(company);
+      transaction.commit();
+      session.close();
+    }
+
+    // Load resource in session 2
+    CDOSession session = openSession();
+    CDOTransaction transaction = session.openTransaction();
+    CDOResource res = transaction.getResource("/res");
+
+    CDOObject company = (CDOObject)res.getContents().get(0);
+    EClass companyClass = company.eClass();
+    EAttribute nameAttribute = (EAttribute)companyClass.getEStructuralFeature("name");
+    String name = (String)company.eGet(nameAttribute);
+    assertEquals("Eike", name);
+    session.close();
+  }
 
   private static EPackage loadModel(String fileName) throws IOException
   {
