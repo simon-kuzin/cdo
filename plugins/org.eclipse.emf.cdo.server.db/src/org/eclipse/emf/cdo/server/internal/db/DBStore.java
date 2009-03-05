@@ -355,7 +355,7 @@ public class DBStore extends LongIDStore implements IDBStore
 
     if (lastObjectID == CRASHED || getLastMetaID() == CRASHED)
     {
-      OM.LOG.info("Store crash detected");
+      OM.LOG.info("Detected crash");
       lastObjectID = mappingStrategy.repairAfterCrash(dbAdapter, connection);
       lastMetaId = DBUtil.selectMaximumLong(connection, CDODBSchema.PACKAGE_INFOS_META_UB);
       OM.LOG.info(MessageFormat

@@ -60,7 +60,7 @@ public abstract class Store extends Lifecycle implements IStore
   private IRepository repository;
 
   @ExcludeFromDump
-  private transient long lastMetaID = CRASHED;
+  private transient long lastMetaID;
 
   @ExcludeFromDump
   private transient Object lastMetaIDLock = new Object();
