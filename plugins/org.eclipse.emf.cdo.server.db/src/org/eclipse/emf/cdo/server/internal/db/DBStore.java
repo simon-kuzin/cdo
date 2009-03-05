@@ -325,27 +325,29 @@ public class DBStore extends LongIDStore implements IDBStore
     Connection connection = storeAccessor.getJDBCDelegate().getConnection();
     DBUtil.insertRow(connection, dbAdapter, CDODBSchema.REPOSITORY, creationTime, 1, creationTime, 0, CRASHED, CRASHED);
 
-    InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)getRepository().getPackageRegistry();
+    { // Experimental!!!
+      InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)getRepository().getPackageRegistry();
 
-    InternalCDOPackageInfo ecoreInfo = packageRegistry.getPackageInfo(EcorePackage.eINSTANCE);
-    CDOIDMetaRange ecoreRange = getNextMetaIDRange(ecoreInfo.getMetaIDRange().size());
-    ecoreInfo.setMetaIDRange(ecoreRange);
-    InternalCDOPackageUnit ecoreUnit = ecoreInfo.getPackageUnit();
-    ecoreUnit.setTimeStamp(creationTime);
+      InternalCDOPackageInfo ecoreInfo = packageRegistry.getPackageInfo(EcorePackage.eINSTANCE);
+      CDOIDMetaRange ecoreRange = getNextMetaIDRange(ecoreInfo.getMetaIDRange().size());
+      ecoreInfo.setMetaIDRange(ecoreRange);
+      InternalCDOPackageUnit ecoreUnit = ecoreInfo.getPackageUnit();
+      ecoreUnit.setTimeStamp(creationTime);
 
-    InternalCDOPackageInfo eresourceInfo = packageRegistry.getPackageInfo(EresourcePackage.eINSTANCE);
-    CDOIDMetaRange eresourceRange = getNextMetaIDRange(eresourceInfo.getMetaIDRange().size());
-    eresourceInfo.setMetaIDRange(eresourceRange);
-    InternalCDOPackageUnit eresourceUnit = eresourceInfo.getPackageUnit();
-    eresourceUnit.setTimeStamp(creationTime);
+      InternalCDOPackageInfo eresourceInfo = packageRegistry.getPackageInfo(EresourcePackage.eINSTANCE);
+      CDOIDMetaRange eresourceRange = getNextMetaIDRange(eresourceInfo.getMetaIDRange().size());
+      eresourceInfo.setMetaIDRange(eresourceRange);
+      InternalCDOPackageUnit eresourceUnit = eresourceInfo.getPackageUnit();
+      eresourceUnit.setTimeStamp(creationTime);
 
-    MetaInstanceMapper metaInstanceMapper = packageRegistry.getMetaInstanceMapper();
-    metaInstanceMapper.clear();
-    metaInstanceMapper.mapMetaInstances(EcorePackage.eINSTANCE, ecoreRange);
-    metaInstanceMapper.mapMetaInstances(EresourcePackage.eINSTANCE, eresourceRange);
+      MetaInstanceMapper metaInstanceMapper = packageRegistry.getMetaInstanceMapper();
+      metaInstanceMapper.clear();
+      metaInstanceMapper.mapMetaInstances(EcorePackage.eINSTANCE, ecoreRange);
+      metaInstanceMapper.mapMetaInstances(EresourcePackage.eINSTANCE, eresourceRange);
 
-    InternalCDOPackageUnit[] systemUnits = { ecoreUnit, eresourceUnit };
-    storeAccessor.writePackageUnits(systemUnits, new Monitor());
+      InternalCDOPackageUnit[] systemUnits = { ecoreUnit, eresourceUnit };
+      storeAccessor.writePackageUnits(systemUnits, new Monitor());
+    }
   }
 
   protected void reStart(DBStoreAccessor storeAccessor)
