@@ -13,7 +13,7 @@ package org.eclipse.emf.cdo.server.internal.db;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
-import org.eclipse.emf.cdo.server.IRepository;
+import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 
 import org.eclipse.net4j.util.collection.Pair;
@@ -64,13 +64,8 @@ public class HorizontalClassMapping extends ClassMapping
   @Override
   protected void checkDuplicateResources(IDBStoreAccessor accessor, CDORevision revision) throws IllegalStateException
   {
-    IRepository repository = getMappingStrategy().getStore().getRepository();
-    IPackageManager packageManager = repository.getPackageRegistry();
-    CDOResourceNodeClass resourceNodeClass = packageManager.getCDOResourcePackage().getCDOResourceNodeClass();
-    EStructuralFeature resourceNameFeature = resourceNodeClass.getCDONameFeature();
-
     CDOID folderID = (CDOID)revision.data().getContainerID();
-    String name = (String)revision.data().get(resourceNameFeature, 0);
+    String name = (String)revision.data().get(EresourcePackage.eINSTANCE.getCDOResourceNode_Name(), 0);
 
     CDOID existingID = accessor.readResourceID(folderID, name, revision.getCreated());
     if (existingID != null && !existingID.equals(revision.getID()))

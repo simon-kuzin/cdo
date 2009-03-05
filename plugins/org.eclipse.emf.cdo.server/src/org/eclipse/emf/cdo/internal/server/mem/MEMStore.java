@@ -45,7 +45,7 @@ public class MEMStore extends LongIDStore implements IMEMStore
 
   private long creationTime;
 
-  private Map<CDOID, List<CDORevision>> revisions = new HashMap<CDOID, List<CDORevision>>();
+  private Map<CDOID, List<InternalCDORevision>> revisions = new HashMap<CDOID, List<InternalCDORevision>>();
 
   private int listLimit;
 
@@ -82,7 +82,7 @@ public class MEMStore extends LongIDStore implements IMEMStore
   {
     if (listLimit != UNLIMITED && this.listLimit != listLimit)
     {
-      for (List<CDORevision> list : revisions.values())
+      for (List<InternalCDORevision> list : revisions.values())
       {
         enforceListLimit(list);
       }
@@ -94,23 +94,23 @@ public class MEMStore extends LongIDStore implements IMEMStore
   /**
    * @since 2.0
    */
-  public synchronized List<CDORevision> getCurrentRevisions()
+  public synchronized List<InternalCDORevision> getCurrentRevisions()
   {
-    ArrayList<CDORevision> simpleRevisions = new ArrayList<CDORevision>();
-    Iterator<List<CDORevision>> itr = revisions.values().iterator();
+    ArrayList<InternalCDORevision> simpleRevisions = new ArrayList<InternalCDORevision>();
+    Iterator<List<InternalCDORevision>> itr = revisions.values().iterator();
     while (itr.hasNext())
     {
-      List<CDORevision> list = itr.next();
-      CDORevision revision = list.get(list.size() - 1);
+      List<InternalCDORevision> list = itr.next();
+      InternalCDORevision revision = list.get(list.size() - 1);
       simpleRevisions.add(revision);
     }
 
     return simpleRevisions;
   }
 
-  public synchronized CDORevision getRevision(CDOID id)
+  public synchronized InternalCDORevision getRevision(CDOID id)
   {
-    List<CDORevision> list = revisions.get(id);
+    List<InternalCDORevision> list = revisions.get(id);
     if (list != null)
     {
       return list.get(list.size() - 1);
@@ -119,11 +119,11 @@ public class MEMStore extends LongIDStore implements IMEMStore
     return null;
   }
 
-  public synchronized CDORevision getRevisionByVersion(CDOID id, int version)
+  public synchronized InternalCDORevision getRevisionByVersion(CDOID id, int version)
   {
     if (getRepository().isSupportingAudits())
     {
-      List<CDORevision> list = revisions.get(id);
+      List<InternalCDORevision> list = revisions.get(id);
       if (list != null)
       {
         return getRevisionByVersion(list, version);
@@ -138,11 +138,11 @@ public class MEMStore extends LongIDStore implements IMEMStore
   /**
    * @since 2.0
    */
-  public synchronized CDORevision getRevisionByTime(CDOID id, long timeStamp)
+  public synchronized InternalCDORevision getRevisionByTime(CDOID id, long timeStamp)
   {
     if (getRepository().isSupportingAudits())
     {
-      List<CDORevision> list = revisions.get(id);
+      List<InternalCDORevision> list = revisions.get(id);
       if (list != null)
       {
         return getRevisionByTime(list, timeStamp);
@@ -154,25 +154,25 @@ public class MEMStore extends LongIDStore implements IMEMStore
     throw new UnsupportedOperationException();
   }
 
-  public synchronized void addRevision(CDORevision revision)
+  public synchronized void addRevision(InternalCDORevision revision)
   {
     CDOID id = revision.getID();
     int version = revision.getVersion();
 
-    List<CDORevision> list = revisions.get(id);
+    List<InternalCDORevision> list = revisions.get(id);
     if (list == null)
     {
-      list = new ArrayList<CDORevision>();
+      list = new ArrayList<InternalCDORevision>();
       revisions.put(id, list);
     }
 
-    InternalCDORevision rev = (InternalCDORevision)getRevisionByVersion(list, version);
+    InternalCDORevision rev = getRevisionByVersion(list, version);
     if (rev != null)
     {
       throw new IllegalStateException("Concurrent modification of revision " + rev);
     }
 
-    rev = (InternalCDORevision)getRevisionByVersion(list, version - 1);
+    rev = getRevisionByVersion(list, version - 1);
     if (rev != null)
     {
       rev.setRevised(revision.getCreated() - 1);
@@ -203,19 +203,19 @@ public class MEMStore extends LongIDStore implements IMEMStore
   /**
    * @since 2.0
    */
-  public synchronized boolean rollbackRevision(CDORevision revision)
+  public synchronized boolean rollbackRevision(InternalCDORevision revision)
   {
     CDOID id = revision.getID();
-    List<CDORevision> list = revisions.get(id);
+    List<InternalCDORevision> list = revisions.get(id);
     if (list == null)
     {
       return false;
     }
 
     int version = revision.getVersion();
-    for (Iterator<CDORevision> it = list.iterator(); it.hasNext();)
+    for (Iterator<InternalCDORevision> it = list.iterator(); it.hasNext();)
     {
-      InternalCDORevision rev = (InternalCDORevision)it.next();
+      InternalCDORevision rev = it.next();
       if (rev.getVersion() == version)
       {
         it.remove();
@@ -246,11 +246,11 @@ public class MEMStore extends LongIDStore implements IMEMStore
     CDOID folderID = context.getFolderID();
     String name = context.getName();
     boolean exactMatch = context.exactMatch();
-    for (List<CDORevision> list : revisions.values())
+    for (List<InternalCDORevision> list : revisions.values())
     {
       if (!list.isEmpty())
       {
-        CDORevision revision = list.get(0);
+        InternalCDORevision revision = list.get(0);
         if (revision.isResourceNode())
         {
           revision = getRevisionByTime(list, context.getTimeStamp());
@@ -339,9 +339,9 @@ public class MEMStore extends LongIDStore implements IMEMStore
     return null;
   }
 
-  private CDORevision getRevisionByVersion(List<CDORevision> list, int version)
+  private InternalCDORevision getRevisionByVersion(List<InternalCDORevision> list, int version)
   {
-    for (CDORevision revision : list)
+    for (InternalCDORevision revision : list)
     {
       if (revision.getVersion() == version)
       {
@@ -352,9 +352,9 @@ public class MEMStore extends LongIDStore implements IMEMStore
     return null;
   }
 
-  private CDORevision getRevisionByTime(List<CDORevision> list, long timeStamp)
+  private InternalCDORevision getRevisionByTime(List<InternalCDORevision> list, long timeStamp)
   {
-    for (CDORevision revision : list)
+    for (InternalCDORevision revision : list)
     {
       if (timeStamp == CDORevision.UNSPECIFIED_DATE)
       {
@@ -375,7 +375,7 @@ public class MEMStore extends LongIDStore implements IMEMStore
     return null;
   }
 
-  private void enforceListLimit(List<CDORevision> list)
+  private void enforceListLimit(List<InternalCDORevision> list)
   {
     while (list.size() > listLimit)
     {

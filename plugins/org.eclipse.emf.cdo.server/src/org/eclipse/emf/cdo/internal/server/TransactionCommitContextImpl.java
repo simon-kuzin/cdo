@@ -15,7 +15,6 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
-import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionResolver;
@@ -63,9 +62,9 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
 
   private InternalCDOPackageUnit[] newPackageUnits;
 
-  private CDORevision[] newObjects;
+  private InternalCDORevision[] newObjects;
 
-  private CDORevision[] dirtyObjects;
+  private InternalCDORevision[] dirtyObjects;
 
   private CDOID[] detachedObjects;
 
@@ -73,7 +72,7 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
 
   private List<InternalCDORevision> detachedRevisions = new ArrayList<InternalCDORevision>();;
 
-  private CDORevisionDelta[] dirtyObjectDeltas;
+  private InternalCDORevisionDelta[] dirtyObjectDeltas;
 
   private List<CDOIDMetaRange> metaIDRanges = new ArrayList<CDOIDMetaRange>();
 
@@ -109,22 +108,22 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
     return timeStamp;
   }
 
-  public TransactionPackageRegistry getPackageRegistry()
+  public InternalCDOPackageRegistry getPackageRegistry()
   {
     return packageRegistry;
   }
 
-  public CDOPackageUnit[] getNewPackageUnits()
+  public InternalCDOPackageUnit[] getNewPackageUnits()
   {
     return newPackageUnits;
   }
 
-  public CDORevision[] getNewObjects()
+  public InternalCDORevision[] getNewObjects()
   {
     return newObjects;
   }
 
-  public CDORevision[] getDirtyObjects()
+  public InternalCDORevision[] getDirtyObjects()
   {
     return dirtyObjects;
   }
@@ -134,7 +133,7 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
     return detachedObjects;
   }
 
-  public CDORevisionDelta[] getDirtyObjectDeltas()
+  public InternalCDORevisionDelta[] getDirtyObjectDeltas()
   {
     return dirtyObjectDeltas;
   }
@@ -201,12 +200,12 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
     this.newPackageUnits = newPackageUnits;
   }
 
-  public void setNewObjects(CDORevision[] newObjects)
+  public void setNewObjects(InternalCDORevision[] newObjects)
   {
     this.newObjects = newObjects;
   }
 
-  public void setDirtyObjectDeltas(CDORevisionDelta[] dirtyObjectDeltas)
+  public void setDirtyObjectDeltas(InternalCDORevisionDelta[] dirtyObjectDeltas)
   {
     this.dirtyObjectDeltas = dirtyObjectDeltas;
   }
@@ -244,7 +243,7 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
 
       // Could throw an exception
       timeStamp = createTimeStamp();
-      dirtyObjects = new CDORevision[dirtyObjectDeltas.length];
+      dirtyObjects = new InternalCDORevision[dirtyObjectDeltas.length];
 
       adjustMetaRanges(monitor.fork());
       adjustTimeStamps(monitor.fork());
@@ -474,7 +473,7 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
     }
   }
 
-  private CDORevision computeDirtyObject(CDORevisionDelta dirtyObjectDelta, boolean loadOnDemand)
+  private InternalCDORevision computeDirtyObject(InternalCDORevisionDelta dirtyObjectDelta, boolean loadOnDemand)
   {
     CDOID id = dirtyObjectDelta.getID();
     int version = dirtyObjectDelta.getOriginVersion();
@@ -493,23 +492,22 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
     return null;
   }
 
-  private void applyIDMappings(CDORevision[] revisions, OMMonitor monitor)
+  private void applyIDMappings(InternalCDORevision[] revisions, OMMonitor monitor)
   {
     try
     {
       monitor.begin(revisions.length);
-      for (CDORevision revision : revisions)
+      for (InternalCDORevision revision : revisions)
       {
         if (revision != null)
         {
-          InternalCDORevision internalRevision = (InternalCDORevision)revision;
-          CDOID newID = idMappings.get(internalRevision.getID());
+          CDOID newID = idMappings.get(revision.getID());
           if (newID != null)
           {
-            internalRevision.setID(newID);
+            revision.setID(newID);
           }
 
-          internalRevision.adjustReferences(idMapper);
+          revision.adjustReferences(idMapper);
           monitor.worked();
         }
       }

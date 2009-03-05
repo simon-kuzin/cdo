@@ -15,14 +15,14 @@ package org.eclipse.emf.cdo.spi.server;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
-import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
-import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.ITransaction;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
 
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
@@ -114,9 +114,9 @@ public abstract class StoreAccessor extends Lifecycle implements IStoreAccessor
   /**
    * @since 2.0
    */
-  public InternalCDORevision verifyRevision(CDORevision revision)
+  public InternalCDORevision verifyRevision(InternalCDORevision revision)
   {
-    return (InternalCDORevision)revision;
+    return revision;
   }
 
   /**
@@ -132,8 +132,8 @@ public abstract class StoreAccessor extends Lifecycle implements IStoreAccessor
     commitContexts.add(context);
     long timeStamp = context.getTimeStamp();
     boolean deltas = store.getRepository().isSupportingRevisionDeltas();
-    CDOPackageUnit[] newPackageUnits = context.getNewPackageUnits();
-    CDORevision[] newObjects = context.getNewObjects();
+    InternalCDOPackageUnit[] newPackageUnits = context.getNewPackageUnits();
+    InternalCDORevision[] newObjects = context.getNewObjects();
     CDOID[] detachedObjects = context.getDetachedObjects();
     int dirtyCount = deltas ? context.getDirtyObjectDeltas().length : context.getDirtyObjects().length;
 
@@ -224,17 +224,17 @@ public abstract class StoreAccessor extends Lifecycle implements IStoreAccessor
   /**
    * @since 2.0
    */
-  protected abstract void writePackageUnits(CDOPackageUnit[] packageUnits, OMMonitor monitor);
+  protected abstract void writePackageUnits(InternalCDOPackageUnit[] packageUnits, OMMonitor monitor);
 
   /**
    * @since 2.0
    */
-  protected abstract void writeRevisions(CDORevision[] revisions, OMMonitor monitor);
+  protected abstract void writeRevisions(InternalCDORevision[] revisions, OMMonitor monitor);
 
   /**
    * @since 2.0
    */
-  protected abstract void writeRevisionDeltas(CDORevisionDelta[] revisionDeltas, long created, OMMonitor monitor);
+  protected abstract void writeRevisionDeltas(InternalCDORevisionDelta[] revisionDeltas, long created, OMMonitor monitor);
 
   /**
    * @since 2.0

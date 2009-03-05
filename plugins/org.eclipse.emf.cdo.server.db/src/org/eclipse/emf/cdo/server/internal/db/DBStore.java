@@ -266,7 +266,7 @@ public class DBStore extends LongIDStore implements IDBStore
 
       Connection connection = accessor.getJDBCDelegate().getConnection();
       long maxObjectID = mappingStrategy.repairAfterCrash(dbAdapter, connection);
-      long maxMetaID = DBUtil.selectMaximumLong(connection, CDODBSchema.PACKAGES_RANGE_UB);
+      long maxMetaID = DBUtil.selectMaximumLong(connection, CDODBSchema.PACKAGE_INFOS_META_UB);
 
       OM.LOG.info(MessageFormat.format("Repaired after crash: maxObjectID={0}, maxMetaID={1}", maxObjectID, maxMetaID));
       setLastObjectID(maxObjectID);
@@ -357,9 +357,9 @@ public class DBStore extends LongIDStore implements IDBStore
         getMappingStrategy().mapSystemPackages(null, null);
       }
 
-      nextPackageID = DBUtil.selectMaximumInt(connection, CDODBSchema.PACKAGES_ID) + 1;
-      nextClassID = DBUtil.selectMaximumInt(connection, CDODBSchema.CLASSES_ID) + 1;
-      nextFeatureID = DBUtil.selectMaximumInt(connection, CDODBSchema.FEATURES_ID) + 1;
+      nextPackageID = DBUtil.selectMaximumInt(connection, CDODBSchema.PACKAGE_INFOS_ID) + 1;
+      nextClassID = DBUtil.selectMaximumInt(connection, CDODBSchema.PACKAGE_INFOS_CLASSIFIER_UB) + 1;
+      nextFeatureID = DBUtil.selectMaximumInt(connection, CDODBSchema.PACKAGE_INFOS_FEATURE_UB) + 1;
       LifecycleUtil.activate(mappingStrategy);
     }
     finally

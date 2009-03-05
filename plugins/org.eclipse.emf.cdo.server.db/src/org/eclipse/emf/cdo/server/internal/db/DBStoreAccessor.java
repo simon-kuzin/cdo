@@ -197,8 +197,8 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
 
   public final String readPackageURI(int packageID)
   {
-    String where = CDODBSchema.PACKAGES_ID.getName() + "=" + packageID;
-    Object[] uri = DBUtil.select(jdbcDelegate.getConnection(), where, CDODBSchema.PACKAGES_URI);
+    String where = CDODBSchema.PACKAGE_INFOS_ID.getName() + "=" + packageID;
+    Object[] uri = DBUtil.select(jdbcDelegate.getConnection(), where, CDODBSchema.PACKAGE_INFOS_URI);
     return (String)uri[0];
   }
 

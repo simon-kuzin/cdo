@@ -15,14 +15,12 @@ package org.eclipse.emf.cdo.internal.server.mem;
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
-import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
-import org.eclipse.emf.cdo.common.revision.CDORevision;
-import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.server.IQueryContext;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.ITransaction;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
 import org.eclipse.emf.cdo.spi.server.StoreAccessor;
 
 import org.eclipse.net4j.util.WrappedException;
@@ -42,7 +40,7 @@ import java.util.List;
  */
 public class MEMStoreAccessor extends StoreAccessor
 {
-  private List<CDORevision> newRevisions = new ArrayList<CDORevision>();
+  private List<InternalCDORevision> newRevisions = new ArrayList<InternalCDORevision>();
 
   public MEMStoreAccessor(MEMStore store, ISession session)
   {
@@ -66,7 +64,7 @@ public class MEMStoreAccessor extends StoreAccessor
   /**
    * @since 2.0
    */
-  public MEMStoreChunkReader createChunkReader(CDORevision revision, EStructuralFeature feature)
+  public MEMStoreChunkReader createChunkReader(InternalCDORevision revision, EStructuralFeature feature)
   {
     return new MEMStoreChunkReader(this, revision, feature);
   }
@@ -91,13 +89,13 @@ public class MEMStoreAccessor extends StoreAccessor
 
   public CDOClassifierRef readObjectType(CDOID id)
   {
-    InternalCDORevision storeRevision = (InternalCDORevision)getStore().getRevision(id);
+    InternalCDORevision storeRevision = getStore().getRevision(id);
     return new CDOClassifierRef(storeRevision.getEClass());
   }
 
-  public CDORevision readRevision(CDOID id, int referenceChunk)
+  public InternalCDORevision readRevision(CDOID id, int referenceChunk)
   {
-    InternalCDORevision storeRevision = (InternalCDORevision)getStore().getRevision(id);
+    InternalCDORevision storeRevision = getStore().getRevision(id);
     // IRevisionManager revisionManager = getStore().getRepository().getRevisionManager();
     // InternalCDORevision newRevision = new InternalCDORevision(revisionManager, storeRevision.getEClass(),
     // storeRevision
@@ -122,12 +120,12 @@ public class MEMStoreAccessor extends StoreAccessor
     return storeRevision;
   }
 
-  public CDORevision readRevisionByTime(CDOID id, int referenceChunk, long timeStamp)
+  public InternalCDORevision readRevisionByTime(CDOID id, int referenceChunk, long timeStamp)
   {
     return getStore().getRevisionByTime(id, timeStamp);
   }
 
-  public CDORevision readRevisionByVersion(CDOID id, int referenceChunk, int version)
+  public InternalCDORevision readRevisionByVersion(CDOID id, int referenceChunk, int version)
   {
     return getStore().getRevisionByVersion(id, version);
   }
@@ -156,7 +154,7 @@ public class MEMStoreAccessor extends StoreAccessor
     MEMStore store = getStore();
     synchronized (store)
     {
-      for (CDORevision revision : newRevisions)
+      for (InternalCDORevision revision : newRevisions)
       {
         store.rollbackRevision(revision);
       }
@@ -164,21 +162,21 @@ public class MEMStoreAccessor extends StoreAccessor
   }
 
   @Override
-  protected void writePackageUnits(CDOPackageUnit[] packageUnits, OMMonitor monitor)
+  protected void writePackageUnits(InternalCDOPackageUnit[] packageUnits, OMMonitor monitor)
   {
     // Do nothing
   }
 
   @Override
-  protected void writeRevisions(CDORevision[] revisions, OMMonitor monitor)
+  protected void writeRevisions(InternalCDORevision[] revisions, OMMonitor monitor)
   {
-    for (CDORevision revision : revisions)
+    for (InternalCDORevision revision : revisions)
     {
       writeRevision(revision);
     }
   }
 
-  protected void writeRevision(CDORevision revision)
+  protected void writeRevision(InternalCDORevision revision)
   {
     newRevisions.add(revision);
     getStore().addRevision(revision);
@@ -188,9 +186,9 @@ public class MEMStoreAccessor extends StoreAccessor
    * @since 2.0
    */
   @Override
-  protected void writeRevisionDeltas(CDORevisionDelta[] revisionDeltas, long created, OMMonitor monitor)
+  protected void writeRevisionDeltas(InternalCDORevisionDelta[] revisionDeltas, long created, OMMonitor monitor)
   {
-    for (CDORevisionDelta revisionDelta : revisionDeltas)
+    for (InternalCDORevisionDelta revisionDelta : revisionDeltas)
     {
       writeRevisionDelta(revisionDelta, created);
     }
@@ -199,12 +197,12 @@ public class MEMStoreAccessor extends StoreAccessor
   /**
    * @since 2.0
    */
-  protected void writeRevisionDelta(CDORevisionDelta revisionDelta, long created)
+  protected void writeRevisionDelta(InternalCDORevisionDelta revisionDelta, long created)
   {
-    CDORevision revision = getStore().getRevision(revisionDelta.getID());
-    CDORevision newRevision = revision.copy();
+    InternalCDORevision revision = getStore().getRevision(revisionDelta.getID());
+    InternalCDORevision newRevision = (InternalCDORevision)revision.copy();
     revisionDelta.apply(newRevision);
-    ((InternalCDORevision)newRevision).setCreated(created);
+    newRevision.setCreated(created);
     writeRevision(newRevision);
   }
 
@@ -256,14 +254,14 @@ public class MEMStoreAccessor extends StoreAccessor
           @Override
           public boolean equals(Object obj)
           {
-            CDORevision revision = (CDORevision)obj;
+            InternalCDORevision revision = (InternalCDORevision)obj;
             return revision.getEClass().equals(eClass);
           }
         });
       }
     }
 
-    for (CDORevision revision : getStore().getCurrentRevisions())
+    for (InternalCDORevision revision : getStore().getCurrentRevisions())
     {
       if (sleep != null)
       {

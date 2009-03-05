@@ -150,6 +150,10 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
   public void setPackageInfos(InternalCDOPackageInfo[] packageInfos)
   {
     this.packageInfos = packageInfos;
+    for (InternalCDOPackageInfo packageInfo : packageInfos)
+    {
+      packageInfo.setPackageUnit(this);
+    }
   }
 
   public boolean isSystem()

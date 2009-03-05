@@ -30,7 +30,7 @@ public interface InternalCDOPackageInfo extends CDOPackageInfo, Adapter.Internal
 
   public void setPackageURI(String packageUri);
 
-  public void setParentURI(String parentUri);
+  public void setParentURI(String parentURI);
 
   public void setMetaIDRange(CDOIDMetaRange metaIdRange);
 

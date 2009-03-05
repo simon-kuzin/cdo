@@ -22,9 +22,7 @@ import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDOListFactory;
-import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionResolver;
-import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.internal.common.io.CDODataInputImpl;
 import org.eclipse.emf.cdo.internal.common.io.CDODataOutputImpl;
 import org.eclipse.emf.cdo.internal.common.revision.CDOListImpl;
@@ -37,6 +35,8 @@ import org.eclipse.emf.cdo.internal.server.bundle.OM;
 import org.eclipse.emf.cdo.server.IStore;
 import org.eclipse.emf.cdo.server.IView;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
 
 import org.eclipse.net4j.signal.IndicationWithMonitoring;
 import org.eclipse.net4j.util.WrappedException;
@@ -243,10 +243,10 @@ public class CommitTransactionIndication extends IndicationWithMonitoring
     boolean autoReleaseLocksEnabled = in.readBoolean();
     commitContext.setAutoReleaseLocksEnabled(autoReleaseLocksEnabled);
 
-    TransactionPackageRegistry packageRegistry = commitContext.getPackageRegistry();
+    TransactionPackageRegistry packageRegistry = (TransactionPackageRegistry)commitContext.getPackageRegistry();
     InternalCDOPackageUnit[] newPackageUnits = new InternalCDOPackageUnit[in.readInt()];
-    CDORevision[] newObjects = new CDORevision[in.readInt()];
-    CDORevisionDelta[] dirtyObjectDeltas = new CDORevisionDelta[in.readInt()];
+    InternalCDORevision[] newObjects = new InternalCDORevision[in.readInt()];
+    InternalCDORevisionDelta[] dirtyObjectDeltas = new InternalCDORevisionDelta[in.readInt()];
     CDOID[] detachedObjects = new CDOID[in.readInt()];
 
     monitor.begin(newPackageUnits.length + newObjects.length + dirtyObjectDeltas.length + detachedObjects.length);
@@ -274,7 +274,7 @@ public class CommitTransactionIndication extends IndicationWithMonitoring
 
       for (int i = 0; i < newObjects.length; i++)
       {
-        newObjects[i] = in.readCDORevision();
+        newObjects[i] = (InternalCDORevision)in.readCDORevision();
         monitor.worked();
       }
 
@@ -286,7 +286,7 @@ public class CommitTransactionIndication extends IndicationWithMonitoring
 
       for (int i = 0; i < dirtyObjectDeltas.length; i++)
       {
-        dirtyObjectDeltas[i] = in.readCDORevisionDelta();
+        dirtyObjectDeltas[i] = (InternalCDORevisionDelta)in.readCDORevisionDelta();
         monitor.worked();
       }
 
