@@ -482,4 +482,32 @@ public final class EMFUtil
       getAllPackages(subPackage, result);
     }
   }
+
+  public static String getQualifiedName(EPackage ePackage, String separator)
+  {
+    StringBuilder builder = new StringBuilder();
+    EPackage eSuperPackage = ePackage.getESuperPackage();
+    if (eSuperPackage != null)
+    {
+      builder.append(getQualifiedName(eSuperPackage, separator));
+      builder.append(separator);
+    }
+
+    builder.append(ePackage.getName());
+    return builder.toString();
+  }
+
+  public static String getQualifiedName(EClassifier classifier, String separator)
+  {
+    StringBuilder builder = new StringBuilder();
+    EPackage ePackage = classifier.getEPackage();
+    if (ePackage != null)
+    {
+      builder.append(getQualifiedName(ePackage, separator));
+      builder.append(separator);
+    }
+
+    builder.append(classifier.getName());
+    return builder.toString();
+  }
 }

@@ -14,6 +14,7 @@ package org.eclipse.emf.cdo.server.internal.db;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
+import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.server.IStoreAccessor.QueryResourcesContext;
@@ -201,19 +202,19 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
 
   public String getTableName(EPackage ePackage)
   {
-    String name = isQualifiedNames() ? ePackage.getQualifiedName().replace('.', '_') : ePackage.getName();
+    String name = isQualifiedNames() ? EMFUtil.getQualifiedName(ePackage, "_") : ePackage.getName();
     return getTableName(name, "P" + PackageServerInfo.getID(ePackage, getStore()));
   }
 
   public String getTableName(EClass eClass)
   {
-    String name = isQualifiedNames() ? eClass.getQualifiedName().replace('.', '_') : eClass.getName();
+    String name = isQualifiedNames() ? EMFUtil.getQualifiedName(eClass, "_") : eClass.getName();
     return getTableName(name, "C" + ClassServerInfo.getID(eClass, getStore()));
   }
 
   public String getReferenceTableName(EClass eClass, EStructuralFeature feature)
   {
-    String name = isQualifiedNames() ? eClass.getQualifiedName().replace('.', '_') : eClass.getName();
+    String name = isQualifiedNames() ? EMFUtil.getQualifiedName(eClass, "_") : eClass.getName();
     name += "_";
     name += feature.getName();
     name += "_refs";
@@ -222,14 +223,14 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
 
   public String getReferenceTableName(EClass eClass)
   {
-    String name = isQualifiedNames() ? eClass.getQualifiedName().replace('.', '_') : eClass.getName();
+    String name = isQualifiedNames() ? EMFUtil.getQualifiedName(eClass, "_") : eClass.getName();
     name += "_refs";
     return getTableName(name, "F" + ClassServerInfo.getID(eClass, getStore()));
   }
 
   public String getReferenceTableName(EPackage ePackage)
   {
-    String name = isQualifiedNames() ? ePackage.getQualifiedName().replace('.', '_') : ePackage.getName();
+    String name = isQualifiedNames() ? EMFUtil.getQualifiedName(ePackage, "_") : ePackage.getName();
     name += "_refs";
     return getTableName(name, "F" + PackageServerInfo.getID(ePackage, getStore()));
   }
