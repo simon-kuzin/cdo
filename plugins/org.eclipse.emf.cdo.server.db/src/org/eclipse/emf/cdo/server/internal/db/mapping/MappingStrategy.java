@@ -66,8 +66,6 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
 
   private Map<Object, IDBTable> referenceTables = new HashMap<Object, IDBTable>();
 
-  private Map<Integer, CDOClassifierRef> classifierRefs = new HashMap<Integer, CDOClassifierRef>();
-
   public MappingStrategy()
   {
   }
@@ -142,18 +140,6 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
   public Map<Object, IDBTable> getReferenceTables()
   {
     return referenceTables;
-  }
-
-  public CDOClassifierRef getClassifierRef(IDBStoreAccessor accessor, int classID)
-  {
-    CDOClassifierRef classRef = classifierRefs.get(classID);
-    if (classRef == null)
-    {
-      classRef = accessor.readClassRef(classID);
-      classifierRefs.put(classID, classRef);
-    }
-
-    return classRef;
   }
 
   public IClassMapping getClassMapping(EClass eClass)

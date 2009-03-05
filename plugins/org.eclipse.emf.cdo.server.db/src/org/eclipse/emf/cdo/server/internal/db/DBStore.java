@@ -13,6 +13,7 @@ package org.eclipse.emf.cdo.server.internal.db;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDMeta;
+import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.ITransaction;
 import org.eclipse.emf.cdo.server.IView;
@@ -235,6 +236,19 @@ public class DBStore extends LongIDStore implements IDBStore
     }
 
     throw new IllegalStateException("No permanent meta ID available for " + modelElement);
+  }
+
+  public EModelElement getMetaInstance(long id)
+  {
+    CDOIDMeta cdoid = CDOIDUtil.createMeta(id);
+    InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)getRepository().getPackageRegistry();
+    InternalEObject metaInstance = packageRegistry.getMetaInstanceMapper().lookupMetaInstance(cdoid);
+    if (metaInstance instanceof EModelElement)
+    {
+      return (EModelElement)metaInstance;
+    }
+
+    throw new IllegalStateException("No meta instance available for " + id);
   }
 
   public Connection getConnection()

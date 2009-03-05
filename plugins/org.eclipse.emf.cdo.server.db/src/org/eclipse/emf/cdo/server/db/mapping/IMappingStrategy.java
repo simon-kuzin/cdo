@@ -93,11 +93,6 @@ public interface IMappingStrategy
   /**
    * @since 2.0
    */
-  public CDOClassifierRef getClassifierRef(IDBStoreAccessor accessor, int classID);
-
-  /**
-   * @since 2.0
-   */
   public CloseableIterator<CDOID> readObjectIDs(IDBStoreAccessor accessor);
 
   /**

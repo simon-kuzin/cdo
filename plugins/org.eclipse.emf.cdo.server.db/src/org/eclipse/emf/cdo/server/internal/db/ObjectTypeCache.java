@@ -91,8 +91,9 @@ public class ObjectTypeCache extends Lifecycle implements IObjectTypeCache
         return null;
       }
 
-      int classID = resultSet.getInt(1);
-      return mappingStrategy.getClassifierRef(accessor, classID);
+      long classID = resultSet.getLong(1);
+      EClass eClass = (EClass)mappingStrategy.getStore().getMetaInstance(classID);
+      return new CDOClassifierRef(eClass);
     }
     catch (SQLException ex)
     {
@@ -115,7 +116,7 @@ public class ObjectTypeCache extends Lifecycle implements IObjectTypeCache
     builder.append(" VALUES (");
     builder.append(CDOIDUtil.getLong(id));
     builder.append(", ");
-    builder.append(ServerInfo.getID(type, mappingStrategy.getStore()));
+    builder.append(accessor.getStore().getMetaID(type));
     builder.append(")");
     String sql = builder.toString();
     DBUtil.trace(sql);
@@ -172,7 +173,7 @@ public class ObjectTypeCache extends Lifecycle implements IObjectTypeCache
         IDBSchema schema = mappingStrategy.getStore().getDBSchema();
         table = schema.addTable(CDODBSchema.CDO_OBJECTS);
         idField = table.addField(CDODBSchema.ATTRIBUTES_ID, DBType.BIGINT);
-        typeField = table.addField(CDODBSchema.ATTRIBUTES_CLASS, DBType.INTEGER);
+        typeField = table.addField(CDODBSchema.ATTRIBUTES_CLASS, DBType.BIGINT);
         table.addIndex(IDBIndex.Type.PRIMARY_KEY, idField);
 
         IDBAdapter dbAdapter = mappingStrategy.getStore().getDBAdapter();

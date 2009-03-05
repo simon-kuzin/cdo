@@ -34,4 +34,6 @@ public interface IDBStore extends IStore
   public IDBConnectionProvider getDBConnectionProvider();
 
   public long getMetaID(EModelElement modelElement);
+
+  public EModelElement getMetaInstance(long id);
 }
