@@ -86,6 +86,6 @@ public interface InternalCDOPackageRegistry extends CDOPackageRegistry, ILifecyc
 
     public void remapMetaInstance(CDOID oldID, CDOID newID);
 
-    public void dispose();
+    public void clear();
   }
 }

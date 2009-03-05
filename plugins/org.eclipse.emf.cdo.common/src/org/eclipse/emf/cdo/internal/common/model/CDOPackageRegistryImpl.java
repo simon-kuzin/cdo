@@ -289,7 +289,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       }
 
       clear();
-      metaInstanceMapper.dispose();
+      metaInstanceMapper.clear();
       active = false;
     }
 
@@ -373,7 +373,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       metaInstanceToIDMap.put(metaInstance, newID);
     }
 
-    public void mapMetaInstances(EPackage ePackage, CDOIDMetaRange metaIDRange)
+    public synchronized void mapMetaInstances(EPackage ePackage, CDOIDMetaRange metaIDRange)
     {
       if (metaIDRange.isTemporary())
       {
@@ -388,14 +388,14 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       }
     }
 
-    public CDOIDMetaRange mapMetaInstances(EPackage ePackage)
+    public synchronized CDOIDMetaRange mapMetaInstances(EPackage ePackage)
     {
       CDOIDMetaRange range = mapMetaInstances(ePackage, lastTempMetaID + 1);
       lastTempMetaID = ((CDOIDTempMeta)range.getUpperBound()).getIntValue();
       return range;
     }
 
-    public CDOIDMetaRange mapMetaInstances(EPackage ePackage, int firstMetaID)
+    private CDOIDMetaRange mapMetaInstances(EPackage ePackage, int firstMetaID)
     {
       CDOIDTemp lowerBound = CDOIDUtil.createTempMeta(firstMetaID);
       CDOIDMetaRange range = CDOIDUtil.createMetaRange(lowerBound, 0);
@@ -403,7 +403,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       return range;
     }
 
-    public CDOIDMetaRange mapMetaInstance(InternalEObject metaInstance, CDOIDMetaRange range)
+    private CDOIDMetaRange mapMetaInstance(InternalEObject metaInstance, CDOIDMetaRange range)
     {
       range = range.increase();
       CDOID id = range.getUpperBound();
@@ -446,10 +446,11 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       return CDOIDUtil.createMetaRange(lowerBound, count);
     }
 
-    public void dispose()
+    public void clear()
     {
       idToMetaInstanceMap.clear();
       metaInstanceToIDMap.clear();
+      lastTempMetaID = 0;
     }
   }
 }

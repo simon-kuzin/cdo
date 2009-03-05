@@ -13,6 +13,7 @@ package org.eclipse.emf.cdo.server.internal.db;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDMeta;
+import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.server.ISession;
@@ -23,8 +24,10 @@ import org.eclipse.emf.cdo.server.db.IDBStore;
 import org.eclipse.emf.cdo.server.db.IJDBCDelegateProvider;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry.MetaInstanceMapper;
 import org.eclipse.emf.cdo.spi.server.LongIDStore;
 import org.eclipse.emf.cdo.spi.server.StoreAccessorPool;
 
@@ -305,6 +308,7 @@ public class DBStore extends LongIDStore implements IDBStore
   {
     super.doActivate();
     long startupTime = getStartupTime();
+
     DBStoreAccessor storeAccessor = createWriter(null);
     LifecycleUtil.activate(storeAccessor);
 
@@ -320,9 +324,24 @@ public class DBStore extends LongIDStore implements IDBStore
             CRASHED);
 
         InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)getRepository().getPackageRegistry();
-        InternalCDOPackageUnit ecoreUnit = packageRegistry.getPackageInfo(EcorePackage.eINSTANCE).getPackageUnit();
-        InternalCDOPackageUnit eresourceUnit = packageRegistry.getPackageInfo(EresourcePackage.eINSTANCE)
-            .getPackageUnit();
+
+        InternalCDOPackageInfo ecoreInfo = packageRegistry.getPackageInfo(EcorePackage.eINSTANCE);
+        CDOIDMetaRange ecoreRange = getRepository().getMetaIDRange(ecoreInfo.getMetaIDRange().size());
+        ecoreInfo.setMetaIDRange(ecoreRange);
+        InternalCDOPackageUnit ecoreUnit = ecoreInfo.getPackageUnit();
+        ecoreUnit.setTimeStamp(creationTime);
+
+        InternalCDOPackageInfo eresourceInfo = packageRegistry.getPackageInfo(EresourcePackage.eINSTANCE);
+        CDOIDMetaRange eresourceRange = getRepository().getMetaIDRange(eresourceInfo.getMetaIDRange().size());
+        eresourceInfo.setMetaIDRange(eresourceRange);
+        InternalCDOPackageUnit eresourceUnit = eresourceInfo.getPackageUnit();
+        eresourceUnit.setTimeStamp(creationTime);
+
+        MetaInstanceMapper metaInstanceMapper = packageRegistry.getMetaInstanceMapper();
+        metaInstanceMapper.clear();
+        metaInstanceMapper.mapMetaInstances(EcorePackage.eINSTANCE, ecoreRange);
+        metaInstanceMapper.mapMetaInstances(EresourcePackage.eINSTANCE, eresourceRange);
+
         InternalCDOPackageUnit[] systemUnits = { ecoreUnit, eresourceUnit };
         storeAccessor.writePackageUnits(systemUnits, new Monitor());
       }
