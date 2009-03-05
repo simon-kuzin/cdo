@@ -18,7 +18,6 @@ import org.eclipse.emf.cdo.common.revision.CDORevisionData;
 import org.eclipse.emf.cdo.server.db.mapping.IAttributeMapping;
 import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
-import org.eclipse.emf.cdo.server.internal.db.mapping.ServerInfo;
 
 import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.util.collection.Pair;
@@ -64,7 +63,7 @@ public class StatementJDBCDelegate extends AbstractJDBCDelegate
     {
       CDORevisionData data = revision.data();
       builder.append(", ");
-      builder.append(ServerInfo.getID(revision.getEClass(), getStoreAccessor().getStore()));
+      builder.append(getStoreAccessor().getStore().getMetaID(revision.getEClass()));
       builder.append(", ");
       builder.append(revision.getCreated());
       builder.append(", ");
@@ -227,22 +226,22 @@ public class StatementJDBCDelegate extends AbstractJDBCDelegate
   }
 
   @Override
-  protected void doInsertReferenceRow(String tableName, int dbId, long cdoid, int newVersion, long target, int index)
+  protected void doInsertReferenceRow(String tableName, long metaID, long cdoid, int newVersion, long target, int index)
   {
-    move1up(tableName, dbId, cdoid, newVersion, index, -1);
-    doInsertReference(tableName, dbId, cdoid, newVersion, index, target);
+    move1up(tableName, metaID, cdoid, newVersion, index, -1);
+    doInsertReference(tableName, metaID, cdoid, newVersion, index, target);
   }
 
   @Override
-  protected void doInsertReference(String table, int dbId, long source, int version, int i, long target)
+  protected void doInsertReference(String table, long metaID, long source, int version, int i, long target)
   {
     StringBuilder builder = new StringBuilder();
     builder.append("INSERT INTO ");
     builder.append(table);
     builder.append(" VALUES (");
-    if (dbId != 0)
+    if (metaID != 0)
     {
-      builder.append(dbId);
+      builder.append(metaID);
       builder.append(", ");
     }
     builder.append(source);
@@ -257,7 +256,7 @@ public class StatementJDBCDelegate extends AbstractJDBCDelegate
   }
 
   @Override
-  protected void doMoveReferenceRow(String tableName, int dbId, long cdoid, int newVersion, int oldPosition,
+  protected void doMoveReferenceRow(String tableName, long metaID, long cdoid, int newVersion, int oldPosition,
       int newPosition)
   {
     if (oldPosition == newPosition)
@@ -266,25 +265,25 @@ public class StatementJDBCDelegate extends AbstractJDBCDelegate
     }
 
     // move element away temporarily
-    updateOneIndex(tableName, dbId, cdoid, newVersion, oldPosition, -1);
+    updateOneIndex(tableName, metaID, cdoid, newVersion, oldPosition, -1);
 
     // move elements in between
     if (oldPosition < newPosition)
     {
-      move1down(tableName, dbId, cdoid, newVersion, oldPosition, newPosition);
+      move1down(tableName, metaID, cdoid, newVersion, oldPosition, newPosition);
     }
     else
     {
       // oldPosition > newPosition -- equal case is handled above
-      move1up(tableName, dbId, cdoid, newVersion, newPosition, oldPosition);
+      move1up(tableName, metaID, cdoid, newVersion, newPosition, oldPosition);
     }
 
     // move temporary element to new position
-    updateOneIndex(tableName, dbId, cdoid, newVersion, -1, newPosition);
+    updateOneIndex(tableName, metaID, cdoid, newVersion, -1, newPosition);
   }
 
   @Override
-  protected void doDeleteReferences(String name, int dbId, long cdoid)
+  protected void doDeleteReferences(String name, long metaID, long cdoid)
   {
     StringBuilder builder = new StringBuilder();
     builder.append("DELETE FROM ");
@@ -293,21 +292,21 @@ public class StatementJDBCDelegate extends AbstractJDBCDelegate
     builder.append(CDODBSchema.REFERENCES_SOURCE);
     builder.append(" = ");
     builder.append(cdoid);
-    if (dbId != 0)
+    if (metaID != 0)
     {
       builder.append(" AND ");
       builder.append(CDODBSchema.REFERENCES_FEATURE);
       builder.append(" = ");
-      builder.append(dbId);
+      builder.append(metaID);
     }
     sqlUpdate(builder.toString());
   }
 
   @Override
-  protected void doRemoveReferenceRow(String tableName, int dbId, long cdoid, int index, int newVersion)
+  protected void doRemoveReferenceRow(String tableName, long metaID, long cdoid, int index, int newVersion)
   {
-    deleteReferenceRow(tableName, dbId, cdoid, index);
-    move1down(tableName, dbId, cdoid, newVersion, index, -1);
+    deleteReferenceRow(tableName, metaID, cdoid, index);
+    move1down(tableName, metaID, cdoid, newVersion, index, -1);
   }
 
   @Override
@@ -328,7 +327,7 @@ public class StatementJDBCDelegate extends AbstractJDBCDelegate
   }
 
   @Override
-  protected void doUpdateReference(String tableName, int dbId, long sourceId, int newVersion, int index, long targetId)
+  protected void doUpdateReference(String tableName, long metaID, long sourceId, int newVersion, int index, long targetId)
   {
     StringBuilder builder = new StringBuilder();
     builder.append("UPDATE ");
@@ -350,12 +349,12 @@ public class StatementJDBCDelegate extends AbstractJDBCDelegate
     builder.append(" = ");
     builder.append(index);
 
-    if (dbId != 0)
+    if (metaID != 0)
     {
       builder.append(" AND ");
       builder.append(CDODBSchema.REFERENCES_FEATURE);
       builder.append(" = ");
-      builder.append(dbId);
+      builder.append(metaID);
     }
 
     sqlUpdate(builder.toString());
@@ -418,7 +417,7 @@ public class StatementJDBCDelegate extends AbstractJDBCDelegate
   }
 
   @Override
-  protected ResultSet doSelectRevisionReferences(String tableName, long sourceId, int version, int dbFeatureID,
+  protected ResultSet doSelectRevisionReferences(String tableName, long sourceId, int version, long metaID,
       String where) throws SQLException
   {
 
@@ -428,11 +427,11 @@ public class StatementJDBCDelegate extends AbstractJDBCDelegate
     builder.append(" FROM ");
     builder.append(tableName);
     builder.append(" WHERE ");
-    if (dbFeatureID != 0)
+    if (metaID != 0)
     {
       builder.append(CDODBSchema.REFERENCES_FEATURE);
       builder.append("=");
-      builder.append(dbFeatureID);
+      builder.append(metaID);
       builder.append(" AND ");
     }
 
@@ -495,7 +494,7 @@ public class StatementJDBCDelegate extends AbstractJDBCDelegate
     }
   }
 
-  private void deleteReferenceRow(String name, int dbId, long cdoid, int index)
+  private void deleteReferenceRow(String name, long metaID, long cdoid, int index)
   {
     StringBuilder builder = new StringBuilder();
     builder.append("DELETE FROM ");
@@ -508,12 +507,12 @@ public class StatementJDBCDelegate extends AbstractJDBCDelegate
     builder.append(CDODBSchema.REFERENCES_IDX);
     builder.append(" = ");
     builder.append(index);
-    if (dbId != 0)
+    if (metaID != 0)
     {
       builder.append(" AND ");
       builder.append(CDODBSchema.REFERENCES_FEATURE);
       builder.append(" = ");
-      builder.append(dbId);
+      builder.append(metaID);
     }
     sqlUpdate(builder.toString());
   }
@@ -523,7 +522,7 @@ public class StatementJDBCDelegate extends AbstractJDBCDelegate
    * then all indices beginning with <code>index</code> are moved. Else, only indexes starting with <code>index</code>
    * and ending with <code>upperIndex - 1</code> are moved up.
    */
-  private void move1up(String tableName, int dbId, long cdoid, int newVersion, int index, int upperIndex)
+  private void move1up(String tableName, long metaID, long cdoid, int newVersion, int index, int upperIndex)
   {
     StringBuilder builder = new StringBuilder();
     builder.append("UPDATE ");
@@ -537,11 +536,11 @@ public class StatementJDBCDelegate extends AbstractJDBCDelegate
     builder.append(" = ");
     builder.append(newVersion);
     builder.append(" WHERE ");
-    if (dbId != 0)
+    if (metaID != 0)
     {
       builder.append(CDODBSchema.REFERENCES_FEATURE);
       builder.append("=");
-      builder.append(dbId);
+      builder.append(metaID);
       builder.append(" AND ");
     }
 
@@ -569,7 +568,7 @@ public class StatementJDBCDelegate extends AbstractJDBCDelegate
    * <code>-1</code>, then all indices beginning with <code>index + 1</code> are moved. Else, only indexes starting with
    * <code>index + 1</code> and ending with <code>upperIndex</code> are moved down.
    */
-  private void move1down(String tableName, int dbId, long cdoid, int newVersion, int index, int upperIndex)
+  private void move1down(String tableName, long metaID, long cdoid, int newVersion, int index, int upperIndex)
   {
     StringBuilder builder = new StringBuilder();
     builder.append("UPDATE ");
@@ -583,11 +582,11 @@ public class StatementJDBCDelegate extends AbstractJDBCDelegate
     builder.append(" = ");
     builder.append(newVersion);
     builder.append(" WHERE ");
-    if (dbId != 0)
+    if (metaID != 0)
     {
       builder.append(CDODBSchema.REFERENCES_FEATURE);
       builder.append("=");
-      builder.append(dbId);
+      builder.append(metaID);
       builder.append(" AND ");
     }
 
@@ -610,7 +609,7 @@ public class StatementJDBCDelegate extends AbstractJDBCDelegate
     sqlUpdate(builder.toString());
   }
 
-  private void updateOneIndex(String tableName, int dbId, long cdoid, int newVersion, int oldIndex, int newIndex)
+  private void updateOneIndex(String tableName, long metaID, long cdoid, int newVersion, int oldIndex, int newIndex)
   {
     StringBuilder builder = new StringBuilder();
 
@@ -625,11 +624,11 @@ public class StatementJDBCDelegate extends AbstractJDBCDelegate
     builder.append(" = ");
     builder.append(newVersion);
     builder.append(" WHERE ");
-    if (dbId != 0)
+    if (metaID != 0)
     {
       builder.append(CDODBSchema.REFERENCES_FEATURE);
       builder.append("=");
-      builder.append(dbId);
+      builder.append(metaID);
       builder.append(" AND ");
     }
 

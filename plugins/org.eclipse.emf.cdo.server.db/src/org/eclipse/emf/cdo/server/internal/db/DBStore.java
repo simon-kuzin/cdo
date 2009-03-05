@@ -11,6 +11,8 @@
  */
 package org.eclipse.emf.cdo.server.internal.db;
 
+import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.id.CDOIDMeta;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.ITransaction;
 import org.eclipse.emf.cdo.server.IView;
@@ -19,6 +21,7 @@ import org.eclipse.emf.cdo.server.db.IDBStore;
 import org.eclipse.emf.cdo.server.db.IJDBCDelegateProvider;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.server.LongIDStore;
 import org.eclipse.emf.cdo.spi.server.StoreAccessorPool;
 
@@ -36,7 +39,9 @@ import org.eclipse.net4j.util.om.monitor.ProgressDistributor;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
+import org.eclipse.emf.ecore.EModelElement;
 import org.eclipse.emf.ecore.EcorePackage;
+import org.eclipse.emf.ecore.InternalEObject;
 
 import javax.sql.DataSource;
 
@@ -86,9 +91,6 @@ public class DBStore extends LongIDStore implements IDBStore
 
   @ExcludeFromDump
   private transient StoreAccessorPool writerPool = new StoreAccessorPool(this, null);
-
-  @ExcludeFromDump
-  private transient int nextClassifierID;
 
   private static Map<EClassifier, DBType> typeMap = new HashMap<EClassifier, DBType>();
 
@@ -223,10 +225,16 @@ public class DBStore extends LongIDStore implements IDBStore
     return new DBStoreAccessor(this, transaction);
   }
 
-  public synchronized int getNextClassifierID()
+  public long getMetaID(EModelElement modelElement)
   {
-    // TODO Better synchronization
-    return nextClassifierID++;
+    InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)getRepository().getPackageRegistry();
+    CDOID cdoid = packageRegistry.getMetaInstanceMapper().lookupMetaInstanceID((InternalEObject)modelElement);
+    if (cdoid instanceof CDOIDMeta)
+    {
+      return ((CDOIDMeta)cdoid).getLongValue();
+    }
+
+    throw new IllegalStateException("No permanent meta ID available for " + modelElement);
   }
 
   public Connection getConnection()
@@ -340,7 +348,6 @@ public class DBStore extends LongIDStore implements IDBStore
         getMappingStrategy().mapSystemPackages(null, null);
       }
 
-      nextClassifierID = DBUtil.selectMaximumInt(connection, CDODBSchema.PACKAGE_INFOS_CLASSIFIER_UB) + 1;
       LifecycleUtil.activate(mappingStrategy);
     }
     finally

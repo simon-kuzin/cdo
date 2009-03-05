@@ -22,7 +22,6 @@ import org.eclipse.emf.cdo.server.db.IJDBCDelegate;
 import org.eclipse.emf.cdo.server.db.mapping.IAttributeMapping;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
 import org.eclipse.emf.cdo.server.db.mapping.IReferenceMapping;
-import org.eclipse.emf.cdo.server.internal.db.mapping.ServerInfo;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.db.DBException;
@@ -181,7 +180,7 @@ public abstract class AbstractJDBCDelegate extends Lifecycle implements IJDBCDel
 
   public final void updateAttributes(InternalCDORevision cdoRevision, IClassMapping classMapping)
   {
-    InternalCDORevision revision = (InternalCDORevision)cdoRevision;
+    InternalCDORevision revision = cdoRevision;
 
     List<IAttributeMapping> attributeMappings = classMapping.getAttributeMappings();
     if (attributeMappings == null)
@@ -297,7 +296,7 @@ public abstract class AbstractJDBCDelegate extends Lifecycle implements IJDBCDel
       int i = 0;
       if (withFullRevisionInfo)
       {
-        InternalCDORevision rev = (InternalCDORevision)revision;
+        InternalCDORevision rev = revision;
         rev.setVersion(resultSet.getInt(++i));
         rev.setCreated(resultSet.getLong(++i));
         rev.setRevised(resultSet.getLong(++i));
@@ -326,9 +325,10 @@ public abstract class AbstractJDBCDelegate extends Lifecycle implements IJDBCDel
     }
   }
 
-  public void selectRevisionReferences(InternalCDORevision revision, IReferenceMapping referenceMapping, int referenceChunk)
+  public void selectRevisionReferences(InternalCDORevision revision, IReferenceMapping referenceMapping,
+      int referenceChunk)
   {
-    MoveableList<Object> list = ((InternalCDORevision)revision).getList(referenceMapping.getFeature());
+    MoveableList<Object> list = (revision).getList(referenceMapping.getFeature());
 
     CDOID source = revision.getID();
     long sourceId = CDOIDUtil.getLong(source);
@@ -408,11 +408,11 @@ public abstract class AbstractJDBCDelegate extends Lifecycle implements IJDBCDel
     }
   }
 
-  private int getDBID(IReferenceMapping referenceMapping)
+  private long getDBID(IReferenceMapping referenceMapping)
   {
     if (referenceMapping.isWithFeature())
     {
-      return ServerInfo.getID(referenceMapping.getFeature(), storeAccessor.getStore());
+      return storeAccessor.getStore().getMetaID(referenceMapping.getFeature());
     }
 
     return 0;
@@ -497,37 +497,37 @@ public abstract class AbstractJDBCDelegate extends Lifecycle implements IJDBCDel
   /**
    * Insert one reference of a particular CDOID and adjusts indexes.
    */
-  protected abstract void doInsertReferenceRow(String tableName, int dbId, long cdoid, int newVersion, long l, int index);
+  protected abstract void doInsertReferenceRow(String tableName, long metaID, long cdoid, int newVersion, long l, int index);
 
   /**
    * Insert a reference row. Note: this is likely to be replaced by an implementation that supports storing multiple
    * references in one batch.
    */
-  protected abstract void doInsertReference(String tableName, int dbId, long source, int version, int i, long target);
+  protected abstract void doInsertReference(String tableName, long metaID, long source, int version, int i, long target);
 
   /**
    * Update the target ID of one reference of a particular CDOID.
    */
-  protected abstract void doUpdateReference(String name, int dbId, long sourceId, int newVersion, int index,
+  protected abstract void doUpdateReference(String name, long metaID, long sourceId, int newVersion, int index,
       long targetId);
 
   /**
    * Moves one reference of a particular CDOID and adjusts indexes.
    */
-  protected abstract void doMoveReferenceRow(String tableName, int dbId, long cdoid, int newVersion, int oldPosition,
+  protected abstract void doMoveReferenceRow(String tableName, long metaID, long cdoid, int newVersion, int oldPosition,
       int newPosition);
 
   /**
    * Delete all references of a particular CDOID.
    */
-  protected abstract void doDeleteReferences(String tableName, int dbId, long cdoid);
+  protected abstract void doDeleteReferences(String tableName, long metaID, long cdoid);
 
   /**
    * Deletes one reference of a particular CDOID and adjusts indexes.
    * 
    * @param newVersion
    */
-  protected abstract void doRemoveReferenceRow(String tableName, int dbId, long cdoid, int index, int newVersion);
+  protected abstract void doRemoveReferenceRow(String tableName, long metaID, long cdoid, int index, int newVersion);
 
   /**
    * Update all references of cdoid to newVersion
@@ -546,5 +546,5 @@ public abstract class AbstractJDBCDelegate extends Lifecycle implements IJDBCDel
    * statement, if appropriate.
    */
   protected abstract ResultSet doSelectRevisionReferences(String tableName, long sourceId, int version,
-      int dbFeatureID, String where) throws SQLException;
+      long metaID, String where) throws SQLException;
 }

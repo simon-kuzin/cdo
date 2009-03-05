@@ -16,7 +16,6 @@ import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
-import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.server.IStoreAccessor.QueryResourcesContext;
 import org.eclipse.emf.cdo.server.db.IDBStore;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
@@ -164,7 +163,7 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
 
     // try
     // {
-    // ClassServerInfo serverInfo = (ClassServerInfo)ClassServerInfo.getServerInfo(eClass, getStore());
+    // ServerInfo serverInfo = (ServerInfo)ServerInfo.getServerInfo(eClass, getStore());
     // mapping = serverInfo.getClassMapping();
     // if (mapping == NoClassMapping.INSTANCE)
     // {
@@ -174,7 +173,7 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
     // catch (RuntimeException ex)
     // {
     // mapping = createClassMapping(eClass);
-    // ClassServerInfo serverInfo = (ClassServerInfo)ClassServerInfo.getServerInfo(eClass, getStore());
+    // ServerInfo serverInfo = (ServerInfo)ServerInfo.getServerInfo(eClass, getStore());
     // serverInfo.setClassMapping(mapping == null ? NoClassMapping.INSTANCE : mapping);
     // }
 
@@ -184,13 +183,13 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
   public String getTableName(EPackage ePackage)
   {
     String name = isQualifiedNames() ? EMFUtil.getQualifiedName(ePackage, NAME_SEPARATOR) : ePackage.getName();
-    return getTableName(name, "P" + PackageServerInfo.getID(ePackage, getStore()));
+    return getTableName(name, "P" + getStore().getMetaID(ePackage));
   }
 
   public String getTableName(EClass eClass)
   {
     String name = isQualifiedNames() ? EMFUtil.getQualifiedName(eClass, NAME_SEPARATOR) : eClass.getName();
-    return getTableName(name, "C" + ClassServerInfo.getID(eClass, getStore()));
+    return getTableName(name, "C" + getStore().getMetaID(eClass));
   }
 
   public String getReferenceTableName(EClass eClass, EStructuralFeature feature)
@@ -199,26 +198,26 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
     name += NAME_SEPARATOR;
     name += feature.getName();
     name += "_refs";
-    return getTableName(name, "F" + FeatureServerInfo.getID(feature, getStore()));
+    return getTableName(name, "F" + getStore().getMetaID(feature));
   }
 
   public String getReferenceTableName(EClass eClass)
   {
     String name = isQualifiedNames() ? EMFUtil.getQualifiedName(eClass, NAME_SEPARATOR) : eClass.getName();
     name += "_refs";
-    return getTableName(name, "F" + ClassServerInfo.getID(eClass, getStore()));
+    return getTableName(name, "F" + getStore().getMetaID(eClass));
   }
 
   public String getReferenceTableName(EPackage ePackage)
   {
     String name = isQualifiedNames() ? EMFUtil.getQualifiedName(ePackage, NAME_SEPARATOR) : ePackage.getName();
     name += "_refs";
-    return getTableName(name, "F" + PackageServerInfo.getID(ePackage, getStore()));
+    return getTableName(name, "F" + getStore().getMetaID(ePackage));
   }
 
   public String getFieldName(EStructuralFeature feature)
   {
-    return getName(feature.getName(), "F" + FeatureServerInfo.getID(feature, getStore()), getMaxFieldNameLength());
+    return getName(feature.getName(), "F" + getStore().getMetaID(feature), getMaxFieldNameLength());
   }
 
   private String getTableName(String name, String suffix)
@@ -277,32 +276,32 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
 
   public void mapSystemPackages(IDBAdapter dbAdapter, Connection connection)
   {
-    CDOResourceNodeClass resourceNodeClass = EresourcePackage.eINSTANCE.getCDOResourceNodeClass();
-    CDOResourceFolderClass resourceFolderClass = EresourcePackage.eINSTANCE.getCDOResourceFolderClass();
-    CDOResourceClass resourceClass = EresourcePackage.eINSTANCE.getCDOResourceClass();
-
-    PackageServerInfo.setID(EresourcePackage.eINSTANCE,
-        org.eclipse.emf.cdo.server.internal.db.mapping.CDO_RESOURCE_PACKAGE_DBID);
-    ClassServerInfo.setID(resourceNodeClass,
-        org.eclipse.emf.cdo.server.internal.db.mapping.CDO_RESOURCE_NODE_CLASS_DBID);
-    FeatureServerInfo.setID(resourceNodeClass.getCDOFolderFeature(),
-        org.eclipse.emf.cdo.server.internal.db.mapping.CDO_FOLDER_FEATURE_DBID);
-    FeatureServerInfo.setID(resourceNodeClass.getCDONameFeature(),
-        org.eclipse.emf.cdo.server.internal.db.mapping.CDO_NAME_FEATURE_DBID);
-    ClassServerInfo.setID(resourceFolderClass,
-        org.eclipse.emf.cdo.server.internal.db.mapping.CDO_RESOURCE_FOLDER_CLASS_DBID);
-    FeatureServerInfo.setID(resourceFolderClass.getCDONodesFeature(),
-        org.eclipse.emf.cdo.server.internal.db.mapping.CDO_NODES_FEATURE_DBID);
-    ClassServerInfo.setID(resourceClass, org.eclipse.emf.cdo.server.internal.db.mapping.CDO_RESOURCE_CLASS_DBID);
-    FeatureServerInfo.setID(resourceClass.getCDOContentsFeature(),
-        org.eclipse.emf.cdo.server.internal.db.mapping.CDO_CONTENTS_FEATURE_DBID);
+    // CDOResourceNodeClass resourceNodeClass = EresourcePackage.eINSTANCE.getCDOResourceNodeClass();
+    // CDOResourceFolderClass resourceFolderClass = EresourcePackage.eINSTANCE.getCDOResourceFolderClass();
+    // CDOResourceClass resourceClass = EresourcePackage.eINSTANCE.getCDOResourceClass();
+    //
+    // ServerInfo.setID(EresourcePackage.eINSTANCE,
+    // org.eclipse.emf.cdo.server.internal.db.mapping.CDO_RESOURCE_PACKAGE_DBID);
+    // ServerInfo.setID(resourceNodeClass,
+    // org.eclipse.emf.cdo.server.internal.db.mapping.CDO_RESOURCE_NODE_CLASS_DBID);
+    // ServerInfo.setID(resourceNodeClass.getCDOFolderFeature(),
+    // org.eclipse.emf.cdo.server.internal.db.mapping.CDO_FOLDER_FEATURE_DBID);
+    // ServerInfo.setID(resourceNodeClass.getCDONameFeature(),
+    // org.eclipse.emf.cdo.server.internal.db.mapping.CDO_NAME_FEATURE_DBID);
+    // ServerInfo.setID(resourceFolderClass,
+    // org.eclipse.emf.cdo.server.internal.db.mapping.CDO_RESOURCE_FOLDER_CLASS_DBID);
+    // ServerInfo.setID(resourceFolderClass.getCDONodesFeature(),
+    // org.eclipse.emf.cdo.server.internal.db.mapping.CDO_NODES_FEATURE_DBID);
+    // ServerInfo.setID(resourceClass, org.eclipse.emf.cdo.server.internal.db.mapping.CDO_RESOURCE_CLASS_DBID);
+    // ServerInfo.setID(resourceClass.getCDOContentsFeature(),
+    // org.eclipse.emf.cdo.server.internal.db.mapping.CDO_CONTENTS_FEATURE_DBID);
 
     if (dbAdapter != null && connection != null)
     {
       Set<IDBTable> tables = new HashSet<IDBTable>();
-      addResourceTables(resourceNodeClass, tables);
-      addResourceTables(resourceFolderClass, tables);
-      addResourceTables(resourceClass, tables);
+      // addResourceTables(resourceNodeClass, tables);
+      // addResourceTables(resourceFolderClass, tables);
+      // addResourceTables(resourceClass, tables);
 
       if (dbAdapter.createTables(tables, connection).size() != tables.size())
       {

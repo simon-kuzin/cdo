@@ -183,13 +183,16 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
 
   public final void loadPackageUnit(InternalCDOPackageUnit packageUnit)
   {
-    String where = CDODBSchema.PACKAGES_URI.getName() + " = '" + packageUnit.getNsURI() + "'";
-    Object[] values = DBUtil.select(jdbcDelegate.getConnection(), where, CDODBSchema.PACKAGES_ID,
-        CDODBSchema.PACKAGES_NAME);
-    new PackageServerInfo(getStore(), packageUnit, (Integer)values[0]);
-    ((InternalEPackage)packageUnit).setName((String)values[1]);
-    readClasses(packageUnit);
-    mapPackageUnits(packageUnit);
+    // TODO: implement DBStoreAccessor.loadPackageUnit(packageUnit)
+    throw new UnsupportedOperationException();
+
+    // String where = CDODBSchema.PACKAGES_URI.getName() + " = '" + packageUnit.getNsURI() + "'";
+    // Object[] values = DBUtil.select(jdbcDelegate.getConnection(), where, CDODBSchema.PACKAGES_ID,
+    // CDODBSchema.PACKAGES_NAME);
+    // new ServerInfo(getStore(), packageUnit, (Integer)values[0]);
+    // ((InternalEPackage)packageUnit).setName((String)values[1]);
+    // readClasses(packageUnit);
+    // mapPackageUnits(packageUnit);
   }
 
   public final String readPackageURI(int packageID)
@@ -368,7 +371,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     // protected void writePackage(InternalEPackage ePackage, OMMonitor monitor)
     // {
     // int id = getStore().getNextPackageID();
-    // PackageServerInfo.setDBID(ePackage, id);
+    // ServerInfo.setDBID(ePackage, id);
     // if (TRACER.isEnabled())
     // {
     // TRACER.format("Writing package: {0} --> {1}", ePackage, id);
@@ -433,7 +436,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     // try
     // {
     // int id = getStore().getNextClassID();
-    // ClassServerInfo.setDBID(eClass, id);
+    // ServerInfo.setDBID(eClass, id);
     //
     // EPackage ePackage = eClass.getContainingPackage();
     // int packageID = ServerInfo.getDBID(ePackage);
@@ -458,7 +461,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     //
     // try
     // {
-    // int id = ClassServerInfo.getDBID(type);
+    // int id = ServerInfo.getDBID(type);
     // String packageURI = superType.getPackageURI();
     // int classifierID = superType.getClassifierID();
     // DBUtil.insertRow(jdbcDelegate.getConnection(), getStore().getDBAdapter(), CDODBSchema.SUPERTYPES, id,
@@ -480,7 +483,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     // try
     // {
     // int id = getStore().getNextFeatureID();
-    // FeatureServerInfo.setDBID(feature, id);
+    // ServerInfo.setDBID(feature, id);
     //
     // int classID = ServerInfo.getDBID(feature.getContainingClass());
     // String name = feature.getName();

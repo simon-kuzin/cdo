@@ -17,7 +17,6 @@ import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.db.mapping.IAttributeMapping;
 import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
-import org.eclipse.emf.cdo.server.internal.db.mapping.ServerInfo;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.db.DBException;
@@ -333,7 +332,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
       stmt.setInt(col++, revision.getVersion());
       if (withFullRevisionInfo)
       {
-        stmt.setInt(col++, ServerInfo.getID(revision.getEClass(), getStoreAccessor().getStore()));
+        stmt.setLong(col++, getStoreAccessor().getStore().getMetaID(revision.getEClass()));
         stmt.setLong(col++, revision.getCreated());
         stmt.setLong(col++, revision.getRevised());
         stmt.setLong(col++, CDOIDUtil.getLong(revision.getResourceID()));
@@ -656,7 +655,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
   }
 
   @Override
-  protected void doInsertReference(String tableName, int dbID, long source, int version, int index, long target)
+  protected void doInsertReference(String tableName, long dbID, long source, int version, int index, long target)
   {
     PreparedStatement stmt = null;
     if (cacheStatements)
@@ -681,7 +680,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
       int idx = 1;
       if (dbID != 0)
       {
-        stmt.setInt(idx++, dbID);
+        stmt.setLong(idx++, dbID);
       }
 
       stmt.setLong(idx++, source);
@@ -709,14 +708,14 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
   }
 
   @Override
-  protected void doInsertReferenceRow(String tableName, int dbId, long cdoid, int newVersion, long target, int index)
+  protected void doInsertReferenceRow(String tableName, long metaID, long cdoid, int newVersion, long target, int index)
   {
-    move1up(tableName, dbId, cdoid, newVersion, index);
-    doInsertReference(tableName, dbId, cdoid, newVersion, index, target);
+    move1up(tableName, metaID, cdoid, newVersion, index);
+    doInsertReference(tableName, metaID, cdoid, newVersion, index, target);
   }
 
   @Override
-  protected void doMoveReferenceRow(String tableName, int dbId, long cdoid, int newVersion, int oldPosition,
+  protected void doMoveReferenceRow(String tableName, long metaID, long cdoid, int newVersion, int oldPosition,
       int newPosition)
   {
     if (oldPosition == newPosition)
@@ -725,34 +724,34 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
     }
 
     // move element away temporarily
-    updateOneIndex(tableName, dbId, cdoid, newVersion, oldPosition, -1);
+    updateOneIndex(tableName, metaID, cdoid, newVersion, oldPosition, -1);
 
     // move elements in between
     if (oldPosition < newPosition)
     {
-      move1down(tableName, dbId, cdoid, newVersion, oldPosition, newPosition);
+      move1down(tableName, metaID, cdoid, newVersion, oldPosition, newPosition);
     }
     else
     {
       // oldPosition > newPosition -- equal case is handled above
-      move1up(tableName, dbId, cdoid, newVersion, newPosition, oldPosition);
+      move1up(tableName, metaID, cdoid, newVersion, newPosition, oldPosition);
     }
 
     // move temporary element to new position
-    updateOneIndex(tableName, dbId, cdoid, newVersion, -1, newPosition);
+    updateOneIndex(tableName, metaID, cdoid, newVersion, -1, newPosition);
 
   }
 
   @Override
-  protected void doRemoveReferenceRow(String tableName, int dbId, long cdoid, int index, int newVersion)
+  protected void doRemoveReferenceRow(String tableName, long metaID, long cdoid, int index, int newVersion)
   {
-    deleteReferenceRow(tableName, dbId, cdoid, index);
-
-    move1down(tableName, dbId, cdoid, newVersion, index);
+    deleteReferenceRow(tableName, metaID, cdoid, index);
+    move1down(tableName, metaID, cdoid, newVersion, index);
   }
 
   @Override
-  protected void doUpdateReference(String tableName, int dbId, long sourceId, int newVersion, int index, long targetId)
+  protected void doUpdateReference(String tableName, long metaID, long sourceId, int newVersion, int index,
+      long targetId)
   {
     PreparedStatement stmt = null;
     if (cacheStatements)
@@ -771,7 +770,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
         builder.append(" = ?, ");
         builder.append(CDODBSchema.REFERENCES_VERSION);
         builder.append(" = ? WHERE ");
-        if (dbId != 0)
+        if (metaID != 0)
         {
           builder.append(CDODBSchema.REFERENCES_FEATURE);
           builder.append("= ? AND ");
@@ -793,9 +792,9 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
       stmt.setLong(idx++, targetId);
       stmt.setInt(idx++, newVersion);
 
-      if (dbId != 0)
+      if (metaID != 0)
       {
-        stmt.setInt(idx++, dbId);
+        stmt.setLong(idx++, metaID);
       }
 
       stmt.setLong(idx++, sourceId);
@@ -874,7 +873,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
   }
 
   @Override
-  protected void doDeleteReferences(String tableName, int dbId, long cdoid)
+  protected void doDeleteReferences(String tableName, long metaID, long cdoid)
   {
     PreparedStatement stmt = null;
     if (cacheStatements)
@@ -892,7 +891,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
         sql.append(CDODBSchema.REFERENCES_SOURCE);
         sql.append(" = ? ");
 
-        if (dbId != 0)
+        if (metaID != 0)
         {
           sql.append("AND");
           sql.append(CDODBSchema.REFERENCES_FEATURE);
@@ -907,9 +906,9 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
       }
 
       stmt.setLong(1, cdoid);
-      if (dbId != 0)
+      if (metaID != 0)
       {
-        stmt.setInt(2, dbId);
+        stmt.setLong(2, metaID);
       }
 
       if (TRACER.isEnabled())
@@ -998,8 +997,8 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
   }
 
   @Override
-  protected ResultSet doSelectRevisionReferences(String tableName, long sourceId, int version, int dbFeatureID,
-      String where) throws SQLException
+  protected ResultSet doSelectRevisionReferences(String tableName, long sourceId, int version, long metaID, String where)
+      throws SQLException
   {
     StringBuilder builder = new StringBuilder();
     builder.append("SELECT ");
@@ -1007,7 +1006,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
     builder.append(" FROM ");
     builder.append(tableName);
     builder.append(" WHERE ");
-    if (dbFeatureID != 0)
+    if (metaID != 0)
     {
       builder.append(CDODBSchema.REFERENCES_FEATURE);
       builder.append("= ? AND ");
@@ -1048,9 +1047,9 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
     }
 
     int idx = 1;
-    if (dbFeatureID != 0)
+    if (metaID != 0)
     {
-      pstmt.setInt(idx++, dbFeatureID);
+      pstmt.setLong(idx++, metaID);
     }
 
     pstmt.setLong(idx++, sourceId);
@@ -1085,7 +1084,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
   // List management helpers
   // ----------------------------------------------------------
 
-  private void updateOneIndex(String tableName, int dbId, long cdoid, int newVersion, int oldIndex, int newIndex)
+  private void updateOneIndex(String tableName, long metaID, long cdoid, int newVersion, int oldIndex, int newIndex)
   {
     if (TRACER.isEnabled())
     {
@@ -1109,7 +1108,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
         builder.append(" = ?, ");
         builder.append(CDODBSchema.REFERENCES_VERSION);
         builder.append(" = ? WHERE ");
-        if (dbId != 0)
+        if (metaID != 0)
         {
           builder.append(CDODBSchema.REFERENCES_FEATURE);
           builder.append("= ? AND ");
@@ -1131,9 +1130,9 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
       stmt.setInt(idx++, newIndex);
       stmt.setInt(idx++, newVersion);
 
-      if (dbId != 0)
+      if (metaID != 0)
       {
-        stmt.setInt(idx++, dbId);
+        stmt.setLong(idx++, metaID);
       }
 
       stmt.setLong(idx++, cdoid);
@@ -1163,7 +1162,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
    * Move references downwards to close a gap at position <code>index</code>. Only indexes starting with
    * <code>index + 1</code> and ending with <code>upperIndex</code> are moved down.
    */
-  private void move1down(String tableName, int dbId, long cdoid, int newVersion, int index, int upperIndex)
+  private void move1down(String tableName, long metaID, long cdoid, int newVersion, int index, int upperIndex)
   {
     if (TRACER.isEnabled())
     {
@@ -1190,7 +1189,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
         builder.append("-1 ,");
         builder.append(CDODBSchema.REFERENCES_VERSION);
         builder.append(" = ? WHERE ");
-        if (dbId != 0)
+        if (metaID != 0)
         {
           builder.append(CDODBSchema.REFERENCES_FEATURE);
           builder.append("= ? AND ");
@@ -1213,9 +1212,9 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
       int idx = 1;
       stmt.setInt(idx++, newVersion);
 
-      if (dbId != 0)
+      if (metaID != 0)
       {
-        stmt.setInt(idx++, dbId);
+        stmt.setLong(idx++, metaID);
       }
 
       stmt.setLong(idx++, cdoid);
@@ -1241,7 +1240,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
    * Move references downwards to close a gap at position <code>index</code>. All indexes starting with
    * <code>index + 1</code> are moved down.
    */
-  private void move1down(String tableName, int dbId, long cdoid, int newVersion, int index)
+  private void move1down(String tableName, long metaID, long cdoid, int newVersion, int index)
   {
     if (TRACER.isEnabled())
     {
@@ -1268,7 +1267,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
         builder.append("-1 ,");
         builder.append(CDODBSchema.REFERENCES_VERSION);
         builder.append(" = ? WHERE ");
-        if (dbId != 0)
+        if (metaID != 0)
         {
           builder.append(CDODBSchema.REFERENCES_FEATURE);
           builder.append("= ? AND ");
@@ -1289,9 +1288,9 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
       int idx = 1;
       stmt.setInt(idx++, newVersion);
 
-      if (dbId != 0)
+      if (metaID != 0)
       {
-        stmt.setInt(idx++, dbId);
+        stmt.setLong(idx++, metaID);
       }
 
       stmt.setLong(idx++, cdoid);
@@ -1317,7 +1316,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
    * Move references upwards to make room at position <code>index</code>. Only indexes starting with <code>index</code>
    * and ending with <code>upperIndex - 1</code> are moved up.
    */
-  private void move1up(String tableName, int dbId, long cdoid, int newVersion, int index, int upperIndex)
+  private void move1up(String tableName, long metaID, long cdoid, int newVersion, int index, int upperIndex)
   {
     if (TRACER.isEnabled())
     {
@@ -1344,7 +1343,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
         builder.append("+1 ,");
         builder.append(CDODBSchema.REFERENCES_VERSION);
         builder.append(" = ? WHERE ");
-        if (dbId != 0)
+        if (metaID != 0)
         {
           builder.append(CDODBSchema.REFERENCES_FEATURE);
           builder.append("= ? AND ");
@@ -1367,9 +1366,9 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
       int idx = 1;
       stmt.setInt(idx++, newVersion);
 
-      if (dbId != 0)
+      if (metaID != 0)
       {
-        stmt.setInt(idx++, dbId);
+        stmt.setLong(idx++, metaID);
       }
 
       stmt.setLong(idx++, cdoid);
@@ -1395,7 +1394,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
   /**
    * Move references upwards to make room at position <code>index</code>. Only indexes starting with <code>index</code>.
    */
-  private void move1up(String tableName, int dbId, long cdoid, int newVersion, int index)
+  private void move1up(String tableName, long metaID, long cdoid, int newVersion, int index)
   {
     if (TRACER.isEnabled())
     {
@@ -1422,7 +1421,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
         builder.append("+1 ,");
         builder.append(CDODBSchema.REFERENCES_VERSION);
         builder.append(" = ? WHERE ");
-        if (dbId != 0)
+        if (metaID != 0)
         {
           builder.append(CDODBSchema.REFERENCES_FEATURE);
           builder.append("= ? AND ");
@@ -1443,9 +1442,9 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
       int idx = 1;
       stmt.setInt(idx++, newVersion);
 
-      if (dbId != 0)
+      if (metaID != 0)
       {
-        stmt.setInt(idx++, dbId);
+        stmt.setLong(idx++, metaID);
       }
 
       stmt.setLong(idx++, cdoid);
@@ -1467,7 +1466,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
     }
   }
 
-  private void deleteReferenceRow(String tableName, int dbId, long cdoid, int index)
+  private void deleteReferenceRow(String tableName, long metaID, long cdoid, int index)
   {
     PreparedStatement stmt = null;
     if (cacheStatements)
@@ -1487,7 +1486,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
         sql.append(CDODBSchema.REFERENCES_IDX);
         sql.append(" = ? ");
 
-        if (dbId != 0)
+        if (metaID != 0)
         {
           sql.append("AND");
           sql.append(CDODBSchema.REFERENCES_FEATURE);
@@ -1503,9 +1502,9 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
 
       stmt.setLong(1, cdoid);
       stmt.setInt(2, index);
-      if (dbId != 0)
+      if (metaID != 0)
       {
-        stmt.setInt(3, dbId);
+        stmt.setLong(3, metaID);
       }
 
       if (TRACER.isEnabled())

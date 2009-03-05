@@ -15,7 +15,6 @@ import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IDBStore;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
-import org.eclipse.emf.cdo.server.internal.db.mapping.ServerInfo;
 
 import org.eclipse.net4j.db.IDBAdapter;
 import org.eclipse.net4j.util.collection.CloseableIterator;

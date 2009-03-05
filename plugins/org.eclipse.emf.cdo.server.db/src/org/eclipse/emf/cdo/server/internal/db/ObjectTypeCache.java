@@ -115,7 +115,7 @@ public class ObjectTypeCache extends Lifecycle implements IObjectTypeCache
     builder.append(" VALUES (");
     builder.append(CDOIDUtil.getLong(id));
     builder.append(", ");
-    builder.append(ClassServerInfo.getID(type, mappingStrategy.getStore()));
+    builder.append(ServerInfo.getID(type, mappingStrategy.getStore()));
     builder.append(")");
     String sql = builder.toString();
     DBUtil.trace(sql);
