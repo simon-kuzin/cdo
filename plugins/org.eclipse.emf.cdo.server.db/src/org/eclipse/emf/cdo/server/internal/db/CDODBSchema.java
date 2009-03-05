@@ -95,12 +95,6 @@ public class CDODBSchema extends DBSchema
   public static final IDBField PACKAGE_INFOS_CLASSIFIER_UB = //
   PACKAGE_INFOS.addField("classifier_ub", DBType.INTEGER);
 
-  public static final IDBField PACKAGE_INFOS_FEATURE_LB = //
-  PACKAGE_INFOS.addField("feature_lb", DBType.INTEGER);
-
-  public static final IDBField PACKAGE_INFOS_FEATURE_UB = //
-  PACKAGE_INFOS.addField("feature_ub", DBType.INTEGER);
-
   public static final IDBIndex INDEX_PACKAGE_INFOS_PK = //
   PACKAGE_INFOS.addIndex(IDBIndex.Type.PRIMARY_KEY, PACKAGE_INFOS_ID);
 

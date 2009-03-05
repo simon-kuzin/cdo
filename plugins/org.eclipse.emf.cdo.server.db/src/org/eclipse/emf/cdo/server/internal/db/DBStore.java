@@ -88,13 +88,7 @@ public class DBStore extends LongIDStore implements IDBStore
   private transient StoreAccessorPool writerPool = new StoreAccessorPool(this, null);
 
   @ExcludeFromDump
-  private transient int nextPackageID;
-
-  @ExcludeFromDump
-  private transient int nextClassID;
-
-  @ExcludeFromDump
-  private transient int nextFeatureID;
+  private transient int nextClassifierID;
 
   private static Map<EClassifier, DBType> typeMap = new HashMap<EClassifier, DBType>();
 
@@ -229,22 +223,10 @@ public class DBStore extends LongIDStore implements IDBStore
     return new DBStoreAccessor(this, transaction);
   }
 
-  public synchronized int getNextPackageID()
+  public synchronized int getNextClassifierID()
   {
     // TODO Better synchronization
-    return nextPackageID++;
-  }
-
-  public synchronized int getNextClassID()
-  {
-    // TODO Better synchronization
-    return nextClassID++;
-  }
-
-  public synchronized int getNextFeatureID()
-  {
-    // TODO Better synchronization
-    return nextFeatureID++;
+    return nextClassifierID++;
   }
 
   public Connection getConnection()
@@ -254,6 +236,7 @@ public class DBStore extends LongIDStore implements IDBStore
     {
       throw new DBException("No connection from connection provider: " + dbConnectionProvider);
     }
+
     return connection;
   }
 
@@ -357,9 +340,7 @@ public class DBStore extends LongIDStore implements IDBStore
         getMappingStrategy().mapSystemPackages(null, null);
       }
 
-      nextPackageID = DBUtil.selectMaximumInt(connection, CDODBSchema.PACKAGE_INFOS_ID) + 1;
-      nextClassID = DBUtil.selectMaximumInt(connection, CDODBSchema.PACKAGE_INFOS_CLASSIFIER_UB) + 1;
-      nextFeatureID = DBUtil.selectMaximumInt(connection, CDODBSchema.PACKAGE_INFOS_FEATURE_UB) + 1;
+      nextClassifierID = DBUtil.selectMaximumInt(connection, CDODBSchema.PACKAGE_INFOS_CLASSIFIER_UB) + 1;
       LifecycleUtil.activate(mappingStrategy);
     }
     finally
