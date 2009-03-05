@@ -39,8 +39,6 @@ import org.eclipse.emf.cdo.internal.common.id.CDOIDMetaImpl;
 import org.eclipse.emf.cdo.internal.common.id.CDOIDMetaRangeImpl;
 import org.eclipse.emf.cdo.internal.common.id.CDOIDTempMetaImpl;
 import org.eclipse.emf.cdo.internal.common.id.CDOIDTempObjectImpl;
-import org.eclipse.emf.cdo.internal.common.model.CDOPackageInfoImpl;
-import org.eclipse.emf.cdo.internal.common.model.CDOPackageUnitImpl;
 import org.eclipse.emf.cdo.internal.common.revision.delta.CDOAddFeatureDeltaImpl;
 import org.eclipse.emf.cdo.internal.common.revision.delta.CDOClearFeatureDeltaImpl;
 import org.eclipse.emf.cdo.internal.common.revision.delta.CDOContainerFeatureDeltaImpl;
@@ -82,7 +80,7 @@ public abstract class CDODataInputImpl extends ExtendedDataInput.Delegating impl
 
   public CDOPackageUnit readCDOPackageUnit() throws IOException
   {
-    InternalCDOPackageUnit packageUnit = new CDOPackageUnitImpl();
+    InternalCDOPackageUnit packageUnit = (InternalCDOPackageUnit)CDOModelUtil.createPackageUnit();
     packageUnit.read(this);
     return packageUnit;
   }
@@ -94,13 +92,13 @@ public abstract class CDODataInputImpl extends ExtendedDataInput.Delegating impl
     {
       TRACER.format("Reading {0} package units", size);
     }
-    
+
     CDOPackageUnit[] packageUnits = new CDOPackageUnit[size];
     for (int i = 0; i < size; i++)
     {
       packageUnits[i] = readCDOPackageUnit();
     }
-    
+
     return packageUnits;
   }
 
@@ -111,7 +109,7 @@ public abstract class CDODataInputImpl extends ExtendedDataInput.Delegating impl
 
   public CDOPackageInfo readCDOPackageInfo() throws IOException
   {
-    InternalCDOPackageInfo packageInfo = new CDOPackageInfoImpl();
+    InternalCDOPackageInfo packageInfo = (InternalCDOPackageInfo)CDOModelUtil.createPackageInfo();
     packageInfo.read(this);
     return packageInfo;
   }

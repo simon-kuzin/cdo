@@ -13,11 +13,8 @@ package org.eclipse.emf.cdo.server.internal.db;
 
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
-import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
-import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.common.model.EMFUtil;
@@ -57,9 +54,10 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -124,27 +122,22 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
 
   public final Collection<InternalCDOPackageUnit> readPackageUnits()
   {
-    final Collection<InternalCDOPackageUnit> result = new ArrayList<InternalCDOPackageUnit>(0);
+    final Map<String, InternalCDOPackageUnit> packageUnits = new HashMap<String, InternalCDOPackageUnit>();
     IDBRowHandler rowHandler = new IDBRowHandler()
     {
       public boolean handle(int row, final Object... values)
       {
-        String packageURI = (String)values[0];
-        boolean dynamic = getBoolean(values[1]);
-        long lowerBound = (Long)values[2];
-        long upperBound = (Long)values[3];
-        CDOIDMetaRange metaIDRange = lowerBound == 0 ? null : CDOIDUtil.createMetaRange(CDOIDUtil
-            .createMeta(lowerBound), (int)(upperBound - lowerBound) + 1);
-        String parentURI = (String)values[4];
-
-        result.add(new CDOPackageInfo(packageURI, parentURI, dynamic, metaIDRange));
+        InternalCDOPackageUnit packageUnit = createPackageUnit();
+        packageUnit.setOriginalType(CDOPackageUnit.Type.values()[(Integer)values[1]]);
+        packageUnit.setTimeStamp((long)(Long)values[2]);
+        packageUnits.put((String)values[0], packageUnit);
         return true;
       }
     };
 
-    DBUtil.select(jdbcDelegate.getConnection(), rowHandler, CDODBSchema.PACKAGES_URI, CDODBSchema.PACKAGES_DYNAMIC,
-        CDODBSchema.PACKAGES_RANGE_LB, CDODBSchema.PACKAGES_RANGE_UB, CDODBSchema.PACKAGES_PARENT);
-    return result;
+    DBUtil.select(jdbcDelegate.getConnection(), rowHandler, CDODBSchema.PACKAGE_UNITS_ID,
+        CDODBSchema.PACKAGE_UNITS_ORIGINAL_TYPE, CDODBSchema.PACKAGE_UNITS_TIME_STAMP);
+    return packageUnits.values();
   }
 
   protected final void readClasses(final EPackage ePackage)
@@ -715,6 +708,11 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     }
 
     return affectedTables;
+  }
+
+  protected InternalCDOPackageUnit createPackageUnit()
+  {
+    return (InternalCDOPackageUnit)CDOModelUtil.createPackageUnit();
   }
 
   public final void commit(OMMonitor monitor)

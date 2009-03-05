@@ -11,6 +11,8 @@
 package org.eclipse.emf.cdo.common.model;
 
 import org.eclipse.emf.cdo.internal.common.model.CDOClassInfoImpl;
+import org.eclipse.emf.cdo.internal.common.model.CDOPackageInfoImpl;
+import org.eclipse.emf.cdo.internal.common.model.CDOPackageUnitImpl;
 import org.eclipse.emf.cdo.internal.common.model.CDOTypeImpl;
 
 import org.eclipse.emf.common.notify.Adapter;
@@ -269,5 +271,15 @@ public final class CDOModelUtil
   {
     CDOClassInfo classInfo = getClassInfo(eClass);
     return classInfo.getAllPersistentFeatures();
+  }
+
+  public static CDOPackageUnit createPackageUnit()
+  {
+    return new CDOPackageUnitImpl();
+  }
+
+  public static CDOPackageInfo createPackageInfo()
+  {
+    return new CDOPackageInfoImpl();
   }
 }

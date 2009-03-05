@@ -12,6 +12,7 @@ package org.eclipse.emf.cdo.internal.common.model;
 
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
+import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
@@ -146,6 +147,11 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
     return packageInfos;
   }
 
+  public void setPackageInfos(InternalCDOPackageInfo[] packageInfos)
+  {
+    this.packageInfos = packageInfos;
+  }
+
   public boolean isSystem()
   {
     return getTopLevelPackageInfo().isSystemPackage();
@@ -259,7 +265,7 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
 
   private void initPackageInfos(EPackage ePackage, List<InternalCDOPackageInfo> result)
   {
-    CDOPackageInfoImpl packageInfo = new CDOPackageInfoImpl();
+    InternalCDOPackageInfo packageInfo = (InternalCDOPackageInfo)CDOModelUtil.createPackageInfo();
     packageInfo.setPackageUnit(this);
     packageInfo.setPackageURI(ePackage.getNsURI());
     packageInfo.setParentURI(ePackage.getESuperPackage() == null ? null : ePackage.getESuperPackage().getNsURI());

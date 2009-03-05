@@ -307,7 +307,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
   protected InternalCDOPackageUnit createPackageUnit()
   {
-    return new CDOPackageUnitImpl();
+    return (InternalCDOPackageUnit)CDOModelUtil.createPackageUnit();
   }
 
   /**
