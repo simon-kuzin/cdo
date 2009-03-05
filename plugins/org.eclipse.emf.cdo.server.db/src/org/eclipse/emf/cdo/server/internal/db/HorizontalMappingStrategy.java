@@ -13,13 +13,14 @@ package org.eclipse.emf.cdo.server.internal.db;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
-import org.eclipse.emf.cdo.common.model.CDOModelUtil;
+import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.server.db.IClassMapping;
 import org.eclipse.emf.cdo.server.db.IDBStore;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IObjectTypeCache;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 
 import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.db.DBUtil;
@@ -127,12 +128,13 @@ public class HorizontalMappingStrategy extends MappingStrategy
   protected List<EClass> getClassesWithObjectInfo()
   {
     List<EClass> result = new ArrayList<EClass>();
-    IPackageManager packageManager = getStore().getRepository().getPackageRegistry();
-    for (EPackage ePackage : packageManager.getPackages())
+    InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)getStore().getRepository()
+        .getPackageRegistry();
+    for (EPackage ePackage : packageRegistry.getEPackages())
     {
-      for (EClass eClass : ePackage.getConcreteClasses())
+      for (EClass eClass : EMFUtil.getConcreteClasses(ePackage))
       {
-        if (!CDOModelUtil.isRoot(eClass))
+        // if (!CDOModelUtil.isRoot(eClass))
         {
           result.add(eClass);
         }
@@ -181,8 +183,7 @@ public class HorizontalMappingStrategy extends MappingStrategy
     if (exactMatch || name != null)
     {
       builder.append(" AND ");
-      builder.append(classMapping.getAttributeMapping(EresourcePackage.eINSTANCE.getCDOResourceNode_Name())
-          .getField());
+      builder.append(classMapping.getAttributeMapping(EresourcePackage.eINSTANCE.getCDOResourceNode_Name()).getField());
       if (exactMatch)
       {
         if (name == null)

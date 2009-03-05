@@ -270,6 +270,24 @@ public final class EMFUtil
     return count;
   }
 
+  public static EClass[] getConcreteClasses(EPackage ePackage)
+  {
+    List<EClass> result = new ArrayList<EClass>(0);
+    for (EClassifier classifier : ePackage.getEClassifiers())
+    {
+      if (classifier instanceof EClass)
+      {
+        EClass eClass = (EClass)classifier;
+        if (!eClass.isAbstract() && !eClass.isInterface())
+        {
+          result.add(eClass);
+        }
+      }
+    }
+
+    return result.toArray(new EClass[result.size()]);
+  }
+
   public static EClass[] getPersistentClasses(EPackage ePackage)
   {
     List<EClass> result = new ArrayList<EClass>();
