@@ -198,6 +198,11 @@ public interface IStoreAccessor extends IQueryHandler
   public ITransaction getTransaction();
 
   /**
+   * @since 2.0
+   */
+  public void writePackageUnits(InternalCDOPackageUnit[] packageUnits, OMMonitor monitor);
+
+  /**
    * Called before committing. An instance of this accessor represents an instance of a back-end transaction. Could be
    * called multiple times before commit it called. {@link IStoreAccessor#commit(OMMonitor)} or
    * {@link IStoreAccessor#rollback()} will be called after any numbers of

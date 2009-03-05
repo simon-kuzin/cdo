@@ -44,11 +44,9 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Eike Stepper
@@ -255,52 +253,6 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
     }
 
     return builder.toString();
-  }
-
-  public void mapSystemPackages(IDBAdapter dbAdapter, Connection connection)
-  {
-    // CDOResourceNodeClass resourceNodeClass = EresourcePackage.eINSTANCE.getCDOResourceNodeClass();
-    // CDOResourceFolderClass resourceFolderClass = EresourcePackage.eINSTANCE.getCDOResourceFolderClass();
-    // CDOResourceClass resourceClass = EresourcePackage.eINSTANCE.getCDOResourceClass();
-    //
-    // ServerInfo.setID(EresourcePackage.eINSTANCE,
-    // org.eclipse.emf.cdo.server.internal.db.mapping.CDO_RESOURCE_PACKAGE_DBID);
-    // ServerInfo.setID(resourceNodeClass,
-    // org.eclipse.emf.cdo.server.internal.db.mapping.CDO_RESOURCE_NODE_CLASS_DBID);
-    // ServerInfo.setID(resourceNodeClass.getCDOFolderFeature(),
-    // org.eclipse.emf.cdo.server.internal.db.mapping.CDO_FOLDER_FEATURE_DBID);
-    // ServerInfo.setID(resourceNodeClass.getCDONameFeature(),
-    // org.eclipse.emf.cdo.server.internal.db.mapping.CDO_NAME_FEATURE_DBID);
-    // ServerInfo.setID(resourceFolderClass,
-    // org.eclipse.emf.cdo.server.internal.db.mapping.CDO_RESOURCE_FOLDER_CLASS_DBID);
-    // ServerInfo.setID(resourceFolderClass.getCDONodesFeature(),
-    // org.eclipse.emf.cdo.server.internal.db.mapping.CDO_NODES_FEATURE_DBID);
-    // ServerInfo.setID(resourceClass, org.eclipse.emf.cdo.server.internal.db.mapping.CDO_RESOURCE_CLASS_DBID);
-    // ServerInfo.setID(resourceClass.getCDOContentsFeature(),
-    // org.eclipse.emf.cdo.server.internal.db.mapping.CDO_CONTENTS_FEATURE_DBID);
-
-    if (dbAdapter != null && connection != null)
-    {
-      Set<IDBTable> tables = new HashSet<IDBTable>();
-      // addResourceTables(resourceNodeClass, tables);
-      // addResourceTables(resourceFolderClass, tables);
-      // addResourceTables(resourceClass, tables);
-
-      if (dbAdapter.createTables(tables, connection).size() != tables.size())
-      {
-        throw new DBException("Resource tables not completely created");
-      }
-    }
-  }
-
-  private void addResourceTables(EClass eClass, Set<IDBTable> tables)
-  {
-    IClassMapping mapping = getClassMapping(eClass);
-    if (mapping != null)
-    {
-      Set<IDBTable> affectedTables = mapping.getAffectedTables();
-      tables.addAll(affectedTables);
-    }
   }
 
   public final CloseableIterator<CDOID> readObjectIDs(final IDBStoreAccessor accessor)

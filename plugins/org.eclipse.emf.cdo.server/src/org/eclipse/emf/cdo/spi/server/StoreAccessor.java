@@ -224,11 +224,6 @@ public abstract class StoreAccessor extends Lifecycle implements IStoreAccessor
   /**
    * @since 2.0
    */
-  protected abstract void writePackageUnits(InternalCDOPackageUnit[] packageUnits, OMMonitor monitor);
-
-  /**
-   * @since 2.0
-   */
   protected abstract void writeRevisions(InternalCDORevision[] revisions, OMMonitor monitor);
 
   /**

@@ -106,14 +106,6 @@ public interface IMappingStrategy
   public void queryResources(IDBStoreAccessor accessor, IStoreAccessor.QueryResourcesContext context);
 
   /**
-   * Responsible for creation of the system tables (if dbAdapter and connection are not <code>null</code>) and for the
-   * association with the static DBIDs (see {@link ServerInfo} with the respective model elements.
-   * 
-   * @since 2.0
-   */
-  public void mapSystemPackages(IDBAdapter dbAdapter, Connection connection);
-
-  /**
    * Returns the maximum CDOID value.
    * 
    * @since 2.0

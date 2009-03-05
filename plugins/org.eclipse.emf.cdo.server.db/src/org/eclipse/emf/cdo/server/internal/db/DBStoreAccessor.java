@@ -13,6 +13,7 @@ package org.eclipse.emf.cdo.server.internal.db;
 
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.id.CDOIDMeta;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
@@ -53,6 +54,8 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -331,8 +334,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     distributor.run(ops, context, monitor);
   }
 
-  @Override
-  protected final void writePackageUnits(InternalCDOPackageUnit[] packageUnits, OMMonitor monitor)
+  public final void writePackageUnits(InternalCDOPackageUnit[] packageUnits, OMMonitor monitor)
   {
     try
     {
@@ -346,148 +348,125 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     }
   }
 
-  private void fillSystemTables(CDOPackageUnit[] packageUnits, OMMonitor monitor)
+  private void fillSystemTables(InternalCDOPackageUnit[] packageUnits, OMMonitor monitor)
   {
-    // new PackageWriter(ePackages, monitor)
-    // {
-    // @Override
-    // protected void writePackage(InternalEPackage ePackage, OMMonitor monitor)
-    // {
-    // int id = getStore().getNextPackageID();
-    // ServerInfo.setDBID(ePackage, id);
-    // if (TRACER.isEnabled())
-    // {
-    // TRACER.format("Writing package: {0} --> {1}", ePackage, id);
-    // }
-    //
-    // String packageURI = ePackage.getPackageURI();
-    // String name = ePackage.getName();
-    // String ecore = ePackage.getEcore();
-    // boolean dynamic = ePackage.isDynamic();
-    // CDOIDMetaRange metaIDRange = ePackage.getMetaIDRange();
-    // long lowerBound = metaIDRange == null ? 0L : ((CDOIDMeta)metaIDRange.getLowerBound()).getLongValue();
-    // long upperBound = metaIDRange == null ? 0L : ((CDOIDMeta)metaIDRange.getUpperBound()).getLongValue();
-    // String parentURI = ePackage.getParentURI();
-    //
-    // String sql = "INSERT INTO " + CDODBSchema.PACKAGES + " VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-    // DBUtil.trace(sql);
-    // PreparedStatement pstmt = null;
-    //
-    // monitor.begin();
-    // Async async = monitor.forkAsync();
-    //
-    // try
-    // {
-    // pstmt = jdbcDelegate.getPreparedStatement(sql);
-    // pstmt.setInt(1, id);
-    // pstmt.setString(2, packageURI);
-    // pstmt.setString(3, name);
-    // pstmt.setString(4, ecore);
-    // pstmt.setBoolean(5, dynamic);
-    // pstmt.setLong(6, lowerBound);
-    // pstmt.setLong(7, upperBound);
-    // pstmt.setString(8, parentURI);
-    //
-    // if (pstmt.execute())
-    // {
-    // throw new DBException("No result set expected");
-    // }
-    //
-    // if (pstmt.getUpdateCount() == 0)
-    // {
-    // throw new DBException("No row inserted into table " + CDODBSchema.PACKAGES);
-    // }
-    // }
-    // catch (SQLException ex)
-    // {
-    // throw new DBException(ex);
-    // }
-    // finally
-    // {
-    // DBUtil.close(pstmt);
-    // async.stop();
-    // monitor.done();
-    // }
-    // }
-    //
-    // @Override
-    // protected final void writeClass(InternalEClass eClass, OMMonitor monitor)
-    // {
-    // monitor.begin();
-    // Async async = monitor.forkAsync();
-    //
-    // try
-    // {
-    // int id = getStore().getNextClassID();
-    // ServerInfo.setDBID(eClass, id);
-    //
-    // EPackage ePackage = eClass.getContainingPackage();
-    // int packageID = ServerInfo.getDBID(ePackage);
-    // int classifierID = eClass.getClassifierID();
-    // String name = eClass.getName();
-    // boolean isAbstract = eClass.isAbstract();
-    // DBUtil.insertRow(jdbcDelegate.getConnection(), getStore().getDBAdapter(), CDODBSchema.CLASSES, id, packageID,
-    // classifierID, name, isAbstract);
-    // }
-    // finally
-    // {
-    // async.stop();
-    // monitor.done();
-    // }
-    // }
-    //
-    // @Override
-    // protected final void writeSuperType(InternalEClass type, EClassProxy superType, OMMonitor monitor)
-    // {
-    // monitor.begin();
-    // Async async = monitor.forkAsync();
-    //
-    // try
-    // {
-    // int id = ServerInfo.getDBID(type);
-    // String packageURI = superType.getPackageURI();
-    // int classifierID = superType.getClassifierID();
-    // DBUtil.insertRow(jdbcDelegate.getConnection(), getStore().getDBAdapter(), CDODBSchema.SUPERTYPES, id,
-    // packageURI, classifierID);
-    // }
-    // finally
-    // {
-    // async.stop();
-    // monitor.done();
-    // }
-    // }
-    //
-    // @Override
-    // protected void writeFeature(InternalCDOFeature feature, OMMonitor monitor)
-    // {
-    // monitor.begin();
-    // Async async = monitor.forkAsync();
-    //
-    // try
-    // {
-    // int id = getStore().getNextFeatureID();
-    // ServerInfo.setDBID(feature, id);
-    //
-    // int classID = ServerInfo.getDBID(feature.getContainingClass());
-    // String name = feature.getName();
-    // int featureID = feature.getFeatureID();
-    // int type = feature.getType().getTypeID();
-    // EClassProxy reference = feature.getReferenceTypeProxy();
-    // String packageURI = reference == null ? null : reference.getPackageURI();
-    // int classifierID = reference == null ? 0 : reference.getClassifierID();
-    // boolean many = feature.isMany();
-    // boolean containment = feature.isContainment();
-    // int idx = feature.getFeatureIndex();
-    // DBUtil.insertRow(jdbcDelegate.getConnection(), getStore().getDBAdapter(), CDODBSchema.FEATURES, id, classID,
-    // featureID, name, type, packageURI, classifierID, many, containment, idx);
-    // }
-    // finally
-    // {
-    // async.stop();
-    // monitor.done();
-    // }
-    // }
-    // }.run();
+    try
+    {
+      monitor.begin(packageUnits.length);
+      for (InternalCDOPackageUnit packageUnit : packageUnits)
+      {
+        fillSystemTables(packageUnit, monitor.fork());
+      }
+    }
+    finally
+    {
+      monitor.done();
+    }
+  }
+
+  private void fillSystemTables(InternalCDOPackageUnit packageUnit, OMMonitor monitor)
+  {
+    try
+    {
+      InternalCDOPackageInfo[] packageInfos = packageUnit.getPackageInfos();
+      monitor.begin(1 + packageInfos.length);
+
+      if (TRACER.isEnabled())
+      {
+        TRACER.format("Writing package unit: {0}", packageUnit);
+      }
+
+      String sql = "INSERT INTO " + CDODBSchema.PACKAGE_UNITS + " VALUES (?, ?, ?, ?)";
+      DBUtil.trace(sql);
+      PreparedStatement pstmt = null;
+      Async async = monitor.forkAsync();
+
+      try
+      {
+        pstmt = jdbcDelegate.getPreparedStatement(sql);
+        pstmt.setString(1, packageUnit.getID());
+        pstmt.setInt(2, packageUnit.getOriginalType().ordinal());
+        pstmt.setLong(3, packageUnit.getTimeStamp());
+        // TODO Write blob
+
+        if (pstmt.execute())
+        {
+          throw new DBException("No result set expected");
+        }
+
+        if (pstmt.getUpdateCount() == 0)
+        {
+          throw new DBException("No row inserted into table " + CDODBSchema.PACKAGE_UNITS);
+        }
+      }
+      catch (SQLException ex)
+      {
+        throw new DBException(ex);
+      }
+      finally
+      {
+        DBUtil.close(pstmt);
+        async.stop();
+      }
+
+      for (InternalCDOPackageInfo packageInfo : packageInfos)
+      {
+        fillSystemTables(packageInfo, monitor); // Don't fork monitor
+      }
+    }
+    finally
+    {
+      monitor.done();
+    }
+  }
+
+  private void fillSystemTables(InternalCDOPackageInfo packageInfo, OMMonitor monitor)
+  {
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("Writing package info: {0}", packageInfo);
+    }
+
+    String packageURI = packageInfo.getPackageURI();
+    String parentURI = packageInfo.getParentURI();
+    String unitID = packageInfo.getPackageUnit().getID();
+    CDOIDMetaRange metaIDRange = packageInfo.getMetaIDRange();
+    long metaLB = metaIDRange == null ? 0L : ((CDOIDMeta)metaIDRange.getLowerBound()).getLongValue();
+    long metaUB = metaIDRange == null ? 0L : ((CDOIDMeta)metaIDRange.getUpperBound()).getLongValue();
+
+    String sql = "INSERT INTO " + CDODBSchema.PACKAGE_INFOS + " VALUES (?, ?, ?, ?, ?)";
+    DBUtil.trace(sql);
+    PreparedStatement pstmt = null;
+    Async async = monitor.forkAsync();
+
+    try
+    {
+      pstmt = jdbcDelegate.getPreparedStatement(sql);
+      pstmt.setString(1, packageURI);
+      pstmt.setString(2, parentURI);
+      pstmt.setString(3, unitID);
+      pstmt.setLong(4, metaLB);
+      pstmt.setLong(5, metaUB);
+
+      if (pstmt.execute())
+      {
+        throw new DBException("No result set expected");
+      }
+
+      if (pstmt.getUpdateCount() == 0)
+      {
+        throw new DBException("No row inserted into table " + CDODBSchema.PACKAGE_INFOS);
+      }
+    }
+    catch (SQLException ex)
+    {
+      throw new DBException(ex);
+    }
+    finally
+    {
+      DBUtil.close(pstmt);
+      async.stop();
+    }
   }
 
   private void createModelTables(InternalCDOPackageUnit[] packageUnits, OMMonitor monitor)
@@ -620,23 +599,23 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     throw new IllegalArgumentException("Not a boolean value: " + value);
   }
 
-  protected Set<IDBTable> mapPackageUnits(InternalCDOPackageUnit... packageUnits)
+  protected Set<IDBTable> mapPackageUnits(InternalCDOPackageUnit[] packageUnits)
   {
     Set<IDBTable> affectedTables = new HashSet<IDBTable>();
     if (packageUnits != null && packageUnits.length != 0)
     {
       for (InternalCDOPackageUnit packageUnit : packageUnits)
       {
-        mapPackageInfos(packageUnit, affectedTables);
+        mapPackageInfos(packageUnit.getPackageInfos(), affectedTables);
       }
     }
 
     return affectedTables;
   }
 
-  protected void mapPackageInfos(InternalCDOPackageUnit packageUnit, Set<IDBTable> affectedTables)
+  protected void mapPackageInfos(InternalCDOPackageInfo[] packageInfos, Set<IDBTable> affectedTables)
   {
-    for (InternalCDOPackageInfo packageInfo : packageUnit.getPackageInfos())
+    for (InternalCDOPackageInfo packageInfo : packageInfos)
     {
       EPackage ePackage = packageInfo.getEPackage();
       Set<IDBTable> tables = mapClasses(EMFUtil.getPersistentClasses(ePackage));

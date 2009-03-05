@@ -161,8 +161,7 @@ public class MEMStoreAccessor extends StoreAccessor
     }
   }
 
-  @Override
-  protected void writePackageUnits(InternalCDOPackageUnit[] packageUnits, OMMonitor monitor)
+  public void writePackageUnits(InternalCDOPackageUnit[] packageUnits, OMMonitor monitor)
   {
     // Do nothing
   }

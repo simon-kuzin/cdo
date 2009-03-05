@@ -114,7 +114,7 @@ public class HorizontalMappingStrategy extends MappingStrategy
   @Override
   protected IClassMapping createClassMapping(EClass eClass)
   {
-    if (eClass.isAbstract())
+    if (eClass.isAbstract() || eClass.isInterface())
     {
       return null;
     }

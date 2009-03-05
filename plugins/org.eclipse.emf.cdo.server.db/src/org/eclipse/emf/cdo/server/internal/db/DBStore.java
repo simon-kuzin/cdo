@@ -14,6 +14,7 @@ package org.eclipse.emf.cdo.server.internal.db;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDMeta;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
+import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.ITransaction;
 import org.eclipse.emf.cdo.server.IView;
@@ -23,6 +24,7 @@ import org.eclipse.emf.cdo.server.db.IJDBCDelegateProvider;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.server.LongIDStore;
 import org.eclipse.emf.cdo.spi.server.StoreAccessorPool;
 
@@ -36,6 +38,7 @@ import org.eclipse.net4j.db.ddl.IDBTable;
 import org.eclipse.net4j.spi.db.DBSchema;
 import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
+import org.eclipse.net4j.util.om.monitor.Monitor;
 import org.eclipse.net4j.util.om.monitor.ProgressDistributor;
 
 import org.eclipse.emf.ecore.EClass;
@@ -302,11 +305,12 @@ public class DBStore extends LongIDStore implements IDBStore
   {
     super.doActivate();
     long startupTime = getStartupTime();
-    Connection connection = null;
+    LifecycleUtil.activate(mappingStrategy);
+    DBStoreAccessor storeAccessor = createWriter(null);
 
     try
     {
-      connection = getConnection();
+      Connection connection = storeAccessor.getJDBCDelegate().getConnection();
       Set<IDBTable> createdTables = CDODBSchema.INSTANCE.create(dbAdapter, dbConnectionProvider);
       if (createdTables.contains(CDODBSchema.REPOSITORY))
       {
@@ -315,7 +319,12 @@ public class DBStore extends LongIDStore implements IDBStore
         DBUtil.insertRow(connection, dbAdapter, CDODBSchema.REPOSITORY, creationTime, 1, startupTime, 0, CRASHED,
             CRASHED);
 
-        mappingStrategy.mapSystemPackages(dbAdapter, connection);
+        InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)getRepository().getPackageRegistry();
+        InternalCDOPackageUnit ecoreUnit = packageRegistry.getPackageInfo(EcorePackage.eINSTANCE).getPackageUnit();
+        InternalCDOPackageUnit eresourceUnit = packageRegistry.getPackageInfo(EresourcePackage.eINSTANCE)
+            .getPackageUnit();
+        InternalCDOPackageUnit[] systemUnits = { ecoreUnit, eresourceUnit };
+        storeAccessor.writePackageUnits(systemUnits, new Monitor());
       }
       else
       {
@@ -358,15 +367,11 @@ public class DBStore extends LongIDStore implements IDBStore
         {
           throw new DBException("No row updated in table " + CDODBSchema.REPOSITORY);
         }
-
-        getMappingStrategy().mapSystemPackages(null, null);
       }
-
-      LifecycleUtil.activate(mappingStrategy);
     }
     finally
     {
-      DBUtil.close(connection);
+      storeAccessor.deactivate();
     }
   }
 
