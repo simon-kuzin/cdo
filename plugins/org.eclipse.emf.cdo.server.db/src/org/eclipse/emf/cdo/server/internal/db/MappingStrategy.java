@@ -56,6 +56,8 @@ import java.util.Set;
  */
 public abstract class MappingStrategy extends Lifecycle implements IMappingStrategy
 {
+  public static final String NAME_SEPARATOR = "_";
+
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, MappingStrategy.class);
 
   private IDBStore store;
@@ -147,30 +149,7 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
     CDOClassifierRef classRef = classRefs.get(classID);
     if (classRef == null)
     {
-      switch (classID)
-      {
-      case ServerInfo.CDO_RESOURCE_NODE_CLASS_DBID:
-      {
-        classRef = EresourcePackage.eINSTANCE.getCDOResourceNode().createClassRef();
-        break;
-      }
-
-      case ServerInfo.CDO_RESOURCE_FOLDER_CLASS_DBID:
-      {
-        classRef = EresourcePackage.eINSTANCE.getCDOResourceFolder().createClassRef();
-        break;
-      }
-
-      case ServerInfo.CDO_RESOURCE_CLASS_DBID:
-      {
-        classRef = EresourcePackage.eINSTANCE.getCDOResource().createClassRef();
-        break;
-      }
-
-      default:
-        classRef = accessor.readClassRef(classID);
-      }
-
+      classRef = accessor.readClassRef(classID);
       classRefs.put(classID, classRef);
     }
 
@@ -202,20 +181,20 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
 
   public String getTableName(EPackage ePackage)
   {
-    String name = isQualifiedNames() ? EMFUtil.getQualifiedName(ePackage, "_") : ePackage.getName();
+    String name = isQualifiedNames() ? EMFUtil.getQualifiedName(ePackage, NAME_SEPARATOR) : ePackage.getName();
     return getTableName(name, "P" + PackageServerInfo.getID(ePackage, getStore()));
   }
 
   public String getTableName(EClass eClass)
   {
-    String name = isQualifiedNames() ? EMFUtil.getQualifiedName(eClass, "_") : eClass.getName();
+    String name = isQualifiedNames() ? EMFUtil.getQualifiedName(eClass, NAME_SEPARATOR) : eClass.getName();
     return getTableName(name, "C" + ClassServerInfo.getID(eClass, getStore()));
   }
 
   public String getReferenceTableName(EClass eClass, EStructuralFeature feature)
   {
-    String name = isQualifiedNames() ? EMFUtil.getQualifiedName(eClass, "_") : eClass.getName();
-    name += "_";
+    String name = isQualifiedNames() ? EMFUtil.getQualifiedName(eClass, NAME_SEPARATOR) : eClass.getName();
+    name += NAME_SEPARATOR;
     name += feature.getName();
     name += "_refs";
     return getTableName(name, "F" + FeatureServerInfo.getID(feature, getStore()));
@@ -223,14 +202,14 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
 
   public String getReferenceTableName(EClass eClass)
   {
-    String name = isQualifiedNames() ? EMFUtil.getQualifiedName(eClass, "_") : eClass.getName();
+    String name = isQualifiedNames() ? EMFUtil.getQualifiedName(eClass, NAME_SEPARATOR) : eClass.getName();
     name += "_refs";
     return getTableName(name, "F" + ClassServerInfo.getID(eClass, getStore()));
   }
 
   public String getReferenceTableName(EPackage ePackage)
   {
-    String name = isQualifiedNames() ? EMFUtil.getQualifiedName(ePackage, "_") : ePackage.getName();
+    String name = isQualifiedNames() ? EMFUtil.getQualifiedName(ePackage, NAME_SEPARATOR) : ePackage.getName();
     name += "_refs";
     return getTableName(name, "F" + PackageServerInfo.getID(ePackage, getStore()));
   }
@@ -243,9 +222,9 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
   private String getTableName(String name, String suffix)
   {
     String prefix = getTableNamePrefix();
-    if (prefix.length() != 0 && !prefix.endsWith("_"))
+    if (prefix.length() != 0 && !prefix.endsWith(NAME_SEPARATOR))
     {
-      prefix += "_";
+      prefix += NAME_SEPARATOR;
     }
 
     return getName(prefix + name, suffix, getMaxTableNameLength());
@@ -261,7 +240,7 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
 
     if (name.length() > maxLength || forceNamesWithID)
     {
-      suffix = "_" + suffix.replace('-', 'S');
+      suffix = NAME_SEPARATOR + suffix.replace('-', 'S');
       int length = Math.min(name.length(), maxLength - suffix.length());
       name = name.substring(0, length) + suffix;
     }
@@ -292,6 +271,45 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
     }
 
     return builder.toString();
+  }
+
+  public void mapSystemPackages(IDBAdapter dbAdapter, Connection connection)
+  {
+    CDOResourceNodeClass resourceNodeClass = EresourcePackage.eINSTANCE.getCDOResourceNodeClass();
+    CDOResourceFolderClass resourceFolderClass = EresourcePackage.eINSTANCE.getCDOResourceFolderClass();
+    CDOResourceClass resourceClass = EresourcePackage.eINSTANCE.getCDOResourceClass();
+
+    PackageServerInfo.setID(EresourcePackage.eINSTANCE, ServerInfo.CDO_RESOURCE_PACKAGE_DBID);
+    ClassServerInfo.setID(resourceNodeClass, ServerInfo.CDO_RESOURCE_NODE_CLASS_DBID);
+    FeatureServerInfo.setID(resourceNodeClass.getCDOFolderFeature(), ServerInfo.CDO_FOLDER_FEATURE_DBID);
+    FeatureServerInfo.setID(resourceNodeClass.getCDONameFeature(), ServerInfo.CDO_NAME_FEATURE_DBID);
+    ClassServerInfo.setID(resourceFolderClass, ServerInfo.CDO_RESOURCE_FOLDER_CLASS_DBID);
+    FeatureServerInfo.setID(resourceFolderClass.getCDONodesFeature(), ServerInfo.CDO_NODES_FEATURE_DBID);
+    ClassServerInfo.setID(resourceClass, ServerInfo.CDO_RESOURCE_CLASS_DBID);
+    FeatureServerInfo.setID(resourceClass.getCDOContentsFeature(), ServerInfo.CDO_CONTENTS_FEATURE_DBID);
+
+    if (dbAdapter != null && connection != null)
+    {
+      Set<IDBTable> tables = new HashSet<IDBTable>();
+      addResourceTables(resourceNodeClass, tables);
+      addResourceTables(resourceFolderClass, tables);
+      addResourceTables(resourceClass, tables);
+
+      if (dbAdapter.createTables(tables, connection).size() != tables.size())
+      {
+        throw new DBException("Resource tables not completely created");
+      }
+    }
+  }
+
+  private void addResourceTables(EClass eClass, Set<IDBTable> tables)
+  {
+    IClassMapping mapping = getClassMapping(eClass);
+    if (mapping != null)
+    {
+      Set<IDBTable> affectedTables = mapping.getAffectedTables();
+      tables.addAll(affectedTables);
+    }
   }
 
   public final CloseableIterator<CDOID> readObjectIDs(final IDBStoreAccessor accessor)
@@ -386,45 +404,6 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
   }
 
   protected abstract String[] getResourceQueries(CDOID folderID, String name, boolean exactMatch);
-
-  public void mapSystemTables(IDBAdapter dbAdapter, Connection connection)
-  {
-    CDOResourceNodeClass resourceNodeClass = EresourcePackage.eINSTANCE.getCDOResourceNodeClass();
-    CDOResourceFolderClass resourceFolderClass = EresourcePackage.eINSTANCE.getCDOResourceFolderClass();
-    CDOResourceClass resourceClass = EresourcePackage.eINSTANCE.getCDOResourceClass();
-
-    PackageServerInfo.setID(EresourcePackage.eINSTANCE, ServerInfo.CDO_RESOURCE_PACKAGE_DBID);
-    ClassServerInfo.setID(resourceNodeClass, ServerInfo.CDO_RESOURCE_NODE_CLASS_DBID);
-    FeatureServerInfo.setID(resourceNodeClass.getCDOFolderFeature(), ServerInfo.CDO_FOLDER_FEATURE_DBID);
-    FeatureServerInfo.setID(resourceNodeClass.getCDONameFeature(), ServerInfo.CDO_NAME_FEATURE_DBID);
-    ClassServerInfo.setID(resourceFolderClass, ServerInfo.CDO_RESOURCE_FOLDER_CLASS_DBID);
-    FeatureServerInfo.setID(resourceFolderClass.getCDONodesFeature(), ServerInfo.CDO_NODES_FEATURE_DBID);
-    ClassServerInfo.setID(resourceClass, ServerInfo.CDO_RESOURCE_CLASS_DBID);
-    FeatureServerInfo.setID(resourceClass.getCDOContentsFeature(), ServerInfo.CDO_CONTENTS_FEATURE_DBID);
-
-    if (dbAdapter != null && connection != null)
-    {
-      Set<IDBTable> tables = new HashSet<IDBTable>();
-      addResourceTables(resourceNodeClass, tables);
-      addResourceTables(resourceFolderClass, tables);
-      addResourceTables(resourceClass, tables);
-
-      if (dbAdapter.createTables(tables, connection).size() != tables.size())
-      {
-        throw new DBException("Resource tables not completely created");
-      }
-    }
-  }
-
-  private void addResourceTables(EClass eClass, Set<IDBTable> tables)
-  {
-    IClassMapping mapping = getClassMapping(eClass);
-    if (mapping != null)
-    {
-      Set<IDBTable> affectedTables = mapping.getAffectedTables();
-      tables.addAll(affectedTables);
-    }
-  }
 
   public long repairAfterCrash(IDBAdapter dbAdapter, Connection connection)
   {

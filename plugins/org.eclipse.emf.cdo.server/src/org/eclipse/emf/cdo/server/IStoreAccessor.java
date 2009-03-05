@@ -15,11 +15,11 @@ import org.eclipse.emf.cdo.common.CDOQueryInfo;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
-import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 
 import org.eclipse.net4j.util.collection.CloseableIterator;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
@@ -65,7 +65,7 @@ public interface IStoreAccessor extends IQueryHandler
   /**
    * @since 2.0
    */
-  public Collection<CDOPackageInfo> readPackageInfos();
+  public Collection<InternalCDOPackageUnit> readPackageUnits();
 
   /**
    * Demand loads a given package proxy that has been created on startup of the repository.
@@ -79,15 +79,7 @@ public interface IStoreAccessor extends IQueryHandler
    * @see InternalEPackage
    * @since 2.0
    */
-  public void readPackage(EPackage ePackage);
-
-  /**
-   * Loads the {@link EPackage#getEcore() ecore xml} of the given package.
-   * 
-   * @see InternalEPackage#setEcore(String)
-   * @since 2.0
-   */
-  public void readPackageEcore(EPackage ePackage);
+  public void loadPackageUnit(InternalCDOPackageUnit packageUnit);
 
   /**
    * Returns an iterator that iterates over all objects in the store and makes their CDOIDs available for processing.

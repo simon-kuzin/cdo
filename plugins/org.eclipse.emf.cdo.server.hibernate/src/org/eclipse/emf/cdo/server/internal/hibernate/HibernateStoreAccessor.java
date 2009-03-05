@@ -16,7 +16,6 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
-import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
@@ -29,6 +28,7 @@ import org.eclipse.emf.cdo.server.hibernate.id.CDOIDHibernate;
 import org.eclipse.emf.cdo.server.hibernate.internal.id.CDOIDHibernateFactoryImpl;
 import org.eclipse.emf.cdo.server.internal.hibernate.bundle.OM;
 import org.eclipse.emf.cdo.server.internal.hibernate.tuplizer.PersistableListHolder;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.server.StoreAccessor;
 
@@ -38,7 +38,6 @@ import org.eclipse.net4j.util.collection.CloseableIterator;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
-import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 import org.hibernate.Criteria;
@@ -215,6 +214,16 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
     throw new UnsupportedOperationException();
   }
 
+  public Collection<InternalCDOPackageUnit> readPackageUnits()
+  {
+    return getStore().getPackageHandler().getEPackageDescriptors();
+  }
+
+  public void loadPackageUnit(InternalCDOPackageUnit packageUnit)
+  {
+    getStore().getPackageHandler().readPackage(packageUnit);
+  }
+
   public CloseableIterator<CDOID> readObjectIDs()
   {
     throw new UnsupportedOperationException();
@@ -224,21 +233,6 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
   {
     CDORevision cdoRevision = readRevision(id, -1);
     return cdoRevision.getEClass().createClassRef();
-  }
-
-  public void readPackage(EPackage ePackage)
-  {
-    getStore().getPackageHandler().readPackage(ePackage);
-  }
-
-  public void readPackageEcore(EPackage ePackage)
-  {
-    throw new UnsupportedOperationException();
-  }
-
-  public Collection<CDOPackageInfo> readPackageInfos()
-  {
-    return getStore().getPackageHandler().getEPackageDescriptors();
   }
 
   public CDORevision readRevision(CDOID id, int referenceChunk)

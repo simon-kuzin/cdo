@@ -15,13 +15,13 @@ package org.eclipse.emf.cdo.internal.server.mem;
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
-import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.server.IQueryContext;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.ITransaction;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.server.StoreAccessor;
 
@@ -30,7 +30,6 @@ import org.eclipse.net4j.util.collection.CloseableIterator;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 
 import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.util.ArrayList;
@@ -72,20 +71,12 @@ public class MEMStoreAccessor extends StoreAccessor
     return new MEMStoreChunkReader(this, revision, feature);
   }
 
-  public Collection<CDOPackageInfo> readPackageInfos()
+  public Collection<InternalCDOPackageUnit> readPackageUnits()
   {
     return Collections.emptySet();
   }
 
-  public void readPackage(EPackage ePackage)
-  {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * @since 2.0
-   */
-  public void readPackageEcore(EPackage ePackage)
+  public void loadPackageUnit(InternalCDOPackageUnit packageUnit)
   {
     throw new UnsupportedOperationException();
   }

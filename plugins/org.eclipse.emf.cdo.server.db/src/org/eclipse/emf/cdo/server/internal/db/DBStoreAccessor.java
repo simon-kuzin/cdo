@@ -37,6 +37,7 @@ import org.eclipse.emf.cdo.server.internal.db.ServerInfo.ClassServerInfo;
 import org.eclipse.emf.cdo.server.internal.db.ServerInfo.FeatureServerInfo;
 import org.eclipse.emf.cdo.server.internal.db.ServerInfo.PackageServerInfo;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.server.StoreAccessor;
 
@@ -121,9 +122,9 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     return new DBStoreChunkReader(this, revision, feature);
   }
 
-  public final Collection<CDOPackageInfo> readPackageInfos()
+  public final Collection<InternalCDOPackageUnit> readPackageUnits()
   {
-    final Collection<CDOPackageInfo> result = new ArrayList<CDOPackageInfo>(0);
+    final Collection<InternalCDOPackageUnit> result = new ArrayList<InternalCDOPackageUnit>(0);
     IDBRowHandler rowHandler = new IDBRowHandler()
     {
       public boolean handle(int row, final Object... values)
@@ -146,15 +147,15 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     return result;
   }
 
-  public final void readPackage(EPackage ePackage)
+  public final void loadPackageUnit(InternalCDOPackageUnit packageUnit)
   {
-    String where = CDODBSchema.PACKAGES_URI.getName() + " = '" + ePackage.getNsURI() + "'";
+    String where = CDODBSchema.PACKAGES_URI.getName() + " = '" + packageUnit.getNsURI() + "'";
     Object[] values = DBUtil.select(jdbcDelegate.getConnection(), where, CDODBSchema.PACKAGES_ID,
         CDODBSchema.PACKAGES_NAME);
-    new PackageServerInfo(getStore(), ePackage, (Integer)values[0]);
-    ((InternalEPackage)ePackage).setName((String)values[1]);
-    readClasses(ePackage);
-    mapPackages(ePackage);
+    new PackageServerInfo(getStore(), packageUnit, (Integer)values[0]);
+    ((InternalEPackage)packageUnit).setName((String)values[1]);
+    readClasses(packageUnit);
+    mapPackages(packageUnit);
   }
 
   protected final void readClasses(final EPackage ePackage)
@@ -238,12 +239,12 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
         CDODBSchema.FEATURES_CONTAINMENT);
   }
 
-  public final void readPackageEcore(EPackage ePackage)
-  {
-    String where = CDODBSchema.PACKAGES_URI.getName() + " = '" + ePackage.getNsURI() + "'";
-    Object[] values = DBUtil.select(jdbcDelegate.getConnection(), where, CDODBSchema.PACKAGES_ECORE);
-    ((InternalEPackage)ePackage).setEcore((String)values[0]);
-  }
+  // public final void readPackageEcore(EPackage ePackage)
+  // {
+  // String where = CDODBSchema.PACKAGES_URI.getName() + " = '" + ePackage.getNsURI() + "'";
+  // Object[] values = DBUtil.select(jdbcDelegate.getConnection(), where, CDODBSchema.PACKAGES_ECORE);
+  // ((InternalEPackage)ePackage).setEcore((String)values[0]);
+  // }
 
   public final String readPackageURI(int packageID)
   {
@@ -400,8 +401,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     {
       monitor.begin(2);
       fillSystemTables(packageUnits, monitor.fork());
-
-      createModelTables(packageUnits, monitor);
+      createModelTables(packageUnits, monitor.fork());
     }
     finally
     {
@@ -409,7 +409,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     }
   }
 
-  private void fillSystemTables(EPackage[] ePackages, OMMonitor monitor)
+  private void fillSystemTables(CDOPackageUnit[] packageUnits, OMMonitor monitor)
   {
     // new PackageWriter(ePackages, monitor)
     // {
@@ -553,7 +553,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     // }.run();
   }
 
-  private void createModelTables(EPackage[] ePackages, OMMonitor monitor)
+  private void createModelTables(CDOPackageUnit[] packageUnits, OMMonitor monitor)
   {
     monitor.begin();
     Async async = monitor.forkAsync();
@@ -594,7 +594,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
 
   protected void writeRevisionDelta(CDORevisionDelta delta, long created, OMMonitor monitor)
   {
-    CDOClass eClass = getObjectType(delta.getID());
+    EClass eClass = getObjectType(delta.getID());
     IClassMapping mapping = getStore().getMappingStrategy().getClassMapping(eClass);
     mapping.writeRevisionDelta(this, delta, created, monitor);
   }

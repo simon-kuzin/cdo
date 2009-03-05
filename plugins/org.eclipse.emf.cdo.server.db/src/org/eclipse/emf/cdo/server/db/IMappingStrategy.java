@@ -115,7 +115,7 @@ public interface IMappingStrategy
    * 
    * @since 2.0
    */
-  public void mapSystemTables(IDBAdapter dbAdapter, Connection connection);
+  public void mapSystemPackages(IDBAdapter dbAdapter, Connection connection);
 
   /**
    * Returns the maximum CDOID value.
