@@ -162,21 +162,21 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
   {
     IClassMapping mapping;
 
-    try
-    {
-      ClassServerInfo serverInfo = (ClassServerInfo)ClassServerInfo.getServerInfo(eClass, getStore());
-      mapping = serverInfo.getClassMapping();
-      if (mapping == NoClassMapping.INSTANCE)
-      {
-        return null;
-      }
-    }
-    catch (RuntimeException ex)
-    {
-      mapping = createClassMapping(eClass);
-      ClassServerInfo serverInfo = (ClassServerInfo)ClassServerInfo.getServerInfo(eClass, getStore());
-      serverInfo.setClassMapping(mapping == null ? NoClassMapping.INSTANCE : mapping);
-    }
+    // try
+    // {
+    // ClassServerInfo serverInfo = (ClassServerInfo)ClassServerInfo.getServerInfo(eClass, getStore());
+    // mapping = serverInfo.getClassMapping();
+    // if (mapping == NoClassMapping.INSTANCE)
+    // {
+    // return null;
+    // }
+    // }
+    // catch (RuntimeException ex)
+    // {
+    // mapping = createClassMapping(eClass);
+    // ClassServerInfo serverInfo = (ClassServerInfo)ClassServerInfo.getServerInfo(eClass, getStore());
+    // serverInfo.setClassMapping(mapping == null ? NoClassMapping.INSTANCE : mapping);
+    // }
 
     return mapping;
   }
@@ -281,14 +281,21 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
     CDOResourceFolderClass resourceFolderClass = EresourcePackage.eINSTANCE.getCDOResourceFolderClass();
     CDOResourceClass resourceClass = EresourcePackage.eINSTANCE.getCDOResourceClass();
 
-    PackageServerInfo.setID(EresourcePackage.eINSTANCE, org.eclipse.emf.cdo.server.internal.db.mapping.CDO_RESOURCE_PACKAGE_DBID);
-    ClassServerInfo.setID(resourceNodeClass, org.eclipse.emf.cdo.server.internal.db.mapping.CDO_RESOURCE_NODE_CLASS_DBID);
-    FeatureServerInfo.setID(resourceNodeClass.getCDOFolderFeature(), org.eclipse.emf.cdo.server.internal.db.mapping.CDO_FOLDER_FEATURE_DBID);
-    FeatureServerInfo.setID(resourceNodeClass.getCDONameFeature(), org.eclipse.emf.cdo.server.internal.db.mapping.CDO_NAME_FEATURE_DBID);
-    ClassServerInfo.setID(resourceFolderClass, org.eclipse.emf.cdo.server.internal.db.mapping.CDO_RESOURCE_FOLDER_CLASS_DBID);
-    FeatureServerInfo.setID(resourceFolderClass.getCDONodesFeature(), org.eclipse.emf.cdo.server.internal.db.mapping.CDO_NODES_FEATURE_DBID);
+    PackageServerInfo.setID(EresourcePackage.eINSTANCE,
+        org.eclipse.emf.cdo.server.internal.db.mapping.CDO_RESOURCE_PACKAGE_DBID);
+    ClassServerInfo.setID(resourceNodeClass,
+        org.eclipse.emf.cdo.server.internal.db.mapping.CDO_RESOURCE_NODE_CLASS_DBID);
+    FeatureServerInfo.setID(resourceNodeClass.getCDOFolderFeature(),
+        org.eclipse.emf.cdo.server.internal.db.mapping.CDO_FOLDER_FEATURE_DBID);
+    FeatureServerInfo.setID(resourceNodeClass.getCDONameFeature(),
+        org.eclipse.emf.cdo.server.internal.db.mapping.CDO_NAME_FEATURE_DBID);
+    ClassServerInfo.setID(resourceFolderClass,
+        org.eclipse.emf.cdo.server.internal.db.mapping.CDO_RESOURCE_FOLDER_CLASS_DBID);
+    FeatureServerInfo.setID(resourceFolderClass.getCDONodesFeature(),
+        org.eclipse.emf.cdo.server.internal.db.mapping.CDO_NODES_FEATURE_DBID);
     ClassServerInfo.setID(resourceClass, org.eclipse.emf.cdo.server.internal.db.mapping.CDO_RESOURCE_CLASS_DBID);
-    FeatureServerInfo.setID(resourceClass.getCDOContentsFeature(), org.eclipse.emf.cdo.server.internal.db.mapping.CDO_CONTENTS_FEATURE_DBID);
+    FeatureServerInfo.setID(resourceClass.getCDOContentsFeature(),
+        org.eclipse.emf.cdo.server.internal.db.mapping.CDO_CONTENTS_FEATURE_DBID);
 
     if (dbAdapter != null && connection != null)
     {
