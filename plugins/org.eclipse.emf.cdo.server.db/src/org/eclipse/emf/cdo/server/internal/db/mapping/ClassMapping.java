@@ -395,11 +395,6 @@ public abstract class ClassMapping implements IClassMapping
     return mappingStrategy.getStore().getRevisionTemporality() == IStore.RevisionTemporality.AUDITING;
   }
 
-  private boolean isDelta()
-  {
-    return mappingStrategy.getStore().getRepository().isSupportingRevisionDeltas();
-  }
-
   protected abstract void checkDuplicateResources(IDBStoreAccessor accessor, CDORevision revision)
       throws IllegalStateException;
 

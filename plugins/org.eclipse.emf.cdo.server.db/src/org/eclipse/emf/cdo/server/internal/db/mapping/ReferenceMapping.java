@@ -121,7 +121,7 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
     IDBTable table = getClassMapping().addTable(tableName);
     if (withFeature)
     {
-      table.addField(CDODBSchema.REFERENCES_FEATURE, DBType.INTEGER);
+      table.addField(CDODBSchema.REFERENCES_FEATURE, DBType.BIGINT);
     }
 
     IDBField sourceField = table.addField(CDODBSchema.REFERENCES_SOURCE, DBType.BIGINT);
@@ -137,7 +137,7 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
   public final void writeReference(IDBStoreAccessor accessor, InternalCDORevision revision)
   {
     int idx = 0;
-    for (Object element : ((InternalCDORevision)revision).getList(getFeature()))
+    for (Object element : (revision).getList(getFeature()))
     {
       writeReferenceEntry(accessor, revision.getID(), revision.getVersion(), idx++, (CDOID)element);
     }

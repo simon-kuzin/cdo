@@ -25,16 +25,12 @@ import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 
 import org.eclipse.net4j.db.DBException;
-import org.eclipse.net4j.db.DBUtil;
-import org.eclipse.net4j.db.ddl.IDBTable;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EPackage;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,46 +67,50 @@ public class HorizontalMappingStrategy extends MappingStrategy
     return objectTypeCache.getObjectType(accessor, id);
   }
 
+  /**
+   * TODO Stefan: Is this method still needed?
+   */
+  @Deprecated
   protected final CDOClassifierRef readObjectTypeFromClassesWithObjectInfo(IDBStoreAccessor accessor, CDOID id)
   {
-    String prefix = "SELECT DISTINCT " + CDODBSchema.ATTRIBUTES_CLASS + " FROM ";
-    String suffix = " WHERE " + CDODBSchema.ATTRIBUTES_ID + "=" + id;
-    for (EClass eClass : getClassesWithObjectInfo())
-    {
-      IClassMapping mapping = getClassMapping(eClass);
-      if (mapping != null)
-      {
-        IDBTable table = mapping.getTable();
-        if (table != null)
-        {
-          String sql = prefix + table + suffix;
-          if (TRACER.isEnabled())
-          {
-            TRACER.trace(sql);
-          }
-
-          ResultSet resultSet = null;
-
-          try
-          {
-            resultSet = accessor.getJDBCDelegate().getStatement().executeQuery(sql);
-            if (resultSet.next())
-            {
-              int classID = resultSet.getInt(1);
-              return getClassifierRef(accessor, classID);
-            }
-          }
-          catch (SQLException ex)
-          {
-            throw new DBException(ex);
-          }
-          finally
-          {
-            DBUtil.close(resultSet);
-          }
-        }
-      }
-    }
+    // String prefix = "SELECT DISTINCT " + CDODBSchema.ATTRIBUTES_CLASS + " FROM ";
+    // String suffix = " WHERE " + CDODBSchema.ATTRIBUTES_ID + "=" + id;
+    // for (EClass eClass : getClassesWithObjectInfo())
+    // {
+    // IClassMapping mapping = getClassMapping(eClass);
+    // if (mapping != null)
+    // {
+    // IDBTable table = mapping.getTable();
+    // if (table != null)
+    // {
+    // String sql = prefix + table + suffix;
+    // if (TRACER.isEnabled())
+    // {
+    // TRACER.trace(sql);
+    // }
+    //
+    // ResultSet resultSet = null;
+    //
+    // try
+    // {
+    // resultSet = accessor.getJDBCDelegate().getStatement().executeQuery(sql);
+    // if (resultSet.next())
+    // {
+    // int classID = resultSet.getInt(1);
+    // return getClassifierRef(accessor, classID);
+    // }
+    // }
+    // catch (SQLException ex)
+    // {
+    // throw new DBException(ex);
+    // }
+    // finally
+    // {
+    // DBUtil.close(resultSet);
+    // }
+    // }
+    // }
+    // }
 
     throw new DBException("No object with id " + id);
   }

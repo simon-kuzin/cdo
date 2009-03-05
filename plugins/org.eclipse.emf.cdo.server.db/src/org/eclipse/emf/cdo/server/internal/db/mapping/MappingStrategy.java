@@ -33,7 +33,6 @@ import org.eclipse.net4j.db.IDBAdapter;
 import org.eclipse.net4j.db.ddl.IDBField;
 import org.eclipse.net4j.db.ddl.IDBTable;
 import org.eclipse.net4j.util.StringUtil;
-import org.eclipse.net4j.util.collection.BidiMapper;
 import org.eclipse.net4j.util.collection.CloseableIterator;
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
@@ -67,7 +66,7 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
 
   private Map<Object, IDBTable> referenceTables = new HashMap<Object, IDBTable>();
 
-  private BidiMapper<Integer, CDOClassifierRef> classifierRefs = new BidiMapper<Integer, CDOClassifierRef>();
+  private Map<Integer, CDOClassifierRef> classifierRefs = new HashMap<Integer, CDOClassifierRef>();
 
   public MappingStrategy()
   {
@@ -147,11 +146,11 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
 
   public CDOClassifierRef getClassifierRef(IDBStoreAccessor accessor, int classID)
   {
-    CDOClassifierRef classRef = classifierRefs.lookup1(classID);
+    CDOClassifierRef classRef = classifierRefs.get(classID);
     if (classRef == null)
     {
       classRef = accessor.readClassRef(classID);
-      classifierRefs.map(classID, classRef);
+      classifierRefs.put(classID, classRef);
     }
 
     return classRef;
