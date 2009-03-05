@@ -105,17 +105,20 @@ public class NoClassMapping implements IClassMapping
     return false;
   }
 
-  public boolean readRevisionByTime(IDBStoreAccessor accessor, InternalCDORevision revision, long timeStamp, int referenceChunk)
+  public boolean readRevisionByTime(IDBStoreAccessor accessor, InternalCDORevision revision, long timeStamp,
+      int referenceChunk)
   {
     return false;
   }
 
-  public boolean readRevisionByVersion(IDBStoreAccessor accessor, InternalCDORevision revision, int version, int referenceChunk)
+  public boolean readRevisionByVersion(IDBStoreAccessor accessor, InternalCDORevision revision, int version,
+      int referenceChunk)
   {
     return false;
   }
 
-  public void writeRevisionDelta(IDBStoreAccessor accessor, InternalCDORevisionDelta delta, long created, OMMonitor monitor)
+  public void writeRevisionDelta(IDBStoreAccessor accessor, InternalCDORevisionDelta delta, long created,
+      OMMonitor monitor)
   {
   }
 }

@@ -132,7 +132,8 @@ public class JDBCPerformanceReporter extends Lifecycle implements IJDBCDelegate
     registerCall("selectReferencesChunks", time);
   }
 
-  public void selectRevisionReferences(InternalCDORevision revision, IReferenceMapping referenceMapping, int referenceChunk)
+  public void selectRevisionReferences(InternalCDORevision revision, IReferenceMapping referenceMapping,
+      int referenceChunk)
   {
     long time = System.currentTimeMillis();
     delegate.selectRevisionReferences(revision, referenceMapping, referenceChunk);

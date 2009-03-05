@@ -195,13 +195,6 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     // mapPackageUnits(packageUnit);
   }
 
-  public final String readPackageURI(int packageID)
-  {
-    String where = CDODBSchema.PACKAGE_INFOS_ID.getName() + "=" + packageID;
-    Object[] uri = DBUtil.select(jdbcDelegate.getConnection(), where, CDODBSchema.PACKAGE_INFOS_URI);
-    return (String)uri[0];
-  }
-
   public CloseableIterator<CDOID> readObjectIDs()
   {
     if (TRACER.isEnabled())
@@ -220,16 +213,6 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     }
 
     return getStore().getMappingStrategy().readObjectType(this, id);
-  }
-
-  public final CDOClassifierRef readClassRef(int classID)
-  {
-    String where = CDODBSchema.CLASSES_ID.getName() + "=" + classID;
-    Object[] res = DBUtil.select(jdbcDelegate.getConnection(), where, CDODBSchema.CLASSES_CLASSIFIER,
-        CDODBSchema.CLASSES_PACKAGE);
-    int classifierID = (Integer)res[0];
-    String packageURI = readPackageURI((Integer)res[1]);
-    return new CDOClassifierRef(packageURI, classifierID);
   }
 
   public InternalCDORevision readRevision(CDOID id, int referenceChunk)

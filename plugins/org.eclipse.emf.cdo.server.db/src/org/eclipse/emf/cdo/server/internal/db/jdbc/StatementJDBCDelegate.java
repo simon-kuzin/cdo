@@ -327,7 +327,8 @@ public class StatementJDBCDelegate extends AbstractJDBCDelegate
   }
 
   @Override
-  protected void doUpdateReference(String tableName, long metaID, long sourceId, int newVersion, int index, long targetId)
+  protected void doUpdateReference(String tableName, long metaID, long sourceId, int newVersion, int index,
+      long targetId)
   {
     StringBuilder builder = new StringBuilder();
     builder.append("UPDATE ");
@@ -417,8 +418,8 @@ public class StatementJDBCDelegate extends AbstractJDBCDelegate
   }
 
   @Override
-  protected ResultSet doSelectRevisionReferences(String tableName, long sourceId, int version, long metaID,
-      String where) throws SQLException
+  protected ResultSet doSelectRevisionReferences(String tableName, long sourceId, int version, long metaID, String where)
+      throws SQLException
   {
 
     StringBuilder builder = new StringBuilder();

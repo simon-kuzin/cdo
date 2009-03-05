@@ -497,7 +497,8 @@ public abstract class AbstractJDBCDelegate extends Lifecycle implements IJDBCDel
   /**
    * Insert one reference of a particular CDOID and adjusts indexes.
    */
-  protected abstract void doInsertReferenceRow(String tableName, long metaID, long cdoid, int newVersion, long l, int index);
+  protected abstract void doInsertReferenceRow(String tableName, long metaID, long cdoid, int newVersion, long l,
+      int index);
 
   /**
    * Insert a reference row. Note: this is likely to be replaced by an implementation that supports storing multiple
@@ -514,8 +515,8 @@ public abstract class AbstractJDBCDelegate extends Lifecycle implements IJDBCDel
   /**
    * Moves one reference of a particular CDOID and adjusts indexes.
    */
-  protected abstract void doMoveReferenceRow(String tableName, long metaID, long cdoid, int newVersion, int oldPosition,
-      int newPosition);
+  protected abstract void doMoveReferenceRow(String tableName, long metaID, long cdoid, int newVersion,
+      int oldPosition, int newPosition);
 
   /**
    * Delete all references of a particular CDOID.
@@ -545,6 +546,6 @@ public abstract class AbstractJDBCDelegate extends Lifecycle implements IJDBCDel
    * Select a revision's references (or a part thereof) The caller is resposible for closing resultSet and associated
    * statement, if appropriate.
    */
-  protected abstract ResultSet doSelectRevisionReferences(String tableName, long sourceId, int version,
-      long metaID, String where) throws SQLException;
+  protected abstract ResultSet doSelectRevisionReferences(String tableName, long sourceId, int version, long metaID,
+      String where) throws SQLException;
 }

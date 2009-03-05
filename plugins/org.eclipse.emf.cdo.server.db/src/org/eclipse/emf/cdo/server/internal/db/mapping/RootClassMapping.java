@@ -13,6 +13,8 @@ package org.eclipse.emf.cdo.server.internal.db.mapping;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 
+import org.eclipse.emf.ecore.EcorePackage;
+
 /**
  * @author Eike Stepper
  */
@@ -20,7 +22,7 @@ public class RootClassMapping extends ClassMapping
 {
   public RootClassMapping(VerticalMappingStrategy mappingStrategy)
   {
-    super(mappingStrategy, getRootClass(mappingStrategy), null);
+    super(mappingStrategy, EcorePackage.eINSTANCE.getEObject(), null);
     initTable(getTable(), true);
   }
 
@@ -38,12 +40,6 @@ public class RootClassMapping extends ClassMapping
   @Override
   protected void checkDuplicateResources(IDBStoreAccessor accessor, CDORevision revision) throws IllegalStateException
   {
-    // TODO: implement RootClassMapping.checkDuplicateResources(accessor, revision)
     throw new UnsupportedOperationException();
-  }
-
-  private static CDOObjectClass getRootClass(VerticalMappingStrategy mappingStrategy)
-  {
-    return mappingStrategy.getStore().getRepository().getPackageRegistry().getCDOCorePackage().getCDOObjectClass();
   }
 }
