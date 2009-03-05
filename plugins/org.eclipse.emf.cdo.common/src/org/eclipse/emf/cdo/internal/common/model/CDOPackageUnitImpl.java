@@ -219,7 +219,7 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
     out.writeBoolean(withPackages);
     if (withPackages)
     {
-      EMFUtil.writePackage(out, packageInfos[0].getEPackage(), true);
+      CDOModelUtil.writePackage(out, packageInfos[0].getEPackage(), true);
     }
 
     out.writeCDOPackageUnitType(originalType);
@@ -237,7 +237,7 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
     boolean withPackages = in.readBoolean();
     if (withPackages)
     {
-      ePackage = EMFUtil.readPackage(in);
+      ePackage = CDOModelUtil.readPackage(in);
       state = State.LOADED;
     }
 

@@ -305,8 +305,8 @@ public class DBStore extends LongIDStore implements IDBStore
   {
     super.doActivate();
     long startupTime = getStartupTime();
-    LifecycleUtil.activate(mappingStrategy);
     DBStoreAccessor storeAccessor = createWriter(null);
+    LifecycleUtil.activate(storeAccessor);
 
     try
     {
@@ -368,6 +368,14 @@ public class DBStore extends LongIDStore implements IDBStore
           throw new DBException("No row updated in table " + CDODBSchema.REPOSITORY);
         }
       }
+
+      storeAccessor.commit(new Monitor());
+      LifecycleUtil.activate(mappingStrategy);
+    }
+    catch (RuntimeException ex)
+    {
+      OM.LOG.error(ex);
+      throw ex;
     }
     finally
     {

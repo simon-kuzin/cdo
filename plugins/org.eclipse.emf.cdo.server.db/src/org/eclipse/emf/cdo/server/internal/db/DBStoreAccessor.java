@@ -42,6 +42,7 @@ import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.db.DBUtil;
 import org.eclipse.net4j.db.IDBRowHandler;
 import org.eclipse.net4j.db.ddl.IDBTable;
+import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
 import org.eclipse.net4j.util.collection.CloseableIterator;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
@@ -73,6 +74,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
 
   private IJDBCDelegate jdbcDelegate;
 
+  @ExcludeFromDump
   @SuppressWarnings("unchecked")
   private final ProgressDistributable<CommitContext>[] ops = ProgressDistributor.array( //
       new ProgressDistributable.Default<CommitContext>()
@@ -387,7 +389,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
         pstmt.setString(1, packageUnit.getID());
         pstmt.setInt(2, packageUnit.getOriginalType().ordinal());
         pstmt.setLong(3, packageUnit.getTimeStamp());
-        // TODO Write blob
+        pstmt.setBytes(4, EMFUtil.getPackageBytes(packageUnit.getTopLevelPackageInfo().getEPackage(), true));
 
         if (pstmt.execute())
         {

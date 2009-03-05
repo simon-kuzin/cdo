@@ -12,6 +12,7 @@ package org.eclipse.emf.internal.cdo.net4j.protocol;
 
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
+import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
@@ -54,7 +55,7 @@ public class LoadPackagesRequest extends CDOClientRequest<EPackage[]>
   @Override
   protected EPackage[] confirming(CDODataInput in) throws IOException
   {
-    EPackage ePackage = EMFUtil.readPackage(in);
+    EPackage ePackage = CDOModelUtil.readPackage(in);
     return EMFUtil.getAllPackages(ePackage);
   }
 }

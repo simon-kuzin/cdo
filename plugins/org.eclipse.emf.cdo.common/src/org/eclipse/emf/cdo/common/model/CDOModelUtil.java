@@ -15,6 +15,9 @@ import org.eclipse.emf.cdo.internal.common.model.CDOPackageInfoImpl;
 import org.eclipse.emf.cdo.internal.common.model.CDOPackageUnitImpl;
 import org.eclipse.emf.cdo.internal.common.model.CDOTypeImpl;
 
+import org.eclipse.net4j.util.io.ExtendedDataInput;
+import org.eclipse.net4j.util.io.ExtendedDataOutput;
+
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
@@ -25,6 +28,7 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -78,6 +82,22 @@ public final class CDOModelUtil
     registerCoreType(types, EcorePackage.eINSTANCE.getEEnum(), CDOType.ENUM);
 
     coreTypes = types.toArray(new CDOType[types.size()]);
+  }
+
+  public static void writePackage(ExtendedDataOutput out, EPackage ePackage, boolean zipped) throws IOException
+  {
+    byte[] bytes = EMFUtil.getPackageBytes(ePackage, zipped);
+    out.writeString(ePackage.getNsURI());
+    out.writeBoolean(zipped);
+    out.writeByteArray(bytes);
+  }
+
+  public static EPackage readPackage(ExtendedDataInput in) throws IOException
+  {
+    String uri = in.readString();
+    boolean zipped = in.readBoolean();
+    byte[] bytes = in.readByteArray();
+    return EMFUtil.createPackage(uri, bytes, zipped);
   }
 
   private static void registerCoreType(List<CDOType> types, EClassifier classifier, CDOType type)

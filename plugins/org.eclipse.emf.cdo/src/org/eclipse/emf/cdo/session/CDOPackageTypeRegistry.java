@@ -23,7 +23,8 @@ import org.eclipse.emf.ecore.EPackage;
  */
 public interface CDOPackageTypeRegistry extends IRegistry<String, CDOPackageType>
 {
-  public static final CDOPackageTypeRegistry INSTANCE = org.eclipse.emf.internal.cdo.session.CDOPackageTypeRegistryImpl.INSTANCE;
+  // public static final CDOPackageTypeRegistry INSTANCE =
+  // org.eclipse.emf.internal.cdo.session.CDOPackageTypeRegistryImpl.INSTANCE;
 
   public void register(EPackage ePackage);
 

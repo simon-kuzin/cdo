@@ -584,11 +584,11 @@ public class Repository extends Container<Object> implements IRepository, Packag
   protected void doActivate() throws Exception
   {
     super.doActivate();
-    LifecycleUtil.activate(store);
     LifecycleUtil.activate(packageRegistry);
     EMFUtil.registerPackage(EcorePackage.eINSTANCE, packageRegistry);
     EMFUtil.registerPackage(EresourcePackage.eINSTANCE, packageRegistry);
 
+    LifecycleUtil.activate(store);
     if (store.wasCrashed())
     {
       OM.LOG.info("Crash of repository " + name + " detected");
@@ -604,7 +604,6 @@ public class Repository extends Container<Object> implements IRepository, Packag
     LifecycleUtil.activate(commitManager);
     LifecycleUtil.activate(queryHandlerProvider);
     LifecycleUtil.activate(lockManager);
-
   }
 
   @Override
@@ -617,9 +616,8 @@ public class Repository extends Container<Object> implements IRepository, Packag
     LifecycleUtil.deactivate(queryManager);
     LifecycleUtil.deactivate(revisionManager);
     LifecycleUtil.deactivate(sessionManager);
-
-    LifecycleUtil.deactivate(packageRegistry);
     LifecycleUtil.deactivate(store);
+    LifecycleUtil.deactivate(packageRegistry);
     super.doDeactivate();
   }
 

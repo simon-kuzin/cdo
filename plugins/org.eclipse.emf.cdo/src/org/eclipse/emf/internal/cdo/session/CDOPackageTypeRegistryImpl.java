@@ -53,7 +53,7 @@ import java.util.Map;
 public final class CDOPackageTypeRegistryImpl extends HashMapRegistry<String, CDOPackageType> implements
     CDOPackageTypeRegistry
 {
-  public static final CDOPackageTypeRegistryImpl INSTANCE = new CDOPackageTypeRegistryImpl();
+  // public static final CDOPackageTypeRegistryImpl INSTANCE = new CDOPackageTypeRegistryImpl();
 
   private static final String ECORE_ID = "org.eclipse.emf.ecore";
 

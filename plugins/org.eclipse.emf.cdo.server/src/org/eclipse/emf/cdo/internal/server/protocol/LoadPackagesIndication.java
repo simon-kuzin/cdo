@@ -12,7 +12,7 @@ package org.eclipse.emf.cdo.internal.server.protocol;
 
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
-import org.eclipse.emf.cdo.common.model.EMFUtil;
+import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
@@ -54,6 +54,6 @@ public class LoadPackagesIndication extends CDOReadIndication
       throw new IllegalStateException("Package unit not found: " + packageUnitID);
     }
 
-    EMFUtil.writePackage(out, packageInfo.getEPackage(), true);
+    CDOModelUtil.writePackage(out, packageInfo.getEPackage(), true);
   }
 }

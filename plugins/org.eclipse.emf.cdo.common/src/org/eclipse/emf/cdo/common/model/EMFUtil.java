@@ -12,8 +12,7 @@
  */
 package org.eclipse.emf.cdo.common.model;
 
-import org.eclipse.net4j.util.io.ExtendedDataInput;
-import org.eclipse.net4j.util.io.ExtendedDataOutput;
+import org.eclipse.net4j.util.WrappedException;
 import org.eclipse.net4j.util.io.IORuntimeException;
 
 import org.eclipse.emf.common.notify.Adapter;
@@ -36,10 +35,8 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
-import org.eclipse.emf.ecore.xmi.XMIResource;
 import org.eclipse.emf.ecore.xmi.impl.EcoreResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
-import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -56,8 +53,6 @@ import java.util.Map;
  */
 public final class EMFUtil
 {
-  private static final String ECORE_ENCODING = "ASCII";
-
   private EMFUtil()
   {
   }
@@ -366,97 +361,42 @@ public final class EMFUtil
     return false;
   }
 
-  public static EPackage ePackageFromString(String ecore)
+  public static byte[] getPackageBytes(EPackage ePackage, boolean zipped)
   {
     try
     {
-      ByteArrayInputStream stream = new ByteArrayInputStream(ecore.getBytes(ECORE_ENCODING));
-      XMIResource resource = new XMIResourceImpl();
-      resource.load(stream, null);
-      return (EPackage)resource.getContents().get(0);
+      Resource resource = ePackage.eResource();
+      if (resource == null)
+      {
+        resource = createPackageResource(ePackage.getNsURI());
+        resource.getContents().add(ePackage);
+      }
+
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      resource.save(baos, createResourceOptions(zipped));
+      return baos.toByteArray();
     }
-    catch (RuntimeException ex)
+    catch (Exception ex)
     {
-      throw ex;
-    }
-    catch (IOException ex)
-    {
-      throw new IORuntimeException(ex);
+      throw WrappedException.wrap(ex);
     }
   }
 
-  @Deprecated
-  public static String ePackageToString(EPackage ePackage, EPackage.Registry packageRegistry)
+  public static EPackage createPackage(String uri, byte[] bytes, boolean zipped)
   {
-    synchronized (EMFUtil.class)
-    {
-      ePackage = (EPackage)EcoreUtil.copy(ePackage);
-    }
-
-    Resource.Factory resourceFactory = new XMIResourceFactoryImpl();
-    ResourceSetImpl resourceSet = new ResourceSetImpl();
-
-    Resource.Factory.Registry registry = resourceSet.getResourceFactoryRegistry();
-    registry.getExtensionToFactoryMap().put("*", resourceFactory);
-    registry.getProtocolToFactoryMap().put("*", resourceFactory);
-
-    Resource packageResource = createPackageResource(resourceSet, ePackage);
-    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-
     try
     {
-      packageResource.save(stream, null);
-      String string = stream.toString(ECORE_ENCODING);
-      return string;
+      ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+      Resource resource = createPackageResource(uri);
+      resource.load(bais, createResourceOptions(zipped));
+
+      EList<EObject> contents = resource.getContents();
+      return (EPackage)contents.get(0);
     }
-    catch (RuntimeException ex)
+    catch (Exception ex)
     {
-      throw ex;
+      throw WrappedException.wrap(ex);
     }
-    catch (IOException ex)
-    {
-      throw new IORuntimeException(ex);
-    }
-  }
-
-  private static Resource createPackageResource(ResourceSetImpl resourceSet, EPackage ePackage)
-  {
-    URI uri = URI.createURI(ePackage.getNsURI());
-    Resource resource = resourceSet.createResource(uri);
-    resource.getContents().add(ePackage);
-    return resource;
-  }
-
-  public static void writePackage(ExtendedDataOutput out, EPackage ePackage, boolean zipped) throws IOException
-  {
-    Resource resource = ePackage.eResource();
-    if (resource == null)
-    {
-      resource = createPackageResource(ePackage.getNsURI());
-      resource.getContents().add(ePackage);
-    }
-
-    ByteArrayOutputStream baos = new ByteArrayOutputStream(); // TODO Use ExtendedDataOutput.Stream
-    resource.save(baos, createResourceOptions(zipped));
-
-    out.writeString(resource.getURI().toString());
-    out.writeBoolean(zipped);
-    out.writeByteArray(baos.toByteArray());
-  }
-
-  public static EPackage readPackage(ExtendedDataInput in) throws IOException
-  {
-    String uri = in.readString();
-    boolean zipped = in.readBoolean();
-    ByteArrayInputStream bais = new ByteArrayInputStream(in.readByteArray()); // TODO Use ExtendedDataInput.Stream
-
-    Resource resource = createPackageResource(uri);
-    resource.load(bais, createResourceOptions(zipped));
-
-    EList<EObject> contents = resource.getContents();
-    EPackage ePackage = (EPackage)contents.get(0);
-    // contents.clear();
-    return ePackage;
   }
 
   private static Resource createPackageResource(String uri)
