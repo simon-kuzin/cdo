@@ -147,17 +147,6 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     return result;
   }
 
-  public final void loadPackageUnit(InternalCDOPackageUnit packageUnit)
-  {
-    String where = CDODBSchema.PACKAGES_URI.getName() + " = '" + packageUnit.getNsURI() + "'";
-    Object[] values = DBUtil.select(jdbcDelegate.getConnection(), where, CDODBSchema.PACKAGES_ID,
-        CDODBSchema.PACKAGES_NAME);
-    new PackageServerInfo(getStore(), packageUnit, (Integer)values[0]);
-    ((InternalEPackage)packageUnit).setName((String)values[1]);
-    readClasses(packageUnit);
-    mapPackages(packageUnit);
-  }
-
   protected final void readClasses(final EPackage ePackage)
   {
     IDBRowHandler rowHandler = new IDBRowHandler()
@@ -245,6 +234,17 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
   // Object[] values = DBUtil.select(jdbcDelegate.getConnection(), where, CDODBSchema.PACKAGES_ECORE);
   // ((InternalEPackage)ePackage).setEcore((String)values[0]);
   // }
+
+  public final void loadPackageUnit(InternalCDOPackageUnit packageUnit)
+  {
+    String where = CDODBSchema.PACKAGES_URI.getName() + " = '" + packageUnit.getNsURI() + "'";
+    Object[] values = DBUtil.select(jdbcDelegate.getConnection(), where, CDODBSchema.PACKAGES_ID,
+        CDODBSchema.PACKAGES_NAME);
+    new PackageServerInfo(getStore(), packageUnit, (Integer)values[0]);
+    ((InternalEPackage)packageUnit).setName((String)values[1]);
+    readClasses(packageUnit);
+    mapPackages(packageUnit);
+  }
 
   public final String readPackageURI(int packageID)
   {
