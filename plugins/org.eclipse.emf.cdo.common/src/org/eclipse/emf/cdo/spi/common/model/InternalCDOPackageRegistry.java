@@ -80,6 +80,8 @@ public interface InternalCDOPackageRegistry extends CDOPackageRegistry, ILifecyc
 
     public CDOID lookupMetaInstanceID(InternalEObject metaInstance);
 
+    public void mapMetaInstances(EPackage ePackage, CDOIDMetaRange metaIDRange);
+
     public CDOIDMetaRange mapMetaInstances(EPackage ePackage);
 
     public void remapMetaInstance(CDOID oldID, CDOID newID);

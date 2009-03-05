@@ -201,6 +201,7 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
       {
         String packageURI = ePackage.getNsURI();
         InternalCDOPackageInfo packageInfo = getPackageInfo(packageURI);
+        packageRegistry.getMetaInstanceMapper().mapMetaInstances(ePackage, packageInfo.getMetaIDRange());
         EMFUtil.addAdapter(ePackage, packageInfo);
       }
 
