@@ -317,9 +317,11 @@ public class DBStore extends LongIDStore implements IDBStore
     }
   }
 
-  private void firstStart(DBStoreAccessor storeAccessor)
+  protected void firstStart(DBStoreAccessor storeAccessor)
   {
     creationTime = getStartupTime();
+    OM.LOG.info(MessageFormat.format("First start: {0,date} {0,time}", creationTime));
+
     Connection connection = storeAccessor.getJDBCDelegate().getConnection();
     DBUtil.insertRow(connection, dbAdapter, CDODBSchema.REPOSITORY, creationTime, 1, creationTime, 0, CRASHED, CRASHED);
 
@@ -346,7 +348,7 @@ public class DBStore extends LongIDStore implements IDBStore
     storeAccessor.writePackageUnits(systemUnits, new Monitor());
   }
 
-  private void reStart(DBStoreAccessor storeAccessor)
+  protected void reStart(DBStoreAccessor storeAccessor)
   {
     Connection connection = storeAccessor.getJDBCDelegate().getConnection();
     creationTime = DBUtil.selectMaximumLong(connection, CDODBSchema.REPOSITORY_CREATED);
