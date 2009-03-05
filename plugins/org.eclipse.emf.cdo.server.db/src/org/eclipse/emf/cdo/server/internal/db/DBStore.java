@@ -268,27 +268,6 @@ public class DBStore extends LongIDStore implements IDBStore
     return connection;
   }
 
-  public void repairAfterCrash()
-  {
-    try
-    {
-      DBStoreAccessor accessor = (DBStoreAccessor)getWriter(null);
-      StoreThreadLocal.setAccessor(accessor);
-
-      Connection connection = accessor.getJDBCDelegate().getConnection();
-      long maxObjectID = mappingStrategy.repairAfterCrash(dbAdapter, connection);
-      long maxMetaID = DBUtil.selectMaximumLong(connection, CDODBSchema.PACKAGE_INFOS_META_UB);
-
-      OM.LOG.info(MessageFormat.format("Repaired after crash: maxObjectID={0}, maxMetaID={1}", maxObjectID, maxMetaID));
-      setLastObjectID(maxObjectID);
-      setLastMetaID(maxMetaID);
-    }
-    finally
-    {
-      StoreThreadLocal.release();
-    }
-  }
-
   public long getCreationTime()
   {
     return creationTime;
@@ -307,85 +286,20 @@ public class DBStore extends LongIDStore implements IDBStore
   protected void doActivate() throws Exception
   {
     super.doActivate();
-    long startupTime = getStartupTime();
-
     DBStoreAccessor storeAccessor = createWriter(null);
     LifecycleUtil.activate(storeAccessor);
+    StoreThreadLocal.setAccessor(storeAccessor);
 
     try
     {
-      Connection connection = storeAccessor.getJDBCDelegate().getConnection();
       Set<IDBTable> createdTables = CDODBSchema.INSTANCE.create(dbAdapter, dbConnectionProvider);
       if (createdTables.contains(CDODBSchema.REPOSITORY))
       {
-        // First start
-        creationTime = startupTime;
-        DBUtil.insertRow(connection, dbAdapter, CDODBSchema.REPOSITORY, creationTime, 1, startupTime, 0, CRASHED,
-            CRASHED);
-
-        InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)getRepository().getPackageRegistry();
-
-        InternalCDOPackageInfo ecoreInfo = packageRegistry.getPackageInfo(EcorePackage.eINSTANCE);
-        CDOIDMetaRange ecoreRange = getNextMetaIDRange(ecoreInfo.getMetaIDRange().size());
-        ecoreInfo.setMetaIDRange(ecoreRange);
-        InternalCDOPackageUnit ecoreUnit = ecoreInfo.getPackageUnit();
-        ecoreUnit.setTimeStamp(creationTime);
-
-        InternalCDOPackageInfo eresourceInfo = packageRegistry.getPackageInfo(EresourcePackage.eINSTANCE);
-        CDOIDMetaRange eresourceRange = getNextMetaIDRange(eresourceInfo.getMetaIDRange().size());
-        eresourceInfo.setMetaIDRange(eresourceRange);
-        InternalCDOPackageUnit eresourceUnit = eresourceInfo.getPackageUnit();
-        eresourceUnit.setTimeStamp(creationTime);
-
-        MetaInstanceMapper metaInstanceMapper = packageRegistry.getMetaInstanceMapper();
-        metaInstanceMapper.clear();
-        metaInstanceMapper.mapMetaInstances(EcorePackage.eINSTANCE, ecoreRange);
-        metaInstanceMapper.mapMetaInstances(EresourcePackage.eINSTANCE, eresourceRange);
-
-        InternalCDOPackageUnit[] systemUnits = { ecoreUnit, eresourceUnit };
-        storeAccessor.writePackageUnits(systemUnits, new Monitor());
+        firstStart(storeAccessor);
       }
       else
       {
-        // Restart
-        creationTime = DBUtil.selectMaximumLong(connection, CDODBSchema.REPOSITORY_CREATED);
-        long lastObjectID = DBUtil.selectMaximumLong(connection, CDODBSchema.REPOSITORY_NEXT_CDOID);
-        setLastMetaID(DBUtil.selectMaximumLong(connection, CDODBSchema.REPOSITORY_NEXT_METAID));
-        if (lastObjectID == CRASHED || getLastMetaID() == CRASHED)
-        {
-          OM.LOG.warn("Detected restart after crash");
-        }
-
-        setLastObjectID(lastObjectID);
-
-        StringBuilder builder = new StringBuilder();
-        builder.append("UPDATE ");
-        builder.append(CDODBSchema.REPOSITORY);
-        builder.append(" SET ");
-        builder.append(CDODBSchema.REPOSITORY_STARTS);
-        builder.append("=");
-        builder.append(CDODBSchema.REPOSITORY_STARTS);
-        builder.append("+1, ");
-        builder.append(CDODBSchema.REPOSITORY_STARTED);
-        builder.append("=");
-        builder.append(startupTime);
-        builder.append(", ");
-        builder.append(CDODBSchema.REPOSITORY_STOPPED);
-        builder.append("=0, ");
-        builder.append(CDODBSchema.REPOSITORY_NEXT_CDOID);
-        builder.append("=");
-        builder.append(CRASHED);
-        builder.append(", ");
-        builder.append(CDODBSchema.REPOSITORY_NEXT_METAID);
-        builder.append("=");
-        builder.append(CRASHED);
-
-        String sql = builder.toString();
-        int count = DBUtil.update(connection, sql);
-        if (count == 0)
-        {
-          throw new DBException("No row updated in table " + CDODBSchema.REPOSITORY);
-        }
+        reStart(storeAccessor);
       }
 
       storeAccessor.commit(new Monitor());
@@ -399,6 +313,85 @@ public class DBStore extends LongIDStore implements IDBStore
     finally
     {
       storeAccessor.deactivate();
+      StoreThreadLocal.release();
+    }
+  }
+
+  private void firstStart(DBStoreAccessor storeAccessor)
+  {
+    creationTime = getStartupTime();
+    Connection connection = storeAccessor.getJDBCDelegate().getConnection();
+    DBUtil.insertRow(connection, dbAdapter, CDODBSchema.REPOSITORY, creationTime, 1, creationTime, 0, CRASHED, CRASHED);
+
+    InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)getRepository().getPackageRegistry();
+
+    InternalCDOPackageInfo ecoreInfo = packageRegistry.getPackageInfo(EcorePackage.eINSTANCE);
+    CDOIDMetaRange ecoreRange = getNextMetaIDRange(ecoreInfo.getMetaIDRange().size());
+    ecoreInfo.setMetaIDRange(ecoreRange);
+    InternalCDOPackageUnit ecoreUnit = ecoreInfo.getPackageUnit();
+    ecoreUnit.setTimeStamp(creationTime);
+
+    InternalCDOPackageInfo eresourceInfo = packageRegistry.getPackageInfo(EresourcePackage.eINSTANCE);
+    CDOIDMetaRange eresourceRange = getNextMetaIDRange(eresourceInfo.getMetaIDRange().size());
+    eresourceInfo.setMetaIDRange(eresourceRange);
+    InternalCDOPackageUnit eresourceUnit = eresourceInfo.getPackageUnit();
+    eresourceUnit.setTimeStamp(creationTime);
+
+    MetaInstanceMapper metaInstanceMapper = packageRegistry.getMetaInstanceMapper();
+    metaInstanceMapper.clear();
+    metaInstanceMapper.mapMetaInstances(EcorePackage.eINSTANCE, ecoreRange);
+    metaInstanceMapper.mapMetaInstances(EresourcePackage.eINSTANCE, eresourceRange);
+
+    InternalCDOPackageUnit[] systemUnits = { ecoreUnit, eresourceUnit };
+    storeAccessor.writePackageUnits(systemUnits, new Monitor());
+  }
+
+  private void reStart(DBStoreAccessor storeAccessor)
+  {
+    Connection connection = storeAccessor.getJDBCDelegate().getConnection();
+    creationTime = DBUtil.selectMaximumLong(connection, CDODBSchema.REPOSITORY_CREATED);
+    long lastMetaId = DBUtil.selectMaximumLong(connection, CDODBSchema.REPOSITORY_NEXT_METAID);
+    long lastObjectID = DBUtil.selectMaximumLong(connection, CDODBSchema.REPOSITORY_NEXT_CDOID);
+
+    if (lastObjectID == CRASHED || getLastMetaID() == CRASHED)
+    {
+      OM.LOG.info("Store crash detected");
+      lastObjectID = mappingStrategy.repairAfterCrash(dbAdapter, connection);
+      lastMetaId = DBUtil.selectMaximumLong(connection, CDODBSchema.PACKAGE_INFOS_META_UB);
+      OM.LOG.info(MessageFormat
+          .format("Repaired after crash: maxObjectID={0}, maxMetaID={1}", lastObjectID, lastMetaId));
+    }
+
+    setLastMetaID(lastMetaId);
+    setLastObjectID(lastObjectID);
+
+    StringBuilder builder = new StringBuilder();
+    builder.append("UPDATE ");
+    builder.append(CDODBSchema.REPOSITORY);
+    builder.append(" SET ");
+    builder.append(CDODBSchema.REPOSITORY_STARTS);
+    builder.append("=");
+    builder.append(CDODBSchema.REPOSITORY_STARTS);
+    builder.append("+1, ");
+    builder.append(CDODBSchema.REPOSITORY_STARTED);
+    builder.append("=");
+    builder.append(getStartupTime());
+    builder.append(", ");
+    builder.append(CDODBSchema.REPOSITORY_STOPPED);
+    builder.append("=0, ");
+    builder.append(CDODBSchema.REPOSITORY_NEXT_CDOID);
+    builder.append("=");
+    builder.append(CRASHED);
+    builder.append(", ");
+    builder.append(CDODBSchema.REPOSITORY_NEXT_METAID);
+    builder.append("=");
+    builder.append(CRASHED);
+
+    String sql = builder.toString();
+    int count = DBUtil.update(connection, sql);
+    if (count == 0)
+    {
+      throw new DBException("No row updated in table " + CDODBSchema.REPOSITORY);
     }
   }
 
