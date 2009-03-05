@@ -65,6 +65,8 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
 
   private Map<Object, IDBTable> referenceTables = new HashMap<Object, IDBTable>();
 
+  private Map<EClass, IClassMapping> classMappings = new HashMap<EClass, IClassMapping>();
+
   public MappingStrategy()
   {
   }
@@ -143,25 +145,22 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
 
   public IClassMapping getClassMapping(EClass eClass)
   {
-    IClassMapping mapping;
+    synchronized (classMappings)
+    {
+      IClassMapping mapping = classMappings.get(eClass);
+      if (mapping == null)
+      {
+        mapping = createClassMapping(eClass);
+        classMappings.put(eClass, mapping);
+      }
 
-    // try
-    // {
-    // ServerInfo serverInfo = (ServerInfo)ServerInfo.getServerInfo(eClass, getStore());
-    // mapping = serverInfo.getClassMapping();
-    // if (mapping == NoClassMapping.INSTANCE)
-    // {
-    // return null;
-    // }
-    // }
-    // catch (RuntimeException ex)
-    // {
-    // mapping = createClassMapping(eClass);
-    // ServerInfo serverInfo = (ServerInfo)ServerInfo.getServerInfo(eClass, getStore());
-    // serverInfo.setClassMapping(mapping == null ? NoClassMapping.INSTANCE : mapping);
-    // }
+      if (mapping == NoClassMapping.INSTANCE)
+      {
+        return null;
+      }
 
-    return mapping;
+      return mapping;
+    }
   }
 
   public String getTableName(EPackage ePackage)

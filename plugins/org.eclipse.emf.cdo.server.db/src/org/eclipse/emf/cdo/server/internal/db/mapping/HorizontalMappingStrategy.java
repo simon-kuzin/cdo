@@ -21,12 +21,10 @@ import org.eclipse.emf.cdo.server.db.IObjectTypeCache;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
 import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
 import org.eclipse.emf.cdo.server.internal.db.ObjectTypeCache;
-import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 
 import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
-import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EPackage;
@@ -39,8 +37,6 @@ import java.util.List;
  */
 public class HorizontalMappingStrategy extends MappingStrategy
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, HorizontalMappingStrategy.class);
-
   private IObjectTypeCache objectTypeCache;
 
   public HorizontalMappingStrategy()
