@@ -239,14 +239,17 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
   {
     try
     {
-      monitor.begin(105);
+      monitor.begin(106);
 
       // Could throw an exception
       timeStamp = createTimeStamp();
       dirtyObjects = new InternalCDORevision[dirtyObjectDeltas.length];
 
       adjustMetaRanges();
-      adjustTimeStamps(monitor.fork());
+      monitor.worked();
+
+      adjustTimeStamps();
+      monitor.worked();
 
       Repository repository = (Repository)transaction.getRepository();
       computeDirtyObjects(!repository.isSupportingRevisionDeltas(), monitor.fork());
@@ -329,21 +332,12 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
     }
   }
 
-  private void adjustTimeStamps(OMMonitor monitor)
+  private void adjustTimeStamps()
   {
-    try
+    for (CDORevision newObject : newObjects)
     {
-      monitor.begin(newObjects.length);
-      for (CDORevision newObject : newObjects)
-      {
-        InternalCDORevision revision = (InternalCDORevision)newObject;
-        revision.setCreated(timeStamp);
-        monitor.worked();
-      }
-    }
-    finally
-    {
-      monitor.done();
+      InternalCDORevision revision = (InternalCDORevision)newObject;
+      revision.setCreated(timeStamp);
     }
   }
 

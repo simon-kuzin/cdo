@@ -10,7 +10,6 @@
  */
 package org.eclipse.emf.cdo.server;
 
-import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 
@@ -70,10 +69,6 @@ public interface IRepository extends IContainer<Object>, IQueryHandlerProvider
    * @since 2.0
    */
   public IQueryHandlerProvider getQueryHandlerProvider();
-
-  public long getLastMetaID();
-
-  public CDOIDMetaRange getMetaIDRange(int count);
 
   /**
    * Returns the repository creation time.

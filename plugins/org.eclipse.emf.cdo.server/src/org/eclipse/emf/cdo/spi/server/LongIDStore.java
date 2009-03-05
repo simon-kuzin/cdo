@@ -26,12 +26,13 @@ import java.util.Set;
  */
 public abstract class LongIDStore extends Store
 {
-  protected static final long CRASHED = -1L;
-
   private static final CDOIDLongFactoryImpl CDOID_OBJECT_FACTORY = new CDOIDLongFactoryImpl();
 
   @ExcludeFromDump
   private transient long lastObjectID;
+
+  @ExcludeFromDump
+  private transient Object lastObjectIDLock = new Object();
 
   /**
    * @since 2.0
@@ -59,21 +60,25 @@ public abstract class LongIDStore extends Store
 
   public long getLastObjectID()
   {
-    return lastObjectID;
+    synchronized (lastObjectIDLock)
+    {
+      return lastObjectID;
+    }
   }
 
   public void setLastObjectID(long lastObjectID)
   {
-    this.lastObjectID = lastObjectID;
+    synchronized (lastObjectIDLock)
+    {
+      this.lastObjectID = lastObjectID;
+    }
   }
 
-  public synchronized CDOID getNextCDOID()
+  public CDOID getNextCDOID()
   {
-    return CDOIDUtil.createLong(++lastObjectID);
-  }
-
-  public boolean wasCrashed()
-  {
-    return lastObjectID == CRASHED;
+    synchronized (lastObjectIDLock)
+    {
+      return CDOIDUtil.createLong(++lastObjectID);
+    }
   }
 }

@@ -12,6 +12,8 @@ package org.eclipse.emf.cdo.spi.server;
 
 import org.eclipse.emf.cdo.common.CDOCommonView;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
+import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.ISessionManager;
@@ -37,6 +39,8 @@ import java.util.Set;
  */
 public abstract class Store extends Lifecycle implements IStore
 {
+  protected static final long CRASHED = -1L;
+
   @ExcludeFromDump
   private final transient String type;
 
@@ -56,7 +60,10 @@ public abstract class Store extends Lifecycle implements IStore
   private IRepository repository;
 
   @ExcludeFromDump
-  private transient long lastMetaID;
+  private transient long lastMetaID = CRASHED;
+
+  @ExcludeFromDump
+  private transient Object lastMetaIDLock = new Object();
 
   @ExcludeFromDump
   private transient ProgressDistributor indicatingCommitDistributor = new ProgressDistributor.Geometric()
@@ -177,12 +184,28 @@ public abstract class Store extends Lifecycle implements IStore
 
   public long getLastMetaID()
   {
-    return lastMetaID;
+    synchronized (lastMetaIDLock)
+    {
+      return lastMetaID;
+    }
   }
 
   public void setLastMetaID(long lastMetaID)
   {
-    this.lastMetaID = lastMetaID;
+    synchronized (lastMetaIDLock)
+    {
+      this.lastMetaID = lastMetaID;
+    }
+  }
+
+  public CDOIDMetaRange getNextMetaIDRange(int count)
+  {
+    synchronized (lastMetaIDLock)
+    {
+      CDOID lowerBound = CDOIDUtil.createMeta(lastMetaID + 1);
+      lastMetaID += count;
+      return CDOIDUtil.createMetaRange(lowerBound, count);
+    }
   }
 
   /**

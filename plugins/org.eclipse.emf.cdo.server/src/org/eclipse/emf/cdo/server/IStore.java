@@ -12,6 +12,7 @@ package org.eclipse.emf.cdo.server;
 
 import org.eclipse.emf.cdo.common.id.CDOIDLibraryDescriptor;
 import org.eclipse.emf.cdo.common.id.CDOIDLibraryProvider;
+import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDObjectFactory;
 
 import org.eclipse.net4j.util.om.monitor.ProgressDistributor;
@@ -78,11 +79,7 @@ public interface IStore
    */
   public void setRevisionParallelism(RevisionParallelism revisionParallelism);
 
-  public boolean wasCrashed();
-
-  public void repairAfterCrash();
-
-  public long getLastMetaID();
+  public CDOIDMetaRange getNextMetaIDRange(int count);
 
   /**
    * Returns the store creation time.

@@ -15,9 +15,6 @@
 package org.eclipse.emf.cdo.internal.server;
 
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
-import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
-import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
@@ -92,9 +89,6 @@ public class Repository extends Container<Object> implements IRepository, Packag
   private List<ReadAccessHandler> readAccessHandlers = new ArrayList<ReadAccessHandler>();
 
   private List<WriteAccessHandler> writeAccessHandlers = new ArrayList<WriteAccessHandler>();
-
-  @ExcludeFromDump
-  private transient long lastMetaID;
 
   @ExcludeFromDump
   private transient long lastCommitTimeStamp;
@@ -372,23 +366,6 @@ public class Repository extends Container<Object> implements IRepository, Packag
     return false;
   }
 
-  public synchronized CDOIDMetaRange getMetaIDRange(int count)
-  {
-    CDOID lowerBound = CDOIDUtil.createMeta(lastMetaID + 1);
-    lastMetaID += count;
-    return CDOIDUtil.createMetaRange(lowerBound, count);
-  }
-
-  public long getLastMetaID()
-  {
-    return lastMetaID;
-  }
-
-  public void setLastMetaID(long lastMetaID)
-  {
-    this.lastMetaID = lastMetaID;
-  }
-
   /**
    * @since 2.0
    */
@@ -589,14 +566,6 @@ public class Repository extends Container<Object> implements IRepository, Packag
     EMFUtil.registerPackage(EresourcePackage.eINSTANCE, packageRegistry);
 
     LifecycleUtil.activate(store);
-    if (store.wasCrashed())
-    {
-      OM.LOG.info("Crash of repository " + name + " detected");
-      store.repairAfterCrash();
-    }
-
-    setLastMetaID(store.getLastMetaID());
-
     LifecycleUtil.activate(sessionManager);
     LifecycleUtil.activate(revisionManager);
     LifecycleUtil.activate(queryManager);

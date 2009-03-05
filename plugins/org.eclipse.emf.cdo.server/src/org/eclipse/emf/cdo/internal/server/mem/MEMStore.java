@@ -280,11 +280,6 @@ public class MEMStore extends LongIDStore implements IMEMStore
     }
   }
 
-  public void repairAfterCrash()
-  {
-    // Do nothing
-  }
-
   @Override
   public MEMStoreAccessor createReader(ISession session)
   {
