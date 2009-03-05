@@ -239,13 +239,13 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
   {
     try
     {
-      monitor.begin(106);
+      monitor.begin(105);
 
       // Could throw an exception
       timeStamp = createTimeStamp();
       dirtyObjects = new InternalCDORevision[dirtyObjectDeltas.length];
 
-      adjustMetaRanges(monitor.fork());
+      adjustMetaRanges();
       adjustTimeStamps(monitor.fork());
 
       Repository repository = (Repository)transaction.getRepository();
@@ -347,41 +347,23 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
     }
   }
 
-  private void adjustMetaRanges(OMMonitor monitor)
+  private void adjustMetaRanges()
   {
-    try
+    for (InternalCDOPackageUnit newPackageUnit : newPackageUnits)
     {
-      monitor.begin(newPackageUnits.length);
-      for (InternalCDOPackageUnit newPackageUnit : newPackageUnits)
-      {
-        adjustMetaRange(newPackageUnit, monitor.fork());
-      }
-    }
-    finally
-    {
-      monitor.done();
+      adjustMetaRange(newPackageUnit);
     }
   }
 
-  private void adjustMetaRange(InternalCDOPackageUnit packageUnit, OMMonitor monitor)
+  private void adjustMetaRange(InternalCDOPackageUnit packageUnit)
   {
-    InternalCDOPackageInfo[] packageInfos = packageUnit.getPackageInfos();
-    monitor.begin(packageInfos.length);
-
-    try
+    for (InternalCDOPackageInfo packageInfo : packageUnit.getPackageInfos())
     {
-      for (InternalCDOPackageInfo packageInfo : packageInfos)
-      {
-        adjustMetaRange(packageInfo, monitor.fork());
-      }
-    }
-    finally
-    {
-      monitor.done();
+      adjustMetaRange(packageInfo);
     }
   }
 
-  private void adjustMetaRange(InternalCDOPackageInfo packageInfo, OMMonitor monitor)
+  private void adjustMetaRange(InternalCDOPackageInfo packageInfo)
   {
     CDOIDMetaRange oldRange = packageInfo.getMetaIDRange();
     if (!oldRange.isTemporary())
@@ -389,31 +371,22 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
       throw new IllegalStateException("!oldRange.isTemporary()");
     }
 
-    monitor.begin(oldRange.size());
-
-    try
+    int count = oldRange.size();
+    CDOIDMetaRange newRange = transaction.getRepository().getStore().getNextMetaIDRange(count);
+    packageInfo.setMetaIDRange(newRange);
+    for (int i = 0; i < count; i++)
     {
-      CDOIDMetaRange newRange = transaction.getRepository().getMetaIDRange(oldRange.size());
-      packageInfo.setMetaIDRange(newRange);
-      for (int l = 0; l < oldRange.size(); l++)
+      CDOIDTemp oldID = (CDOIDTemp)oldRange.get(i);
+      CDOID newID = newRange.get(i);
+      if (TRACER.isEnabled())
       {
-        CDOIDTemp oldID = (CDOIDTemp)oldRange.get(l);
-        CDOID newID = newRange.get(l);
-        if (TRACER.isEnabled())
-        {
-          TRACER.format("Mapping meta ID: {0} --> {1}", oldID, newID);
-        }
-
-        idMappings.put(oldID, newID);
-        monitor.worked();
+        TRACER.format("Mapping meta ID: {0} --> {1}", oldID, newID);
       }
 
-      metaIDRanges.add(newRange);
+      idMappings.put(oldID, newID);
     }
-    finally
-    {
-      monitor.done();
-    }
+
+    metaIDRanges.add(newRange);
   }
 
   private void lockObjects() throws InterruptedException

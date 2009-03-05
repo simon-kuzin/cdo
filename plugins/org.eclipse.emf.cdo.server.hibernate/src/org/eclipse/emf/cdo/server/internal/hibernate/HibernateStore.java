@@ -155,16 +155,6 @@ public class HibernateStore extends Store implements IHibernateStore
     return packageHandler.getNextFeatureID();
   }
 
-  public boolean wasCrashed()
-  {
-    return false;
-  }
-
-  public void repairAfterCrash()
-  {
-    throw new UnsupportedOperationException(); // TODO Implement me
-  }
-
   public long getCreationTime()
   {
     return CDORevision.UNSPECIFIED_DATE;

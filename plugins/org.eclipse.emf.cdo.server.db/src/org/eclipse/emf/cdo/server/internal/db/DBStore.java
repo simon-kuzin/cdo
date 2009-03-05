@@ -326,13 +326,13 @@ public class DBStore extends LongIDStore implements IDBStore
         InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)getRepository().getPackageRegistry();
 
         InternalCDOPackageInfo ecoreInfo = packageRegistry.getPackageInfo(EcorePackage.eINSTANCE);
-        CDOIDMetaRange ecoreRange = getRepository().getMetaIDRange(ecoreInfo.getMetaIDRange().size());
+        CDOIDMetaRange ecoreRange = getNextMetaIDRange(ecoreInfo.getMetaIDRange().size());
         ecoreInfo.setMetaIDRange(ecoreRange);
         InternalCDOPackageUnit ecoreUnit = ecoreInfo.getPackageUnit();
         ecoreUnit.setTimeStamp(creationTime);
 
         InternalCDOPackageInfo eresourceInfo = packageRegistry.getPackageInfo(EresourcePackage.eINSTANCE);
-        CDOIDMetaRange eresourceRange = getRepository().getMetaIDRange(eresourceInfo.getMetaIDRange().size());
+        CDOIDMetaRange eresourceRange = getNextMetaIDRange(eresourceInfo.getMetaIDRange().size());
         eresourceInfo.setMetaIDRange(eresourceRange);
         InternalCDOPackageUnit eresourceUnit = eresourceInfo.getPackageUnit();
         eresourceUnit.setTimeStamp(creationTime);
@@ -427,7 +427,7 @@ public class DBStore extends LongIDStore implements IDBStore
       builder.append(", ");
       builder.append(CDODBSchema.REPOSITORY_NEXT_METAID);
       builder.append("=");
-      builder.append(getRepository().getLastMetaID());
+      builder.append(getLastMetaID());
 
       String sql = builder.toString();
       int count = DBUtil.update(connection, sql);
