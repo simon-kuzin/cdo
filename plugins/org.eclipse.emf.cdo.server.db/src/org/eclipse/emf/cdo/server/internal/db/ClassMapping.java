@@ -34,6 +34,7 @@ import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IFeatureMapping;
 import org.eclipse.emf.cdo.server.db.IReferenceMapping;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
 
 import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.db.DBType;
@@ -346,7 +347,7 @@ public abstract class ClassMapping implements IClassMapping
     return feature;
   }
 
-  public void writeRevision(IDBStoreAccessor accessor, CDORevision revision, OMMonitor monitor)
+  public void writeRevision(IDBStoreAccessor accessor, InternalCDORevision revision, OMMonitor monitor)
   {
     try
     {
@@ -492,7 +493,7 @@ public abstract class ClassMapping implements IClassMapping
     }
   }
 
-  public void writeRevisionDelta(IDBStoreAccessor accessor, CDORevisionDelta delta, long created, OMMonitor monitor)
+  public void writeRevisionDelta(IDBStoreAccessor accessor, InternalCDORevisionDelta delta, long created, OMMonitor monitor)
   {
     monitor.begin();
     Async async = monitor.forkAsync();
@@ -509,19 +510,19 @@ public abstract class ClassMapping implements IClassMapping
     }
   }
 
-  public boolean readRevision(IDBStoreAccessor accessor, CDORevision revision, int referenceChunk)
+  public boolean readRevision(IDBStoreAccessor accessor, InternalCDORevision revision, int referenceChunk)
   {
     String where = mappingStrategy.createWhereClause(CDORevision.UNSPECIFIED_DATE);
     return readRevision(accessor, (InternalCDORevision)revision, where, referenceChunk);
   }
 
-  public boolean readRevisionByTime(IDBStoreAccessor accessor, CDORevision revision, long timeStamp, int referenceChunk)
+  public boolean readRevisionByTime(IDBStoreAccessor accessor, InternalCDORevision revision, long timeStamp, int referenceChunk)
   {
     String where = mappingStrategy.createWhereClause(timeStamp);
     return readRevision(accessor, (InternalCDORevision)revision, where, referenceChunk);
   }
 
-  public boolean readRevisionByVersion(IDBStoreAccessor accessor, CDORevision revision, int version, int referenceChunk)
+  public boolean readRevisionByVersion(IDBStoreAccessor accessor, InternalCDORevision revision, int version, int referenceChunk)
   {
     String where = CDODBSchema.ATTRIBUTES_VERSION + "=" + version;
     return readRevision(accessor, (InternalCDORevision)revision, where, referenceChunk);

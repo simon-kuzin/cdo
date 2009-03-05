@@ -11,7 +11,6 @@
 package org.eclipse.emf.cdo.server.internal.db.jdbc;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.IStoreChunkReader.Chunk;
 import org.eclipse.emf.cdo.server.db.IAttributeMapping;
 import org.eclipse.emf.cdo.server.db.IClassMapping;
@@ -20,6 +19,7 @@ import org.eclipse.emf.cdo.server.db.IDBStoreChunkReader;
 import org.eclipse.emf.cdo.server.db.IJDBCDelegate;
 import org.eclipse.emf.cdo.server.db.IReferenceMapping;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.util.collection.Pair;
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
@@ -79,7 +79,7 @@ public class JDBCPerformanceReporter extends Lifecycle implements IJDBCDelegate
     return delegate.getStatement();
   }
 
-  public void insertAttributes(CDORevision revision, IClassMapping classMapping)
+  public void insertAttributes(InternalCDORevision revision, IClassMapping classMapping)
   {
     long time = System.currentTimeMillis();
     delegate.insertAttributes(revision, classMapping);
@@ -114,7 +114,7 @@ public class JDBCPerformanceReporter extends Lifecycle implements IJDBCDelegate
     delegate.rollback();
   }
 
-  public boolean selectRevisionAttributes(CDORevision revision, IClassMapping classMapping, String where)
+  public boolean selectRevisionAttributes(InternalCDORevision revision, IClassMapping classMapping, String where)
   {
     long time = System.currentTimeMillis();
     boolean result = delegate.selectRevisionAttributes(revision, null, where);
@@ -132,7 +132,7 @@ public class JDBCPerformanceReporter extends Lifecycle implements IJDBCDelegate
     registerCall("selectReferencesChunks", time);
   }
 
-  public void selectRevisionReferences(CDORevision revision, IReferenceMapping referenceMapping, int referenceChunk)
+  public void selectRevisionReferences(InternalCDORevision revision, IReferenceMapping referenceMapping, int referenceChunk)
   {
     long time = System.currentTimeMillis();
     delegate.selectRevisionReferences(revision, referenceMapping, referenceChunk);
@@ -140,7 +140,7 @@ public class JDBCPerformanceReporter extends Lifecycle implements IJDBCDelegate
     registerCall("selectReferences", time);
   }
 
-  public final void updateRevisedForReplace(CDORevision revision, IClassMapping classMapping)
+  public final void updateRevisedForReplace(InternalCDORevision revision, IClassMapping classMapping)
   {
     long time = System.currentTimeMillis();
     delegate.updateRevisedForReplace(revision, classMapping);
@@ -172,7 +172,7 @@ public class JDBCPerformanceReporter extends Lifecycle implements IJDBCDelegate
     registerCall("deleteReferences", time);
   }
 
-  public void updateAttributes(CDORevision revision, IClassMapping classMapping)
+  public void updateAttributes(InternalCDORevision revision, IClassMapping classMapping)
   {
     long time = System.currentTimeMillis();
     delegate.updateAttributes(revision, classMapping);

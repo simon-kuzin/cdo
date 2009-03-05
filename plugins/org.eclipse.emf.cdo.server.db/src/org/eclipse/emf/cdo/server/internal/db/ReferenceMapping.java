@@ -12,7 +12,6 @@
 package org.eclipse.emf.cdo.server.internal.db;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.IStoreChunkReader.Chunk;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
@@ -133,7 +132,7 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
     return table;
   }
 
-  public final void writeReference(IDBStoreAccessor accessor, CDORevision revision)
+  public final void writeReference(IDBStoreAccessor accessor, InternalCDORevision revision)
   {
     int idx = 0;
     for (Object element : ((InternalCDORevision)revision).getList(getFeature()))
@@ -178,7 +177,7 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
     accessor.getJDBCDelegate().deleteReferences(id, this);
   }
 
-  public final void readReference(IDBStoreAccessor accessor, CDORevision revision, int referenceChunk)
+  public final void readReference(IDBStoreAccessor accessor, InternalCDORevision revision, int referenceChunk)
   {
     accessor.getJDBCDelegate().selectRevisionReferences(revision, this, referenceChunk);
   }

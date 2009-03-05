@@ -95,7 +95,7 @@ public class HorizontalMappingStrategy extends MappingStrategy
             if (resultSet.next())
             {
               int classID = resultSet.getInt(1);
-              return getClassRef(accessor, classID);
+              return getClassifierRef(accessor, classID);
             }
           }
           catch (SQLException ex)

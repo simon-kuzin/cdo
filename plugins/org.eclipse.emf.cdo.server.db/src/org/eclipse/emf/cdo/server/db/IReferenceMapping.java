@@ -12,8 +12,8 @@
 package org.eclipse.emf.cdo.server.db;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.IStoreChunkReader.Chunk;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.db.ddl.IDBTable;
 
@@ -36,7 +36,7 @@ public interface IReferenceMapping extends IFeatureMapping
    * 
    * @since 2.0
    */
-  public void writeReference(IDBStoreAccessor accessor, CDORevision revision);
+  public void writeReference(IDBStoreAccessor accessor, InternalCDORevision revision);
 
   /**
    * Write one element of the list of references
@@ -91,7 +91,7 @@ public interface IReferenceMapping extends IFeatureMapping
   /**
    * @since 2.0
    */
-  public void readReference(IDBStoreAccessor accessor, CDORevision revision, int referenceChunk);
+  public void readReference(IDBStoreAccessor accessor, InternalCDORevision revision, int referenceChunk);
 
   public void readChunks(IDBStoreChunkReader chunkReader, List<Chunk> chunks, String string);
 }

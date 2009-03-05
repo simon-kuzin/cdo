@@ -20,9 +20,7 @@ import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.model.EMFUtil;
-import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
-import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.server.IQueryContext;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.ISession;
@@ -535,7 +533,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     monitor.begin(revisionDeltas.length);
     try
     {
-      for (CDORevisionDelta delta : revisionDeltas)
+      for (InternalCDORevisionDelta delta : revisionDeltas)
       {
         writeRevisionDelta(delta, created, monitor.fork());
       }
@@ -546,7 +544,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     }
   }
 
-  protected void writeRevisionDelta(CDORevisionDelta delta, long created, OMMonitor monitor)
+  protected void writeRevisionDelta(InternalCDORevisionDelta delta, long created, OMMonitor monitor)
   {
     EClass eClass = getObjectType(delta.getID());
     IClassMapping mapping = getStore().getMappingStrategy().getClassMapping(eClass);
@@ -559,7 +557,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     try
     {
       monitor.begin(revisions.length);
-      for (CDORevision revision : revisions)
+      for (InternalCDORevision revision : revisions)
       {
         writeRevision(revision, monitor.fork());
       }
@@ -570,7 +568,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     }
   }
 
-  protected void writeRevision(CDORevision revision, OMMonitor monitor)
+  protected void writeRevision(InternalCDORevision revision, OMMonitor monitor)
   {
     if (TRACER.isEnabled())
     {

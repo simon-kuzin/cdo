@@ -173,13 +173,13 @@ public abstract class AbstractJDBCDelegate extends Lifecycle implements IJDBCDel
     }
   }
 
-  public final void insertAttributes(CDORevision revision, IClassMapping classMapping)
+  public final void insertAttributes(InternalCDORevision revision, IClassMapping classMapping)
   {
     doInsertAttributes(classMapping.getTable().getName(), revision, classMapping.getAttributeMappings(), classMapping
         .hasFullRevisionInfo());
   }
 
-  public final void updateAttributes(CDORevision cdoRevision, IClassMapping classMapping)
+  public final void updateAttributes(InternalCDORevision cdoRevision, IClassMapping classMapping)
   {
     InternalCDORevision revision = (InternalCDORevision)cdoRevision;
 
@@ -217,7 +217,7 @@ public abstract class AbstractJDBCDelegate extends Lifecycle implements IJDBCDel
         classMapping.hasFullRevisionInfo());
   }
 
-  public final void updateRevisedForReplace(CDORevision revision, IClassMapping classMapping)
+  public final void updateRevisedForReplace(InternalCDORevision revision, IClassMapping classMapping)
   {
     doUpdateRevisedForReplace(classMapping.getTable().getName(), revision.getCreated() - 1, CDOIDUtil.getLong(revision
         .getID()), revision.getVersion() - 1);
@@ -274,7 +274,7 @@ public abstract class AbstractJDBCDelegate extends Lifecycle implements IJDBCDel
     doUpdateReferenceVersion(referenceMapping.getTable().getName(), CDOIDUtil.getLong(id), newVersion);
   }
 
-  public final boolean selectRevisionAttributes(CDORevision revision, IClassMapping classMapping, String where)
+  public final boolean selectRevisionAttributes(InternalCDORevision revision, IClassMapping classMapping, String where)
   {
     List<IAttributeMapping> attributeMappings = classMapping.getAttributeMappings();
     if (attributeMappings == null)
@@ -326,7 +326,7 @@ public abstract class AbstractJDBCDelegate extends Lifecycle implements IJDBCDel
     }
   }
 
-  public void selectRevisionReferences(CDORevision revision, IReferenceMapping referenceMapping, int referenceChunk)
+  public void selectRevisionReferences(InternalCDORevision revision, IReferenceMapping referenceMapping, int referenceChunk)
   {
     MoveableList<Object> list = ((InternalCDORevision)revision).getList(referenceMapping.getFeature());
 

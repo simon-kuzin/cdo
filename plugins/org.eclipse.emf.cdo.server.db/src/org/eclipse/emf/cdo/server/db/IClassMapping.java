@@ -12,8 +12,8 @@
 package org.eclipse.emf.cdo.server.db;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.revision.CDORevision;
-import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
 
 import org.eclipse.net4j.db.ddl.IDBTable;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
@@ -58,12 +58,13 @@ public interface IClassMapping
   /**
    * @since 2.0
    */
-  public void writeRevision(IDBStoreAccessor accessor, CDORevision revision, OMMonitor monitor);
+  public void writeRevision(IDBStoreAccessor accessor, InternalCDORevision revision, OMMonitor monitor);
 
   /**
    * @since 2.0
    */
-  public void writeRevisionDelta(IDBStoreAccessor accessor, CDORevisionDelta delta, long created, OMMonitor monitor);
+  public void writeRevisionDelta(IDBStoreAccessor accessor, InternalCDORevisionDelta delta, long created,
+      OMMonitor monitor);
 
   /**
    * @since 2.0
@@ -75,19 +76,21 @@ public interface IClassMapping
    * @return <code>true</code> if the revision has been loaded sucessfully.<br>
    *         <code>false</code> if the revision does not exist in the DB.
    */
-  public boolean readRevision(IDBStoreAccessor accessor, CDORevision revision, int referenceChunk);
+  public boolean readRevision(IDBStoreAccessor accessor, InternalCDORevision revision, int referenceChunk);
 
   /**
    * @since 2.0
    * @return <code>true</code> if the revision has been loaded sucessfully.<br>
    *         <code>false</code> if the revision does not exist in the DB.
    */
-  public boolean readRevisionByTime(IDBStoreAccessor accessor, CDORevision revision, long timeStamp, int referenceChunk);
+  public boolean readRevisionByTime(IDBStoreAccessor accessor, InternalCDORevision revision, long timeStamp,
+      int referenceChunk);
 
   /**
    * @since 2.0
    * @return <code>true</code> if the revision has been loaded sucessfully.<br>
    *         <code>false</code> if the revision does not exist in the DB.
    */
-  public boolean readRevisionByVersion(IDBStoreAccessor accessor, CDORevision revision, int version, int referenceChunk);
+  public boolean readRevisionByVersion(IDBStoreAccessor accessor, InternalCDORevision revision, int version,
+      int referenceChunk);
 }

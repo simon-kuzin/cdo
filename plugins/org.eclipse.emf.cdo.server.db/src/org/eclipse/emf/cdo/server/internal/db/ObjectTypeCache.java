@@ -93,7 +93,7 @@ public class ObjectTypeCache extends Lifecycle implements IObjectTypeCache
       }
 
       int classID = resultSet.getInt(1);
-      return mappingStrategy.getClassRef(accessor, classID);
+      return mappingStrategy.getClassifierRef(accessor, classID);
     }
     catch (SQLException ex)
     {

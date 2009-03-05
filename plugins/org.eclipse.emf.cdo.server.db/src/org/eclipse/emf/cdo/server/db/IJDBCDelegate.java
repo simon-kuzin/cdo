@@ -13,10 +13,10 @@
 package org.eclipse.emf.cdo.server.db;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.IStoreChunkReader.Chunk;
 import org.eclipse.emf.cdo.server.internal.db.jdbc.AbstractJDBCDelegate;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.util.collection.Pair;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
@@ -82,12 +82,12 @@ public interface IJDBCDelegate
   /**
    * Insert an attribute row.
    */
-  public void insertAttributes(CDORevision revision, IClassMapping classMapping);
+  public void insertAttributes(InternalCDORevision revision, IClassMapping classMapping);
 
   /**
    * Update an attribute row.
    */
-  public void updateAttributes(CDORevision revision, IClassMapping classMapping);
+  public void updateAttributes(InternalCDORevision revision, IClassMapping classMapping);
 
   /**
    * Update an attribute row.
@@ -105,7 +105,7 @@ public interface IJDBCDelegate
   /**
    * Set the revised date of a specific revision's previous version.
    */
-  public void updateRevisedForReplace(CDORevision revision, IClassMapping classMapping);
+  public void updateRevisedForReplace(InternalCDORevision revision, IClassMapping classMapping);
 
   /**
    * Set the revised date of all unrevised rows of cdoid
@@ -167,12 +167,13 @@ public interface IJDBCDelegate
    * @return <code>true</code> if the revision attributes have been successfully loaded.<br>
    *         <code>false</code> if the revision does not exist in the database.
    */
-  public boolean selectRevisionAttributes(CDORevision revision, IClassMapping classMapping, String where);
+  public boolean selectRevisionAttributes(InternalCDORevision revision, IClassMapping classMapping, String where);
 
   /**
    * Select a revision's references (or a part thereof)
    */
-  public void selectRevisionReferences(CDORevision revision, IReferenceMapping referenceMapping, int referenceChunk);
+  public void selectRevisionReferences(InternalCDORevision revision, IReferenceMapping referenceMapping,
+      int referenceChunk);
 
   /**
    * Select a revision's reference's chunks

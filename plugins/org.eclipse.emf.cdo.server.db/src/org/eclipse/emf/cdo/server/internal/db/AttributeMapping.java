@@ -13,7 +13,6 @@ package org.eclipse.emf.cdo.server.internal.db;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
-import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.db.IAttributeMapping;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
@@ -44,7 +43,7 @@ public abstract class AttributeMapping extends FeatureMapping implements IAttrib
     return field;
   }
 
-  public void appendValue(StringBuilder builder, CDORevision revision)
+  public void appendValue(StringBuilder builder, InternalCDORevision revision)
   {
     IDBAdapter dbAdapter = getDBAdapter();
     Object value = getRevisionValue(revision);
@@ -58,13 +57,13 @@ public abstract class AttributeMapping extends FeatureMapping implements IAttrib
     dbAdapter.appendValue(builder, field, dbValue);
   }
 
-  public Object getRevisionValue(CDORevision revision)
+  public Object getRevisionValue(InternalCDORevision revision)
   {
     EStructuralFeature feature = getFeature();
     return ((InternalCDORevision)revision).getValue(feature);
   }
 
-  public void extractValue(ResultSet resultSet, int column, CDORevision revision)
+  public void extractValue(ResultSet resultSet, int column, InternalCDORevision revision)
   {
     try
     {

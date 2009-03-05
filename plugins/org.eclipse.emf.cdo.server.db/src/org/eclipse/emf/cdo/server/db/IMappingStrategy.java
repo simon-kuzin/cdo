@@ -92,7 +92,7 @@ public interface IMappingStrategy
   /**
    * @since 2.0
    */
-  public CDOClassifierRef getClassRef(IDBStoreAccessor accessor, int classID);
+  public CDOClassifierRef getClassifierRef(IDBStoreAccessor accessor, int classID);
 
   /**
    * @since 2.0

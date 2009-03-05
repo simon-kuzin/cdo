@@ -11,7 +11,7 @@
  */
 package org.eclipse.emf.cdo.server.db;
 
-import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.db.ddl.IDBField;
 
@@ -27,7 +27,7 @@ public interface IAttributeMapping extends IFeatureMapping
   /**
    * @since 2.0
    */
-  public void appendValue(StringBuilder builder, CDORevision revision);
+  public void appendValue(StringBuilder builder, InternalCDORevision revision);
 
   /**
    * @since 2.0
@@ -37,10 +37,10 @@ public interface IAttributeMapping extends IFeatureMapping
   /**
    * @since 2.0
    */
-  public void extractValue(ResultSet resultSet, int column, CDORevision revision);
+  public void extractValue(ResultSet resultSet, int column, InternalCDORevision revision);
 
   /**
    * @since 2.0
    */
-  public Object getRevisionValue(CDORevision revision);
+  public Object getRevisionValue(InternalCDORevision revision);
 }

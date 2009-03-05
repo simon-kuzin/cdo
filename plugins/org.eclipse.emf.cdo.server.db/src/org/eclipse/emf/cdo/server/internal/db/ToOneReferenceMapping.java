@@ -12,7 +12,7 @@ package org.eclipse.emf.cdo.server.internal.db;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
-import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.emf.ecore.EStructuralFeature;
 
@@ -27,7 +27,7 @@ public class ToOneReferenceMapping extends AttributeMapping.AMObject
   }
 
   @Override
-  public Long getRevisionValue(CDORevision revision)
+  public Long getRevisionValue(InternalCDORevision revision)
   {
     CDOID id = (CDOID)super.getRevisionValue(revision);
     return CDOIDUtil.getLong(id);
