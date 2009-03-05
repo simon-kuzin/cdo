@@ -154,7 +154,7 @@ public abstract class ClassMapping implements IClassMapping
     table.addField(CDODBSchema.ATTRIBUTES_VERSION, DBType.INTEGER, true);
     if (full)
     {
-      table.addField(CDODBSchema.ATTRIBUTES_CLASS, DBType.INTEGER, true);
+      table.addField(CDODBSchema.ATTRIBUTES_CLASS, DBType.BIGINT, true);
       table.addField(CDODBSchema.ATTRIBUTES_CREATED, DBType.BIGINT, true);
       IDBField revisedField = table.addField(CDODBSchema.ATTRIBUTES_REVISED, DBType.BIGINT, true);
       table.addField(CDODBSchema.ATTRIBUTES_RESOURCE, DBType.BIGINT, true);
@@ -359,7 +359,7 @@ public abstract class ClassMapping implements IClassMapping
 
       if (revision.getVersion() > 1 && hasFullRevisionInfo() && isAuditing())
       {
-        writeRevisedRow(accessor, (InternalCDORevision)revision);
+        writeRevisedRow(accessor, revision);
       }
 
       monitor.worked();
@@ -372,14 +372,14 @@ public abstract class ClassMapping implements IClassMapping
       monitor.worked();
 
       // Write attribute table always (even without modeled attributes!)
-      writeAttributes(accessor, (InternalCDORevision)revision);
+      writeAttributes(accessor, revision);
 
       monitor.worked();
 
       // Write reference tables only if they exist
       if (referenceMappings != null)
       {
-        writeReferences(accessor, (InternalCDORevision)revision);
+        writeReferences(accessor, revision);
       }
 
       monitor.worked(7);
@@ -496,7 +496,8 @@ public abstract class ClassMapping implements IClassMapping
     }
   }
 
-  public void writeRevisionDelta(IDBStoreAccessor accessor, InternalCDORevisionDelta delta, long created, OMMonitor monitor)
+  public void writeRevisionDelta(IDBStoreAccessor accessor, InternalCDORevisionDelta delta, long created,
+      OMMonitor monitor)
   {
     monitor.begin();
     Async async = monitor.forkAsync();
@@ -516,19 +517,21 @@ public abstract class ClassMapping implements IClassMapping
   public boolean readRevision(IDBStoreAccessor accessor, InternalCDORevision revision, int referenceChunk)
   {
     String where = mappingStrategy.createWhereClause(CDORevision.UNSPECIFIED_DATE);
-    return readRevision(accessor, (InternalCDORevision)revision, where, referenceChunk);
+    return readRevision(accessor, revision, where, referenceChunk);
   }
 
-  public boolean readRevisionByTime(IDBStoreAccessor accessor, InternalCDORevision revision, long timeStamp, int referenceChunk)
+  public boolean readRevisionByTime(IDBStoreAccessor accessor, InternalCDORevision revision, long timeStamp,
+      int referenceChunk)
   {
     String where = mappingStrategy.createWhereClause(timeStamp);
-    return readRevision(accessor, (InternalCDORevision)revision, where, referenceChunk);
+    return readRevision(accessor, revision, where, referenceChunk);
   }
 
-  public boolean readRevisionByVersion(IDBStoreAccessor accessor, InternalCDORevision revision, int version, int referenceChunk)
+  public boolean readRevisionByVersion(IDBStoreAccessor accessor, InternalCDORevision revision, int version,
+      int referenceChunk)
   {
     String where = CDODBSchema.ATTRIBUTES_VERSION + "=" + version;
-    return readRevision(accessor, (InternalCDORevision)revision, where, referenceChunk);
+    return readRevision(accessor, revision, where, referenceChunk);
   }
 
   /**

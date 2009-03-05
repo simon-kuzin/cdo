@@ -71,9 +71,6 @@ public class CDODBSchema extends DBSchema
    */
   public static final IDBTable PACKAGE_INFOS = INSTANCE.addTable("cdo_package_infos");
 
-  public static final IDBField PACKAGE_INFOS_ID = //
-  PACKAGE_INFOS.addField("id", DBType.INTEGER);
-
   public static final IDBField PACKAGE_INFOS_URI = //
   PACKAGE_INFOS.addField("uri", DBType.VARCHAR, 255);
 
@@ -89,107 +86,14 @@ public class CDODBSchema extends DBSchema
   public static final IDBField PACKAGE_INFOS_META_UB = //
   PACKAGE_INFOS.addField("meta_ub", DBType.BIGINT);
 
-  public static final IDBField PACKAGE_INFOS_CLASSIFIER_LB = //
-  PACKAGE_INFOS.addField("classifier_lb", DBType.INTEGER);
-
-  public static final IDBField PACKAGE_INFOS_CLASSIFIER_UB = //
-  PACKAGE_INFOS.addField("classifier_ub", DBType.INTEGER);
-
   public static final IDBIndex INDEX_PACKAGE_INFOS_PK = //
-  PACKAGE_INFOS.addIndex(IDBIndex.Type.PRIMARY_KEY, PACKAGE_INFOS_ID);
-
-  public static final IDBIndex INDEX_PACKAGE_INFOS_URI = //
-  PACKAGE_INFOS.addIndex(IDBIndex.Type.UNIQUE, PACKAGE_INFOS_URI);
+  PACKAGE_INFOS.addIndex(IDBIndex.Type.PRIMARY_KEY, PACKAGE_INFOS_URI);
 
   public static final IDBIndex INDEX_PACKAGE_INFOS_PARENT = //
   PACKAGE_INFOS.addIndex(IDBIndex.Type.NON_UNIQUE, PACKAGE_INFOS_PARENT);
 
   public static final IDBIndex INDEX_PACKAGE_INFOS_UNIT = //
   PACKAGE_INFOS.addIndex(IDBIndex.Type.NON_UNIQUE, PACKAGE_INFOS_UNIT);
-
-  // /**
-  // * DBTable cdo_classes
-  // */
-  // public static final IDBTable CLASSES = INSTANCE.addTable("cdo_classes");
-  //
-  // public static final IDBField CLASSES_ID = //
-  // CLASSES.addField("id", DBType.INTEGER);
-  //
-  // public static final IDBField CLASSES_PACKAGE = //
-  // CLASSES.addField("package", DBType.INTEGER);
-  //
-  // public static final IDBField CLASSES_CLASSIFIER = //
-  // CLASSES.addField("classifier", DBType.INTEGER);
-  //
-  // public static final IDBField CLASSES_NAME = //
-  // CLASSES.addField("name", DBType.VARCHAR, 255);
-  //
-  // public static final IDBField CLASSES_ABSTRACT = //
-  // CLASSES.addField("abstract", DBType.BOOLEAN);
-  //
-  // public static final IDBIndex INDEX_CLASSES_PK = //
-  // CLASSES.addIndex(IDBIndex.Type.PRIMARY_KEY, CLASSES_ID);
-  //
-  // public static final IDBIndex INDEX_CLASSES_PACKAGE = //
-  // CLASSES.addIndex(IDBIndex.Type.NON_UNIQUE, CLASSES_PACKAGE);
-  //
-  // /**
-  // * DBTable cdo_supertypes
-  // */
-  // public static final IDBTable SUPERTYPES = INSTANCE.addTable("cdo_supertypes");
-  //
-  // public static final IDBField SUPERTYPES_TYPE = //
-  // SUPERTYPES.addField("type_id", DBType.INTEGER);
-  //
-  // public static final IDBField SUPERTYPES_SUPERTYPE_PACKAGE = //
-  // SUPERTYPES.addField("supertype_package", DBType.VARCHAR, 255);
-  //
-  // public static final IDBField SUPERTYPES_SUPERTYPE_CLASSIFIER = //
-  // SUPERTYPES.addField("supertype_classifier", DBType.INTEGER);
-  //
-  // public static final IDBIndex INDEX_SUPERTYPES_PK = //
-  // SUPERTYPES.addIndex(IDBIndex.Type.PRIMARY_KEY, SUPERTYPES_TYPE);
-  //
-  // /**
-  // * DBTable cdo_features
-  // */
-  // public static final IDBTable FEATURES = INSTANCE.addTable("cdo_features");
-  //
-  // public static final IDBField FEATURES_ID = //
-  // FEATURES.addField("id", DBType.INTEGER);
-  //
-  // public static final IDBField FEATURES_CLASS = //
-  // FEATURES.addField("class", DBType.INTEGER);
-  //
-  // public static final IDBField FEATURES_FEATURE = //
-  // FEATURES.addField("feature", DBType.INTEGER);
-  //
-  // public static final IDBField FEATURES_NAME = //
-  // FEATURES.addField("name", DBType.VARCHAR, 255);
-  //
-  // public static final IDBField FEATURES_TYPE = //
-  // FEATURES.addField("type", DBType.INTEGER);
-  //
-  // public static final IDBField FEATURES_REFERENCE_PACKAGE = //
-  // FEATURES.addField("reference_package", DBType.VARCHAR, 255);
-  //
-  // public static final IDBField FEATURES_REFERENCE_CLASSIFIER = //
-  // FEATURES.addField("reference_classifier", DBType.INTEGER);
-  //
-  // public static final IDBField FEATURES_MANY = //
-  // FEATURES.addField("many", DBType.BOOLEAN);
-  //
-  // public static final IDBField FEATURES_CONTAINMENT = //
-  // FEATURES.addField("containment", DBType.BOOLEAN);
-  //
-  // public static final IDBField FEATURES_INDEX = //
-  // FEATURES.addField("idx", DBType.INTEGER);
-  //
-  // public static final IDBIndex INDEX_FEATURES_PK = //
-  // FEATURES.addIndex(IDBIndex.Type.PRIMARY_KEY, FEATURES_ID);
-  //
-  // public static final IDBIndex INDEX_FEATURES_CLASS = //
-  // FEATURES.addIndex(IDBIndex.Type.NON_UNIQUE, FEATURES_CLASS);
 
   /**
    * Name of object table
