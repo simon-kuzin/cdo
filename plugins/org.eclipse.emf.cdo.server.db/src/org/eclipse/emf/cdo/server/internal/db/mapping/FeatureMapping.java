@@ -8,7 +8,7 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  */
-package org.eclipse.emf.cdo.server.internal.db;
+package org.eclipse.emf.cdo.server.internal.db.mapping;
 
 import org.eclipse.net4j.db.IDBAdapter;
 

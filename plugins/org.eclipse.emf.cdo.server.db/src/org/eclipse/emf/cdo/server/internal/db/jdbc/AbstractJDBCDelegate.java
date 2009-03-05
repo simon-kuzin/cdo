@@ -16,13 +16,13 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.IStoreChunkReader.Chunk;
-import org.eclipse.emf.cdo.server.db.IAttributeMapping;
-import org.eclipse.emf.cdo.server.db.IClassMapping;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IDBStoreChunkReader;
 import org.eclipse.emf.cdo.server.db.IJDBCDelegate;
-import org.eclipse.emf.cdo.server.db.IReferenceMapping;
-import org.eclipse.emf.cdo.server.internal.db.ServerInfo;
+import org.eclipse.emf.cdo.server.db.mapping.IAttributeMapping;
+import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
+import org.eclipse.emf.cdo.server.db.mapping.IReferenceMapping;
+import org.eclipse.emf.cdo.server.internal.db.mapping.ServerInfo;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.db.DBException;

@@ -9,10 +9,12 @@
  *    Eike Stepper - initial API and implementation
  *    Stefan Winkler - https://bugs.eclipse.org/bugs/show_bug.cgi?id=259402
  */
-package org.eclipse.emf.cdo.server.db;
+package org.eclipse.emf.cdo.server.db.mapping;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.server.IStoreChunkReader.Chunk;
+import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
+import org.eclipse.emf.cdo.server.db.IDBStoreChunkReader;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.db.ddl.IDBTable;

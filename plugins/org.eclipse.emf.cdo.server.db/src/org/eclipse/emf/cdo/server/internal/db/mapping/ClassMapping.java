@@ -9,7 +9,7 @@
  *    Eike Stepper - initial API and implementation
  *    Stefan Winkler - https://bugs.eclipse.org/bugs/show_bug.cgi?id=259402
  */
-package org.eclipse.emf.cdo.server.internal.db;
+package org.eclipse.emf.cdo.server.internal.db.mapping;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
@@ -27,12 +27,15 @@ import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOSetFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOUnsetFeatureDelta;
 import org.eclipse.emf.cdo.server.IStore;
-import org.eclipse.emf.cdo.server.db.IAttributeMapping;
-import org.eclipse.emf.cdo.server.db.IClassMapping;
 import org.eclipse.emf.cdo.server.db.IDBStore;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
-import org.eclipse.emf.cdo.server.db.IFeatureMapping;
-import org.eclipse.emf.cdo.server.db.IReferenceMapping;
+import org.eclipse.emf.cdo.server.db.mapping.IAttributeMapping;
+import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
+import org.eclipse.emf.cdo.server.db.mapping.IFeatureMapping;
+import org.eclipse.emf.cdo.server.db.mapping.IReferenceMapping;
+import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
+import org.eclipse.emf.cdo.server.internal.db.DBStore;
+import org.eclipse.emf.cdo.server.internal.db.ToMany;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
 

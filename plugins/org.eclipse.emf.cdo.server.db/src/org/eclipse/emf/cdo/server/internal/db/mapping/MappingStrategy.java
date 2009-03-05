@@ -9,7 +9,7 @@
  *    Eike Stepper - initial API and implementation
  *    Victor Roldan Betancort - http://bugs.eclipse.org/208689    
  */
-package org.eclipse.emf.cdo.server.internal.db;
+package org.eclipse.emf.cdo.server.internal.db.mapping;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
@@ -18,13 +18,14 @@ import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.server.IStoreAccessor.QueryResourcesContext;
-import org.eclipse.emf.cdo.server.db.IClassMapping;
 import org.eclipse.emf.cdo.server.db.IDBStore;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
-import org.eclipse.emf.cdo.server.db.IMappingStrategy;
-import org.eclipse.emf.cdo.server.internal.db.ServerInfo.ClassServerInfo;
-import org.eclipse.emf.cdo.server.internal.db.ServerInfo.FeatureServerInfo;
-import org.eclipse.emf.cdo.server.internal.db.ServerInfo.PackageServerInfo;
+import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
+import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
+import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
+import org.eclipse.emf.cdo.server.internal.db.ObjectIDIterator;
+import org.eclipse.emf.cdo.server.internal.db.ToMany;
+import org.eclipse.emf.cdo.server.internal.db.ToOne;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
 
 import org.eclipse.net4j.db.DBException;
@@ -280,14 +281,14 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
     CDOResourceFolderClass resourceFolderClass = EresourcePackage.eINSTANCE.getCDOResourceFolderClass();
     CDOResourceClass resourceClass = EresourcePackage.eINSTANCE.getCDOResourceClass();
 
-    PackageServerInfo.setID(EresourcePackage.eINSTANCE, ServerInfo.CDO_RESOURCE_PACKAGE_DBID);
-    ClassServerInfo.setID(resourceNodeClass, ServerInfo.CDO_RESOURCE_NODE_CLASS_DBID);
-    FeatureServerInfo.setID(resourceNodeClass.getCDOFolderFeature(), ServerInfo.CDO_FOLDER_FEATURE_DBID);
-    FeatureServerInfo.setID(resourceNodeClass.getCDONameFeature(), ServerInfo.CDO_NAME_FEATURE_DBID);
-    ClassServerInfo.setID(resourceFolderClass, ServerInfo.CDO_RESOURCE_FOLDER_CLASS_DBID);
-    FeatureServerInfo.setID(resourceFolderClass.getCDONodesFeature(), ServerInfo.CDO_NODES_FEATURE_DBID);
-    ClassServerInfo.setID(resourceClass, ServerInfo.CDO_RESOURCE_CLASS_DBID);
-    FeatureServerInfo.setID(resourceClass.getCDOContentsFeature(), ServerInfo.CDO_CONTENTS_FEATURE_DBID);
+    PackageServerInfo.setID(EresourcePackage.eINSTANCE, org.eclipse.emf.cdo.server.internal.db.mapping.CDO_RESOURCE_PACKAGE_DBID);
+    ClassServerInfo.setID(resourceNodeClass, org.eclipse.emf.cdo.server.internal.db.mapping.CDO_RESOURCE_NODE_CLASS_DBID);
+    FeatureServerInfo.setID(resourceNodeClass.getCDOFolderFeature(), org.eclipse.emf.cdo.server.internal.db.mapping.CDO_FOLDER_FEATURE_DBID);
+    FeatureServerInfo.setID(resourceNodeClass.getCDONameFeature(), org.eclipse.emf.cdo.server.internal.db.mapping.CDO_NAME_FEATURE_DBID);
+    ClassServerInfo.setID(resourceFolderClass, org.eclipse.emf.cdo.server.internal.db.mapping.CDO_RESOURCE_FOLDER_CLASS_DBID);
+    FeatureServerInfo.setID(resourceFolderClass.getCDONodesFeature(), org.eclipse.emf.cdo.server.internal.db.mapping.CDO_NODES_FEATURE_DBID);
+    ClassServerInfo.setID(resourceClass, org.eclipse.emf.cdo.server.internal.db.mapping.CDO_RESOURCE_CLASS_DBID);
+    FeatureServerInfo.setID(resourceClass.getCDOContentsFeature(), org.eclipse.emf.cdo.server.internal.db.mapping.CDO_CONTENTS_FEATURE_DBID);
 
     if (dbAdapter != null && connection != null)
     {

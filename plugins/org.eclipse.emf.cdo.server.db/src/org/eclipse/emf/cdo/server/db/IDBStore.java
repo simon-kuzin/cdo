@@ -11,6 +11,7 @@
 package org.eclipse.emf.cdo.server.db;
 
 import org.eclipse.emf.cdo.server.IStore;
+import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 
 import org.eclipse.net4j.db.IDBAdapter;
 import org.eclipse.net4j.db.IDBConnectionProvider;

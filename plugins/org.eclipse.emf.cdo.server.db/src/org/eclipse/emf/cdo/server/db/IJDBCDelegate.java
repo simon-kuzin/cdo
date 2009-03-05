@@ -15,6 +15,9 @@ package org.eclipse.emf.cdo.server.db;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.IStoreChunkReader.Chunk;
+import org.eclipse.emf.cdo.server.db.mapping.IAttributeMapping;
+import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
+import org.eclipse.emf.cdo.server.db.mapping.IReferenceMapping;
 import org.eclipse.emf.cdo.server.internal.db.jdbc.AbstractJDBCDelegate;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 

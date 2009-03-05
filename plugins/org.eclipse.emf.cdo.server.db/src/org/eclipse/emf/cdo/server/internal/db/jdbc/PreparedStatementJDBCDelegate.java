@@ -14,10 +14,10 @@ package org.eclipse.emf.cdo.server.internal.db.jdbc;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
-import org.eclipse.emf.cdo.server.db.IAttributeMapping;
+import org.eclipse.emf.cdo.server.db.mapping.IAttributeMapping;
 import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
-import org.eclipse.emf.cdo.server.internal.db.ServerInfo;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
+import org.eclipse.emf.cdo.server.internal.db.mapping.ServerInfo;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.db.DBException;

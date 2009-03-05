@@ -9,7 +9,7 @@
  *    Eike Stepper - initial API and implementation
  *    Stefan Winkler - https://bugs.eclipse.org/bugs/show_bug.cgi?id=259402
  */
-package org.eclipse.emf.cdo.server.db;
+package org.eclipse.emf.cdo.server.db.mapping;
 
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 

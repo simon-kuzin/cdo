@@ -15,10 +15,10 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionData;
-import org.eclipse.emf.cdo.server.db.IAttributeMapping;
+import org.eclipse.emf.cdo.server.db.mapping.IAttributeMapping;
 import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
-import org.eclipse.emf.cdo.server.internal.db.ServerInfo;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
+import org.eclipse.emf.cdo.server.internal.db.mapping.ServerInfo;
 
 import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.util.collection.Pair;

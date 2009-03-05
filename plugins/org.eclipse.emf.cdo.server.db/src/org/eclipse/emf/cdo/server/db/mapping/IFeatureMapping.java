@@ -8,7 +8,7 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  */
-package org.eclipse.emf.cdo.server.db;
+package org.eclipse.emf.cdo.server.db.mapping;
 
 import org.eclipse.emf.ecore.EStructuralFeature;
 

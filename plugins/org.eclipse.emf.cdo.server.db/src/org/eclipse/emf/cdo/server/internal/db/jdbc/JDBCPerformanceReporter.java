@@ -12,12 +12,12 @@ package org.eclipse.emf.cdo.server.internal.db.jdbc;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.server.IStoreChunkReader.Chunk;
-import org.eclipse.emf.cdo.server.db.IAttributeMapping;
-import org.eclipse.emf.cdo.server.db.IClassMapping;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IDBStoreChunkReader;
 import org.eclipse.emf.cdo.server.db.IJDBCDelegate;
-import org.eclipse.emf.cdo.server.db.IReferenceMapping;
+import org.eclipse.emf.cdo.server.db.mapping.IAttributeMapping;
+import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
+import org.eclipse.emf.cdo.server.db.mapping.IReferenceMapping;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
