@@ -10,8 +10,8 @@
  */
 package org.eclipse.emf.cdo.server.hibernate;
 
-import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.emf.ecore.EStructuralFeature;
 
@@ -27,7 +27,7 @@ public interface IHibernateStoreAccessor extends IStoreAccessor
   /**
    * @since 2.0
    */
-  public IHibernateStoreChunkReader createChunkReader(CDORevision revision, EStructuralFeature feature);
+  public IHibernateStoreChunkReader createChunkReader(InternalCDORevision revision, EStructuralFeature feature);
 
   public Session getHibernateSession();
 }

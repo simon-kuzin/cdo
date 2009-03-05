@@ -13,10 +13,12 @@ package org.eclipse.emf.cdo.server.internal.db;
 
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
+import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
+import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
-import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
@@ -30,12 +32,12 @@ import org.eclipse.emf.cdo.server.db.IClassMapping;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IJDBCDelegate;
 import org.eclipse.emf.cdo.server.db.IMappingStrategy;
-import org.eclipse.emf.cdo.server.internal.db.ServerInfo.ClassServerInfo;
-import org.eclipse.emf.cdo.server.internal.db.ServerInfo.FeatureServerInfo;
 import org.eclipse.emf.cdo.server.internal.db.ServerInfo.PackageServerInfo;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
 import org.eclipse.emf.cdo.spi.server.StoreAccessor;
 
 import org.eclipse.net4j.db.DBException;
@@ -54,9 +56,11 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -115,7 +119,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     return (DBStore)super.getStore();
   }
 
-  public DBStoreChunkReader createChunkReader(CDORevision revision, EStructuralFeature feature)
+  public DBStoreChunkReader createChunkReader(InternalCDORevision revision, EStructuralFeature feature)
   {
     return new DBStoreChunkReader(this, revision, feature);
   }
@@ -123,110 +127,62 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
   public final Collection<InternalCDOPackageUnit> readPackageUnits()
   {
     final Map<String, InternalCDOPackageUnit> packageUnits = new HashMap<String, InternalCDOPackageUnit>();
-    IDBRowHandler rowHandler = new IDBRowHandler()
+    IDBRowHandler unitRowHandler = new IDBRowHandler()
     {
       public boolean handle(int row, final Object... values)
       {
         InternalCDOPackageUnit packageUnit = createPackageUnit();
         packageUnit.setOriginalType(CDOPackageUnit.Type.values()[(Integer)values[1]]);
-        packageUnit.setTimeStamp((long)(Long)values[2]);
+        packageUnit.setTimeStamp((Long)values[2]);
         packageUnits.put((String)values[0], packageUnit);
         return true;
       }
     };
 
-    DBUtil.select(jdbcDelegate.getConnection(), rowHandler, CDODBSchema.PACKAGE_UNITS_ID,
+    DBUtil.select(jdbcDelegate.getConnection(), unitRowHandler, CDODBSchema.PACKAGE_UNITS_ID,
         CDODBSchema.PACKAGE_UNITS_ORIGINAL_TYPE, CDODBSchema.PACKAGE_UNITS_TIME_STAMP);
-    return packageUnits.values();
-  }
 
-  protected final void readClasses(final EPackage ePackage)
-  {
-    IDBRowHandler rowHandler = new IDBRowHandler()
+    final Map<String, List<InternalCDOPackageInfo>> packageInfos = new HashMap<String, List<InternalCDOPackageInfo>>();
+    IDBRowHandler infoRowHandler = new IDBRowHandler()
     {
-      public boolean handle(int row, Object... values)
+      public boolean handle(int row, final Object... values)
       {
-        int classID = (Integer)values[0];
-        int classifierID = (Integer)values[1];
-        String name = (String)values[2];
-        boolean isAbstract = getBoolean(values[3]);
-        EClass eClass = CDOModelUtil.createClass(ePackage, classifierID, name, isAbstract);
-        new ClassServerInfo(getStore(), eClass, classID);
-        ((InternalEPackage)ePackage).addClass(eClass);
-        readSuperTypes(eClass, classID);
-        readFeatures(eClass, classID);
-        return true;
-      }
-    };
+        long metaLB = (Long)values[2];
+        long metaUB = (Long)values[3];
+        CDOIDMetaRange metaIDRange = metaLB == 0 ? null : CDOIDUtil.createMetaRange(CDOIDUtil.createMeta(metaLB),
+            (int)(metaUB - metaLB) + 1);
 
-    String where = CDODBSchema.CLASSES_PACKAGE.getName() + "=" + ServerInfo.getID(ePackage, getStore());
-    DBUtil.select(jdbcDelegate.getConnection(), rowHandler, where, CDODBSchema.CLASSES_ID,
-        CDODBSchema.CLASSES_CLASSIFIER, CDODBSchema.CLASSES_NAME, CDODBSchema.CLASSES_ABSTRACT);
-  }
+        InternalCDOPackageInfo packageInfo = createPackageInfo();
+        packageInfo.setPackageURI((String)values[1]);
+        packageInfo.setParentURI((String)values[2]);
+        packageInfo.setMetaIDRange(metaIDRange);
 
-  protected final void readSuperTypes(final EClass eClass, int classID)
-  {
-    IDBRowHandler rowHandler = new IDBRowHandler()
-    {
-      public boolean handle(int row, Object... values)
-      {
-        String packageURI = (String)values[0];
-        int classifierID = (Integer)values[1];
-        ((InternalEClass)eClass).addSuperType(CDOModelUtil.createClassRef(packageURI, classifierID));
-        return true;
-      }
-    };
-
-    String where = CDODBSchema.SUPERTYPES_TYPE.getName() + "=" + classID;
-    DBUtil.select(jdbcDelegate.getConnection(), rowHandler, where, CDODBSchema.SUPERTYPES_SUPERTYPE_PACKAGE,
-        CDODBSchema.SUPERTYPES_SUPERTYPE_CLASSIFIER);
-  }
-
-  protected final void readFeatures(final EClass eClass, int classID)
-  {
-    IDBRowHandler rowHandler = new IDBRowHandler()
-    {
-      public boolean handle(int row, Object... values)
-      {
-        int featureID = (Integer)values[1];
-        String name = (String)values[2];
-        CDOType type = CDOModelUtil.getType((Integer)values[3]);
-        boolean many = getBoolean(values[6]);
-
-        EStructuralFeature feature;
-        if (type == CDOType.OBJECT)
+        String unit = (String)values[0];
+        List<InternalCDOPackageInfo> list = packageInfos.get(unit);
+        if (list == null)
         {
-          String packageURI = (String)values[4];
-          int classifierID = (Integer)values[5];
-          boolean containment = getBoolean(values[7]);
-          CDOClassifierRef classRef = CDOModelUtil.createClassRef(packageURI, classifierID);
-          EClassProxy referenceType = new EClassProxy(classRef, eClass.getManager());
-          feature = CDOModelUtil.createReference(eClass, featureID, name, referenceType, many, containment);
-        }
-        else
-        {
-          feature = CDOModelUtil.createAttribute(eClass, featureID, name, type, null, many);
+          list = new ArrayList<InternalCDOPackageInfo>();
+          packageInfos.put(unit, list);
         }
 
-        new FeatureServerInfo(getStore(), feature, (Integer)values[0]);
-        ((InternalEClass)eClass).addFeature(feature);
+        list.add(packageInfo);
         return true;
       }
     };
 
-    String where = CDODBSchema.FEATURES_CLASS.getName() + "=" + classID;
-    DBUtil.select(jdbcDelegate.getConnection(), rowHandler, where, CDODBSchema.FEATURES_ID,
-        CDODBSchema.FEATURES_FEATURE, CDODBSchema.FEATURES_NAME, CDODBSchema.FEATURES_TYPE,
-        CDODBSchema.FEATURES_REFERENCE_PACKAGE, CDODBSchema.FEATURES_REFERENCE_CLASSIFIER, CDODBSchema.FEATURES_MANY,
-        CDODBSchema.FEATURES_CONTAINMENT);
-  }
+    DBUtil.select(jdbcDelegate.getConnection(), infoRowHandler, CDODBSchema.PACKAGE_INFOS_UNIT,
+        CDODBSchema.PACKAGE_INFOS_URI, CDODBSchema.PACKAGE_INFOS_PARENT, CDODBSchema.PACKAGE_INFOS_META_LB,
+        CDODBSchema.PACKAGE_INFOS_META_UB);
 
-  // public final void readPackageEcore(EPackage ePackage)
-  // {
-  // String where = CDODBSchema.PACKAGES_URI.getName() + " = '" + ePackage.getNsURI() + "'";
-  // Object[] values = DBUtil.select(jdbcDelegate.getConnection(), where, CDODBSchema.PACKAGES_ECORE);
-  // ((InternalEPackage)ePackage).setEcore((String)values[0]);
-  // }
+    Collection<InternalCDOPackageUnit> values = packageUnits.values();
+    for (InternalCDOPackageUnit packageUnit : values)
+    {
+      List<InternalCDOPackageInfo> list = packageInfos.get(packageUnit.getID());
+      packageUnit.setPackageInfos(list.toArray(new InternalCDOPackageInfo[list.size()]));
+    }
+
+    return values;
+  }
 
   public final void loadPackageUnit(InternalCDOPackageUnit packageUnit)
   {
@@ -236,7 +192,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     new PackageServerInfo(getStore(), packageUnit, (Integer)values[0]);
     ((InternalEPackage)packageUnit).setName((String)values[1]);
     readClasses(packageUnit);
-    mapPackages(packageUnit);
+    mapPackageUnits(packageUnit);
   }
 
   public final String readPackageURI(int packageID)
@@ -276,7 +232,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     return new CDOClassifierRef(packageURI, classifierID);
   }
 
-  public CDORevision readRevision(CDOID id, int referenceChunk)
+  public InternalCDORevision readRevision(CDOID id, int referenceChunk)
   {
     if (TRACER.isEnabled())
     {
@@ -302,7 +258,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     return null;
   }
 
-  public CDORevision readRevisionByTime(CDOID id, int referenceChunk, long timeStamp)
+  public InternalCDORevision readRevisionByTime(CDOID id, int referenceChunk, long timeStamp)
   {
     if (TRACER.isEnabled())
     {
@@ -323,7 +279,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     return null;
   }
 
-  public CDORevision readRevisionByVersion(CDOID id, int referenceChunk, int version)
+  public InternalCDORevision readRevisionByVersion(CDOID id, int referenceChunk, int version)
   {
     if (TRACER.isEnabled())
     {
@@ -365,10 +321,15 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
   protected EClass getObjectType(CDOID id)
   {
     // TODO Replace calls to getObjectType by optimized calls to RevisionManager.getObjectType (cache!)
-    IRepository repository = getStore().getRepository();
-    IPackageManager packageManager = repository.getPackageRegistry();
     CDOClassifierRef type = readObjectType(id);
-    return type == null ? null : (EClass)type.resolve(packageManager);
+    if (type == null)
+    {
+      return null;
+    }
+
+    IRepository repository = getStore().getRepository();
+    CDOPackageRegistry packageRegistry = repository.getPackageRegistry();
+    return (EClass)type.resolve(packageRegistry);
   }
 
   public CloseableIterator<Object> createQueryIterator(CDOQueryInfo queryInfo)
@@ -388,7 +349,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
   }
 
   @Override
-  protected final void writePackageUnits(CDOPackageUnit[] packageUnits, OMMonitor monitor)
+  protected final void writePackageUnits(InternalCDOPackageUnit[] packageUnits, OMMonitor monitor)
   {
     try
     {
@@ -546,14 +507,14 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     // }.run();
   }
 
-  private void createModelTables(CDOPackageUnit[] packageUnits, OMMonitor monitor)
+  private void createModelTables(InternalCDOPackageUnit[] packageUnits, OMMonitor monitor)
   {
     monitor.begin();
     Async async = monitor.forkAsync();
 
     try
     {
-      Set<IDBTable> affectedTables = mapPackages(ePackages);
+      Set<IDBTable> affectedTables = mapPackageUnits(packageUnits);
       getStore().getDBAdapter().createTables(affectedTables, jdbcDelegate.getConnection());
     }
     finally
@@ -564,7 +525,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
   }
 
   @Override
-  protected void writeRevisionDeltas(CDORevisionDelta[] revisionDeltas, long created, OMMonitor monitor)
+  protected void writeRevisionDeltas(InternalCDORevisionDelta[] revisionDeltas, long created, OMMonitor monitor)
   {
     if (!(getStore().getRevisionTemporality() == RevisionTemporality.NONE))
     {
@@ -593,7 +554,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
   }
 
   @Override
-  protected void writeRevisions(CDORevision[] revisions, OMMonitor monitor)
+  protected void writeRevisions(InternalCDORevision[] revisions, OMMonitor monitor)
   {
     try
     {
@@ -676,19 +637,28 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     throw new IllegalArgumentException("Not a boolean value: " + value);
   }
 
-  protected Set<IDBTable> mapPackages(EPackage... ePackages)
+  protected Set<IDBTable> mapPackageUnits(InternalCDOPackageUnit... packageUnits)
   {
     Set<IDBTable> affectedTables = new HashSet<IDBTable>();
-    if (ePackages != null && ePackages.length != 0)
+    if (packageUnits != null && packageUnits.length != 0)
     {
-      for (EPackage ePackage : ePackages)
+      for (InternalCDOPackageUnit packageUnit : packageUnits)
       {
-        Set<IDBTable> tables = mapClasses(EMFUtil.getPersistentClasses(ePackage));
-        affectedTables.addAll(tables);
+        mapPackageInfos(packageUnit, affectedTables);
       }
     }
 
     return affectedTables;
+  }
+
+  protected void mapPackageInfos(InternalCDOPackageUnit packageUnit, Set<IDBTable> affectedTables)
+  {
+    for (InternalCDOPackageInfo packageInfo : packageUnit.getPackageInfos())
+    {
+      EPackage ePackage = packageInfo.getEPackage();
+      Set<IDBTable> tables = mapClasses(EMFUtil.getPersistentClasses(ePackage));
+      affectedTables.addAll(tables);
+    }
   }
 
   protected Set<IDBTable> mapClasses(EClass... eClasses)
@@ -713,6 +683,11 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
   protected InternalCDOPackageUnit createPackageUnit()
   {
     return (InternalCDOPackageUnit)CDOModelUtil.createPackageUnit();
+  }
+
+  protected InternalCDOPackageInfo createPackageInfo()
+  {
+    return (InternalCDOPackageInfo)CDOModelUtil.createPackageInfo();
   }
 
   public final void commit(OMMonitor monitor)

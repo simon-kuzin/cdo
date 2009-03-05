@@ -16,9 +16,7 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
-import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
-import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.server.IQueryContext;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
@@ -30,6 +28,7 @@ import org.eclipse.emf.cdo.server.internal.hibernate.bundle.OM;
 import org.eclipse.emf.cdo.server.internal.hibernate.tuplizer.PersistableListHolder;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
 import org.eclipse.emf.cdo.spi.server.StoreAccessor;
 
 import org.eclipse.net4j.util.ObjectUtil;
@@ -203,7 +202,7 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
     this.errorOccured = errorOccured;
   }
 
-  public HibernateStoreChunkReader createChunkReader(CDORevision revision, EStructuralFeature feature)
+  public HibernateStoreChunkReader createChunkReader(InternalCDORevision revision, EStructuralFeature feature)
   {
     return new HibernateStoreChunkReader(this, revision, feature);
   }
@@ -235,17 +234,17 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
     return cdoRevision.getEClass().createClassRef();
   }
 
-  public CDORevision readRevision(CDOID id, int referenceChunk)
+  public InternalCDORevision readRevision(CDOID id, int referenceChunk)
   {
     return HibernateUtil.getInstance().getCDORevision(id);
   }
 
-  public CDORevision readRevisionByTime(CDOID id, int referenceChunk, long timeStamp)
+  public InternalCDORevision readRevisionByTime(CDOID id, int referenceChunk, long timeStamp)
   {
     throw new UnsupportedOperationException();
   }
 
-  public CDORevision readRevisionByVersion(CDOID id, int referenceChunk, int version)
+  public InternalCDORevision readRevisionByVersion(CDOID id, int referenceChunk, int version)
   {
     // TODO Could be necessary to implement
     throw new UnsupportedOperationException();
@@ -465,7 +464,7 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
   }
 
   @Override
-  protected void writePackageUnits(CDOPackageUnit[] packageUnits, OMMonitor monitor)
+  protected void writePackageUnits(InternalCDOPackageUnit[] packageUnits, OMMonitor monitor)
   {
     if (packageUnits != null && packageUnits.length != 0)
     {
@@ -477,13 +476,13 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
   }
 
   @Override
-  protected void writeRevisions(CDORevision[] revisions, OMMonitor monitor)
+  protected void writeRevisions(InternalCDORevision[] revisions, OMMonitor monitor)
   {
     // Don't do anything it is done at commit
   }
 
   @Override
-  protected void writeRevisionDeltas(CDORevisionDelta[] revisionDeltas, long created, OMMonitor monitor)
+  protected void writeRevisionDeltas(InternalCDORevisionDelta[] revisionDeltas, long created, OMMonitor monitor)
   {
     throw new UnsupportedOperationException();
   }
