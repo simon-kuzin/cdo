@@ -61,9 +61,9 @@ public class CDOPackageInfoImpl extends AdapterImpl implements InternalCDOPackag
     return packageURI;
   }
 
-  public void setPackageURI(String packageUri)
+  public void setPackageURI(String packageURI)
   {
-    packageURI = packageUri;
+    this.packageURI = packageURI;
   }
 
   public String getParentURI()
@@ -71,19 +71,19 @@ public class CDOPackageInfoImpl extends AdapterImpl implements InternalCDOPackag
     return parentURI;
   }
 
-  public void setParentURI(String parentUri)
+  public void setParentURI(String parentURI)
   {
-    parentURI = parentUri;
+    this.parentURI = parentURI;
   }
 
-  public synchronized CDOIDMetaRange getMetaIDRange()
+  public CDOIDMetaRange getMetaIDRange()
   {
     return metaIDRange;
   }
 
-  public synchronized void setMetaIDRange(CDOIDMetaRange metaIdRange)
+  public void setMetaIDRange(CDOIDMetaRange metaIDRange)
   {
-    metaIDRange = metaIdRange;
+    this.metaIDRange = metaIDRange;
   }
 
   public void write(CDODataOutput out) throws IOException

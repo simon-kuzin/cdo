@@ -24,13 +24,11 @@ import org.eclipse.emf.cdo.common.id.CDOIDObjectFactory;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
-import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionFactory;
 import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.common.util.CDOException;
-import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.internal.common.model.CDOPackageRegistryImpl;
 import org.eclipse.emf.cdo.session.CDOCollectionLoadingPolicy;
 import org.eclipse.emf.cdo.session.CDOSession;
@@ -64,7 +62,6 @@ import org.eclipse.net4j.util.options.OptionsEvent;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EPackage;
-import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.spi.cdo.InternalCDOObject;
@@ -607,8 +604,8 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     packageRegistry.setPackageProcessor(this);
     packageRegistry.setPackageLoader(this);
     packageRegistry.activate();
-    EMFUtil.registerPackage(EcorePackage.eINSTANCE, packageRegistry);
-    EMFUtil.registerPackage(EresourcePackage.eINSTANCE, packageRegistry);
+    // EMFUtil.registerPackage(EcorePackage.eINSTANCE, packageRegistry);
+    // EMFUtil.registerPackage(EresourcePackage.eINSTANCE, packageRegistry);
 
     String name = repository().getName();
     boolean passiveUpdateEnabled = options().isPassiveUpdateEnabled();

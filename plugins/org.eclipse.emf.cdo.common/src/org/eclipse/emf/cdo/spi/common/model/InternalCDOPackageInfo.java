@@ -28,11 +28,11 @@ public interface InternalCDOPackageInfo extends CDOPackageInfo, Adapter.Internal
 
   public void setPackageUnit(InternalCDOPackageUnit packageUnit);
 
-  public void setPackageURI(String packageUri);
+  public void setPackageURI(String packageURI);
 
   public void setParentURI(String parentURI);
 
-  public void setMetaIDRange(CDOIDMetaRange metaIdRange);
+  public void setMetaIDRange(CDOIDMetaRange metaIDRange);
 
   public void write(CDODataOutput out) throws IOException;
 

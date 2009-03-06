@@ -580,6 +580,9 @@ public class Repository extends Container<Object> implements IRepository, Packag
 
     // if (store.isFirstTime())
     { // Experimental!!!
+      initSystemPackage(EcorePackage.eINSTANCE);
+      initSystemPackage(EresourcePackage.eINSTANCE);
+
       InternalCDOPackageInfo ecoreInfo = packageRegistry.getPackageInfo(EcorePackage.eINSTANCE);
       CDOIDMetaRange ecoreRange = store.getNextMetaIDRange(ecoreInfo.getMetaIDRange().size());
       ecoreInfo.setMetaIDRange(ecoreRange);
@@ -628,6 +631,13 @@ public class Repository extends Container<Object> implements IRepository, Packag
     LifecycleUtil.deactivate(store);
     LifecycleUtil.deactivate(packageRegistry);
     super.doDeactivate();
+  }
+
+  protected void initSystemPackage(EPackage ePackage)
+  {
+    // Assign permanent meta IDs
+    // Fill system tables
+    // Create model tables (not for Ecore)
   }
 
   /**
