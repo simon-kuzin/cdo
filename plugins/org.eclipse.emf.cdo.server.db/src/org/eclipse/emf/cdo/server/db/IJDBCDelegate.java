@@ -21,10 +21,10 @@ import org.eclipse.emf.cdo.server.db.mapping.IReferenceMapping;
 import org.eclipse.emf.cdo.server.internal.db.jdbc.AbstractJDBCDelegate;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
+import org.eclipse.net4j.db.IDBConnectionProvider;
 import org.eclipse.net4j.util.collection.Pair;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
@@ -37,16 +37,11 @@ import java.util.List;
  * @noimplement This interface is not intended to be implemented by clients. Please extend the abstract class
  *              {@link AbstractJDBCDelegate} instead.
  */
-public interface IJDBCDelegate
+public interface IJDBCDelegate extends IDBConnectionProvider
 {
   // --------------------------------------------------------------
   // General methods
   // --------------------------------------------------------------
-
-  /**
-   * Get the connection object of this JDBC delegate
-   */
-  public Connection getConnection();
 
   /**
    * Get the one omnipresent statement object of this JDBC delegate
