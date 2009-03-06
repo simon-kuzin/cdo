@@ -211,7 +211,7 @@ public abstract class Store extends Lifecycle implements IStore
   /**
    * @since 2.0
    */
-  public final IStoreAccessor getReader(ISession session)
+  public IStoreAccessor getReader(ISession session)
   {
     IStoreAccessor reader = null;
     StoreAccessorPool pool = getReaderPool(session, false);
@@ -249,7 +249,7 @@ public abstract class Store extends Lifecycle implements IStore
   /**
    * @since 2.0
    */
-  public final IStoreAccessor getWriter(ITransaction transaction)
+  public IStoreAccessor getWriter(ITransaction transaction)
   {
     IStoreAccessor writer = null;
     StoreAccessorPool pool = getWriterPool(transaction, false);

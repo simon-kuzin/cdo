@@ -10,7 +10,9 @@
  */
 package org.eclipse.emf.cdo.server.db;
 
+import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.IStore;
+import org.eclipse.emf.cdo.server.ITransaction;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 
 import org.eclipse.net4j.db.IDBAdapter;
@@ -36,4 +38,8 @@ public interface IDBStore extends IStore
   public long getMetaID(EModelElement modelElement);
 
   public EModelElement getMetaInstance(long id);
+
+  public IDBStoreAccessor getReader(ISession session);
+
+  public IDBStoreAccessor getWriter(ITransaction transaction);
 }

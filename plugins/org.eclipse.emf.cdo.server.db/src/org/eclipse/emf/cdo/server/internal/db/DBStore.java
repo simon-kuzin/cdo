@@ -197,15 +197,21 @@ public class DBStore extends LongIDStore implements IDBStore
     return accessorWriteDistributor;
   }
 
-  public synchronized IDBSchema getDBSchema()
+  public IDBSchema getDBSchema()
   {
-    // TODO Better synchronization or eager init
-    if (dbSchema == null)
-    {
-      dbSchema = createSchema();
-    }
-
     return dbSchema;
+  }
+
+  @Override
+  public DBStoreAccessor getReader(ISession session)
+  {
+    return (DBStoreAccessor)super.getReader(session);
+  }
+
+  @Override
+  public DBStoreAccessor getWriter(ITransaction transaction)
+  {
+    return (DBStoreAccessor)super.getWriter(transaction);
   }
 
   @Override
@@ -304,6 +310,7 @@ public class DBStore extends LongIDStore implements IDBStore
 
       storeAccessor.commit(new Monitor());
       LifecycleUtil.activate(mappingStrategy);
+      dbSchema = createSchema();
     }
     catch (RuntimeException ex)
     {
