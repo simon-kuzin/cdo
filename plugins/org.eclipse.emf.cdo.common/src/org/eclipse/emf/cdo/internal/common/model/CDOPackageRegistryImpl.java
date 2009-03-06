@@ -381,7 +381,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       }
 
       CDOIDMetaRange range = CDOIDUtil.createMetaRange(metaIDRange.getLowerBound(), 0);
-      range = mapMetaInstance((InternalEObject)ePackage, range);
+      range = mapMetaInstance((InternalEObject)ePackage, range, true);
       if (range.size() != metaIDRange.size())
       {
         throw new IllegalStateException("range.size() != metaIDRange.size()");
@@ -399,11 +399,11 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     {
       CDOIDTemp lowerBound = CDOIDUtil.createTempMeta(firstMetaID);
       CDOIDMetaRange range = CDOIDUtil.createMetaRange(lowerBound, 0);
-      range = mapMetaInstance((InternalEObject)ePackage, range);
+      range = mapMetaInstance((InternalEObject)ePackage, range, false);
       return range;
     }
 
-    private CDOIDMetaRange mapMetaInstance(InternalEObject metaInstance, CDOIDMetaRange range)
+    private CDOIDMetaRange mapMetaInstance(InternalEObject metaInstance, CDOIDMetaRange range, boolean remap)
     {
       range = range.increase();
       CDOID id = range.getUpperBound();
@@ -422,9 +422,15 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
       if (metaInstanceToIDMap != null)
       {
-        if (metaInstanceToIDMap.put(metaInstance, id) != null)
+        CDOID oldID = metaInstanceToIDMap.put(metaInstance, id);
+        if (oldID != null)
         {
-          throw new IllegalStateException("Duplicate metaInstance: " + metaInstance + " --> " + id);
+          if (!remap)
+          {
+            throw new IllegalStateException("Duplicate metaInstance: " + metaInstance + " --> " + id);
+          }
+
+          idToMetaInstanceMap.remove(oldID);
         }
       }
 
@@ -432,18 +438,11 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       {
         if (!(content instanceof EPackage))
         {
-          range = mapMetaInstance((InternalEObject)content, range);
+          range = mapMetaInstance((InternalEObject)content, range, remap);
         }
       }
 
       return range;
-    }
-
-    public CDOIDMetaRange getTempMetaIDRange(int count)
-    {
-      CDOIDTemp lowerBound = CDOIDUtil.createTempMeta(lastTempMetaID + 1);
-      lastTempMetaID += count;
-      return CDOIDUtil.createMetaRange(lowerBound, count);
     }
 
     public void clear()

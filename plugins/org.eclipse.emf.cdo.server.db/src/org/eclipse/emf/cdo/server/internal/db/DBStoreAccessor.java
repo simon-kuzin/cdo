@@ -620,8 +620,11 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
     for (InternalCDOPackageInfo packageInfo : packageInfos)
     {
       EPackage ePackage = packageInfo.getEPackage();
-      Set<IDBTable> tables = mapClasses(EMFUtil.getPersistentClasses(ePackage));
-      affectedTables.addAll(tables);
+      if (!CDOModelUtil.isCorePackage(ePackage))
+      {
+        Set<IDBTable> tables = mapClasses(EMFUtil.getPersistentClasses(ePackage));
+        affectedTables.addAll(tables);
+      }
     }
   }
 

@@ -330,10 +330,10 @@ public class DBStore extends LongIDStore implements IDBStore
   {
     creationTime = getStartupTime();
     firstTime = true;
-    OM.LOG.info(MessageFormat.format("First start: {0,date} {0,time}", creationTime));
 
     Connection connection = storeAccessor.getJDBCDelegate().getConnection();
     DBUtil.insertRow(connection, dbAdapter, CDODBSchema.REPOSITORY, creationTime, 1, creationTime, 0, CRASHED, CRASHED);
+    OM.LOG.info(MessageFormat.format("First start: {0,date} {0,time}", creationTime));
   }
 
   protected void reStart(DBStoreAccessor storeAccessor)

@@ -32,7 +32,6 @@ import org.eclipse.emf.cdo.server.StoreThreadLocal;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry.MetaInstanceMapper;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry.PackageLoader;
 
 import org.eclipse.net4j.util.StringUtil;
@@ -42,6 +41,7 @@ import org.eclipse.net4j.util.container.Container;
 import org.eclipse.net4j.util.container.IPluginContainer;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 import org.eclipse.net4j.util.om.OMPlatform;
+import org.eclipse.net4j.util.om.monitor.Monitor;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 
 import org.eclipse.emf.ecore.EPackage;
@@ -578,43 +578,43 @@ public class Repository extends Container<Object> implements IRepository, Packag
     LifecycleUtil.activate(queryHandlerProvider);
     LifecycleUtil.activate(lockManager);
 
-    // if (store.isFirstTime())
-    { // Experimental!!!
-      initSystemPackage(EcorePackage.eINSTANCE);
-      initSystemPackage(EresourcePackage.eINSTANCE);
+    InternalCDOPackageUnit ecoreUnit = initSystemPackage(EcorePackage.eINSTANCE);
+    InternalCDOPackageUnit eresourceUnit = initSystemPackage(EresourcePackage.eINSTANCE);
 
-      InternalCDOPackageInfo ecoreInfo = packageRegistry.getPackageInfo(EcorePackage.eINSTANCE);
-      CDOIDMetaRange ecoreRange = store.getNextMetaIDRange(ecoreInfo.getMetaIDRange().size());
-      ecoreInfo.setMetaIDRange(ecoreRange);
-      InternalCDOPackageUnit ecoreUnit = ecoreInfo.getPackageUnit();
-      ecoreUnit.setTimeStamp(store.getCreationTime());
+    // InternalCDOPackageInfo ecoreInfo = packageRegistry.getPackageInfo(EcorePackage.eINSTANCE);
+    // CDOIDMetaRange ecoreRange = store.getNextMetaIDRange(ecoreInfo.getMetaIDRange().size());
+    // ecoreInfo.setMetaIDRange(ecoreRange);
+    // InternalCDOPackageUnit ecoreUnit = ecoreInfo.getPackageUnit();
+    // ecoreUnit.setTimeStamp(store.getCreationTime());
+    //
+    // InternalCDOPackageInfo eresourceInfo = packageRegistry.getPackageInfo(EresourcePackage.eINSTANCE);
+    // CDOIDMetaRange eresourceRange = store.getNextMetaIDRange(eresourceInfo.getMetaIDRange().size());
+    // eresourceInfo.setMetaIDRange(eresourceRange);
+    // InternalCDOPackageUnit eresourceUnit = eresourceInfo.getPackageUnit();
+    // eresourceUnit.setTimeStamp(store.getCreationTime());
 
-      InternalCDOPackageInfo eresourceInfo = packageRegistry.getPackageInfo(EresourcePackage.eINSTANCE);
-      CDOIDMetaRange eresourceRange = store.getNextMetaIDRange(eresourceInfo.getMetaIDRange().size());
-      eresourceInfo.setMetaIDRange(eresourceRange);
-      InternalCDOPackageUnit eresourceUnit = eresourceInfo.getPackageUnit();
-      eresourceUnit.setTimeStamp(store.getCreationTime());
+    // MetaInstanceMapper metaInstanceMapper = packageRegistry.getMetaInstanceMapper();
+    // metaInstanceMapper.clear();
+    // metaInstanceMapper.mapMetaInstances(EcorePackage.eINSTANCE, ecoreRange);
+    // metaInstanceMapper.mapMetaInstances(EresourcePackage.eINSTANCE, eresourceRange);
 
-      MetaInstanceMapper metaInstanceMapper = packageRegistry.getMetaInstanceMapper();
-      metaInstanceMapper.clear();
-      metaInstanceMapper.mapMetaInstances(EcorePackage.eINSTANCE, ecoreRange);
-      metaInstanceMapper.mapMetaInstances(EresourcePackage.eINSTANCE, eresourceRange);
+    if (store.isFirstTime())
+    {
+      IStoreAccessor storeAccessor = store.getWriter(null);
+      LifecycleUtil.activate(storeAccessor);
+      StoreThreadLocal.setAccessor(storeAccessor);
 
-      // IStoreAccessor storeAccessor = store.getWriter(null);
-      // LifecycleUtil.activate(storeAccessor);
-      // StoreThreadLocal.setAccessor(storeAccessor);
-      //
-      // try
-      // {
-      // InternalCDOPackageUnit[] systemUnits = { ecoreUnit, eresourceUnit };
-      // storeAccessor.writePackageUnits(systemUnits, new Monitor());
-      // storeAccessor.commit(new Monitor());
-      // }
-      // finally
-      // {
-      // StoreThreadLocal.release();
-      // LifecycleUtil.deactivate(storeAccessor);
-      // }
+      try
+      {
+        InternalCDOPackageUnit[] systemUnits = { ecoreUnit, eresourceUnit };
+        storeAccessor.writePackageUnits(systemUnits, new Monitor());
+        storeAccessor.commit(new Monitor());
+      }
+      finally
+      {
+        StoreThreadLocal.release();
+        LifecycleUtil.deactivate(storeAccessor);
+      }
     }
   }
 
@@ -633,11 +633,16 @@ public class Repository extends Container<Object> implements IRepository, Packag
     super.doDeactivate();
   }
 
-  protected void initSystemPackage(EPackage ePackage)
+  protected InternalCDOPackageUnit initSystemPackage(EPackage ePackage)
   {
-    // Assign permanent meta IDs
-    // Fill system tables
-    // Create model tables (not for Ecore)
+    InternalCDOPackageInfo packageInfo = packageRegistry.getPackageInfo(ePackage);
+    CDOIDMetaRange metaIDRange = store.getNextMetaIDRange(packageInfo.getMetaIDRange().size());
+    packageInfo.setMetaIDRange(metaIDRange);
+    packageRegistry.getMetaInstanceMapper().mapMetaInstances(ePackage, metaIDRange);
+
+    InternalCDOPackageUnit packageUnit = packageInfo.getPackageUnit();
+    packageUnit.setTimeStamp(store.getCreationTime());
+    return packageUnit;
   }
 
   /**
