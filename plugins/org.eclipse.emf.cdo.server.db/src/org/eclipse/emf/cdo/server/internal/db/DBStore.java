@@ -295,7 +295,6 @@ public class DBStore extends LongIDStore implements IDBStore
   {
     super.doActivate();
     DBStoreAccessor storeAccessor = createWriter(null);
-    LifecycleUtil.activate(storeAccessor);
     StoreThreadLocal.setAccessor(storeAccessor);
 
     try
@@ -321,7 +320,6 @@ public class DBStore extends LongIDStore implements IDBStore
     }
     finally
     {
-      storeAccessor.deactivate();
       StoreThreadLocal.release();
     }
   }

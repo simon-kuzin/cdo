@@ -581,27 +581,9 @@ public class Repository extends Container<Object> implements IRepository, Packag
     InternalCDOPackageUnit ecoreUnit = initSystemPackage(EcorePackage.eINSTANCE);
     InternalCDOPackageUnit eresourceUnit = initSystemPackage(EresourcePackage.eINSTANCE);
 
-    // InternalCDOPackageInfo ecoreInfo = packageRegistry.getPackageInfo(EcorePackage.eINSTANCE);
-    // CDOIDMetaRange ecoreRange = store.getNextMetaIDRange(ecoreInfo.getMetaIDRange().size());
-    // ecoreInfo.setMetaIDRange(ecoreRange);
-    // InternalCDOPackageUnit ecoreUnit = ecoreInfo.getPackageUnit();
-    // ecoreUnit.setTimeStamp(store.getCreationTime());
-    //
-    // InternalCDOPackageInfo eresourceInfo = packageRegistry.getPackageInfo(EresourcePackage.eINSTANCE);
-    // CDOIDMetaRange eresourceRange = store.getNextMetaIDRange(eresourceInfo.getMetaIDRange().size());
-    // eresourceInfo.setMetaIDRange(eresourceRange);
-    // InternalCDOPackageUnit eresourceUnit = eresourceInfo.getPackageUnit();
-    // eresourceUnit.setTimeStamp(store.getCreationTime());
-
-    // MetaInstanceMapper metaInstanceMapper = packageRegistry.getMetaInstanceMapper();
-    // metaInstanceMapper.clear();
-    // metaInstanceMapper.mapMetaInstances(EcorePackage.eINSTANCE, ecoreRange);
-    // metaInstanceMapper.mapMetaInstances(EresourcePackage.eINSTANCE, eresourceRange);
-
     if (store.isFirstTime())
     {
       IStoreAccessor storeAccessor = store.getWriter(null);
-      LifecycleUtil.activate(storeAccessor);
       StoreThreadLocal.setAccessor(storeAccessor);
 
       try
@@ -613,7 +595,6 @@ public class Repository extends Container<Object> implements IRepository, Packag
       finally
       {
         StoreThreadLocal.release();
-        LifecycleUtil.deactivate(storeAccessor);
       }
     }
   }
