@@ -17,7 +17,6 @@ import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.ITransaction;
 import org.eclipse.emf.cdo.server.IView;
-import org.eclipse.emf.cdo.server.StoreThreadLocal;
 import org.eclipse.emf.cdo.server.db.IDBStore;
 import org.eclipse.emf.cdo.server.db.IJDBCDelegateProvider;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
@@ -36,7 +35,6 @@ import org.eclipse.net4j.db.ddl.IDBTable;
 import org.eclipse.net4j.spi.db.DBSchema;
 import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
-import org.eclipse.net4j.util.om.monitor.Monitor;
 import org.eclipse.net4j.util.om.monitor.ProgressDistributor;
 
 import org.eclipse.emf.ecore.EClass;
@@ -294,49 +292,40 @@ public class DBStore extends LongIDStore implements IDBStore
   protected void doActivate() throws Exception
   {
     super.doActivate();
-    DBStoreAccessor storeAccessor = createWriter(null);
-    StoreThreadLocal.setAccessor(storeAccessor);
+    Connection connection = getConnection();
 
     try
     {
-      Set<IDBTable> createdTables = CDODBSchema.INSTANCE.create(dbAdapter, dbConnectionProvider);
+      Set<IDBTable> createdTables = CDODBSchema.INSTANCE.create(dbAdapter, connection);
       if (createdTables.contains(CDODBSchema.REPOSITORY))
       {
-        firstStart(storeAccessor);
+        firstStart(connection);
       }
       else
       {
-        reStart(storeAccessor);
+        reStart(connection);
       }
 
-      storeAccessor.commit(new Monitor());
       LifecycleUtil.activate(mappingStrategy);
       dbSchema = createSchema();
     }
-    catch (RuntimeException ex)
-    {
-      OM.LOG.error(ex);
-      throw ex;
-    }
     finally
     {
-      StoreThreadLocal.release();
+      DBUtil.close(connection);
     }
   }
 
-  protected void firstStart(DBStoreAccessor storeAccessor)
+  protected void firstStart(Connection connection)
   {
     creationTime = getStartupTime();
     firstTime = true;
 
-    Connection connection = storeAccessor.getJDBCDelegate().getConnection();
     DBUtil.insertRow(connection, dbAdapter, CDODBSchema.REPOSITORY, creationTime, 1, creationTime, 0, CRASHED, CRASHED);
     OM.LOG.info(MessageFormat.format("First start: {0,date} {0,time}", creationTime));
   }
 
-  protected void reStart(DBStoreAccessor storeAccessor)
+  protected void reStart(Connection connection)
   {
-    Connection connection = storeAccessor.getJDBCDelegate().getConnection();
     creationTime = DBUtil.selectMaximumLong(connection, CDODBSchema.REPOSITORY_CREATED);
     long lastMetaId = DBUtil.selectMaximumLong(connection, CDODBSchema.REPOSITORY_NEXT_METAID);
     long lastObjectID = DBUtil.selectMaximumLong(connection, CDODBSchema.REPOSITORY_NEXT_CDOID);
