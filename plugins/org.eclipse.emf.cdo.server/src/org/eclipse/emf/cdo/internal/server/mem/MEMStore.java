@@ -303,6 +303,11 @@ public class MEMStore extends LongIDStore implements IMEMStore
     return creationTime;
   }
 
+  public boolean isFirstTime()
+  {
+    return true;
+  }
+
   /**
    * @since 2.0
    */

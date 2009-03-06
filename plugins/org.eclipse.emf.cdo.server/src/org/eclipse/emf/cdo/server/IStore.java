@@ -89,6 +89,13 @@ public interface IStore
   public long getCreationTime();
 
   /**
+   * Returns <code>true</code>if this store was activated for the first time, <code>false</code> otherwise.
+   * 
+   * @since 2.0
+   */
+  public boolean isFirstTime();
+
+  /**
    * Returns a reader that can be used to read from this store in the context of the given session.
    * 
    * @param session

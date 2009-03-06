@@ -13,9 +13,7 @@ package org.eclipse.emf.cdo.server.internal.db;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDMeta;
-import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
-import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.ITransaction;
 import org.eclipse.emf.cdo.server.IView;
@@ -24,10 +22,7 @@ import org.eclipse.emf.cdo.server.db.IDBStore;
 import org.eclipse.emf.cdo.server.db.IJDBCDelegateProvider;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry.MetaInstanceMapper;
 import org.eclipse.emf.cdo.spi.server.LongIDStore;
 import org.eclipse.emf.cdo.spi.server.StoreAccessorPool;
 
@@ -66,6 +61,8 @@ public class DBStore extends LongIDStore implements IDBStore
   public static final String TYPE = "db";
 
   private long creationTime;
+
+  private boolean firstTime;
 
   private IMappingStrategy mappingStrategy;
 
@@ -279,6 +276,11 @@ public class DBStore extends LongIDStore implements IDBStore
     return creationTime;
   }
 
+  public boolean isFirstTime()
+  {
+    return firstTime;
+  }
+
   @Override
   protected void doBeforeActivate() throws Exception
   {
@@ -327,34 +329,11 @@ public class DBStore extends LongIDStore implements IDBStore
   protected void firstStart(DBStoreAccessor storeAccessor)
   {
     creationTime = getStartupTime();
+    firstTime = true;
     OM.LOG.info(MessageFormat.format("First start: {0,date} {0,time}", creationTime));
 
     Connection connection = storeAccessor.getJDBCDelegate().getConnection();
     DBUtil.insertRow(connection, dbAdapter, CDODBSchema.REPOSITORY, creationTime, 1, creationTime, 0, CRASHED, CRASHED);
-
-    { // Experimental!!!
-      InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)getRepository().getPackageRegistry();
-
-      InternalCDOPackageInfo ecoreInfo = packageRegistry.getPackageInfo(EcorePackage.eINSTANCE);
-      CDOIDMetaRange ecoreRange = getNextMetaIDRange(ecoreInfo.getMetaIDRange().size());
-      ecoreInfo.setMetaIDRange(ecoreRange);
-      InternalCDOPackageUnit ecoreUnit = ecoreInfo.getPackageUnit();
-      ecoreUnit.setTimeStamp(creationTime);
-
-      InternalCDOPackageInfo eresourceInfo = packageRegistry.getPackageInfo(EresourcePackage.eINSTANCE);
-      CDOIDMetaRange eresourceRange = getNextMetaIDRange(eresourceInfo.getMetaIDRange().size());
-      eresourceInfo.setMetaIDRange(eresourceRange);
-      InternalCDOPackageUnit eresourceUnit = eresourceInfo.getPackageUnit();
-      eresourceUnit.setTimeStamp(creationTime);
-
-      MetaInstanceMapper metaInstanceMapper = packageRegistry.getMetaInstanceMapper();
-      metaInstanceMapper.clear();
-      metaInstanceMapper.mapMetaInstances(EcorePackage.eINSTANCE, ecoreRange);
-      metaInstanceMapper.mapMetaInstances(EresourcePackage.eINSTANCE, eresourceRange);
-
-      InternalCDOPackageUnit[] systemUnits = { ecoreUnit, eresourceUnit };
-      storeAccessor.writePackageUnits(systemUnits, new Monitor());
-    }
   }
 
   protected void reStart(DBStoreAccessor storeAccessor)
