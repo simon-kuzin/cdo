@@ -237,12 +237,7 @@ public class DBStore extends LongIDStore implements IDBStore
   {
     InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)getRepository().getPackageRegistry();
     CDOID cdoid = packageRegistry.getMetaInstanceMapper().lookupMetaInstanceID((InternalEObject)modelElement);
-    if (cdoid instanceof CDOIDMeta)
-    {
-      return ((CDOIDMeta)cdoid).getLongValue();
-    }
-
-    throw new IllegalStateException("No permanent meta ID available for " + modelElement);
+    return ((CDOIDMeta)cdoid).getLongValue();
   }
 
   public EModelElement getMetaInstance(long id)
@@ -250,12 +245,7 @@ public class DBStore extends LongIDStore implements IDBStore
     CDOIDMeta cdoid = CDOIDUtil.createMeta(id);
     InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)getRepository().getPackageRegistry();
     InternalEObject metaInstance = packageRegistry.getMetaInstanceMapper().lookupMetaInstance(cdoid);
-    if (metaInstance instanceof EModelElement)
-    {
-      return (EModelElement)metaInstance;
-    }
-
-    throw new IllegalStateException("No meta instance available for " + id);
+    return (EModelElement)metaInstance;
   }
 
   public Connection getConnection()

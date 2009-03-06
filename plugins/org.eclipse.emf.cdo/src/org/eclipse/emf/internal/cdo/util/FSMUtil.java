@@ -134,14 +134,16 @@ public final class FSMUtil
       object = (InternalEObject)EcoreUtil.resolve(object, view.getResourceSet());
     }
 
-    InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)view.getSession().getPackageRegistry();
-    CDOID id = packageRegistry.getMetaInstanceMapper().lookupMetaInstanceID(object);
-    if (id != null)
+    try
     {
+      InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)view.getSession().getPackageRegistry();
+      CDOID id = packageRegistry.getMetaInstanceMapper().lookupMetaInstanceID(object);
       return new CDOMetaWrapper((InternalCDOView)view, object, id);
     }
-
-    return null;
+    catch (RuntimeException ex)
+    {
+      return null;
+    }
   }
 
   /*

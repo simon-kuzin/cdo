@@ -50,7 +50,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, CDOPackageRegistryImpl.class);
 
-  private MetaInstanceMapper metaInstanceMapper = new MetaInstanceMapperImpl();
+  private MetaInstanceMapperImpl metaInstanceMapper = new MetaInstanceMapperImpl();
 
   private boolean replacingDescriptors;
 
@@ -283,14 +283,21 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
   {
     if (active)
     {
-      for (InternalCDOPackageUnit packageUnit : getPackageUnits())
+      try
       {
-        packageUnit.dispose();
-      }
+        for (InternalCDOPackageUnit packageUnit : getPackageUnits())
+        {
+          packageUnit.dispose();
+        }
 
-      clear();
-      metaInstanceMapper.clear();
-      active = false;
+        clear();
+        metaInstanceMapper.clear();
+        active = false;
+      }
+      catch (RuntimeException ex)
+      {
+        return ex;
+      }
     }
 
     return null;
@@ -331,21 +338,23 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       InternalEObject metaInstance = idToMetaInstanceMap.get(id);
       if (metaInstance == null)
       {
-        for (Object value : values())
-        {
-          CDOPackageInfo packageInfo = getPackageInfo(value);
-          if (packageInfo != null)
-          {
-            CDOIDMetaRange metaIDRange = packageInfo.getMetaIDRange();
-            if (metaIDRange != null && metaIDRange.contains(id))
-            {
-              EPackage ePackage = packageInfo.getEPackage(true);
-              mapMetaInstances(ePackage);
-              metaInstance = idToMetaInstanceMap.get(id);
-              break;
-            }
-          }
-        }
+        throw new IllegalStateException("No meta instance mapped for " + id);
+
+        // for (Object value : values())
+        // {
+        // CDOPackageInfo packageInfo = getPackageInfo(value);
+        // if (packageInfo != null)
+        // {
+        // CDOIDMetaRange metaIDRange = packageInfo.getMetaIDRange();
+        // if (metaIDRange != null && metaIDRange.contains(id))
+        // {
+        // EPackage ePackage = packageInfo.getEPackage(true);
+        // mapMetaInstances(ePackage);
+        // metaInstance = idToMetaInstanceMap.get(id);
+        // break;
+        // }
+        // }
+        // }
       }
 
       return metaInstance;
@@ -353,10 +362,33 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
     public synchronized CDOID lookupMetaInstanceID(InternalEObject metaInstance)
     {
-      return metaInstanceToIDMap.get(metaInstance);
+      CDOID metaID = metaInstanceToIDMap.get(metaInstance);
+      if (metaID == null)
+      {
+        throw new IllegalStateException("No meta ID mapped for " + metaInstance);
+      }
+
+      return metaID;
     }
 
-    public synchronized void remapMetaInstance(CDOID oldID, CDOID newID)
+    public synchronized void mapMetaInstances(EPackage ePackage, CDOIDMetaRange metaIDRange)
+    {
+      CDOIDMetaRange range = CDOIDUtil.createMetaRange(metaIDRange.getLowerBound(), 0);
+      range = map((InternalEObject)ePackage, range);
+      if (range.size() != metaIDRange.size())
+      {
+        throw new IllegalStateException("range.size() != metaIDRange.size()");
+      }
+    }
+
+    public synchronized CDOIDMetaRange mapMetaInstances(EPackage ePackage)
+    {
+      CDOIDMetaRange range = map(ePackage, lastTempMetaID + 1);
+      lastTempMetaID = ((CDOIDTempMeta)range.getUpperBound()).getIntValue();
+      return range;
+    }
+
+    public synchronized void remapMetaInstanceID(CDOID oldID, CDOID newID)
     {
       InternalEObject metaInstance = idToMetaInstanceMap.remove(oldID);
       if (metaInstance == null)
@@ -373,37 +405,21 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       metaInstanceToIDMap.put(metaInstance, newID);
     }
 
-    public synchronized void mapMetaInstances(EPackage ePackage, CDOIDMetaRange metaIDRange)
+    public void clear()
     {
-      if (metaIDRange.isTemporary())
-      {
-        throw new IllegalArgumentException("metaIDRange.isTemporary()");
-      }
-
-      CDOIDMetaRange range = CDOIDUtil.createMetaRange(metaIDRange.getLowerBound(), 0);
-      range = mapMetaInstance((InternalEObject)ePackage, range, true);
-      if (range.size() != metaIDRange.size())
-      {
-        throw new IllegalStateException("range.size() != metaIDRange.size()");
-      }
+      idToMetaInstanceMap.clear();
+      metaInstanceToIDMap.clear();
+      lastTempMetaID = 0;
     }
 
-    public synchronized CDOIDMetaRange mapMetaInstances(EPackage ePackage)
-    {
-      CDOIDMetaRange range = mapMetaInstances(ePackage, lastTempMetaID + 1);
-      lastTempMetaID = ((CDOIDTempMeta)range.getUpperBound()).getIntValue();
-      return range;
-    }
-
-    private CDOIDMetaRange mapMetaInstances(EPackage ePackage, int firstMetaID)
+    private CDOIDMetaRange map(EPackage ePackage, int firstMetaID)
     {
       CDOIDTemp lowerBound = CDOIDUtil.createTempMeta(firstMetaID);
       CDOIDMetaRange range = CDOIDUtil.createMetaRange(lowerBound, 0);
-      range = mapMetaInstance((InternalEObject)ePackage, range, false);
-      return range;
+      return map((InternalEObject)ePackage, range);
     }
 
-    private CDOIDMetaRange mapMetaInstance(InternalEObject metaInstance, CDOIDMetaRange range, boolean remap)
+    private CDOIDMetaRange map(InternalEObject metaInstance, CDOIDMetaRange range)
     {
       range = range.increase();
       CDOID id = range.getUpperBound();
@@ -412,44 +428,22 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
         TRACER.format("Registering meta instance: {0} <-> {1}", id, metaInstance);
       }
 
-      if (idToMetaInstanceMap != null)
+      idToMetaInstanceMap.put(id, metaInstance);
+      CDOID oldID = metaInstanceToIDMap.put(metaInstance, id);
+      if (oldID != null)
       {
-        if (idToMetaInstanceMap.put(id, metaInstance) != null)
-        {
-          throw new IllegalStateException("Duplicate meta ID: " + id + " --> " + metaInstance);
-        }
-      }
-
-      if (metaInstanceToIDMap != null)
-      {
-        CDOID oldID = metaInstanceToIDMap.put(metaInstance, id);
-        if (oldID != null)
-        {
-          if (!remap)
-          {
-            throw new IllegalStateException("Duplicate metaInstance: " + metaInstance + " --> " + id);
-          }
-
-          idToMetaInstanceMap.remove(oldID);
-        }
+        idToMetaInstanceMap.remove(oldID);
       }
 
       for (EObject content : metaInstance.eContents())
       {
         if (!(content instanceof EPackage))
         {
-          range = mapMetaInstance((InternalEObject)content, range, remap);
+          range = map((InternalEObject)content, range);
         }
       }
 
       return range;
-    }
-
-    public void clear()
-    {
-      idToMetaInstanceMap.clear();
-      metaInstanceToIDMap.clear();
-      lastTempMetaID = 0;
     }
   }
 }

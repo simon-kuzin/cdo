@@ -762,11 +762,6 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
 
     InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)session.getPackageRegistry();
     InternalEObject metaInstance = packageRegistry.getMetaInstanceMapper().lookupMetaInstance(id);
-    if (metaInstance == null)
-    {
-      throw new ImplementationError("No metaInstance for " + id);
-    }
-
     return new CDOMetaWrapper(this, metaInstance, id);
   }
 

@@ -566,9 +566,6 @@ public class Repository extends Container<Object> implements IRepository, Packag
   {
     super.doActivate();
     LifecycleUtil.activate(packageRegistry);
-    EMFUtil.registerPackage(EcorePackage.eINSTANCE, packageRegistry);
-    EMFUtil.registerPackage(EresourcePackage.eINSTANCE, packageRegistry);
-
     LifecycleUtil.activate(store);
     LifecycleUtil.activate(sessionManager);
     LifecycleUtil.activate(revisionManager);
@@ -616,6 +613,7 @@ public class Repository extends Container<Object> implements IRepository, Packag
 
   protected InternalCDOPackageUnit initSystemPackage(EPackage ePackage)
   {
+    EMFUtil.registerPackage(ePackage, packageRegistry);
     InternalCDOPackageInfo packageInfo = packageRegistry.getPackageInfo(ePackage);
     CDOIDMetaRange metaIDRange = store.getNextMetaIDRange(packageInfo.getMetaIDRange().size());
     packageInfo.setMetaIDRange(metaIDRange);
