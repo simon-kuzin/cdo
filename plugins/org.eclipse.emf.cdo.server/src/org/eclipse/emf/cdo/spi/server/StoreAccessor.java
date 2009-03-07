@@ -13,6 +13,7 @@
 package org.eclipse.emf.cdo.spi.server;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
@@ -187,6 +188,10 @@ public abstract class StoreAccessor extends Lifecycle implements IStoreAccessor
   }
 
   /**
+   * Add ID mappings for all new objects of a transaction to the commit context. The implementor must, for each new
+   * object of the commit context, determine a permanent CDOID and make it known to the context by calling
+   * {@link CommitContext#addIDMapping(CDOIDTemp, CDOID)}.
+   * 
    * @since 2.0
    */
   protected abstract void addIDMappings(CommitContext context, OMMonitor monitor);
