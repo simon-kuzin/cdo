@@ -17,8 +17,6 @@ import org.eclipse.emf.cdo.tests.config.IConfig;
 import org.eclipse.emf.cdo.tests.config.IRepositoryConfig;
 import org.eclipse.emf.cdo.tests.config.ISessionConfig;
 
-import org.eclipse.emf.internal.cdo.session.CDOPackageTypeRegistryImpl;
-
 import org.eclipse.net4j.acceptor.IAcceptor;
 import org.eclipse.net4j.connector.IConnector;
 import org.eclipse.net4j.jvm.JVMUtil;
@@ -110,13 +108,6 @@ public abstract class SessionConfig extends Config implements ISessionConfig
   }
 
   @Override
-  public void setUp() throws Exception
-  {
-    super.setUp();
-    CDOPackageTypeRegistryImpl.INSTANCE.activate();
-  }
-
-  @Override
   public void tearDown() throws Exception
   {
     try
@@ -126,7 +117,6 @@ public abstract class SessionConfig extends Config implements ISessionConfig
     }
     finally
     {
-      CDOPackageTypeRegistryImpl.INSTANCE.deactivate();
       removeDynamicPackagesFromGlobalRegistry();
     }
   }
