@@ -27,6 +27,7 @@ import org.eclipse.net4j.util.CheckUtil;
 import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
 import org.eclipse.net4j.util.lifecycle.ILifecycleState;
 import org.eclipse.net4j.util.lifecycle.LifecycleException;
+import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.emf.ecore.EObject;
@@ -102,11 +103,20 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
   public void setPackageLoader(PackageLoader packageLoader)
   {
+    LifecycleUtil.checkInactive(this);
     this.packageLoader = packageLoader;
+  }
+
+  @Override
+  public Object get(Object key)
+  {
+    LifecycleUtil.checkActive(this);
+    return super.get(key);
   }
 
   public Object basicPut(String nsURI, Object value)
   {
+    LifecycleUtil.checkActive(this);
     if (TRACER.isEnabled())
     {
       TRACER.format("Registering {0} --> {1}", nsURI, value);
@@ -123,6 +133,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
   @Override
   public synchronized Object put(String nsURI, Object value)
   {
+    LifecycleUtil.checkActive(this);
     if (replacingDescriptors && value instanceof EPackage.Descriptor)
     {
       EPackage.Descriptor descriptor = (EPackage.Descriptor)value;
@@ -158,6 +169,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
   public synchronized void putPackageUnit(InternalCDOPackageUnit packageUnit)
   {
+    LifecycleUtil.checkActive(this);
     packageInfos = null;
     packageUnits = null;
     packageUnit.setPackageRegistry(this);
@@ -178,6 +190,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
   public synchronized InternalCDOPackageInfo getPackageInfo(Object keyOrValue)
   {
+    LifecycleUtil.checkActive(this);
     if (keyOrValue instanceof CDOPackageInfo)
     {
       return (InternalCDOPackageInfo)keyOrValue;
@@ -203,6 +216,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
   public synchronized InternalCDOPackageInfo[] getPackageInfos()
   {
+    LifecycleUtil.checkActive(this);
     if (packageInfos == null)
     {
       List<InternalCDOPackageInfo> result = new ArrayList<InternalCDOPackageInfo>();
@@ -223,6 +237,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
   public synchronized InternalCDOPackageUnit[] getPackageUnits()
   {
+    LifecycleUtil.checkActive(this);
     if (packageUnits == null)
     {
       Set<InternalCDOPackageUnit> result = new HashSet<InternalCDOPackageUnit>();
@@ -244,6 +259,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
   public synchronized EPackage[] getEPackages()
   {
+    LifecycleUtil.checkActive(this);
     List<EPackage> result = new ArrayList<EPackage>();
     for (String packageURI : keySet())
     {
@@ -332,6 +348,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
     public synchronized InternalEObject lookupMetaInstance(CDOID id)
     {
+      LifecycleUtil.checkActive(CDOPackageRegistryImpl.this);
       InternalEObject metaInstance = idToMetaInstanceMap.get(id);
       if (metaInstance != null)
       {
@@ -353,6 +370,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
     public synchronized CDOID lookupMetaInstanceID(InternalEObject metaInstance)
     {
+      LifecycleUtil.checkActive(CDOPackageRegistryImpl.this);
       CDOID metaID = metaInstanceToIDMap.get(metaInstance);
       if (metaID != null)
       {
@@ -374,6 +392,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
     public synchronized void mapMetaInstances(EPackage ePackage, CDOIDMetaRange metaIDRange)
     {
+      LifecycleUtil.checkActive(CDOPackageRegistryImpl.this);
       CDOIDMetaRange range = CDOIDUtil.createMetaRange(metaIDRange.getLowerBound(), 0);
       range = map((InternalEObject)ePackage, range);
       if (range.size() != metaIDRange.size())
@@ -384,6 +403,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
     public synchronized CDOIDMetaRange mapMetaInstances(EPackage ePackage)
     {
+      LifecycleUtil.checkActive(CDOPackageRegistryImpl.this);
       CDOIDMetaRange range = map(ePackage, lastTempMetaID + 1);
       lastTempMetaID = ((CDOIDTempMeta)range.getUpperBound()).getIntValue();
       return range;
@@ -391,6 +411,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
     public synchronized void remapMetaInstanceID(CDOID oldID, CDOID newID)
     {
+      LifecycleUtil.checkActive(CDOPackageRegistryImpl.this);
       InternalEObject metaInstance = idToMetaInstanceMap.remove(oldID);
       if (metaInstance == null)
       {

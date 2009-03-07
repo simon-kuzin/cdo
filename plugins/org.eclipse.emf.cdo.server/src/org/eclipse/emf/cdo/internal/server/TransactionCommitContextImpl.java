@@ -15,6 +15,7 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionResolver;
@@ -92,6 +93,7 @@ public class TransactionCommitContextImpl implements Transaction.InternalCommitC
     this.transaction = transaction;
     Repository repository = (Repository)transaction.getRepository();
     packageRegistry = new TransactionPackageRegistry(repository.getPackageRegistry(false));
+    packageRegistry.activate();
   }
 
   public int getTransactionID()
@@ -325,9 +327,16 @@ public class TransactionCommitContextImpl implements Transaction.InternalCommitC
       StoreThreadLocal.release();
       accessor = null;
       timeStamp = CDORevision.UNSPECIFIED_DATE;
-      packageRegistry.clear();
+
+      packageRegistry.deactivate();
+      packageRegistry = null;
+
       metaIDRanges.clear();
+      metaIDRanges = null;
+
       idMappings.clear();
+      idMappings = null;
+
       rollbackMessage = null;
       newPackageUnits = null;
       newObjects = null;
@@ -641,6 +650,13 @@ public class TransactionCommitContextImpl implements Transaction.InternalCommitC
     public TransactionPackageRegistry(InternalCDOPackageRegistry repositoryPackageRegistry)
     {
       delegateRegistry = repositoryPackageRegistry;
+      setPackageLoader(new PackageLoader()
+      {
+        public EPackage[] loadPackages(CDOPackageUnit packageUnit)
+        {
+          throw new UnsupportedOperationException();
+        }
+      });
     }
 
     @Override
