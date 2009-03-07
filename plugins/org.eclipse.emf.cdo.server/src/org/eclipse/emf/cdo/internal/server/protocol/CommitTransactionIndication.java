@@ -236,7 +236,7 @@ public class CommitTransactionIndication extends IndicationWithMonitoring
 
   protected void indicatingCommit(CDODataInput in, OMMonitor monitor) throws Exception
   {
-    // Create transaction context
+    // Create commit context
     indicatingTransaction(in);
     commitContext.preCommit();
 
