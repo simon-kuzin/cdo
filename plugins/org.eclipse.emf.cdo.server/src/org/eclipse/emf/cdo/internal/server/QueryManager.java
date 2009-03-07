@@ -248,6 +248,7 @@ public class QueryManager extends Lifecycle
     {
       Session session = (Session)queryResult.getView().getSession();
       StoreThreadLocal.setSession(session);
+
       try
       {
         started = true;

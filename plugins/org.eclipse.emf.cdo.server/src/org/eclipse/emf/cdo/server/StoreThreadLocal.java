@@ -10,6 +10,8 @@
  */
 package org.eclipse.emf.cdo.server;
 
+import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
+
 /**
  * @author Eike Stepper
  * @since 2.0
@@ -73,7 +75,11 @@ public final class StoreThreadLocal
     IStoreAccessor accessor = ACCESSOR.get();
     if (accessor != null)
     {
-      accessor.release();
+      if (LifecycleUtil.isActive(accessor))
+      {
+        accessor.release();
+      }
+
       ACCESSOR.set(null);
     }
 

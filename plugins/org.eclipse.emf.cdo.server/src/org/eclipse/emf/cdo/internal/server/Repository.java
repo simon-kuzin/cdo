@@ -591,6 +591,7 @@ public class Repository extends Container<Object> implements IRepository, Packag
       }
       finally
       {
+        LifecycleUtil.deactivate(storeAccessor); // Don't let the null-context accessor go to the pool!
         StoreThreadLocal.release();
       }
     }
