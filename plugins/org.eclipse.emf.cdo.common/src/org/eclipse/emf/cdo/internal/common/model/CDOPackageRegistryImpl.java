@@ -41,6 +41,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 /**
  * @author Eike Stepper
@@ -170,8 +171,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
   public synchronized void putPackageUnit(InternalCDOPackageUnit packageUnit)
   {
     LifecycleUtil.checkActive(this);
-    packageInfos = null;
-    packageUnits = null;
+    resetInternalCaches();
     packageUnit.setPackageRegistry(this);
     for (InternalCDOPackageInfo packageInfo : packageUnit.getPackageInfos())
     {
@@ -305,6 +305,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
         clear();
         metaInstanceMapper.clear();
+        metaInstanceMapper = null;
         active = false;
       }
       catch (RuntimeException ex)
@@ -321,6 +322,11 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     InternalCDOPackageUnit packageUnit = createPackageUnit();
     packageUnit.setPackageRegistry(this);
     packageUnit.init(ePackage);
+    resetInternalCaches();
+  }
+
+  protected void resetInternalCaches()
+  {
     packageInfos = null;
     packageUnits = null;
   }
@@ -390,6 +396,14 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       throw new IllegalStateException("No meta ID mapped for " + metaInstance);
     }
 
+    public synchronized CDOIDMetaRange mapMetaInstances(EPackage ePackage)
+    {
+      LifecycleUtil.checkActive(CDOPackageRegistryImpl.this);
+      CDOIDMetaRange range = map(ePackage, lastTempMetaID + 1);
+      lastTempMetaID = ((CDOIDTempMeta)range.getUpperBound()).getIntValue();
+      return range;
+    }
+
     public synchronized void mapMetaInstances(EPackage ePackage, CDOIDMetaRange metaIDRange)
     {
       LifecycleUtil.checkActive(CDOPackageRegistryImpl.this);
@@ -401,12 +415,17 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       }
     }
 
-    public synchronized CDOIDMetaRange mapMetaInstances(EPackage ePackage)
+    public void mapMetaInstances(MetaInstanceMapper source)
     {
-      LifecycleUtil.checkActive(CDOPackageRegistryImpl.this);
-      CDOIDMetaRange range = map(ePackage, lastTempMetaID + 1);
-      lastTempMetaID = ((CDOIDTempMeta)range.getUpperBound()).getIntValue();
-      return range;
+      for (Map.Entry<CDOID, InternalEObject> entry : source.getEntrySet())
+      {
+        addMapping(entry.getKey(), entry.getValue());
+      }
+    }
+
+    public Set<Entry<CDOID, InternalEObject>> getEntrySet()
+    {
+      return idToMetaInstanceMap.entrySet();
     }
 
     public synchronized void remapMetaInstanceID(CDOID oldID, CDOID newID)
@@ -423,6 +442,11 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
         TRACER.format("Remapping meta instance: {0} --> {1} <-> {2}", oldID, newID, metaInstance);
       }
 
+      addMapping(newID, metaInstance);
+    }
+
+    private void addMapping(CDOID newID, InternalEObject metaInstance)
+    {
       idToMetaInstanceMap.put(newID, metaInstance);
       metaInstanceToIDMap.put(metaInstance, newID);
     }
