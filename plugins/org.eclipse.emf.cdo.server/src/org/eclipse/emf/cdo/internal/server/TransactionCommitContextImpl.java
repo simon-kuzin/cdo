@@ -175,8 +175,6 @@ public class TransactionCommitContextImpl implements Transaction.InternalCommitC
         ((InternalCDORevisionDelta)dirtyObjectDelta).adjustReferences(idMapper);
         monitor.worked();
       }
-
-      xxx();
     }
     finally
     {
@@ -355,15 +353,10 @@ public class TransactionCommitContextImpl implements Transaction.InternalCommitC
   {
     for (InternalCDOPackageUnit newPackageUnit : newPackageUnits)
     {
-      adjustMetaRange(newPackageUnit);
-    }
-  }
-
-  private void adjustMetaRange(InternalCDOPackageUnit packageUnit)
-  {
-    for (InternalCDOPackageInfo packageInfo : packageUnit.getPackageInfos())
-    {
-      adjustMetaRange(packageInfo);
+      for (InternalCDOPackageInfo packageInfo : newPackageUnit.getPackageInfos())
+      {
+        adjustMetaRange(packageInfo);
+      }
     }
   }
 
@@ -378,6 +371,8 @@ public class TransactionCommitContextImpl implements Transaction.InternalCommitC
     int count = oldRange.size();
     CDOIDMetaRange newRange = transaction.getRepository().getStore().getNextMetaIDRange(count);
     packageInfo.setMetaIDRange(newRange);
+    packageRegistry.getMetaInstanceMapper().mapMetaInstances(packageInfo.getEPackage(), newRange);
+
     for (int i = 0; i < count; i++)
     {
       CDOIDTemp oldID = (CDOIDTemp)oldRange.get(i);

@@ -34,21 +34,24 @@ import java.util.Map;
 /**
  * @author Eike Stepper
  */
-public class TestServer
+public class TestServer implements Runnable
 {
   public static final String REPOSITORY_NAME = "repo1";
 
   public static final boolean REGISTER_MODEL_ON_SERVER = false;
 
-  public static void main(String[] args) throws Exception
+  public static void main(String[] args)
   {
     EMFUtil.registerPackage(Model1Package.eINSTANCE);
-
     PrintTraceHandler.CONSOLE.setShortContext(true);
     OMPlatform.INSTANCE.addTraceHandler(PrintTraceHandler.CONSOLE);
     OMPlatform.INSTANCE.addLogHandler(PrintLogHandler.CONSOLE);
     OMPlatform.INSTANCE.setDebugging(true);
+    new TestServer().run();
+  }
 
+  public void run()
+  {
     IManagedContainer container = ContainerUtil.createContainer();
     Net4jUtil.prepareContainer(container);
     TCPUtil.prepareContainer(container);
@@ -67,14 +70,26 @@ public class TestServer
 
     IAcceptor acceptor = (IAcceptor)container.getElement("org.eclipse.net4j.acceptors", "tcp", null);
 
-    System.out.println("Press any key to shutdown");
-    while (IOUtil.IN().read() == -1)
+    try
     {
-      Thread.sleep(200);
+      runInside();
+    }
+    catch (Exception ex)
+    {
+      ex.printStackTrace();
     }
 
     LifecycleUtil.deactivate(acceptor);
     LifecycleUtil.deactivate(repository);
     LifecycleUtil.deactivate(container);
+  }
+
+  protected void runInside() throws Exception
+  {
+    System.out.println("Press any key to shutdown");
+    while (IOUtil.IN().read() == -1)
+    {
+      Thread.sleep(200);
+    }
   }
 }

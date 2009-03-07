@@ -1,8 +1,10 @@
+import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.net4j.CDONet4jUtil;
 import org.eclipse.emf.cdo.net4j.CDOSession;
 import org.eclipse.emf.cdo.net4j.CDOSessionConfiguration;
 import org.eclipse.emf.cdo.tests.model1.Model1Factory;
+import org.eclipse.emf.cdo.tests.model1.Model1Package;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.cdo.util.CDOUtil;
 
@@ -32,15 +34,27 @@ import junit.framework.Assert;
 /**
  * @author Eike Stepper
  */
-public class TestClient extends Assert
+public class TestClient extends Assert implements Runnable
 {
   public static void main(String[] args) throws Exception
   {
+    EMFUtil.registerPackage(Model1Package.eINSTANCE);
     PrintTraceHandler.CONSOLE.setShortContext(true);
     OMPlatform.INSTANCE.addTraceHandler(PrintTraceHandler.CONSOLE);
     OMPlatform.INSTANCE.addLogHandler(PrintLogHandler.CONSOLE);
     OMPlatform.INSTANCE.setDebugging(true);
+    new TestServer()
+    {
+      @Override
+      protected void runInside() throws Exception
+      {
+        new TestClient().run();
+      }
+    }.run();
+  }
 
+  public void run()
+  {
     IManagedContainer container = ContainerUtil.createContainer();
     Net4jUtil.prepareContainer(container);
     TCPUtil.prepareContainer(container);
@@ -59,7 +73,6 @@ public class TestClient extends Assert
     resource.getContents().add(Model1Factory.eINSTANCE.createCompany());
     transaction.commit();
 
-    OMPlatform.INSTANCE.setDebugging(false);
     LifecycleUtil.deactivate(session);
     LifecycleUtil.deactivate(connector);
     LifecycleUtil.deactivate(container);
