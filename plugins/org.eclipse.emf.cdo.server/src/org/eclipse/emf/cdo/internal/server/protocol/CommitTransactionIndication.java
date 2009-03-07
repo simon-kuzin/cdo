@@ -259,6 +259,7 @@ public class CommitTransactionIndication extends IndicationWithMonitoring
       for (int i = 0; i < newPackageUnits.length; i++)
       {
         newPackageUnits[i] = (InternalCDOPackageUnit)in.readCDOPackageUnit();
+        commitContext.getPackageRegistry().putPackageUnit(newPackageUnits[i]); // Must happen before readCDORevision!!!
         monitor.worked();
       }
 

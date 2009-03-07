@@ -179,9 +179,27 @@ public class Repository extends Container<Object> implements IRepository, Packag
     throw new UnsupportedOperationException();
   }
 
+  public InternalCDOPackageRegistry getPackageRegistry(boolean considerCommitContext)
+  {
+    if (considerCommitContext)
+    {
+      IStoreAccessor.CommitContext commitContext = StoreThreadLocal.getCommitContext();
+      if (commitContext != null)
+      {
+        InternalCDOPackageRegistry contextualPackageRegistry = commitContext.getPackageRegistry();
+        if (contextualPackageRegistry != null)
+        {
+          return contextualPackageRegistry;
+        }
+      }
+    }
+
+    return packageRegistry;
+  }
+
   public InternalCDOPackageRegistry getPackageRegistry()
   {
-    return packageRegistry;
+    return getPackageRegistry(true);
   }
 
   public void setPackageRegistry(InternalCDOPackageRegistry packageRegistry)

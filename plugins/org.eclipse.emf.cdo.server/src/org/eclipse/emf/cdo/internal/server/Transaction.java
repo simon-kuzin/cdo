@@ -17,7 +17,6 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.ITransaction;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
@@ -97,8 +96,6 @@ public class Transaction extends View implements ITransaction
   public interface InternalCommitContext extends IStoreAccessor.CommitContext
   {
     public Transaction getTransaction();
-
-    public InternalCDOPackageRegistry getPackageRegistry();
 
     public void preCommit();
 

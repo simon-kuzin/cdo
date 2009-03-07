@@ -21,6 +21,7 @@ import org.eclipse.emf.cdo.common.revision.CDORevisionResolver;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.internal.common.model.CDOPackageRegistryImpl;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
+import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.StoreThreadLocal;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
@@ -49,7 +50,7 @@ import java.util.concurrent.ConcurrentMap;
  * @author Simon McDuff
  * @since 2.0
  */
-public class TransactionCommitContextImpl implements IStoreAccessor.CommitContext, Transaction.InternalCommitContext
+public class TransactionCommitContextImpl implements Transaction.InternalCommitContext
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_TRANSACTION,
       TransactionCommitContextImpl.class);
@@ -89,8 +90,8 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
   public TransactionCommitContextImpl(Transaction transaction)
   {
     this.transaction = transaction;
-    packageRegistry = new TransactionPackageRegistry((InternalCDOPackageRegistry)transaction.getRepository()
-        .getPackageRegistry());
+    Repository repository = (Repository)transaction.getRepository();
+    packageRegistry = new TransactionPackageRegistry(repository.getPackageRegistry(false));
   }
 
   public int getTransactionID()
@@ -198,10 +199,6 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
   public void setNewPackageUnits(InternalCDOPackageUnit[] newPackageUnits)
   {
     this.newPackageUnits = newPackageUnits;
-    for (InternalCDOPackageUnit packageUnit : newPackageUnits)
-    {
-      packageRegistry.putPackageUnit(packageUnit);
-    }
   }
 
   public void setNewObjects(InternalCDORevision[] newObjects)
@@ -245,6 +242,8 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
     {
       monitor.begin(106);
 
+      StoreThreadLocal.setCommitContext(this);
+
       // Could throw an exception
       timeStamp = createTimeStamp();
       dirtyObjects = new InternalCDORevision[dirtyObjectDeltas.length];
@@ -272,6 +271,7 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
     }
     finally
     {
+      StoreThreadLocal.setCommitContext(null);
       monitor.done();
     }
   }
@@ -551,20 +551,15 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
 
   private void addNewPackageUnits(OMMonitor monitor)
   {
+    IRepository repository = transaction.getRepository();
+    InternalCDOPackageRegistry repositoryPackageRegistry = (InternalCDOPackageRegistry)repository.getPackageRegistry();
+
     try
     {
       monitor.begin(newPackageUnits.length);
-      InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)transaction.getRepository()
-          .getPackageRegistry();
       for (int i = 0; i < newPackageUnits.length; i++)
       {
-        packageRegistry.putPackageUnit(newPackageUnits[i]);
-        // for (InternalCDOPackageInfo packageInfo : newPackageUnits[i].getPackageInfos())
-        // {
-        // EPackage ePackage = packageInfo.getEPackage();
-        // packageRegistry.basicPut(ePackage.getNsURI(), ePackage);
-        // }
-
+        repositoryPackageRegistry.putPackageUnit(newPackageUnits[i]);
         monitor.worked();
       }
     }
@@ -646,8 +641,6 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
   {
     private static final long serialVersionUID = 1L;
 
-    private List<InternalCDOPackageUnit> packageUnits = new ArrayList<InternalCDOPackageUnit>();
-
     public TransactionPackageRegistry(InternalCDOPackageRegistry repositoryPackageRegistry)
     {
       delegateRegistry = repositoryPackageRegistry;
@@ -657,7 +650,6 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
     public void putPackageUnit(InternalCDOPackageUnit packageUnit)
     {
       packageUnit.setPackageRegistry(this);
-      packageUnits.add(packageUnit);
       for (InternalCDOPackageInfo packageInfo : packageUnit.getPackageInfos())
       {
         EPackage ePackage = packageInfo.getEPackage();
