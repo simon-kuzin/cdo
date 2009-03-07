@@ -137,7 +137,7 @@ public abstract class StoreAccessor extends Lifecycle implements IStoreAccessor
 
     try
     {
-      monitor.begin(newPackageUnits.length + newObjects.length + detachedObjects.length + dirtyCount + 2);
+      monitor.begin(newPackageUnits.length + 2 + newObjects.length + detachedObjects.length + dirtyCount);
       writePackageUnits(newPackageUnits, monitor.fork(newPackageUnits.length));
       addIDMappings(context, monitor.fork());
       context.applyIDMappings(monitor.fork());

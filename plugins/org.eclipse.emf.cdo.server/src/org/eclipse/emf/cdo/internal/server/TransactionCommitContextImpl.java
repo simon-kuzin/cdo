@@ -196,6 +196,7 @@ public class TransactionCommitContextImpl implements Transaction.InternalCommitC
 
     // Make the store writer available in a ThreadLocal variable
     StoreThreadLocal.setAccessor(accessor);
+    StoreThreadLocal.setCommitContext(this);
   }
 
   public void setNewPackageUnits(InternalCDOPackageUnit[] newPackageUnits)
@@ -244,8 +245,6 @@ public class TransactionCommitContextImpl implements Transaction.InternalCommitC
     {
       monitor.begin(106);
 
-      StoreThreadLocal.setCommitContext(this);
-
       // Could throw an exception
       timeStamp = createTimeStamp();
       dirtyObjects = new InternalCDORevision[dirtyObjectDeltas.length];
@@ -273,7 +272,6 @@ public class TransactionCommitContextImpl implements Transaction.InternalCommitC
     }
     finally
     {
-      StoreThreadLocal.setCommitContext(null);
       monitor.done();
     }
   }

@@ -360,16 +360,6 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
         return metaInstance;
       }
 
-      if (delegateRegistry instanceof InternalCDOPackageRegistry)
-      {
-        InternalCDOPackageRegistry delegate = (InternalCDOPackageRegistry)delegateRegistry;
-        metaInstance = delegate.getMetaInstanceMapper().lookupMetaInstance(id);
-        if (metaInstance != null)
-        {
-          return metaInstance;
-        }
-      }
-
       for (InternalCDOPackageInfo packageInfo : getPackageInfos())
       {
         CDOIDMetaRange metaIDRange = packageInfo.getMetaIDRange();
@@ -387,6 +377,19 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
         return metaInstance;
       }
 
+      if (delegateRegistry instanceof InternalCDOPackageRegistry)
+      {
+        try
+        {
+          InternalCDOPackageRegistry delegate = (InternalCDOPackageRegistry)delegateRegistry;
+          return delegate.getMetaInstanceMapper().lookupMetaInstance(id);
+        }
+        catch (RuntimeException ex)
+        {
+          // Fall-through
+        }
+      }
+
       throw new IllegalStateException("No meta instance mapped for " + id);
     }
 
@@ -397,16 +400,6 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       if (metaID != null)
       {
         return metaID;
-      }
-
-      if (delegateRegistry instanceof InternalCDOPackageRegistry)
-      {
-        InternalCDOPackageRegistry delegate = (InternalCDOPackageRegistry)delegateRegistry;
-        metaID = delegate.getMetaInstanceMapper().lookupMetaInstanceID(metaInstance);
-        if (metaID != null)
-        {
-          return metaID;
-        }
       }
 
       EObject object = metaInstance;
@@ -428,6 +421,19 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       if (metaID != null)
       {
         return metaID;
+      }
+
+      if (delegateRegistry instanceof InternalCDOPackageRegistry)
+      {
+        try
+        {
+          InternalCDOPackageRegistry delegate = (InternalCDOPackageRegistry)delegateRegistry;
+          return delegate.getMetaInstanceMapper().lookupMetaInstanceID(metaInstance);
+        }
+        catch (RuntimeException ex)
+        {
+          // Fall-through
+        }
       }
 
       throw new IllegalStateException("No meta ID mapped for " + metaInstance);
