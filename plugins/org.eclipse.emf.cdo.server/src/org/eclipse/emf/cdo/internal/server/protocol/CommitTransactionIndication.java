@@ -33,7 +33,6 @@ import org.eclipse.emf.cdo.internal.server.Transaction.InternalCommitContext;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
 import org.eclipse.emf.cdo.server.IStore;
 import org.eclipse.emf.cdo.server.IView;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
@@ -247,12 +246,10 @@ public class CommitTransactionIndication extends IndicationWithMonitoring
     InternalCDORevision[] newObjects = new InternalCDORevision[in.readInt()];
     InternalCDORevisionDelta[] dirtyObjectDeltas = new InternalCDORevisionDelta[in.readInt()];
     CDOID[] detachedObjects = new CDOID[in.readInt()];
+    monitor.begin(newPackageUnits.length + newObjects.length + dirtyObjectDeltas.length + detachedObjects.length);
 
     try
     {
-      monitor.begin(newPackageUnits.length + newObjects.length + dirtyObjectDeltas.length + detachedObjects.length);
-      InternalCDOPackageRegistry packageRegistry = commitContext.getPackageRegistry();
-
       // New package units
       if (TRACER.isEnabled())
       {
@@ -262,7 +259,6 @@ public class CommitTransactionIndication extends IndicationWithMonitoring
       for (int i = 0; i < newPackageUnits.length; i++)
       {
         newPackageUnits[i] = (InternalCDOPackageUnit)in.readCDOPackageUnit();
-        packageRegistry.putPackageUnit(newPackageUnits[i]);
         monitor.worked();
       }
 

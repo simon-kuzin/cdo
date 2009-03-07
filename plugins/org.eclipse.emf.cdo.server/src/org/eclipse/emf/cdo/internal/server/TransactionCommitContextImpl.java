@@ -198,6 +198,10 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
   public void setNewPackageUnits(InternalCDOPackageUnit[] newPackageUnits)
   {
     this.newPackageUnits = newPackageUnits;
+    for (InternalCDOPackageUnit packageUnit : newPackageUnits)
+    {
+      packageRegistry.putPackageUnit(packageUnit);
+    }
   }
 
   public void setNewObjects(InternalCDORevision[] newObjects)
