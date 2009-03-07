@@ -232,10 +232,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
         if (packageInfo != null)
         {
           InternalCDOPackageUnit packageUnit = packageInfo.getPackageUnit();
-          if (!packageUnit.isSystem())
-          {
-            result.add(packageUnit);
-          }
+          result.add(packageUnit);
         }
       }
 
@@ -336,39 +333,43 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     public synchronized InternalEObject lookupMetaInstance(CDOID id)
     {
       InternalEObject metaInstance = idToMetaInstanceMap.get(id);
-      if (metaInstance == null)
+      if (metaInstance != null)
       {
-        throw new IllegalStateException("No meta instance mapped for " + id);
-
-        // for (Object value : values())
-        // {
-        // CDOPackageInfo packageInfo = getPackageInfo(value);
-        // if (packageInfo != null)
-        // {
-        // CDOIDMetaRange metaIDRange = packageInfo.getMetaIDRange();
-        // if (metaIDRange != null && metaIDRange.contains(id))
-        // {
-        // EPackage ePackage = packageInfo.getEPackage(true);
-        // mapMetaInstances(ePackage);
-        // metaInstance = idToMetaInstanceMap.get(id);
-        // break;
-        // }
-        // }
-        // }
+        return metaInstance;
       }
 
-      return metaInstance;
+      if (delegateRegistry instanceof InternalCDOPackageRegistry)
+      {
+        InternalCDOPackageRegistry delegate = (InternalCDOPackageRegistry)delegateRegistry;
+        metaInstance = delegate.getMetaInstanceMapper().lookupMetaInstance(id);
+        if (metaInstance != null)
+        {
+          return metaInstance;
+        }
+      }
+
+      throw new IllegalStateException("No meta instance mapped for " + id);
     }
 
     public synchronized CDOID lookupMetaInstanceID(InternalEObject metaInstance)
     {
       CDOID metaID = metaInstanceToIDMap.get(metaInstance);
-      if (metaID == null)
+      if (metaID != null)
       {
-        throw new IllegalStateException("No meta ID mapped for " + metaInstance);
+        return metaID;
       }
 
-      return metaID;
+      if (delegateRegistry instanceof InternalCDOPackageRegistry)
+      {
+        InternalCDOPackageRegistry delegate = (InternalCDOPackageRegistry)delegateRegistry;
+        metaID = delegate.getMetaInstanceMapper().lookupMetaInstanceID(metaInstance);
+        if (metaID != null)
+        {
+          return metaID;
+        }
+      }
+
+      throw new IllegalStateException("No meta ID mapped for " + metaInstance);
     }
 
     public synchronized void mapMetaInstances(EPackage ePackage, CDOIDMetaRange metaIDRange)

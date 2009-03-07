@@ -43,14 +43,15 @@ public class TestClient extends Assert implements Runnable
     OMPlatform.INSTANCE.addTraceHandler(PrintTraceHandler.CONSOLE);
     OMPlatform.INSTANCE.addLogHandler(PrintLogHandler.CONSOLE);
     OMPlatform.INSTANCE.setDebugging(true);
-    new TestServer()
-    {
-      @Override
-      protected void runInside() throws Exception
-      {
-        new TestClient().run();
-      }
-    }.run();
+    new TestClient().run();
+    // new TestServer()
+    // {
+    // @Override
+    // protected void runInside() throws Exception
+    // {
+    // new TestClient().run();
+    // }
+    // }.run();
   }
 
   public void run()
