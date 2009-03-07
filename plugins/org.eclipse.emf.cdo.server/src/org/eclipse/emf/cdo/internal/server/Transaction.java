@@ -69,7 +69,7 @@ public class Transaction extends View implements ITransaction
    * 
    * @since 2.0
    */
-  public InternalCommitContext createCommitContext(final long timeStamp)
+  public InternalCommitContext testCreateCommitContext(final long timeStamp)
   {
     checkOpen();
     return new TransactionCommitContextImpl(this)

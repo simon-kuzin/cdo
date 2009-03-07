@@ -334,10 +334,14 @@ public class TransactionCommitContextImpl implements IStoreAccessor.CommitContex
 
   private void adjustTimeStamps()
   {
-    for (CDORevision newObject : newObjects)
+    for (InternalCDOPackageUnit newPackageUnit : newPackageUnits)
     {
-      InternalCDORevision revision = (InternalCDORevision)newObject;
-      revision.setCreated(timeStamp);
+      newPackageUnit.setTimeStamp(timeStamp);
+    }
+
+    for (InternalCDORevision newObject : newObjects)
+    {
+      newObject.setCreated(timeStamp);
     }
   }
 

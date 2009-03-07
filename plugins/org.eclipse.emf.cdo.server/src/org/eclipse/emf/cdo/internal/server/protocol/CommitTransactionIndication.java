@@ -228,7 +228,7 @@ public class CommitTransactionIndication extends IndicationWithMonitoring
     }
   }
 
-  protected void indicationTransaction(CDODataInput in) throws Exception
+  protected void indicatingTransaction(CDODataInput in) throws Exception
   {
     int viewID = in.readInt();
     commitContext = getTransaction(viewID).createCommitContext();
@@ -237,7 +237,7 @@ public class CommitTransactionIndication extends IndicationWithMonitoring
   protected void indicatingCommit(CDODataInput in, OMMonitor monitor) throws Exception
   {
     // Create transaction context
-    indicationTransaction(in);
+    indicatingTransaction(in);
     commitContext.preCommit();
 
     boolean autoReleaseLocksEnabled = in.readBoolean();
