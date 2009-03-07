@@ -370,6 +370,23 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
         }
       }
 
+      for (InternalCDOPackageInfo packageInfo : getPackageInfos())
+      {
+        CDOIDMetaRange metaIDRange = packageInfo.getMetaIDRange();
+        if (metaIDRange != null && metaIDRange.contains(id))
+        {
+          EPackage ePackage = packageInfo.getEPackage();
+          mapMetaInstances(ePackage, packageInfo.getMetaIDRange());
+          metaInstance = idToMetaInstanceMap.get(id);
+          break;
+        }
+      }
+
+      if (metaInstance != null)
+      {
+        return metaInstance;
+      }
+
       throw new IllegalStateException("No meta instance mapped for " + id);
     }
 
@@ -390,6 +407,27 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
         {
           return metaID;
         }
+      }
+
+      EObject object = metaInstance;
+      while ((object = object.eContainer()) != null)
+      {
+        if (object instanceof EPackage)
+        {
+          EPackage ePackage = (EPackage)object;
+          InternalCDOPackageInfo packageInfo = getPackageInfo(ePackage);
+          if (packageInfo != null)
+          {
+            mapMetaInstances(ePackage, packageInfo.getMetaIDRange());
+            metaID = metaInstanceToIDMap.get(metaInstance);
+            break;
+          }
+        }
+      }
+
+      if (metaID != null)
+      {
+        return metaID;
       }
 
       throw new IllegalStateException("No meta ID mapped for " + metaInstance);

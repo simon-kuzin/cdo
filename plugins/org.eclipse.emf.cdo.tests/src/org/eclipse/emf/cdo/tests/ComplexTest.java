@@ -84,8 +84,8 @@ public class ComplexTest extends AbstractCDOTest
     factory = getModel4Factory();
 
     session = openSession();
-    session.getPackageRegistry().putEPackage(model4interfacesPackage.eINSTANCE);
-    session.getPackageRegistry().putEPackage(model4Package.eINSTANCE);
+    session.getPackageRegistry().putEPackage(getModel4InterfacesPackage());
+    session.getPackageRegistry().putEPackage(getModel4Package());
 
     transaction = session.openTransaction();
 
