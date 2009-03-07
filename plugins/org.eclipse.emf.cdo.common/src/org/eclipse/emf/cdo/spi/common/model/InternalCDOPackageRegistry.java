@@ -20,6 +20,8 @@ import org.eclipse.net4j.util.lifecycle.ILifecycle;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.InternalEObject;
 
+import java.util.Set;
+
 /**
  * @author Eike Stepper
  */
@@ -76,6 +78,8 @@ public interface InternalCDOPackageRegistry extends CDOPackageRegistry, ILifecyc
    */
   public interface MetaInstanceMapper
   {
+    public Set<Entry<CDOID, InternalEObject>> getEntrySet();
+
     public InternalEObject lookupMetaInstance(CDOID id);
 
     public CDOID lookupMetaInstanceID(InternalEObject metaInstance);
@@ -84,6 +88,9 @@ public interface InternalCDOPackageRegistry extends CDOPackageRegistry, ILifecyc
 
     public void mapMetaInstances(EPackage ePackage, CDOIDMetaRange metaIDRange);
 
+    public void mapMetaInstances(MetaInstanceMapper source);
+
     public void remapMetaInstanceID(CDOID oldID, CDOID newID);
+
   }
 }

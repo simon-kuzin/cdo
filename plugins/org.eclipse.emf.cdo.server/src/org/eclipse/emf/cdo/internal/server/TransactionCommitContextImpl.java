@@ -559,19 +559,23 @@ public class TransactionCommitContextImpl implements Transaction.InternalCommitC
   {
     IRepository repository = transaction.getRepository();
     InternalCDOPackageRegistry repositoryPackageRegistry = (InternalCDOPackageRegistry)repository.getPackageRegistry();
-
-    try
+    synchronized (repositoryPackageRegistry)
     {
-      monitor.begin(newPackageUnits.length);
-      for (int i = 0; i < newPackageUnits.length; i++)
+      try
       {
-        repositoryPackageRegistry.putPackageUnit(newPackageUnits[i]);
-        monitor.worked();
+        monitor.begin(newPackageUnits.length);
+        for (int i = 0; i < newPackageUnits.length; i++)
+        {
+          repositoryPackageRegistry.putPackageUnit(newPackageUnits[i]);
+          monitor.worked();
+        }
+
+        repositoryPackageRegistry.getMetaInstanceMapper().mapMetaInstances(packageRegistry.getMetaInstanceMapper());
       }
-    }
-    finally
-    {
-      monitor.done();
+      finally
+      {
+        monitor.done();
+      }
     }
   }
 
@@ -662,6 +666,7 @@ public class TransactionCommitContextImpl implements Transaction.InternalCommitC
     @Override
     public void putPackageUnit(InternalCDOPackageUnit packageUnit)
     {
+      resetInternalCaches();
       packageUnit.setPackageRegistry(this);
       for (InternalCDOPackageInfo packageInfo : packageUnit.getPackageInfos())
       {

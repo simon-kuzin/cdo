@@ -41,7 +41,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 
 /**
  * @author Eike Stepper
@@ -423,7 +422,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       }
     }
 
-    public Set<Entry<CDOID, InternalEObject>> getEntrySet()
+    public Set<Map.Entry<CDOID, InternalEObject>> getEntrySet()
     {
       return idToMetaInstanceMap.entrySet();
     }
