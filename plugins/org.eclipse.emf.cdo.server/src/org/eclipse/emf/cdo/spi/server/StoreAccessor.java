@@ -13,9 +13,6 @@
 package org.eclipse.emf.cdo.spi.server;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.id.CDOIDTemp;
-import org.eclipse.emf.cdo.common.id.CDOIDUtil;
-import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
@@ -192,34 +189,7 @@ public abstract class StoreAccessor extends Lifecycle implements IStoreAccessor
   /**
    * @since 2.0
    */
-  protected void addIDMappings(CommitContext context, OMMonitor monitor)
-  {
-    try
-    {
-      if (store instanceof LongIDStore)
-      {
-        LongIDStore longIDStore = (LongIDStore)getStore();
-        CDORevision[] newObjects = context.getNewObjects();
-        monitor.begin(newObjects.length);
-        for (CDORevision revision : newObjects)
-        {
-          CDOIDTemp oldID = (CDOIDTemp)revision.getID();
-          CDOID newID = longIDStore.getNextCDOID();
-          if (CDOIDUtil.isNull(newID) || newID.isTemporary())
-          {
-            throw new IllegalStateException("newID=" + newID);
-          }
-
-          context.addIDMapping(oldID, newID);
-          monitor.worked();
-        }
-      }
-    }
-    finally
-    {
-      monitor.done();
-    }
-  }
+  protected abstract void addIDMappings(CommitContext context, OMMonitor monitor);
 
   /**
    * @since 2.0

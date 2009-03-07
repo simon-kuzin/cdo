@@ -36,7 +36,7 @@ import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
-import org.eclipse.emf.cdo.spi.server.StoreAccessor;
+import org.eclipse.emf.cdo.spi.server.LongIDStoreAccessor;
 
 import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.db.DBUtil;
@@ -68,7 +68,7 @@ import java.util.Set;
 /**
  * @author Eike Stepper
  */
-public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor
+public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAccessor
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, DBStoreAccessor.class);
 

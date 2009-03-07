@@ -175,6 +175,8 @@ public class TransactionCommitContextImpl implements Transaction.InternalCommitC
         ((InternalCDORevisionDelta)dirtyObjectDelta).adjustReferences(idMapper);
         monitor.worked();
       }
+
+      xxx();
     }
     finally
     {

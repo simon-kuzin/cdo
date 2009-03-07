@@ -482,6 +482,12 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
   }
 
   @Override
+  protected void addIDMappings(CommitContext context, OMMonitor monitor)
+  {
+    // Do nothing
+  }
+
+  @Override
   protected void writeRevisionDeltas(InternalCDORevisionDelta[] revisionDeltas, long created, OMMonitor monitor)
   {
     throw new UnsupportedOperationException();

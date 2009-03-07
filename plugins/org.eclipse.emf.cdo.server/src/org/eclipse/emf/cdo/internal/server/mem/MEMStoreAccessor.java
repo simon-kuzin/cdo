@@ -21,7 +21,7 @@ import org.eclipse.emf.cdo.server.ITransaction;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
-import org.eclipse.emf.cdo.spi.server.StoreAccessor;
+import org.eclipse.emf.cdo.spi.server.LongIDStoreAccessor;
 
 import org.eclipse.net4j.util.WrappedException;
 import org.eclipse.net4j.util.collection.CloseableIterator;
@@ -38,7 +38,7 @@ import java.util.List;
 /**
  * @author Simon McDuff
  */
-public class MEMStoreAccessor extends StoreAccessor
+public class MEMStoreAccessor extends LongIDStoreAccessor
 {
   private List<InternalCDORevision> newRevisions = new ArrayList<InternalCDORevision>();
 
