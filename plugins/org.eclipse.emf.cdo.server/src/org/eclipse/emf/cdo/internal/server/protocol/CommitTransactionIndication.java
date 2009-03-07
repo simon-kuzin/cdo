@@ -30,10 +30,10 @@ import org.eclipse.emf.cdo.internal.server.Repository;
 import org.eclipse.emf.cdo.internal.server.Session;
 import org.eclipse.emf.cdo.internal.server.Transaction;
 import org.eclipse.emf.cdo.internal.server.Transaction.InternalCommitContext;
-import org.eclipse.emf.cdo.internal.server.TransactionCommitContextImpl.TransactionPackageRegistry;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
 import org.eclipse.emf.cdo.server.IStore;
 import org.eclipse.emf.cdo.server.IView;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
@@ -243,16 +243,16 @@ public class CommitTransactionIndication extends IndicationWithMonitoring
     boolean autoReleaseLocksEnabled = in.readBoolean();
     commitContext.setAutoReleaseLocksEnabled(autoReleaseLocksEnabled);
 
-    TransactionPackageRegistry packageRegistry = (TransactionPackageRegistry)commitContext.getPackageRegistry();
     InternalCDOPackageUnit[] newPackageUnits = new InternalCDOPackageUnit[in.readInt()];
     InternalCDORevision[] newObjects = new InternalCDORevision[in.readInt()];
     InternalCDORevisionDelta[] dirtyObjectDeltas = new InternalCDORevisionDelta[in.readInt()];
     CDOID[] detachedObjects = new CDOID[in.readInt()];
 
-    monitor.begin(newPackageUnits.length + newObjects.length + dirtyObjectDeltas.length + detachedObjects.length);
-
     try
     {
+      monitor.begin(newPackageUnits.length + newObjects.length + dirtyObjectDeltas.length + detachedObjects.length);
+      InternalCDOPackageRegistry packageRegistry = commitContext.getPackageRegistry();
+
       // New package units
       if (TRACER.isEnabled())
       {
