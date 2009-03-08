@@ -360,6 +360,19 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
         return metaInstance;
       }
 
+      if (delegateRegistry instanceof InternalCDOPackageRegistry)
+      {
+        try
+        {
+          InternalCDOPackageRegistry delegate = (InternalCDOPackageRegistry)delegateRegistry;
+          return delegate.getMetaInstanceMapper().lookupMetaInstance(id);
+        }
+        catch (RuntimeException ex)
+        {
+          // Fall-through
+        }
+      }
+
       for (InternalCDOPackageInfo packageInfo : getPackageInfos())
       {
         CDOIDMetaRange metaIDRange = packageInfo.getMetaIDRange();
@@ -377,19 +390,6 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
         return metaInstance;
       }
 
-      if (delegateRegistry instanceof InternalCDOPackageRegistry)
-      {
-        try
-        {
-          InternalCDOPackageRegistry delegate = (InternalCDOPackageRegistry)delegateRegistry;
-          return delegate.getMetaInstanceMapper().lookupMetaInstance(id);
-        }
-        catch (RuntimeException ex)
-        {
-          // Fall-through
-        }
-      }
-
       throw new IllegalStateException("No meta instance mapped for " + id);
     }
 
@@ -397,27 +397,6 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     {
       LifecycleUtil.checkActive(CDOPackageRegistryImpl.this);
       CDOID metaID = metaInstanceToIDMap.get(metaInstance);
-      if (metaID != null)
-      {
-        return metaID;
-      }
-
-      EObject object = metaInstance;
-      while ((object = object.eContainer()) != null)
-      {
-        if (object instanceof EPackage)
-        {
-          EPackage ePackage = (EPackage)object;
-          InternalCDOPackageInfo packageInfo = getPackageInfo(ePackage);
-          if (packageInfo != null)
-          {
-            mapMetaInstances(ePackage, packageInfo.getMetaIDRange());
-            metaID = metaInstanceToIDMap.get(metaInstance);
-            break;
-          }
-        }
-      }
-
       if (metaID != null)
       {
         return metaID;
@@ -434,6 +413,28 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
         {
           // Fall-through
         }
+      }
+
+      EObject object = metaInstance;
+      while ((object = object.eContainer()) != null)
+      {
+        if (object instanceof EPackage)
+        {
+          EPackage ePackage = (EPackage)object;
+          InternalCDOPackageInfo packageInfo = getPackageInfo(ePackage);
+          if (packageInfo != null)
+          {
+            mapMetaInstances(ePackage, packageInfo.getMetaIDRange());
+            metaID = metaInstanceToIDMap.get(metaInstance);
+          }
+
+          break;
+        }
+      }
+
+      if (metaID != null)
+      {
+        return metaID;
       }
 
       throw new IllegalStateException("No meta ID mapped for " + metaInstance);
@@ -462,7 +463,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     {
       for (Map.Entry<CDOID, InternalEObject> entry : source.getEntrySet())
       {
-        addMapping(entry.getKey(), entry.getValue());
+        map(entry.getKey(), entry.getValue());
       }
     }
 
@@ -477,7 +478,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       InternalEObject metaInstance = idToMetaInstanceMap.remove(oldID);
       if (metaInstance == null)
       {
-        throw new IllegalArgumentException("Unknown meta instance id: " + oldID);
+        throw new IllegalArgumentException("Unknown meta instance ID: " + oldID);
       }
 
       if (TRACER.isEnabled())
@@ -485,13 +486,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
         TRACER.format("Remapping meta instance: {0} --> {1} <-> {2}", oldID, newID, metaInstance);
       }
 
-      addMapping(newID, metaInstance);
-    }
-
-    private void addMapping(CDOID newID, InternalEObject metaInstance)
-    {
-      idToMetaInstanceMap.put(newID, metaInstance);
-      metaInstanceToIDMap.put(metaInstance, newID);
+      map(newID, metaInstance);
     }
 
     public void clear()
@@ -533,6 +528,12 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       }
 
       return range;
+    }
+
+    private void map(CDOID metaID, InternalEObject metaInstance)
+    {
+      idToMetaInstanceMap.put(metaID, metaInstance);
+      metaInstanceToIDMap.put(metaInstance, metaID);
     }
   }
 }
