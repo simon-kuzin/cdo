@@ -35,7 +35,12 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.EPackageRegistryImpl;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -272,6 +277,12 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     return result.toArray(new EPackage[result.size()]);
   }
 
+  @Override
+  public String toString()
+  {
+    return MessageFormat.format("{0}[packageLoader={1}]", getClass().getSimpleName(), getPackageLoader());
+  }
+
   public synchronized boolean isActive()
   {
     return active;
@@ -381,15 +392,16 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
           EPackage ePackage = packageInfo.getEPackage();
           mapMetaInstances(ePackage, packageInfo.getMetaIDRange());
           metaInstance = idToMetaInstanceMap.get(id);
+          if (metaInstance != null)
+          {
+            return metaInstance;
+          }
+
           break;
         }
       }
 
-      if (metaInstance != null)
-      {
-        return metaInstance;
-      }
-
+      System.out.println(dump());
       throw new IllegalStateException("No meta instance mapped for " + id);
     }
 
@@ -415,29 +427,37 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
         }
       }
 
+      EPackage ePackage = getContainingPackage(metaInstance);
+      if (ePackage != null)
+      {
+        InternalCDOPackageInfo packageInfo = getPackageInfo(ePackage);
+        if (packageInfo != null)
+        {
+          mapMetaInstances(ePackage, packageInfo.getMetaIDRange());
+          metaID = metaInstanceToIDMap.get(metaInstance);
+          if (metaID != null)
+          {
+            return metaID;
+          }
+        }
+      }
+
+      System.out.println(dump());
+      throw new IllegalStateException("No meta ID mapped for " + metaInstance + "\nContaining package: " + ePackage);
+    }
+
+    private EPackage getContainingPackage(InternalEObject metaInstance)
+    {
       EObject object = metaInstance;
       while ((object = object.eContainer()) != null)
       {
         if (object instanceof EPackage)
         {
-          EPackage ePackage = (EPackage)object;
-          InternalCDOPackageInfo packageInfo = getPackageInfo(ePackage);
-          if (packageInfo != null)
-          {
-            mapMetaInstances(ePackage, packageInfo.getMetaIDRange());
-            metaID = metaInstanceToIDMap.get(metaInstance);
-          }
-
-          break;
+          return (EPackage)object;
         }
       }
 
-      if (metaID != null)
-      {
-        return metaID;
-      }
-
-      throw new IllegalStateException("No meta ID mapped for " + metaInstance);
+      return null;
     }
 
     public synchronized CDOIDMetaRange mapMetaInstances(EPackage ePackage)
@@ -494,6 +514,38 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       idToMetaInstanceMap.clear();
       metaInstanceToIDMap.clear();
       lastTempMetaID = 0;
+    }
+
+    private String dump()
+    {
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      PrintStream stream = new PrintStream(baos);
+
+      stream.println();
+      stream.println();
+      stream.println(CDOPackageRegistryImpl.this);
+
+      stream.println();
+      List<Map.Entry<CDOID, InternalEObject>> list = new ArrayList<Map.Entry<CDOID, InternalEObject>>(
+          idToMetaInstanceMap.entrySet());
+      Collections.sort(list, new Comparator<Map.Entry<CDOID, InternalEObject>>()
+      {
+        public int compare(Map.Entry<CDOID, InternalEObject> o1, Map.Entry<CDOID, InternalEObject> o2)
+        {
+          return o1.getKey().compareTo(o2.getKey());
+        }
+      });
+
+      for (Map.Entry<CDOID, InternalEObject> entry : list)
+      {
+        stream.println("    " + entry.getKey() + " --> " + entry.getValue());
+      }
+
+      // ReflectUtil.dump(idToMetaInstanceMap, "    ", stream);
+      // stream.println();
+      // ReflectUtil.dump(metaInstanceToIDMap, "    ", stream);
+
+      return baos.toString();
     }
 
     private CDOIDMetaRange map(EPackage ePackage, int firstMetaID)
