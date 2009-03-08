@@ -84,20 +84,21 @@ public final class CDOModelUtil
     coreTypes = types.toArray(new CDOType[types.size()]);
   }
 
-  public static void writePackage(ExtendedDataOutput out, EPackage ePackage, boolean zipped) throws IOException
+  public static void writePackage(ExtendedDataOutput out, EPackage ePackage, boolean zipped,
+      EPackage.Registry packageRegistry) throws IOException
   {
-    byte[] bytes = EMFUtil.getPackageBytes(ePackage, zipped);
+    byte[] bytes = EMFUtil.getPackageBytes(ePackage, zipped, packageRegistry);
     out.writeString(ePackage.getNsURI());
     out.writeBoolean(zipped);
     out.writeByteArray(bytes);
   }
 
-  public static EPackage readPackage(ExtendedDataInput in) throws IOException
+  public static EPackage readPackage(ExtendedDataInput in, EPackage.Registry packageRegistry) throws IOException
   {
     String uri = in.readString();
     boolean zipped = in.readBoolean();
     byte[] bytes = in.readByteArray();
-    return EMFUtil.createPackage(uri, bytes, zipped);
+    return EMFUtil.createPackage(uri, bytes, zipped, packageRegistry);
   }
 
   private static void registerCoreType(List<CDOType> types, EClassifier classifier, CDOType type)

@@ -138,21 +138,35 @@ public abstract class StoreAccessor extends Lifecycle implements IStoreAccessor
     try
     {
       monitor.begin(newPackageUnits.length + 2 + newObjects.length + detachedObjects.length + dirtyCount);
-      writePackageUnits(newPackageUnits, monitor.fork(newPackageUnits.length));
+      if (newPackageUnits.length != 0)
+      {
+        writePackageUnits(newPackageUnits, monitor.fork(newPackageUnits.length));
+      }
+
       addIDMappings(context, monitor.fork());
       context.applyIDMappings(monitor.fork());
 
-      writeRevisions(newObjects, monitor.fork(newObjects.length));
-      if (deltas)
+      if (newObjects.length != 0)
       {
-        writeRevisionDeltas(context.getDirtyObjectDeltas(), timeStamp, monitor.fork(dirtyCount));
-      }
-      else
-      {
-        writeRevisions(context.getDirtyObjects(), monitor.fork(dirtyCount));
+        writeRevisions(newObjects, monitor.fork(newObjects.length));
       }
 
-      detachObjects(detachedObjects, timeStamp - 1, monitor.fork(detachedObjects.length));
+      if (dirtyCount != 0)
+      {
+        if (deltas)
+        {
+          writeRevisionDeltas(context.getDirtyObjectDeltas(), timeStamp, monitor.fork(dirtyCount));
+        }
+        else
+        {
+          writeRevisions(context.getDirtyObjects(), monitor.fork(dirtyCount));
+        }
+      }
+
+      if (detachedObjects.length != 0)
+      {
+        detachObjects(detachedObjects, timeStamp - 1, monitor.fork(detachedObjects.length));
+      }
     }
     finally
     {

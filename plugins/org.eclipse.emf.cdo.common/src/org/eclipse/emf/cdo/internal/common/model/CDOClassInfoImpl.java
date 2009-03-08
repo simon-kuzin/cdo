@@ -37,7 +37,7 @@ public class CDOClassInfoImpl extends AdapterImpl implements CDOClassInfo
   @Override
   public boolean isAdapterForType(Object type)
   {
-    return EClass.class.isInstance(type);
+    return type == CDOClassInfo.class;
   }
 
   @Override

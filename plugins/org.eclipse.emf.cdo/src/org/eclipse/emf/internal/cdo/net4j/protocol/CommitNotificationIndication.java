@@ -52,14 +52,14 @@ public class CommitNotificationIndication extends CDOClientIndication
     {
       TRACER.format("Read timeStamp: {0,date} {0,time}", timeStamp);
     }
-    
-    CDOPackageUnit[] packageUnits = in.readCDOPackageUnits();
+
+    CDOPackageUnit[] packageUnits = in.readCDOPackageUnits(null);
     InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)getSession().getPackageRegistry();
     for (int i = 0; i < packageUnits.length; i++)
     {
       packageRegistry.putPackageUnit((InternalCDOPackageUnit)packageUnits[i]);
     }
-    
+
     int size = in.readInt();
     if (TRACER.isEnabled())
     {

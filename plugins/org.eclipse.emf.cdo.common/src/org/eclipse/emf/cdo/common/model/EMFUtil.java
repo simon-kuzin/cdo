@@ -361,14 +361,14 @@ public final class EMFUtil
     return false;
   }
 
-  public static byte[] getPackageBytes(EPackage ePackage, boolean zipped)
+  public static byte[] getPackageBytes(EPackage ePackage, boolean zipped, EPackage.Registry packageRegistry)
   {
     try
     {
       Resource resource = ePackage.eResource();
       if (resource == null)
       {
-        resource = createPackageResource(ePackage.getNsURI());
+        resource = createPackageResource(ePackage.getNsURI(), packageRegistry);
         resource.getContents().add(ePackage);
       }
 
@@ -382,12 +382,12 @@ public final class EMFUtil
     }
   }
 
-  public static EPackage createPackage(String uri, byte[] bytes, boolean zipped)
+  public static EPackage createPackage(String uri, byte[] bytes, boolean zipped, EPackage.Registry packageRegistry)
   {
     try
     {
       ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-      Resource resource = createPackageResource(uri);
+      Resource resource = createPackageResource(uri, packageRegistry);
       resource.load(bais, createResourceOptions(zipped));
 
       EList<EObject> contents = resource.getContents();
@@ -399,10 +399,16 @@ public final class EMFUtil
     }
   }
 
-  private static Resource createPackageResource(String uri)
+  private static Resource createPackageResource(String uri, EPackage.Registry packageRegistry)
   {
+    ResourceSet resourceSet = new ResourceSetImpl();
+    resourceSet.setPackageRegistry(packageRegistry);
+
     Resource.Factory resourceFactory = new EcoreResourceFactoryImpl();
-    return resourceFactory.createResource(URI.createURI(uri));
+    resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", resourceFactory);
+    resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap().put("*", resourceFactory);
+
+    return resourceSet.createResource(URI.createURI(uri));
   }
 
   private static Map<String, Object> createResourceOptions(boolean zipped)

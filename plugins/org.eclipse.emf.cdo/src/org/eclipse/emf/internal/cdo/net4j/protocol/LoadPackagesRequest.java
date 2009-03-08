@@ -55,7 +55,7 @@ public class LoadPackagesRequest extends CDOClientRequest<EPackage[]>
   @Override
   protected EPackage[] confirming(CDODataInput in) throws IOException
   {
-    EPackage ePackage = CDOModelUtil.readPackage(in);
+    EPackage ePackage = CDOModelUtil.readPackage(in, packageUnit.getPackageRegistry());
     return EMFUtil.getAllPackages(ePackage);
   }
 }

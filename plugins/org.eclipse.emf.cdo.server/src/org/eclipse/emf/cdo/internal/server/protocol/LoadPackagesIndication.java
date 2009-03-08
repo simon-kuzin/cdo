@@ -16,6 +16,7 @@ import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
@@ -48,12 +49,13 @@ public class LoadPackagesIndication extends CDOReadIndication
   @Override
   protected void responding(CDODataOutput out) throws IOException
   {
-    InternalCDOPackageInfo packageInfo = getRepository().getPackageRegistry().getPackageInfo(packageUnitID);
+    InternalCDOPackageRegistry packageRegistry = getRepository().getPackageRegistry();
+    InternalCDOPackageInfo packageInfo = packageRegistry.getPackageInfo(packageUnitID);
     if (packageInfo == null)
     {
       throw new IllegalStateException("Package unit not found: " + packageUnitID);
     }
 
-    CDOModelUtil.writePackage(out, packageInfo.getEPackage(), true);
+    CDOModelUtil.writePackage(out, packageInfo.getEPackage(), true, packageRegistry);
   }
 }

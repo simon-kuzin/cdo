@@ -389,7 +389,8 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
         pstmt.setString(1, packageUnit.getID());
         pstmt.setInt(2, packageUnit.getOriginalType().ordinal());
         pstmt.setLong(3, packageUnit.getTimeStamp());
-        pstmt.setBytes(4, EMFUtil.getPackageBytes(packageUnit.getTopLevelPackageInfo().getEPackage(), true));
+        pstmt.setBytes(4, EMFUtil.getPackageBytes(packageUnit.getTopLevelPackageInfo().getEPackage(), true, getStore()
+            .getRepository().getPackageRegistry()));
 
         if (pstmt.execute())
         {
@@ -622,7 +623,8 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
       EPackage ePackage = packageInfo.getEPackage();
       if (!CDOModelUtil.isCorePackage(ePackage))
       {
-        Set<IDBTable> tables = mapClasses(EMFUtil.getPersistentClasses(ePackage));
+        EClass[] persistentClasses = EMFUtil.getPersistentClasses(ePackage);
+        Set<IDBTable> tables = mapClasses(persistentClasses);
         affectedTables.addAll(tables);
       }
     }

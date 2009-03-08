@@ -191,7 +191,8 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
   {
     if (state == State.PROXY)
     {
-      EPackage[] ePackages = loadPackagesFromGlobalRegistry();
+      EPackage[] ePackages = null;
+      ePackages = loadPackagesFromGlobalRegistry();
       if (ePackages == null)
       {
         ePackages = packageRegistry.getPackageLoader().loadPackages(this);
@@ -218,7 +219,7 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
     out.writeBoolean(withPackages);
     if (withPackages)
     {
-      CDOModelUtil.writePackage(out, packageInfos[0].getEPackage(), true);
+      CDOModelUtil.writePackage(out, packageInfos[0].getEPackage(), true, packageRegistry);
     }
 
     out.writeCDOPackageUnitType(originalType);
@@ -230,13 +231,13 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
     }
   }
 
-  public void read(CDODataInput in) throws IOException
+  public void read(CDODataInput in, InternalCDOPackageRegistry packageRegistry) throws IOException
   {
     EPackage ePackage = null;
     boolean withPackages = in.readBoolean();
     if (withPackages)
     {
-      ePackage = CDOModelUtil.readPackage(in);
+      ePackage = CDOModelUtil.readPackage(in, packageRegistry);
       state = State.LOADED;
     }
 

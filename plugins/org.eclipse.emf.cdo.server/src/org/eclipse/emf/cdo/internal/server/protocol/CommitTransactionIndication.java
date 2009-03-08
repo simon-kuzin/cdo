@@ -33,6 +33,7 @@ import org.eclipse.emf.cdo.internal.server.Transaction.InternalCommitContext;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
 import org.eclipse.emf.cdo.server.IStore;
 import org.eclipse.emf.cdo.server.IView;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
@@ -256,10 +257,11 @@ public class CommitTransactionIndication extends IndicationWithMonitoring
         TRACER.format("Reading {0} new package units", newPackageUnits.length);
       }
 
+      InternalCDOPackageRegistry packageRegistry = commitContext.getPackageRegistry();
       for (int i = 0; i < newPackageUnits.length; i++)
       {
-        newPackageUnits[i] = (InternalCDOPackageUnit)in.readCDOPackageUnit();
-        commitContext.getPackageRegistry().putPackageUnit(newPackageUnits[i]); // Must happen before readCDORevision!!!
+        newPackageUnits[i] = (InternalCDOPackageUnit)in.readCDOPackageUnit(packageRegistry);
+        packageRegistry.putPackageUnit(newPackageUnits[i]); // Must happen before readCDORevision!!!
         monitor.worked();
       }
 

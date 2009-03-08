@@ -32,7 +32,6 @@ import org.eclipse.emf.cdo.server.StoreThreadLocal;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry.PackageLoader;
 
 import org.eclipse.net4j.util.StringUtil;
 import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
@@ -49,6 +48,7 @@ import org.eclipse.emf.ecore.EcorePackage;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +58,7 @@ import java.util.UUID;
  * @author Eike Stepper
  * @since 2.0
  */
-public class Repository extends Container<Object> implements IRepository, PackageLoader
+public class Repository extends Container<Object> implements IRepository, InternalCDOPackageRegistry.PackageLoader
 {
   private String name;
 
@@ -593,25 +593,13 @@ public class Repository extends Container<Object> implements IRepository, Packag
     LifecycleUtil.activate(queryHandlerProvider);
     LifecycleUtil.activate(lockManager);
 
-    InternalCDOPackageUnit ecoreUnit = initSystemPackage(EcorePackage.eINSTANCE);
-    InternalCDOPackageUnit eresourceUnit = initSystemPackage(EresourcePackage.eINSTANCE);
-
     if (store.isFirstTime())
     {
-      IStoreAccessor storeAccessor = store.getWriter(null);
-      StoreThreadLocal.setAccessor(storeAccessor);
-
-      try
-      {
-        InternalCDOPackageUnit[] systemUnits = { ecoreUnit, eresourceUnit };
-        storeAccessor.writePackageUnits(systemUnits, new Monitor());
-        storeAccessor.commit(new Monitor());
-      }
-      finally
-      {
-        LifecycleUtil.deactivate(storeAccessor); // Don't let the null-context accessor go to the pool!
-        StoreThreadLocal.release();
-      }
+      initSystemPackages();
+    }
+    else
+    {
+      readPackageUnits();
     }
   }
 
@@ -630,6 +618,27 @@ public class Repository extends Container<Object> implements IRepository, Packag
     super.doDeactivate();
   }
 
+  protected void initSystemPackages()
+  {
+    IStoreAccessor writer = store.getWriter(null);
+    StoreThreadLocal.setAccessor(writer);
+  
+    try
+    {
+      InternalCDOPackageUnit ecoreUnit = initSystemPackage(EcorePackage.eINSTANCE);
+      InternalCDOPackageUnit eresourceUnit = initSystemPackage(EresourcePackage.eINSTANCE);
+      InternalCDOPackageUnit[] systemUnits = { ecoreUnit, eresourceUnit };
+  
+      writer.writePackageUnits(systemUnits, new Monitor());
+      writer.commit(new Monitor());
+    }
+    finally
+    {
+      LifecycleUtil.deactivate(writer); // Don't let the null-context accessor go to the pool!
+      StoreThreadLocal.release();
+    }
+  }
+
   protected InternalCDOPackageUnit initSystemPackage(EPackage ePackage)
   {
     EMFUtil.registerPackage(ePackage, packageRegistry);
@@ -641,6 +650,26 @@ public class Repository extends Container<Object> implements IRepository, Packag
     InternalCDOPackageUnit packageUnit = packageInfo.getPackageUnit();
     packageUnit.setTimeStamp(store.getCreationTime());
     return packageUnit;
+  }
+
+  protected void readPackageUnits()
+  {
+    IStoreAccessor reader = store.getReader(null);
+    StoreThreadLocal.setAccessor(reader);
+  
+    try
+    {
+      Collection<InternalCDOPackageUnit> packageUnits = reader.readPackageUnits();
+      for (InternalCDOPackageUnit packageUnit : packageUnits)
+      {
+        packageRegistry.putPackageUnit(packageUnit);
+      }
+    }
+    finally
+    {
+      LifecycleUtil.deactivate(reader); // Don't let the null-context accessor go to the pool!
+      StoreThreadLocal.release();
+    }
   }
 
   /**

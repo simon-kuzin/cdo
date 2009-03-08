@@ -236,8 +236,16 @@ public class DBStore extends LongIDStore implements IDBStore
   public long getMetaID(EModelElement modelElement)
   {
     InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)getRepository().getPackageRegistry();
-    CDOID cdoid = packageRegistry.getMetaInstanceMapper().lookupMetaInstanceID((InternalEObject)modelElement);
-    return ((CDOIDMeta)cdoid).getLongValue();
+    try
+    {
+      CDOID cdoid = packageRegistry.getMetaInstanceMapper().lookupMetaInstanceID((InternalEObject)modelElement);
+      return ((CDOIDMeta)cdoid).getLongValue();
+    }
+    catch (RuntimeException ex)
+    {
+      packageRegistry.getMetaInstanceMapper().lookupMetaInstanceID((InternalEObject)modelElement);
+      throw ex;
+    }
   }
 
   public EModelElement getMetaInstance(long id)

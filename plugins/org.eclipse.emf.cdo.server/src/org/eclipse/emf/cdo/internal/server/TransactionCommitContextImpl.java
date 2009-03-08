@@ -21,7 +21,6 @@ import org.eclipse.emf.cdo.common.revision.CDORevisionResolver;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.internal.common.model.CDOPackageRegistryImpl;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
-import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.StoreThreadLocal;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
@@ -554,8 +553,8 @@ public class TransactionCommitContextImpl implements Transaction.InternalCommitC
 
   private void addNewPackageUnits(OMMonitor monitor)
   {
-    IRepository repository = transaction.getRepository();
-    InternalCDOPackageRegistry repositoryPackageRegistry = (InternalCDOPackageRegistry)repository.getPackageRegistry();
+    Repository repository = (Repository)transaction.getRepository();
+    InternalCDOPackageRegistry repositoryPackageRegistry = repository.getPackageRegistry(false);
     synchronized (repositoryPackageRegistry)
     {
       try

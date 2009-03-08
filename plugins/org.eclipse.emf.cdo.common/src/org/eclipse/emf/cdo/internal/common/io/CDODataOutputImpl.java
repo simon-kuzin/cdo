@@ -105,9 +105,9 @@ public abstract class CDODataOutputImpl extends ExtendedDataOutput.Delegating im
     getPackageURICompressor().write(this, uri);
   }
 
-  public void writeEPackage(EPackage ePackage) throws IOException
+  public void writeEPackage(EPackage ePackage, EPackage.Registry packageRegistry) throws IOException
   {
-    CDOModelUtil.writePackage(this, ePackage, true);
+    CDOModelUtil.writePackage(this, ePackage, true, packageRegistry);
   }
 
   public void writeCDOType(CDOType cdoType) throws IOException

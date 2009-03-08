@@ -58,7 +58,7 @@ public interface CDODataOutput extends ExtendedDataOutput
 
   public void writeCDOPackageURI(String uri) throws IOException;
 
-  public void writeEPackage(EPackage ePackage) throws IOException;
+  public void writeEPackage(EPackage ePackage, EPackage.Registry packageRegistry) throws IOException;
 
   public void writeCDOType(CDOType cdoType) throws IOException;
 

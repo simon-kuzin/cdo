@@ -156,7 +156,8 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       }
 
       // Make sure the EPackage is loaded
-      if (packageInfo.getEPackage() != ePackage)
+      EPackage ePackage2 = packageInfo.getEPackage(false);
+      if (ePackage2 != null && ePackage2 != ePackage)
       {
         // TODO Is it possible that loaded package is different from the one passed in parameters ?
         throw new IllegalArgumentException("Different package instances with the same URI " + nsURI);
@@ -401,8 +402,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
         }
       }
 
-      System.out.println(dump());
-      throw new IllegalStateException("No meta instance mapped for " + id);
+      throw new IllegalStateException("No meta instance mapped for " + id + "\n" + dump());
     }
 
     public synchronized CDOID lookupMetaInstanceID(InternalEObject metaInstance)
@@ -442,8 +442,8 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
         }
       }
 
-      System.out.println(dump());
-      throw new IllegalStateException("No meta ID mapped for " + metaInstance + "\nContaining package: " + ePackage);
+      throw new IllegalStateException("No meta ID mapped for " + metaInstance + "\nContaining package: " + ePackage
+          + "\n" + dump());
     }
 
     private EPackage getContainingPackage(InternalEObject metaInstance)
