@@ -42,7 +42,6 @@ import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
-import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
@@ -103,11 +102,6 @@ public abstract class CDODataOutputImpl extends ExtendedDataOutput.Delegating im
   public void writeCDOPackageURI(String uri) throws IOException
   {
     getPackageURICompressor().write(this, uri);
-  }
-
-  public void writeEPackage(EPackage ePackage, EPackage.Registry packageRegistry) throws IOException
-  {
-    CDOModelUtil.writePackage(this, ePackage, true, packageRegistry);
   }
 
   public void writeCDOType(CDOType cdoType) throws IOException

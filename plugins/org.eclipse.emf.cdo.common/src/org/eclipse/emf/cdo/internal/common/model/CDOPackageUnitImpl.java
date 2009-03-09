@@ -13,6 +13,7 @@ package org.eclipse.emf.cdo.internal.common.model;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
@@ -123,7 +124,7 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
   {
     if (packageInfos == null || packageInfos.length == 0)
     {
-      throw new IllegalStateException("Not initialized: " + this);
+      throw new IllegalStateException("Package unit not initialized");
     }
 
     return packageInfos[0];
@@ -259,6 +260,11 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
     {
       TRACER.format("Read {0}", this);
     }
+  }
+
+  public int compareTo(CDOPackageUnit o)
+  {
+    return getID().compareTo(o.getID());
   }
 
   @Override

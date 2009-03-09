@@ -34,11 +34,13 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.EPackageRegistryImpl;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -55,6 +57,8 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
   private static final long serialVersionUID = 1L;
 
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, CDOPackageRegistryImpl.class);
+
+  private static final boolean eagerInternalCaches = true;
 
   private MetaInstanceMapperImpl metaInstanceMapper = new MetaInstanceMapperImpl();
 
@@ -132,7 +136,29 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       value = packageProcessor.processPackage(value);
     }
 
-    return super.put(nsURI, value);
+    Object oldValue = get(nsURI);
+    if (oldValue instanceof CDOPackageInfo && value instanceof EPackage)
+    {
+      EPackage newValue = (EPackage)value;
+      CDOPackageInfo oldPackageInfo = (CDOPackageInfo)oldValue;
+      InternalCDOPackageInfo newPackageInfo = getPackageInfo(newValue);
+      if (newPackageInfo == null)
+      {
+        EMFUtil.addAdapter(newValue, oldPackageInfo);
+      }
+    }
+
+    super.put(nsURI, value);
+    for (Object object : values())
+    {
+      if (object instanceof EPackage)
+      {
+        EPackage ePackage = (EPackage)object;
+        EcoreUtil.resolveAll(ePackage);
+      }
+    }
+
+    return oldValue;
   }
 
   @Override
@@ -156,16 +182,14 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       }
 
       // Make sure the EPackage is loaded
-      EPackage ePackage2 = packageInfo.getEPackage(false);
-      if (ePackage2 != null && ePackage2 != ePackage)
-      {
-        // TODO Is it possible that loaded package is different from the one passed in parameters ?
-        throw new IllegalArgumentException("Different package instances with the same URI " + nsURI);
-      }
+      // if (ePackage != packageInfo.getEPackage())
+      // {
+      // // TODO Is it possible that loaded package is different from the one passed in parameters ?
+      // throw new IllegalArgumentException("Different package instances with the same URI " + nsURI);
+      // }
     }
 
-    basicPut(nsURI, value);
-    return null;
+    return basicPut(nsURI, value);
   }
 
   public synchronized Object putEPackage(EPackage ePackage)
@@ -176,7 +200,6 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
   public synchronized void putPackageUnit(InternalCDOPackageUnit packageUnit)
   {
     LifecycleUtil.checkActive(this);
-    resetInternalCaches();
     packageUnit.setPackageRegistry(this);
     for (InternalCDOPackageInfo packageInfo : packageUnit.getPackageInfos())
     {
@@ -191,6 +214,8 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
         basicPut(packageInfo.getPackageURI(), packageInfo);
       }
     }
+
+    resetInternalCaches();
   }
 
   public synchronized InternalCDOPackageInfo getPackageInfo(Object keyOrValue)
@@ -235,6 +260,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       }
 
       packageInfos = result.toArray(new InternalCDOPackageInfo[result.size()]);
+      Arrays.sort(packageInfos);
     }
 
     return packageInfos;
@@ -257,6 +283,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       }
 
       packageUnits = result.toArray(new InternalCDOPackageUnit[result.size()]);
+      Arrays.sort(packageUnits);
     }
 
     return packageUnits;
@@ -309,14 +336,11 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     {
       try
       {
-        for (InternalCDOPackageUnit packageUnit : getPackageUnits())
-        {
-          packageUnit.dispose();
-        }
-
-        clear();
+        disposePackageUnits();
         metaInstanceMapper.clear();
         metaInstanceMapper = null;
+
+        clear();
         active = false;
       }
       catch (RuntimeException ex)
@@ -326,6 +350,17 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     }
 
     return null;
+  }
+
+  protected void disposePackageUnits()
+  {
+    for (InternalCDOPackageUnit packageUnit : getPackageUnits())
+    {
+      packageUnit.dispose();
+    }
+
+    packageInfos = null;
+    packageUnits = null;
   }
 
   protected void initPackageUnit(EPackage ePackage)
@@ -340,6 +375,11 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
   {
     packageInfos = null;
     packageUnits = null;
+    if (eagerInternalCaches)
+    {
+      getPackageInfos();
+      getPackageUnits();
+    }
   }
 
   protected InternalCDOPackageUnit createPackageUnit()

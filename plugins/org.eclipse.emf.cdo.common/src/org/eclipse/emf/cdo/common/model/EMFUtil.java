@@ -391,7 +391,9 @@ public final class EMFUtil
       resource.load(bais, createResourceOptions(zipped));
 
       EList<EObject> contents = resource.getContents();
-      return (EPackage)contents.get(0);
+      EPackage ePackage = (EPackage)contents.get(0);
+      EcoreUtil.resolveAll(ePackage);
+      return ePackage;
     }
     catch (Exception ex)
     {

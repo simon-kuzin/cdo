@@ -622,13 +622,13 @@ public class Repository extends Container<Object> implements IRepository, Intern
   {
     IStoreAccessor writer = store.getWriter(null);
     StoreThreadLocal.setAccessor(writer);
-  
+
     try
     {
       InternalCDOPackageUnit ecoreUnit = initSystemPackage(EcorePackage.eINSTANCE);
       InternalCDOPackageUnit eresourceUnit = initSystemPackage(EresourcePackage.eINSTANCE);
       InternalCDOPackageUnit[] systemUnits = { ecoreUnit, eresourceUnit };
-  
+
       writer.writePackageUnits(systemUnits, new Monitor());
       writer.commit(new Monitor());
     }
@@ -649,6 +649,7 @@ public class Repository extends Container<Object> implements IRepository, Intern
 
     InternalCDOPackageUnit packageUnit = packageInfo.getPackageUnit();
     packageUnit.setTimeStamp(store.getCreationTime());
+    packageUnit.setState(CDOPackageUnit.State.LOADED);
     return packageUnit;
   }
 
@@ -656,7 +657,7 @@ public class Repository extends Container<Object> implements IRepository, Intern
   {
     IStoreAccessor reader = store.getReader(null);
     StoreThreadLocal.setAccessor(reader);
-  
+
     try
     {
       Collection<InternalCDOPackageUnit> packageUnits = reader.readPackageUnits();

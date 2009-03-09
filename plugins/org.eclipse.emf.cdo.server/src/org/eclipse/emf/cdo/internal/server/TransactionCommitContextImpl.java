@@ -15,6 +15,7 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionResolver;
@@ -562,6 +563,7 @@ public class TransactionCommitContextImpl implements Transaction.InternalCommitC
         monitor.begin(newPackageUnits.length);
         for (int i = 0; i < newPackageUnits.length; i++)
         {
+          newPackageUnits[i].setState(CDOPackageUnit.State.LOADED);
           repositoryPackageRegistry.putPackageUnit(newPackageUnits[i]);
           monitor.worked();
         }
@@ -656,13 +658,20 @@ public class TransactionCommitContextImpl implements Transaction.InternalCommitC
     @Override
     public void putPackageUnit(InternalCDOPackageUnit packageUnit)
     {
-      resetInternalCaches();
       packageUnit.setPackageRegistry(this);
       for (InternalCDOPackageInfo packageInfo : packageUnit.getPackageInfos())
       {
         EPackage ePackage = packageInfo.getEPackage();
         basicPut(ePackage.getNsURI(), ePackage);
       }
+
+      resetInternalCaches();
+    }
+
+    @Override
+    protected void disposePackageUnits()
+    {
+      // Do nothing
     }
   }
 }

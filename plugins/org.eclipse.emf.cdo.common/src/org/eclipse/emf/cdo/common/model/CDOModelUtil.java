@@ -41,7 +41,7 @@ public final class CDOModelUtil
 {
   public static final String CORE_PACKAGE_URI = "http://www.eclipse.org/emf/2002/Ecore";
 
-  public static final String RESOURCE_PACKAGE_URI = "http://www.eclipse.org/emf/CDO/resource/2.0.0";
+  public static final String RESOURCE_PACKAGE_URI = "http://www.eclipse.org/emf/CDO/Eresource/2.0.0";
 
   public static final String RESOURCE_NODE_CLASS_NAME = "CDOResourceNode";
 
@@ -82,23 +82,6 @@ public final class CDOModelUtil
     registerCoreType(types, EcorePackage.eINSTANCE.getEEnum(), CDOType.ENUM);
 
     coreTypes = types.toArray(new CDOType[types.size()]);
-  }
-
-  public static void writePackage(ExtendedDataOutput out, EPackage ePackage, boolean zipped,
-      EPackage.Registry packageRegistry) throws IOException
-  {
-    byte[] bytes = EMFUtil.getPackageBytes(ePackage, zipped, packageRegistry);
-    out.writeString(ePackage.getNsURI());
-    out.writeBoolean(zipped);
-    out.writeByteArray(bytes);
-  }
-
-  public static EPackage readPackage(ExtendedDataInput in, EPackage.Registry packageRegistry) throws IOException
-  {
-    String uri = in.readString();
-    boolean zipped = in.readBoolean();
-    byte[] bytes = in.readByteArray();
-    return EMFUtil.createPackage(uri, bytes, zipped, packageRegistry);
   }
 
   private static void registerCoreType(List<CDOType> types, EClassifier classifier, CDOType type)
@@ -255,11 +238,11 @@ public final class CDOModelUtil
       }
     }
 
-    Object value = packageRegistry.get(ePackage.getNsURI());
-    if (value instanceof CDOPackageInfo)
-    {
-      return (CDOPackageInfo)value;
-    }
+    // Object value = packageRegistry.get(ePackage.getNsURI());
+    // if (value instanceof CDOPackageInfo)
+    // {
+    // return (CDOPackageInfo)value;
+    // }
 
     return null;
   }
@@ -302,5 +285,22 @@ public final class CDOModelUtil
   public static CDOPackageInfo createPackageInfo()
   {
     return new CDOPackageInfoImpl();
+  }
+
+  public static void writePackage(ExtendedDataOutput out, EPackage ePackage, boolean zipped,
+      EPackage.Registry packageRegistry) throws IOException
+  {
+    byte[] bytes = EMFUtil.getPackageBytes(ePackage, zipped, packageRegistry);
+    out.writeString(ePackage.getNsURI());
+    out.writeBoolean(zipped);
+    out.writeByteArray(bytes);
+  }
+
+  public static EPackage readPackage(ExtendedDataInput in, EPackage.Registry packageRegistry) throws IOException
+  {
+    String uri = in.readString();
+    boolean zipped = in.readBoolean();
+    byte[] bytes = in.readByteArray();
+    return EMFUtil.createPackage(uri, bytes, zipped, packageRegistry);
   }
 }

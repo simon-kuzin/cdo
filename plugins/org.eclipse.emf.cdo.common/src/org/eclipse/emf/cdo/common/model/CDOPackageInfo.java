@@ -18,7 +18,7 @@ import org.eclipse.emf.ecore.EPackage;
 /**
  * @author Eike Stepper
  */
-public interface CDOPackageInfo extends Adapter, EPackage.Descriptor
+public interface CDOPackageInfo extends Adapter, EPackage.Descriptor, Comparable<CDOPackageInfo>
 {
   public CDOPackageUnit getPackageUnit();
 

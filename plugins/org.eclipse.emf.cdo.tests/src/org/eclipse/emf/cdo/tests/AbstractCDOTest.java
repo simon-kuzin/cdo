@@ -34,10 +34,14 @@ import java.util.concurrent.locks.Lock;
  */
 public abstract class AbstractCDOTest extends ConfigTest
 {
+  @SuppressWarnings("restriction")
   @Override
   protected void doSetUp() throws Exception
   {
     super.doSetUp();
+    org.eclipse.emf.internal.cdo.bundle.OM.PREF_COMMIT_MONITOR_PROGRESS_SECONDS.setValue(60);
+    org.eclipse.emf.internal.cdo.bundle.OM.PREF_COMMIT_MONITOR_TIMEOUT_SECONDS.setValue(60 * 60);
+
     startTransport();
   }
 

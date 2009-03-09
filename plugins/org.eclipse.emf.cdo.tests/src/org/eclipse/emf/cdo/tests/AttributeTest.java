@@ -89,9 +89,10 @@ public class AttributeTest extends AbstractCDOTest
 
   public void testByteArray() throws Exception
   {
-    EPackage packageBytes = createDynamicEPackageWithByte();
     byte saveByteArray[] = new byte[] { 0, 1, 2, 3, 0, 1, 0, 100 };
+
     {
+      EPackage packageBytes = createDynamicEPackageWithByte();
       CDOSession session = openSession();
       session.getPackageRegistry().putEPackage(packageBytes);
       CDOTransaction transaction = session.openTransaction();

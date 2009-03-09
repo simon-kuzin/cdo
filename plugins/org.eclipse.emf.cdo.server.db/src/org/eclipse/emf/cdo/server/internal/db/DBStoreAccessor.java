@@ -389,8 +389,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
         pstmt.setString(1, packageUnit.getID());
         pstmt.setInt(2, packageUnit.getOriginalType().ordinal());
         pstmt.setLong(3, packageUnit.getTimeStamp());
-        pstmt.setBytes(4, EMFUtil.getPackageBytes(packageUnit.getTopLevelPackageInfo().getEPackage(), true, getStore()
-            .getRepository().getPackageRegistry()));
+        pstmt.setBytes(4, getPackageBytes(packageUnit));
 
         if (pstmt.execute())
         {
@@ -421,6 +420,13 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     {
       monitor.done();
     }
+  }
+
+  private byte[] getPackageBytes(InternalCDOPackageUnit packageUnit)
+  {
+    EPackage ePackage = packageUnit.getTopLevelPackageInfo().getEPackage();
+    CDOPackageRegistry packageRegistry = getStore().getRepository().getPackageRegistry();
+    return EMFUtil.getPackageBytes(ePackage, true, packageRegistry);
   }
 
   private void fillSystemTables(InternalCDOPackageInfo packageInfo, OMMonitor monitor)

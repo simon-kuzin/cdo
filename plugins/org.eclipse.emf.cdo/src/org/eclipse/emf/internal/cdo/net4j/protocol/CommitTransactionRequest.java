@@ -268,7 +268,7 @@ public class CommitTransactionRequest extends RequestWithMonitoring<CommitTransa
   /*
    * Write ids that are needed
    */
-  public void confirmingIdMapping(CDODataInput in, CommitTransactionResult result) throws IOException
+  protected void confirmingIdMapping(CDODataInput in, CommitTransactionResult result) throws IOException
   {
     for (;;)
     {
@@ -281,6 +281,18 @@ public class CommitTransactionRequest extends RequestWithMonitoring<CommitTransa
       CDOID newID = in.readCDOID();
       result.addIDMapping(oldID, newID);
     }
+  }
+
+  @Override
+  protected int getMonitorProgressSeconds()
+  {
+    return OM.PREF_COMMIT_MONITOR_PROGRESS_SECONDS.getValue();
+  }
+
+  @Override
+  protected int getMonitorTimeoutSeconds()
+  {
+    return OM.PREF_COMMIT_MONITOR_TIMEOUT_SECONDS.getValue();
   }
 
   private void writeRevisions(CDODataOutput out, Collection<?> objects) throws IOException

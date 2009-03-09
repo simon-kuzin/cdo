@@ -29,7 +29,6 @@ import org.eclipse.net4j.util.io.ExtendedDataOutput;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
-import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.io.IOException;
@@ -57,8 +56,6 @@ public interface CDODataOutput extends ExtendedDataOutput
   public void writeCDOClassifierRef(EClassifier eClassifier) throws IOException;
 
   public void writeCDOPackageURI(String uri) throws IOException;
-
-  public void writeEPackage(EPackage ePackage, EPackage.Registry packageRegistry) throws IOException;
 
   public void writeCDOType(CDOType cdoType) throws IOException;
 

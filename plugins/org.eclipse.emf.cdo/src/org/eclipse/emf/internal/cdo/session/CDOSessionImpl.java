@@ -163,7 +163,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
    */
   protected CDOSession.Repository createRepository(OpenSessionResult result)
   {
-    return new RepositoryImpl(result);
+    return new RepositoryImpl(repository.getName(), result);
   }
 
   public CDOIDObject createCDOIDObject(ExtendedDataInput in)
@@ -975,57 +975,39 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
 
     private boolean supportingAudits;
 
-    public RepositoryImpl(OpenSessionResult result)
+    public RepositoryImpl(String name, OpenSessionResult result)
     {
+      this.name = name;
       uuid = result.getRepositoryUUID();
       creationTime = result.getRepositoryCreationTime();
       timeResult = result.getRepositoryTimeResult();
       supportingAudits = result.isRepositorySupportingAudits();
     }
 
-    /**
-     * @since 2.0
-     */
     public String getName()
     {
       return name;
     }
 
-    public void setName(String name)
-    {
-      this.name = name;
-    }
-
     /**
      * Must be callable before session activation has finished!
-     * 
-     * @since 2.0
      */
     public String getUUID()
     {
       return uuid;
     }
 
-    /**
-     * @since 2.0
-     */
     public long getCreationTime()
     {
       checkActive();
       return creationTime;
     }
 
-    /**
-     * @since 2.0
-     */
     public long getCurrentTime()
     {
       return getCurrentTime(false);
     }
 
-    /**
-     * @since 2.0
-     */
     public long getCurrentTime(boolean forceRefresh)
     {
       checkActive();
@@ -1037,9 +1019,6 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       return timeResult.getAproximateRepositoryTime();
     }
 
-    /**
-     * @since 2.0
-     */
     public boolean isSupportingAudits()
     {
       return supportingAudits;

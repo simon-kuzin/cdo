@@ -13,7 +13,7 @@ package org.eclipse.emf.cdo.common.model;
 /**
  * @author Eike Stepper
  */
-public interface CDOPackageUnit
+public interface CDOPackageUnit extends Comparable<CDOPackageUnit>
 {
   public CDOPackageRegistry getPackageRegistry();
 
