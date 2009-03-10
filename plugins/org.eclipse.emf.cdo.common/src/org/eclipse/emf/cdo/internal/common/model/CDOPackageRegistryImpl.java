@@ -17,6 +17,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDTempMeta;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
@@ -136,28 +137,18 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     }
 
     Object oldValue = get(nsURI);
-    if (oldValue instanceof CDOPackageInfo && value instanceof EPackage)
+    if (oldValue instanceof InternalCDOPackageInfo && value instanceof EPackage)
     {
+      InternalCDOPackageInfo oldPackageInfo = (InternalCDOPackageInfo)oldValue;
       EPackage newValue = (EPackage)value;
-      CDOPackageInfo oldPackageInfo = (CDOPackageInfo)oldValue;
-      InternalCDOPackageInfo newPackageInfo = getPackageInfo(newValue);
-      if (newPackageInfo == null)
+      if (oldPackageInfo.getEPackage(false) == null)
       {
         EMFUtil.addAdapter(newValue, oldPackageInfo);
+        oldPackageInfo.getPackageUnit().setState(CDOPackageUnit.State.LOADED);
       }
     }
 
     return super.put(nsURI, value);
-    // for (Object object : values())
-    // {
-    // if (object instanceof EPackage)
-    // {
-    // EPackage ePackage = (EPackage)object;
-    // EcoreUtil.resolveAll(ePackage);
-    // }
-    // }
-    //
-    // return oldValue;
   }
 
   @Override
@@ -179,13 +170,6 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
         initPackageUnit(ePackage);
         return null;
       }
-
-      // Make sure the EPackage is loaded
-      // if (ePackage != packageInfo.getEPackage())
-      // {
-      // // TODO Is it possible that loaded package is different from the one passed in parameters ?
-      // throw new IllegalArgumentException("Different package instances with the same URI " + nsURI);
-      // }
     }
 
     return basicPut(nsURI, value);
@@ -227,10 +211,18 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
     if (keyOrValue instanceof EPackage)
     {
-      CDOPackageInfo packageInfo = CDOModelUtil.getPackageInfo((EPackage)keyOrValue, this);
+      EPackage ePackage = (EPackage)keyOrValue;
+      InternalCDOPackageInfo packageInfo = (InternalCDOPackageInfo)CDOModelUtil.getPackageInfo(ePackage, this);
       if (packageInfo != null)
       {
-        return (InternalCDOPackageInfo)packageInfo;
+        return packageInfo;
+      }
+
+      String nsURI = ePackage.getNsURI();
+      packageInfo = getPackageInfo(nsURI);
+      if (packageInfo != null)
+      {
+        return packageInfo;
       }
     }
 

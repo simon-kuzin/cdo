@@ -110,12 +110,6 @@ public class CDOPackageInfoImpl extends AdapterImpl implements InternalCDOPackag
     }
   }
 
-  // @Override
-  // public boolean isAdapterForType(Object type)
-  // {
-  // return EPackage.class.isInstance(type);
-  // }
-
   public EFactory getEFactory()
   {
     return getEPackage().getEFactoryInstance();

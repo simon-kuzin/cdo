@@ -185,7 +185,7 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
     initPackageInfos(topLevelPackage, result);
     packageInfos = result.toArray(new InternalCDOPackageInfo[result.size()]);
 
-    state = State.NEW;
+    setState(State.NEW);
     originalType = getType();
   }
 
@@ -201,7 +201,7 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
     }
 
     packageInfos = null;
-    state = State.DISPOSED;
+    setState(State.DISPOSED);
   }
 
   public synchronized void load()
@@ -223,7 +223,7 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
         EcoreUtil.resolveAll(ePackage);
       }
 
-      state = State.LOADED;
+      setState(State.LOADED);
     }
   }
 
@@ -256,7 +256,7 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
     if (withPackages)
     {
       ePackage = CDOModelUtil.readPackage(in, packageRegistry);
-      state = State.LOADED;
+      setState(State.LOADED);
     }
 
     originalType = in.readCDOPackageUnitType();

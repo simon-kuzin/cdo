@@ -41,7 +41,8 @@ public abstract class AbstractCDOTest extends ConfigTest
     super.doSetUp();
     org.eclipse.emf.internal.cdo.bundle.OM.PREF_COMMIT_MONITOR_PROGRESS_SECONDS.setValue(60);
     org.eclipse.emf.internal.cdo.bundle.OM.PREF_COMMIT_MONITOR_TIMEOUT_SECONDS.setValue(60 * 60);
-
+    org.eclipse.internal.net4j.bundle.OM.DEBUG.setEnabled(false);
+    org.eclipse.net4j.internal.tcp.bundle.OM.DEBUG.setEnabled(false);
     startTransport();
   }
 

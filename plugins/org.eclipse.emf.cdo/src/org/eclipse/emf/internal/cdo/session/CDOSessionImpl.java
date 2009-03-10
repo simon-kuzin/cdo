@@ -618,18 +618,20 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     repository = createRepository(result);
     handleLibraryDescriptor(result.getLibraryDescriptor());
 
-    for (CDOPackageUnit packageUnit : result.getPackageUnits())
+    for (InternalCDOPackageUnit packageUnit : result.getPackageUnits())
     {
       if (EcorePackage.eINSTANCE.getNsURI().equals(packageUnit.getID()))
       {
         EMFUtil.addAdapter(EcorePackage.eINSTANCE, packageUnit.getTopLevelPackageInfo());
+        packageUnit.setState(CDOPackageUnit.State.LOADED);
       }
       else if (EresourcePackage.eINSTANCE.getNsURI().equals(packageUnit.getID()))
       {
         EMFUtil.addAdapter(EresourcePackage.eINSTANCE, packageUnit.getTopLevelPackageInfo());
+        packageUnit.setState(CDOPackageUnit.State.LOADED);
       }
 
-      packageRegistry.putPackageUnit((InternalCDOPackageUnit)packageUnit);
+      packageRegistry.putPackageUnit(packageUnit);
     }
   }
 
