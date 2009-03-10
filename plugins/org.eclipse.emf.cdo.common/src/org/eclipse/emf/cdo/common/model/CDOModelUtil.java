@@ -266,6 +266,7 @@ public final class CDOModelUtil
         classInfo = new CDOClassInfoImpl();
         adapters.add(classInfo);
       }
+
       return classInfo;
     }
   }

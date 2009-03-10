@@ -222,8 +222,11 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
       {
         String packageURI = ePackage.getNsURI();
         InternalCDOPackageInfo packageInfo = getPackageInfo(packageURI);
-        EMFUtil.addAdapter(ePackage, packageInfo);
-        EcoreUtil.resolveAll(ePackage);
+        synchronized (ePackage)
+        {
+          EMFUtil.addAdapter(ePackage, packageInfo);
+          EcoreUtil.resolveAll(ePackage);
+        }
       }
 
       setState(State.LOADED);
