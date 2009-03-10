@@ -43,19 +43,13 @@ public interface InternalCDOPackageRegistry extends CDOPackageRegistry, ILifecyc
 
   public void putPackageUnit(InternalCDOPackageUnit packageUnit);
 
-  public InternalCDOPackageInfo getPackageInfo(Object value);
+  public InternalCDOPackageUnit getPackageUnit(EPackage ePackage);
 
-  public InternalCDOPackageUnit getPackageUnit(Object value);
-
-  /**
-   * Returns all package infos that are registered in this package registry.
-   */
-  public InternalCDOPackageInfo[] getPackageInfos();
-
-  /**
-   * Returns all package units that are registered in this package registry.
-   */
   public InternalCDOPackageUnit[] getPackageUnits();
+
+  public InternalCDOPackageInfo getPackageInfo(EPackage ePackage);
+
+  public InternalCDOPackageInfo[] getPackageInfos();
 
   public EPackage[] getEPackages();
 
@@ -93,6 +87,5 @@ public interface InternalCDOPackageRegistry extends CDOPackageRegistry, ILifecyc
     public void mapMetaInstances(MetaInstanceMapper source);
 
     public void remapMetaInstanceID(CDOID oldID, CDOID newID);
-
   }
 }

@@ -197,7 +197,7 @@ public class PackageManagerDialog extends TitleAreaDialog
     {
       if (element instanceof EPackage)
       {
-        CDOPackageInfo packageInfo = session.getPackageRegistry().getPackageInfo(element);
+        CDOPackageInfo packageInfo = session.getPackageRegistry().getPackageInfo((EPackage)element);
         switch (columnIndex)
         {
         case 0:

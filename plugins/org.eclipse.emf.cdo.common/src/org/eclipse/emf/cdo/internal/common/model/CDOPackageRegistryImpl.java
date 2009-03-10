@@ -60,7 +60,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, CDOPackageRegistryImpl.class);
 
-  private static final boolean eagerInternalCaches = true;
+  private static final boolean eagerInternalCaches = false;
 
   private MetaInstanceMapperImpl metaInstanceMapper = new MetaInstanceMapperImpl();
 
