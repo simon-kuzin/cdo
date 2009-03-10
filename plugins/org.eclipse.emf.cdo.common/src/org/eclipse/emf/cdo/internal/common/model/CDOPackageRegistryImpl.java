@@ -203,43 +203,33 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     resetInternalCaches();
   }
 
-  public synchronized InternalCDOPackageInfo getPackageInfo(Object value)
+  public synchronized InternalCDOPackageInfo getPackageInfo(EPackage ePackage)
   {
     LifecycleUtil.checkActive(this);
-    if (value instanceof CDOPackageInfo)
+    // Looks in the registry
+    Object object = get(ePackage.getNsURI());
+    if (object instanceof InternalCDOPackageInfo)
     {
-      return (InternalCDOPackageInfo)value;
+      InternalCDOPackageInfo packageInfo = (InternalCDOPackageInfo)object;
+      if (packageInfo.getPackageUnit().getPackageRegistry() == this)
+      {
+        return packageInfo;
+      }
     }
 
-    if (value instanceof EPackage)
+    // Looks in the adapters
+    synchronized (ePackage)
     {
-      EPackage ePackage = (EPackage)value;
-
-      // Looks in the registry
-      Object object = get(ePackage.getNsURI());
-      if (object instanceof InternalCDOPackageInfo)
+      EList<Adapter> adapters = ePackage.eAdapters();
+      for (int i = 0, size = adapters.size(); i < size; ++i)
       {
-        InternalCDOPackageInfo packageInfo = (InternalCDOPackageInfo)object;
-        if (packageInfo.getPackageUnit().getPackageRegistry() == this)
+        Adapter adapter = adapters.get(i);
+        if (adapter instanceof InternalCDOPackageInfo)
         {
-          return packageInfo;
-        }
-      }
-
-      // Looks in the adapters
-      synchronized (ePackage)
-      {
-        EList<Adapter> adapters = ePackage.eAdapters();
-        for (int i = 0, size = adapters.size(); i < size; ++i)
-        {
-          Adapter adapter = adapters.get(i);
-          if (adapter instanceof InternalCDOPackageInfo)
+          InternalCDOPackageInfo packageInfo = (InternalCDOPackageInfo)adapter;
+          if (packageInfo.getPackageUnit().getPackageRegistry() == this)
           {
-            InternalCDOPackageInfo packageInfo = (InternalCDOPackageInfo)adapter;
-            if (packageInfo.getPackageUnit().getPackageRegistry() == this)
-            {
-              return packageInfo;
-            }
+            return packageInfo;
           }
         }
       }
@@ -256,10 +246,17 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       List<InternalCDOPackageInfo> result = new ArrayList<InternalCDOPackageInfo>();
       for (Object value : values())
       {
-        InternalCDOPackageInfo packageInfo = getPackageInfo(value);
-        if (packageInfo != null)
+        if (value instanceof InternalCDOPackageInfo)
         {
-          result.add(packageInfo);
+          result.add((InternalCDOPackageInfo)value);
+        }
+        else if (value instanceof EPackage)
+        {
+          InternalCDOPackageInfo packageInfo = getPackageInfo((EPackage)value);
+          if (packageInfo != null)
+          {
+            result.add(packageInfo);
+          }
         }
       }
 
@@ -270,9 +267,9 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     return packageInfos;
   }
 
-  public InternalCDOPackageUnit getPackageUnit(Object value)
+  public InternalCDOPackageUnit getPackageUnit(EPackage ePackage)
   {
-    CDOPackageInfo packageInfo = getPackageInfo(value);
+    CDOPackageInfo packageInfo = getPackageInfo(ePackage);
     if (packageInfo != null)
     {
       return (InternalCDOPackageUnit)packageInfo.getPackageUnit();
@@ -289,11 +286,18 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       Set<InternalCDOPackageUnit> result = new HashSet<InternalCDOPackageUnit>();
       for (Object value : values())
       {
-        InternalCDOPackageInfo packageInfo = getPackageInfo(value);
-        if (packageInfo != null)
+        if (value instanceof InternalCDOPackageInfo)
         {
-          InternalCDOPackageUnit packageUnit = packageInfo.getPackageUnit();
-          result.add(packageUnit);
+          result.add(((InternalCDOPackageInfo)value).getPackageUnit());
+        }
+        else if (value instanceof EPackage)
+        {
+          InternalCDOPackageInfo packageInfo = getPackageInfo((EPackage)value);
+          if (packageInfo != null)
+          {
+            InternalCDOPackageUnit packageUnit = packageInfo.getPackageUnit();
+            result.add(packageUnit);
+          }
         }
       }
 

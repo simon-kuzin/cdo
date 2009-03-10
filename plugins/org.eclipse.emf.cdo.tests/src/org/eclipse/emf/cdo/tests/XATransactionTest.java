@@ -315,6 +315,7 @@ public class XATransactionTest extends AbstractCDOTest
     resC.getContents().add(purchaseOrder3);
     supplier.getPurchaseOrders().add(purchaseOrder3);
     purchaseOrder.setDate(new Date());
+
     try
     {
 
@@ -324,6 +325,7 @@ public class XATransactionTest extends AbstractCDOTest
     catch (Exception ignore)
     {
     }
+
     Assert.assertEquals(false, CDOUtil.getCDOObject(supplier).cdoWriteLock().isLocked());
     Assert.assertEquals(false, CDOUtil.getCDOObject(purchaseOrder).cdoWriteLock().isLocked());
 
@@ -332,5 +334,4 @@ public class XATransactionTest extends AbstractCDOTest
     assertEquals(null, purchaseOrder.getDate());
     assertEquals(1, supplier.getPurchaseOrders().size());
   }
-
 }
