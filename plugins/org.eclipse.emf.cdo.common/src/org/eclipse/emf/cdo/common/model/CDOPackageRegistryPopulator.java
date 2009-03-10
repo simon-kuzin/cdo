@@ -49,14 +49,19 @@ public class CDOPackageRegistryPopulator extends Worker
   @Override
   protected void work(WorkContext context) throws Exception
   {
-    populate(source, target);
-    context.nextWork(sourcePollInterval);
+    doWork();
+    context.nextWork(getSourcePollInterval());
+  }
+
+  protected void doWork()
+  {
+    populate(getSource(), getTarget());
   }
 
   @Override
   protected void doActivate() throws Exception
   {
-    populate(source, target);
+    doWork();
     super.doActivate();
   }
 
