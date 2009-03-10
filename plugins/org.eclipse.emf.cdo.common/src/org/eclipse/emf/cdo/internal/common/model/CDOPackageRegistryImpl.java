@@ -201,17 +201,17 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     resetInternalCaches();
   }
 
-  public synchronized InternalCDOPackageInfo getPackageInfo(Object keyOrValue)
+  public synchronized InternalCDOPackageInfo getPackageInfo(Object value)
   {
     LifecycleUtil.checkActive(this);
-    if (keyOrValue instanceof CDOPackageInfo)
+    if (value instanceof CDOPackageInfo)
     {
-      return (InternalCDOPackageInfo)keyOrValue;
+      return (InternalCDOPackageInfo)value;
     }
 
-    if (keyOrValue instanceof EPackage)
+    if (value instanceof EPackage)
     {
-      EPackage ePackage = (EPackage)keyOrValue;
+      EPackage ePackage = (EPackage)value;
       InternalCDOPackageInfo packageInfo = (InternalCDOPackageInfo)CDOModelUtil.getPackageInfo(ePackage, this);
       if (packageInfo != null)
       {
@@ -224,12 +224,6 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       {
         return packageInfo;
       }
-    }
-
-    if (keyOrValue instanceof String)
-    {
-      Object value = get(keyOrValue);
-      return getPackageInfo(value);
     }
 
     return null;

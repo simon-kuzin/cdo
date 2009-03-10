@@ -196,7 +196,10 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
       EPackage ePackage = packageInfo.getEPackage(false);
       if (ePackage != null)
       {
-        ePackage.eAdapters().remove(packageInfo);
+        synchronized (ePackage)
+        {
+          ePackage.eAdapters().remove(packageInfo);
+        }
       }
     }
 

@@ -224,25 +224,22 @@ public final class CDOModelUtil
 
   public static CDOPackageInfo getPackageInfo(EPackage ePackage, CDOPackageRegistry packageRegistry)
   {
-    EList<Adapter> adapters = ePackage.eAdapters();
-    for (int i = 0, size = adapters.size(); i < size; ++i)
+    synchronized (ePackage)
     {
-      Adapter adapter = adapters.get(i);
-      if (adapter instanceof CDOPackageInfo)
+      EList<Adapter> adapters = ePackage.eAdapters();
+      for (int i = 0, size = adapters.size(); i < size; ++i)
       {
-        CDOPackageInfo packageInfo = (CDOPackageInfo)adapter;
-        if (packageInfo.getPackageUnit().getPackageRegistry() == packageRegistry)
+        Adapter adapter = adapters.get(i);
+        if (adapter instanceof CDOPackageInfo)
         {
-          return packageInfo;
+          CDOPackageInfo packageInfo = (CDOPackageInfo)adapter;
+          if (packageInfo.getPackageUnit().getPackageRegistry() == packageRegistry)
+          {
+            return packageInfo;
+          }
         }
       }
     }
-
-    // Object value = packageRegistry.get(ePackage.getNsURI());
-    // if (value instanceof CDOPackageInfo)
-    // {
-    // return (CDOPackageInfo)value;
-    // }
 
     return null;
   }
@@ -260,15 +257,17 @@ public final class CDOModelUtil
 
   public static CDOClassInfo getClassInfo(EClass eClass)
   {
-    EList<Adapter> adapters = eClass.eAdapters();
-    CDOClassInfo classInfo = (CDOClassInfo)EcoreUtil.getAdapter(adapters, CDOClassInfo.class);
-    if (classInfo == null)
+    synchronized (eClass)
     {
-      classInfo = new CDOClassInfoImpl();
-      adapters.add(classInfo);
+      EList<Adapter> adapters = eClass.eAdapters();
+      CDOClassInfo classInfo = (CDOClassInfo)EcoreUtil.getAdapter(adapters, CDOClassInfo.class);
+      if (classInfo == null)
+      {
+        classInfo = new CDOClassInfoImpl();
+        adapters.add(classInfo);
+      }
+      return classInfo;
     }
-
-    return classInfo;
   }
 
   public static EStructuralFeature[] getAllPersistentFeatures(EClass eClass)

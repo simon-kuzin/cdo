@@ -424,10 +424,13 @@ public final class EMFUtil
 
   public static void addAdapter(Notifier notifier, Adapter adapter)
   {
-    EList<Adapter> adapters = notifier.eAdapters();
-    if (!adapters.contains(adapter))
+    synchronized (notifier)
     {
-      adapters.add(adapter);
+      EList<Adapter> adapters = notifier.eAdapters();
+      if (!adapters.contains(adapter))
+      {
+        adapters.add(adapter);
+      }
     }
   }
 

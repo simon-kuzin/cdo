@@ -21,11 +21,15 @@ import org.eclipse.net4j.acceptor.IAcceptor;
 import org.eclipse.net4j.connector.IConnector;
 import org.eclipse.net4j.jvm.JVMUtil;
 import org.eclipse.net4j.tcp.TCPUtil;
+import org.eclipse.net4j.util.event.IListener;
+import org.eclipse.net4j.util.lifecycle.ILifecycle;
+import org.eclipse.net4j.util.lifecycle.LifecycleEventAdapter;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.impl.EPackageImpl;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -36,6 +40,10 @@ public abstract class SessionConfig extends Config implements ISessionConfig
   public static final SessionConfig[] CONFIGS = { TCP.INSTANCE, JVM.INSTANCE };
 
   private static final long serialVersionUID = 1L;
+
+  private transient Set<CDOSession> sessions;
+
+  private transient IListener sessionListener;
 
   public SessionConfig(String name)
   {
@@ -96,15 +104,33 @@ public abstract class SessionConfig extends Config implements ISessionConfig
     return session;
   }
 
-  public CDOSession openSession(String repositoryName)
-  {
-    CDOSessionConfiguration configuration = createSessionConfiguration(repositoryName);
-    return configuration.openSession();
-  }
-
   public CDOSession openSession()
   {
     return openSession(IRepositoryConfig.REPOSITORY_NAME);
+  }
+
+  public CDOSession openSession(String repositoryName)
+  {
+    CDOSessionConfiguration configuration = createSessionConfiguration(repositoryName);
+    CDOSession session = configuration.openSession();
+    session.addListener(sessionListener);
+    sessions.add(session);
+    return session;
+  }
+
+  @Override
+  public void setUp() throws Exception
+  {
+    super.setUp();
+    sessions = new HashSet<CDOSession>();
+    sessionListener = new LifecycleEventAdapter()
+    {
+      @Override
+      protected void onDeactivated(ILifecycle session)
+      {
+        sessions.remove(session);
+      }
+    };
   }
 
   @Override
@@ -112,6 +138,16 @@ public abstract class SessionConfig extends Config implements ISessionConfig
   {
     try
     {
+      for (CDOSession session : sessions)
+      {
+        session.removeListener(sessionListener);
+        LifecycleUtil.deactivate(session);
+      }
+
+      sessionListener = null;
+      sessions.clear();
+      sessions = null;
+
       stopTransport();
       super.tearDown();
     }

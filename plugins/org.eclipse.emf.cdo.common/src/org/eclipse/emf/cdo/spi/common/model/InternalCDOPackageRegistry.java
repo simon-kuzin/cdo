@@ -43,7 +43,7 @@ public interface InternalCDOPackageRegistry extends CDOPackageRegistry, ILifecyc
 
   public void putPackageUnit(InternalCDOPackageUnit packageUnit);
 
-  public InternalCDOPackageInfo getPackageInfo(Object keyOrValue);
+  public InternalCDOPackageInfo getPackageInfo(Object value);
 
   /**
    * Returns all package infos that are registered in this package registry.
