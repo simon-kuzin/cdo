@@ -20,15 +20,15 @@ public class CDOPackageRegistryPopulator extends Worker
 
   private CDOPackageRegistry target;
 
+  public CDOPackageRegistryPopulator(CDOPackageRegistry target)
+  {
+    this(EPackage.Registry.INSTANCE, target);
+  }
+
   public CDOPackageRegistryPopulator(EPackage.Registry source, CDOPackageRegistry target)
   {
     this.source = source;
     this.target = target;
-  }
-
-  public CDOPackageRegistryPopulator(CDOPackageRegistry target)
-  {
-    this(EPackage.Registry.INSTANCE, target);
   }
 
   public EPackage.Registry getSource()
@@ -68,6 +68,11 @@ public class CDOPackageRegistryPopulator extends Worker
   {
     doWork();
     super.doActivate();
+  }
+
+  public static boolean populate(CDOPackageRegistry target)
+  {
+    return populate(EPackage.Registry.INSTANCE, target);
   }
 
   public static boolean populate(EPackage.Registry source, CDOPackageRegistry target)
