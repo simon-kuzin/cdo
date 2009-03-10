@@ -26,6 +26,11 @@ public class CDOPackageRegistryPopulator extends Worker
     this.target = target;
   }
 
+  public CDOPackageRegistryPopulator(CDOPackageRegistry target)
+  {
+    this(EPackage.Registry.INSTANCE, target);
+  }
+
   public EPackage.Registry getSource()
   {
     return source;
