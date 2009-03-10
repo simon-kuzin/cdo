@@ -64,6 +64,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 /**
  * @author Eike Stepper
@@ -149,8 +150,8 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     {
       public boolean handle(int row, final Object... values)
       {
-        long metaLB = (Long)values[2];
-        long metaUB = (Long)values[3];
+        long metaLB = (Long)values[3];
+        long metaUB = (Long)values[4];
         CDOIDMetaRange metaIDRange = metaLB == 0 ? null : CDOIDUtil.createMetaRange(CDOIDUtil.createMeta(metaLB),
             (int)(metaUB - metaLB) + 1);
 
@@ -176,14 +177,17 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
         CDODBSchema.PACKAGE_INFOS_URI, CDODBSchema.PACKAGE_INFOS_PARENT, CDODBSchema.PACKAGE_INFOS_META_LB,
         CDODBSchema.PACKAGE_INFOS_META_UB);
 
-    Collection<InternalCDOPackageUnit> values = packageUnits.values();
-    for (InternalCDOPackageUnit packageUnit : values)
+    for (Entry<String, InternalCDOPackageUnit> entry : packageUnits.entrySet())
     {
-      List<InternalCDOPackageInfo> list = packageInfos.get(packageUnit.getID());
-      packageUnit.setPackageInfos(list.toArray(new InternalCDOPackageInfo[list.size()]));
+      String id = entry.getKey();
+      InternalCDOPackageUnit packageUnit = entry.getValue();
+
+      List<InternalCDOPackageInfo> list = packageInfos.get(id);
+      InternalCDOPackageInfo[] array = list.toArray(new InternalCDOPackageInfo[list.size()]);
+      packageUnit.setPackageInfos(array);
     }
 
-    return values;
+    return packageUnits.values();
   }
 
   public final void loadPackageUnit(InternalCDOPackageUnit packageUnit)
