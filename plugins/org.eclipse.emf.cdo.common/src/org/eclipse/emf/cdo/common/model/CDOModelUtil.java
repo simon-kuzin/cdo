@@ -222,39 +222,6 @@ public final class CDOModelUtil
     throw new IllegalArgumentException("Not a primitive type nor String nor Date: " + primitiveType);
   }
 
-  public static CDOPackageInfo getPackageInfo(EPackage ePackage, CDOPackageRegistry packageRegistry)
-  {
-    synchronized (ePackage)
-    {
-      EList<Adapter> adapters = ePackage.eAdapters();
-      for (int i = 0, size = adapters.size(); i < size; ++i)
-      {
-        Adapter adapter = adapters.get(i);
-        if (adapter instanceof CDOPackageInfo)
-        {
-          CDOPackageInfo packageInfo = (CDOPackageInfo)adapter;
-          if (packageInfo.getPackageUnit().getPackageRegistry() == packageRegistry)
-          {
-            return packageInfo;
-          }
-        }
-      }
-    }
-
-    return null;
-  }
-
-  public static CDOPackageUnit getPackageUnit(EPackage ePackage, CDOPackageRegistry packageRegistry)
-  {
-    CDOPackageInfo packageInfo = getPackageInfo(ePackage, packageRegistry);
-    if (packageInfo != null)
-    {
-      return packageInfo.getPackageUnit();
-    }
-
-    return null;
-  }
-
   public static CDOClassInfo getClassInfo(EClass eClass)
   {
     synchronized (eClass)

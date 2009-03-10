@@ -11,7 +11,6 @@
  */
 package org.eclipse.emf.cdo.internal.ui.dialogs;
 
-import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.internal.ui.SharedIcons;
 import org.eclipse.emf.cdo.internal.ui.actions.RegisterFilesystemPackagesAction;
@@ -198,7 +197,7 @@ public class PackageManagerDialog extends TitleAreaDialog
     {
       if (element instanceof EPackage)
       {
-        CDOPackageInfo packageInfo = CDOModelUtil.getPackageInfo((EPackage)element, session.getPackageRegistry());
+        CDOPackageInfo packageInfo = session.getPackageRegistry().getPackageInfo(element);
         switch (columnIndex)
         {
         case 0:

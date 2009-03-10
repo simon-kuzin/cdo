@@ -12,7 +12,6 @@
 package org.eclipse.emf.cdo.internal.ui.editor;
 
 import org.eclipse.emf.cdo.CDOObject;
-import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.internal.ui.SharedIcons;
@@ -2092,7 +2091,7 @@ public class CDOEditor extends MultiPageEditorPart implements IEditingDomainProv
     for (Object entry : ePackages)
     {
       EPackage ePackage = (EPackage)entry;
-      CDOPackageUnit packageUnit = CDOModelUtil.getPackageUnit(ePackage, view.getSession().getPackageRegistry());
+      CDOPackageUnit packageUnit = packageRegistry.getPackageUnit(ePackage);
 
       // TODO Allow system packages?
       if (packageUnit.isSystem())

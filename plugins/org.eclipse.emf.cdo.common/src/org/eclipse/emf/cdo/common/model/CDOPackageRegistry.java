@@ -23,4 +23,9 @@ public interface CDOPackageRegistry extends EPackage.Registry
    * Registers an {@link EPackage} with this package registry.
    */
   public Object putEPackage(EPackage ePackage);
+
+  public CDOPackageInfo getPackageInfo(Object value);
+
+  public CDOPackageUnit getPackageUnit(Object value);
+
 }

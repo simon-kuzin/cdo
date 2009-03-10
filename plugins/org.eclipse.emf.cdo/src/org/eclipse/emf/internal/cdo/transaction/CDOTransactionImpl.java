@@ -1047,7 +1047,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
         {
           if (!CDOModelUtil.isSystemPackage(topLevelPackage))
           {
-            CDOPackageUnit packageUnit = CDOModelUtil.getPackageUnit(topLevelPackage, packageRegistry);
+            CDOPackageUnit packageUnit = packageRegistry.getPackageUnit(topLevelPackage);
             if (packageUnit.getState() == CDOPackageUnit.State.NEW)
             {
               usedNewPackages.add(topLevelPackage);
@@ -1062,7 +1062,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
       Set<CDOPackageUnit> result = new HashSet<CDOPackageUnit>();
       for (EPackage usedNewPackage : analyzeNewPackages(usedNewPackages, packageRegistry))
       {
-        CDOPackageUnit packageUnit = CDOModelUtil.getPackageUnit(usedNewPackage, packageRegistry);
+        CDOPackageUnit packageUnit = packageRegistry.getPackageUnit(usedNewPackage);
         result.add(packageUnit);
       }
 
@@ -1085,7 +1085,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     {
       if (!CDOModelUtil.isSystemPackage(usedPackage))
       {
-        CDOPackageUnit packageUnit = CDOModelUtil.getPackageUnit(usedPackage, packageRegistry);
+        CDOPackageUnit packageUnit = packageRegistry.getPackageUnit(usedPackage);
         if (packageUnit == null)
         {
           throw new CDOException("No package unit for " + usedPackage);

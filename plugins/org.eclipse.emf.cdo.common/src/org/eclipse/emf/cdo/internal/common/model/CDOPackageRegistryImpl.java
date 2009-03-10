@@ -31,6 +31,8 @@ import org.eclipse.net4j.util.lifecycle.LifecycleException;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
+import org.eclipse.emf.common.notify.Adapter;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.InternalEObject;
@@ -212,17 +214,34 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     if (value instanceof EPackage)
     {
       EPackage ePackage = (EPackage)value;
-      InternalCDOPackageInfo packageInfo = (InternalCDOPackageInfo)CDOModelUtil.getPackageInfo(ePackage, this);
-      if (packageInfo != null)
+
+      // Looks in the registry
+      Object object = get(ePackage.getNsURI());
+      if (object instanceof InternalCDOPackageInfo)
       {
-        return packageInfo;
+        InternalCDOPackageInfo packageInfo = (InternalCDOPackageInfo)object;
+        if (packageInfo.getPackageUnit().getPackageRegistry() == this)
+        {
+          return packageInfo;
+        }
       }
 
-      String nsURI = ePackage.getNsURI();
-      packageInfo = getPackageInfo(nsURI);
-      if (packageInfo != null)
+      // Looks in the adapters
+      synchronized (ePackage)
       {
-        return packageInfo;
+        EList<Adapter> adapters = ePackage.eAdapters();
+        for (int i = 0, size = adapters.size(); i < size; ++i)
+        {
+          Adapter adapter = adapters.get(i);
+          if (adapter instanceof InternalCDOPackageInfo)
+          {
+            InternalCDOPackageInfo packageInfo = (InternalCDOPackageInfo)adapter;
+            if (packageInfo.getPackageUnit().getPackageRegistry() == this)
+            {
+              return packageInfo;
+            }
+          }
+        }
       }
     }
 
@@ -249,6 +268,17 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     }
 
     return packageInfos;
+  }
+
+  public InternalCDOPackageUnit getPackageUnit(Object value)
+  {
+    CDOPackageInfo packageInfo = getPackageInfo(value);
+    if (packageInfo != null)
+    {
+      return (InternalCDOPackageUnit)packageInfo.getPackageUnit();
+    }
+
+    return null;
   }
 
   public synchronized InternalCDOPackageUnit[] getPackageUnits()
