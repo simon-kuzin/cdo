@@ -49,6 +49,9 @@ import org.eclipse.net4j.util.om.monitor.ProgressDistributable;
 import org.eclipse.net4j.util.om.monitor.ProgressDistributor;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
+import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.util.EcoreUtil;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -263,6 +266,15 @@ public class CommitTransactionIndication extends IndicationWithMonitoring
         newPackageUnits[i] = (InternalCDOPackageUnit)in.readCDOPackageUnit(packageRegistry);
         packageRegistry.putPackageUnit(newPackageUnits[i]); // Must happen before readCDORevision!!!
         monitor.worked();
+      }
+
+      // When all packages are deserialized and registered, resolve them
+      for (InternalCDOPackageUnit packageUnit : newPackageUnits)
+      {
+        for (EPackage ePackage : packageUnit.getEPackages(true))
+        {
+          EcoreUtil.resolveAll(ePackage);
+        }
       }
 
       // New objects

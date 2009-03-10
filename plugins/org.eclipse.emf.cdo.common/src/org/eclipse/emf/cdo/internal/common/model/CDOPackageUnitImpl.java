@@ -23,6 +23,7 @@ import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -157,6 +158,21 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
     }
   }
 
+  public EPackage[] getEPackages(boolean loadOnDemand)
+  {
+    List<EPackage> result = new ArrayList<EPackage>();
+    for (InternalCDOPackageInfo packageInfo : packageInfos)
+    {
+      EPackage ePackage = packageInfo.getEPackage(loadOnDemand);
+      if (ePackage != null)
+      {
+        result.add(ePackage);
+      }
+    }
+
+    return result.toArray(new EPackage[result.size()]);
+  }
+
   public boolean isSystem()
   {
     return getTopLevelPackageInfo().isSystemPackage();
@@ -204,6 +220,7 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
         String packageURI = ePackage.getNsURI();
         InternalCDOPackageInfo packageInfo = getPackageInfo(packageURI);
         EMFUtil.addAdapter(ePackage, packageInfo);
+        EcoreUtil.resolveAll(ePackage);
       }
 
       state = State.LOADED;

@@ -10,6 +10,8 @@
  */
 package org.eclipse.emf.cdo.common.model;
 
+import org.eclipse.emf.ecore.EPackage;
+
 /**
  * @author Eike Stepper
  */
@@ -32,6 +34,8 @@ public interface CDOPackageUnit extends Comparable<CDOPackageUnit>
   public CDOPackageInfo getPackageInfo(String packageURI);
 
   public CDOPackageInfo[] getPackageInfos();
+
+  public EPackage[] getEPackages(boolean loadOnDemand);
 
   public boolean isSystem();
 

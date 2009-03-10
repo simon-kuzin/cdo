@@ -34,7 +34,6 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.impl.EPackageRegistryImpl;
-import org.eclipse.emf.ecore.util.EcoreUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -148,17 +147,17 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
       }
     }
 
-    super.put(nsURI, value);
-    for (Object object : values())
-    {
-      if (object instanceof EPackage)
-      {
-        EPackage ePackage = (EPackage)object;
-        EcoreUtil.resolveAll(ePackage);
-      }
-    }
-
-    return oldValue;
+    return super.put(nsURI, value);
+    // for (Object object : values())
+    // {
+    // if (object instanceof EPackage)
+    // {
+    // EPackage ePackage = (EPackage)object;
+    // EcoreUtil.resolveAll(ePackage);
+    // }
+    // }
+    //
+    // return oldValue;
   }
 
   @Override
