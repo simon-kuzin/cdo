@@ -18,8 +18,6 @@ import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.ecore.resource.Resource;
 
 /**
- * [CDO] Remove poor performance
- * <p>
  * See https://bugs.eclipse.org/261218
  * 
  * @author Simon McDuff
