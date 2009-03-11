@@ -37,6 +37,7 @@ import org.eclipse.net4j.util.collection.CloseableIterator;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 import org.hibernate.Criteria;
@@ -218,7 +219,7 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
     return getStore().getPackageHandler().getEPackageDescriptors();
   }
 
-  public void loadPackageUnit(InternalCDOPackageUnit packageUnit)
+  public EPackage[] loadPackageUnit(InternalCDOPackageUnit packageUnit)
   {
     getStore().getPackageHandler().readPackage(packageUnit);
   }

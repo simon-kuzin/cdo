@@ -361,14 +361,14 @@ public final class EMFUtil
     return false;
   }
 
-  public static byte[] getPackageBytes(EPackage ePackage, boolean zipped, EPackage.Registry packageRegistry)
+  public static byte[] getEPackageBytes(EPackage ePackage, boolean zipped, EPackage.Registry packageRegistry)
   {
     try
     {
       Resource resource = ePackage.eResource();
       if (resource == null)
       {
-        resource = createPackageResource(ePackage.getNsURI(), packageRegistry);
+        resource = createEcoreResource(ePackage.getNsURI(), packageRegistry);
         resource.getContents().add(ePackage);
       }
 
@@ -382,12 +382,12 @@ public final class EMFUtil
     }
   }
 
-  public static EPackage createPackage(String uri, byte[] bytes, boolean zipped, EPackage.Registry packageRegistry)
+  public static EPackage createEPackage(String uri, byte[] bytes, boolean zipped, EPackage.Registry packageRegistry)
   {
     try
     {
       ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-      Resource resource = createPackageResource(uri, packageRegistry);
+      Resource resource = createEcoreResource(uri, packageRegistry);
       resource.load(bais, createResourceOptions(zipped));
 
       EList<EObject> contents = resource.getContents();
@@ -399,7 +399,7 @@ public final class EMFUtil
     }
   }
 
-  private static Resource createPackageResource(String uri, EPackage.Registry packageRegistry)
+  private static Resource createEcoreResource(String uri, EPackage.Registry packageRegistry)
   {
     ResourceSet resourceSet = new ResourceSetImpl();
     resourceSet.setPackageRegistry(packageRegistry);

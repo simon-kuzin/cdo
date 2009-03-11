@@ -28,6 +28,7 @@ import org.eclipse.net4j.util.collection.CloseableIterator;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.util.ArrayList;
@@ -74,7 +75,7 @@ public class MEMStoreAccessor extends LongIDStoreAccessor
     return Collections.emptySet();
   }
 
-  public void loadPackageUnit(InternalCDOPackageUnit packageUnit)
+  public EPackage[] loadPackageUnit(InternalCDOPackageUnit packageUnit)
   {
     throw new UnsupportedOperationException();
   }

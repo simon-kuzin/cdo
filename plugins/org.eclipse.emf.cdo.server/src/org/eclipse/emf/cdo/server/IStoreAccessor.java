@@ -78,7 +78,7 @@ public interface IStoreAccessor extends IQueryHandler
    * @see InternalEPackage
    * @since 2.0
    */
-  public void loadPackageUnit(InternalCDOPackageUnit packageUnit);
+  public EPackage[] loadPackageUnit(InternalCDOPackageUnit packageUnit);
 
   /**
    * Returns an iterator that iterates over all objects in the store and makes their CDOIDs available for processing.

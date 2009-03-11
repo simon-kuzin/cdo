@@ -73,6 +73,8 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, DBStoreAccessor.class);
 
+  private static final boolean ZIP_PACKAGE_BYTES = true;
+
   private IJDBCDelegate jdbcDelegate;
 
   @ExcludeFromDump
@@ -190,18 +192,13 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     return packageUnits.values();
   }
 
-  public final void loadPackageUnit(InternalCDOPackageUnit packageUnit)
+  public final EPackage[] loadPackageUnit(InternalCDOPackageUnit packageUnit)
   {
-    // TODO: implement DBStoreAccessor.loadPackageUnit(packageUnit)
-    throw new UnsupportedOperationException();
-
-    // String where = CDODBSchema.PACKAGES_URI.getName() + " = '" + packageUnit.getNsURI() + "'";
-    // Object[] values = DBUtil.select(jdbcDelegate.getConnection(), where, CDODBSchema.PACKAGES_ID,
-    // CDODBSchema.PACKAGES_NAME);
-    // new ServerInfo(getStore(), packageUnit, (Integer)values[0]);
-    // ((InternalEPackage)packageUnit).setName((String)values[1]);
-    // readClasses(packageUnit);
-    // mapPackageUnits(packageUnit);
+    String where = CDODBSchema.PACKAGE_UNITS_ID.getName() + "='" + packageUnit.getID() + "'";
+    Object[] values = DBUtil.select(jdbcDelegate.getConnection(), where, CDODBSchema.PACKAGE_UNITS_PACKAGE_DATA);
+    byte[] bytes = (byte[])values[0];
+    EPackage ePackage = createEPackage(packageUnit, bytes);
+    return EMFUtil.getAllPackages(ePackage);
   }
 
   public CloseableIterator<CDOID> readObjectIDs()
@@ -393,7 +390,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
         pstmt.setString(1, packageUnit.getID());
         pstmt.setInt(2, packageUnit.getOriginalType().ordinal());
         pstmt.setLong(3, packageUnit.getTimeStamp());
-        pstmt.setBytes(4, getPackageBytes(packageUnit));
+        pstmt.setBytes(4, getEPackageBytes(packageUnit));
 
         if (pstmt.execute())
         {
@@ -426,11 +423,17 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     }
   }
 
-  private byte[] getPackageBytes(InternalCDOPackageUnit packageUnit)
+  private byte[] getEPackageBytes(InternalCDOPackageUnit packageUnit)
   {
     EPackage ePackage = packageUnit.getTopLevelPackageInfo().getEPackage();
     CDOPackageRegistry packageRegistry = getStore().getRepository().getPackageRegistry();
-    return EMFUtil.getPackageBytes(ePackage, true, packageRegistry);
+    return EMFUtil.getEPackageBytes(ePackage, ZIP_PACKAGE_BYTES, packageRegistry);
+  }
+
+  private EPackage createEPackage(InternalCDOPackageUnit packageUnit, byte[] bytes)
+  {
+    CDOPackageRegistry packageRegistry = getStore().getRepository().getPackageRegistry();
+    return EMFUtil.createEPackage(packageUnit.getID(), bytes, ZIP_PACKAGE_BYTES, packageRegistry);
   }
 
   private void fillSystemTables(InternalCDOPackageInfo packageInfo, OMMonitor monitor)

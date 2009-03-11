@@ -257,7 +257,7 @@ public final class CDOModelUtil
   public static void writePackage(ExtendedDataOutput out, EPackage ePackage, boolean zipped,
       EPackage.Registry packageRegistry) throws IOException
   {
-    byte[] bytes = EMFUtil.getPackageBytes(ePackage, zipped, packageRegistry);
+    byte[] bytes = EMFUtil.getEPackageBytes(ePackage, zipped, packageRegistry);
     out.writeString(ePackage.getNsURI());
     out.writeBoolean(zipped);
     out.writeByteArray(bytes);
@@ -268,6 +268,6 @@ public final class CDOModelUtil
     String uri = in.readString();
     boolean zipped = in.readBoolean();
     byte[] bytes = in.readByteArray();
-    return EMFUtil.createPackage(uri, bytes, zipped, packageRegistry);
+    return EMFUtil.createEPackage(uri, bytes, zipped, packageRegistry);
   }
 }

@@ -175,8 +175,8 @@ public class Repository extends Container<Object> implements IRepository, Intern
 
   public EPackage[] loadPackages(CDOPackageUnit packageUnit)
   {
-    // TODO: implement Repository.loadPackages(packageUnit)
-    throw new UnsupportedOperationException();
+    IStoreAccessor accessor = StoreThreadLocal.getAccessor();
+    return accessor.loadPackageUnit((InternalCDOPackageUnit)packageUnit);
   }
 
   public InternalCDOPackageRegistry getPackageRegistry(boolean considerCommitContext)
