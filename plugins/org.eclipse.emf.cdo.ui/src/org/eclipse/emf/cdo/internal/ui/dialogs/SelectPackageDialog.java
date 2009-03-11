@@ -7,15 +7,19 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Victor Roldan Betancort - maintenance
  */
 package org.eclipse.emf.cdo.internal.ui.dialogs;
 
+import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.internal.ui.SharedIcons;
 import org.eclipse.emf.cdo.internal.ui.bundle.OM;
 
 import org.eclipse.net4j.util.ui.UIUtil;
 import org.eclipse.net4j.util.ui.widgets.BaseDialog;
 
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EcorePackage;
 
 import org.eclipse.jface.viewers.CheckboxTableViewer;
@@ -48,10 +52,24 @@ public class SelectPackageDialog extends BaseDialog<CheckboxTableViewer>
 
   private Set<String> checkedURIs = new HashSet<String>();
 
-  public SelectPackageDialog(Shell shell, String title, String message, Set<String> excludedURIs)
+  private CDOPackageRegistry registry;
+
+  protected SelectPackageDialog(Shell shell, String title, String message, CDOPackageRegistry registry,
+      Set<String> excludedURIs)
   {
     super(shell, DEFAULT_SHELL_STYLE | SWT.APPLICATION_MODAL, title, message, OM.Activator.INSTANCE.getDialogSettings());
+    this.registry = registry;
     this.excludedURIs = excludedURIs;
+  }
+
+  public SelectPackageDialog(Shell shell, String title, String message, Set<String> excludedURIs)
+  {
+    this(shell, title, message, null, excludedURIs);
+  }
+
+  public SelectPackageDialog(Shell shell, String title, String message, CDOPackageRegistry registry)
+  {
+    this(shell, title, message, registry, registry.keySet());
   }
 
   public SelectPackageDialog(Shell shell, String title, String message)
@@ -71,7 +89,7 @@ public class SelectPackageDialog extends BaseDialog<CheckboxTableViewer>
     viewer.getTable().setLayoutData(UIUtil.createGridData());
     viewer.setContentProvider(new PackageContentProvider());
     viewer.setLabelProvider(new PackageLabelProvider());
-    viewer.setInput(CDOPackageTypeRegistry.INSTANCE);
+    viewer.setInput(EPackage.Registry.INSTANCE);
 
     String[] uris = OM.PREF_HISTORY_SELECT_PACKAGES.getValue();
     if (uris != null)
@@ -114,7 +132,7 @@ public class SelectPackageDialog extends BaseDialog<CheckboxTableViewer>
 
     public Object[] getElements(Object inputElement)
     {
-      Set<String> uris = new HashSet<String>(CDOPackageTypeRegistry.INSTANCE.keySet());
+      Set<String> uris = new HashSet<String>(EPackage.Registry.INSTANCE.keySet());
       uris.removeAll(excludedURIs);
 
       List<String> elements = new ArrayList<String>(uris);
@@ -145,8 +163,21 @@ public class SelectPackageDialog extends BaseDialog<CheckboxTableViewer>
     {
       if (element instanceof String)
       {
-        CDOPackageType packageType = CDOPackageTypeRegistry.INSTANCE.get(element);
-        switch (packageType)
+        EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage((String)element);
+        CDOPackageUnit unit = null;
+
+        if (registry != null)
+        {
+          registry.getPackageUnit(ePackage);
+        }
+
+        // FIXME if EPackage is not registered, can't determine type
+        if (unit == null)
+        {
+          return SharedIcons.getImage(SharedIcons.OBJ_EPACKAGE_LEGACY);
+        }
+
+        switch (unit.getType())
         {
         case LEGACY:
           return SharedIcons.getImage(SharedIcons.OBJ_EPACKAGE_LEGACY);

@@ -7,10 +7,12 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
- *    Victor Roldan Betancort - http://bugs.eclipse.org/244801
+ *    Victor Roldan Betancort - maintenance
  */
 package org.eclipse.emf.cdo.ui;
 
+import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.internal.ui.SharedIcons;
 import org.eclipse.emf.cdo.internal.ui.actions.CloseSessionAction;
 import org.eclipse.emf.cdo.internal.ui.actions.CloseViewAction;
@@ -39,6 +41,8 @@ import org.eclipse.net4j.util.ui.actions.SafeAction;
 import org.eclipse.net4j.util.ui.views.ContainerItemProvider;
 import org.eclipse.net4j.util.ui.views.IElementFilter;
 
+import org.eclipse.emf.ecore.EPackage;
+
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
@@ -51,10 +55,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Eike Stepper
@@ -230,24 +231,24 @@ public class CDOItemProvider extends ContainerItemProvider<IContainer<Object>>
    */
   protected boolean fillGenerated(MenuManager manager, CDOSession session)
   {
-    Set<Map.Entry<String, CDOPackageType>> entrySet = CDOPackageTypeRegistry.INSTANCE.entrySet();
-    List<Map.Entry<String, CDOPackageType>> entryList = new ArrayList<Map.Entry<String, CDOPackageType>>(entrySet);
-    Collections.sort(entryList, new Comparator<Map.Entry<String, CDOPackageType>>()
+    List<String> registeredURIs = new ArrayList<String>(EPackage.Registry.INSTANCE.keySet());
+    Collections.sort(registeredURIs, new Comparator<String>()
     {
-      public int compare(Map.Entry<String, CDOPackageType> e1, Map.Entry<String, CDOPackageType> e2)
+      public int compare(String o1, String o2)
       {
-        return e1.getKey().compareTo(e2.getKey());
+        return o1.compareTo(o2);
       }
     });
 
-    Set<String> registeredURIs = new HashSet<String>(session.getPackageRegistry().keySet());
     boolean added = false;
-    for (Map.Entry<String, CDOPackageType> entry : entryList)
+    for (String packageURI : registeredURIs)
     {
-      String packageURI = entry.getKey();
-      if (!registeredURIs.contains(packageURI))
+      CDOPackageRegistry packageRegistry = session.getPackageRegistry();
+      EPackage ePackage = packageRegistry.getEPackage(packageURI);
+      if (ePackage != null)
       {
-        manager.add(new RegisterSinglePackageAction(page, session, packageURI, entry.getValue()));
+        CDOPackageUnit packageUnit = packageRegistry.getPackageUnit(ePackage);
+        manager.add(new RegisterSinglePackageAction(page, session, packageURI, packageUnit));
         added = true;
       }
     }

@@ -7,9 +7,11 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Victor Roldan Betancort - maintenance
  */
 package org.eclipse.emf.cdo.internal.ui.actions;
 
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.internal.ui.SharedIcons;
 import org.eclipse.emf.cdo.session.CDOSession;
 
@@ -31,9 +33,9 @@ public class RegisterSinglePackageAction extends RegisterPackagesAction
   private EPackage.Registry registry = EPackage.Registry.INSTANCE;
 
   public RegisterSinglePackageAction(IWorkbenchPage page, CDOSession session, String packageURI,
-      CDOPackageType packageType)
+      CDOPackageUnit packageUnit)
   {
-    super(page, packageURI, "Register the package " + packageURI, getDescriptor(packageType), session);
+    super(page, packageURI, "Register the package " + packageURI, getDescriptor(packageUnit), session);
     this.packageURI = packageURI;
   }
 
@@ -49,9 +51,9 @@ public class RegisterSinglePackageAction extends RegisterPackagesAction
     return Collections.emptyList();
   }
 
-  private static ImageDescriptor getDescriptor(CDOPackageType packageType)
+  private static ImageDescriptor getDescriptor(CDOPackageUnit packageUnit)
   {
-    switch (packageType)
+    switch (packageUnit.getType())
     {
     case LEGACY:
       return SharedIcons.getDescriptor(SharedIcons.OBJ_EPACKAGE_LEGACY);
