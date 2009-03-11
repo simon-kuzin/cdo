@@ -91,7 +91,6 @@ public class VerticalClassMapping extends ClassMapping
   @Override
   protected void checkDuplicateResources(IDBStoreAccessor accessor, CDORevision revision) throws IllegalStateException
   {
-    // TODO: implement VerticalClassMapping.checkDuplicateResources(accessor, revision)
     throw new UnsupportedOperationException();
   }
 }

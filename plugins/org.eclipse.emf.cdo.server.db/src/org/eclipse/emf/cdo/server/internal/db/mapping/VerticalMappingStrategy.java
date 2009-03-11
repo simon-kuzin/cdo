@@ -67,7 +67,6 @@ public class VerticalMappingStrategy extends MappingStrategy
   @Override
   protected String[] getResourceQueries(CDOID folderID, String name, boolean exactMatch)
   {
-    // TODO: implement VerticalMappingStrategy.getResourceQueries(folderID, name, exactMatch)
     throw new UnsupportedOperationException();
   }
 }

@@ -168,7 +168,7 @@ public class DBStore extends LongIDStore implements IDBStore
 
   public void setDbConnectionProvider(IDBConnectionProvider dbConnectionProvider)
   {
-    // FIXME: need to update provider in JDBCWrapper, too?
+    // TODO Need to update provider in JDBCWrapper, too?
     this.dbConnectionProvider = dbConnectionProvider;
   }
 

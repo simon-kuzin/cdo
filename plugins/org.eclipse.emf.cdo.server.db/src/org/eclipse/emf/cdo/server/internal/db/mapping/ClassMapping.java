@@ -113,7 +113,6 @@ public abstract class ClassMapping implements IClassMapping
       // pathField.setPrecision(760);// MYSQL key limitation 767
       // pathField.setNotNull(true);
       //
-      // // TODO Provide better design for store capabilities and repository support
       // // Example: Currently a store can not specify that it does not support non-auditing mode!
       // if (false && !mappingStrategy.getStore().getRepository().isSupportingAudits())
       // {
@@ -416,7 +415,7 @@ public abstract class ClassMapping implements IClassMapping
         }
       }
 
-      // TODO handle !hasFullRevisionInfo() case
+      // TODO Handle !hasFullRevisionInfo() case
     }
     finally
     {
@@ -664,7 +663,7 @@ public abstract class ClassMapping implements IClassMapping
 
     public void visit(CDOUnsetFeatureDelta delta)
     {
-      // TODO: correct this when DBStore implements unsettable features
+      // TODO Correct this when DBStore implements unsettable features
       // see Bugs 259868 and 263010
       IAttributeMapping am = getAttributeMapping(delta.getFeature());
       attributeChanges.add(new Pair<IAttributeMapping, Object>(am, null));
