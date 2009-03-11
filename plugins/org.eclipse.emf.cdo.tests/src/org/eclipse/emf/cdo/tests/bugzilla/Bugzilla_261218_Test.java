@@ -31,8 +31,6 @@ public class Bugzilla_261218_Test extends AbstractCDOTest
    */
   public void testBugzilla_261218_Containment() throws Exception
   {
-    System.out.println(1 / 0);
-
     msg("Opening session");
     final CDOSession session = openModel1Session();
     String LOCATION = "res1";
