@@ -12,6 +12,7 @@ package org.eclipse.emf.cdo.tests;
 
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.CDOState;
+import org.eclipse.emf.cdo.common.model.CDOPackageTypeRegistry;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.tests.config.impl.ConfigTest;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
@@ -43,6 +44,7 @@ public abstract class AbstractCDOTest extends ConfigTest
     org.eclipse.emf.internal.cdo.bundle.OM.PREF_COMMIT_MONITOR_TIMEOUT_SECONDS.setValue(60 * 60);
     org.eclipse.internal.net4j.bundle.OM.DEBUG.setEnabled(false);
     org.eclipse.net4j.internal.tcp.bundle.OM.DEBUG.setEnabled(false);
+    CDOPackageTypeRegistry.INSTANCE.reset();
     startTransport();
   }
 
