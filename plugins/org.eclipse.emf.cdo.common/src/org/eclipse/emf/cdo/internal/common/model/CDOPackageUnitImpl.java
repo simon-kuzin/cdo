@@ -13,6 +13,7 @@ package org.eclipse.emf.cdo.internal.common.model;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
+import org.eclipse.emf.cdo.common.model.CDOPackageTypeRegistry;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
@@ -40,6 +41,8 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
   private InternalCDOPackageRegistry packageRegistry;
 
   private State state = State.PROXY;
+
+  private Type type;
 
   private Type originalType;
 
@@ -81,24 +84,34 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
   public void setState(State state)
   {
     this.state = state;
+    if (state == State.LOADED)
+    {
+      type = null;
+    }
   }
 
   public Type getType()
   {
-    if (state == State.PROXY)
+    if (type == null)
     {
-      return Type.UNKNOWN;
+      if (state == State.PROXY)
+      {
+        type = CDOPackageTypeRegistry.INSTANCE.lookup(getID());
+      }
+      else
+      {
+        InternalCDOPackageInfo packageInfo = getTopLevelPackageInfo();
+        EPackage ePackage = packageInfo.getEPackage();
+        type = CDOPackageTypeRegistry.INSTANCE.lookup(ePackage);
+      }
+
+      if (type == null)
+      {
+        type = Type.UNKNOWN;
+      }
     }
 
-    InternalCDOPackageInfo packageInfo = getTopLevelPackageInfo();
-    EPackage ePackage = packageInfo.getEPackage();
-    if (EMFUtil.isDynamicEPackage(ePackage))
-    {
-      return Type.DYNAMIC;
-    }
-
-    // TODO Legacy
-    return Type.NATIVE;
+    return type;
   }
 
   public Type getOriginalType()

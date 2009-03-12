@@ -45,34 +45,34 @@ public final class CDOPackageTypeRegistry
   {
   }
 
-  public CDOPackageUnit.Type register(EPackage ePackage)
+  public synchronized CDOPackageUnit.Type register(EPackage ePackage)
   {
     CDOPackageUnit.Type type = getPackageType(ePackage);
     types.put(ePackage.getNsURI(), type);
     return type;
   }
 
-  public void registerNative(String packageURI)
+  public synchronized void registerNative(String packageURI)
   {
     types.put(packageURI, CDOPackageUnit.Type.NATIVE);
   }
 
-  public void registerLegacy(String packageURI)
+  public synchronized void registerLegacy(String packageURI)
   {
     types.put(packageURI, CDOPackageUnit.Type.LEGACY);
   }
 
-  public void registerDynamic(String packageURI)
+  public synchronized void registerDynamic(String packageURI)
   {
     types.put(packageURI, CDOPackageUnit.Type.DYNAMIC);
   }
 
-  public CDOPackageUnit.Type deregister(String packageURI)
+  public synchronized CDOPackageUnit.Type deregister(String packageURI)
   {
     return types.remove(packageURI);
   }
 
-  public CDOPackageUnit.Type lookup(String packageURI)
+  public synchronized CDOPackageUnit.Type lookup(String packageURI)
   {
     CDOPackageUnit.Type type = types.get(packageURI);
     if (type == null)
@@ -94,7 +94,7 @@ public final class CDOPackageTypeRegistry
     return type;
   }
 
-  public CDOPackageUnit.Type lookup(EPackage ePackage)
+  public synchronized CDOPackageUnit.Type lookup(EPackage ePackage)
   {
     String packageURI = ePackage.getNsURI();
     CDOPackageUnit.Type type = types.get(packageURI);
@@ -107,7 +107,7 @@ public final class CDOPackageTypeRegistry
     return type;
   }
 
-  public void reset()
+  public synchronized void reset()
   {
     types.clear();
     bundles.clear();
