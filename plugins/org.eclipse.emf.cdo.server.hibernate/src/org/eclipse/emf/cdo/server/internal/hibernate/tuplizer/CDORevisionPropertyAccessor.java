@@ -66,7 +66,7 @@ public class CDORevisionPropertyAccessor implements PropertyAccessor
     public BaseAccessor(CDORevisionPropertyAccessor propertyAccessor, String propertyName)
     {
       this.propertyAccessor = propertyAccessor;
-      feature = propertyAccessor.getTuplizer().getEClass().lookupFeature(propertyName);
+      feature = propertyAccessor.getTuplizer().getEClass().getEStructuralFeature(propertyName);
       if (feature == null)
       {
         throw new IllegalStateException("Feature not found: " + propertyName);

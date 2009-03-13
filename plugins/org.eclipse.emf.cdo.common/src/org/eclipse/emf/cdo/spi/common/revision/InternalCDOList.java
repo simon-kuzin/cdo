@@ -26,10 +26,10 @@ public interface InternalCDOList extends CDOList
   /**
    * Adjusts references according to the passed adjuster and resynchronizes indexes.
    */
-  public void adjustReferences(CDOReferenceAdjuster adjuster, EClass type);
+  public void adjustReferences(CDOReferenceAdjuster adjuster, EClass classifier);
 
   /**
    * Clones the list.
    */
-  public InternalCDOList clone(EClassifier type);
+  public InternalCDOList clone(EClassifier classifier);
 }

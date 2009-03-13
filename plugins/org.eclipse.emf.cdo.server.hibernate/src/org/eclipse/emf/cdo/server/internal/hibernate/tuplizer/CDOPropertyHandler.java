@@ -33,7 +33,7 @@ public abstract class CDOPropertyHandler
   public CDOPropertyHandler(CDORevisionTuplizer tuplizer, String propertyName)
   {
     this.tuplizer = tuplizer;
-    feature = tuplizer.getEClass().lookupFeature(propertyName);
+    feature = tuplizer.getEClass().getEStructuralFeature(propertyName);
     if (getTracer().isEnabled())
     {
       getTracer().trace(

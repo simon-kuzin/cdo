@@ -17,6 +17,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.server.IQueryContext;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
@@ -216,12 +217,12 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
 
   public Collection<InternalCDOPackageUnit> readPackageUnits()
   {
-    return getStore().getPackageHandler().getEPackageDescriptors();
+    return getStore().getPackageHandler().getPackageUnits();
   }
 
   public EPackage[] loadPackageUnit(InternalCDOPackageUnit packageUnit)
   {
-    getStore().getPackageHandler().readPackage(packageUnit);
+    return getStore().getPackageHandler().loadPackageUnit(packageUnit);
   }
 
   public CloseableIterator<CDOID> readObjectIDs()
@@ -232,7 +233,7 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
   public CDOClassifierRef readObjectType(CDOID id)
   {
     CDORevision cdoRevision = readRevision(id, -1);
-    return cdoRevision.getEClass().createClassRef();
+    return new CDOClassifierRef(cdoRevision.getEClass());
   }
 
   public InternalCDORevision readRevision(CDOID id, int referenceChunk)
@@ -271,7 +272,7 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
     boolean exactMatch = context.exactMatch();
 
     final Session session = getHibernateSession();
-    final Criteria criteria = session.createCriteria(CDOResourceNodeClass.NAME);
+    final Criteria criteria = session.createCriteria(EresourcePackage.eINSTANCE.getCDOResourceNode().getName());
     if (folderID == null)
     {
       criteria.add(Expression.isNull("containerID"));
@@ -285,7 +286,7 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
     for (Object o : result)
     {
       final CDORevision revision = (CDORevision)o;
-      String revisionName = (String)revision.data().get(getResourceNameFeature(), 0);
+      String revisionName = (String)revision.data().get(EresourcePackage.eINSTANCE.getCDOResourceNode_Name(), 0);
       boolean match = exactMatch || revisionName == null || name == null ? ObjectUtil.equals(revisionName, name)
           : revisionName.startsWith(name);
 
@@ -308,20 +309,11 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
 
       // TODO Can this happen? When?
       final long longID = CDOIDUtil.getLong(id);
-      return CDOIDHibernateFactoryImpl.getInstance().createCDOID(longID, CDOResourceNodeClass.NAME);
+      return CDOIDHibernateFactoryImpl.getInstance().createCDOID(longID,
+          EresourcePackage.eINSTANCE.getCDOResourceNode().getName());
     }
 
     return null;
-  }
-
-  private EStructuralFeature getResourceNameFeature()
-  {
-    return getResourceNodeClass().getCDONameFeature();
-  }
-
-  private CDOResourceNodeClass getResourceNodeClass()
-  {
-    return getStore().getRepository().getPackageRegistry().getCDOResourcePackage().getCDOResourceNodeClass();
   }
 
   /**
@@ -343,13 +335,13 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
   }
 
   @Override
-  public void write(CommitContext context, OMMonitor monitor)
+  public void write(IStoreAccessor.CommitContext context, OMMonitor monitor)
   {
     List<InternalCDORevision> adjustRevisions = new ArrayList<InternalCDORevision>();
     HibernateThreadContext.setCommitContext(context);
-    if (context.getNewPackages().length > 0)
+    if (context.getNewPackageUnits().length > 0)
     {
-      writePackageUnits(context.getNewPackages(), monitor);
+      writePackageUnits(context.getNewPackageUnits(), monitor);
     }
     try
     {
@@ -375,7 +367,8 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
         session.delete(revision);
       }
 
-      final List<CDORevision> cdoRevisions = Arrays.asList(context.getNewObjects());
+      // TODO Martin: Why create an additional list?
+      final List<InternalCDORevision> cdoRevisions = Arrays.asList(context.getNewObjects());
 
       // keep track for which cdoRevisions the container id needs to be repaired afterwards
       final List<InternalCDORevision> repairContainerIDs = new ArrayList<InternalCDORevision>();
@@ -464,12 +457,11 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
     HibernateThreadContext.setCommitContext(null);
   }
 
-  @Override
-  protected void writePackageUnits(InternalCDOPackageUnit[] packageUnits, OMMonitor monitor)
+  public void writePackageUnits(InternalCDOPackageUnit[] packageUnits, OMMonitor monitor)
   {
     if (packageUnits != null && packageUnits.length != 0)
     {
-      getStore().getPackageHandler().writePackages(packageUnits);
+      getStore().getPackageHandler().writePackageUnits(packageUnits);
     }
 
     // Set a new hibernatesession in the thread

@@ -11,6 +11,8 @@
  */
 package org.eclipse.emf.cdo.server.internal.hibernate.tuplizer;
 
+import org.eclipse.emf.cdo.common.model.EMFUtil;
+import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.server.internal.hibernate.HibernateStore;
 import org.eclipse.emf.cdo.server.internal.hibernate.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
@@ -80,7 +82,7 @@ public class CDORevisionTuplizer extends AbstractEntityTuplizer
         continue;
       }
 
-      for (EClass localCdoClass : ePackage.getClasses())
+      for (EClass localCdoClass : EMFUtil.getPersistentClasses(ePackage))
       {
         if (localCdoClass.getName().compareTo(entityName) == 0)
         {
@@ -90,9 +92,9 @@ public class CDORevisionTuplizer extends AbstractEntityTuplizer
       }
     }
 
-    if (eClass == null && ePackageURI.compareTo(CDOResourcePackage.PACKAGE_URI) == 0)
+    if (eClass == null && ePackageURI.compareTo(EresourcePackage.eINSTANCE.getNsURI()) == 0)
     {
-      for (EClass localCdoClass : hbStore.getRepository().getPackageRegistry().getCDOResourcePackage().getClasses())
+      for (EClass localCdoClass : EMFUtil.getPersistentClasses(EresourcePackage.eINSTANCE))
       {
         if (localCdoClass.getName().compareTo(entityName) == 0)
         {
@@ -216,7 +218,7 @@ public class CDORevisionTuplizer extends AbstractEntityTuplizer
       return new CDOContainingFeatureIDGetter(this, mappedProperty.getName());
     }
 
-    EStructuralFeature feature = getEClass().lookupFeature(mappedProperty.getName());
+    EStructuralFeature feature = getEClass().getEStructuralFeature(mappedProperty.getName());
     if (feature instanceof EReference && feature.isMany())
     {
       return new CDOManyReferenceGetter(this, mappedProperty.getName());
@@ -242,34 +244,40 @@ public class CDORevisionTuplizer extends AbstractEntityTuplizer
     {
       return mappedProperty.getSetter(mappedEntity.getMappedClass());
     }
-    else if (mappedProperty == mappedEntity.getIdentifierProperty())
+
+    if (mappedProperty == mappedEntity.getIdentifierProperty())
     {
       return new CDOIDPropertySetter(this, mappedProperty.getName());
     }
-    else if (mappedProperty == mappedEntity.getVersion())
+
+    if (mappedProperty == mappedEntity.getVersion())
     {
       return new CDOVersionPropertySetter(this, mappedProperty.getName());
     }
+
     // TODO: externalize this
-    else if (mappedProperty.getName().compareTo("resourceID") == 0)
+    if (mappedProperty.getName().compareTo("resourceID") == 0)
     {
       return new CDOResourceIDSetter(this, mappedProperty.getName());
     }
-    else if (mappedProperty.getName().compareTo("containerID") == 0)
+
+    if (mappedProperty.getName().compareTo("containerID") == 0)
     {
       return new CDOContainerIDSetter(this, mappedProperty.getName());
     }
-    else if (mappedProperty.getName().compareTo("containingFeatureID") == 0)
+
+    if (mappedProperty.getName().compareTo("containingFeatureID") == 0)
     {
       return new CDOContainingFeatureIDSetter(this, mappedProperty.getName());
     }
 
-    EStructuralFeature feature = getEClass().lookupFeature(mappedProperty.getName());
+    EStructuralFeature feature = getEClass().getEStructuralFeature(mappedProperty.getName());
     if (feature instanceof EReference && feature.isMany())
     {
       return new CDOManyReferenceSetter(this, mappedProperty.getName());
     }
-    else if (feature instanceof EReference)
+
+    if (feature instanceof EReference)
     {
       return new CDOReferenceSetter(this, mappedProperty.getName());
     }

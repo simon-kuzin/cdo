@@ -182,7 +182,7 @@ public class HibernateUtil
    * Gets a current object, first checks the new and dirty objects from the commitcontent. Otherwise reads it from the
    * session.
    */
-  public CDORevision getCDORevision(CDOID id)
+  public InternalCDORevision getCDORevision(CDOID id)
   {
     if (CDOIDUtil.isNull(id))
     {
@@ -192,11 +192,12 @@ public class HibernateUtil
     if (HibernateThreadContext.isHibernateCommitContextSet())
     {
       final HibernateCommitContext hcc = HibernateThreadContext.getHibernateCommitContext();
-      CDORevision revision;
+      InternalCDORevision revision;
       if ((revision = hcc.getDirtyObject(id)) != null)
       {
         return revision;
       }
+
       if ((revision = hcc.getNewObject(id)) != null)
       {
         return revision;
@@ -221,10 +222,10 @@ public class HibernateUtil
 
     final CDOIDHibernate cdoIDHibernate = (CDOIDHibernate)id;
     final Session session = getHibernateSession();
-    return (CDORevision)session.get(cdoIDHibernate.getEntityName(), cdoIDHibernate.getId());
+    return (InternalCDORevision)session.get(cdoIDHibernate.getEntityName(), cdoIDHibernate.getId());
   }
 
-  public CDORevision getCDORevisionNullable(CDOID id)
+  public InternalCDORevision getCDORevisionNullable(CDOID id)
   {
     if (CDOIDUtil.isNull(id))
     {
@@ -234,11 +235,12 @@ public class HibernateUtil
     if (HibernateThreadContext.isHibernateCommitContextSet())
     {
       final HibernateCommitContext hcc = HibernateThreadContext.getHibernateCommitContext();
-      CDORevision revision;
+      InternalCDORevision revision;
       if ((revision = hcc.getDirtyObject(id)) != null)
       {
         return revision;
       }
+
       if ((revision = hcc.getNewObject(id)) != null)
       {
         return revision;
@@ -262,6 +264,6 @@ public class HibernateUtil
 
     final CDOIDHibernate cdoIDHibernate = (CDOIDHibernate)id;
     final Session session = getHibernateSession();
-    return (CDORevision)session.get(cdoIDHibernate.getEntityName(), cdoIDHibernate.getId());
+    return (InternalCDORevision)session.get(cdoIDHibernate.getEntityName(), cdoIDHibernate.getId());
   }
 }
