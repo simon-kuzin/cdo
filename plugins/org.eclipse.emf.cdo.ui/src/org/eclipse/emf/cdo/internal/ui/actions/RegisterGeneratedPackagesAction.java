@@ -46,8 +46,7 @@ public class RegisterGeneratedPackagesAction extends RegisterPackagesAction
   {
     Shell shell = page.getWorkbenchWindow().getShell();
     SelectPackageDialog dialog = new SelectPackageDialog(shell, "Generated Packages",
-        "Select one or more packages for registration with the CDO package registry", session.getPackageRegistry()
-            .keySet());
+        "Select one or more packages for registration with the CDO package registry", session.getPackageRegistry());
 
     if (dialog.open() == SelectPackageDialog.OK)
     {
