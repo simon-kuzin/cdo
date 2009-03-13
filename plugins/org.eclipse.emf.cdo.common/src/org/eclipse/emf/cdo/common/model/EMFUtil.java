@@ -42,10 +42,14 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
 /**
  * @author Eike Stepper
@@ -55,6 +59,22 @@ public final class EMFUtil
 {
   private EMFUtil()
   {
+  }
+
+  public static Map.Entry<String, Object>[] getSortedRegistryEntries(EPackage.Registry packageRegistry)
+  {
+    Set<Map.Entry<String, Object>> entries = packageRegistry.entrySet();
+    @SuppressWarnings("unchecked")
+    Map.Entry<String, Object>[] array = entries.toArray(new Entry[entries.size()]);
+    Arrays.sort(array, new Comparator<Map.Entry<String, Object>>()
+    {
+      public int compare(Map.Entry<String, Object> o1, Map.Entry<String, Object> o2)
+      {
+        return o1.getKey().compareTo(o2.getKey());
+      }
+    });
+  
+    return array;
   }
 
   public static void registerPackage(EPackage ePackage, EPackage.Registry... packageRegistries)

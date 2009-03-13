@@ -12,8 +12,8 @@
 package org.eclipse.emf.cdo.internal.ui.editor;
 
 import org.eclipse.emf.cdo.CDOObject;
-import org.eclipse.emf.cdo.common.model.CDOPackageRegistryPopulator;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
+import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistryPopulator.Descriptor;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.internal.ui.SharedIcons;
@@ -155,7 +155,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -2080,38 +2079,12 @@ public class CDOEditor extends MultiPageEditorPart implements IEditingDomainProv
   {
     boolean populated = false;
     InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)view.getSession().getPackageRegistry();
-    Collection<Object> registryValues = packageRegistry.values();
-    Object[] registryArray = registryValues.toArray();
-    Arrays.sort(registryArray, new Comparator<Object>()
+    for (Map.Entry<String, Object> entry : EMFUtil.getSortedRegistryEntries(packageRegistry))
     {
-      public int compare(Object o1, Object o2)
+      Object value = entry.getValue();
+      if (value instanceof EPackage)
       {
-        String nsURI1 = getURI(o1);
-        String nsURI2 = getURI(o2);
-        return nsURI1.compareTo(nsURI2);
-      }
-
-      private String getURI(Object o1)
-      {
-        if (o1 instanceof EPackage)
-        {
-          return ((EPackage)o1).getNsURI();
-        }
-
-        if (o1 instanceof CDOPackageRegistryPopulator.Descriptor)
-        {
-          return ((CDOPackageRegistryPopulator.Descriptor)o1).getNsURI();
-        }
-
-        return o1.toString();
-      }
-    });
-
-    for (Object entry : registryArray)
-    {
-      if (entry instanceof EPackage)
-      {
-        EPackage ePackage = (EPackage)entry;
+        EPackage ePackage = (EPackage)value;
         CDOPackageUnit packageUnit = packageRegistry.getPackageUnit(ePackage);
 
         // TODO Allow system packages?
@@ -2151,10 +2124,10 @@ public class CDOEditor extends MultiPageEditorPart implements IEditingDomainProv
         }
       }
 
-      if (entry instanceof Descriptor)
+      if (value instanceof Descriptor)
       {
 
-        Descriptor descriptor = (Descriptor)entry;
+        Descriptor descriptor = (Descriptor)value;
         LoadDescriptorAction action = new LoadDescriptorAction(descriptor);
         menuManager.add(action);
       }

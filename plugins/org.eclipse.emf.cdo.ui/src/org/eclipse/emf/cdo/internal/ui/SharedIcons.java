@@ -58,7 +58,7 @@ public class SharedIcons
 
   public static final String OBJ_EPACKAGE_DYNAMIC = OBJ + "EPackageDynamic";
 
-  public static final String OBJ_EPACKAGE_UNKNOWN = OBJ + "EPackageUnkown";
+  public static final String OBJ_EPACKAGE_UNKNOWN = OBJ + "EPackageUnknown";
 
   public static final String OBJ_ECLASS = OBJ + "EClass";
 

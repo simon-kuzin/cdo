@@ -13,7 +13,7 @@ package org.eclipse.emf.cdo.internal.ui.dialogs;
 
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageTypeRegistry;
-import org.eclipse.emf.cdo.common.model.CDOPackageRegistryPopulator.Descriptor;
+import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit.Type;
 import org.eclipse.emf.cdo.internal.ui.SharedIcons;
 import org.eclipse.emf.cdo.internal.ui.actions.RegisterFilesystemPackagesAction;
@@ -30,11 +30,13 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
 import org.eclipse.jface.viewers.BaseLabelProvider;
+import org.eclipse.jface.viewers.IColorProvider;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -46,6 +48,8 @@ import org.eclipse.ui.IWorkbenchPage;
 import javax.swing.text.AbstractDocument.Content;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * @author Eike Stepper
@@ -59,6 +63,8 @@ public class PackageManagerDialog extends TitleAreaDialog
   private static final int REGISTER_FILESYSTEM_PACKAGES_ID = IDialogConstants.CLIENT_ID + 3;
 
   private static final String TITLE = "CDO Package Manager";
+
+  private static final Color GRAY = UIUtil.getDisplay().getSystemColor(SWT.COLOR_GRAY);
 
   private IWorkbenchPage page;
 
@@ -93,10 +99,9 @@ public class PackageManagerDialog extends TitleAreaDialog
 
     table.setHeaderVisible(true);
     table.setLayoutData(UIUtil.createGridData());
-    addColumn(table, "Package", 400, SWT.LEFT);
+    addColumn(table, "Package", 450, SWT.LEFT);
     addColumn(table, "State", 80, SWT.CENTER);
     addColumn(table, "Type", 80, SWT.CENTER);
-    addColumn(table, "Original Type", 110, SWT.CENTER);
 
     viewer.setContentProvider(new EPackageContentProvider());
     viewer.setLabelProvider(new EPackageLabelProvider());
@@ -190,7 +195,7 @@ public class PackageManagerDialog extends TitleAreaDialog
   /**
    * @author Eike Stepper
    */
-  public class EPackageLabelProvider extends BaseLabelProvider implements ITableLabelProvider
+  public class EPackageLabelProvider extends BaseLabelProvider implements ITableLabelProvider, IColorProvider
   {
     public EPackageLabelProvider()
     {
@@ -198,9 +203,12 @@ public class PackageManagerDialog extends TitleAreaDialog
 
     public String getColumnText(Object element, int columnIndex)
     {
-      if (element instanceof EPackage)
+      @SuppressWarnings("unchecked")
+      Map.Entry<String, Object> entry = (Entry<String, Object>)element;
+      Object value = entry.getValue();
+      if (value instanceof EPackage)
       {
-        CDOPackageInfo packageInfo = session.getPackageRegistry().getPackageInfo((EPackage)element);
+        CDOPackageInfo packageInfo = session.getPackageRegistry().getPackageInfo((EPackage)value);
         switch (columnIndex)
         {
         case 0:
@@ -211,42 +219,31 @@ public class PackageManagerDialog extends TitleAreaDialog
 
         case 2:
           return packageInfo.getPackageUnit().getType().toString();
-
-        case 3:
-          return packageInfo.getPackageUnit().getOriginalType().toString();
         }
       }
 
-      if (element instanceof Descriptor)
+      switch (columnIndex)
       {
-        Descriptor descriptor = (Descriptor)element;
-        switch (columnIndex)
-        {
-        case 0:
-          return descriptor.getNsURI();
+      case 0:
+        return entry.getKey();
 
-        case 2:
-          return "?";
-
-        default:
-          return "?";
-        }
+      default:
+        return "?";
       }
-
-      return element.toString();
     }
 
     public Image getColumnImage(Object element, int columnIndex)
     {
       if (columnIndex == 0)
       {
-        if (element instanceof EPackage)
+        @SuppressWarnings("unchecked")
+        Map.Entry<String, Object> entry = (Entry<String, Object>)element;
+        Object value = entry.getValue();
+        if (value instanceof EPackage)
         {
-          Type type = CDOPackageTypeRegistry.INSTANCE.lookup((EPackage)element);
-
+          Type type = CDOPackageTypeRegistry.INSTANCE.lookup((EPackage)value);
           switch (type)
           {
-
           case LEGACY:
             return SharedIcons.getDescriptor(SharedIcons.OBJ_EPACKAGE_LEGACY).createImage();
 
@@ -255,14 +252,31 @@ public class PackageManagerDialog extends TitleAreaDialog
 
           case DYNAMIC:
             return SharedIcons.getDescriptor(SharedIcons.OBJ_EPACKAGE_DYNAMIC).createImage();
-
-          default:
-            return SharedIcons.getDescriptor(SharedIcons.OBJ_EPACKAGE_UNKNOWN).createImage();
           }
         }
+
+        return SharedIcons.getDescriptor(SharedIcons.OBJ_EPACKAGE_UNKNOWN).createImage();
       }
 
       return null;
+    }
+
+    public Color getBackground(Object element)
+    {
+      return null;
+    }
+
+    public Color getForeground(Object element)
+    {
+      @SuppressWarnings("unchecked")
+      Map.Entry<String, Object> entry = (Entry<String, Object>)element;
+      Object value = entry.getValue();
+      if (value instanceof EPackage)
+      {
+        return null;
+      }
+
+      return GRAY;
     }
   }
 
@@ -301,7 +315,7 @@ public class PackageManagerDialog extends TitleAreaDialog
         return NO_ELEMENTS;
       }
 
-      return session.getPackageRegistry().values().toArray();
+      return EMFUtil.getSortedRegistryEntries(session.getPackageRegistry());
     }
   }
 }
