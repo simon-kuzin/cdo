@@ -12,7 +12,9 @@
 package org.eclipse.emf.cdo.internal.ui.editor;
 
 import org.eclipse.emf.cdo.CDOObject;
+import org.eclipse.emf.cdo.common.model.CDOPackageRegistryPopulator;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
+import org.eclipse.emf.cdo.common.model.CDOPackageRegistryPopulator.Descriptor;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.internal.ui.SharedIcons;
 import org.eclipse.emf.cdo.internal.ui.bundle.OM;
@@ -2078,56 +2080,83 @@ public class CDOEditor extends MultiPageEditorPart implements IEditingDomainProv
   {
     boolean populated = false;
     InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)view.getSession().getPackageRegistry();
-    EPackage[] ePackages = packageRegistry.getEPackages();
-
-    Arrays.sort(ePackages, new Comparator<EPackage>()
+    Collection<Object> registryValues = packageRegistry.values();
+    Object[] registryArray = registryValues.toArray();
+    Arrays.sort(registryArray, new Comparator<Object>()
     {
-      public int compare(EPackage o1, EPackage o2)
+      public int compare(Object o1, Object o2)
       {
-        return o1.getNsURI().compareTo(o2.getNsURI());
+        String nsURI1 = getURI(o1);
+        String nsURI2 = getURI(o2);
+        return nsURI1.compareTo(nsURI2);
+      }
+
+      private String getURI(Object o1)
+      {
+        if (o1 instanceof EPackage)
+        {
+          return ((EPackage)o1).getNsURI();
+        }
+
+        if (o1 instanceof CDOPackageRegistryPopulator.Descriptor)
+        {
+          return ((CDOPackageRegistryPopulator.Descriptor)o1).getNsURI();
+        }
+
+        return o1.toString();
       }
     });
 
-    for (Object entry : ePackages)
+    for (Object entry : registryArray)
     {
-      EPackage ePackage = (EPackage)entry;
-      CDOPackageUnit packageUnit = packageRegistry.getPackageUnit(ePackage);
-
-      // TODO Allow system packages?
-      if (packageUnit.isSystem())
+      if (entry instanceof EPackage)
       {
-        continue;
-      }
+        EPackage ePackage = (EPackage)entry;
+        CDOPackageUnit packageUnit = packageRegistry.getPackageUnit(ePackage);
 
-      List<EClass> eClasses = new ArrayList<EClass>();
-      for (EClassifier eClassifier : ePackage.getEClassifiers())
-      {
-        if (eClassifier instanceof EClass)
+        // TODO Allow system packages?
+        if (packageUnit.isSystem())
         {
-          eClasses.add((EClass)eClassifier);
+          continue;
+        }
+
+        List<EClass> eClasses = new ArrayList<EClass>();
+        for (EClassifier eClassifier : ePackage.getEClassifiers())
+        {
+          if (eClassifier instanceof EClass)
+          {
+            eClasses.add((EClass)eClassifier);
+          }
+        }
+
+        Collections.sort(eClasses, new Comparator<EClass>()
+        {
+          public int compare(EClass o1, EClass o2)
+          {
+            return o1.getName().compareTo(o2.getName());
+          }
+        });
+
+        if (!eClasses.isEmpty())
+        {
+          MenuManager submenuManager = new MenuManager(ePackage.getNsURI());
+          for (EClass eClass : eClasses)
+          {
+            // TODO Optimize/cache this?
+            CreateRootAction action = new CreateRootAction(eClass);
+            submenuManager.add(action);
+            populated = true;
+            menuManager.add(submenuManager);
+          }
         }
       }
 
-      Collections.sort(eClasses, new Comparator<EClass>()
+      if (entry instanceof Descriptor)
       {
-        public int compare(EClass o1, EClass o2)
-        {
-          return o1.getName().compareTo(o2.getName());
-        }
-      });
 
-      if (!eClasses.isEmpty())
-      {
-        MenuManager submenuManager = new MenuManager(ePackage.getNsURI());
-
-        for (EClass eClass : eClasses)
-        {
-          // TODO Optimize/cache this?
-          CreateRootAction action = new CreateRootAction(eClass);
-          submenuManager.add(action);
-          populated = true;
-          menuManager.add(submenuManager);
-        }
+        Descriptor descriptor = (Descriptor)entry;
+        LoadDescriptorAction action = new LoadDescriptorAction(descriptor);
+        menuManager.add(action);
       }
     }
 
@@ -2401,6 +2430,38 @@ public class CDOEditor extends MultiPageEditorPart implements IEditingDomainProv
         InternalCDOObject object = (InternalCDOObject)EcoreUtil.create(eClass);
         resource.getContents().add(object.cdoInternalInstance());
       }
+    }
+  }
+
+  /**
+   * @ADDED
+   * @author Victor Roldan
+   */
+
+  private final class LoadDescriptorAction extends LongRunningAction
+  {
+    private Descriptor descriptor;
+
+    private LoadDescriptorAction(Descriptor ePackageDescriptor)
+    {
+      super(getEditorSite().getPage(), "{" + ePackageDescriptor.getNsURI() + "}", SharedIcons
+          .getDescriptor(SharedIcons.OBJ_EPACKAGE_DYNAMIC));
+      descriptor = ePackageDescriptor;
+    }
+
+    @Override
+    protected void doRun(IProgressMonitor progressMonitor) throws Exception
+    {
+      EPackage ePackage = descriptor.getEPackage();
+      if (ePackage != null)
+      {
+        view.getSession().getPackageRegistry().put(ePackage.getNsURI(), ePackage);
+      }
+      else
+      {
+        OM.LOG.warn("Could not load descriptor for EPackage " + descriptor.getNsURI());
+      }
+
     }
   }
 

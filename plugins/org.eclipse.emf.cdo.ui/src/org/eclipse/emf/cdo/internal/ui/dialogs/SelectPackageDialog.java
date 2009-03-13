@@ -11,8 +11,8 @@
  */
 package org.eclipse.emf.cdo.internal.ui.dialogs;
 
-import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
-import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
+import org.eclipse.emf.cdo.common.model.CDOPackageTypeRegistry;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit.Type;
 import org.eclipse.emf.cdo.internal.ui.SharedIcons;
 import org.eclipse.emf.cdo.internal.ui.bundle.OM;
 
@@ -52,24 +52,10 @@ public class SelectPackageDialog extends BaseDialog<CheckboxTableViewer>
 
   private Set<String> checkedURIs = new HashSet<String>();
 
-  private CDOPackageRegistry registry;
-
-  protected SelectPackageDialog(Shell shell, String title, String message, CDOPackageRegistry registry,
-      Set<String> excludedURIs)
-  {
-    super(shell, DEFAULT_SHELL_STYLE | SWT.APPLICATION_MODAL, title, message, OM.Activator.INSTANCE.getDialogSettings());
-    this.registry = registry;
-    this.excludedURIs = excludedURIs;
-  }
-
   public SelectPackageDialog(Shell shell, String title, String message, Set<String> excludedURIs)
   {
-    this(shell, title, message, null, excludedURIs);
-  }
-
-  public SelectPackageDialog(Shell shell, String title, String message, CDOPackageRegistry registry)
-  {
-    this(shell, title, message, registry, registry.keySet());
+    super(shell, DEFAULT_SHELL_STYLE | SWT.APPLICATION_MODAL, title, message, OM.Activator.INSTANCE.getDialogSettings());
+    this.excludedURIs = excludedURIs;
   }
 
   public SelectPackageDialog(Shell shell, String title, String message)
@@ -163,27 +149,20 @@ public class SelectPackageDialog extends BaseDialog<CheckboxTableViewer>
     {
       if (element instanceof String)
       {
-        EPackage ePackage = EPackage.Registry.INSTANCE.getEPackage((String)element);
-        CDOPackageUnit unit = null;
-
-        if (registry != null)
-        {
-          registry.getPackageUnit(ePackage);
-        }
-
-        // FIXME if EPackage is not registered, can't determine type
-        if (unit == null)
-        {
-          return SharedIcons.getImage(SharedIcons.OBJ_EPACKAGE_LEGACY);
-        }
-
-        switch (unit.getType())
+        Type type = CDOPackageTypeRegistry.INSTANCE.lookup((String)element);
+        switch (type)
         {
         case LEGACY:
           return SharedIcons.getImage(SharedIcons.OBJ_EPACKAGE_LEGACY);
 
         case NATIVE:
           return SharedIcons.getImage(SharedIcons.OBJ_EPACKAGE_NATIVE);
+
+        case DYNAMIC:
+          return SharedIcons.getImage(SharedIcons.OBJ_EPACKAGE_DYNAMIC);
+
+        case UNKNOWN:
+          return SharedIcons.getImage(SharedIcons.OBJ_EPACKAGE_UNKNOWN);
         }
       }
 

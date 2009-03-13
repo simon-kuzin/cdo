@@ -12,6 +12,9 @@
 package org.eclipse.emf.cdo.internal.ui.dialogs;
 
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
+import org.eclipse.emf.cdo.common.model.CDOPackageTypeRegistry;
+import org.eclipse.emf.cdo.common.model.CDOPackageRegistryPopulator.Descriptor;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit.Type;
 import org.eclipse.emf.cdo.internal.ui.SharedIcons;
 import org.eclipse.emf.cdo.internal.ui.actions.RegisterFilesystemPackagesAction;
 import org.eclipse.emf.cdo.internal.ui.actions.RegisterGeneratedPackagesAction;
@@ -93,7 +96,7 @@ public class PackageManagerDialog extends TitleAreaDialog
     addColumn(table, "Package", 400, SWT.LEFT);
     addColumn(table, "State", 80, SWT.CENTER);
     addColumn(table, "Type", 80, SWT.CENTER);
-    addColumn(table, "Original Type", 80, SWT.CENTER);
+    addColumn(table, "Original Type", 110, SWT.CENTER);
 
     viewer.setContentProvider(new EPackageContentProvider());
     viewer.setLabelProvider(new EPackageLabelProvider());
@@ -214,17 +217,48 @@ public class PackageManagerDialog extends TitleAreaDialog
         }
       }
 
+      if (element instanceof Descriptor)
+      {
+        Descriptor descriptor = (Descriptor)element;
+        switch (columnIndex)
+        {
+        case 0:
+          return descriptor.getNsURI();
+
+        case 2:
+          return "?";
+
+        default:
+          return "?";
+        }
+      }
+
       return element.toString();
     }
 
     public Image getColumnImage(Object element, int columnIndex)
     {
-      if (element instanceof Content)
+      if (columnIndex == 0)
       {
-        Content content = (Content)element;
-        if (columnIndex == 0)
+        if (element instanceof EPackage)
         {
-          return getContentIcon(content);
+          Type type = CDOPackageTypeRegistry.INSTANCE.lookup((EPackage)element);
+
+          switch (type)
+          {
+
+          case LEGACY:
+            return SharedIcons.getDescriptor(SharedIcons.OBJ_EPACKAGE_LEGACY).createImage();
+
+          case NATIVE:
+            return SharedIcons.getDescriptor(SharedIcons.OBJ_EPACKAGE_NATIVE).createImage();
+
+          case DYNAMIC:
+            return SharedIcons.getDescriptor(SharedIcons.OBJ_EPACKAGE_DYNAMIC).createImage();
+
+          default:
+            return SharedIcons.getDescriptor(SharedIcons.OBJ_EPACKAGE_UNKNOWN).createImage();
+          }
         }
       }
 

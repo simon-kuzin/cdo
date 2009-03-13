@@ -11,7 +11,8 @@
  */
 package org.eclipse.emf.cdo.internal.ui.actions;
 
-import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
+import org.eclipse.emf.cdo.common.model.CDOPackageTypeRegistry;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit.Type;
 import org.eclipse.emf.cdo.internal.ui.SharedIcons;
 import org.eclipse.emf.cdo.session.CDOSession;
 
@@ -32,10 +33,9 @@ public class RegisterSinglePackageAction extends RegisterPackagesAction
 
   private EPackage.Registry registry = EPackage.Registry.INSTANCE;
 
-  public RegisterSinglePackageAction(IWorkbenchPage page, CDOSession session, String packageURI,
-      CDOPackageUnit packageUnit)
+  public RegisterSinglePackageAction(IWorkbenchPage page, CDOSession session, String packageURI)
   {
-    super(page, packageURI, "Register the package " + packageURI, getDescriptor(packageUnit), session);
+    super(page, packageURI, "Register the package " + packageURI, getDescriptor(packageURI), session);
     this.packageURI = packageURI;
   }
 
@@ -51,15 +51,23 @@ public class RegisterSinglePackageAction extends RegisterPackagesAction
     return Collections.emptyList();
   }
 
-  private static ImageDescriptor getDescriptor(CDOPackageUnit packageUnit)
+  private static ImageDescriptor getDescriptor(String nsURI)
   {
-    switch (packageUnit.getType())
+    Type type = CDOPackageTypeRegistry.INSTANCE.lookup(nsURI);
+
+    switch (type)
     {
     case LEGACY:
       return SharedIcons.getDescriptor(SharedIcons.OBJ_EPACKAGE_LEGACY);
 
     case NATIVE:
       return SharedIcons.getDescriptor(SharedIcons.OBJ_EPACKAGE_NATIVE);
+
+    case DYNAMIC:
+      return SharedIcons.getDescriptor(SharedIcons.OBJ_EPACKAGE_DYNAMIC);
+
+    case UNKNOWN:
+      return SharedIcons.getDescriptor(SharedIcons.OBJ_EPACKAGE_UNKNOWN);
 
     default:
       return null;

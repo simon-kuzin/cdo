@@ -12,7 +12,8 @@
 package org.eclipse.emf.cdo.ui;
 
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
-import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
+import org.eclipse.emf.cdo.common.model.CDOPackageTypeRegistry;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit.Type;
 import org.eclipse.emf.cdo.internal.ui.SharedIcons;
 import org.eclipse.emf.cdo.internal.ui.actions.CloseSessionAction;
 import org.eclipse.emf.cdo.internal.ui.actions.CloseViewAction;
@@ -241,15 +242,24 @@ public class CDOItemProvider extends ContainerItemProvider<IContainer<Object>>
     });
 
     boolean added = false;
+    CDOPackageRegistry packageRegistry = session.getPackageRegistry();
+
     for (String packageURI : registeredURIs)
     {
-      CDOPackageRegistry packageRegistry = session.getPackageRegistry();
-      EPackage ePackage = packageRegistry.getEPackage(packageURI);
-      if (ePackage != null)
+      Type type = CDOPackageTypeRegistry.INSTANCE.lookup(packageURI);
+      if (type == Type.NATIVE)
       {
-        CDOPackageUnit packageUnit = packageRegistry.getPackageUnit(ePackage);
-        manager.add(new RegisterSinglePackageAction(page, session, packageURI, packageUnit));
-        added = true;
+        EPackage ePackage = packageRegistry.getEPackage(packageURI);
+        if (ePackage == null)
+        {
+          ePackage = EPackage.Registry.INSTANCE.getEPackage(packageURI);
+        }
+
+        if (ePackage != null)
+        {
+          manager.add(new RegisterSinglePackageAction(page, session, packageURI));
+          added = true;
+        }
       }
     }
 
