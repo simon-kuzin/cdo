@@ -54,7 +54,6 @@ public class RegisterSinglePackageAction extends RegisterPackagesAction
   private static ImageDescriptor getDescriptor(String nsURI)
   {
     Type type = CDOPackageTypeRegistry.INSTANCE.lookup(nsURI);
-
     switch (type)
     {
     case LEGACY:

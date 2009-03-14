@@ -11,8 +11,8 @@
  */
 package org.eclipse.emf.cdo.internal.ui.dialogs;
 
+import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
-import org.eclipse.emf.cdo.common.model.CDOPackageTypeRegistry;
 import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit.Type;
 import org.eclipse.emf.cdo.internal.ui.SharedIcons;
@@ -38,6 +38,7 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
@@ -47,14 +48,16 @@ import org.eclipse.ui.IWorkbenchPage;
 
 import javax.swing.text.AbstractDocument.Content;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 /**
  * @author Eike Stepper
  */
-public class PackageManagerDialog extends TitleAreaDialog
+public class PackageRegistryDialog extends TitleAreaDialog
 {
   private static final int REGISTER_GENERATED_PACKAGES_ID = IDialogConstants.CLIENT_ID + 1;
 
@@ -62,7 +65,7 @@ public class PackageManagerDialog extends TitleAreaDialog
 
   private static final int REGISTER_FILESYSTEM_PACKAGES_ID = IDialogConstants.CLIENT_ID + 3;
 
-  private static final String TITLE = "CDO Package Manager";
+  private static final String TITLE = "CDO Package Registry";
 
   private static final Color GRAY = UIUtil.getDisplay().getSystemColor(SWT.COLOR_GRAY);
 
@@ -72,7 +75,7 @@ public class PackageManagerDialog extends TitleAreaDialog
 
   private TableViewer viewer;
 
-  public PackageManagerDialog(IWorkbenchPage page, CDOSession session)
+  public PackageRegistryDialog(IWorkbenchPage page, CDOSession session)
   {
     super(new Shell(page.getWorkbenchWindow().getShell()));
     this.page = page;
@@ -102,6 +105,7 @@ public class PackageManagerDialog extends TitleAreaDialog
     addColumn(table, "Package", 450, SWT.LEFT);
     addColumn(table, "State", 80, SWT.CENTER);
     addColumn(table, "Type", 80, SWT.CENTER);
+    addColumn(table, "Original", 80, SWT.CENTER);
 
     viewer.setContentProvider(new EPackageContentProvider());
     viewer.setLabelProvider(new EPackageLabelProvider());
@@ -113,10 +117,19 @@ public class PackageManagerDialog extends TitleAreaDialog
   @Override
   protected void createButtonsForButtonBar(Composite parent)
   {
-    createButton(parent, REGISTER_GENERATED_PACKAGES_ID, "Generated...", false);
+    Button button = createButton(parent, REGISTER_GENERATED_PACKAGES_ID, "Generated...", false);
+    button.setEnabled(isGlobalPackageAvaliable());
+
     createButton(parent, REGISTER_WORKSPACE_PACKAGES_ID, "Workspace...", false);
     createButton(parent, REGISTER_FILESYSTEM_PACKAGES_ID, "Filesystem...", false);
     createButton(parent, IDialogConstants.CLOSE_ID, IDialogConstants.CLOSE_LABEL, false);
+  }
+
+  private boolean isGlobalPackageAvaliable()
+  {
+    Set<String> uris = new HashSet<String>(EPackage.Registry.INSTANCE.keySet());
+    uris.removeAll(session.getPackageRegistry().keySet());
+    return !uris.isEmpty();
   }
 
   @Override
@@ -205,10 +218,9 @@ public class PackageManagerDialog extends TitleAreaDialog
     {
       @SuppressWarnings("unchecked")
       Map.Entry<String, Object> entry = (Entry<String, Object>)element;
-      Object value = entry.getValue();
-      if (value instanceof EPackage)
+      CDOPackageInfo packageInfo = CDOModelUtil.getPackageInfo(entry.getValue(), session.getPackageRegistry());
+      if (packageInfo != null)
       {
-        CDOPackageInfo packageInfo = session.getPackageRegistry().getPackageInfo((EPackage)value);
         switch (columnIndex)
         {
         case 0:
@@ -218,7 +230,15 @@ public class PackageManagerDialog extends TitleAreaDialog
           return packageInfo.getPackageUnit().getState().toString();
 
         case 2:
+          if (packageInfo.getPackageUnit().getType() == Type.UNKNOWN)
+          {
+            return "?";
+          }
+
           return packageInfo.getPackageUnit().getType().toString();
+
+        case 3:
+          return packageInfo.getPackageUnit().getOriginalType().toString();
         }
       }
 
@@ -228,7 +248,7 @@ public class PackageManagerDialog extends TitleAreaDialog
         return entry.getKey();
 
       default:
-        return "?";
+        return "";
       }
     }
 
@@ -238,11 +258,10 @@ public class PackageManagerDialog extends TitleAreaDialog
       {
         @SuppressWarnings("unchecked")
         Map.Entry<String, Object> entry = (Entry<String, Object>)element;
-        Object value = entry.getValue();
-        if (value instanceof EPackage)
+        CDOPackageInfo packageInfo = CDOModelUtil.getPackageInfo(entry.getValue(), session.getPackageRegistry());
+        if (packageInfo != null)
         {
-          Type type = CDOPackageTypeRegistry.INSTANCE.lookup((EPackage)value);
-          switch (type)
+          switch (packageInfo.getPackageUnit().getType())
           {
           case LEGACY:
             return SharedIcons.getDescriptor(SharedIcons.OBJ_EPACKAGE_LEGACY).createImage();
@@ -270,8 +289,8 @@ public class PackageManagerDialog extends TitleAreaDialog
     {
       @SuppressWarnings("unchecked")
       Map.Entry<String, Object> entry = (Entry<String, Object>)element;
-      Object value = entry.getValue();
-      if (value instanceof EPackage)
+      CDOPackageInfo packageInfo = CDOModelUtil.getPackageInfo(entry.getValue(), session.getPackageRegistry());
+      if (packageInfo != null)
       {
         return null;
       }

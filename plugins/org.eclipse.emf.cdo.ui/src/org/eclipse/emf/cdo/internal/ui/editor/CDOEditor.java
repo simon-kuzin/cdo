@@ -12,6 +12,8 @@
 package org.eclipse.emf.cdo.internal.ui.editor;
 
 import org.eclipse.emf.cdo.CDOObject;
+import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
+import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistryPopulator.Descriptor;
@@ -20,7 +22,6 @@ import org.eclipse.emf.cdo.internal.ui.SharedIcons;
 import org.eclipse.emf.cdo.internal.ui.bundle.OM;
 import org.eclipse.emf.cdo.internal.ui.dialogs.BulkAddDialog;
 import org.eclipse.emf.cdo.internal.ui.dialogs.RollbackTransactionDialog;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.cdo.ui.CDOEditorInput;
 import org.eclipse.emf.cdo.ui.CDOEventHandler;
@@ -94,6 +95,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IStatusLineManager;
@@ -103,6 +106,7 @@ import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.DecoratingLabelProvider;
 import org.eclipse.jface.viewers.IContentProvider;
 import org.eclipse.jface.viewers.ILabelDecorator;
@@ -2078,62 +2082,88 @@ public class CDOEditor extends MultiPageEditorPart implements IEditingDomainProv
   protected boolean populateNewRoot(MenuManager menuManager)
   {
     boolean populated = false;
-    InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)view.getSession().getPackageRegistry();
+    CDOPackageRegistry packageRegistry = view.getSession().getPackageRegistry();
     for (Map.Entry<String, Object> entry : EMFUtil.getSortedRegistryEntries(packageRegistry))
     {
-      Object value = entry.getValue();
-      if (value instanceof EPackage)
+      IContributionItem item = populateSubMenu(entry.getKey(), entry.getValue(), packageRegistry);
+      if (item != null)
       {
-        EPackage ePackage = (EPackage)value;
-        CDOPackageUnit packageUnit = packageRegistry.getPackageUnit(ePackage);
-
-        // TODO Allow system packages?
-        if (packageUnit.isSystem())
-        {
-          continue;
-        }
-
-        List<EClass> eClasses = new ArrayList<EClass>();
-        for (EClassifier eClassifier : ePackage.getEClassifiers())
-        {
-          if (eClassifier instanceof EClass)
-          {
-            eClasses.add((EClass)eClassifier);
-          }
-        }
-
-        Collections.sort(eClasses, new Comparator<EClass>()
-        {
-          public int compare(EClass o1, EClass o2)
-          {
-            return o1.getName().compareTo(o2.getName());
-          }
-        });
-
-        if (!eClasses.isEmpty())
-        {
-          MenuManager submenuManager = new MenuManager(ePackage.getNsURI());
-          for (EClass eClass : eClasses)
-          {
-            // TODO Optimize/cache this?
-            CreateRootAction action = new CreateRootAction(eClass);
-            submenuManager.add(action);
-            populated = true;
-            menuManager.add(submenuManager);
-          }
-        }
-      }
-
-      if (value instanceof Descriptor)
-      {
-
-        Descriptor descriptor = (Descriptor)value;
-        LoadDescriptorAction action = new LoadDescriptorAction(descriptor);
-        menuManager.add(action);
+        menuManager.add(item);
+        populated = true;
       }
     }
 
     return populated;
+  }
+
+  private IContributionItem populateSubMenu(String nsURI, Object value, final CDOPackageRegistry packageRegistry)
+  {
+    ImageDescriptor imageDescriptor = SharedIcons.getDescriptor(SharedIcons.OBJ_EPACKAGE);
+    final MenuManager submenuManager = new MenuManager(nsURI, imageDescriptor, nsURI);
+    if (value instanceof EPackage)
+    {
+      EPackage ePackage = (EPackage)value;
+      CDOPackageInfo packageInfo = packageRegistry.getPackageInfo(ePackage);
+      CDOPackageUnit packageUnit = packageInfo.getPackageUnit();
+      if (packageUnit.isSystem())
+      {
+        return null;
+      }
+
+      populateSubMenu(ePackage, submenuManager);
+    }
+    else
+    {
+      submenuManager.add(new Action("Calculating...")
+      {
+      });
+
+      submenuManager.addMenuListener(new IMenuListener()
+      {
+        public void menuAboutToShow(IMenuManager manager)
+        {
+          String nsURI = submenuManager.getMenuText();
+          EPackage ePackage = packageRegistry.getEPackage(nsURI);
+          submenuManager.removeAll();
+          populateSubMenu(ePackage, submenuManager);
+        }
+      });
+    }
+
+    return submenuManager;
+  }
+
+  private void populateSubMenu(EPackage ePackage, final MenuManager submenuManager)
+  {
+    List<EClass> eClasses = new ArrayList<EClass>();
+    for (EClassifier eClassifier : ePackage.getEClassifiers())
+    {
+      if (eClassifier instanceof EClass)
+      {
+        EClass eClass = (EClass)eClassifier;
+        if (!eClass.isAbstract() && !eClass.isInterface())
+        {
+          eClasses.add(eClass);
+        }
+      }
+    }
+
+    if (!eClasses.isEmpty())
+    {
+      Collections.sort(eClasses, new Comparator<EClass>()
+      {
+        public int compare(EClass o1, EClass o2)
+        {
+          return o1.getName().compareTo(o2.getName());
+        }
+      });
+
+      for (EClass eClass : eClasses)
+      {
+        CreateRootAction action = new CreateRootAction(eClass);
+        submenuManager.add(action);
+      }
+    }
   }
 
   /**
