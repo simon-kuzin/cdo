@@ -243,22 +243,24 @@ public class CDOItemProvider extends ContainerItemProvider<IContainer<Object>>
 
     boolean added = false;
     CDOPackageRegistry packageRegistry = session.getPackageRegistry();
-
     for (String packageURI : registeredURIs)
     {
-      Type type = CDOPackageTypeRegistry.INSTANCE.lookup(packageURI);
-      if (type == Type.NATIVE)
+      if (!packageRegistry.containsKey(packageURI))
       {
-        EPackage ePackage = packageRegistry.getEPackage(packageURI);
-        if (ePackage == null)
+        Type type = CDOPackageTypeRegistry.INSTANCE.lookup(packageURI);
+        if (type == Type.NATIVE)
         {
-          ePackage = EPackage.Registry.INSTANCE.getEPackage(packageURI);
-        }
+          EPackage ePackage = packageRegistry.getEPackage(packageURI);
+          if (ePackage == null)
+          {
+            ePackage = EPackage.Registry.INSTANCE.getEPackage(packageURI);
+          }
 
-        if (ePackage != null)
-        {
-          manager.add(new RegisterSinglePackageAction(page, session, packageURI));
-          added = true;
+          if (ePackage != null)
+          {
+            manager.add(new RegisterSinglePackageAction(page, session, packageURI));
+            added = true;
+          }
         }
       }
     }

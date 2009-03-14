@@ -16,7 +16,6 @@ import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.model.EMFUtil;
-import org.eclipse.emf.cdo.common.model.CDOPackageRegistryPopulator.Descriptor;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.internal.ui.SharedIcons;
 import org.eclipse.emf.cdo.internal.ui.bundle.OM;
@@ -2433,38 +2432,6 @@ public class CDOEditor extends MultiPageEditorPart implements IEditingDomainProv
         InternalCDOObject object = (InternalCDOObject)EcoreUtil.create(eClass);
         resource.getContents().add(object.cdoInternalInstance());
       }
-    }
-  }
-
-  /**
-   * @ADDED
-   * @author Victor Roldan
-   */
-
-  private final class LoadDescriptorAction extends LongRunningAction
-  {
-    private Descriptor descriptor;
-
-    private LoadDescriptorAction(Descriptor ePackageDescriptor)
-    {
-      super(getEditorSite().getPage(), "{" + ePackageDescriptor.getNsURI() + "}", SharedIcons
-          .getDescriptor(SharedIcons.OBJ_EPACKAGE_DYNAMIC));
-      descriptor = ePackageDescriptor;
-    }
-
-    @Override
-    protected void doRun(IProgressMonitor progressMonitor) throws Exception
-    {
-      EPackage ePackage = descriptor.getEPackage();
-      if (ePackage != null)
-      {
-        view.getSession().getPackageRegistry().put(ePackage.getNsURI(), ePackage);
-      }
-      else
-      {
-        OM.LOG.warn("Could not load descriptor for EPackage " + descriptor.getNsURI());
-      }
-
     }
   }
 

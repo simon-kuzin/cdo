@@ -92,7 +92,11 @@ public class CDOPackageUnitImpl implements InternalCDOPackageUnit
 
   public Type getType()
   {
-    if (type == null)
+    if (getOriginalType() == Type.DYNAMIC)
+    {
+      type = Type.DYNAMIC;
+    }
+    else if (type == null || type == Type.UNKNOWN)
     {
       if (state == State.PROXY)
       {

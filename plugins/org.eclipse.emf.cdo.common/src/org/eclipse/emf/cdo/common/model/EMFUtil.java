@@ -73,7 +73,7 @@ public final class EMFUtil
         return o1.getKey().compareTo(o2.getKey());
       }
     });
-  
+
     return array;
   }
 

@@ -163,13 +163,6 @@ public final class CDOPackageTypeRegistry
   {
     if (ePackage.getClass() == EPackageImpl.class)
     {
-      // EFactory factory = ePackage.getEFactoryInstance();
-      // if (factory instanceof CDOFactoryMarker)
-      // {
-      // return CDOPackageUnit.Type.NATIVE;
-      // }
-      //
-      // return CDOPackageUnit.Type.LEGACY;
       return CDOPackageUnit.Type.DYNAMIC;
     }
 
