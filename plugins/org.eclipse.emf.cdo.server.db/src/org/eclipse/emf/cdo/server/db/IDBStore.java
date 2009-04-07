@@ -19,8 +19,6 @@ import org.eclipse.net4j.db.IDBAdapter;
 import org.eclipse.net4j.db.IDBConnectionProvider;
 import org.eclipse.net4j.db.ddl.IDBSchema;
 
-import org.eclipse.emf.ecore.EModelElement;
-
 /**
  * @author Eike Stepper
  * @noimplement This interface is not intended to be implemented by clients.
@@ -43,20 +41,6 @@ public interface IDBStore extends IStore
 
   /**
    * @since 2.0
-   * @deprecated should be moved to metamanager
-   */
-  @Deprecated
-  public long getMetaID(EModelElement modelElement);
-
-  /**
-   * @since 2.0
-   * @deprecated should be moved to metamanager
-   */
-  @Deprecated
-  public EModelElement getMetaInstance(long id);
-
-  /**
-   * @since 2.0
    */
   public IDBStoreAccessor getReader(ISession session);
 
@@ -64,4 +48,9 @@ public interface IDBStore extends IStore
    * @since 2.0
    */
   public IDBStoreAccessor getWriter(ITransaction transaction);
+
+  /**
+   * @since 2.0
+   */
+  public IMetaDataManager getMetaDataManager();
 }

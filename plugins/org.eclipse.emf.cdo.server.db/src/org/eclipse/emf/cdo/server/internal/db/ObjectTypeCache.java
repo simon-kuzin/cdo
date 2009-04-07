@@ -16,6 +16,7 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
+import org.eclipse.emf.cdo.server.db.IMetaDataManager;
 import org.eclipse.emf.cdo.server.db.IObjectTypeCache;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 
@@ -58,6 +59,8 @@ public class ObjectTypeCache extends Lifecycle implements IObjectTypeCache
 
   private String sqlSelect;
 
+  private IMetaDataManager metaDataManager;
+
   public ObjectTypeCache()
   {
   }
@@ -93,7 +96,7 @@ public class ObjectTypeCache extends Lifecycle implements IObjectTypeCache
       }
 
       long classID = resultSet.getLong(1);
-      EClass eClass = (EClass)mappingStrategy.getStore().getMetaInstance(classID);
+      EClass eClass = (EClass)metaDataManager.getMetaInstance(classID);
       return new CDOClassifierRef(eClass);
     }
     catch (SQLException ex)
@@ -118,7 +121,7 @@ public class ObjectTypeCache extends Lifecycle implements IObjectTypeCache
     {
       stmt = connection.prepareStatement(sqlInsert);
       stmt.setLong(1, CDOIDUtil.getLong(id));
-      stmt.setLong(2, accessor.getStore().getMetaID(type));
+      stmt.setLong(2, metaDataManager.getMetaID(type));
       DBUtil.trace(stmt.toString());
       int result = stmt.executeUpdate();
 
@@ -213,6 +216,12 @@ public class ObjectTypeCache extends Lifecycle implements IObjectTypeCache
   {
     super.doBeforeActivate();
     checkState(mappingStrategy, "mappingStrategy");
+  }
+
+  @Override
+  protected void doActivate() throws Exception
+  {
+    metaDataManager = getMappingStrategy().getStore().getMetaDataManager();
   }
 
   @Override

@@ -11,21 +11,17 @@
  */
 package org.eclipse.emf.cdo.server.internal.db;
 
-import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.id.CDOIDMeta;
-import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.ITransaction;
 import org.eclipse.emf.cdo.server.IView;
 import org.eclipse.emf.cdo.server.db.IDBStore;
+import org.eclipse.emf.cdo.server.db.IMetaDataManager;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.server.LongIDStore;
 import org.eclipse.emf.cdo.spi.server.StoreAccessorPool;
 
 import org.eclipse.net4j.db.DBException;
-import org.eclipse.net4j.db.DBType;
 import org.eclipse.net4j.db.DBUtil;
 import org.eclipse.net4j.db.IDBAdapter;
 import org.eclipse.net4j.db.IDBConnectionProvider;
@@ -33,22 +29,14 @@ import org.eclipse.net4j.db.ddl.IDBSchema;
 import org.eclipse.net4j.db.ddl.IDBTable;
 import org.eclipse.net4j.spi.db.DBSchema;
 import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
+import org.eclipse.net4j.util.lifecycle.ILifecycle;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 import org.eclipse.net4j.util.om.monitor.ProgressDistributor;
-
-import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EClassifier;
-import org.eclipse.emf.ecore.EEnum;
-import org.eclipse.emf.ecore.EModelElement;
-import org.eclipse.emf.ecore.EcorePackage;
-import org.eclipse.emf.ecore.InternalEObject;
 
 import javax.sql.DataSource;
 
 import java.sql.Connection;
 import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -92,32 +80,7 @@ public class DBStore extends LongIDStore implements IDBStore
   @ExcludeFromDump
   private transient StoreAccessorPool writerPool = new StoreAccessorPool(this, null);
 
-  @Deprecated
-  private static Map<EClassifier, DBType> typeMap = new HashMap<EClassifier, DBType>();
-
-  static
-  {
-    typeMap.put(EcorePackage.eINSTANCE.getEDate(), DBType.TIMESTAMP);
-    typeMap.put(EcorePackage.eINSTANCE.getEString(), DBType.VARCHAR);
-
-    typeMap.put(EcorePackage.eINSTANCE.getEBoolean(), DBType.BOOLEAN);
-    typeMap.put(EcorePackage.eINSTANCE.getEByte(), DBType.SMALLINT);
-    typeMap.put(EcorePackage.eINSTANCE.getEChar(), DBType.CHAR);
-    typeMap.put(EcorePackage.eINSTANCE.getEDouble(), DBType.DOUBLE);
-    typeMap.put(EcorePackage.eINSTANCE.getEFloat(), DBType.FLOAT);
-    typeMap.put(EcorePackage.eINSTANCE.getEInt(), DBType.INTEGER);
-    typeMap.put(EcorePackage.eINSTANCE.getELong(), DBType.BIGINT);
-    typeMap.put(EcorePackage.eINSTANCE.getEShort(), DBType.SMALLINT);
-
-    typeMap.put(EcorePackage.eINSTANCE.getEBooleanObject(), DBType.BOOLEAN);
-    typeMap.put(EcorePackage.eINSTANCE.getEByteObject(), DBType.SMALLINT);
-    typeMap.put(EcorePackage.eINSTANCE.getECharacterObject(), DBType.CHAR);
-    typeMap.put(EcorePackage.eINSTANCE.getEDoubleObject(), DBType.DOUBLE);
-    typeMap.put(EcorePackage.eINSTANCE.getEFloatObject(), DBType.FLOAT);
-    typeMap.put(EcorePackage.eINSTANCE.getEIntegerObject(), DBType.INTEGER);
-    typeMap.put(EcorePackage.eINSTANCE.getELongObject(), DBType.BIGINT);
-    typeMap.put(EcorePackage.eINSTANCE.getEShortObject(), DBType.SMALLINT);
-  }
+  private MetaDataManager metaDataManager;
 
   public DBStore()
   {
@@ -210,36 +173,7 @@ public class DBStore extends LongIDStore implements IDBStore
     return new DBStoreAccessor(this, transaction);
   }
 
-  /** @deprecated move to meta manager */
-  @Deprecated
-  public long getMetaID(EModelElement modelElement)
-  {
-    InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)getRepository().getPackageRegistry();
-
-    try
-    {
-      CDOID cdoid = packageRegistry.getMetaInstanceMapper().lookupMetaInstanceID((InternalEObject)modelElement);
-      return ((CDOIDMeta)cdoid).getLongValue();
-    }
-    catch (RuntimeException ex)
-    {
-      packageRegistry.getMetaInstanceMapper().lookupMetaInstanceID((InternalEObject)modelElement);
-      throw ex;
-    }
-  }
-
-  /** @deprecated move to meta manager */
-  @Deprecated
-  public EModelElement getMetaInstance(long id)
-  {
-    CDOIDMeta cdoid = CDOIDUtil.createMeta(id);
-    InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)getRepository().getPackageRegistry();
-    InternalEObject metaInstance = packageRegistry.getMetaInstanceMapper().lookupMetaInstance(cdoid);
-    return (EModelElement)metaInstance;
-  }
-
-  @Deprecated
-  public Connection getConnection()
+  protected Connection getConnection()
   {
     Connection connection = dbConnectionProvider.getConnection();
     if (connection == null)
@@ -273,9 +207,12 @@ public class DBStore extends LongIDStore implements IDBStore
   protected void doActivate() throws Exception
   {
     super.doActivate();
+
+    metaDataManager = new MetaDataManager(this);
+    ((ILifecycle)metaDataManager).activate();
+
     Connection connection = getConnection();
 
-    // TODO move to meta manager?
     try
     {
       Set<IDBTable> createdTables = CDODBSchema.INSTANCE.create(dbAdapter, connection);
@@ -290,6 +227,8 @@ public class DBStore extends LongIDStore implements IDBStore
 
       LifecycleUtil.activate(mappingStrategy);
       dbSchema = createSchema();
+
+      connection.commit();
     }
     finally
     {
@@ -302,7 +241,6 @@ public class DBStore extends LongIDStore implements IDBStore
     creationTime = getStartupTime();
     firstTime = true;
 
-    // TODO: unify and standardize repository management
     DBUtil.insertRow(connection, dbAdapter, CDODBSchema.REPOSITORY, creationTime, 1, creationTime, 0, CRASHED, CRASHED);
     OM.LOG.info(MessageFormat.format("First start: {0,date} {0,time}", creationTime));
   }
@@ -361,6 +299,9 @@ public class DBStore extends LongIDStore implements IDBStore
   {
     Connection connection = null;
 
+    ((ILifecycle)metaDataManager).deactivate();
+    metaDataManager = null;
+
     try
     {
       connection = getConnection();
@@ -390,6 +331,8 @@ public class DBStore extends LongIDStore implements IDBStore
       {
         throw new DBException("No row updated in table " + CDODBSchema.REPOSITORY);
       }
+
+      connection.commit();
     }
     finally
     {
@@ -417,28 +360,8 @@ public class DBStore extends LongIDStore implements IDBStore
     return System.currentTimeMillis();
   }
 
-  /**
-   * @deprecated move to meta-manager
-   */
-  @Deprecated
-  public static DBType getDBType(EClassifier type)
+  public IMetaDataManager getMetaDataManager()
   {
-    if (type instanceof EClass)
-    {
-      return DBType.BIGINT;
-    }
-
-    if (type instanceof EEnum)
-    {
-      return DBType.INTEGER;
-    }
-
-    DBType dbType = typeMap.get(type);
-    if (dbType != null)
-    {
-      return dbType;
-    }
-
-    return DBType.VARCHAR;
+    return metaDataManager;
   }
 }

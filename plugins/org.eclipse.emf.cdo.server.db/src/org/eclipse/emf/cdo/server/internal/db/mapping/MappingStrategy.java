@@ -18,6 +18,7 @@ import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.IStoreAccessor.QueryResourcesContext;
 import org.eclipse.emf.cdo.server.db.IDBStore;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
+import org.eclipse.emf.cdo.server.db.IMetaDataManager;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
@@ -106,6 +107,11 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
     return value == null ? store.getDBAdapter().getMaxFieldNameLength() : Integer.valueOf(value);
   }
 
+  protected IMetaDataManager getMetaDataManager()
+  {
+    return getStore().getMetaDataManager();
+  }
+
   public String getTableNamePrefix()
   {
     String value = getProperties().get(PROP_TABLE_NAME_PREFIX);
@@ -164,13 +170,13 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
   public String getTableName(EPackage ePackage)
   {
     String name = isQualifiedNames() ? EMFUtil.getQualifiedName(ePackage, NAME_SEPARATOR) : ePackage.getName();
-    return getTableName(name, "P" + getStore().getMetaID(ePackage));
+    return getTableName(name, "P" + getMetaDataManager().getMetaID(ePackage));
   }
 
   public String getTableName(EClass eClass)
   {
     String name = isQualifiedNames() ? EMFUtil.getQualifiedName(eClass, NAME_SEPARATOR) : eClass.getName();
-    return getTableName(name, "C" + getStore().getMetaID(eClass));
+    return getTableName(name, "C" + getMetaDataManager().getMetaID(eClass));
   }
 
   public String getReferenceTableName(EClass eClass, EStructuralFeature feature)
@@ -179,26 +185,26 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
     name += NAME_SEPARATOR;
     name += feature.getName();
     name += "_refs";
-    return getTableName(name, "F" + getStore().getMetaID(feature));
+    return getTableName(name, "F" + getMetaDataManager().getMetaID(feature));
   }
 
   public String getReferenceTableName(EClass eClass)
   {
     String name = isQualifiedNames() ? EMFUtil.getQualifiedName(eClass, NAME_SEPARATOR) : eClass.getName();
     name += "_refs";
-    return getTableName(name, "F" + getStore().getMetaID(eClass));
+    return getTableName(name, "F" + getMetaDataManager().getMetaID(eClass));
   }
 
   public String getReferenceTableName(EPackage ePackage)
   {
     String name = isQualifiedNames() ? EMFUtil.getQualifiedName(ePackage, NAME_SEPARATOR) : ePackage.getName();
     name += "_refs";
-    return getTableName(name, "F" + getStore().getMetaID(ePackage));
+    return getTableName(name, "F" + getMetaDataManager().getMetaID(ePackage));
   }
 
   public String getFieldName(EStructuralFeature feature)
   {
-    return getName(feature.getName(), "F" + getStore().getMetaID(feature), getMaxFieldNameLength());
+    return getName(feature.getName(), "F" + getMetaDataManager().getMetaID(feature), getMaxFieldNameLength());
   }
 
   private String getTableName(String name, String suffix)

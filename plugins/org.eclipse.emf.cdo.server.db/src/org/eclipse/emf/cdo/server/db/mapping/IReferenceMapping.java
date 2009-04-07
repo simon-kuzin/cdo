@@ -29,8 +29,6 @@ public interface IReferenceMapping extends IFeatureMapping
 {
   public IDBTable getTable();
 
-  public boolean isWithFeature();
-
   /**
    * Write a list of references completely
    */
@@ -70,7 +68,7 @@ public interface IReferenceMapping extends IFeatureMapping
   /**
    * Clears the list of references for the revision with ID <code>id</code>.
    */
-  public void deleteReference(IDBStoreAccessor accessor, CDOID id);
+  public void clearReference(IDBStoreAccessor accessor, CDOID id);
 
   public void readReference(IDBStoreAccessor accessor, InternalCDORevision revision, int referenceChunk);
 

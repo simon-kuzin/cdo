@@ -14,7 +14,6 @@ package org.eclipse.emf.cdo.server.internal.db.mapping;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
-import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.IStoreChunkReader.Chunk;
 import org.eclipse.emf.cdo.server.db.CDODBUtil;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
@@ -23,7 +22,6 @@ import org.eclipse.emf.cdo.server.db.mapping.IReferenceMapping;
 import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
 import org.eclipse.emf.cdo.server.internal.db.ToMany;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
-import org.eclipse.emf.cdo.server.internal.db.jdbc.PreparedStatementJDBCDelegate;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.db.DBException;
@@ -36,7 +34,6 @@ import org.eclipse.net4j.util.collection.MoveableList;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.sql.PreparedStatement;
@@ -57,15 +54,6 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
   private static final int MOVE_UNBOUNDED = -1;
 
   private IDBTable table;
-
-  // TODO - refactor into subclass
-  private ToMany toMany;
-
-  // TODO - refactor into subclass
-  private boolean withFeature;
-
-  // TODO - remove
-  PreparedStatementJDBCDelegate TEMP = null;
 
   private String sqlSelectChunksPrefix;
 
@@ -94,7 +82,6 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
   public ReferenceMapping(ClassMapping classMapping, EStructuralFeature feature, ToMany toMany)
   {
     super(classMapping, feature);
-    this.toMany = toMany;
     mapReference(classMapping.getEClass(), feature);
 
     initSqlStrings();
@@ -105,55 +92,18 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
     return table;
   }
 
-  public boolean isWithFeature()
-  {
-    return withFeature;
-  }
-
   protected void mapReference(EClass eClass, EStructuralFeature feature)
   {
     MappingStrategy mappingStrategy = getClassMapping().getMappingStrategy();
-    switch (toMany)
-    {
-    case PER_REFERENCE:
-    {
-      withFeature = false;
-      String tableName = mappingStrategy.getReferenceTableName(eClass, feature);
-      Object referenceMappingKey = getReferenceMappingKey(feature);
-      table = mapReferenceTable(referenceMappingKey, tableName);
-      break;
-    }
 
-    case PER_CLASS:
-      withFeature = true;
-      table = mapReferenceTable(eClass, mappingStrategy.getReferenceTableName(eClass));
-      break;
-
-    case PER_PACKAGE:
-      withFeature = true;
-      EPackage ePackage = eClass.getEPackage();
-      table = mapReferenceTable(ePackage, mappingStrategy.getReferenceTableName(ePackage));
-      break;
-
-    case PER_REPOSITORY:
-      withFeature = true;
-      IRepository repository = mappingStrategy.getStore().getRepository();
-      table = mapReferenceTable(repository, repository.getName() + "_refs");
-      break;
-
-    default:
-      throw new IllegalArgumentException("Invalid mapping: " + toMany);
-    }
+    String tableName = mappingStrategy.getReferenceTableName(eClass, feature);
+    Object referenceMappingKey = getReferenceMappingKey(feature);
+    table = mapReferenceTable(referenceMappingKey, tableName);
   }
 
   protected Object getReferenceMappingKey(EStructuralFeature feature)
   {
     return getClassMapping().createReferenceMappingKey(feature);
-  }
-
-  protected final long getMetaID()
-  {
-    return getClassMapping().getMappingStrategy().getStore().getMetaID(getFeature());
   }
 
   protected IDBTable mapReferenceTable(Object key, String tableName)
@@ -172,11 +122,6 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
   protected IDBTable addReferenceTable(String tableName)
   {
     IDBTable table = getClassMapping().addTable(tableName);
-    if (withFeature)
-    {
-      table.addField(CDODBSchema.REFERENCES_FEATURE, DBType.BIGINT);
-    }
-
     IDBField sourceField = table.addField(CDODBSchema.REFERENCES_SOURCE, DBType.BIGINT);
     IDBField versionField = table.addField(CDODBSchema.REFERENCES_VERSION, DBType.INTEGER);
     IDBField idxField = table.addField(CDODBSchema.REFERENCES_IDX, DBType.INTEGER);
@@ -204,16 +149,10 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
     {
       stmt = accessor.getConnection().prepareStatement(sqlInsertEntry);
 
-      int idx1 = 1;
-      if (withFeature)
-      {
-        stmt.setLong(idx1++, getMetaID());
-      }
-
-      stmt.setLong(idx1++, CDOIDUtil.getLong(id));
-      stmt.setInt(idx1++, version);
-      stmt.setInt(idx1++, idx++);
-      stmt.setLong(idx1++, CDODBUtil.getLong(targetId));
+      stmt.setLong(1, CDOIDUtil.getLong(id));
+      stmt.setInt(2, version);
+      stmt.setInt(3, idx++);
+      stmt.setLong(4, CDODBUtil.getLong(targetId));
       if (TRACER.isEnabled())
       {
         TRACER.trace(stmt.toString());
@@ -245,10 +184,6 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
 
       stmt.setLong(1, CDOIDUtil.getLong(id));
       stmt.setInt(2, index);
-      if (withFeature)
-      {
-        stmt.setLong(3, getMetaID());
-      }
 
       if (TRACER.isEnabled())
       {
@@ -322,16 +257,10 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
       stmt = accessor.getConnection().prepareStatement(sqlUpdateIndex);
 
       int idx = 1;
-      stmt.setInt(idx++, newIndex);
-      stmt.setInt(idx++, newVersion);
-
-      if (withFeature)
-      {
-        stmt.setLong(idx++, getMetaID());
-      }
-
-      stmt.setLong(idx++, CDOIDUtil.getLong(cdoid));
-      stmt.setLong(idx++, oldIndex);
+      stmt.setInt(1, newIndex);
+      stmt.setInt(2, newVersion);
+      stmt.setLong(3, CDOIDUtil.getLong(cdoid));
+      stmt.setLong(4, oldIndex);
 
       if (TRACER.isEnabled())
       {
@@ -374,19 +303,12 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
         stmt = accessor.getConnection().prepareStatement(sqlMoveDownWithLimit);
       }
 
-      int idx = 1;
-      stmt.setInt(idx++, newVersion);
-
-      if (withFeature)
-      {
-        stmt.setLong(idx++, getMetaID());
-      }
-
-      stmt.setLong(idx++, CDOIDUtil.getLong(cdoid));
-      stmt.setInt(idx++, index);
+      stmt.setInt(1, newVersion);
+      stmt.setLong(2, CDOIDUtil.getLong(cdoid));
+      stmt.setInt(3, index);
       if (upperIndex != MOVE_UNBOUNDED)
       {
-        stmt.setInt(idx++, upperIndex);
+        stmt.setInt(4, upperIndex);
       }
 
       int result = stmt.executeUpdate();
@@ -425,19 +347,12 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
         stmt = accessor.getConnection().prepareStatement(sqlMoveUpWithLimit);
       }
 
-      int idx = 1;
-      stmt.setInt(idx++, newVersion);
-
-      if (withFeature)
-      {
-        stmt.setLong(idx++, getMetaID());
-      }
-
-      stmt.setLong(idx++, CDOIDUtil.getLong(cdoid));
-      stmt.setInt(idx++, index);
+      stmt.setInt(1, newVersion);
+      stmt.setLong(2, CDOIDUtil.getLong(cdoid));
+      stmt.setInt(3, index);
       if (upperIndex != MOVE_UNBOUNDED)
       {
-        stmt.setInt(idx++, upperIndex);
+        stmt.setInt(4, upperIndex);
       }
 
       int result = stmt.executeUpdate();
@@ -462,19 +377,12 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
 
     try
     {
-      stmt = TEMP.getConnection().prepareStatement(sqlUpdateTarget);
+      stmt = accessor.getConnection().prepareStatement(sqlUpdateTarget);
 
-      int idx = 1;
-      stmt.setLong(idx++, CDODBUtil.getLong(value));
-      stmt.setInt(idx++, newVersion);
-
-      if (withFeature)
-      {
-        stmt.setLong(idx++, getMetaID());
-      }
-
-      stmt.setLong(idx++, CDOIDUtil.getLong(id));
-      stmt.setLong(idx++, index);
+      stmt.setLong(1, CDODBUtil.getLong(value));
+      stmt.setInt(2, newVersion);
+      stmt.setLong(3, CDOIDUtil.getLong(id));
+      stmt.setLong(4, index);
 
       if (TRACER.isEnabled())
       {
@@ -528,7 +436,7 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
     }
   }
 
-  public void deleteReference(IDBStoreAccessor accessor, CDOID id)
+  public void clearReference(IDBStoreAccessor accessor, CDOID id)
   {
     PreparedStatement stmt = null;
 
@@ -537,10 +445,6 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
       stmt = accessor.getConnection().prepareStatement(sqlClearReference);
 
       stmt.setLong(1, CDOIDUtil.getLong(id));
-      if (withFeature)
-      {
-        stmt.setLong(2, getMetaID());
-      }
 
       int result = stmt.executeUpdate();
       if (result == Statement.EXECUTE_FAILED)
@@ -579,16 +483,9 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
       }
 
       pstmt = accessor.getConnection().prepareStatement(sql);
-      int idx = 1;
 
-      // TODO- refactor
-      if (withFeature)
-      {
-        pstmt.setLong(idx++, getMetaID());
-      }
-
-      pstmt.setLong(idx++, sourceId);
-      pstmt.setInt(idx++, version);
+      pstmt.setLong(1, sourceId);
+      pstmt.setInt(2, version);
       resultSet = pstmt.executeQuery();
 
       while (resultSet.next() && (referenceChunk == CDORevision.UNCHUNKED || --referenceChunk >= 0))
@@ -640,16 +537,8 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
 
       pstmt = chunkReader.getAccessor().getConnection().prepareStatement(sql);
 
-      int idx = 1;
-
-      // TODO - refactor into subclass
-      if (withFeature)
-      {
-        pstmt.setLong(idx++, getMetaID());
-      }
-
-      pstmt.setLong(idx++, sourceId);
-      pstmt.setInt(idx++, version);
+      pstmt.setLong(1, sourceId);
+      pstmt.setInt(2, version);
       resultSet = pstmt.executeQuery();
 
       Chunk chunk = null;
@@ -702,14 +591,6 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
     builder.append(" FROM ");
     builder.append(tableName);
     builder.append(" WHERE ");
-
-    // TODO - remove condition
-    if (withFeature)
-    {
-      builder.append(CDODBSchema.REFERENCES_FEATURE);
-      builder.append("= ? AND ");
-    }
-
     builder.append(CDODBSchema.REFERENCES_SOURCE);
     builder.append("= ? AND ");
     builder.append(CDODBSchema.REFERENCES_VERSION);
@@ -725,14 +606,6 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
     builder.append(" WHERE ");
     builder.append(CDODBSchema.REFERENCES_SOURCE);
     builder.append(" = ? ");
-
-    if (withFeature)
-    {
-      builder.append("AND");
-      builder.append(CDODBSchema.REFERENCES_FEATURE);
-      builder.append(" = ? ");
-    }
-
     sqlClearReference = builder.toString();
 
     // ----------------- UPDATE - reference version ------------------
@@ -757,12 +630,6 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
     builder.append(" = ?, ");
     builder.append(CDODBSchema.REFERENCES_VERSION);
     builder.append(" = ? WHERE ");
-    if (withFeature)
-    {
-      builder.append(CDODBSchema.REFERENCES_FEATURE);
-      builder.append("= ? AND ");
-    }
-
     builder.append(CDODBSchema.REFERENCES_SOURCE);
     builder.append("= ? AND ");
     builder.append(CDODBSchema.REFERENCES_IDX);
@@ -778,12 +645,6 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
     builder.append(" = ?, ");
     builder.append(CDODBSchema.REFERENCES_VERSION);
     builder.append(" = ? WHERE ");
-    if (withFeature)
-    {
-      builder.append(CDODBSchema.REFERENCES_FEATURE);
-      builder.append("= ? AND ");
-    }
-
     builder.append(CDODBSchema.REFERENCES_SOURCE);
     builder.append("= ? AND ");
     builder.append(CDODBSchema.REFERENCES_IDX);
@@ -801,12 +662,6 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
     builder.append("+1 ,");
     builder.append(CDODBSchema.REFERENCES_VERSION);
     builder.append(" = ? WHERE ");
-    if (withFeature)
-    {
-      builder.append(CDODBSchema.REFERENCES_FEATURE);
-      builder.append("= ? AND ");
-    }
-
     builder.append(CDODBSchema.REFERENCES_SOURCE);
     builder.append("= ? AND ");
     builder.append(CDODBSchema.REFERENCES_IDX);
@@ -828,12 +683,6 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
     builder.append("-1 ,");
     builder.append(CDODBSchema.REFERENCES_VERSION);
     builder.append(" = ? WHERE ");
-    if (withFeature)
-    {
-      builder.append(CDODBSchema.REFERENCES_FEATURE);
-      builder.append("= ? AND ");
-    }
-
     builder.append(CDODBSchema.REFERENCES_SOURCE);
     builder.append("= ? AND ");
     builder.append(CDODBSchema.REFERENCES_IDX);
@@ -848,7 +697,7 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
     // ----------------- INSERT - reference entry -----------------
     builder = new StringBuilder("INSERT INTO ");
     builder.append(tableName);
-    builder.append(withFeature ? " VALUES (?, ?, ?, ?, ?)" : " VALUES (?, ?, ?, ?)");
+    builder.append(" VALUES (?, ?, ?, ?)");
     sqlInsertEntry = builder.toString();
 
     // ----------------- DELETE - reference entry -----------------
@@ -859,13 +708,6 @@ public class ReferenceMapping extends FeatureMapping implements IReferenceMappin
     builder.append(" = ? AND ");
     builder.append(CDODBSchema.REFERENCES_IDX);
     builder.append(" = ? ");
-
-    if (withFeature)
-    {
-      builder.append("AND");
-      builder.append(CDODBSchema.REFERENCES_FEATURE);
-      builder.append(" = ? ");
-    }
 
     sqlDeleteEntry = builder.toString();
   }

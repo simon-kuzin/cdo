@@ -20,12 +20,12 @@ import org.eclipse.emf.cdo.server.IStore;
 import org.eclipse.emf.cdo.server.db.CDODBUtil;
 import org.eclipse.emf.cdo.server.db.IDBStore;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
+import org.eclipse.emf.cdo.server.db.IMetaDataManager;
 import org.eclipse.emf.cdo.server.db.mapping.IAttributeMapping;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
 import org.eclipse.emf.cdo.server.db.mapping.IFeatureMapping;
 import org.eclipse.emf.cdo.server.db.mapping.IReferenceMapping;
 import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
-import org.eclipse.emf.cdo.server.internal.db.DBStore;
 import org.eclipse.emf.cdo.server.internal.db.ToMany;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
@@ -84,8 +84,6 @@ public abstract class ClassMapping implements IClassMapping
   private String sqlDeleteAttributes;
 
   private String sqlReviseAttributes;
-
-  private String sqlReviseAttributesByID;
 
   private String sqlInsertAttributes;
 
@@ -200,12 +198,12 @@ public abstract class ClassMapping implements IClassMapping
 
   protected DBType getDBType(EStructuralFeature feature)
   {
-    return DBStore.getDBType(feature.getEType());
+    return getMetaDataManager().getDBType(feature.getEType());
   }
 
   protected int getDBLength(EStructuralFeature feature)
   {
-    // TODO make length DB dependent (Oracle only supports 30 chars)
+    // TODO delegate to DBAdapter!
     // Derby: The maximum length for a VARCHAR string is 32,672 characters.
     CDOType type = CDOModelUtil.getType(feature.getEType());
     return type == CDOType.STRING || type == CDOType.CUSTOM ? 32672 : IDBField.DEFAULT;
@@ -383,7 +381,7 @@ public abstract class ClassMapping implements IClassMapping
 
       if (revision.getVersion() > 1 && hasFullRevisionInfo() && isAuditing())
       {
-        writeRevisedRow(accessor, revision);
+        writeRevisedRow(accessor, revision.getID(), revision.getCreated() - 1);
       }
 
       monitor.worked();
@@ -464,47 +462,13 @@ public abstract class ClassMapping implements IClassMapping
     }
   }
 
-  protected final void writeRevisedRow(IDBStoreAccessor accessor, InternalCDORevision revision)
-  {
-    PreparedStatement stmt = null;
-
-    try
-    {
-      stmt = accessor.getConnection().prepareStatement(sqlReviseAttributes);
-
-      stmt.setLong(1, (revision.getCreated() - 1));
-      stmt.setLong(2, CDOIDUtil.getLong(revision.getID()));
-      stmt.setInt(3, (revision.getVersion() - 1));
-
-      if (TRACER.isEnabled())
-      {
-        TRACER.trace(stmt.toString());
-      }
-
-      int result = stmt.executeUpdate();
-      // only one unrevised row may exist - update count must be 1
-      if (result != 1)
-      {
-        throw new IllegalStateException(stmt.toString() + " returned Update count " + result + " (expected: 1)");
-      }
-    }
-    catch (SQLException e)
-    {
-      throw new DBException(e);
-    }
-    finally
-    {
-      DBUtil.close(stmt);
-    }
-  }
-
   protected final void writeRevisedRow(IDBStoreAccessor accessor, CDOID id, long revised)
   {
     PreparedStatement stmt = null;
 
     try
     {
-      stmt = accessor.getConnection().prepareStatement(sqlReviseAttributesByID);
+      stmt = accessor.getConnection().prepareStatement(sqlReviseAttributes);
 
       stmt.setLong(1, revised);
       stmt.setLong(2, CDOIDUtil.getLong(id));
@@ -558,7 +522,7 @@ public abstract class ClassMapping implements IClassMapping
       stmt.setInt(col++, revision.getVersion());
       if (hasFullRevisionInfo())
       {
-        stmt.setLong(col++, accessor.getStore().getMetaID(revision.getEClass()));
+        stmt.setLong(col++, accessor.getStore().getMetaDataManager().getMetaID(revision.getEClass()));
         stmt.setLong(col++, revision.getCreated());
         stmt.setLong(col++, revision.getRevised());
         stmt.setLong(col++, CDOIDUtil.getLong(revision.getResourceID()));
@@ -717,7 +681,7 @@ public abstract class ClassMapping implements IClassMapping
     {
       for (IReferenceMapping referenceMapping : referenceMappings)
       {
-        referenceMapping.deleteReference(accessor, id);
+        referenceMapping.clearReference(accessor, id);
       }
     }
   }
@@ -824,20 +788,7 @@ public abstract class ClassMapping implements IClassMapping
 
     sqlDeleteAttributes = builder.toString();
 
-    // ----------- Update to set revised ---------------------
-    builder = new StringBuilder("UPDATE ");
-    builder.append(table.getName());
-    builder.append(" SET ");
-    builder.append(CDODBSchema.ATTRIBUTES_REVISED);
-    builder.append(" = ? WHERE ");
-    builder.append(CDODBSchema.ATTRIBUTES_ID);
-    builder.append(" = ? AND ");
-    builder.append(CDODBSchema.ATTRIBUTES_VERSION);
-    builder.append(" = ?");
-    sqlReviseAttributes = builder.toString();
-
-    // TODO unify both ways to revise revisions!
-    // ----------- Update to set revised by ID ----------------
+    // ----------- Update to set revised ----------------
     builder = new StringBuilder("UPDATE ");
     builder.append(getTable().getName());
     builder.append(" SET ");
@@ -847,7 +798,7 @@ public abstract class ClassMapping implements IClassMapping
     builder.append(" = ? AND ");
     builder.append(CDODBSchema.ATTRIBUTES_REVISED);
     builder.append(" = 0");
-    sqlReviseAttributesByID = builder.toString();
+    sqlReviseAttributes = builder.toString();
 
     // ----------- Insert Attributes -------------------------
     builder = new StringBuilder();
@@ -986,5 +937,10 @@ public abstract class ClassMapping implements IClassMapping
       OMMonitor monitor)
   {
     throw new UnsupportedOperationException();
+  }
+
+  protected IMetaDataManager getMetaDataManager()
+  {
+    return getMappingStrategy().getStore().getMetaDataManager();
   }
 }
