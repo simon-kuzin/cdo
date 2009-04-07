@@ -43,12 +43,16 @@ public interface IDBStore extends IStore
 
   /**
    * @since 2.0
+   * @deprecated should be moved to metamanager
    */
+  @Deprecated
   public long getMetaID(EModelElement modelElement);
 
   /**
    * @since 2.0
+   * @deprecated should be moved to metamanager
    */
+  @Deprecated
   public EModelElement getMetaInstance(long id);
 
   /**

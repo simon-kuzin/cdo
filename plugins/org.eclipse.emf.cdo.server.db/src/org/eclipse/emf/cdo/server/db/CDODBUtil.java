@@ -15,8 +15,6 @@ import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.internal.db.DBStore;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
-import org.eclipse.emf.cdo.server.internal.db.jdbc.PreparedStatementJDBCDelegateProvider;
-import org.eclipse.emf.cdo.server.internal.db.jdbc.StatementJDBCDelegateProvider;
 import org.eclipse.emf.cdo.server.internal.db.mapping.HorizontalMappingStrategy;
 
 import org.eclipse.net4j.db.IDBAdapter;
@@ -52,13 +50,12 @@ public final class CDODBUtil
    * @since 2.0
    */
   public static IDBStore createStore(IMappingStrategy mappingStrategy, IDBAdapter dbAdapter,
-      IDBConnectionProvider dbConnectionProvider, IJDBCDelegateProvider delegateProvider)
+      IDBConnectionProvider dbConnectionProvider)
   {
     DBStore store = new DBStore();
     store.setMappingStrategy(mappingStrategy);
     store.setDBAdapter(dbAdapter);
     store.setDbConnectionProvider(dbConnectionProvider);
-    store.setJDBCDelegateProvider(delegateProvider);
     mappingStrategy.setStore(store);
     return store;
   }
@@ -69,22 +66,6 @@ public final class CDODBUtil
   public static IMappingStrategy createHorizontalMappingStrategy()
   {
     return new HorizontalMappingStrategy();
-  }
-
-  /**
-   * @since 2.0
-   */
-  public static IJDBCDelegateProvider createStatementJDBCDelegateProvider()
-  {
-    return new StatementJDBCDelegateProvider();
-  }
-
-  /**
-   * @since 2.0
-   */
-  public static IJDBCDelegateProvider createPreparedStatementJDBCDelegateProvider()
-  {
-    return new PreparedStatementJDBCDelegateProvider();
   }
 
   /**
@@ -108,36 +89,6 @@ public final class CDODBUtil
           try
           {
             return (IMappingStrategy)element.createExecutableExtension("class");
-          }
-          catch (CoreException ex)
-          {
-            throw WrappedException.wrap(ex);
-          }
-        }
-      }
-    }
-
-    return null;
-  }
-
-  /**
-   * @since 2.0
-   */
-  public static IJDBCDelegateProvider createDelegateProvider(String type)
-  {
-    IExtensionRegistry registry = Platform.getExtensionRegistry();
-    IConfigurationElement[] elements = registry.getConfigurationElementsFor(OM.BUNDLE_ID,
-        EXT_POINT_JDBC_DELEGATE_PROVIDERS);
-    for (final IConfigurationElement element : elements)
-    {
-      if ("jdbcDelegateProvider".equals(element.getName()))
-      {
-        String typeAttr = element.getAttribute("type");
-        if (ObjectUtil.equals(typeAttr, type))
-        {
-          try
-          {
-            return (IJDBCDelegateProvider)element.createExecutableExtension("class");
           }
           catch (CoreException ex)
           {

@@ -15,6 +15,7 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.db.CDODBUtil;
+import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.mapping.IAttributeMapping;
 import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
@@ -30,6 +31,7 @@ import org.eclipse.net4j.util.ref.ReferenceValueMap;
 
 import org.eclipse.emf.ecore.EEnumLiteral;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -47,6 +49,18 @@ import java.util.Map.Entry;
  */
 public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
 {
+  @Override
+  public Connection getConnection()
+  {
+    return null;
+  }
+
+  @Override
+  public IDBStoreAccessor getStoreAccessor()
+  {
+    return null;
+  }
+
   /**
    * Value for {@link #cachingFlag}: Guess if caching is needed
    */
@@ -62,17 +76,17 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
    */
   public static final String CACHE_STMTS_FALSE = "false";
 
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, PreparedStatementJDBCDelegate.class);
+  public static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, PreparedStatementJDBCDelegate.class);
 
-  private static final String SQL_UPDATE_REVISE_VERSION = " SET " + CDODBSchema.ATTRIBUTES_REVISED + " = ? WHERE "
+  public static final String SQL_UPDATE_REVISE_VERSION = " SET " + CDODBSchema.ATTRIBUTES_REVISED + " = ? WHERE "
       + CDODBSchema.ATTRIBUTES_ID + " = ? AND " + CDODBSchema.ATTRIBUTES_VERSION + " = ?";
 
-  private static final String SQL_UPDATE_REVISE_UNREVISED = " SET " + CDODBSchema.ATTRIBUTES_REVISED + " = ? WHERE "
+  public static final String SQL_UPDATE_REVISE_UNREVISED = " SET " + CDODBSchema.ATTRIBUTES_REVISED + " = ? WHERE "
       + CDODBSchema.ATTRIBUTES_ID + " = ? AND " + CDODBSchema.ATTRIBUTES_REVISED + " = 0";
 
-  private static final String SQL_INSERT_REFERENCE_WITH_DBID = " VALUES (?, ?, ?, ?, ?)";
+  public static final String SQL_INSERT_REFERENCE_WITH_DBID = " VALUES (?, ?, ?, ?, ?)";
 
-  private static final String SQL_INSERT_REFERENCE = " VALUES (?, ?, ?, ?)";
+  public static final String SQL_INSERT_REFERENCE = " VALUES (?, ?, ?, ?)";
 
   /**
    * Cache for preparedStatements used in diverse methods
@@ -106,7 +120,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
   @Override
   protected void doActivate() throws Exception
   {
-    super.doActivate();
+    // super.doActivate();
     dirtyStatements = new ReferenceValueMap.Strong<CacheKey, PreparedStatement>();
 
     switch (cachingEnablement)
@@ -162,7 +176,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
       statementCache.clear();
     }
 
-    super.doBeforeDeactivate();
+    // super.doBeforeDeactivate();
   }
 
   public CachingEnablement getCachingEnablement()
@@ -172,7 +186,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
 
   public void setCachingEnablement(CachingEnablement cachingEnablement)
   {
-    checkInactive();
+    // checkInactive();
     this.cachingEnablement = cachingEnablement;
   }
 
@@ -279,7 +293,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
   }
 
   @Override
-  protected void doInsertAttributes(String tableName, CDORevision rev, List<IAttributeMapping> attributeMappings,
+  public void doInsertAttributes(String tableName, CDORevision rev, List<IAttributeMapping> attributeMappings,
       boolean withFullRevisionInfo)
   {
     boolean firstBatch = false;
@@ -376,7 +390,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
   }
 
   @Override
-  protected void doUpdateAttributes(String tableName, long cdoid, int newVersion, long created,
+  public void doUpdateAttributes(String tableName, long cdoid, int newVersion, long created,
       List<Pair<IAttributeMapping, Object>> attributeChanges, boolean hasFullRevisionInfo)
   {
     StringBuilder builder = new StringBuilder();
@@ -427,7 +441,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
   }
 
   @Override
-  protected void doUpdateAttributes(String tableName, long cdoid, int newVersion, long created, long newContainerId,
+  public void doUpdateAttributes(String tableName, long cdoid, int newVersion, long created, long newContainerId,
       int newContainingFeatureId, long newResourceId, List<Pair<IAttributeMapping, Object>> attributeChanges,
       boolean hasFullRevisionInfo)
   {
@@ -493,7 +507,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
   }
 
   @Override
-  protected void doUpdateRevisedForReplace(String tableName, long revisedStamp, long cdoid, int version)
+  public void doUpdateRevisedForReplace(String tableName, long revisedStamp, long cdoid, int version)
   {
     PreparedStatement stmt = null;
     if (cacheStatements)
@@ -540,7 +554,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
   }
 
   @Override
-  protected void doUpdateRevisedForDetach(String tableName, long revisedStamp, long cdoid)
+  public void doUpdateRevisedForDetach(String tableName, long revisedStamp, long cdoid)
   {
     PreparedStatement stmt = null;
     if (cacheStatements)
@@ -587,18 +601,17 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
 
   /*
    * This has been the preparedStatement version of updateAttributes. Does not make sense now, as amount of attributes
-   * is variable. Preparing for any number of attributes is not very intelligent ...
-   * @Override protected void doUpdateAllAttributes(String tableName, long cdoid, int version, long created,
-   * List<Pair<IAttributeMapping, Object>> attributeChanges, boolean withFullRevisionInfo) { boolean firstBatch = false;
-   * PreparedStatement stmt = getDirtyStatement(StmtType.UPDATE_ATTRIBUTES, tableName); if (stmt == null &&
-   * cacheStatements) { firstBatch = true; stmt = getAndRemoveCachedStatement(StmtType.UPDATE_ATTRIBUTES, tableName); }
-   * try { firstBatch = true; if (stmt == null) { StringBuilder sql = new StringBuilder(); sql.append("UPDATE ");
-   * sql.append(tableName); sql.append(" SET "); sql.append(CDODBSchema.ATTRIBUTES_VERSION); sql.append(" = ? "); if
-   * (withFullRevisionInfo) { sql.append(", "); sql.append(CDODBSchema.ATTRIBUTES_RESOURCE); sql.append(" = ?,");
-   * sql.append(CDODBSchema.ATTRIBUTES_CONTAINER); sql.append(" = ?,"); sql.append(CDODBSchema.ATTRIBUTES_FEATURE);
-   * sql.append(" = ?"); } for (IAttributeMapping attributeMapping : attributeMappings) { sql.append(", ");
-   * sql.append(attributeMapping.getField()); sql.append(" = ?"); } sql.append(" WHERE ");
-   * sql.append(CDODBSchema.ATTRIBUTES_ID); sql.append(" = ? "); stmt =
+   * is variable. Preparing for any number of attributes is not very intelligent ... protected void
+   * doUpdateAllAttributes(String tableName, long cdoid, int version, long created, List<Pair<IAttributeMapping,
+   * Object>> attributeChanges, boolean withFullRevisionInfo) { boolean firstBatch = false; PreparedStatement stmt =
+   * getDirtyStatement(StmtType.UPDATE_ATTRIBUTES, tableName); if (stmt == null && cacheStatements) { firstBatch = true;
+   * stmt = getAndRemoveCachedStatement(StmtType.UPDATE_ATTRIBUTES, tableName); } try { firstBatch = true; if (stmt ==
+   * null) { StringBuilder sql = new StringBuilder(); sql.append("UPDATE "); sql.append(tableName); sql.append(" SET ");
+   * sql.append(CDODBSchema.ATTRIBUTES_VERSION); sql.append(" = ? "); if (withFullRevisionInfo) { sql.append(", ");
+   * sql.append(CDODBSchema.ATTRIBUTES_RESOURCE); sql.append(" = ?,"); sql.append(CDODBSchema.ATTRIBUTES_CONTAINER);
+   * sql.append(" = ?,"); sql.append(CDODBSchema.ATTRIBUTES_FEATURE); sql.append(" = ?"); } for (IAttributeMapping
+   * attributeMapping : attributeMappings) { sql.append(", "); sql.append(attributeMapping.getField());
+   * sql.append(" = ?"); } sql.append(" WHERE "); sql.append(CDODBSchema.ATTRIBUTES_ID); sql.append(" = ? "); stmt =
    * getConnection().prepareStatement(sql.toString()); } int col = 1; if (TRACER.isEnabled()) {
    * TRACER.trace(stmt.toString()); } stmt.setInt(col++, revision.getVersion()); if (withFullRevisionInfo) {
    * stmt.setLong(col++, CDOIDUtil.getLong(revision.getResourceID())); stmt.setLong(col++,
@@ -611,7 +624,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
    */
 
   @Override
-  protected void doDeleteAttributes(String tableName, long cdoid)
+  public void doDeleteAttributes(String tableName, long cdoid)
   {
     PreparedStatement stmt = null;
     if (cacheStatements)
@@ -658,7 +671,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
   }
 
   @Override
-  protected void doInsertReference(String tableName, long dbID, long source, int version, int index, long target)
+  public void doInsertReference(String tableName, long dbID, long source, int version, int index, long target)
   {
     PreparedStatement stmt = null;
     if (cacheStatements)
@@ -711,14 +724,14 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
   }
 
   @Override
-  protected void doInsertReferenceRow(String tableName, long metaID, long cdoid, int newVersion, long target, int index)
+  public void doInsertReferenceRow(String tableName, long metaID, long cdoid, int newVersion, long target, int index)
   {
     move1up(tableName, metaID, cdoid, newVersion, index);
     doInsertReference(tableName, metaID, cdoid, newVersion, index, target);
   }
 
   @Override
-  protected void doMoveReferenceRow(String tableName, long metaID, long cdoid, int newVersion, int oldPosition,
+  public void doMoveReferenceRow(String tableName, long metaID, long cdoid, int newVersion, int oldPosition,
       int newPosition)
   {
     if (oldPosition == newPosition)
@@ -746,15 +759,14 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
   }
 
   @Override
-  protected void doRemoveReferenceRow(String tableName, long metaID, long cdoid, int index, int newVersion)
+  public void doRemoveReferenceRow(String tableName, long metaID, long cdoid, int index, int newVersion)
   {
     deleteReferenceRow(tableName, metaID, cdoid, index);
     move1down(tableName, metaID, cdoid, newVersion, index);
   }
 
   @Override
-  protected void doUpdateReference(String tableName, long metaID, long sourceId, int newVersion, int index,
-      long targetId)
+  public void doUpdateReference(String tableName, long metaID, long sourceId, int newVersion, int index, long targetId)
   {
     PreparedStatement stmt = null;
     if (cacheStatements)
@@ -824,7 +836,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
   }
 
   @Override
-  protected void doUpdateReferenceVersion(String tableName, long cdoid, int newVersion)
+  public void doUpdateReferenceVersion(String tableName, long cdoid, int newVersion)
   {
     boolean firstBatch = false;
 
@@ -876,7 +888,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
   }
 
   @Override
-  protected void doDeleteReferences(String tableName, long metaID, long cdoid)
+  public void doDeleteReferences(String tableName, long metaID, long cdoid)
   {
     PreparedStatement stmt = null;
     if (cacheStatements)
@@ -935,7 +947,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
   }
 
   @Override
-  protected ResultSet doSelectRevisionAttributes(String tableName, long revisionId,
+  public ResultSet doSelectRevisionAttributes(String tableName, long revisionId,
       List<IAttributeMapping> attributeMappings, boolean hasFullRevisionInfo, String where) throws SQLException
   {
     // Because of the variable where clause, statement caching can not be
@@ -1000,7 +1012,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
   }
 
   @Override
-  protected ResultSet doSelectRevisionReferences(String tableName, long sourceId, int version, long metaID, String where)
+  public ResultSet doSelectRevisionReferences(String tableName, long sourceId, int version, long metaID, String where)
       throws SQLException
   {
     StringBuilder builder = new StringBuilder();
@@ -1069,7 +1081,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
     // leave open cached statements
     if (!cacheStatements || !(stmt instanceof PreparedStatement))
     {
-      super.releaseStatement(stmt);
+      // super.releaseStatement(stmt);
     }
 
     // /* This code would guarantee that releaseStatement is only called
@@ -1087,7 +1099,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
   // List management helpers
   // ----------------------------------------------------------
 
-  private void updateOneIndex(String tableName, long metaID, long cdoid, int newVersion, int oldIndex, int newIndex)
+  public void updateOneIndex(String tableName, long metaID, long cdoid, int newVersion, int oldIndex, int newIndex)
   {
     if (TRACER.isEnabled())
     {
@@ -1165,7 +1177,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
    * Move references downwards to close a gap at position <code>index</code>. Only indexes starting with
    * <code>index + 1</code> and ending with <code>upperIndex</code> are moved down.
    */
-  private void move1down(String tableName, long metaID, long cdoid, int newVersion, int index, int upperIndex)
+  public void move1down(String tableName, long metaID, long cdoid, int newVersion, int index, int upperIndex)
   {
     if (TRACER.isEnabled())
     {
@@ -1243,7 +1255,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
    * Move references downwards to close a gap at position <code>index</code>. All indexes starting with
    * <code>index + 1</code> are moved down.
    */
-  private void move1down(String tableName, long metaID, long cdoid, int newVersion, int index)
+  public void move1down(String tableName, long metaID, long cdoid, int newVersion, int index)
   {
     if (TRACER.isEnabled())
     {
@@ -1319,7 +1331,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
    * Move references upwards to make room at position <code>index</code>. Only indexes starting with <code>index</code>
    * and ending with <code>upperIndex - 1</code> are moved up.
    */
-  private void move1up(String tableName, long metaID, long cdoid, int newVersion, int index, int upperIndex)
+  public void move1up(String tableName, long metaID, long cdoid, int newVersion, int index, int upperIndex)
   {
     if (TRACER.isEnabled())
     {
@@ -1397,7 +1409,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
   /**
    * Move references upwards to make room at position <code>index</code>. Only indexes starting with <code>index</code>.
    */
-  private void move1up(String tableName, long metaID, long cdoid, int newVersion, int index)
+  public void move1up(String tableName, long metaID, long cdoid, int newVersion, int index)
   {
     if (TRACER.isEnabled())
     {
@@ -1469,7 +1481,7 @@ public class PreparedStatementJDBCDelegate extends AbstractJDBCDelegate
     }
   }
 
-  private void deleteReferenceRow(String tableName, long metaID, long cdoid, int index)
+  public void deleteReferenceRow(String tableName, long metaID, long cdoid, int index)
   {
     PreparedStatement stmt = null;
     if (cacheStatements)

@@ -25,10 +25,10 @@ import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.server.IQueryContext;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.ISession;
+import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.ITransaction;
 import org.eclipse.emf.cdo.server.IStore.RevisionTemporality;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
-import org.eclipse.emf.cdo.server.db.IJDBCDelegate;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
@@ -44,7 +44,6 @@ import org.eclipse.net4j.db.IDBRowHandler;
 import org.eclipse.net4j.db.ddl.IDBTable;
 import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
 import org.eclipse.net4j.util.collection.CloseableIterator;
-import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.monitor.ProgressDistributable;
 import org.eclipse.net4j.util.om.monitor.ProgressDistributor;
@@ -55,6 +54,7 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -73,9 +73,11 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, DBStoreAccessor.class);
 
+  /** @deprecated move to meta manager */
+  @Deprecated
   private static final boolean ZIP_PACKAGE_BYTES = true;
 
-  private IJDBCDelegate jdbcDelegate;
+  private Connection connection = null;
 
   @ExcludeFromDump
   @SuppressWarnings("unchecked")
@@ -91,31 +93,19 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
       {
         public void runLoop(int index, CommitContext commitContext, OMMonitor monitor) throws Exception
         {
-          jdbcDelegate.flush(monitor.fork());
+          // TODO - reenable when reimplementing stmt caching
+          // flush(monitor.fork());
         }
       });
 
   public DBStoreAccessor(DBStore store, ISession session) throws DBException
   {
     super(store, session);
-    initJDBCDelegate();
   }
 
   public DBStoreAccessor(DBStore store, ITransaction transaction) throws DBException
   {
     super(store, transaction);
-    initJDBCDelegate();
-  }
-
-  private void initJDBCDelegate()
-  {
-    jdbcDelegate = getStore().getJDBCDelegateProvider().getJDBCDelegate();
-    jdbcDelegate.setStoreAccessor(this);
-  }
-
-  public IJDBCDelegate getJDBCDelegate()
-  {
-    return jdbcDelegate;
   }
 
   @Override
@@ -124,11 +114,16 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     return (DBStore)super.getStore();
   }
 
+  /** TODO: check how to handle */
   public DBStoreChunkReader createChunkReader(InternalCDORevision revision, EStructuralFeature feature)
   {
     return new DBStoreChunkReader(this, revision, feature);
   }
 
+  /**
+   * @deprecated move to meta manager
+   */
+  @Deprecated
   public final Collection<InternalCDOPackageUnit> readPackageUnits()
   {
     final Map<String, InternalCDOPackageUnit> packageUnits = new HashMap<String, InternalCDOPackageUnit>();
@@ -144,7 +139,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
       }
     };
 
-    DBUtil.select(jdbcDelegate.getConnection(), unitRowHandler, CDODBSchema.PACKAGE_UNITS_ID,
+    DBUtil.select(getConnection(), unitRowHandler, CDODBSchema.PACKAGE_UNITS_ID,
         CDODBSchema.PACKAGE_UNITS_ORIGINAL_TYPE, CDODBSchema.PACKAGE_UNITS_TIME_STAMP);
 
     final Map<String, List<InternalCDOPackageInfo>> packageInfos = new HashMap<String, List<InternalCDOPackageInfo>>();
@@ -175,9 +170,8 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
       }
     };
 
-    DBUtil.select(jdbcDelegate.getConnection(), infoRowHandler, CDODBSchema.PACKAGE_INFOS_UNIT,
-        CDODBSchema.PACKAGE_INFOS_URI, CDODBSchema.PACKAGE_INFOS_PARENT, CDODBSchema.PACKAGE_INFOS_META_LB,
-        CDODBSchema.PACKAGE_INFOS_META_UB);
+    DBUtil.select(getConnection(), infoRowHandler, CDODBSchema.PACKAGE_INFOS_UNIT, CDODBSchema.PACKAGE_INFOS_URI,
+        CDODBSchema.PACKAGE_INFOS_PARENT, CDODBSchema.PACKAGE_INFOS_META_LB, CDODBSchema.PACKAGE_INFOS_META_UB);
 
     for (Entry<String, InternalCDOPackageUnit> entry : packageUnits.entrySet())
     {
@@ -192,15 +186,22 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     return packageUnits.values();
   }
 
+  /**
+   * @deprecated move to meta manager
+   */
+  @Deprecated
   public final EPackage[] loadPackageUnit(InternalCDOPackageUnit packageUnit)
   {
     String where = CDODBSchema.PACKAGE_UNITS_ID.getName() + "='" + packageUnit.getID() + "'";
-    Object[] values = DBUtil.select(jdbcDelegate.getConnection(), where, CDODBSchema.PACKAGE_UNITS_PACKAGE_DATA);
+    Object[] values = DBUtil.select(getConnection(), where, CDODBSchema.PACKAGE_UNITS_PACKAGE_DATA);
     byte[] bytes = (byte[])values[0];
     EPackage ePackage = createEPackage(packageUnit, bytes);
     return EMFUtil.getAllPackages(ePackage);
   }
 
+  /**
+   * TODO caching?
+   */
   public CloseableIterator<CDOID> readObjectIDs()
   {
     if (TRACER.isEnabled())
@@ -211,6 +212,9 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     return getStore().getMappingStrategy().readObjectIDs(this);
   }
 
+  /**
+   * TODO caching?
+   */
   public CDOClassifierRef readObjectType(CDOID id)
   {
     if (TRACER.isEnabled())
@@ -219,6 +223,20 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     }
 
     return getStore().getMappingStrategy().readObjectType(this, id);
+  }
+
+  protected EClass getObjectType(CDOID id)
+  {
+    // TODO Replace calls to getObjectType by optimized calls to RevisionManager.getObjectType (cache!)
+    CDOClassifierRef type = readObjectType(id);
+    if (type == null)
+    {
+      return null;
+    }
+
+    IRepository repository = getStore().getRepository();
+    CDOPackageRegistry packageRegistry = repository.getPackageRegistry();
+    return (EClass)type.resolve(packageRegistry);
   }
 
   public InternalCDORevision readRevision(CDOID id, int referenceChunk, AdditionalRevisionCache cache)
@@ -292,6 +310,8 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
   }
 
   /**
+   * TODO: implement as query when query implementation is done?
+   * 
    * @since 2.0
    */
   public void queryResources(QueryResourcesContext context)
@@ -309,20 +329,6 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     throw new UnsupportedOperationException();
   }
 
-  protected EClass getObjectType(CDOID id)
-  {
-    // TODO Replace calls to getObjectType by optimized calls to RevisionManager.getObjectType (cache!)
-    CDOClassifierRef type = readObjectType(id);
-    if (type == null)
-    {
-      return null;
-    }
-
-    IRepository repository = getStore().getRepository();
-    CDOPackageRegistry packageRegistry = repository.getPackageRegistry();
-    return (EClass)type.resolve(packageRegistry);
-  }
-
   public CloseableIterator<Object> createQueryIterator(CDOQueryInfo queryInfo)
   {
     throw new UnsupportedOperationException();
@@ -330,6 +336,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
 
   public void refreshRevisions()
   {
+    // TODO is this empty on purpose or should it be implemented (how?)
   }
 
   @Override
@@ -339,6 +346,10 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     distributor.run(ops, context, monitor);
   }
 
+  /**
+   * @deprecated move to meta manager
+   */
+  @Deprecated
   public final void writePackageUnits(InternalCDOPackageUnit[] packageUnits, OMMonitor monitor)
   {
     try
@@ -353,6 +364,10 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     }
   }
 
+  /**
+   * @deprecated move to meta manager
+   */
+  @Deprecated
   private void fillSystemTables(InternalCDOPackageUnit[] packageUnits, OMMonitor monitor)
   {
     try
@@ -369,6 +384,10 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     }
   }
 
+  /**
+   * @deprecated move to meta manager
+   */
+  @Deprecated
   private void fillSystemTables(InternalCDOPackageUnit packageUnit, OMMonitor monitor)
   {
     try
@@ -388,7 +407,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
 
       try
       {
-        pstmt = jdbcDelegate.getPreparedStatement(sql);
+        pstmt = getPreparedStatement(sql);
         pstmt.setString(1, packageUnit.getID());
         pstmt.setInt(2, packageUnit.getOriginalType().ordinal());
         pstmt.setLong(3, packageUnit.getTimeStamp());
@@ -425,6 +444,18 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     }
   }
 
+  /**
+   * TODO - inline statement preparing to simplify handling
+   */
+  private PreparedStatement getPreparedStatement(String sql) throws SQLException
+  {
+    return getConnection().prepareStatement(sql);
+  }
+
+  /**
+   * @deprecated move to meta manager
+   */
+  @Deprecated
   private byte[] getEPackageBytes(InternalCDOPackageUnit packageUnit)
   {
     EPackage ePackage = packageUnit.getTopLevelPackageInfo().getEPackage();
@@ -432,12 +463,20 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     return EMFUtil.getEPackageBytes(ePackage, ZIP_PACKAGE_BYTES, packageRegistry);
   }
 
+  /**
+   * @deprecated move to meta manager
+   */
+  @Deprecated
   private EPackage createEPackage(InternalCDOPackageUnit packageUnit, byte[] bytes)
   {
     CDOPackageRegistry packageRegistry = getStore().getRepository().getPackageRegistry();
     return EMFUtil.createEPackage(packageUnit.getID(), bytes, ZIP_PACKAGE_BYTES, packageRegistry);
   }
 
+  /**
+   * @deprecated move to meta manager
+   */
+  @Deprecated
   private void fillSystemTables(InternalCDOPackageInfo packageInfo, OMMonitor monitor)
   {
     if (TRACER.isEnabled())
@@ -459,7 +498,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
 
     try
     {
-      pstmt = jdbcDelegate.getPreparedStatement(sql);
+      pstmt = getPreparedStatement(sql);
       pstmt.setString(1, packageURI);
       pstmt.setString(2, parentURI);
       pstmt.setString(3, unitID);
@@ -487,6 +526,10 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     }
   }
 
+  /**
+   * @deprecated move to meta manager
+   */
+  @Deprecated
   private void createModelTables(InternalCDOPackageUnit[] packageUnits, OMMonitor monitor)
   {
     monitor.begin();
@@ -495,7 +538,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     try
     {
       Set<IDBTable> affectedTables = mapPackageUnits(packageUnits);
-      getStore().getDBAdapter().createTables(affectedTables, jdbcDelegate.getConnection());
+      getStore().getDBAdapter().createTables(affectedTables, getConnection());
     }
     finally
     {
@@ -507,6 +550,8 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
   @Override
   protected void writeRevisionDeltas(InternalCDORevisionDelta[] revisionDeltas, long created, OMMonitor monitor)
   {
+    // TODO move check to mapping strategy
+
     if (!(getStore().getRevisionTemporality() == RevisionTemporality.NONE))
     {
       throw new UnsupportedOperationException("Revision Deltas are only supported in non-auditing mode!");
@@ -595,8 +640,9 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
   }
 
   /**
-   * TODO Move this somehow to DBAdapter
+   * @deprecated TODO Move this somehow to DBAdapter
    */
+  @Deprecated
   protected Boolean getBoolean(Object value)
   {
     if (value == null)
@@ -617,6 +663,8 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     throw new IllegalArgumentException("Not a boolean value: " + value);
   }
 
+  /** @deprecated move to meta manager */
+  @Deprecated
   protected Set<IDBTable> mapPackageUnits(InternalCDOPackageUnit[] packageUnits)
   {
     Set<IDBTable> affectedTables = new HashSet<IDBTable>();
@@ -631,6 +679,8 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     return affectedTables;
   }
 
+  /** @deprecated move to meta manager */
+  @Deprecated
   protected void mapPackageInfos(InternalCDOPackageInfo[] packageInfos, Set<IDBTable> affectedTables)
   {
     for (InternalCDOPackageInfo packageInfo : packageInfos)
@@ -645,6 +695,8 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     }
   }
 
+  /** @deprecated move to meta manager */
+  @Deprecated
   protected Set<IDBTable> mapClasses(EClass... eClasses)
   {
     Set<IDBTable> affectedTables = new HashSet<IDBTable>();
@@ -664,37 +716,69 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     return affectedTables;
   }
 
+  /** @deprecated move to meta manager */
+  @Deprecated
   protected InternalCDOPackageUnit createPackageUnit()
   {
     return (InternalCDOPackageUnit)CDOModelUtil.createPackageUnit();
   }
 
+  /** @deprecated move to meta manager */
+  @Deprecated
   protected InternalCDOPackageInfo createPackageInfo()
   {
     return (InternalCDOPackageInfo)CDOModelUtil.createPackageInfo();
   }
 
+  public Connection getConnection()
+  {
+    return connection;
+  }
+
   public final void commit(OMMonitor monitor)
   {
-    jdbcDelegate.commit(monitor);
+    monitor.begin();
+    Async async = monitor.forkAsync();
+
+    try
+    {
+      getConnection().commit();
+    }
+    catch (SQLException ex)
+    {
+      throw new DBException(ex);
+    }
+    finally
+    {
+      async.stop();
+      monitor.done();
+    }
   }
 
   @Override
-  protected final void rollback(CommitContext context)
+  protected final void rollback(IStoreAccessor.CommitContext commitContext)
   {
-    jdbcDelegate.rollback();
+    try
+    {
+      getConnection().rollback();
+    }
+    catch (SQLException ex)
+    {
+      throw new DBException(ex);
+    }
   }
 
   @Override
   protected void doActivate() throws Exception
   {
-    LifecycleUtil.activate(jdbcDelegate);
+    connection = getStore().getDBConnectionProvider().getConnection();
   }
 
   @Override
   protected void doDeactivate() throws Exception
   {
-    LifecycleUtil.deactivate(jdbcDelegate);
+    DBUtil.close(connection);
+    connection = null;
   }
 
   @Override
@@ -706,6 +790,6 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
   @Override
   protected void doUnpassivate() throws Exception
   {
-    // Do nothing
+    // TODO Check if connection is still valid.
   }
 }

@@ -12,6 +12,8 @@ package org.eclipse.emf.cdo.server.db;
 
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 
+import java.sql.Connection;
+
 /**
  * @author Eike Stepper
  * @noimplement This interface is not intended to be implemented by clients.
@@ -20,8 +22,5 @@ public interface IDBStoreAccessor extends IStoreAccessor
 {
   public IDBStore getStore();
 
-  /**
-   * @since 2.0
-   */
-  public IJDBCDelegate getJDBCDelegate();
+  public Connection getConnection();
 }

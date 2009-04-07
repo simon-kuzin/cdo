@@ -19,24 +19,24 @@ import org.eclipse.emf.cdo.server.IRepositoryProvider;
 import org.eclipse.emf.cdo.server.IStore;
 import org.eclipse.emf.cdo.server.IRepository.Props;
 import org.eclipse.emf.cdo.server.db.CDODBUtil;
-import org.eclipse.emf.cdo.server.db.IJDBCDelegateProvider;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.mem.MEMStoreUtil;
 import org.eclipse.emf.cdo.tests.bundle.OM;
 import org.eclipse.emf.cdo.tests.config.IRepositoryConfig;
-import org.eclipse.emf.cdo.tests.store.verifier.AuditDBStoreIntegrityVerifier;
-import org.eclipse.emf.cdo.tests.store.verifier.NonAuditDBStoreIntegrityVerifier;
 
 import org.eclipse.net4j.db.DBUtil;
 import org.eclipse.net4j.db.IDBAdapter;
 import org.eclipse.net4j.db.derby.EmbeddedDerbyAdapter;
 import org.eclipse.net4j.db.hsqldb.HSQLDBAdapter;
 import org.eclipse.net4j.db.hsqldb.HSQLDBDataSource;
+import org.eclipse.net4j.db.mysql.MYSQLAdapter;
 import org.eclipse.net4j.util.ObjectUtil;
 import org.eclipse.net4j.util.container.IManagedContainer;
 import org.eclipse.net4j.util.io.IOUtil;
 import org.eclipse.net4j.util.io.TMPUtil;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
+
+import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
 import org.apache.derby.jdbc.EmbeddedDataSource;
 
@@ -57,10 +57,9 @@ import java.util.Map.Entry;
 public abstract class RepositoryConfig extends Config implements IRepositoryConfig
 {
   public static final RepositoryConfig[] CONFIGS = { MEM.INSTANCE, //
-      DB.Hsqldb.Stmt.INSTANCE, DB.Hsqldb.PrepStmt.INSTANCE, //
-      DB.Derby.Stmt.INSTANCE, DB.Derby.PrepStmt.INSTANCE /*
-                                                          * , // DB.Mysql.Stmt.INSTANCE, DB.Mysql.PrepStmt.INSTANCE
-                                                          */};
+      DB.Hsqldb.INSTANCE, //
+      DB.Derby.INSTANCE, //
+      DB.Mysql.INSTANCE };
 
   public static final String PROP_TEST_REPOSITORY = "test.repository";
 
@@ -233,12 +232,8 @@ public abstract class RepositoryConfig extends Config implements IRepositoryConf
       IMappingStrategy mappingStrategy = createMappingStrategy();
       IDBAdapter dbAdapter = createDBAdapter();
       DataSource dataSource = createDataSource();
-      IJDBCDelegateProvider delegateProvider = createDelegateProvider();
-      return CDODBUtil.createStore(mappingStrategy, dbAdapter, DBUtil.createConnectionProvider(dataSource),
-          delegateProvider);
+      return CDODBUtil.createStore(mappingStrategy, dbAdapter, DBUtil.createConnectionProvider(dataSource));
     }
-
-    protected abstract IJDBCDelegateProvider createDelegateProvider();
 
     protected abstract IMappingStrategy createMappingStrategy();
 
@@ -249,9 +244,11 @@ public abstract class RepositoryConfig extends Config implements IRepositoryConf
     /**
      * @author Eike Stepper
      */
-    public abstract static class Hsqldb extends DB
+    public static class Hsqldb extends DB
     {
       private static final long serialVersionUID = 1L;
+
+      public static final Hsqldb INSTANCE = new Hsqldb("HSQLDB");
 
       private transient HSQLDBDataSource dataSource;
 
@@ -319,142 +316,35 @@ public abstract class RepositoryConfig extends Config implements IRepositoryConf
           }
         }
       }
+    }
 
-      public static class Stmt extends Hsqldb
+    public static class HsqldbNonAudit extends Hsqldb
+    {
+      private static final long serialVersionUID = 1L;
+
+      public static final HsqldbNonAudit INSTANCE = new HsqldbNonAudit("DBStore: Hsqldb (non audit)");
+
+      public HsqldbNonAudit(String name)
       {
-        private static final long serialVersionUID = 1L;
-
-        public static final Stmt INSTANCE = new Stmt("HsqldbHorizontalStmt");
-
-        public Stmt(String name)
-        {
-          super(name);
-        }
-
-        @Override
-        protected IJDBCDelegateProvider createDelegateProvider()
-        {
-          return CDODBUtil.createStatementJDBCDelegateProvider();
-        }
+        super(name);
       }
 
-      public static class StmtNonAudit extends Hsqldb
+      @Override
+      protected void initRepositoryProperties(Map<String, String> props)
       {
-        private static final long serialVersionUID = 1L;
-
-        public static final StmtNonAudit INSTANCE = new StmtNonAudit("HsqldbHorizontalNonAudit");
-
-        public StmtNonAudit(String name)
-        {
-          super(name);
-        }
-
-        @Override
-        protected void initRepositoryProperties(Map<String, String> props)
-        {
-          super.initRepositoryProperties(props);
-          props.put(IRepository.Props.SUPPORTING_AUDITS, "false");
-        }
-
-        @Override
-        protected IJDBCDelegateProvider createDelegateProvider()
-        {
-          return CDODBUtil.createStatementJDBCDelegateProvider();
-        }
-
-        @Override
-        public void tearDown() throws Exception
-        {
-          try
-          {
-            // verify DB integrity
-            new NonAuditDBStoreIntegrityVerifier(getRepository(REPOSITORY_NAME)).verify();
-          }
-          finally
-          {
-            super.tearDown();
-          }
-        }
-      }
-
-      public static class PrepStmt extends Hsqldb
-      {
-        private static final long serialVersionUID = 1L;
-
-        public static final PrepStmt INSTANCE = new PrepStmt("HsqldbHorizontalPrepStmt");
-
-        public PrepStmt(String name)
-        {
-          super(name);
-        }
-
-        @Override
-        public void tearDown() throws Exception
-        {
-          try
-          {
-            // verify DB integrity
-            new AuditDBStoreIntegrityVerifier(getRepository(REPOSITORY_NAME)).verify();
-          }
-          finally
-          {
-            super.tearDown();
-          }
-        }
-
-        @Override
-        protected IJDBCDelegateProvider createDelegateProvider()
-        {
-          return CDODBUtil.createPreparedStatementJDBCDelegateProvider();
-        }
-      }
-
-      public static class PrepStmtNonAudit extends Hsqldb
-      {
-        private static final long serialVersionUID = 1L;
-
-        public static final PrepStmtNonAudit INSTANCE = new PrepStmtNonAudit("HsqldbHorizontalPrepStmtNonAudit");
-
-        public PrepStmtNonAudit(String name)
-        {
-          super(name);
-        }
-
-        @Override
-        protected void initRepositoryProperties(Map<String, String> props)
-        {
-          super.initRepositoryProperties(props);
-          props.put(IRepository.Props.SUPPORTING_AUDITS, "false");
-        }
-
-        @Override
-        protected IJDBCDelegateProvider createDelegateProvider()
-        {
-          return CDODBUtil.createPreparedStatementJDBCDelegateProvider();
-        }
-
-        @Override
-        public void tearDown() throws Exception
-        {
-          try
-          {
-            // verify DB integrity
-            new NonAuditDBStoreIntegrityVerifier(getRepository(REPOSITORY_NAME)).verify();
-          }
-          finally
-          {
-            super.tearDown();
-          }
-        }
+        super.initRepositoryProperties(props);
+        props.put(IRepository.Props.SUPPORTING_AUDITS, "false");
       }
     }
 
     /**
      * @author Eike Stepper
      */
-    public abstract static class Derby extends DB
+    public static class Derby extends DB
     {
       private static final long serialVersionUID = 1L;
+
+      public static final Derby INSTANCE = new Derby("DBStore: Derby");
 
       private transient File dbFolder;
 
@@ -500,176 +390,105 @@ public abstract class RepositoryConfig extends Config implements IRepositoryConf
       {
         IOUtil.delete(dbFolder);
       }
-
-      public static class Stmt extends Derby
-      {
-        private static final long serialVersionUID = 1L;
-
-        public static final Stmt INSTANCE = new Stmt("DerbyHorizontalStmt");
-
-        public Stmt(String name)
-        {
-          super(name);
-        }
-
-        @Override
-        protected IJDBCDelegateProvider createDelegateProvider()
-        {
-          return CDODBUtil.createStatementJDBCDelegateProvider();
-        }
-      }
-
-      public static class PrepStmt extends Derby
-      {
-        private static final long serialVersionUID = 1L;
-
-        public static final PrepStmt INSTANCE = new PrepStmt("DerbyHorizontalPrepStmt");
-
-        public PrepStmt(String name)
-        {
-          super(name);
-        }
-
-        @Override
-        protected IJDBCDelegateProvider createDelegateProvider()
-        {
-          return CDODBUtil.createPreparedStatementJDBCDelegateProvider();
-        }
-      }
     }
 
-    // XXX
-    // /**
-    // * @author Simon McDuff
-    // */
-    // public static abstract class Mysql extends DB
-    // {
-    // private static final long serialVersionUID = 1L;
-    //
-    // private transient MysqlDataSource setupDataSource;
-    //
-    // private transient MysqlDataSource dataSource;
-    //
-    // public Mysql(String name)
-    // {
-    // super(name);
-    // }
-    //
-    // @Override
-    // protected IMappingStrategy createMappingStrategy()
-    // {
-    // return CDODBUtil.createHorizontalMappingStrategy();
-    // }
-    //
-    // @Override
-    // protected IDBAdapter createDBAdapter()
-    // {
-    // return new MYSQLAdapter();
-    // }
-    //
-    // private MysqlDataSource getSetupDataSource()
-    // {
-    // if (setupDataSource == null)
-    // {
-    // setupDataSource = new MysqlDataSource();
-    // setupDataSource.setUrl("jdbc:mysql://localhost");
-    // setupDataSource.setUser("sa");
-    // }
-    //
-    // return setupDataSource;
-    // }
-    //
-    // @Override
-    // public void setUp() throws Exception
-    // {
-    // dropDatabase();
-    // Connection connection = null;
-    // try
-    // {
-    // connection = getSetupDataSource().getConnection();
-    // connection.prepareStatement("create database cdodb1").execute();
-    // }
-    // catch (SQLException ignore)
-    // {
-    //
-    // }
-    // finally
-    // {
-    // connection.close();
-    // }
-    // super.setUp();
-    // }
-    //
-    // @Override
-    // protected DataSource createDataSource()
-    // {
-    // dataSource = new MysqlDataSource();
-    // dataSource.setUrl("jdbc:mysql://localhost/cdodb1");
-    // dataSource.setUser("sa");
-    // return dataSource;
-    // }
-    //
-    // @Override
-    // public void tearDown() throws Exception
-    // {
-    // super.tearDown();
-    // dropDatabase();
-    // }
-    //
-    // private void dropDatabase() throws Exception
-    // {
-    // Connection connection = null;
-    // try
-    // {
-    // connection = getSetupDataSource().getConnection();
-    // connection.prepareStatement("DROP database cdodb1").execute();
-    // }
-    // catch (SQLException ignore)
-    // {
-    //
-    // }
-    // finally
-    // {
-    // connection.close();
-    // }
-    // }
-    //
-    // public static class Stmt extends Mysql
-    // {
-    // private static final long serialVersionUID = 1L;
-    //
-    // public static final Stmt INSTANCE = new Stmt("MysqlHorizontalStmt");
-    //
-    // public Stmt(String name)
-    // {
-    // super(name);
-    // }
-    //
-    // @Override
-    // protected IJDBCDelegateProvider createDelegateProvider()
-    // {
-    // return CDODBUtil.createStatementJDBCDelegateProvider();
-    // }
-    // }
-    //
-    // public static class PrepStmt extends Mysql
-    // {
-    // private static final long serialVersionUID = 1L;
-    //
-    // public static final PrepStmt INSTANCE = new PrepStmt("MysqlHorizontalPrepStmt");
-    //
-    // public PrepStmt(String name)
-    // {
-    // super(name);
-    // }
-    //
-    // @Override
-    // protected IJDBCDelegateProvider createDelegateProvider()
-    // {
-    // return CDODBUtil.createPreparedStatementJDBCDelegateProvider();
-    // }
-    // }
-    // }
-  }
+    /**
+     * @author Simon McDuff
+     */
+    public static class Mysql extends DB
+    {
+      private static final long serialVersionUID = 1L;
 
+      public static final Mysql INSTANCE = new Mysql("DBStore: Mysql");
+
+      private transient MysqlDataSource setupDataSource;
+
+      private transient MysqlDataSource dataSource;
+
+      public Mysql(String name)
+      {
+        super(name);
+      }
+
+      @Override
+      protected IMappingStrategy createMappingStrategy()
+      {
+        return CDODBUtil.createHorizontalMappingStrategy();
+      }
+
+      @Override
+      protected IDBAdapter createDBAdapter()
+      {
+        return new MYSQLAdapter();
+      }
+
+      private MysqlDataSource getSetupDataSource()
+      {
+        if (setupDataSource == null)
+        {
+          setupDataSource = new MysqlDataSource();
+          setupDataSource.setUrl("jdbc:mysql://localhost");
+          setupDataSource.setUser("sa");
+        }
+
+        return setupDataSource;
+      }
+
+      @Override
+      public void setUp() throws Exception
+      {
+        dropDatabase();
+        Connection connection = null;
+        try
+        {
+          connection = getSetupDataSource().getConnection();
+          connection.prepareStatement("create database cdodb1").execute();
+        }
+        catch (SQLException ignore)
+        {
+
+        }
+        finally
+        {
+          connection.close();
+        }
+        super.setUp();
+      }
+
+      @Override
+      protected DataSource createDataSource()
+      {
+        dataSource = new MysqlDataSource();
+        dataSource.setUrl("jdbc:mysql://localhost/cdodb1");
+        dataSource.setUser("sa");
+        return dataSource;
+      }
+
+      @Override
+      public void tearDown() throws Exception
+      {
+        super.tearDown();
+        dropDatabase();
+      }
+
+      private void dropDatabase() throws Exception
+      {
+        Connection connection = null;
+        try
+        {
+          connection = getSetupDataSource().getConnection();
+          connection.prepareStatement("DROP database cdodb1").execute();
+        }
+        catch (SQLException ignore)
+        {
+
+        }
+        finally
+        {
+          connection.close();
+        }
+      }
+
+    }
+  }
 }

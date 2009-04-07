@@ -12,21 +12,12 @@
 package org.eclipse.emf.cdo.server.internal.db.mapping;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
-import org.eclipse.emf.cdo.common.revision.delta.CDOAddFeatureDelta;
-import org.eclipse.emf.cdo.common.revision.delta.CDOClearFeatureDelta;
-import org.eclipse.emf.cdo.common.revision.delta.CDOContainerFeatureDelta;
-import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
-import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDeltaVisitor;
-import org.eclipse.emf.cdo.common.revision.delta.CDOListFeatureDelta;
-import org.eclipse.emf.cdo.common.revision.delta.CDOMoveFeatureDelta;
-import org.eclipse.emf.cdo.common.revision.delta.CDORemoveFeatureDelta;
-import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
-import org.eclipse.emf.cdo.common.revision.delta.CDOSetFeatureDelta;
-import org.eclipse.emf.cdo.common.revision.delta.CDOUnsetFeatureDelta;
 import org.eclipse.emf.cdo.server.IStore;
+import org.eclipse.emf.cdo.server.db.CDODBUtil;
 import org.eclipse.emf.cdo.server.db.IDBStore;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.mapping.IAttributeMapping;
@@ -36,34 +27,44 @@ import org.eclipse.emf.cdo.server.db.mapping.IReferenceMapping;
 import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
 import org.eclipse.emf.cdo.server.internal.db.DBStore;
 import org.eclipse.emf.cdo.server.internal.db.ToMany;
+import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
 
 import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.db.DBType;
+import org.eclipse.net4j.db.DBUtil;
 import org.eclipse.net4j.db.IDBAdapter;
 import org.eclipse.net4j.db.ddl.IDBField;
 import org.eclipse.net4j.db.ddl.IDBIndex;
 import org.eclipse.net4j.db.ddl.IDBTable;
 import org.eclipse.net4j.util.ImplementationError;
-import org.eclipse.net4j.util.collection.Pair;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
-import org.eclipse.net4j.util.om.monitor.OMMonitor.Async;
+import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EEnumLiteral;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 /**
- * @author Eike Stepper
+ * @author Eike Stepper TODO: refactor attribute/reference/type mappings
  */
 public abstract class ClassMapping implements IClassMapping
 {
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, ClassMapping.class);
+
   private MappingStrategy mappingStrategy;
 
   private EClass eClass;
@@ -76,14 +77,27 @@ public abstract class ClassMapping implements IClassMapping
 
   private List<IReferenceMapping> referenceMappings;
 
-  private ThreadLocal<FeatureDeltaWriter> deltaWriter = new ThreadLocal<FeatureDeltaWriter>()
-  {
-    @Override
-    protected FeatureDeltaWriter initialValue()
-    {
-      return new FeatureDeltaWriter();
-    };
-  };
+  private String sqlSelectAttributesPrefix;
+
+  private String sqlSelectAttributesAffix;
+
+  private String sqlDeleteAttributes;
+
+  private String sqlReviseAttributes;
+
+  private String sqlReviseAttributesByID;
+
+  private String sqlInsertAttributes;
+
+  private String sqlUpdateAttributesAffix;
+
+  private String sqlUpdateAttributesContainmentPart;
+
+  private String sqlUpdateAttributesPrefix;
+
+  private String sqlUpdateAllAttributesPart;
+
+  private String sqlUpdateAllAttributes;
 
   public ClassMapping(MappingStrategy mappingStrategy, EClass eClass, EStructuralFeature[] features)
   {
@@ -125,6 +139,8 @@ public abstract class ClassMapping implements IClassMapping
       // }
       // }
     }
+
+    initSqlStrings();
   }
 
   public MappingStrategy getMappingStrategy()
@@ -189,6 +205,7 @@ public abstract class ClassMapping implements IClassMapping
 
   protected int getDBLength(EStructuralFeature feature)
   {
+    // TODO make length DB dependent (Oracle only supports 30 chars)
     // Derby: The maximum length for a VARCHAR string is 32,672 characters.
     CDOType type = CDOModelUtil.getType(feature.getEType());
     return type == CDOType.STRING || type == CDOType.CUSTOM ? 32672 : IDBField.DEFAULT;
@@ -283,6 +300,10 @@ public abstract class ClassMapping implements IClassMapping
     return referenceMappings.isEmpty() ? null : referenceMappings;
   }
 
+  /**
+   * @deprecated move into extensible and flexible type mapping facility
+   */
+  @Deprecated
   protected AttributeMapping createAttributeMapping(EStructuralFeature feature)
   {
     CDOType type = CDOModelUtil.getType(feature.getEType());
@@ -445,29 +466,249 @@ public abstract class ClassMapping implements IClassMapping
 
   protected final void writeRevisedRow(IDBStoreAccessor accessor, InternalCDORevision revision)
   {
-    accessor.getJDBCDelegate().updateRevisedForReplace(revision, this);
+    PreparedStatement stmt = null;
+
+    try
+    {
+      stmt = accessor.getConnection().prepareStatement(sqlReviseAttributes);
+
+      stmt.setLong(1, (revision.getCreated() - 1));
+      stmt.setLong(2, CDOIDUtil.getLong(revision.getID()));
+      stmt.setInt(3, (revision.getVersion() - 1));
+
+      if (TRACER.isEnabled())
+      {
+        TRACER.trace(stmt.toString());
+      }
+
+      int result = stmt.executeUpdate();
+      // only one unrevised row may exist - update count must be 1
+      if (result != 1)
+      {
+        throw new IllegalStateException(stmt.toString() + " returned Update count " + result + " (expected: 1)");
+      }
+    }
+    catch (SQLException e)
+    {
+      throw new DBException(e);
+    }
+    finally
+    {
+      DBUtil.close(stmt);
+    }
   }
 
   protected final void writeRevisedRow(IDBStoreAccessor accessor, CDOID id, long revised)
   {
-    accessor.getJDBCDelegate().updateRevisedForDetach(id, revised, this);
+    PreparedStatement stmt = null;
+
+    try
+    {
+      stmt = accessor.getConnection().prepareStatement(sqlReviseAttributesByID);
+
+      stmt.setLong(1, revised);
+      stmt.setLong(2, CDOIDUtil.getLong(id));
+
+      if (TRACER.isEnabled())
+      {
+        TRACER.trace(stmt.toString());
+      }
+
+      int result = stmt.executeUpdate();
+
+      // only one unrevised row may exist - update count must be 1
+      if (result != 1)
+      {
+        throw new IllegalStateException(stmt.toString() + " returned Update count " + result + " (expected: 1)");
+      }
+    }
+    catch (SQLException e)
+    {
+      throw new DBException(e);
+    }
+    finally
+    {
+      DBUtil.close(stmt);
+    }
   }
 
   protected final void writeAttributes(IDBStoreAccessor accessor, InternalCDORevision revision)
   {
     if (revision.getVersion() == 1 || isAuditing())
     {
-      accessor.getJDBCDelegate().insertAttributes(revision, this);
+      insertAttributes(accessor, revision);
     }
     else
     {
-      accessor.getJDBCDelegate().updateAttributes(revision, this);
+      updateAttributes(accessor, revision);
+    }
+  }
+
+  private void insertAttributes(IDBStoreAccessor accessor, InternalCDORevision revision)
+  {
+    PreparedStatement stmt = null;
+
+    try
+    {
+      stmt = accessor.getConnection().prepareStatement(sqlInsertAttributes);
+
+      int col = 1;
+
+      stmt.setLong(col++, CDOIDUtil.getLong(revision.getID()));
+      stmt.setInt(col++, revision.getVersion());
+      if (hasFullRevisionInfo())
+      {
+        stmt.setLong(col++, accessor.getStore().getMetaID(revision.getEClass()));
+        stmt.setLong(col++, revision.getCreated());
+        stmt.setLong(col++, revision.getRevised());
+        stmt.setLong(col++, CDOIDUtil.getLong(revision.getResourceID()));
+        stmt.setLong(col++, CDODBUtil.getLong((CDOID)revision.getContainerID()));
+        stmt.setInt(col++, revision.getContainingFeatureID());
+      }
+
+      if (attributeMappings != null)
+      {
+        for (IAttributeMapping attributeMapping : attributeMappings)
+        {
+          Object value = attributeMapping.getRevisionValue(revision);
+
+          if (value == null)
+          {
+            stmt.setNull(col++, attributeMapping.getField().getType().getCode());
+          }
+          else if (value instanceof java.util.Date)
+          {
+            // BUG 217255
+            stmt.setTimestamp(col++, new Timestamp(((Date)value).getTime()));
+          }
+          else if (value instanceof EEnumLiteral)
+          {
+            stmt.setInt(col++, ((EEnumLiteral)value).getValue());
+          }
+          else
+          {
+            stmt.setObject(col++, value);
+          }
+        }
+      }
+
+      if (TRACER.isEnabled())
+      {
+        TRACER.trace(stmt.toString());
+      }
+
+      int result = stmt.executeUpdate();
+      // INSERT should insert one row
+      if (result != 1)
+      {
+        throw new IllegalStateException(stmt.toString() + " returned Update count " + result + " (expected: 1)");
+      }
+    }
+    catch (SQLException e)
+    {
+      throw new DBException(e);
+    }
+    finally
+    {
+      DBUtil.close(stmt);
+    }
+  }
+
+  protected final void updateAttributes(IDBStoreAccessor accessor, InternalCDORevision revision)
+  {
+    PreparedStatement stmt = null;
+
+    try
+    {
+      stmt = accessor.getConnection().prepareStatement(sqlUpdateAllAttributes);
+
+      int col = 1;
+      stmt.setInt(col++, revision.getVersion());
+      stmt.setLong(col++, revision.getCreated());
+      stmt.setLong(col++, CDODBUtil.getLong((CDOID)revision.getContainerID()));
+      stmt.setInt(col++, revision.getContainingFeatureID());
+      stmt.setLong(col++, CDOIDUtil.getLong(revision.getResourceID()));
+
+      if (attributeMappings != null)
+      {
+        for (IAttributeMapping attributeMapping : attributeMappings)
+        {
+          Object value = attributeMapping.getRevisionValue(revision);
+
+          if (value == null)
+          {
+            stmt.setNull(col++, attributeMapping.getField().getType().getCode());
+          }
+          else if (value instanceof java.util.Date)
+          {
+            // BUG 217255
+            stmt.setTimestamp(col++, new Timestamp(((Date)value).getTime()));
+          }
+          else if (value instanceof EEnumLiteral)
+          {
+            stmt.setInt(col++, ((EEnumLiteral)value).getValue());
+          }
+          else
+          {
+            stmt.setObject(col++, value);
+          }
+        }
+      }
+
+      stmt.setLong(col++, CDOIDUtil.getLong(revision.getID()));
+
+      if (TRACER.isEnabled())
+      {
+        TRACER.trace(stmt.toString());
+      }
+
+      int result = stmt.executeUpdate();
+      // UPDATE should update one row
+      if (result != 1)
+      {
+        throw new IllegalStateException(stmt.toString() + " returned Update count " + result + " (expected: 1)");
+      }
+    }
+    catch (SQLException ex)
+    {
+      throw new DBException(ex);
+    }
+    finally
+    {
+      DBUtil.close(stmt);
     }
   }
 
   protected final void deleteAttributes(IDBStoreAccessor accessor, CDOID id)
   {
-    accessor.getJDBCDelegate().deleteAttributes(id, this);
+    PreparedStatement stmt = null;
+
+    try
+    {
+      stmt = accessor.getConnection().prepareStatement(sqlDeleteAttributes);
+      stmt.setLong(1, CDOIDUtil.getLong(id));
+
+      if (TRACER.isEnabled())
+      {
+        TRACER.trace(stmt.toString());
+      }
+
+      int result = stmt.executeUpdate();
+
+      // DELETE should delete one row
+      if (result != 1)
+      {
+        throw new IllegalStateException(stmt.toString() + " returned Update count " + result + " (expected: 1)");
+      }
+    }
+    catch (SQLException e)
+    {
+      throw new DBException(e);
+    }
+    finally
+    {
+      DBUtil.close(stmt);
+    }
   }
 
   protected final void deleteReferences(IDBStoreAccessor accessor, CDOID id)
@@ -491,24 +732,6 @@ public abstract class ClassMapping implements IClassMapping
     for (IReferenceMapping referenceMapping : referenceMappings)
     {
       referenceMapping.writeReference(accessor, revision);
-    }
-  }
-
-  public void writeRevisionDelta(IDBStoreAccessor accessor, InternalCDORevisionDelta delta, long created,
-      OMMonitor monitor)
-  {
-    monitor.begin();
-    Async async = monitor.forkAsync();
-
-    try
-    {
-      FeatureDeltaWriter writer = deltaWriter.get();
-      writer.process(accessor, delta, created);
-    }
-    finally
-    {
-      async.stop();
-      monitor.done();
     }
   }
 
@@ -553,6 +776,142 @@ public abstract class ClassMapping implements IClassMapping
     return success;
   }
 
+  private void initSqlStrings()
+  {
+    // ----------- Select Revision ---------------------------
+    StringBuilder builder = new StringBuilder();
+    builder.append("SELECT ");
+    builder.append(CDODBSchema.ATTRIBUTES_VERSION);
+    builder.append(", ");
+    builder.append(CDODBSchema.ATTRIBUTES_CREATED);
+
+    if (hasFullRevisionInfo())
+    {
+      builder.append(", ");
+      builder.append(CDODBSchema.ATTRIBUTES_REVISED);
+      builder.append(", ");
+      builder.append(CDODBSchema.ATTRIBUTES_RESOURCE);
+      builder.append(", ");
+      builder.append(CDODBSchema.ATTRIBUTES_CONTAINER);
+      builder.append(", ");
+      builder.append(CDODBSchema.ATTRIBUTES_FEATURE);
+    }
+
+    if (attributeMappings != null)
+    {
+      for (IAttributeMapping attributeMapping : attributeMappings)
+      {
+        builder.append(", ");
+        builder.append(attributeMapping.getField());
+      }
+    }
+
+    builder.append(" FROM ");
+    builder.append(table.getName());
+    builder.append(" WHERE ");
+    builder.append(CDODBSchema.ATTRIBUTES_ID);
+    builder.append("= ? AND (");
+
+    sqlSelectAttributesPrefix = builder.toString();
+    sqlSelectAttributesAffix = ")";
+
+    // ----------- Delete Revision ---------------------------
+    builder = new StringBuilder("DELETE FROM ");
+    builder.append(table.getName());
+    builder.append(" WHERE ");
+    builder.append(CDODBSchema.ATTRIBUTES_ID);
+    builder.append(" = ? ");
+
+    sqlDeleteAttributes = builder.toString();
+
+    // ----------- Update to set revised ---------------------
+    builder = new StringBuilder("UPDATE ");
+    builder.append(table.getName());
+    builder.append(" SET ");
+    builder.append(CDODBSchema.ATTRIBUTES_REVISED);
+    builder.append(" = ? WHERE ");
+    builder.append(CDODBSchema.ATTRIBUTES_ID);
+    builder.append(" = ? AND ");
+    builder.append(CDODBSchema.ATTRIBUTES_VERSION);
+    builder.append(" = ?");
+    sqlReviseAttributes = builder.toString();
+
+    // TODO unify both ways to revise revisions!
+    // ----------- Update to set revised by ID ----------------
+    builder = new StringBuilder("UPDATE ");
+    builder.append(getTable().getName());
+    builder.append(" SET ");
+    builder.append(CDODBSchema.ATTRIBUTES_REVISED);
+    builder.append(" = ? WHERE ");
+    builder.append(CDODBSchema.ATTRIBUTES_ID);
+    builder.append(" = ? AND ");
+    builder.append(CDODBSchema.ATTRIBUTES_REVISED);
+    builder.append(" = 0");
+    sqlReviseAttributesByID = builder.toString();
+
+    // ----------- Insert Attributes -------------------------
+    builder = new StringBuilder();
+    builder.append("INSERT INTO ");
+    builder.append(table.getName());
+    builder.append(" VALUES (?, ?, ");
+    if (hasFullRevisionInfo())
+    {
+      builder.append("?, ?, ?, ?, ?, ?");
+    }
+    if (attributeMappings != null)
+    {
+      for (int i = 0; i < getAttributeMappings().size(); i++)
+      {
+        builder.append(", ?");
+      }
+    }
+    builder.append(")");
+    sqlInsertAttributes = builder.toString();
+
+    // ------------- Update Attributes -----------------------
+    builder = new StringBuilder();
+    builder.append("UPDATE ");
+    builder.append(table.getName());
+    builder.append(" SET ");
+    builder.append(CDODBSchema.ATTRIBUTES_VERSION);
+    builder.append(" = ?, ");
+    builder.append(CDODBSchema.ATTRIBUTES_CREATED);
+    builder.append(" = ?");
+    sqlUpdateAttributesPrefix = builder.toString();
+
+    builder = new StringBuilder();
+    builder.append(", ");
+    builder.append(CDODBSchema.ATTRIBUTES_CONTAINER);
+    builder.append(" = ?, ");
+    builder.append(CDODBSchema.ATTRIBUTES_FEATURE);
+    builder.append(" = ?, ");
+    builder.append(CDODBSchema.ATTRIBUTES_RESOURCE);
+    builder.append(" = ?");
+    sqlUpdateAttributesContainmentPart = builder.toString();
+
+    builder = new StringBuilder();
+    if (attributeMappings != null)
+    {
+      for (IAttributeMapping am : attributeMappings)
+      {
+        builder.append(", ");
+        builder.append(am.getField().getName());
+        builder.append("= ?");
+      }
+    }
+    sqlUpdateAllAttributesPart = builder.toString();
+
+    builder = new StringBuilder();
+    builder.append(" WHERE ");
+    builder.append(CDODBSchema.ATTRIBUTES_ID);
+    builder.append(" = ?");
+    sqlUpdateAttributesAffix = builder.toString();
+
+    sqlUpdateAllAttributes = sqlUpdateAttributesPrefix + sqlUpdateAttributesContainmentPart
+        + sqlUpdateAllAttributesPart + sqlUpdateAttributesAffix;
+
+  }
+
   /**
    * Read the revision's attributes from the DB.
    * 
@@ -561,7 +920,58 @@ public abstract class ClassMapping implements IClassMapping
    */
   protected final boolean readAttributes(IDBStoreAccessor accessor, InternalCDORevision revision, String where)
   {
-    return accessor.getJDBCDelegate().selectRevisionAttributes(revision, this, where);
+    List<IAttributeMapping> attributeMappings = getAttributeMappings();
+    if (attributeMappings == null)
+    {
+      attributeMappings = Collections.emptyList();
+    }
+
+    PreparedStatement pstmt = null;
+    ResultSet resultSet = null;
+    try
+    {
+      String sql = sqlSelectAttributesPrefix + where + sqlSelectAttributesAffix;
+
+      // TODO add caching
+      pstmt = accessor.getConnection().prepareStatement(sql);
+      pstmt.setLong(1, CDOIDUtil.getLong(revision.getID()));
+      resultSet = pstmt.executeQuery();
+
+      if (!resultSet.next())
+      {
+        return false;
+      }
+
+      int i = 0;
+      if (hasFullRevisionInfo())
+      {
+        revision.setVersion(resultSet.getInt(++i));
+        revision.setCreated(resultSet.getLong(++i));
+        revision.setRevised(resultSet.getLong(++i));
+        revision.setResourceID(CDOIDUtil.createLong(resultSet.getLong(++i)));
+        revision.setContainerID(CDOIDUtil.createLong(resultSet.getLong(++i)));
+        revision.setContainingFeatureID(resultSet.getInt(++i));
+      }
+
+      if (attributeMappings != null)
+      {
+        for (IAttributeMapping attributeMapping : attributeMappings)
+        {
+          attributeMapping.extractValue(resultSet, ++i, revision);
+        }
+      }
+
+      return true;
+    }
+    catch (SQLException ex)
+    {
+      throw new DBException(ex);
+    }
+    finally
+    {
+      DBUtil.close(resultSet);
+      DBUtil.close(pstmt);
+    }
   }
 
   protected void readReferences(IDBStoreAccessor accessor, InternalCDORevision revision, int referenceChunk)
@@ -572,137 +982,9 @@ public abstract class ClassMapping implements IClassMapping
     }
   }
 
-  private class FeatureDeltaWriter implements CDOFeatureDeltaVisitor
+  public void writeRevisionDelta(IDBStoreAccessor accessor, InternalCDORevisionDelta delta, long created,
+      OMMonitor monitor)
   {
-    private CDOID id;
-
-    private int newVersion;
-
-    private long created;
-
-    private IDBStoreAccessor accessor;
-
-    private boolean updateContainer = false;
-
-    private List<Pair<IAttributeMapping, Object>> attributeChanges;
-
-    private int newContainingFeatureID;
-
-    private CDOID newContainerID;
-
-    private CDOID newResourceID;
-
-    public FeatureDeltaWriter()
-    {
-      attributeChanges = new ArrayList<Pair<IAttributeMapping, Object>>();
-    }
-
-    protected void reset()
-    {
-      attributeChanges.clear();
-      updateContainer = false;
-    }
-
-    public void process(IDBStoreAccessor a, CDORevisionDelta d, long c)
-    {
-      // set context
-
-      reset();
-      id = d.getID();
-      newVersion = d.getDirtyVersion();
-      created = c;
-      accessor = a;
-
-      // process revision delta tree
-      d.accept(this);
-
-      // update attributes
-      if (updateContainer)
-      {
-        accessor.getJDBCDelegate().updateAttributes(id, newVersion, created, newContainerID, newContainingFeatureID,
-            newResourceID, attributeChanges, ClassMapping.this);
-      }
-      else
-      {
-        accessor.getJDBCDelegate().updateAttributes(id, newVersion, created, attributeChanges, ClassMapping.this);
-      }
-
-      // update version number of all references to current version
-      if (referenceMappings != null)
-      {
-        for (IReferenceMapping referenceMapping : getReferenceMappings())
-        {
-          referenceMapping.updateReferenceVersion(accessor, id, newVersion);
-        }
-      }
-    }
-
-    public void visit(CDOMoveFeatureDelta delta)
-    {
-      getReferenceMapping(delta.getFeature()).moveReferenceEntry(accessor, id, newVersion, delta.getOldPosition(),
-          delta.getNewPosition());
-    }
-
-    public void visit(CDOSetFeatureDelta delta)
-    {
-      if (delta.getFeature().isMany())
-      {
-        IReferenceMapping rm = getReferenceMapping(delta.getFeature());
-        if (rm == null)
-        {
-          throw new IllegalArgumentException("ReferenceMapping for " + delta.getFeature() + " is null!");
-        }
-        rm.updateReference(accessor, id, newVersion, delta.getIndex(), (CDOID)delta.getValue());
-      }
-      else
-      {
-        IAttributeMapping am = getAttributeMapping(delta.getFeature());
-        if (am == null)
-        {
-          throw new IllegalArgumentException("AttributeMapping for " + delta.getFeature() + " is null!");
-        }
-        attributeChanges.add(new Pair<IAttributeMapping, Object>(am, delta.getValue()));
-      }
-    }
-
-    public void visit(CDOUnsetFeatureDelta delta)
-    {
-      // TODO Correct this when DBStore implements unsettable features
-      // see Bugs 259868 and 263010
-      IAttributeMapping am = getAttributeMapping(delta.getFeature());
-      attributeChanges.add(new Pair<IAttributeMapping, Object>(am, null));
-    }
-
-    public void visit(CDOListFeatureDelta delta)
-    {
-      for (CDOFeatureDelta listChange : delta.getListChanges())
-      {
-        listChange.accept(this);
-      }
-    }
-
-    public void visit(CDOClearFeatureDelta delta)
-    {
-      getReferenceMapping(delta.getFeature()).deleteReference(accessor, id);
-    }
-
-    public void visit(CDOAddFeatureDelta delta)
-    {
-      getReferenceMapping(delta.getFeature()).insertReferenceEntry(accessor, id, newVersion, delta.getIndex(),
-          (CDOID)delta.getValue());
-    }
-
-    public void visit(CDORemoveFeatureDelta delta)
-    {
-      getReferenceMapping(delta.getFeature()).removeReferenceEntry(accessor, id, delta.getIndex(), newVersion);
-    }
-
-    public void visit(CDOContainerFeatureDelta delta)
-    {
-      newContainingFeatureID = delta.getContainerFeatureID();
-      newContainerID = (CDOID)delta.getContainerID();
-      newResourceID = delta.getResourceID();
-      updateContainer = true;
-    }
+    throw new UnsupportedOperationException();
   }
 }

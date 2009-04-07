@@ -19,7 +19,6 @@ import org.eclipse.emf.cdo.server.IStoreChunkReader.Chunk;
 import org.eclipse.emf.cdo.server.db.CDODBUtil;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IDBStoreChunkReader;
-import org.eclipse.emf.cdo.server.db.IJDBCDelegate;
 import org.eclipse.emf.cdo.server.db.mapping.IAttributeMapping;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
 import org.eclipse.emf.cdo.server.db.mapping.IReferenceMapping;
@@ -54,7 +53,7 @@ import java.util.List;
  * @author Stefan Winkler
  * @since 2.0
  */
-public abstract class AbstractJDBCDelegate extends Lifecycle implements IJDBCDelegate
+public abstract class AbstractJDBCDelegate extends Lifecycle
 {
   private IDBStoreAccessor storeAccessor;
 
@@ -107,7 +106,7 @@ public abstract class AbstractJDBCDelegate extends Lifecycle implements IJDBCDel
     return storeAccessor.isReader();
   }
 
-  public final Connection getConnection()
+  public Connection getConnection()
   {
     return connection;
   }
@@ -547,6 +546,6 @@ public abstract class AbstractJDBCDelegate extends Lifecycle implements IJDBCDel
    * Select a revision's references (or a part thereof) The caller is resposible for closing resultSet and associated
    * statement, if appropriate.
    */
-  protected abstract ResultSet doSelectRevisionReferences(String tableName, long sourceId, int version, long metaID,
-      String where) throws SQLException;
+  abstract ResultSet doSelectRevisionReferences(String tableName, long sourceId, int version, long metaID, String where)
+      throws SQLException;
 }

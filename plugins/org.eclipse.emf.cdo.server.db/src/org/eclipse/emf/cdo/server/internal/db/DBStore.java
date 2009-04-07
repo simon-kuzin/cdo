@@ -7,7 +7,7 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
- *    Stefan Winkler - https://bugs.eclipse.org/bugs/show_bug.cgi?id=259402
+ *    Stefan Winkler - https://bugs.eclipse.org/bugs/show_bug.cgi?id=259402    
  */
 package org.eclipse.emf.cdo.server.internal.db;
 
@@ -18,7 +18,6 @@ import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.ITransaction;
 import org.eclipse.emf.cdo.server.IView;
 import org.eclipse.emf.cdo.server.db.IDBStore;
-import org.eclipse.emf.cdo.server.db.IJDBCDelegateProvider;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
@@ -53,7 +52,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Eike Stepper
+ * @author Eike Stepper TODO: factor out type map and meta stuff into MetadataManager
  */
 public class DBStore extends LongIDStore implements IDBStore
 {
@@ -70,8 +69,6 @@ public class DBStore extends LongIDStore implements IDBStore
   private IDBAdapter dbAdapter;
 
   private IDBConnectionProvider dbConnectionProvider;
-
-  private IJDBCDelegateProvider jdbcDelegateProvider;
 
   @ExcludeFromDump
   private transient ProgressDistributor accessorWriteDistributor = new ProgressDistributor.Geometric()
@@ -95,6 +92,7 @@ public class DBStore extends LongIDStore implements IDBStore
   @ExcludeFromDump
   private transient StoreAccessorPool writerPool = new StoreAccessorPool(this, null);
 
+  @Deprecated
   private static Map<EClassifier, DBType> typeMap = new HashMap<EClassifier, DBType>();
 
   static
@@ -123,22 +121,11 @@ public class DBStore extends LongIDStore implements IDBStore
 
   public DBStore()
   {
-    super(TYPE, set(ChangeFormat.REVISION, ChangeFormat.DELTA), set(RevisionTemporality.AUDITING,
-        RevisionTemporality.NONE), set(RevisionParallelism.NONE));
-    setRevisionTemporality(RevisionTemporality.AUDITING);
-  }
+    super(TYPE, set(ChangeFormat.REVISION), set(RevisionTemporality.AUDITING, RevisionTemporality.NONE),
+        set(RevisionParallelism.NONE));
 
-  @Override
-  public Set<ChangeFormat> getSupportedChangeFormats()
-  {
-    if (getRevisionTemporality() == RevisionTemporality.AUDITING)
-    {
-      return set(ChangeFormat.REVISION);
-    }
-    else
-    {
-      return set(ChangeFormat.REVISION, ChangeFormat.DELTA);
-    }
+    // TODO: move temporality and changformat properties to mapping strategy
+    setRevisionTemporality(RevisionTemporality.AUDITING);
   }
 
   public IMappingStrategy getMappingStrategy()
@@ -169,23 +156,12 @@ public class DBStore extends LongIDStore implements IDBStore
 
   public void setDbConnectionProvider(IDBConnectionProvider dbConnectionProvider)
   {
-    // TODO Need to update provider in JDBCWrapper, too?
     this.dbConnectionProvider = dbConnectionProvider;
   }
 
   public void setDataSource(DataSource dataSource)
   {
     dbConnectionProvider = DBUtil.createConnectionProvider(dataSource);
-  }
-
-  public IJDBCDelegateProvider getJDBCDelegateProvider()
-  {
-    return jdbcDelegateProvider;
-  }
-
-  public void setJDBCDelegateProvider(IJDBCDelegateProvider provider)
-  {
-    jdbcDelegateProvider = provider;
   }
 
   public ProgressDistributor getAccessorWriteDistributor()
@@ -234,6 +210,8 @@ public class DBStore extends LongIDStore implements IDBStore
     return new DBStoreAccessor(this, transaction);
   }
 
+  /** @deprecated move to meta manager */
+  @Deprecated
   public long getMetaID(EModelElement modelElement)
   {
     InternalCDOPackageRegistry packageRegistry = (InternalCDOPackageRegistry)getRepository().getPackageRegistry();
@@ -250,6 +228,8 @@ public class DBStore extends LongIDStore implements IDBStore
     }
   }
 
+  /** @deprecated move to meta manager */
+  @Deprecated
   public EModelElement getMetaInstance(long id)
   {
     CDOIDMeta cdoid = CDOIDUtil.createMeta(id);
@@ -258,6 +238,7 @@ public class DBStore extends LongIDStore implements IDBStore
     return (EModelElement)metaInstance;
   }
 
+  @Deprecated
   public Connection getConnection()
   {
     Connection connection = dbConnectionProvider.getConnection();
@@ -294,6 +275,7 @@ public class DBStore extends LongIDStore implements IDBStore
     super.doActivate();
     Connection connection = getConnection();
 
+    // TODO move to meta manager?
     try
     {
       Set<IDBTable> createdTables = CDODBSchema.INSTANCE.create(dbAdapter, connection);
@@ -320,6 +302,7 @@ public class DBStore extends LongIDStore implements IDBStore
     creationTime = getStartupTime();
     firstTime = true;
 
+    // TODO: unify and standardize repository management
     DBUtil.insertRow(connection, dbAdapter, CDODBSchema.REPOSITORY, creationTime, 1, creationTime, 0, CRASHED, CRASHED);
     OM.LOG.info(MessageFormat.format("First start: {0,date} {0,time}", creationTime));
   }
@@ -342,6 +325,7 @@ public class DBStore extends LongIDStore implements IDBStore
     setLastMetaID(lastMetaId);
     setLastObjectID(lastObjectID);
 
+    // TODO: unify and standardize repository management
     StringBuilder builder = new StringBuilder();
     builder.append("UPDATE ");
     builder.append(CDODBSchema.REPOSITORY);
@@ -383,6 +367,7 @@ public class DBStore extends LongIDStore implements IDBStore
 
       LifecycleUtil.deactivate(mappingStrategy);
 
+      // TODO: unify and standardize repository management
       StringBuilder builder = new StringBuilder();
       builder.append("UPDATE ");
       builder.append(CDODBSchema.REPOSITORY);
@@ -432,6 +417,10 @@ public class DBStore extends LongIDStore implements IDBStore
     return System.currentTimeMillis();
   }
 
+  /**
+   * @deprecated move to meta-manager
+   */
+  @Deprecated
   public static DBType getDBType(EClassifier type)
   {
     if (type instanceof EClass)

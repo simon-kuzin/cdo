@@ -282,7 +282,8 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
 
               try
               {
-                return accessor.getJDBCDelegate().getStatement().executeQuery(sql);
+                // TODO - close statement
+                return accessor.getConnection().createStatement().executeQuery(sql);
               }
               catch (SQLException ex)
               {
@@ -323,7 +324,8 @@ public abstract class MappingStrategy extends Lifecycle implements IMappingStrat
 
       try
       {
-        resultSet = accessor.getJDBCDelegate().getStatement().executeQuery(sql);
+        // TODO - close statement
+        resultSet = accessor.getConnection().createStatement().executeQuery(sql);
         while (resultSet.next())
         {
           long longID = resultSet.getLong(1);

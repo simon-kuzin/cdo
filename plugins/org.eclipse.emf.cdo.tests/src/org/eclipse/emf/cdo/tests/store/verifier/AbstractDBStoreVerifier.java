@@ -65,7 +65,15 @@ public abstract class AbstractDBStoreVerifier
       accessor = (IDBStoreAccessor)repository.getStore().getReader(null);
     }
 
-    return accessor.getJDBCDelegate().getStatement();
+    try
+    {
+      return accessor.getConnection().createStatement();
+    }
+    catch (SQLException ex)
+    {
+      ex.printStackTrace();
+      return null;
+    }
   }
 
   protected List<IClassMapping> getClassMappings()

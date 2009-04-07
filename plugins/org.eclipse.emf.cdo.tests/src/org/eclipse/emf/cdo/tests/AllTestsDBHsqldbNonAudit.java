@@ -33,7 +33,7 @@ public class AllTestsDBHsqldbNonAudit extends AllTestsAllConfigs
   @Override
   protected void initConfigSuites(TestSuite parent)
   {
-    addScenario(parent, COMBINED, DB_HSQL_HORIZONTAL_NONAUDIT, TCP, NATIVE);
+    addScenario(parent, COMBINED, DB_HSQL_NONAUDIT, JVM, NATIVE);
   }
 
   @Override

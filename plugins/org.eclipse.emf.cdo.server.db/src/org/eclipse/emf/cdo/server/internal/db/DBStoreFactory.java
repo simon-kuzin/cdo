@@ -14,7 +14,6 @@ import org.eclipse.emf.cdo.internal.server.RepositoryConfigurator;
 import org.eclipse.emf.cdo.server.IStore;
 import org.eclipse.emf.cdo.server.IStoreFactory;
 import org.eclipse.emf.cdo.server.db.CDODBUtil;
-import org.eclipse.emf.cdo.server.db.IJDBCDelegateProvider;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 
 import org.eclipse.net4j.db.DBUtil;
@@ -48,33 +47,10 @@ public class DBStoreFactory implements IStoreFactory
   public IStore createStore(Element storeConfig)
   {
     IMappingStrategy mappingStrategy = getMappingStrategy(storeConfig);
-    IJDBCDelegateProvider delegateProvider = getDelegateProvider(storeConfig);
     IDBAdapter dbAdapter = getDBAdapter(storeConfig);
     DataSource dataSource = getDataSource(storeConfig);
     IDBConnectionProvider connectionProvider = DBUtil.createConnectionProvider(dataSource);
-    return CDODBUtil.createStore(mappingStrategy, dbAdapter, connectionProvider, delegateProvider);
-  }
-
-  private IJDBCDelegateProvider getDelegateProvider(Element storeConfig)
-  {
-    NodeList delegateProviderConfigs = storeConfig.getElementsByTagName("jdbcDelegate");
-    if (delegateProviderConfigs.getLength() != 1)
-    {
-      throw new IllegalStateException("Exactly one delegate provider must be configured for DB store");
-    }
-
-    Element delegateProviderConfig = (Element)delegateProviderConfigs.item(0);
-    String delegateProviderType = delegateProviderConfig.getAttribute("type");
-    IJDBCDelegateProvider delegateProvider = CDODBUtil.createDelegateProvider(delegateProviderType);
-    if (delegateProvider == null)
-    {
-      throw new IllegalArgumentException("Unknown JDBC delegate type: " + delegateProviderType);
-    }
-
-    Map<String, String> properties = RepositoryConfigurator.getProperties(delegateProviderConfig, 1);
-    delegateProvider.setProperties(properties);
-
-    return delegateProvider;
+    return CDODBUtil.createStore(mappingStrategy, dbAdapter, connectionProvider);
   }
 
   private IMappingStrategy getMappingStrategy(Element storeConfig)
