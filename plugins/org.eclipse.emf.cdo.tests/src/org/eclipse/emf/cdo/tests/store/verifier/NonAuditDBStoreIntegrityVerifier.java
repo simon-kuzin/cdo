@@ -16,7 +16,7 @@ import static junit.framework.Assert.assertTrue;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.IStore;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
-import org.eclipse.emf.cdo.server.db.mapping.IReferenceMapping;
+import org.eclipse.emf.cdo.server.db.mapping.IManyMapping;
 import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
 import org.eclipse.emf.cdo.server.internal.db.mapping.HorizontalMappingStrategy;
 
@@ -105,7 +105,7 @@ public class NonAuditDBStoreIntegrityVerifier extends AbstractDBStoreVerifier
 
   private void verifyReferences(IClassMapping mapping) throws Exception
   {
-    List<IReferenceMapping> referenceMappings = mapping.getReferenceMappings();
+    List<IManyMapping> referenceMappings = mapping.getReferenceMappings();
     if (referenceMappings == null)
     {
       return;
@@ -129,7 +129,7 @@ public class NonAuditDBStoreIntegrityVerifier extends AbstractDBStoreVerifier
       resultSet.close();
     }
 
-    for (IReferenceMapping refMapping : referenceMappings)
+    for (IManyMapping refMapping : referenceMappings)
     {
       for (Pair<Long, Integer> idVersion : idVersions)
       {
@@ -142,11 +142,11 @@ public class NonAuditDBStoreIntegrityVerifier extends AbstractDBStoreVerifier
   /**
    * Verify that no reference with sourceId == ID exist which have another version
    */
-  private void verifyOnlyLatestReferences(IReferenceMapping refMapping, long id, int version) throws Exception
+  private void verifyOnlyLatestReferences(IManyMapping refMapping, long id, int version) throws Exception
   {
     String tableName = refMapping.getTable().getName();
-    String sql = "SELECT count(1) FROM " + tableName + " WHERE " + CDODBSchema.REFERENCES_SOURCE + "=" + id + " AND "
-        + CDODBSchema.REFERENCES_VERSION + "<>" + version;
+    String sql = "SELECT count(1) FROM " + tableName + " WHERE " + CDODBSchema.FEATURE_REVISION_ID + "=" + id + " AND "
+        + CDODBSchema.FEATURE_REVISION_VERSION + "<>" + version;
 
     ResultSet resultSet = getStatement().executeQuery(sql);
     try
@@ -161,11 +161,11 @@ public class NonAuditDBStoreIntegrityVerifier extends AbstractDBStoreVerifier
     }
   }
 
-  private void verifyCorrectIndices(IReferenceMapping refMapping, long id) throws Exception
+  private void verifyCorrectIndices(IManyMapping refMapping, long id) throws Exception
   {
     String tableName = refMapping.getTable().getName();
-    String sql = "SELECT " + CDODBSchema.REFERENCES_IDX + " FROM " + tableName + " WHERE "
-        + CDODBSchema.REFERENCES_SOURCE + "=" + id + " ORDER BY " + CDODBSchema.REFERENCES_IDX;
+    String sql = "SELECT " + CDODBSchema.FEATURE_IDX + " FROM " + tableName + " WHERE "
+        + CDODBSchema.FEATURE_REVISION_ID + "=" + id + " ORDER BY " + CDODBSchema.FEATURE_IDX;
 
     ResultSet resultSet = getStatement().executeQuery(sql);
     int indexShouldBe = 0;

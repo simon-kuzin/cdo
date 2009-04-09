@@ -21,8 +21,9 @@ import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.ITransaction;
-import org.eclipse.emf.cdo.server.IStore.RevisionTemporality;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
+import org.eclipse.emf.cdo.server.db.mapping.IAuditSupport;
+import org.eclipse.emf.cdo.server.db.mapping.IDeltaSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
@@ -46,7 +47,6 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Collection;
 
@@ -169,6 +169,13 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
   public InternalCDORevision readRevisionByTime(CDOID id, int referenceChunk, AdditionalRevisionCache cache,
       long timeStamp)
   {
+    IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
+
+    if (!mappingStrategy.hasAuditSupport())
+    {
+      throw new UnsupportedOperationException("Mapping strategy does not support audits.");
+    }
+
     if (TRACER.isEnabled())
     {
       TRACER.format("Selecting revision: {0}, timestamp={1,date} {1,time}", id, timeStamp);
@@ -177,8 +184,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     EClass eClass = getObjectType(id);
     InternalCDORevision revision = (InternalCDORevision)CDORevisionUtil.create(eClass, id);
 
-    IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
-    IClassMapping mapping = mappingStrategy.getClassMapping(eClass);
+    IAuditSupport mapping = (IAuditSupport)mappingStrategy.getClassMapping(eClass);
     if (mapping.readRevisionByTime(this, revision, timeStamp, referenceChunk))
     {
       return revision;
@@ -191,16 +197,21 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
   public InternalCDORevision readRevisionByVersion(CDOID id, int referenceChunk, AdditionalRevisionCache cache,
       int version)
   {
-    if (TRACER.isEnabled())
+    IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
+
+    if (!mappingStrategy.hasAuditSupport())
     {
-      TRACER.format("Selecting revision: {0}, version={1}", id, version);
+      throw new UnsupportedOperationException("Mapping strategy does not support audits.");
     }
 
     EClass eClass = getObjectType(id);
     InternalCDORevision revision = (InternalCDORevision)CDORevisionUtil.create(eClass, id);
+    IAuditSupport mapping = (IAuditSupport)mappingStrategy.getClassMapping(eClass);
 
-    IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
-    IClassMapping mapping = mappingStrategy.getClassMapping(eClass);
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("Selecting revision: {0}, version={1}", id, version);
+    }
     if (mapping.readRevisionByVersion(this, revision, version, referenceChunk))
     {
       return revision;
@@ -247,22 +258,14 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     distributor.run(ops, context, monitor);
   }
 
-  /**
-   * TODO - inline statement preparing to simplify handling
-   */
-  private PreparedStatement getPreparedStatement(String sql) throws SQLException
-  {
-    return getConnection().prepareStatement(sql);
-  }
-
   @Override
   protected void writeRevisionDeltas(InternalCDORevisionDelta[] revisionDeltas, long created, OMMonitor monitor)
   {
-    // TODO move check to mapping strategy
+    IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
 
-    if (!(getStore().getRevisionTemporality() == RevisionTemporality.NONE))
+    if (!mappingStrategy.hasDeltaSupport())
     {
-      throw new UnsupportedOperationException("Revision Deltas are only supported in non-auditing mode!");
+      throw new UnsupportedOperationException("Mapping strategy does not support revision deltas.");
     }
 
     monitor.begin(revisionDeltas.length);
@@ -282,7 +285,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
   protected void writeRevisionDelta(InternalCDORevisionDelta delta, long created, OMMonitor monitor)
   {
     EClass eClass = getObjectType(delta.getID());
-    IClassMapping mapping = getStore().getMappingStrategy().getClassMapping(eClass);
+    IDeltaSupport mapping = (IDeltaSupport)getStore().getMappingStrategy().getClassMapping(eClass);
     mapping.writeRevisionDelta(this, delta, created, monitor);
   }
 
@@ -345,30 +348,6 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     EClass eClass = getObjectType(id);
     IClassMapping mapping = getStore().getMappingStrategy().getClassMapping(eClass);
     mapping.detachObject(this, id, revised, monitor);
-  }
-
-  /**
-   * @deprecated TODO Move this somehow to DBAdapter
-   */
-  @Deprecated
-  protected Boolean getBoolean(Object value)
-  {
-    if (value == null)
-    {
-      return null;
-    }
-
-    if (value instanceof Boolean)
-    {
-      return (Boolean)value;
-    }
-
-    if (value instanceof Number)
-    {
-      return ((Number)value).intValue() != 0;
-    }
-
-    throw new IllegalArgumentException("Not a boolean value: " + value);
   }
 
   public Connection getConnection()
@@ -446,6 +425,15 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
 
   public void writePackageUnits(InternalCDOPackageUnit[] packageUnits, OMMonitor monitor)
   {
-    getStore().getMetaDataManager().writePackageUnits(getConnection(), packageUnits, monitor);
+    monitor.begin(2);
+    try
+    {
+      getStore().getMetaDataManager().writePackageUnits(getConnection(), packageUnits, monitor.fork());
+      getStore().getMappingStrategy().createMapping(getConnection(), packageUnits, monitor.fork());
+    }
+    finally
+    {
+      monitor.done();
+    }
   }
 }

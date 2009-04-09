@@ -11,35 +11,29 @@
  */
 package org.eclipse.emf.cdo.server.db.mapping;
 
-import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.server.IStoreChunkReader.Chunk;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
+import org.eclipse.emf.cdo.server.db.IDBStoreChunkReader;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.db.ddl.IDBTable;
-import org.eclipse.net4j.util.om.monitor.OMMonitor;
 
-import java.sql.PreparedStatement;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Eike Stepper
  * @author Stefan Winkler
  * @since 2.0
  */
-public interface IClassMapping
+public interface IListMapping
 {
 
-  void detachObject(IDBStoreAccessor dbStoreAccessor, CDOID id, long revised, OMMonitor monitor);
+  void writeValues(IDBStoreAccessor accessor, InternalCDORevision revision);
 
-  void writeRevision(IDBStoreAccessor dbStoreAccessor, InternalCDORevision revision, OMMonitor monitor);
+  void readValues(IDBStoreAccessor accessor, InternalCDORevision revision, int referenceChunk);
 
-  boolean readRevision(IDBStoreAccessor dbStoreAccessor, InternalCDORevision revision, int referenceChunk);
+  void readChunks(IDBStoreChunkReader dbStoreChunkReader, List<Chunk> chunks, String string);
 
   Collection<IDBTable> getDBTables();
-
-  PreparedStatement createObjectIdStatement(IDBStoreAccessor accessor);
-
-  PreparedStatement createResourceQueryStatement(IDBStoreAccessor accessor, CDOID folderId, String name,
-      boolean exactMatch, long timeStamp);
-
 }

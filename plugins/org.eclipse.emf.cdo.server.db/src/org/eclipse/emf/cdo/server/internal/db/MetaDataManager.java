@@ -21,8 +21,6 @@ import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.server.db.IDBStore;
 import org.eclipse.emf.cdo.server.db.IMetaDataManager;
-import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
-import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
@@ -32,7 +30,6 @@ import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.db.DBType;
 import org.eclipse.net4j.db.DBUtil;
 import org.eclipse.net4j.db.IDBRowHandler;
-import org.eclipse.net4j.db.ddl.IDBTable;
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.monitor.OMMonitor.Async;
@@ -52,10 +49,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 
 /**
@@ -124,23 +119,6 @@ public class MetaDataManager extends Lifecycle implements IMetaDataManager
     return EMFUtil.createEPackage(packageUnit.getID(), bytes, ZIP_PACKAGE_BYTES, getPackageRegistry());
   }
 
-  private void createModelTables(Connection connection, InternalCDOPackageUnit[] packageUnits, OMMonitor monitor)
-  {
-    monitor.begin();
-    Async async = monitor.forkAsync();
-
-    try
-    {
-      Set<IDBTable> affectedTables = mapPackageUnits(packageUnits);
-      getStore().getDBAdapter().createTables(affectedTables, connection);
-    }
-    finally
-    {
-      async.stop();
-      monitor.done();
-    }
-  }
-
   protected InternalCDOPackageInfo createPackageInfo()
   {
     return (InternalCDOPackageInfo)CDOModelUtil.createPackageInfo();
@@ -165,53 +143,6 @@ public class MetaDataManager extends Lifecycle implements IMetaDataManager
     byte[] bytes = (byte[])values[0];
     EPackage ePackage = createEPackage(packageUnit, bytes);
     return EMFUtil.getAllPackages(ePackage);
-  }
-
-  protected void mapPackageInfos(InternalCDOPackageInfo[] packageInfos, Set<IDBTable> affectedTables)
-  {
-    for (InternalCDOPackageInfo packageInfo : packageInfos)
-    {
-      EPackage ePackage = packageInfo.getEPackage();
-      if (!CDOModelUtil.isCorePackage(ePackage))
-      {
-        EClass[] persistentClasses = EMFUtil.getPersistentClasses(ePackage);
-        Set<IDBTable> tables = mapClasses(persistentClasses);
-        affectedTables.addAll(tables);
-      }
-    }
-  }
-
-  protected Set<IDBTable> mapClasses(EClass... eClasses)
-  {
-    Set<IDBTable> affectedTables = new HashSet<IDBTable>();
-    if (eClasses != null && eClasses.length != 0)
-    {
-      IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
-      for (EClass eClass : eClasses)
-      {
-        IClassMapping mapping = mappingStrategy.getClassMapping(eClass);
-        if (mapping != null)
-        {
-          affectedTables.addAll(mapping.getAffectedTables());
-        }
-      }
-    }
-
-    return affectedTables;
-  }
-
-  protected Set<IDBTable> mapPackageUnits(InternalCDOPackageUnit[] packageUnits)
-  {
-    Set<IDBTable> affectedTables = new HashSet<IDBTable>();
-    if (packageUnits != null && packageUnits.length != 0)
-    {
-      for (InternalCDOPackageUnit packageUnit : packageUnits)
-      {
-        mapPackageInfos(packageUnit.getPackageInfos(), affectedTables);
-      }
-    }
-
-    return affectedTables;
   }
 
   public Collection<InternalCDOPackageUnit> readPackageUnits(Connection connection)
@@ -282,7 +213,6 @@ public class MetaDataManager extends Lifecycle implements IMetaDataManager
     {
       monitor.begin(2);
       fillSystemTables(connection, packageUnits, monitor.fork());
-      createModelTables(connection, packageUnits, monitor.fork());
     }
     finally
     {
@@ -346,10 +276,6 @@ public class MetaDataManager extends Lifecycle implements IMetaDataManager
     }
   }
 
-  /**
-   * @deprecated move to meta manager
-   */
-  @Deprecated
   private void fillSystemTables(Connection connection, InternalCDOPackageUnit[] packageUnits, OMMonitor monitor)
   {
     try
@@ -366,10 +292,6 @@ public class MetaDataManager extends Lifecycle implements IMetaDataManager
     }
   }
 
-  /**
-   * @deprecated move to meta manager
-   */
-  @Deprecated
   private void fillSystemTables(Connection connection, InternalCDOPackageInfo packageInfo, OMMonitor monitor)
   {
     if (TRACER.isEnabled())

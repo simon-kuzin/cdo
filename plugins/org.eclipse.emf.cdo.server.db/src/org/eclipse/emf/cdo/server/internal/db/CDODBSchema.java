@@ -124,13 +124,13 @@ public class CDODBSchema extends DBSchema
    */
   public static final String REFERENCES_FEATURE = "cdo_feature";
 
-  public static final String REFERENCES_SOURCE = "cdo_source";
+  public static final String FEATURE_REVISION_ID = "cdo_source";
 
-  public static final String REFERENCES_VERSION = "cdo_version";
+  public static final String FEATURE_REVISION_VERSION = "cdo_version";
 
-  public static final String REFERENCES_IDX = "cdo_idx";
+  public static final String FEATURE_IDX = "cdo_idx";
 
-  public static final String REFERENCES_TARGET = "cdo_target";
+  public static final String FEATURE_TARGET = "cdo_target";
 
   private CDODBSchema()
   {

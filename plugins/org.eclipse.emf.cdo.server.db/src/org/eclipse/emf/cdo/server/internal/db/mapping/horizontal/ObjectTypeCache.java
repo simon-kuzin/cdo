@@ -10,7 +10,7 @@
  *    Stefan Winkler - https://bugs.eclipse.org/bugs/show_bug.cgi?id=259402
  *    Stefan Winkler - redesign (prepared statements)
  */
-package org.eclipse.emf.cdo.server.internal.db;
+package org.eclipse.emf.cdo.server.internal.db.mapping.horizontal;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
@@ -19,6 +19,7 @@ import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IMetaDataManager;
 import org.eclipse.emf.cdo.server.db.IObjectTypeCache;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
+import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
 
 import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.db.DBType;
@@ -40,6 +41,7 @@ import java.sql.Statement;
 
 /**
  * @author Eike Stepper
+ * @since 2.0
  */
 public class ObjectTypeCache extends Lifecycle implements IObjectTypeCache
 {
@@ -211,6 +213,11 @@ public class ObjectTypeCache extends Lifecycle implements IObjectTypeCache
     }
   }
 
+  public long getMaxId(Connection connection)
+  {
+    return DBUtil.selectMaximumLong(connection, idField);
+  }
+
   @Override
   protected void doBeforeActivate() throws Exception
   {
@@ -232,4 +239,5 @@ public class ObjectTypeCache extends Lifecycle implements IObjectTypeCache
     typeField = null;
     super.doDeactivate();
   }
+
 }

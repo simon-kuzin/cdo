@@ -84,11 +84,9 @@ public class DBStore extends LongIDStore implements IDBStore
 
   public DBStore()
   {
-    super(TYPE, set(ChangeFormat.REVISION), set(RevisionTemporality.AUDITING, RevisionTemporality.NONE),
+    super(TYPE, set(ChangeFormat.REVISION, ChangeFormat.DELTA), // 
+        set(RevisionTemporality.AUDITING, RevisionTemporality.NONE), //
         set(RevisionParallelism.NONE));
-
-    // TODO: move temporality and changformat properties to mapping strategy
-    setRevisionTemporality(RevisionTemporality.AUDITING);
   }
 
   public IMappingStrategy getMappingStrategy()
@@ -100,6 +98,8 @@ public class DBStore extends LongIDStore implements IDBStore
   {
     this.mappingStrategy = mappingStrategy;
     mappingStrategy.setStore(this);
+
+    setRevisionTemporality(mappingStrategy.hasAuditSupport() ? RevisionTemporality.AUDITING : RevisionTemporality.NONE);
   }
 
   public IDBAdapter getDBAdapter()
@@ -201,6 +201,9 @@ public class DBStore extends LongIDStore implements IDBStore
     checkNull(mappingStrategy, "mappingStrategy is null");
     checkNull(dbAdapter, "dbAdapter is null");
     checkNull(dbConnectionProvider, "dbConnectionProvider is null");
+
+    checkState(getRevisionTemporality() == RevisionTemporality.AUDITING == mappingStrategy.hasAuditSupport(),
+        "AuditSupport of MappingStrategy and Store does not match. Please check configuration.");
   }
 
   @Override
@@ -263,7 +266,6 @@ public class DBStore extends LongIDStore implements IDBStore
     setLastMetaID(lastMetaId);
     setLastObjectID(lastObjectID);
 
-    // TODO: unify and standardize repository management
     StringBuilder builder = new StringBuilder();
     builder.append("UPDATE ");
     builder.append(CDODBSchema.REPOSITORY);
@@ -308,7 +310,6 @@ public class DBStore extends LongIDStore implements IDBStore
 
       LifecycleUtil.deactivate(mappingStrategy);
 
-      // TODO: unify and standardize repository management
       StringBuilder builder = new StringBuilder();
       builder.append("UPDATE ");
       builder.append(CDODBSchema.REPOSITORY);

@@ -7,25 +7,31 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Stefan Winkler - major refactoring
  */
 package org.eclipse.emf.cdo.server.db.mapping;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
-import org.eclipse.emf.cdo.server.IStoreAccessor;
+import org.eclipse.emf.cdo.server.IStoreAccessor.QueryResourcesContext;
 import org.eclipse.emf.cdo.server.db.IDBStore;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 
 import org.eclipse.net4j.db.IDBAdapter;
 import org.eclipse.net4j.util.collection.CloseableIterator;
+import org.eclipse.net4j.util.om.monitor.OMMonitor;
 
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.ENamedElement;
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.sql.Connection;
 import java.util.Map;
 
 /**
  * @author Eike Stepper
+ * @author Stefan Winkler
  * @since 2.0
  */
 public interface IMappingStrategy
@@ -63,26 +69,38 @@ public interface IMappingStrategy
 
   public static final String PROP_TO_ONE_REFERENCE_MAPPING = "toOneReferenceMapping";
 
-  public String getType();
-
   public IDBStore getStore();
 
-  public void setStore(IDBStore store);
+  public void setStore(IDBStore dbStore);
 
-  public Map<String, String> getProperties();
+  public ITypeMapping createValueMapping(EStructuralFeature feature);
 
-  public void setProperties(Map<String, String> properties);
+  public IListMapping createListMapping(EClass containingClass, EStructuralFeature feature);
+
+  public String getTableName(ENamedElement eClass);
+
+  public String getTableName(EClass containingClass, EStructuralFeature feature);
+
+  public String getFieldName(EStructuralFeature feature);
+
+  public void createMapping(Connection connection, InternalCDOPackageUnit[] packageUnits, OMMonitor monitor);
 
   public IClassMapping getClassMapping(EClass eClass);
 
-  public CloseableIterator<CDOID> readObjectIDs(IDBStoreAccessor accessor);
+  public IListMapping getListMapping(EStructuralFeature feature);
 
-  public CDOClassifierRef readObjectType(IDBStoreAccessor accessor, CDOID id);
+  public boolean hasDeltaSupport();
 
-  public void queryResources(IDBStoreAccessor accessor, IStoreAccessor.QueryResourcesContext context);
+  public void queryResources(IDBStoreAccessor dbStoreAccessor, QueryResourcesContext context);
 
-  /**
-   * Returns the maximum CDOID value.
-   */
+  public boolean hasAuditSupport();
+
+  public CDOClassifierRef readObjectType(IDBStoreAccessor dbStoreAccessor, CDOID id);
+
+  public CloseableIterator<CDOID> readObjectIDs(IDBStoreAccessor dbStoreAccessor);
+
   public long repairAfterCrash(IDBAdapter dbAdapter, Connection connection);
+
+  public void setProperties(Map<String, String> properties);
+
 }

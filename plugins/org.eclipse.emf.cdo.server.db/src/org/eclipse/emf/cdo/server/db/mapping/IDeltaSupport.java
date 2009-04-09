@@ -7,18 +7,24 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Stefan Winkler - major refactoring
  */
 package org.eclipse.emf.cdo.server.db.mapping;
 
-import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
+
+import org.eclipse.net4j.util.om.monitor.OMMonitor;
 
 /**
  * @author Eike Stepper
+ * @author Stefan Winkler
  * @since 2.0
  */
-public interface IFeatureMapping
+public interface IDeltaSupport
 {
-  public IClassMapping getClassMapping();
 
-  public EStructuralFeature getFeature();
+  void writeRevisionDelta(IDBStoreAccessor dbStoreAccessor, InternalCDORevisionDelta delta, long created,
+      OMMonitor monitor);
+
 }

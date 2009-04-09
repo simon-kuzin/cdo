@@ -7,29 +7,25 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
- *    Stefan Winkler - https://bugs.eclipse.org/bugs/show_bug.cgi?id=259402
+ *    Stefan Winkler - major refactoring
  */
 package org.eclipse.emf.cdo.server.db.mapping;
 
+import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
-
-import org.eclipse.net4j.db.ddl.IDBField;
-
-import java.sql.ResultSet;
 
 /**
  * @author Eike Stepper
+ * @author Stefan Winkler
  * @since 2.0
  */
-public interface IAttributeMapping extends IFeatureMapping
+public interface IAuditSupport
 {
-  public IDBField getField();
 
-  public void appendValue(StringBuilder builder, InternalCDORevision revision);
+  boolean readRevisionByVersion(IDBStoreAccessor dbStoreAccessor, InternalCDORevision revision, int version,
+      int referenceChunk);
 
-  public void appendValue(StringBuilder builder, Object value);
+  boolean readRevisionByTime(IDBStoreAccessor dbStoreAccessor, InternalCDORevision revision, long timeStamp,
+      int referenceChunk);
 
-  public void extractValue(ResultSet resultSet, int column, InternalCDORevision revision);
-
-  public Object getRevisionValue(InternalCDORevision revision);
 }

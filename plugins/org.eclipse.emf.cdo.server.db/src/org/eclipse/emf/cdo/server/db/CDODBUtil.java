@@ -15,7 +15,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.internal.db.DBStore;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
-import org.eclipse.emf.cdo.server.internal.db.mapping.HorizontalMappingStrategy;
+import org.eclipse.emf.cdo.server.internal.db.mapping.horizontal.HorizontalAuditMappingStrategy;
 
 import org.eclipse.net4j.db.IDBAdapter;
 import org.eclipse.net4j.db.IDBConnectionProvider;
@@ -36,11 +36,6 @@ public final class CDODBUtil
    * @since 2.0
    */
   public static final String EXT_POINT_MAPPING_STRATEGIES = "mappingStrategies";
-
-  /**
-   * @since 2.0
-   */
-  public static final String EXT_POINT_JDBC_DELEGATE_PROVIDERS = "jdbcDelegateProviders";
 
   private CDODBUtil()
   {
@@ -65,7 +60,7 @@ public final class CDODBUtil
    */
   public static IMappingStrategy createHorizontalMappingStrategy()
   {
-    return new HorizontalMappingStrategy();
+    return new HorizontalAuditMappingStrategy();
   }
 
   /**

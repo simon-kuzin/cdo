@@ -15,6 +15,8 @@ import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 
 import org.eclipse.emf.ecore.EClass;
 
+import java.sql.Connection;
+
 /**
  * @author Eike Stepper
  */
@@ -34,4 +36,9 @@ public interface IObjectTypeCache
    * @since 2.0
    */
   public void removeObjectType(IDBStoreAccessor accessor, CDOID id);
+
+  /**
+   * @since 2.0
+   */
+  public long getMaxId(Connection connection);
 }
