@@ -17,6 +17,7 @@ import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
 import org.eclipse.emf.cdo.server.db.mapping.IListMapping;
 import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
+import org.eclipse.emf.cdo.server.internal.db.mapping.horizontal.HorizontalAuditClassMapping;
 import org.eclipse.emf.cdo.server.internal.db.mapping.horizontal.HorizontalAuditMappingStrategy;
 
 import org.eclipse.net4j.util.collection.Pair;
@@ -42,7 +43,7 @@ public class AuditDBStoreIntegrityVerifier extends AbstractDBStoreVerifier
 
   @Override
   protected void doVerify() throws Exception
-  {/*
+  {
     for (IClassMapping mapping : getClassMappings())
     {
       if (mapping != null && mapping.getDBTables() != null)
@@ -50,9 +51,8 @@ public class AuditDBStoreIntegrityVerifier extends AbstractDBStoreVerifier
         verifyClassMapping(mapping);
       }
     }
-    */
   }
-/*
+
   private void verifyClassMapping(IClassMapping mapping) throws Exception
   {
     verifyAtMostOneUnrevised(mapping);
@@ -118,13 +118,14 @@ public class AuditDBStoreIntegrityVerifier extends AbstractDBStoreVerifier
 
   private void verifyReferences(IClassMapping mapping) throws Exception
   {
-    List<IListMapping> referenceMappings = mapping.getReferenceMappings();
-    if (referenceMappings == null)
+    List<IListMapping> listMappings = ((HorizontalAuditClassMapping)mapping).getListMappings();
+    if (listMappings == null)
     {
       return;
     }
 
-    String tableName = mapping.getDBTables().iterator().next().getName();;
+    String tableName = mapping.getDBTables().iterator().next().getName();
+    ;
     String sql = "SELECT " + CDODBSchema.ATTRIBUTES_ID + ", " + CDODBSchema.ATTRIBUTES_VERSION + " FROM " + tableName;
 
     ArrayList<Pair<Long, Integer>> idVersions = new ArrayList<Pair<Long, Integer>>();
@@ -142,18 +143,18 @@ public class AuditDBStoreIntegrityVerifier extends AbstractDBStoreVerifier
       resultSet.close();
     }
 
-    for (IManyMapping refMapping : referenceMappings)
+    for (IListMapping listMapping : listMappings)
     {
       for (Pair<Long, Integer> idVersion : idVersions)
       {
-        verifyCorrectIndices(refMapping, idVersion.getElement1(), idVersion.getElement2());
+        verifyCorrectIndices(listMapping, idVersion.getElement1(), idVersion.getElement2());
       }
     }
   }
 
-  private void verifyCorrectIndices(IManyMapping refMapping, long id, int version) throws Exception
+  private void verifyCorrectIndices(IListMapping refMapping, long id, int version) throws Exception
   {
-    String tableName = refMapping.getTable().getName();
+    String tableName = refMapping.getDBTables().iterator().next().getName();
 
     TRACER.format("verifyUniqueIdVersion: {0} for ID{1}v{2} ...", tableName, id, version);
 
@@ -184,5 +185,5 @@ public class AuditDBStoreIntegrityVerifier extends AbstractDBStoreVerifier
     {
       resultSet.close();
     }
-  }*/
+  }
 }

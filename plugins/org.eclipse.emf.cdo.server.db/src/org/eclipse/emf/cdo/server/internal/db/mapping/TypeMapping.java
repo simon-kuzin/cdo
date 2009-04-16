@@ -23,8 +23,6 @@ import org.eclipse.net4j.db.DBType;
 import org.eclipse.net4j.db.ddl.IDBField;
 import org.eclipse.net4j.db.ddl.IDBTable;
 
-import org.eclipse.emf.ecore.EEnum;
-import org.eclipse.emf.ecore.EEnumLiteral;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.sql.PreparedStatement;
@@ -156,15 +154,17 @@ public abstract class TypeMapping implements ITypeMapping
     @Override
     public Object getResultSetValue(ResultSet resultSet, int column) throws SQLException
     {
-      EEnum type = (EEnum)getFeature().getEType();
-      int value = resultSet.getInt(column);
-      return type.getEEnumLiteral(value);
+      // see Bug 271941
+      return resultSet.getInt(column);
+      // EEnum type = (EEnum)getFeature().getEType();
+      // int value = resultSet.getInt(column);
+      // return type.getEEnumLiteral(value);
     }
 
     @Override
     protected void doSetValue(PreparedStatement stmt, int index, Object value) throws SQLException
     {
-      super.doSetValue(stmt, index, ((EEnumLiteral)value).getValue());
+      super.doSetValue(stmt, index, value);
     }
   }
 

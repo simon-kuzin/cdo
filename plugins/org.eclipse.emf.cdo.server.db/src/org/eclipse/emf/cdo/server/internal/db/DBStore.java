@@ -80,7 +80,7 @@ public class DBStore extends LongIDStore implements IDBStore
   @ExcludeFromDump
   private transient StoreAccessorPool writerPool = new StoreAccessorPool(this, null);
 
-  private MetaDataManager metaDataManager;
+  private IMetaDataManager metaDataManager;
 
   public DBStore()
   {
@@ -215,6 +215,7 @@ public class DBStore extends LongIDStore implements IDBStore
     ((ILifecycle)metaDataManager).activate();
 
     Connection connection = getConnection();
+    LifecycleUtil.activate(mappingStrategy);
 
     try
     {
@@ -228,7 +229,6 @@ public class DBStore extends LongIDStore implements IDBStore
         reStart(connection);
       }
 
-      LifecycleUtil.activate(mappingStrategy);
       dbSchema = createSchema();
 
       connection.commit();
@@ -364,5 +364,18 @@ public class DBStore extends LongIDStore implements IDBStore
   public IMetaDataManager getMetaDataManager()
   {
     return metaDataManager;
+  }
+
+  @Override
+  public Set<ChangeFormat> getSupportedChangeFormats()
+  {
+    if (mappingStrategy.hasDeltaSupport())
+    {
+      return set(ChangeFormat.DELTA);
+    }
+    else
+    {
+      return set(ChangeFormat.REVISION);
+    }
   }
 }

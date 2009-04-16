@@ -10,6 +10,12 @@
  */
 package org.eclipse.emf.cdo.tests;
 
+import org.eclipse.emf.cdo.tests.bugzilla.Bugzilla_248052_Test;
+import org.eclipse.emf.cdo.tests.bugzilla.Bugzilla_266982_Test;
+import org.eclipse.emf.cdo.tests.config.impl.ConfigTest;
+
+import java.util.List;
+
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -27,5 +33,18 @@ public class AllTestsDBHsqldb extends AllTestsAllConfigs
   protected void initConfigSuites(TestSuite parent)
   {
     addScenario(parent, COMBINED, DB_HSQL, JVM, NATIVE);
+  }
+
+  @Override
+  protected void initTestClasses(List<Class<? extends ConfigTest>> testClasses)
+  {
+    super.initTestClasses(testClasses);
+
+    // delta-support not available for audit db-store
+    testClasses.remove(Bugzilla_248052_Test.class);
+
+    // this takes ages ...
+    testClasses.remove(Bugzilla_266982_Test.class);
+
   }
 }

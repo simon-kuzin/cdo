@@ -20,12 +20,14 @@ import org.eclipse.emf.cdo.server.IStoreAccessor.QueryResourcesContext;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IObjectTypeCache;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
+import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
 import org.eclipse.emf.cdo.server.internal.db.mapping.AbstractMappingStrategy;
 
 import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.db.DBUtil;
 import org.eclipse.net4j.db.IDBAdapter;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
+import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.emf.ecore.EClass;
 
@@ -42,12 +44,19 @@ import java.util.Collection;
  */
 public abstract class AbstractHorizontalMappingStrategy extends AbstractMappingStrategy
 {
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, AbstractHorizontalMappingStrategy.class);
+
   private IObjectTypeCache objectTypeCache;
 
   @Override
   public CDOClassifierRef readObjectType(IDBStoreAccessor accessor, CDOID id)
   {
     return objectTypeCache.getObjectType(accessor, id);
+  }
+
+  public void putObjectType(IDBStoreAccessor accessor, CDOID id, EClass type)
+  {
+    objectTypeCache.putObjectType(accessor, id, type);
   }
 
   @Override
@@ -129,6 +138,12 @@ public abstract class AbstractHorizontalMappingStrategy extends AbstractMappingS
       while (rset.next())
       {
         long longID = rset.getLong(1);
+
+        if (TRACER.isEnabled())
+        {
+          TRACER.format("Resource Query returned ID {0}", longID);
+        }
+
         CDOID id = CDOIDUtil.createLong(longID);
         if (!context.addResource(id))
         {

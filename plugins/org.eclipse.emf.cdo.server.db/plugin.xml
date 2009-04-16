@@ -26,12 +26,12 @@
    <extension
          point="org.eclipse.emf.cdo.server.db.mappingStrategies">
       <mappingStrategy
-            class="org.eclipse.emf.cdo.server.internal.db.mapping.HorizontalMappingStrategy"
+            class="org.eclipse.emf.cdo.server.internal.db.mapping.horizontal.HorizontalAuditMappingStrategy"
             type="horizontal">
       </mappingStrategy>
       <mappingStrategy
-            class="org.eclipse.emf.cdo.server.internal.db.mapping.VerticalMappingStrategy"
-            type="vertical">
+            class="org.eclipse.emf.cdo.server.internal.db.mapping.horizontal.HorizontalNonAuditMappingStrategy"
+            type="horizontalNonAudit">
       </mappingStrategy>
    </extension>
 </plugin>

@@ -22,29 +22,30 @@ import org.eclipse.emf.ecore.EStructuralFeature;
  * @author Stefan Winkler
  * @since 2.0
  */
-public class HorizontalAuditMappingStrategy extends AbstractHorizontalMappingStrategy
+public class HorizontalNonAuditMappingStrategy extends AbstractHorizontalMappingStrategy
 {
+
   @Override
-  public IClassMapping doCreateClassMapping(EClass eClass)
+  protected IClassMapping doCreateClassMapping(EClass eClass)
   {
-    return new HorizontalAuditClassMapping(this, eClass);
+    return new HorizontalNonAuditClassMapping(this, eClass);
   }
 
   @Override
   public IListMapping doCreateListMapping(EClass containingClass, EStructuralFeature feature)
   {
-    return new AuditListTableMapping(this, containingClass, feature);
+    return new NonAuditListTableMapping(this, containingClass, feature);
   }
 
   @Override
   public boolean hasAuditSupport()
   {
-    return true;
+    return false;
   }
 
   @Override
   public boolean hasDeltaSupport()
   {
-    return false;
+    return true;
   }
 }

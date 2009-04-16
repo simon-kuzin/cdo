@@ -335,6 +335,12 @@ public abstract class RepositoryConfig extends Config implements IRepositoryConf
         super.initRepositoryProperties(props);
         props.put(IRepository.Props.SUPPORTING_AUDITS, "false");
       }
+
+      @Override
+      protected IMappingStrategy createMappingStrategy()
+      {
+        return CDODBUtil.createHorizontalNonAuditMappingStrategy();
+      }
     }
 
     /**

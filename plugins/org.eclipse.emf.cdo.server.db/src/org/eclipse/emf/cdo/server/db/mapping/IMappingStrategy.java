@@ -87,8 +87,6 @@ public interface IMappingStrategy
 
   public IClassMapping getClassMapping(EClass eClass);
 
-  public IListMapping getListMapping(EStructuralFeature feature);
-
   public boolean hasDeltaSupport();
 
   public void queryResources(IDBStoreAccessor dbStoreAccessor, QueryResourcesContext context);
@@ -102,5 +100,4 @@ public interface IMappingStrategy
   public long repairAfterCrash(IDBAdapter dbAdapter, Connection connection);
 
   public void setProperties(Map<String, String> properties);
-
 }

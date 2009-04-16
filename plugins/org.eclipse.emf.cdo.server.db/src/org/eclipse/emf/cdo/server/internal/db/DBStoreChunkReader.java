@@ -12,6 +12,7 @@ package org.eclipse.emf.cdo.server.internal.db;
 
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.db.IDBStoreChunkReader;
+import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
 import org.eclipse.emf.cdo.server.db.mapping.IListMapping;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.spi.server.StoreChunkReader;
@@ -33,7 +34,8 @@ public class DBStoreChunkReader extends StoreChunkReader implements IDBStoreChun
   {
     super(accessor, revision, feature);
     IMappingStrategy mappingStrategy = accessor.getStore().getMappingStrategy();
-    referenceMapping = mappingStrategy.getListMapping(feature);
+    IClassMapping mapping = mappingStrategy.getClassMapping(revision.getEClass());
+    referenceMapping = mapping.getListMapping(feature);
   }
 
   @Override

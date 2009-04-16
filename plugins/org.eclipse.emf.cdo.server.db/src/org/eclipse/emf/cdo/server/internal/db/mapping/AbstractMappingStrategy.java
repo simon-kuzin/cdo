@@ -35,7 +35,6 @@ import org.eclipse.net4j.db.ddl.IDBTable;
 import org.eclipse.net4j.util.ImplementationError;
 import org.eclipse.net4j.util.StringUtil;
 import org.eclipse.net4j.util.collection.CloseableIterator;
-import org.eclipse.net4j.util.collection.Pair;
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.monitor.OMMonitor.Async;
@@ -79,14 +78,11 @@ public abstract class AbstractMappingStrategy extends Lifecycle implements IMapp
 
   private Map<String, String> properties;
 
-  private Map<Pair<EClass, EStructuralFeature>, IListMapping> listMappings;
-
   private Map<EClass, IClassMapping> classMappings;
 
   public AbstractMappingStrategy()
   {
     classMappings = new HashMap<EClass, IClassMapping>();
-    listMappings = new HashMap<Pair<EClass, EStructuralFeature>, IListMapping>();
   }
 
   // -- property related methods -----------------------------------------
@@ -345,11 +341,6 @@ public abstract class AbstractMappingStrategy extends Lifecycle implements IMapp
       tables.addAll(mapping.getDBTables());
     }
 
-    for (IListMapping mapping : listMappings.values())
-    {
-      tables.addAll(mapping.getDBTables());
-    }
-
     return tables;
   }
 
@@ -435,23 +426,10 @@ public abstract class AbstractMappingStrategy extends Lifecycle implements IMapp
 
   public final IListMapping createListMapping(EClass containingClass, EStructuralFeature feature)
   {
-    IListMapping mapping = doCreateManyMapping(containingClass, feature);
-    if (mapping != null)
-    {
-      listMappings.put(new Pair<EClass, EStructuralFeature>(containingClass, feature), mapping);
-    }
+    IListMapping mapping = doCreateListMapping(containingClass, feature);
     return mapping;
   }
 
-  public abstract IListMapping doCreateManyMapping(EClass containingClass, EStructuralFeature feature);
+  public abstract IListMapping doCreateListMapping(EClass containingClass, EStructuralFeature feature);
 
-  public final Map<Pair<EClass, EStructuralFeature>, IListMapping> getListMappings()
-  {
-    return listMappings;
-  }
-
-  public final IListMapping getListMapping(EStructuralFeature feature)
-  {
-    return listMappings.get(feature);
-  }
 }

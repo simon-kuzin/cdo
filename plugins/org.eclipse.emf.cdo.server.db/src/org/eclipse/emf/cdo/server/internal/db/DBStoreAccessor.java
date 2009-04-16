@@ -23,8 +23,8 @@ import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.ITransaction;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.mapping.IAuditSupport;
-import org.eclipse.emf.cdo.server.db.mapping.IDeltaSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
+import org.eclipse.emf.cdo.server.db.mapping.IDeltaSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
@@ -199,26 +199,45 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
   {
     IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
 
-    if (!mappingStrategy.hasAuditSupport())
-    {
-      throw new UnsupportedOperationException("Mapping strategy does not support audits.");
-    }
-
     EClass eClass = getObjectType(id);
     InternalCDORevision revision = (InternalCDORevision)CDORevisionUtil.create(eClass, id);
-    IAuditSupport mapping = (IAuditSupport)mappingStrategy.getClassMapping(eClass);
+    IClassMapping mapping = mappingStrategy.getClassMapping(eClass);
 
-    if (TRACER.isEnabled())
+    boolean success = false;
+
+    if (mappingStrategy.hasAuditSupport())
     {
-      TRACER.format("Selecting revision: {0}, version={1}", id, version);
+      if (TRACER.isEnabled())
+      {
+        TRACER.format("Selecting revision: {0}, version={1}", id, version);
+      }
+
+      // if audit support is present, just use the audit method
+      success = ((IAuditSupport)mapping).readRevisionByVersion(this, revision, version, referenceChunk);
     }
-    if (mapping.readRevisionByVersion(this, revision, version, referenceChunk))
+    else
     {
-      return revision;
+      // if audit support is not present, we still have to provide a method
+      // to readRevisionByVersion because TransactionCommitContext.computeDirtyObject
+      // needs to lookup the base revision for a change. Hence we emulate this
+      // behavior by getting the current revision and asserting that the version
+      // has not changed. This is valid because if the version has changed,
+      // we are in trouble because of a conflict anyways.
+      if (TRACER.isEnabled())
+      {
+        TRACER.format("Selecting current base revision: {0}", id);
+      }
+
+      success = mapping.readRevision(this, revision, referenceChunk);
+
+      if (success && revision.getVersion() != version)
+      {
+        throw new IllegalStateException("Can only retrieve current version " + revision.getVersion() + " for " + id
+            + " - version requested was " + version + ".");
+      }
     }
 
-    // Reading failed - revision does not exist.
-    return null;
+    return success ? revision : null;
   }
 
   /**
@@ -360,9 +379,17 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     monitor.begin();
     Async async = monitor.forkAsync();
 
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("--- DB COMMIT ---");
+    }
+
     try
     {
       getConnection().commit();
+
+      // CDODBUtil.sqlDump(getStore().getDBConnectionProvider(), "select * from CDOResourceFolder");
+      // CDODBUtil.sqlDump(getStore().getDBConnectionProvider(), "select * from CDOResource");
     }
     catch (SQLException ex)
     {
@@ -378,6 +405,11 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
   @Override
   protected final void rollback(IStoreAccessor.CommitContext commitContext)
   {
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("--- DB ROLLBACK ---");
+    }
+
     try
     {
       getConnection().rollback();

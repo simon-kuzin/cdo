@@ -18,6 +18,8 @@ import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.net4j.db.ddl.IDBTable;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 
+import org.eclipse.emf.ecore.EStructuralFeature;
+
 import java.sql.PreparedStatement;
 import java.util.Collection;
 
@@ -41,5 +43,7 @@ public interface IClassMapping
 
   PreparedStatement createResourceQueryStatement(IDBStoreAccessor accessor, CDOID folderId, String name,
       boolean exactMatch, long timeStamp);
+
+  IListMapping getListMapping(EStructuralFeature feature);
 
 }

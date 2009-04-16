@@ -11,12 +11,15 @@
  */
 package org.eclipse.emf.cdo.server.db.mapping;
 
+import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.server.IStoreChunkReader.Chunk;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IDBStoreChunkReader;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.db.ddl.IDBTable;
+
+import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.util.Collection;
 import java.util.List;
@@ -36,4 +39,12 @@ public interface IListMapping
   void readChunks(IDBStoreChunkReader dbStoreChunkReader, List<Chunk> chunks, String string);
 
   Collection<IDBTable> getDBTables();
+
+  EStructuralFeature getFeature();
+
+  /**
+   * Hook with which a list mapping is notified that a containing object has been revised. Can be implemented in order
+   * to clean up lists of revised objects.
+   */
+  void objectRevised(IDBStoreAccessor accessor, CDOID id, long revised);
 }
