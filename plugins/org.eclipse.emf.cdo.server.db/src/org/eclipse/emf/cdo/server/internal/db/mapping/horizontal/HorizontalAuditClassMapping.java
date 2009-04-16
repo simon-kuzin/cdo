@@ -157,7 +157,7 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
   }
 
   public boolean readRevisionByTime(IDBStoreAccessor accessor, InternalCDORevision revision, long timeStamp,
-      int referenceChunk)
+      int listChunk)
   {
     PreparedStatement pstmt = null;
     try
@@ -174,7 +174,7 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
       // Read multival tables only if revision exists
       if (success)
       {
-        readLists(accessor, revision, referenceChunk);
+        readLists(accessor, revision, listChunk);
       }
 
       return success;
@@ -190,7 +190,7 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
   }
 
   public boolean readRevisionByVersion(IDBStoreAccessor accessor, InternalCDORevision revision, int version,
-      int referenceChunk)
+      int listChunk)
   {
     PreparedStatement pstmt = null;
     try
@@ -206,7 +206,7 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
       // Read multival tables only if revision exists
       if (success)
       {
-        readLists(accessor, revision, referenceChunk);
+        readLists(accessor, revision, listChunk);
       }
 
       return success;
@@ -318,7 +318,7 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
     }
   }
 
-  public boolean readRevision(IDBStoreAccessor accessor, InternalCDORevision revision, int referenceChunk)
+  public boolean readRevision(IDBStoreAccessor accessor, InternalCDORevision revision, int listChunk)
   {
     PreparedStatement pstmt = null;
     try
@@ -333,7 +333,7 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
       // Read multival tables only if revision exists
       if (success)
       {
-        readLists(accessor, revision, referenceChunk);
+        readLists(accessor, revision, listChunk);
       }
 
       return success;

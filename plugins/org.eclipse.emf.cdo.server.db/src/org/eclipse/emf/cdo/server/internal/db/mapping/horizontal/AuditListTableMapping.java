@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2004 - 2009 Eike Stepper (Berlin, Germany) and others.
+ * Copyright (c) 2004 - 2009 Eike Stepper (Berlin, Germany) and others. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
- *    Stefan Winkler - major refactoring
+ *    Stefan Winkler - 271444: [DB] Multiple refactorings https://bugs.eclipse.org/bugs/show_bug.cgi?id=271444  
  */
 package org.eclipse.emf.cdo.server.internal.db.mapping.horizontal;
 
@@ -27,14 +27,16 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
+ * This is a list-table mapping for audit mode. It has ID and version columns and no delta support.
+ * 
  * @author Eike Stepper
  * @author Stefan Winkler
  * @since 2.0
  */
 public class AuditListTableMapping extends AbstractListTableMapping
 {
-  private static final FieldInfo[] KEY_FIELDS = { new FieldInfo(CDODBSchema.FEATURE_REVISION_ID, DBType.BIGINT),
-      new FieldInfo(CDODBSchema.FEATURE_REVISION_VERSION, DBType.INTEGER) };
+  private static final FieldInfo[] KEY_FIELDS = { new FieldInfo(CDODBSchema.LIST_REVISION_ID, DBType.BIGINT),
+      new FieldInfo(CDODBSchema.LIST_REVISION_VERSION, DBType.INTEGER) };
 
   public AuditListTableMapping(IMappingStrategy mappingStrategy, EClass eClass, EStructuralFeature feature)
   {

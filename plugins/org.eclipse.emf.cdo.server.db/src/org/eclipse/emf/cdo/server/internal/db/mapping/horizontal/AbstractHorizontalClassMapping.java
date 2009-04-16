@@ -7,7 +7,7 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
- *    Stefan Winkler - major refactoring
+ *    Stefan Winkler - 271444: [DB] Multiple refactorings https://bugs.eclipse.org/bugs/show_bug.cgi?id=271444  
  */
 package org.eclipse.emf.cdo.server.internal.db.mapping.horizontal;
 
@@ -191,11 +191,11 @@ public abstract class AbstractHorizontalClassMapping implements IClassMapping
     }
   }
 
-  protected final void readLists(IDBStoreAccessor accessor, InternalCDORevision revision, int referenceChunk)
+  protected final void readLists(IDBStoreAccessor accessor, InternalCDORevision revision, int listChunk)
   {
     for (IListMapping listMapping : listMappings)
     {
-      listMapping.readValues(accessor, revision, referenceChunk);
+      listMapping.readValues(accessor, revision, listChunk);
     }
   }
 
@@ -264,7 +264,8 @@ public abstract class AbstractHorizontalClassMapping implements IClassMapping
         return mapping;
       }
     }
-    return null;
+
+    throw new IllegalArgumentException("List mapping for feature " + feature + " does not exist.");
   }
 
   protected final IDBTable getTable()

@@ -46,5 +46,7 @@ public class AllTestsDBHsqldb extends AllTestsAllConfigs
     // this takes ages ...
     testClasses.remove(Bugzilla_266982_Test.class);
 
+    testClasses.clear();
+    testClasses.add(ChunkingTest.class);
   }
 }

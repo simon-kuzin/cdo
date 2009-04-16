@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Stefan Winkler - 271444: [DB] Multiple refactorings https://bugs.eclipse.org/bugs/show_bug.cgi?id=271444  
  */
 package org.eclipse.emf.cdo.server.db;
 
@@ -38,6 +39,11 @@ public interface IObjectTypeCache
   public void removeObjectType(IDBStoreAccessor accessor, CDOID id);
 
   /**
+   * Return the maximum object id managed by this cache.
+   * 
+   * @param connection
+   *          the DB connection to use.
+   * @return the maximum object id.
    * @since 2.0
    */
   public long getMaxId(Connection connection);

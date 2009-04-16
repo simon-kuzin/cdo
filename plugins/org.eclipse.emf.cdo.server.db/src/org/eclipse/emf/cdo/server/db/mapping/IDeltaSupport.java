@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2004 - 2009 Eike Stepper (Berlin, Germany) and others.
+ * Copyright (c) 2004 - 2009 Eike Stepper (Berlin, Germany) and others. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
- *    Stefan Winkler - major refactoring
+ *    Stefan Winkler - 271444: [DB] Multiple refactorings https://bugs.eclipse.org/bugs/show_bug.cgi?id=271444  
  */
 package org.eclipse.emf.cdo.server.db.mapping;
 
@@ -17,6 +17,11 @@ import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 
 /**
+ * Interface which complements {@link IClassMapping} with methods to facilitate 
+ * revision delta support.
+ * 
+ * @see {@link IMappingStrategy#hasDeltaSupport()
+ * 
  * @author Eike Stepper
  * @author Stefan Winkler
  * @since 2.0
@@ -24,7 +29,18 @@ import org.eclipse.net4j.util.om.monitor.OMMonitor;
 public interface IDeltaSupport
 {
 
-  void writeRevisionDelta(IDBStoreAccessor dbStoreAccessor, InternalCDORevisionDelta delta, long created,
+  /**
+   * Write a revision delta.
+   * 
+   * @param dbStoreAccessor
+   *          the accessor to use.
+   * @param delta
+   *          the delta to write.
+   * @param created
+   *          the creation timestamp of the new version
+   * @param monitor
+   *          the monitor to report progress.
+   */
+  public void writeRevisionDelta(IDBStoreAccessor dbStoreAccessor, InternalCDORevisionDelta delta, long created,
       OMMonitor monitor);
-
 }

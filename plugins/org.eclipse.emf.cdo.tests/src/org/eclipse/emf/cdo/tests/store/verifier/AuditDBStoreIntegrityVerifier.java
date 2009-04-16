@@ -158,9 +158,9 @@ public class AuditDBStoreIntegrityVerifier extends AbstractDBStoreVerifier
 
     TRACER.format("verifyUniqueIdVersion: {0} for ID{1}v{2} ...", tableName, id, version);
 
-    String sql = "SELECT " + CDODBSchema.FEATURE_IDX + " FROM " + tableName + " WHERE "
-        + CDODBSchema.FEATURE_REVISION_ID + "=" + id + " AND " + CDODBSchema.FEATURE_REVISION_VERSION + "=" + version
-        + " ORDER BY " + CDODBSchema.FEATURE_IDX;
+    String sql = "SELECT " + CDODBSchema.LIST_IDX + " FROM " + tableName + " WHERE "
+        + CDODBSchema.LIST_REVISION_ID + "=" + id + " AND " + CDODBSchema.LIST_REVISION_VERSION + "=" + version
+        + " ORDER BY " + CDODBSchema.LIST_IDX;
 
     TRACER.format("  Executing SQL: {0} ", sql);
 
@@ -177,8 +177,8 @@ public class AuditDBStoreIntegrityVerifier extends AbstractDBStoreVerifier
     }
     catch (AssertionFailedError e)
     {
-      sqlDump("SELECT * FROM " + tableName + " WHERE " + CDODBSchema.FEATURE_REVISION_ID + "=" + id + " AND "
-          + CDODBSchema.FEATURE_REVISION_VERSION + "=" + version + " ORDER BY " + CDODBSchema.FEATURE_IDX);
+      sqlDump("SELECT * FROM " + tableName + " WHERE " + CDODBSchema.LIST_REVISION_ID + "=" + id + " AND "
+          + CDODBSchema.LIST_REVISION_VERSION + "=" + version + " ORDER BY " + CDODBSchema.LIST_IDX);
       throw e;
     }
     finally

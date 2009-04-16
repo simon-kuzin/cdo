@@ -1,5 +1,5 @@
 /**
- *  Copyright (c) 2004 - 2009 Eike Stepper (Berlin, Germany) and others.
+ *  Copyright (c) 2004 - 2009 Eike Stepper (Berlin, Germany) and others. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
- *    Stefan Winkler - major refactoring
+ *    Stefan Winkler - 271444: [DB] Multiple refactorings https://bugs.eclipse.org/bugs/show_bug.cgi?id=271444  
  */
 package org.eclipse.emf.cdo.server.internal.db.mapping.horizontal;
 
@@ -44,6 +44,8 @@ import java.util.Collection;
 import java.util.List;
 
 /**
+ * This abstract base class provides basic behavior needed for mapping many-valued attributes to tables.
+ * 
  * @author Eike Stepper
  * @author Stefan Winkler
  * @since 2.0
@@ -52,14 +54,27 @@ public abstract class AbstractListTableMapping implements IListMapping
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, AbstractListTableMapping.class);
 
+  /**
+   * The feature for this mapping.
+   */
   private EStructuralFeature feature;
 
+  /**
+   * The table of this mapping.
+   */
   private IDBTable table;
 
+  /**
+   * The type mapping for the value field.
+   */
   private ITypeMapping typeMapping;
 
+  /**
+   * The associated mapping strategy.
+   */
   private IMappingStrategy mappingStrategy;
 
+  // --------- SQL strings - see initSqlStrings() -----------------
   private String sqlSelectChunksPrefix;
 
   private String sqlOrderByIndex;
@@ -67,6 +82,8 @@ public abstract class AbstractListTableMapping implements IListMapping
   private String sqlInsertEntry;
 
   private EClass containingClass;
+
+  private String sqlGetListLastIndex;
 
   public AbstractListTableMapping(IMappingStrategy mappingStrategy, EClass eClass, EStructuralFeature feature)
   {
@@ -93,11 +110,11 @@ public abstract class AbstractListTableMapping implements IListMapping
     }
 
     // add field for list index
-    IDBField idxField = table.addField(CDODBSchema.FEATURE_IDX, DBType.INTEGER);
+    IDBField idxField = table.addField(CDODBSchema.LIST_IDX, DBType.INTEGER);
 
     // add field for value
     typeMapping = mappingStrategy.createValueMapping(feature);
-    typeMapping.createDBField(table, CDODBSchema.FEATURE_TARGET);
+    typeMapping.createDBField(table, CDODBSchema.LIST_VALUE);
 
     // add table indexes
     table.addIndex(Type.NON_UNIQUE, dbFields);
@@ -121,7 +138,7 @@ public abstract class AbstractListTableMapping implements IListMapping
     // ---------------- SELECT to read chunks ----------------------------
     StringBuilder builder = new StringBuilder();
     builder.append("SELECT ");
-    builder.append(CDODBSchema.FEATURE_TARGET);
+    builder.append(CDODBSchema.LIST_VALUE);
     builder.append(" FROM ");
     builder.append(tableName);
     builder.append(" WHERE ");
@@ -143,7 +160,32 @@ public abstract class AbstractListTableMapping implements IListMapping
 
     sqlSelectChunksPrefix = builder.toString();
 
-    sqlOrderByIndex = " ORDER BY " + CDODBSchema.FEATURE_IDX;
+    sqlOrderByIndex = " ORDER BY " + CDODBSchema.LIST_IDX;
+
+    // ----------------- count list size --------------------------
+
+    builder = new StringBuilder("SELECT max(");
+    builder.append(CDODBSchema.LIST_IDX);
+    builder.append(") FROM ");
+    builder.append(tableName);
+    builder.append(" WHERE ");
+
+    for (int i = 0; i < fields.length; i++)
+    {
+      builder.append(fields[i].getName());
+      if (i + 1 < fields.length)
+      {
+        // more to come
+        builder.append("= ? AND ");
+      }
+      else
+      {
+        // last one
+        builder.append("= ? ");
+      }
+    }
+
+    sqlGetListLastIndex = builder.toString();
 
     // ----------------- INSERT - reference entry -----------------
     builder = new StringBuilder("INSERT INTO ");
@@ -177,10 +219,26 @@ public abstract class AbstractListTableMapping implements IListMapping
     return typeMapping;
   }
 
-  public void readValues(IDBStoreAccessor accessor, InternalCDORevision revision, int referenceChunk)
+  public void readValues(IDBStoreAccessor accessor, InternalCDORevision revision, int listChunk)
   {
 
     MoveableList<Object> list = revision.getList(getFeature());
+    int listSize = 0;
+
+    if (listChunk != CDORevision.UNCHUNKED)
+    {
+      listSize = getListLastIndex(accessor, revision);
+      if (listSize == -1)
+      {
+        // list is empty - take shortcut
+        return;
+      }
+      else
+      {
+        // subtract amount of items we are going to read now
+        listSize -= listChunk;
+      }
+    }
 
     if (TRACER.isEnabled())
     {
@@ -206,7 +264,7 @@ public abstract class AbstractListTableMapping implements IListMapping
 
       resultSet = pstmt.executeQuery();
 
-      while ((referenceChunk == CDORevision.UNCHUNKED || --referenceChunk >= 0) && resultSet.next())
+      while ((listChunk == CDORevision.UNCHUNKED || --listChunk >= 0) && resultSet.next())
       {
         Object value = typeMapping.readValue(resultSet, 1);
         if (TRACER.isEnabled())
@@ -216,21 +274,13 @@ public abstract class AbstractListTableMapping implements IListMapping
         list.add(value);
       }
 
-      // TODO Optimize this?
-      while (resultSet.next())
+      while (listSize-- > 0)
       {
+        list.add(InternalCDORevision.UNINITIALIZED);
         if (TRACER.isEnabled())
         {
-          TRACER.format("Additional value for index {0} ignored due to chunking. Setting uninitialized.", list.size());
+          TRACER.format("Added UNINITIALIZED for index {0} ", list.size());
         }
-
-        list.add(InternalCDORevision.UNINITIALIZED);
-      }
-
-      if (TRACER.isEnabled())
-      {
-        TRACER.format("Reading list values done for feature {0}.{1} of {2}v{3}", containingClass.getName(), feature
-            .getName(), revision.getID(), revision.getVersion());
       }
     }
     catch (SQLException ex)
@@ -243,6 +293,67 @@ public abstract class AbstractListTableMapping implements IListMapping
       DBUtil.close(pstmt);
     }
 
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("Reading list values done for feature {0}.{1} of {2}v{3}", containingClass.getName(), feature
+          .getName(), revision.getID(), revision.getVersion());
+    }
+  }
+
+  /**
+   * Return the last (maximum) list index. (euals to size-1)
+   * 
+   * @param accessor
+   *          the accessor to use
+   * @param revision
+   *          the revision to which the feature list belongs
+   * @return the last index or <code>-1</code> if the list is empty.
+   */
+  private int getListLastIndex(IDBStoreAccessor accessor, InternalCDORevision revision)
+  {
+    PreparedStatement pstmt = null;
+    ResultSet resultSet = null;
+
+    try
+    {
+      pstmt = accessor.getConnection().prepareStatement(sqlGetListLastIndex);
+
+      setKeyFields(pstmt, revision);
+
+      if (TRACER.isEnabled())
+      {
+        TRACER.trace(pstmt.toString());
+      }
+
+      resultSet = pstmt.executeQuery();
+
+      if (!resultSet.next())
+      {
+        if (TRACER.isEnabled())
+        {
+          TRACER.trace("No last index found -> list is empty. ");
+        }
+        return -1;
+      }
+      else
+      {
+        int result = resultSet.getInt(1);
+        if (TRACER.isEnabled())
+        {
+          TRACER.trace("Read list size = " + result);
+        }
+        return result;
+      }
+    }
+    catch (SQLException ex)
+    {
+      throw new DBException(ex);
+    }
+    finally
+    {
+      DBUtil.close(resultSet);
+      DBUtil.close(pstmt);
+    }
   }
 
   public final void readChunks(IDBStoreChunkReader chunkReader, List<Chunk> chunks, String where)
@@ -338,69 +449,12 @@ public abstract class AbstractListTableMapping implements IListMapping
   {
     CDOList values = revision.getList(getFeature());
 
-    // if(values.contains(InternalCDORevision.UNINITIALIZED)) {
-    // readUninitializedValues(accessor, values);
-    // }
-
     int idx = 0;
     for (Object element : values)
     {
       writeValue(accessor, revision, idx++, element);
     }
   }
-
-  // private void readUninitializedValues(IDBStoreAccessor accessor, CDORevision revision, MoveableList<Object> values)
-  // {
-  // CDOID id = revision.getID();
-  // int version = revision.getVersion();
-  //
-  // if (TRACER.isEnabled())
-  // {
-  // TRACER.format("Reading uninitialized list values for feature {0}.{1} of {2}v{3}", containingClass.getName(),
-  // feature.getName(),
-  // id, version);
-  // }
-  //
-  // PreparedStatement pstmt = null;
-  // ResultSet resultSet = null;
-  //
-  // try
-  // {
-  // String sql = sqlSelectChunksPrefix + sqlOrderByIndex;
-  //
-  // pstmt = accessor.getConnection().prepareStatement(sql);
-  //
-  // pstmt.setLong(1, CDOIDUtil.getLong(id));
-  // pstmt.setInt(2, version);
-  // if (TRACER.isEnabled())
-  // {
-  // TRACER.trace(pstmt.toString());
-  // }
-  //
-  // resultSet = pstmt.executeQuery();
-  //
-  // int index = 0;
-  //      
-  // while(resultSet.next()) {
-  // if(values.get(index) == InternalCDORevision.UNINITIALIZED) {
-  // Object value = typeMapping.readValue(resultSet, 1);
-  // if (TRACER.isEnabled())
-  // {
-  // TRACER.format("Read value for index {0} from result set: {1}", list.size(), value);
-  // }
-  // }
-  // }
-  // }
-  // catch (SQLException ex)
-  // {
-  // throw new DBException(ex);
-  // }
-  // finally
-  // {
-  // DBUtil.close(resultSet);
-  // DBUtil.close(pstmt);
-  // }
-  // }
 
   protected final void writeValue(IDBStoreAccessor accessor, CDORevision revision, int idx, Object value)
   {
@@ -430,6 +484,34 @@ public abstract class AbstractListTableMapping implements IListMapping
     finally
     {
       DBUtil.close(stmt);
+    }
+  }
+
+  /**
+   * Used by subclasses to indicate which fields should be in the table. I.e. just a pair of name and DBType ...
+   * 
+   * @author Stefan Winkler
+   */
+  protected static class FieldInfo
+  {
+    private String name;
+
+    private DBType dbType;
+
+    public FieldInfo(String name, DBType dbType)
+    {
+      this.name = name;
+      this.dbType = dbType;
+    }
+
+    public String getName()
+    {
+      return name;
+    }
+
+    public DBType getDbType()
+    {
+      return dbType;
     }
   }
 }

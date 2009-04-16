@@ -7,7 +7,7 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
- *    Stefan Winkler - major refactoring
+ *    Stefan Winkler - 271444: [DB] Multiple refactorings https://bugs.eclipse.org/bugs/show_bug.cgi?id=271444
  */
 package org.eclipse.emf.cdo.server.internal.db.mapping;
 
@@ -32,6 +32,9 @@ import java.sql.Timestamp;
 import java.util.Date;
 
 /**
+ * This is a default implementation for the {@link ITypeMapping} interface which provides default behavor for all common
+ * types.
+ * 
  * @author Eike Stepper
  * @author Stefan Winkler
  */
@@ -43,6 +46,14 @@ public abstract class TypeMapping implements ITypeMapping
 
   private IDBField field;
 
+  /**
+   * Create a new type mapping
+   * 
+   * @param mappingStrategy
+   *          the associated mapping strategy.
+   * @param feature
+   *          the feature to be mapped.
+   */
   public TypeMapping(IMappingStrategy mappingStrategy, EStructuralFeature feature)
   {
     this.mappingStrategy = mappingStrategy;

@@ -8,6 +8,7 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  *    Stefan Winkler - major refactoring
+ *    Stefan Winkler - 271444: [DB] Multiple refactorings https://bugs.eclipse.org/bugs/show_bug.cgi?id=271444  
  */
 package org.eclipse.emf.cdo.server.internal.db.mapping;
 
@@ -56,12 +57,16 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * This abstract base class implements those methods which are most likely common to most mapping strategies. It can be
+ * used to derive custom mapping strategy implementation.
+ * 
  * @author Eike Stepper
  * @author Stefan Winkler
  * @since 2.0
  */
 public abstract class AbstractMappingStrategy extends Lifecycle implements IMappingStrategy
 {
+  // --------- database name generation strings --------------
   protected static final String NAME_SEPARATOR = "_";
 
   protected static final String TYPE_PREFIX_FEATURE = "F";
@@ -74,7 +79,7 @@ public abstract class AbstractMappingStrategy extends Lifecycle implements IMapp
 
   // private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, AbstractMappingStrategy.class);
 
-  private IDBStore store;
+  private IDBStore store = null;
 
   private Map<String, String> properties;
 
@@ -141,6 +146,7 @@ public abstract class AbstractMappingStrategy extends Lifecycle implements IMapp
 
   public final void setStore(IDBStore dbStore)
   {
+    checkInactive();
     store = dbStore;
   }
 
@@ -197,7 +203,6 @@ public abstract class AbstractMappingStrategy extends Lifecycle implements IMapp
         currentStatement = null;
       }
     };
-
   };
 
   public abstract CDOClassifierRef readObjectType(IDBStoreAccessor dbStoreAccessor, CDOID id);
@@ -365,7 +370,13 @@ public abstract class AbstractMappingStrategy extends Lifecycle implements IMapp
 
   public final IClassMapping getClassMapping(EClass eClass)
   {
-    return classMappings.get(eClass);
+    IClassMapping result = classMappings.get(eClass);
+    if (result != null)
+    {
+      return result;
+    }
+
+    throw new ImplementationError("Class mapping not found for " + eClass.toString());
   }
 
   public ITypeMapping createValueMapping(EStructuralFeature feature)
@@ -426,6 +437,7 @@ public abstract class AbstractMappingStrategy extends Lifecycle implements IMapp
 
   public final IListMapping createListMapping(EClass containingClass, EStructuralFeature feature)
   {
+    checkArg(feature.isMany(), "Only many-valued features allowed.");
     IListMapping mapping = doCreateListMapping(containingClass, feature);
     return mapping;
   }

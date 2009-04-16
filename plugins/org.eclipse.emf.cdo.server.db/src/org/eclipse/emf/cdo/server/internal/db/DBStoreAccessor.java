@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2004 - 2009 Eike Stepper (Berlin, Germany) and others.
+ * Copyright (c) 2004 - 2009 Eike Stepper (Berlin, Germany) and others. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  *    Stefan Winkler - https://bugs.eclipse.org/bugs/show_bug.cgi?id=259402
+ *    Stefan Winkler - 271444: [DB] Multiple refactorings https://bugs.eclipse.org/bugs/show_bug.cgi?id=271444
  */
 package org.eclipse.emf.cdo.server.internal.db;
 
@@ -94,15 +95,11 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     return (DBStore)super.getStore();
   }
 
-  /** TODO: check how to handle */
   public DBStoreChunkReader createChunkReader(InternalCDORevision revision, EStructuralFeature feature)
   {
     return new DBStoreChunkReader(this, revision, feature);
   }
 
-  /**
-   * TODO caching?
-   */
   public CloseableIterator<CDOID> readObjectIDs()
   {
     if (TRACER.isEnabled())
@@ -113,9 +110,6 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     return getStore().getMappingStrategy().readObjectIDs(this);
   }
 
-  /**
-   * TODO caching?
-   */
   public CDOClassifierRef readObjectType(CDOID id)
   {
     if (TRACER.isEnabled())
@@ -128,7 +122,8 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
 
   protected EClass getObjectType(CDOID id)
   {
-    // TODO Replace calls to getObjectType by optimized calls to RevisionManager.getObjectType (cache!)
+    // TODO (taken over from old implementation:) Replace calls to getObjectType by optimized calls to
+    // RevisionManager.getObjectType (cache!)
     CDOClassifierRef type = readObjectType(id);
     if (type == null)
     {
@@ -140,7 +135,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     return (EClass)type.resolve(packageRegistry);
   }
 
-  public InternalCDORevision readRevision(CDOID id, int referenceChunk, AdditionalRevisionCache cache)
+  public InternalCDORevision readRevision(CDOID id, int listChunk, AdditionalRevisionCache cache)
   {
     if (TRACER.isEnabled())
     {
@@ -157,7 +152,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
 
     IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
     IClassMapping mapping = mappingStrategy.getClassMapping(eClass);
-    if (mapping.readRevision(this, revision, referenceChunk))
+    if (mapping.readRevision(this, revision, listChunk))
     {
       return revision;
     }
@@ -166,8 +161,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     return null;
   }
 
-  public InternalCDORevision readRevisionByTime(CDOID id, int referenceChunk, AdditionalRevisionCache cache,
-      long timeStamp)
+  public InternalCDORevision readRevisionByTime(CDOID id, int listChunk, AdditionalRevisionCache cache, long timeStamp)
   {
     IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
 
@@ -185,7 +179,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     InternalCDORevision revision = (InternalCDORevision)CDORevisionUtil.create(eClass, id);
 
     IAuditSupport mapping = (IAuditSupport)mappingStrategy.getClassMapping(eClass);
-    if (mapping.readRevisionByTime(this, revision, timeStamp, referenceChunk))
+    if (mapping.readRevisionByTime(this, revision, timeStamp, listChunk))
     {
       return revision;
     }
@@ -194,8 +188,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     return null;
   }
 
-  public InternalCDORevision readRevisionByVersion(CDOID id, int referenceChunk, AdditionalRevisionCache cache,
-      int version)
+  public InternalCDORevision readRevisionByVersion(CDOID id, int listChunk, AdditionalRevisionCache cache, int version)
   {
     IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
 
@@ -213,7 +206,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
       }
 
       // if audit support is present, just use the audit method
-      success = ((IAuditSupport)mapping).readRevisionByVersion(this, revision, version, referenceChunk);
+      success = ((IAuditSupport)mapping).readRevisionByVersion(this, revision, version, listChunk);
     }
     else
     {
@@ -228,7 +221,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
         TRACER.format("Selecting current base revision: {0}", id);
       }
 
-      success = mapping.readRevision(this, revision, referenceChunk);
+      success = mapping.readRevision(this, revision, listChunk);
 
       if (success && revision.getVersion() != version)
       {

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2004 - 2009 Eike Stepper (Berlin, Germany) and others.
+ * Copyright (c) 2004 - 2009 Eike Stepper (Berlin, Germany) and others. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
- *    Stefan Winkler - major refactoring
+ *    Stefan Winkler - 271444: [DB] Multiple refactorings https://bugs.eclipse.org/bugs/show_bug.cgi?id=271444  
  */
 package org.eclipse.emf.cdo.server.internal.db.mapping.horizontal;
 
@@ -32,6 +32,8 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 /**
+ * This is a list-to-table mapping optimized for non-audit-mode. It doesn't care about version and has delta support.
+ * 
  * @author Eike Stepper
  * @author Stefan Winkler
  * @since 2.0
@@ -39,7 +41,7 @@ import java.sql.SQLException;
 public class NonAuditListTableMapping extends AbstractListTableMapping implements IListMapping,
     IListMappingDeltaSupport
 {
-  private static final FieldInfo[] KEY_FIELDS = { new FieldInfo(CDODBSchema.FEATURE_REVISION_ID, DBType.BIGINT) };
+  private static final FieldInfo[] KEY_FIELDS = { new FieldInfo(CDODBSchema.LIST_REVISION_ID, DBType.BIGINT) };
 
   private static final int TEMP_INDEX = -1;
 
@@ -78,13 +80,13 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
     builder.append("DELETE FROM ");
     builder.append(getTable().getName());
     builder.append(" WHERE ");
-    builder.append(CDODBSchema.FEATURE_REVISION_ID);
+    builder.append(CDODBSchema.LIST_REVISION_ID);
     builder.append(" = ? ");
 
     sqlClear = builder.toString();
 
     builder.append(" AND ");
-    builder.append(CDODBSchema.FEATURE_IDX);
+    builder.append(CDODBSchema.LIST_IDX);
     builder.append(" = ? ");
 
     sqlDeleteItem = builder.toString();
@@ -94,12 +96,12 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
     builder.append("UPDATE ");
     builder.append(getTable().getName());
     builder.append(" SET ");
-    builder.append(CDODBSchema.FEATURE_TARGET);
+    builder.append(CDODBSchema.LIST_VALUE);
     builder.append(" = ? ");
     builder.append(" WHERE ");
-    builder.append(CDODBSchema.FEATURE_REVISION_ID);
+    builder.append(CDODBSchema.LIST_REVISION_ID);
     builder.append(" = ? AND ");
-    builder.append(CDODBSchema.FEATURE_IDX);
+    builder.append(CDODBSchema.LIST_IDX);
     builder.append(" = ? ");
     sqlUpdateValue = builder.toString();
 
@@ -115,12 +117,12 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
     builder.append("UPDATE ");
     builder.append(getTable().getName());
     builder.append(" SET ");
-    builder.append(CDODBSchema.FEATURE_IDX);
+    builder.append(CDODBSchema.LIST_IDX);
     builder.append(" = ? ");
     builder.append(" WHERE ");
-    builder.append(CDODBSchema.FEATURE_REVISION_ID);
+    builder.append(CDODBSchema.LIST_REVISION_ID);
     builder.append(" = ? AND ");
-    builder.append(CDODBSchema.FEATURE_IDX);
+    builder.append(CDODBSchema.LIST_IDX);
     builder.append(" = ? ");
     sqlUpdateIndex = builder.toString();
 
@@ -129,18 +131,18 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
     builder.append("UPDATE ");
     builder.append(getTable().getName());
     builder.append(" SET ");
-    builder.append(CDODBSchema.FEATURE_IDX);
+    builder.append(CDODBSchema.LIST_IDX);
     builder.append(" = ");
-    builder.append(CDODBSchema.FEATURE_IDX);
+    builder.append(CDODBSchema.LIST_IDX);
     builder.append("-1 WHERE ");
-    builder.append(CDODBSchema.FEATURE_REVISION_ID);
+    builder.append(CDODBSchema.LIST_REVISION_ID);
     builder.append("= ? AND ");
-    builder.append(CDODBSchema.FEATURE_IDX);
+    builder.append(CDODBSchema.LIST_IDX);
     builder.append(" > ? ");
     sqlMoveDown = builder.toString();
 
     builder.append(" AND ");
-    builder.append(CDODBSchema.FEATURE_IDX);
+    builder.append(CDODBSchema.LIST_IDX);
     builder.append(" <= ?");
     sqlMoveDownWithLimit = builder.toString();
 
@@ -149,18 +151,18 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
     builder.append("UPDATE ");
     builder.append(getTable().getName());
     builder.append(" SET ");
-    builder.append(CDODBSchema.FEATURE_IDX);
+    builder.append(CDODBSchema.LIST_IDX);
     builder.append(" = ");
-    builder.append(CDODBSchema.FEATURE_IDX);
+    builder.append(CDODBSchema.LIST_IDX);
     builder.append("+1 WHERE ");
-    builder.append(CDODBSchema.FEATURE_REVISION_ID);
+    builder.append(CDODBSchema.LIST_REVISION_ID);
     builder.append("= ? AND ");
-    builder.append(CDODBSchema.FEATURE_IDX);
+    builder.append(CDODBSchema.LIST_IDX);
     builder.append(" >= ? ");
     sqlMoveUp = builder.toString();
 
     builder.append(" AND ");
-    builder.append(CDODBSchema.FEATURE_IDX);
+    builder.append(CDODBSchema.LIST_IDX);
     builder.append(" < ?");
     sqlMoveUpWithLimit = builder.toString();
 

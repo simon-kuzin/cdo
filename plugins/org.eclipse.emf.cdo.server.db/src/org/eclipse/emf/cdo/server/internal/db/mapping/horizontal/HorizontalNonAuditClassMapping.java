@@ -293,7 +293,7 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
     }
   }
 
-  public boolean readRevision(IDBStoreAccessor accessor, InternalCDORevision revision, int referenceChunk)
+  public boolean readRevision(IDBStoreAccessor accessor, InternalCDORevision revision, int listChunk)
   {
     PreparedStatement pstmt = null;
     try
@@ -308,7 +308,7 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
       // Read multival tables only if revision exists
       if (success)
       {
-        readLists(accessor, revision, referenceChunk);
+        readLists(accessor, revision, listChunk);
       }
 
       return success;

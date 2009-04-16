@@ -7,6 +7,9 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Stefan Winkler - 271444: [DB] Multiple refactorings 
+ *      https://bugs.eclipse.org/bugs/show_bug.cgi?id=271444
+ *
  */
 package org.eclipse.emf.cdo.server.db;
 
@@ -135,6 +138,19 @@ public final class CDODBUtil
   }
 
   /**
+   * Execute update on the given prepared statement and handle common cases of return values.
+   * 
+   * @param stmt
+   *          the prepared statement
+   * @param exactlyOne
+   *          if <code>true</code>, the update count is checked to be <code>1</code>. Else the update result is only
+   *          checked so that the update was successful (i.e. result code != Statement.EXECUTE_FAILED).
+   * @return the update count / execution result as returned by {@link PreparedStatement#executeUpdate()}. Can be used
+   *         by the caller to perform more advanced checks.
+   * @throws SQLException
+   *           if {@link PreparedStatement#executeUpdate()} throws it.
+   * @throws IllegalStateException
+   *           if the check indicated by <code>excatlyOne</code> indicates an error.
    * @since 2.0
    */
   public static int sqlUpdate(PreparedStatement stmt, boolean exactlyOne) throws SQLException
@@ -155,29 +171,13 @@ public final class CDODBUtil
     return result;
   }
 
-  // public static CDODBStoreManager getStoreManager(IDBAdapter dbAdapter,
-  // DataSource dataSource)
-  // {
-  // CDODBStoreManager storeManager = new CDODBStoreManager(dbAdapter,
-  // dataSource);
-  // storeManager.initDatabase();
-  // return storeManager;
-  // }
-  //
-  // public static CDODBStoreManager getStoreManager()
-  // {
-  // Properties properties = OM.BUNDLE.getConfigProperties();
-  // String adapterName = properties.getProperty("store.adapterName", "derby-embedded");
-  // IDBAdapter dbAdapter = DBUtil.getDBAdapter(adapterName);
-  // DataSource dataSource = DBUtil.createDataSource(properties, "datasource");
-  // return getStoreManager(dbAdapter, dataSource);
-  // }
-
   /**
    * For debugging purposes ONLY!
    * 
+   * @deprecated Should only be used when debugging.
    * @since 2.0
    */
+  @Deprecated
   public static void sqlDump(Connection conn, String sql)
   {
     ContextTracer TRACER = new ContextTracer(OM.DEBUG, CDODBUtil.class);
@@ -246,8 +246,10 @@ public final class CDODBUtil
   /**
    * For debugging purposes ONLY!
    * 
+   * @deprecated Should only be used when debugging.
    * @since 2.0
    */
+  @Deprecated
   public static void sqlDump(IDBConnectionProvider connectionProvider, String sql)
   {
     Connection connection = connectionProvider.getConnection();

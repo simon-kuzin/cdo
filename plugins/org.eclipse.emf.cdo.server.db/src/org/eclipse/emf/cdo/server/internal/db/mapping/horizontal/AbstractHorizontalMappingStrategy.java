@@ -7,7 +7,7 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
- *    Stefan Winkler - major refactoring
+ *    Stefan Winkler - 271444: [DB] Multiple refactorings https://bugs.eclipse.org/bugs/show_bug.cgi?id=271444  
  */
 package org.eclipse.emf.cdo.server.internal.db.mapping.horizontal;
 
@@ -15,6 +15,7 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.eresource.CDOResourceNode;
 import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.server.IStoreAccessor.QueryResourcesContext;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
@@ -38,6 +39,13 @@ import java.sql.SQLException;
 import java.util.Collection;
 
 /**
+ * * This abstract base class refines {@link AbstractMappingStrategy} by implementing aspects common to horizontal
+ * mapping strategies -- namely:
+ * <ul>
+ * <li>object type cache (table cdo_objects)
+ * <li>resource query handling
+ * </ul>
+ * 
  * @author Eike Stepper
  * @author Stefan Winkler
  * @since 2.0
@@ -46,6 +54,9 @@ public abstract class AbstractHorizontalMappingStrategy extends AbstractMappingS
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, AbstractHorizontalMappingStrategy.class);
 
+  /**
+   * The associated object type cache.
+   */
   private IObjectTypeCache objectTypeCache;
 
   @Override
@@ -62,7 +73,7 @@ public abstract class AbstractHorizontalMappingStrategy extends AbstractMappingS
   @Override
   public long repairAfterCrash(IDBAdapter dbAdapter, Connection connection)
   {
-    return objectTypeCache.getMaxId(connection);
+    return objectTypeCache.getMaxId(connection) + 1;
   }
 
   @Override
@@ -100,6 +111,7 @@ public abstract class AbstractHorizontalMappingStrategy extends AbstractMappingS
   @Override
   public void queryResources(IDBStoreAccessor dbStoreAccessor, QueryResourcesContext context)
   {
+    // only support timestamp in audit mode
     if (context.getTimeStamp() != CDORevision.UNSPECIFIED_DATE && !hasAuditSupport())
     {
       throw new UnsupportedOperationException("Mapping Strategy does not support audits.");
@@ -107,7 +119,12 @@ public abstract class AbstractHorizontalMappingStrategy extends AbstractMappingS
 
     EresourcePackage resourcesPackage = EresourcePackage.eINSTANCE;
 
-    if (queryResources(dbStoreAccessor, getClassMapping(resourcesPackage.getCDOResourceFolder()), context))
+    // first query folders
+    boolean shallContinue = queryResources(dbStoreAccessor, getClassMapping(resourcesPackage.getCDOResourceFolder()),
+        context);
+
+    // not enough results? -> query resources
+    if (shallContinue)
     {
       queryResources(dbStoreAccessor, getClassMapping(resourcesPackage.getCDOResource()), context);
     }
@@ -117,8 +134,14 @@ public abstract class AbstractHorizontalMappingStrategy extends AbstractMappingS
    * This is an intermediate implementation. It should be changed after classmappings support a general way to implement
    * queries ...
    * 
-   * @return true if result context is not yet full and query should continue false, if result context is full and query
-   *         should stop.
+   * @param accessor
+   *          the accessor to use.
+   * @param classMapping
+   *          the class mapping of a class instanceof {@link CDOResourceNode} which should be queried.
+   * @param context
+   *          the query context containing the parameters and the result.
+   * @return <code>true</code> if result context is not yet full and query should continue false, if result context is
+   *         full and query should stop.
    */
   private boolean queryResources(IDBStoreAccessor accessor, IClassMapping classMapping, QueryResourcesContext context)
   {

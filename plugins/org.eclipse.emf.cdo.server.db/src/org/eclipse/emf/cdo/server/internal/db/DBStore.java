@@ -7,7 +7,8 @@
  * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
- *    Stefan Winkler - https://bugs.eclipse.org/bugs/show_bug.cgi?id=259402    
+ *    Stefan Winkler - https://bugs.eclipse.org/bugs/show_bug.cgi?id=259402
+ *    Stefan Winkler - 271444: [DB] Multiple refactorings https://bugs.eclipse.org/bugs/show_bug.cgi?id=271444      
  */
 package org.eclipse.emf.cdo.server.internal.db;
 
@@ -29,7 +30,6 @@ import org.eclipse.net4j.db.ddl.IDBSchema;
 import org.eclipse.net4j.db.ddl.IDBTable;
 import org.eclipse.net4j.spi.db.DBSchema;
 import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
-import org.eclipse.net4j.util.lifecycle.ILifecycle;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 import org.eclipse.net4j.util.om.monitor.ProgressDistributor;
 
@@ -40,7 +40,7 @@ import java.text.MessageFormat;
 import java.util.Set;
 
 /**
- * @author Eike Stepper TODO: factor out type map and meta stuff into MetadataManager
+ * @author Eike Stepper
  */
 public class DBStore extends LongIDStore implements IDBStore
 {
@@ -80,7 +80,7 @@ public class DBStore extends LongIDStore implements IDBStore
   @ExcludeFromDump
   private transient StoreAccessorPool writerPool = new StoreAccessorPool(this, null);
 
-  private IMetaDataManager metaDataManager;
+  private transient IMetaDataManager metaDataManager;
 
   public DBStore()
   {
@@ -212,7 +212,7 @@ public class DBStore extends LongIDStore implements IDBStore
     super.doActivate();
 
     metaDataManager = new MetaDataManager(this);
-    ((ILifecycle)metaDataManager).activate();
+    LifecycleUtil.activate(metaDataManager);
 
     Connection connection = getConnection();
     LifecycleUtil.activate(mappingStrategy);
@@ -301,7 +301,7 @@ public class DBStore extends LongIDStore implements IDBStore
   {
     Connection connection = null;
 
-    ((ILifecycle)metaDataManager).deactivate();
+    LifecycleUtil.deactivate(metaDataManager);
     metaDataManager = null;
 
     try
