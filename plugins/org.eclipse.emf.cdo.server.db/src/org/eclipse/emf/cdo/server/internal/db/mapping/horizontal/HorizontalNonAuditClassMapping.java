@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Eike Stepper - initial API and implementation
  *    Stefan Winkler - major refactoring
@@ -17,7 +17,6 @@ import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDOAddFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOClearFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOContainerFeatureDelta;
-import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDeltaVisitor;
 import org.eclipse.emf.cdo.common.revision.delta.CDOListFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOMoveFeatureDelta;
@@ -29,7 +28,7 @@ import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.server.db.CDODBUtil;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
-import org.eclipse.emf.cdo.server.db.mapping.IDeltaSupport;
+import org.eclipse.emf.cdo.server.db.mapping.IClassMappingDeltaSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IListMappingDeltaSupport;
 import org.eclipse.emf.cdo.server.db.mapping.ITypeMapping;
 import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
@@ -59,7 +58,7 @@ import java.util.List;
  * @since 2.0
  */
 public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMapping implements IClassMapping,
-    IDeltaSupport
+    IClassMappingDeltaSupport
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, HorizontalNonAuditClassMapping.class);
 
@@ -366,6 +365,8 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
   {
     private CDOID id;
 
+    private int oldVersion;
+
     private int newVersion;
 
     private long created;
@@ -399,6 +400,7 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
 
       reset();
       id = d.getID();
+      oldVersion = d.getOriginVersion();
       newVersion = d.getDirtyVersion();
       created = c;
       accessor = a;
@@ -420,30 +422,22 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
 
     public void visit(CDOMoveFeatureDelta delta)
     {
-      getListMappingDeltaSupport(delta.getFeature()).moveListItem(accessor, id, newVersion, delta.getOldPosition(),
-          delta.getNewPosition());
+      throw new ImplementationError("Should not be called");
     }
 
     public void visit(CDOSetFeatureDelta delta)
     {
       if (delta.getFeature().isMany())
       {
-        IListMappingDeltaSupport rm = getListMappingDeltaSupport(delta.getFeature());
-        if (rm == null)
-        {
-          throw new IllegalArgumentException("ReferenceMapping for " + delta.getFeature() + " is null!");
-        }
-        rm.setListItem(accessor, id, newVersion, delta.getIndex(), delta.getValue());
+        throw new ImplementationError("Should not be called");
       }
-      else
+      ITypeMapping am = getValueMapping(delta.getFeature());
+      if (am == null)
       {
-        ITypeMapping am = getValueMapping(delta.getFeature());
-        if (am == null)
-        {
-          throw new IllegalArgumentException("AttributeMapping for " + delta.getFeature() + " is null!");
-        }
-        attributeChanges.add(new Pair<ITypeMapping, Object>(am, delta.getValue()));
+        throw new IllegalArgumentException("AttributeMapping for " + delta.getFeature() + " is null!");
       }
+      attributeChanges.add(new Pair<ITypeMapping, Object>(am, delta.getValue()));
+
     }
 
     public void visit(CDOUnsetFeatureDelta delta)
@@ -456,26 +450,23 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
 
     public void visit(CDOListFeatureDelta delta)
     {
-      for (CDOFeatureDelta listChange : delta.getListChanges())
-      {
-        listChange.accept(this);
-      }
+      IListMappingDeltaSupport listMapping = (IListMappingDeltaSupport)getListMapping(delta.getFeature());
+      listMapping.processDelta(accessor, id, oldVersion, newVersion, created, delta);
     }
 
     public void visit(CDOClearFeatureDelta delta)
     {
-      getListMappingDeltaSupport(delta.getFeature()).clearList(accessor, id);
+      throw new ImplementationError("Should not be called");
     }
 
     public void visit(CDOAddFeatureDelta delta)
     {
-      getListMappingDeltaSupport(delta.getFeature()).insertListItem(accessor, id, newVersion, delta.getIndex(),
-          delta.getValue());
+      throw new ImplementationError("Should not be called");
     }
 
     public void visit(CDORemoveFeatureDelta delta)
     {
-      getListMappingDeltaSupport(delta.getFeature()).removeListItem(accessor, id, newVersion, delta.getIndex());
+      throw new ImplementationError("Should not be called");
     }
 
     public void visit(CDOContainerFeatureDelta delta)
@@ -484,11 +475,6 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
       newContainerID = (CDOID)delta.getContainerID();
       newResourceID = delta.getResourceID();
       updateContainer = true;
-    }
-
-    private IListMappingDeltaSupport getListMappingDeltaSupport(EStructuralFeature feature)
-    {
-      return (IListMappingDeltaSupport)getListMapping(feature);
     }
   }
 

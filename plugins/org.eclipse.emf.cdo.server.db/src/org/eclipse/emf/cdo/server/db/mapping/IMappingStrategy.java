@@ -164,7 +164,7 @@ public interface IMappingStrategy
   /**
    * Query if this mapping supports revision deltas. <br>
    * If this method returns <code>true</code>, it is guaranteed that all class mappings returned by
-   * {@link #getClassMapping(EClass)} implement {@link IDeltaSupport}.
+   * {@link #getClassMapping(EClass)} implement {@link IClassMappingDeltaSupport}.
    * 
    * @return <code>true</code> if revision deltas are supported, <code>false</code> else.
    */
@@ -173,7 +173,7 @@ public interface IMappingStrategy
   /**
    * Query if this mapping supports audits. <br>
    * If this method returns <code>true</code>, it is guaranteed that all class mappings returned by
-   * {@link #getClassMapping(EClass)} implement {@link IAuditSupport}.
+   * {@link #getClassMapping(EClass)} implement {@link IClassMappingAuditSupport}.
    * 
    * @return <code>true</code> if audits are supported, <code>false</code> else.
    */

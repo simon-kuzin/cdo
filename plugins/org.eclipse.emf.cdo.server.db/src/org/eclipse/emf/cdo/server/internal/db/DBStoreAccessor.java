@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2004 - 2009 Eike Stepper (Berlin, Germany) and others. 
+ * Copyright (c) 2004 - 2009 Eike Stepper (Berlin, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,9 +23,9 @@ import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.ITransaction;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
-import org.eclipse.emf.cdo.server.db.mapping.IAuditSupport;
+import org.eclipse.emf.cdo.server.db.mapping.IClassMappingAuditSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
-import org.eclipse.emf.cdo.server.db.mapping.IDeltaSupport;
+import org.eclipse.emf.cdo.server.db.mapping.IClassMappingDeltaSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
@@ -178,7 +178,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     EClass eClass = getObjectType(id);
     InternalCDORevision revision = (InternalCDORevision)CDORevisionUtil.create(eClass, id);
 
-    IAuditSupport mapping = (IAuditSupport)mappingStrategy.getClassMapping(eClass);
+    IClassMappingAuditSupport mapping = (IClassMappingAuditSupport)mappingStrategy.getClassMapping(eClass);
     if (mapping.readRevisionByTime(this, revision, timeStamp, listChunk))
     {
       return revision;
@@ -206,7 +206,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
       }
 
       // if audit support is present, just use the audit method
-      success = ((IAuditSupport)mapping).readRevisionByVersion(this, revision, version, listChunk);
+      success = ((IClassMappingAuditSupport)mapping).readRevisionByVersion(this, revision, version, listChunk);
     }
     else
     {
@@ -297,7 +297,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
   protected void writeRevisionDelta(InternalCDORevisionDelta delta, long created, OMMonitor monitor)
   {
     EClass eClass = getObjectType(delta.getID());
-    IDeltaSupport mapping = (IDeltaSupport)getStore().getMappingStrategy().getClassMapping(eClass);
+    IClassMappingDeltaSupport mapping = (IClassMappingDeltaSupport)getStore().getMappingStrategy().getClassMapping(eClass);
     mapping.writeRevisionDelta(this, delta, created, monitor);
   }
 

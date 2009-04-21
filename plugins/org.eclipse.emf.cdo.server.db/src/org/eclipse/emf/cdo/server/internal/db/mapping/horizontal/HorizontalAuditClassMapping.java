@@ -17,7 +17,7 @@ import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.server.db.CDODBUtil;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
-import org.eclipse.emf.cdo.server.db.mapping.IAuditSupport;
+import org.eclipse.emf.cdo.server.db.mapping.IClassMappingAuditSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
 import org.eclipse.emf.cdo.server.db.mapping.ITypeMapping;
 import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
@@ -42,7 +42,7 @@ import java.sql.SQLException;
  * @author Stefan Winkler
  * @since 2.0
  */
-public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping implements IClassMapping, IAuditSupport
+public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping implements IClassMapping, IClassMappingAuditSupport
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, HorizontalAuditClassMapping.class);
 

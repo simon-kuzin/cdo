@@ -4,11 +4,11 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Eike Stepper - initial API and implementation
  *    Stefan Winkler - https://bugs.eclipse.org/bugs/show_bug.cgi?id=259402
- *    Stefan Winkler - 271444: [DB] Multiple refactorings https://bugs.eclipse.org/bugs/show_bug.cgi?id=271444      
+ *    Stefan Winkler - 271444: [DB] Multiple refactorings https://bugs.eclipse.org/bugs/show_bug.cgi?id=271444
  */
 package org.eclipse.emf.cdo.server.internal.db;
 
@@ -84,7 +84,7 @@ public class DBStore extends LongIDStore implements IDBStore
 
   public DBStore()
   {
-    super(TYPE, set(ChangeFormat.REVISION, ChangeFormat.DELTA), // 
+    super(TYPE, set(ChangeFormat.REVISION, ChangeFormat.DELTA), //
         set(RevisionTemporality.AUDITING, RevisionTemporality.NONE), //
         set(RevisionParallelism.NONE));
   }
@@ -211,6 +211,7 @@ public class DBStore extends LongIDStore implements IDBStore
   {
     super.doActivate();
 
+    dbSchema = createSchema();
     metaDataManager = new MetaDataManager(this);
     LifecycleUtil.activate(metaDataManager);
 
@@ -228,8 +229,6 @@ public class DBStore extends LongIDStore implements IDBStore
       {
         reStart(connection);
       }
-
-      dbSchema = createSchema();
 
       connection.commit();
     }

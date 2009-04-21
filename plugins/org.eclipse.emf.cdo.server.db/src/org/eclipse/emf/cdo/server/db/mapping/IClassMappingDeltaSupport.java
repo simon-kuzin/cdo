@@ -26,7 +26,7 @@ import org.eclipse.net4j.util.om.monitor.OMMonitor;
  * @author Stefan Winkler
  * @since 2.0
  */
-public interface IDeltaSupport
+public interface IClassMappingDeltaSupport
 {
 
   /**

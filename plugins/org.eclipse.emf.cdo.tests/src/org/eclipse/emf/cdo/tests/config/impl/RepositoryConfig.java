@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Eike Stepper - initial API and implementation
  *    Stefan Winkler - https://bugs.eclipse.org/bugs/show_bug.cgi?id=259402
@@ -23,6 +23,9 @@ import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.mem.MEMStoreUtil;
 import org.eclipse.emf.cdo.tests.bundle.OM;
 import org.eclipse.emf.cdo.tests.config.IRepositoryConfig;
+import org.eclipse.emf.cdo.tests.store.verifier.AbstractDBStoreVerifier;
+import org.eclipse.emf.cdo.tests.store.verifier.AuditDBStoreIntegrityVerifier;
+import org.eclipse.emf.cdo.tests.store.verifier.NonAuditDBStoreIntegrityVerifier;
 
 import org.eclipse.net4j.db.DBUtil;
 import org.eclipse.net4j.db.IDBAdapter;
@@ -248,6 +251,8 @@ public abstract class RepositoryConfig extends Config implements IRepositoryConf
     {
       private static final long serialVersionUID = 1L;
 
+      public static boolean USE_VERIFIER = false;
+
       public static final Hsqldb INSTANCE = new Hsqldb("HSQLDB");
 
       private transient HSQLDBDataSource dataSource;
@@ -291,8 +296,33 @@ public abstract class RepositoryConfig extends Config implements IRepositoryConf
       @Override
       public void tearDown() throws Exception
       {
-        super.tearDown();
-        shutDownHsqldb();
+        try
+        {
+          if (USE_VERIFIER)
+          {
+            IRepository testRepository = getRepository(REPOSITORY_NAME);
+            if (testRepository != null)
+            {
+              getVerifier(testRepository).verify();
+            }
+          }
+        }
+        finally
+        {
+          try
+          {
+            super.tearDown();
+          }
+          finally
+          {
+            shutDownHsqldb();
+          }
+        }
+      }
+
+      protected AbstractDBStoreVerifier getVerifier(IRepository repository)
+      {
+        return new AuditDBStoreIntegrityVerifier(repository);
       }
 
       private void shutDownHsqldb() throws SQLException
@@ -340,6 +370,12 @@ public abstract class RepositoryConfig extends Config implements IRepositoryConf
       protected IMappingStrategy createMappingStrategy()
       {
         return CDODBUtil.createHorizontalNonAuditMappingStrategy();
+      }
+
+      @Override
+      protected AbstractDBStoreVerifier getVerifier(IRepository repository)
+      {
+        return new NonAuditDBStoreIntegrityVerifier(repository);
       }
     }
 

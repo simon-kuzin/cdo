@@ -25,7 +25,7 @@ import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
  * 
  * @since 2.0
  */
-public interface IAuditSupport
+public interface IClassMappingAuditSupport
 {
 
   /**

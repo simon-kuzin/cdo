@@ -1,19 +1,29 @@
 /**
- * Copyright (c) 2004 - 2009 Eike Stepper (Berlin, Germany) and others. 
+ * Copyright (c) 2004 - 2009 Eike Stepper (Berlin, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Eike Stepper - initial API and implementation
- *    Stefan Winkler - 271444: [DB] Multiple refactorings https://bugs.eclipse.org/bugs/show_bug.cgi?id=271444  
+ *    Stefan Winkler - 271444: [DB] Multiple refactorings https://bugs.eclipse.org/bugs/show_bug.cgi?id=271444
  */
 package org.eclipse.emf.cdo.server.internal.db.mapping.horizontal;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.common.revision.delta.CDOAddFeatureDelta;
+import org.eclipse.emf.cdo.common.revision.delta.CDOClearFeatureDelta;
+import org.eclipse.emf.cdo.common.revision.delta.CDOContainerFeatureDelta;
+import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
+import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDeltaVisitor;
+import org.eclipse.emf.cdo.common.revision.delta.CDOListFeatureDelta;
+import org.eclipse.emf.cdo.common.revision.delta.CDOMoveFeatureDelta;
+import org.eclipse.emf.cdo.common.revision.delta.CDORemoveFeatureDelta;
+import org.eclipse.emf.cdo.common.revision.delta.CDOSetFeatureDelta;
+import org.eclipse.emf.cdo.common.revision.delta.CDOUnsetFeatureDelta;
 import org.eclipse.emf.cdo.server.db.CDODBUtil;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.mapping.IListMapping;
@@ -24,6 +34,7 @@ import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
 import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.db.DBType;
 import org.eclipse.net4j.db.DBUtil;
+import org.eclipse.net4j.util.ImplementationError;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EStructuralFeature;
@@ -185,6 +196,14 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
     clearList(accessor, id);
   }
 
+  /**
+   * Clear a list of a given revision.
+   * 
+   * @param accessor
+   *          the accessor to use
+   * @param id
+   *          the id of the revision from which to remove all items
+   */
   public void clearList(IDBStoreAccessor accessor, CDOID id)
   {
     PreparedStatement stmt = null;
@@ -205,7 +224,19 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
     }
   }
 
-  public void insertListItem(IDBStoreAccessor accessor, CDOID id, int newVersion, int index, Object value)
+  /**
+   * Insert a list item at a specified position.
+   * 
+   * @param accessor
+   *          the accessor to use
+   * @param id
+   *          the id of the revision to insert the value
+   * @param index
+   *          the index where to insert the element
+   * @param value
+   *          the value to insert.
+   */
+  public void insertListItem(IDBStoreAccessor accessor, CDOID id, int index, Object value)
   {
     move1up(accessor, id, index, UNBOUNDED_MOVE);
     insertValue(accessor, id, index, value);
@@ -234,7 +265,20 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
     }
   }
 
-  public void moveListItem(IDBStoreAccessor accessor, CDOID id, int newVersion, int oldPosition, int newPosition)
+  /**
+   * Move a list item from one position to another. Indices between both positions are updated so that the list remains
+   * consistent.
+   * 
+   * @param accessor
+   *          the accessor to use
+   * @param id
+   *          the id of the revision in which to move the item
+   * @param oldPosition
+   *          the old position of the item.
+   * @param newPosition
+   *          the new position of the item.
+   */
+  public void moveListItem(IDBStoreAccessor accessor, CDOID id, int oldPosition, int newPosition)
   {
     if (oldPosition == newPosition)
     {
@@ -281,7 +325,17 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
     }
   }
 
-  public void removeListItem(IDBStoreAccessor accessor, CDOID id, int newVersion, int index)
+  /**
+   * Remove a list item from a specified a position.
+   * 
+   * @param accessor
+   *          the accessor to use
+   * @param id
+   *          the id of the revision from which to remove the item
+   * @param index
+   *          the index of the item to remoce
+   */
+  public void removeListItem(IDBStoreAccessor accessor, CDOID id, int index)
   {
     deleteItem(accessor, id, index);
     move1down(accessor, id, index, UNBOUNDED_MOVE);
@@ -370,7 +424,19 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
     }
   }
 
-  public void setListItem(IDBStoreAccessor accessor, CDOID id, int newVersion, int index, Object value)
+  /**
+   * Set a value at a specified position to the given value.
+   * 
+   * @param accessor
+   *          the accessor to use
+   * @param id
+   *          the id of the revision to set the value
+   * @param index
+   *          the index of the item to set
+   * @param value
+   *          the value to be set.
+   */
+  public void setListItem(IDBStoreAccessor accessor, CDOID id, int index, Object value)
   {
     PreparedStatement stmt = null;
 
@@ -389,6 +455,60 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
     finally
     {
       DBUtil.close(stmt);
+    }
+  }
+
+  public void processDelta(final IDBStoreAccessor accessor, final CDOID id, int oldVersion, final int newVersion,
+      long created, CDOListFeatureDelta listDelta)
+  {
+    CDOFeatureDeltaVisitor visitor = new CDOFeatureDeltaVisitor()
+    {
+
+      public void visit(CDOMoveFeatureDelta delta)
+      {
+        moveListItem(accessor, id, delta.getOldPosition(), delta.getNewPosition());
+      }
+
+      public void visit(CDOAddFeatureDelta delta)
+      {
+        insertListItem(accessor, id, delta.getIndex(), delta.getValue());
+      }
+
+      public void visit(CDORemoveFeatureDelta delta)
+      {
+        removeListItem(accessor, id, delta.getIndex());
+      }
+
+      public void visit(CDOSetFeatureDelta delta)
+      {
+        setListItem(accessor, id, delta.getIndex(), delta.getValue());
+      }
+
+      public void visit(CDOUnsetFeatureDelta delta)
+      {
+        throw new ImplementationError("Should not be called");
+      }
+
+      public void visit(CDOListFeatureDelta delta)
+      {
+        throw new ImplementationError("Should not be called");
+      }
+
+      public void visit(CDOClearFeatureDelta delta)
+      {
+        clearList(accessor, id);
+      }
+
+      public void visit(CDOContainerFeatureDelta delta)
+      {
+        throw new ImplementationError("Should not be called");
+      }
+
+    };
+
+    for (CDOFeatureDelta delta : listDelta.getListChanges())
+    {
+      delta.accept(visitor);
     }
   }
 }
