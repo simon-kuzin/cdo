@@ -26,6 +26,7 @@ import org.eclipse.emf.cdo.common.revision.delta.CDOSetFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOUnsetFeatureDelta;
 import org.eclipse.emf.cdo.server.db.CDODBUtil;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
+import org.eclipse.emf.cdo.server.db.IPreparedStatementCache.PSReuseProbability;
 import org.eclipse.emf.cdo.server.db.mapping.IListMapping;
 import org.eclipse.emf.cdo.server.db.mapping.IListMappingDeltaSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
@@ -33,7 +34,6 @@ import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
 
 import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.db.DBType;
-import org.eclipse.net4j.db.DBUtil;
 import org.eclipse.net4j.util.ImplementationError;
 
 import org.eclipse.emf.ecore.EClass;
@@ -210,7 +210,7 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
 
     try
     {
-      stmt = accessor.getConnection().prepareStatement(sqlClear);
+      stmt = accessor.getStatementCache().getPreparedStatement(sqlClear, PSReuseProbability.HIGH);
       stmt.setLong(1, CDOIDUtil.getLong(id));
       CDODBUtil.sqlUpdate(stmt, false);
     }
@@ -220,7 +220,7 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
     }
     finally
     {
-      DBUtil.close(stmt);
+      accessor.getStatementCache().releasePreparedStatement(stmt);
     }
   }
 
@@ -248,7 +248,7 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
 
     try
     {
-      stmt = accessor.getConnection().prepareStatement(sqlInsertValue);
+      stmt = accessor.getStatementCache().getPreparedStatement(sqlInsertValue, PSReuseProbability.HIGH);
       stmt.setLong(1, CDOIDUtil.getLong(id));
       stmt.setInt(2, index);
       getTypeMapping().setValue(stmt, 3, value);
@@ -261,7 +261,7 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
     }
     finally
     {
-      DBUtil.close(stmt);
+      accessor.getStatementCache().releasePreparedStatement(stmt);
     }
   }
 
@@ -309,7 +309,7 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
 
     try
     {
-      stmt = accessor.getConnection().prepareStatement(sqlUpdateIndex);
+      stmt = accessor.getStatementCache().getPreparedStatement(sqlUpdateIndex, PSReuseProbability.HIGH);
       stmt.setInt(1, newIndex);
       stmt.setLong(2, CDOIDUtil.getLong(id));
       stmt.setInt(3, oldIndex);
@@ -321,7 +321,7 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
     }
     finally
     {
-      DBUtil.close(stmt);
+      accessor.getStatementCache().releasePreparedStatement(stmt);
     }
   }
 
@@ -351,8 +351,8 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
 
     try
     {
-      stmt = accessor.getConnection().prepareStatement(
-          upperIndex == UNBOUNDED_MOVE ? sqlMoveDown : sqlMoveDownWithLimit);
+      stmt = accessor.getStatementCache().getPreparedStatement(
+          upperIndex == UNBOUNDED_MOVE ? sqlMoveDown : sqlMoveDownWithLimit, PSReuseProbability.HIGH);
 
       stmt.setLong(1, CDOIDUtil.getLong(id));
       stmt.setInt(2, index);
@@ -369,7 +369,7 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
     }
     finally
     {
-      DBUtil.close(stmt);
+      accessor.getStatementCache().releasePreparedStatement(stmt);
     }
   }
 
@@ -383,7 +383,8 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
 
     try
     {
-      stmt = accessor.getConnection().prepareStatement(upperIndex == UNBOUNDED_MOVE ? sqlMoveUp : sqlMoveUpWithLimit);
+      stmt = accessor.getStatementCache().getPreparedStatement(
+          upperIndex == UNBOUNDED_MOVE ? sqlMoveUp : sqlMoveUpWithLimit, PSReuseProbability.HIGH);
       stmt.setLong(1, CDOIDUtil.getLong(id));
       stmt.setInt(2, index);
       if (upperIndex != UNBOUNDED_MOVE)
@@ -399,7 +400,7 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
     }
     finally
     {
-      DBUtil.close(stmt);
+      accessor.getStatementCache().releasePreparedStatement(stmt);
     }
   }
 
@@ -409,7 +410,7 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
 
     try
     {
-      stmt = accessor.getConnection().prepareStatement(sqlDeleteItem);
+      stmt = accessor.getStatementCache().getPreparedStatement(sqlDeleteItem, PSReuseProbability.HIGH);
       stmt.setLong(1, CDOIDUtil.getLong(id));
       stmt.setInt(2, index);
       CDODBUtil.sqlUpdate(stmt, true);
@@ -420,7 +421,7 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
     }
     finally
     {
-      DBUtil.close(stmt);
+      accessor.getStatementCache().releasePreparedStatement(stmt);
     }
   }
 
@@ -442,7 +443,7 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
 
     try
     {
-      stmt = accessor.getConnection().prepareStatement(sqlUpdateValue);
+      stmt = accessor.getStatementCache().getPreparedStatement(sqlUpdateValue, PSReuseProbability.HIGH);
       getTypeMapping().setValue(stmt, 1, value);
       stmt.setLong(2, CDOIDUtil.getLong(id));
       stmt.setInt(3, index);
@@ -454,7 +455,7 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
     }
     finally
     {
-      DBUtil.close(stmt);
+      accessor.getStatementCache().releasePreparedStatement(stmt);
     }
   }
 

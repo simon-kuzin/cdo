@@ -22,9 +22,11 @@ import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.ITransaction;
+import org.eclipse.emf.cdo.server.db.CDODBUtil;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
-import org.eclipse.emf.cdo.server.db.mapping.IClassMappingAuditSupport;
+import org.eclipse.emf.cdo.server.db.IPreparedStatementCache;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
+import org.eclipse.emf.cdo.server.db.mapping.IClassMappingAuditSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMappingDeltaSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
@@ -37,6 +39,7 @@ import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.db.DBUtil;
 import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
 import org.eclipse.net4j.util.collection.CloseableIterator;
+import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.monitor.ProgressDistributable;
 import org.eclipse.net4j.util.om.monitor.ProgressDistributor;
@@ -49,7 +52,10 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Collection;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * @author Eike Stepper
@@ -59,6 +65,10 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, DBStoreAccessor.class);
 
   private Connection connection = null;
+
+  private IPreparedStatementCache statementCache = null;
+
+  private Timer connectionKeepAliveTimer = null;
 
   @ExcludeFromDump
   @SuppressWarnings("unchecked")
@@ -93,6 +103,11 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
   public DBStore getStore()
   {
     return (DBStore)super.getStore();
+  }
+
+  public IPreparedStatementCache getStatementCache()
+  {
+    return statementCache;
   }
 
   public DBStoreChunkReader createChunkReader(InternalCDORevision revision, EStructuralFeature feature)
@@ -297,7 +312,8 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
   protected void writeRevisionDelta(InternalCDORevisionDelta delta, long created, OMMonitor monitor)
   {
     EClass eClass = getObjectType(delta.getID());
-    IClassMappingDeltaSupport mapping = (IClassMappingDeltaSupport)getStore().getMappingStrategy().getClassMapping(eClass);
+    IClassMappingDeltaSupport mapping = (IClassMappingDeltaSupport)getStore().getMappingStrategy().getClassMapping(
+        eClass);
     mapping.writeRevisionDelta(this, delta, created, monitor);
   }
 
@@ -380,9 +396,6 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     try
     {
       getConnection().commit();
-
-      // CDODBUtil.sqlDump(getStore().getDBConnectionProvider(), "select * from CDOResourceFolder");
-      // CDODBUtil.sqlDump(getStore().getDBConnectionProvider(), "select * from CDOResource");
     }
     catch (SQLException ex)
     {
@@ -417,11 +430,26 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
   protected void doActivate() throws Exception
   {
     connection = getStore().getDBConnectionProvider().getConnection();
+
+    connectionKeepAliveTimer = new Timer("Connection-Keep-Alive-" + toString());
+    connectionKeepAliveTimer.schedule(new ConnectionKeepAliveTask(), ConnectionKeepAliveTask.EXECUTION_PERIOD,
+        ConnectionKeepAliveTask.EXECUTION_PERIOD);
+
+    // TODO - make this configurable?
+    statementCache = CDODBUtil.createStatementCache();
+    statementCache.setConnection(connection);
+
+    LifecycleUtil.activate(statementCache);
   }
 
   @Override
   protected void doDeactivate() throws Exception
   {
+    LifecycleUtil.deactivate(statementCache);
+
+    connectionKeepAliveTimer.cancel();
+    connectionKeepAliveTimer = null;
+
     DBUtil.close(connection);
     connection = null;
   }
@@ -435,7 +463,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
   @Override
   protected void doUnpassivate() throws Exception
   {
-    // TODO Check if connection is still valid.
+    // do nothing
   }
 
   public EPackage[] loadPackageUnit(InternalCDOPackageUnit packageUnit)
@@ -459,6 +487,34 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     finally
     {
       monitor.done();
+    }
+  }
+
+  private class ConnectionKeepAliveTask extends TimerTask
+  {
+    public static final long EXECUTION_PERIOD = 1000 * 60 * 60 * 4; // 4 hours
+
+    @Override
+    public void run()
+    {
+      Statement stmt = null;
+      try
+      {
+        if (TRACER.isEnabled())
+        {
+          TRACER.trace("DB connection keep-alive task activated.");
+        }
+        stmt = connection.createStatement();
+        stmt.executeQuery("SELECT 1 FROM " + CDODBSchema.REPOSITORY);
+      }
+      catch (SQLException e)
+      {
+        OM.LOG.error("DB connection keep-alive failed.", e);
+      }
+      finally
+      {
+        DBUtil.close(stmt);
+      }
     }
   }
 }

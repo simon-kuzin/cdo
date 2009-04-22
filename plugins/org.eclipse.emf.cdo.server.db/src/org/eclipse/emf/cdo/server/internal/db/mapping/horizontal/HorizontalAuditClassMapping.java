@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Eike Stepper - initial API and implementation
  *    Stefan Winkler - major refactoring
@@ -17,15 +17,15 @@ import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.server.db.CDODBUtil;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
-import org.eclipse.emf.cdo.server.db.mapping.IClassMappingAuditSupport;
+import org.eclipse.emf.cdo.server.db.IPreparedStatementCache.PSReuseProbability;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
+import org.eclipse.emf.cdo.server.db.mapping.IClassMappingAuditSupport;
 import org.eclipse.emf.cdo.server.db.mapping.ITypeMapping;
 import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.db.DBException;
-import org.eclipse.net4j.db.DBUtil;
 import org.eclipse.net4j.util.ImplementationError;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
@@ -42,7 +42,8 @@ import java.sql.SQLException;
  * @author Stefan Winkler
  * @since 2.0
  */
-public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping implements IClassMapping, IClassMappingAuditSupport
+public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping implements IClassMapping,
+    IClassMappingAuditSupport
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, HorizontalAuditClassMapping.class);
 
@@ -162,8 +163,7 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
     PreparedStatement pstmt = null;
     try
     {
-      // TODO add caching
-      pstmt = accessor.getConnection().prepareStatement(sqlSelectAttributesByTime);
+      pstmt = accessor.getStatementCache().getPreparedStatement(sqlSelectAttributesByTime, PSReuseProbability.MEDIUM);
       pstmt.setLong(1, CDOIDUtil.getLong(revision.getID()));
       pstmt.setLong(2, timeStamp);
       pstmt.setLong(3, timeStamp);
@@ -185,7 +185,7 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
     }
     finally
     {
-      DBUtil.close(pstmt);
+      accessor.getStatementCache().releasePreparedStatement(pstmt);
     }
   }
 
@@ -195,8 +195,7 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
     PreparedStatement pstmt = null;
     try
     {
-      // TODO add caching
-      pstmt = accessor.getConnection().prepareStatement(sqlSelectAttributesByVersion);
+      pstmt = accessor.getStatementCache().getPreparedStatement(sqlSelectAttributesByVersion, PSReuseProbability.HIGH);
       pstmt.setLong(1, CDOIDUtil.getLong(revision.getID()));
       pstmt.setInt(2, version);
 
@@ -217,7 +216,7 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
     }
     finally
     {
-      DBUtil.close(pstmt);
+      accessor.getStatementCache().releasePreparedStatement(pstmt);
     }
   }
 
@@ -272,7 +271,7 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
     {
       int idx = 1;
 
-      pstmt = accessor.getConnection().prepareStatement(builder.toString());
+      pstmt = accessor.getStatementCache().getPreparedStatement(builder.toString(), PSReuseProbability.MEDIUM);
       pstmt.setLong(idx++, CDOIDUtil.getLong(folderId));
 
       if (name != null)
@@ -296,26 +295,19 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
     }
     catch (SQLException ex)
     {
-      DBUtil.close(pstmt); // only close on error
+      accessor.getStatementCache().releasePreparedStatement(pstmt); // only release on error
       throw new DBException(ex);
     }
   }
 
   public PreparedStatement createObjectIdStatement(IDBStoreAccessor accessor)
   {
-    try
+    if (TRACER.isEnabled())
     {
-      if (TRACER.isEnabled())
-      {
-        TRACER.format("Created ObjectID Statement : {0}", sqlSelectAllObjectIds);
-      }
+      TRACER.format("Created ObjectID Statement : {0}", sqlSelectAllObjectIds);
+    }
 
-      return accessor.getConnection().prepareStatement(sqlSelectAllObjectIds);
-    }
-    catch (SQLException ex)
-    {
-      throw new DBException(ex);
-    }
+    return accessor.getStatementCache().getPreparedStatement(sqlSelectAllObjectIds, PSReuseProbability.HIGH);
   }
 
   public boolean readRevision(IDBStoreAccessor accessor, InternalCDORevision revision, int listChunk)
@@ -323,8 +315,7 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
     PreparedStatement pstmt = null;
     try
     {
-      // TODO add caching
-      pstmt = accessor.getConnection().prepareStatement(sqlSelectCurrentAttributes);
+      pstmt = accessor.getStatementCache().getPreparedStatement(sqlSelectCurrentAttributes, PSReuseProbability.HIGH);
       pstmt.setLong(1, CDOIDUtil.getLong(revision.getID()));
 
       // Read singleval-attribute table always (even without modeled attributes!)
@@ -344,7 +335,7 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
     }
     finally
     {
-      DBUtil.close(pstmt);
+      accessor.getStatementCache().releasePreparedStatement(pstmt);
     }
   }
 
@@ -355,7 +346,7 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
 
     try
     {
-      stmt = accessor.getConnection().prepareStatement(sqlInsertAttributes);
+      stmt = accessor.getStatementCache().getPreparedStatement(sqlInsertAttributes, PSReuseProbability.HIGH);
 
       int col = 1;
 
@@ -381,7 +372,7 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
     }
     finally
     {
-      DBUtil.close(stmt);
+      accessor.getStatementCache().releasePreparedStatement(stmt);
     }
   }
 
@@ -392,7 +383,7 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
 
     try
     {
-      stmt = accessor.getConnection().prepareStatement(sqlReviseAttributes);
+      stmt = accessor.getStatementCache().getPreparedStatement(sqlReviseAttributes, PSReuseProbability.HIGH);
 
       stmt.setLong(1, revised);
       stmt.setLong(2, CDOIDUtil.getLong(id));
@@ -405,7 +396,7 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
     }
     finally
     {
-      DBUtil.close(stmt);
+      accessor.getStatementCache().releasePreparedStatement(stmt);
     }
   }
 }

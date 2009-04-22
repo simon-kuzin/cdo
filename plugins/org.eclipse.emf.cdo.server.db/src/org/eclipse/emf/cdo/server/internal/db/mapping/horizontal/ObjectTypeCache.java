@@ -18,6 +18,7 @@ import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IMetaDataManager;
 import org.eclipse.emf.cdo.server.db.IObjectTypeCache;
+import org.eclipse.emf.cdo.server.db.IPreparedStatementCache.PSReuseProbability;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
 
@@ -86,7 +87,7 @@ public class ObjectTypeCache extends Lifecycle implements IObjectTypeCache
 
     try
     {
-      stmt = connection.prepareStatement(sqlSelect);
+      stmt = accessor.getStatementCache().getPreparedStatement(sqlSelect, PSReuseProbability.MAX);
       stmt.setLong(1, CDOIDUtil.getLong(id));
       DBUtil.trace(stmt.toString());
       ResultSet resultSet = stmt.executeQuery();
@@ -107,8 +108,7 @@ public class ObjectTypeCache extends Lifecycle implements IObjectTypeCache
     }
     finally
     {
-      // TODO - statement caching
-      DBUtil.close(stmt);
+      accessor.getStatementCache().releasePreparedStatement(stmt);
     }
   }
 
@@ -121,7 +121,7 @@ public class ObjectTypeCache extends Lifecycle implements IObjectTypeCache
 
     try
     {
-      stmt = connection.prepareStatement(sqlInsert);
+      stmt = accessor.getStatementCache().getPreparedStatement(sqlInsert, PSReuseProbability.MAX);
       stmt.setLong(1, CDOIDUtil.getLong(id));
       stmt.setLong(2, metaDataManager.getMetaID(type));
       DBUtil.trace(stmt.toString());
@@ -138,8 +138,7 @@ public class ObjectTypeCache extends Lifecycle implements IObjectTypeCache
     }
     finally
     {
-      // TODO - statement caching
-      DBUtil.close(stmt);
+      accessor.getStatementCache().releasePreparedStatement(stmt);
     }
   }
 
@@ -152,7 +151,7 @@ public class ObjectTypeCache extends Lifecycle implements IObjectTypeCache
 
     try
     {
-      stmt = connection.prepareStatement(sqlDelete);
+      stmt = accessor.getStatementCache().getPreparedStatement(sqlDelete, PSReuseProbability.MAX);
       stmt.setLong(1, CDOIDUtil.getLong(id));
       DBUtil.trace(stmt.toString());
       int result = stmt.executeUpdate();
@@ -168,8 +167,7 @@ public class ObjectTypeCache extends Lifecycle implements IObjectTypeCache
     }
     finally
     {
-      // TODO - statement caching
-      DBUtil.close(stmt);
+      accessor.getStatementCache().releasePreparedStatement(stmt);
     }
   }
 

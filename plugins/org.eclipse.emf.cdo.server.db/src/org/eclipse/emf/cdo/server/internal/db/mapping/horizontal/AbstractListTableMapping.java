@@ -17,6 +17,7 @@ import org.eclipse.emf.cdo.server.IStoreChunkReader.Chunk;
 import org.eclipse.emf.cdo.server.db.CDODBUtil;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IDBStoreChunkReader;
+import org.eclipse.emf.cdo.server.db.IPreparedStatementCache.PSReuseProbability;
 import org.eclipse.emf.cdo.server.db.mapping.IListMapping;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.db.mapping.ITypeMapping;
@@ -253,7 +254,7 @@ public abstract class AbstractListTableMapping implements IListMapping
     {
       String sql = sqlSelectChunksPrefix + sqlOrderByIndex;
 
-      pstmt = accessor.getConnection().prepareStatement(sql);
+      pstmt = accessor.getStatementCache().getPreparedStatement(sql, PSReuseProbability.HIGH);
 
       setKeyFields(pstmt, revision);
 
@@ -290,7 +291,7 @@ public abstract class AbstractListTableMapping implements IListMapping
     finally
     {
       DBUtil.close(resultSet);
-      DBUtil.close(pstmt);
+      accessor.getStatementCache().releasePreparedStatement(pstmt);
     }
 
     if (TRACER.isEnabled())
@@ -316,7 +317,7 @@ public abstract class AbstractListTableMapping implements IListMapping
 
     try
     {
-      pstmt = accessor.getConnection().prepareStatement(sqlGetListLastIndex);
+      pstmt = accessor.getStatementCache().getPreparedStatement(sqlGetListLastIndex, PSReuseProbability.HIGH);
 
       setKeyFields(pstmt, revision);
 
@@ -352,7 +353,7 @@ public abstract class AbstractListTableMapping implements IListMapping
     finally
     {
       DBUtil.close(resultSet);
-      DBUtil.close(pstmt);
+      accessor.getStatementCache().releasePreparedStatement(pstmt);
     }
   }
 
@@ -378,7 +379,7 @@ public abstract class AbstractListTableMapping implements IListMapping
 
       String sql = builder.toString();
 
-      pstmt = chunkReader.getAccessor().getConnection().prepareStatement(sql);
+      pstmt = chunkReader.getAccessor().getStatementCache().getPreparedStatement(sql, PSReuseProbability.LOW);
 
       setKeyFields(pstmt, chunkReader.getRevision());
 
@@ -441,7 +442,7 @@ public abstract class AbstractListTableMapping implements IListMapping
     finally
     {
       DBUtil.close(resultSet);
-      DBUtil.close(pstmt);
+      chunkReader.getAccessor().getStatementCache().releasePreparedStatement(pstmt);
     }
   }
 
@@ -468,7 +469,7 @@ public abstract class AbstractListTableMapping implements IListMapping
 
     try
     {
-      stmt = accessor.getConnection().prepareStatement(sqlInsertEntry);
+      stmt = accessor.getStatementCache().getPreparedStatement(sqlInsertEntry, PSReuseProbability.HIGH);
 
       setKeyFields(stmt, revision);
       int stmtIndex = getKeyFields().length + 1;
@@ -483,7 +484,7 @@ public abstract class AbstractListTableMapping implements IListMapping
     }
     finally
     {
-      DBUtil.close(stmt);
+      accessor.getStatementCache().releasePreparedStatement(stmt);
     }
   }
 
