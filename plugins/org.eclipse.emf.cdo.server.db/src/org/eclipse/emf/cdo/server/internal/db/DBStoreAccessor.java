@@ -40,6 +40,7 @@ import org.eclipse.net4j.db.DBUtil;
 import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
 import org.eclipse.net4j.util.collection.CloseableIterator;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
+import org.eclipse.net4j.util.om.monitor.Monitor;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.monitor.ProgressDistributable;
 import org.eclipse.net4j.util.om.monitor.ProgressDistributor;
@@ -476,7 +477,10 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
 
   public Collection<InternalCDOPackageUnit> readPackageUnits()
   {
-    return getStore().getMetaDataManager().readPackageUnits(getConnection());
+    Collection<InternalCDOPackageUnit> result = getStore().getMetaDataManager().readPackageUnits(getConnection());
+    getStore().getMappingStrategy().createMapping(getConnection(),
+        result.toArray(new InternalCDOPackageUnit[result.size()]), new Monitor());
+    return result;
   }
 
   public void writePackageUnits(InternalCDOPackageUnit[] packageUnits, OMMonitor monitor)
