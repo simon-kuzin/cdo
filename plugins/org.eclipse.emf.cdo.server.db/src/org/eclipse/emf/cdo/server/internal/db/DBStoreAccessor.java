@@ -137,17 +137,20 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
 
   protected EClass getObjectType(CDOID id)
   {
-    // TODO (taken over from old implementation:) Replace calls to getObjectType by optimized calls to
-    // RevisionManager.getObjectType (cache!)
-    CDOClassifierRef type = readObjectType(id);
-    if (type == null)
+    EClass result = getStore().getRepository().getRevisionManager().getObjectType(id);
+    if (result == null)
     {
-      return null;
-    }
+      CDOClassifierRef type = readObjectType(id);
+      if (type == null)
+      {
+        return null;
+      }
 
-    IRepository repository = getStore().getRepository();
-    CDOPackageRegistry packageRegistry = repository.getPackageRegistry();
-    return (EClass)type.resolve(packageRegistry);
+      IRepository repository = getStore().getRepository();
+      CDOPackageRegistry packageRegistry = repository.getPackageRegistry();
+      result = (EClass)type.resolve(packageRegistry);
+    }
+    return result;
   }
 
   public InternalCDORevision readRevision(CDOID id, int listChunk, AdditionalRevisionCache cache)
@@ -429,7 +432,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
   @Override
   protected void doActivate() throws Exception
   {
-    connection = getStore().getDBConnectionProvider().getConnection();
+    connection = getStore().getConnection();
 
     connectionKeepAliveTimer = new Timer("Connection-Keep-Alive-" + toString());
     connectionKeepAliveTimer.schedule(new ConnectionKeepAliveTask(), ConnectionKeepAliveTask.EXECUTION_PERIOD,

@@ -36,6 +36,7 @@ import org.eclipse.net4j.util.om.monitor.ProgressDistributor;
 import javax.sql.DataSource;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.Set;
 
@@ -176,6 +177,16 @@ public class DBStore extends LongIDStore implements IDBStore
   protected Connection getConnection()
   {
     Connection connection = dbConnectionProvider.getConnection();
+
+    try
+    {
+      connection.setAutoCommit(false);
+    }
+    catch (SQLException ex)
+    {
+      throw new DBException(ex);
+    }
+
     if (connection == null)
     {
       throw new DBException("No connection from connection provider: " + dbConnectionProvider);
@@ -293,6 +304,7 @@ public class DBStore extends LongIDStore implements IDBStore
     {
       throw new DBException("No row updated in table " + CDODBSchema.REPOSITORY);
     }
+
   }
 
   @Override

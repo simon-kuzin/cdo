@@ -322,7 +322,10 @@ public abstract class AbstractMappingStrategy extends Lifecycle implements IMapp
   {
     for (EClass eClass : eClasses)
     {
-      createClassMapping(eClass);
+      if (!(eClass.isInterface() || eClass.isAbstract()))
+      {
+        createClassMapping(eClass);
+      }
     }
   }
 

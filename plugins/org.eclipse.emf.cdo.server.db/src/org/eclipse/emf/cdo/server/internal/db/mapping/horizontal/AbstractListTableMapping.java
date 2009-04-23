@@ -263,6 +263,11 @@ public abstract class AbstractListTableMapping implements IListMapping
         TRACER.trace(pstmt.toString());
       }
 
+      if (listChunk != CDORevision.UNCHUNKED)
+      {
+        pstmt.setMaxRows(listChunk); // optimization - don't read unneeded rows.
+      }
+
       resultSet = pstmt.executeQuery();
 
       while ((listChunk == CDORevision.UNCHUNKED || --listChunk >= 0) && resultSet.next())
@@ -341,7 +346,7 @@ public abstract class AbstractListTableMapping implements IListMapping
         int result = resultSet.getInt(1);
         if (TRACER.isEnabled())
         {
-          TRACER.trace("Read list size = " + result);
+          TRACER.trace("Read list last index = " + result);
         }
         return result;
       }

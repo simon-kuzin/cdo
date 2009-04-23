@@ -153,6 +153,8 @@ public abstract class AbstractHorizontalClassMapping implements IClassMapping
         TRACER.format("Executing Query: {0}", pstmt.toString());
       }
 
+      pstmt.setMaxRows(1); // Optimization: only 1 row
+
       resultSet = pstmt.executeQuery();
       if (!resultSet.next())
       {
