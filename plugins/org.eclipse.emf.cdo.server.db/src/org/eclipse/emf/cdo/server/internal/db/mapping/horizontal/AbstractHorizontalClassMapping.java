@@ -4,10 +4,10 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Eike Stepper - initial API and implementation
- *    Stefan Winkler - 271444: [DB] Multiple refactorings https://bugs.eclipse.org/bugs/show_bug.cgi?id=271444  
+ *    Stefan Winkler - 271444: [DB] Multiple refactorings https://bugs.eclipse.org/bugs/show_bug.cgi?id=271444
  */
 package org.eclipse.emf.cdo.server.internal.db.mapping.horizontal;
 
@@ -33,6 +33,7 @@ import org.eclipse.net4j.db.ddl.IDBField;
 import org.eclipse.net4j.db.ddl.IDBIndex;
 import org.eclipse.net4j.db.ddl.IDBTable;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
+import org.eclipse.net4j.util.om.monitor.OMMonitor.Async;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.emf.ecore.EClass;
@@ -203,19 +204,22 @@ public abstract class AbstractHorizontalClassMapping implements IClassMapping
 
   public final void detachObject(IDBStoreAccessor accessor, CDOID id, long revised, OMMonitor monitor)
   {
+    Async async = null;
     try
     {
-      monitor.begin(2);
+      monitor.begin(getListMappings().size() + 1);
+      async = monitor.forkAsync();
       reviseObject(accessor, id, revised);
-      monitor.worked(1);
+      async.stop();
+      async = monitor.forkAsync(getListMappings().size());
       for (IListMapping mapping : getListMappings())
       {
         mapping.objectRevised(accessor, id, revised);
       }
-      monitor.worked(1);
     }
     finally
     {
+      async.stop();
       monitor.done();
     }
   }
@@ -310,9 +314,11 @@ public abstract class AbstractHorizontalClassMapping implements IClassMapping
 
   public void writeRevision(IDBStoreAccessor accessor, InternalCDORevision revision, OMMonitor monitor)
   {
+    Async async = null;
     try
     {
       monitor.begin(10);
+      async = monitor.forkAsync();
 
       CDOID id = revision.getID();
       if (revision.getVersion() == 1)
@@ -329,30 +335,32 @@ public abstract class AbstractHorizontalClassMapping implements IClassMapping
         }
       }
 
-      monitor.worked();
+      async.stop();
+      async = monitor.forkAsync();
 
       if (revision.isResourceFolder() || revision.isResource())
       {
         checkDuplicateResources(accessor, revision);
       }
 
-      monitor.worked();
+      async.stop();
+      async = monitor.forkAsync();
 
       // Write attribute table always (even without modeled attributes!)
       writeValues(accessor, revision);
 
-      monitor.worked();
+      async.stop();
+      async = monitor.forkAsync(7);
 
       // Write list tables only if they exist
       if (listMappings != null)
       {
         writeLists(accessor, revision);
       }
-
-      monitor.worked(7);
     }
     finally
     {
+      async.stop();
       monitor.done();
     }
   }

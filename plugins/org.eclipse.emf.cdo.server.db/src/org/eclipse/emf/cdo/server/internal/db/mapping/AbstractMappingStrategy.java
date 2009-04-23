@@ -378,8 +378,11 @@ public abstract class AbstractMappingStrategy extends Lifecycle implements IMapp
     {
       return result;
     }
-
-    throw new ImplementationError("Class mapping not found for " + eClass.toString());
+    else
+    {
+      // create class mapping on demand ...
+      return createClassMapping(eClass);
+    }
   }
 
   public ITypeMapping createValueMapping(EStructuralFeature feature)
