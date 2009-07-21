@@ -13,6 +13,7 @@ package org.eclipse.emf.spi.cdo;
 
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
+import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjustable;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.eresource.CDOResourceFolder;
@@ -29,7 +30,7 @@ import java.util.Set;
  * @author Simon McDuff
  * @since 2.0
  */
-public interface InternalCDOTransaction extends CDOTransaction, InternalCDOView
+public interface InternalCDOTransaction extends CDOTransaction, InternalCDOView, CDOReferenceAdjustable
 {
   public InternalCDOCommitContext createCommitContext();
 

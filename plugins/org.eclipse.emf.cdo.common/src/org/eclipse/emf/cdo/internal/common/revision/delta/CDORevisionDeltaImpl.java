@@ -206,11 +206,11 @@ public class CDORevisionDeltaImpl implements InternalCDORevisionDelta
     }
   }
 
-  public void applyReferenceAdjuster(CDOReferenceAdjuster revisionAdjuster)
+  public void applyReferenceAdjuster(CDOReferenceAdjuster referenceAdjuster)
   {
     for (CDOFeatureDelta featureDelta : featureDeltas.values())
     {
-      ((CDOFeatureDeltaImpl)featureDelta).applyReferenceAdjuster(revisionAdjuster);
+      ((CDOFeatureDeltaImpl)featureDelta).applyReferenceAdjuster(referenceAdjuster);
     }
   }
 

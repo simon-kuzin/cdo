@@ -20,5 +20,5 @@ public interface CDOReferenceAdjustable
   /**
    * @since 3.0
    */
-  public void applyReferenceAdjuster(CDOReferenceAdjuster revisionAdjuster);
+  public void applyReferenceAdjuster(CDOReferenceAdjuster referenceAdjuster);
 }

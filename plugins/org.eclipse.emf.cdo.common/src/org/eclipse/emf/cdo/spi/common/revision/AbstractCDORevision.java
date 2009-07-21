@@ -14,7 +14,6 @@
 package org.eclipse.emf.cdo.spi.common.revision;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
@@ -45,7 +44,6 @@ import org.eclipse.emf.ecore.util.FeatureMapUtil;
 
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.Map;
 
 /**
  * @author Eike Stepper
@@ -488,15 +486,15 @@ public abstract class AbstractCDORevision implements InternalCDORevision
   /**
    * @since 3.0
    */
-  public void applyReferenceAdjuster(CDOReferenceAdjuster revisionAdjuster)
+  public void applyReferenceAdjuster(CDOReferenceAdjuster referenceAdjuster)
   {
     if (TRACER.isEnabled())
     {
       TRACER.format("Adjusting references for revision {0}", this);
     }
 
-    resourceID = revisionAdjuster.adjustReference(resourceID);
-    containerID = revisionAdjuster.adjustReference(containerID);
+    resourceID = referenceAdjuster.adjustReference(resourceID);
+    containerID = referenceAdjuster.adjustReference(containerID);
 
     EStructuralFeature[] features = classInfo.getAllPersistentFeatures();
     for (int i = 0; i < features.length; i++)
@@ -509,13 +507,13 @@ public abstract class AbstractCDORevision implements InternalCDORevision
           InternalCDOList list = (InternalCDOList)getValueAsList(i);
           if (list != null)
           {
-            list.applyReferenceAdjuster(revisionAdjuster, feature);
+            list.applyReferenceAdjuster(referenceAdjuster, feature);
           }
         }
         else
         {
           CDOType type = CDOModelUtil.getType(feature);
-          setValue(i, type.applyReferenceAdjuster(revisionAdjuster, getValue(i)));
+          setValue(i, type.applyReferenceAdjuster(referenceAdjuster, getValue(i)));
         }
       }
     }
@@ -696,33 +694,5 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     {
       throw new UnsupportedOperationException("Single-valued feature maps not yet handled");
     }
-  }
-
-  /**
-   * @since 3.0
-   */
-  public static CDOID remapID(CDOID value, Map<CDOID, CDOID> idMappings)
-  {
-    if (value instanceof CDOIDTemp)
-    {
-      CDOID oldID = value;
-      if (!oldID.isNull())
-      {
-        CDOID newID = idMappings.get(oldID);
-        if (newID == null)
-        {
-          throw new IllegalStateException(MessageFormat.format(Messages.getString("AbstractCDORevision.2"), oldID));
-        }
-
-        if (TRACER.isEnabled())
-        {
-          TRACER.format("Adjusting ID: {0} --> {1}", oldID, newID);
-        }
-
-        return newID;
-      }
-    }
-
-    return value;
   }
 }

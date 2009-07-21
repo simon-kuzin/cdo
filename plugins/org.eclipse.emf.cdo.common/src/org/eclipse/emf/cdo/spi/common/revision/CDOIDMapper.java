@@ -11,8 +11,8 @@
 package org.eclipse.emf.cdo.spi.common.revision;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
-import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +30,14 @@ public class CDOIDMapper implements CDOReferenceAdjuster
     this.idMappings = idMappings;
   }
 
+  /**
+   * @since 3.0
+   */
+  public CDOIDMapper()
+  {
+    this(new HashMap<CDOID, CDOID>());
+  }
+
   public Map<CDOID, CDOID> getIDMappings()
   {
     return idMappings;
@@ -38,8 +46,29 @@ public class CDOIDMapper implements CDOReferenceAdjuster
   /**
    * @since 3.0
    */
-  public void reverseMappings()
+  public CDOID getIDMapping(CDOID key)
   {
+    return idMappings.get(key);
+  }
+
+  /**
+   * @since 3.0
+   */
+  public CDOID putIDMapping(CDOID key, CDOID value)
+  {
+    return idMappings.put(key, value);
+  }
+
+  /**
+   * @since 3.0
+   */
+  public void reverseIDMappings()
+  {
+    if (idMappings.isEmpty())
+    {
+      return;
+    }
+
     Map<CDOID, CDOID> newMappings = new HashMap<CDOID, CDOID>();
     for (Map.Entry<CDOID, CDOID> mapping : idMappings.entrySet())
     {
@@ -56,8 +85,13 @@ public class CDOIDMapper implements CDOReferenceAdjuster
   /**
    * @since 3.0
    */
-  public CDOID adjustReference(CDOID value)
+  public CDOID adjustReference(CDOID id)
   {
-    return CDORevisionUtil.remapID(value, idMappings);
+    if (CDOIDUtil.isNull(id))
+    {
+      return id;
+    }
+
+    return idMappings.get(id);
   }
 }

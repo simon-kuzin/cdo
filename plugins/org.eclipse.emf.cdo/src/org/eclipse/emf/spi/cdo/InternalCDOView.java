@@ -26,6 +26,7 @@ import org.eclipse.net4j.util.lifecycle.ILifecycle;
 
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.InternalEObject;
 
 import java.util.Collection;
 import java.util.Map;
@@ -97,7 +98,10 @@ public interface InternalCDOView extends CDOView, ILifecycle
    */
   public CDOID convertObjectToID(Object potentialObject, boolean onlyPersistedID);
 
-  public Object convertIDToObject(Object potentialID);
+  /**
+   * @since 3.0
+   */
+  public InternalEObject convertIDToObject(Object potentialID);
 
   /**
    * @since 3.0

@@ -36,6 +36,7 @@ import org.eclipse.emf.cdo.eresource.EresourceFactory;
 import org.eclipse.emf.cdo.eresource.impl.CDOResourceImpl;
 import org.eclipse.emf.cdo.eresource.impl.CDOResourceNodeImpl;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
+import org.eclipse.emf.cdo.spi.common.revision.CDOIDMapper;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
 import org.eclipse.emf.cdo.transaction.CDOConflictResolver;
 import org.eclipse.emf.cdo.transaction.CDOSavepoint;
@@ -45,6 +46,8 @@ import org.eclipse.emf.cdo.transaction.CDOTransactionFinishedEvent;
 import org.eclipse.emf.cdo.transaction.CDOTransactionHandler;
 import org.eclipse.emf.cdo.transaction.CDOTransactionStartedEvent;
 import org.eclipse.emf.cdo.util.CDOURIUtil;
+import org.eclipse.emf.cdo.util.DanglingReferenceException;
+import org.eclipse.emf.cdo.util.ResourceNotFoundException;
 import org.eclipse.emf.cdo.view.CDOViewResourcesEvent;
 
 import org.eclipse.emf.internal.cdo.CDOIDDanglingImpl;
@@ -70,6 +73,7 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.InternalEObject;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.spi.cdo.CDOTransactionStrategy;
 import org.eclipse.emf.spi.cdo.InternalCDOObject;
 import org.eclipse.emf.spi.cdo.InternalCDOSession;
@@ -358,7 +362,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
         return (CDOResource)getObject(id);
       }
     }
-    catch (Exception ignore)
+    catch (ResourceNotFoundException ignore)
     {
       // Just create the missing resource
     }
@@ -409,7 +413,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
         CDOID folderID = folder == null ? null : folder.cdoID();
         node = getResourceNode(folderID, name);
       }
-      catch (CDOException ex)
+      catch (ResourceNotFoundException ex)
       {
         node = EresourceFactory.eINSTANCE.createCDOResourceFolder();
         attachNewResourceNode(folder, name, node);
@@ -566,16 +570,15 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
   }
 
   @Override
-  public Object convertIDToObject(Object potentialID)
+  public InternalEObject convertIDToObject(Object potentialID)
   {
-    potentialID = super.convertIDToObject(potentialID);
     if (potentialID instanceof CDOIDDangling)
     {
       CDOIDDangling id = (CDOIDDangling)potentialID;
-      return id.getTarget();
+      return (InternalEObject)id.getTarget();
     }
 
-    return potentialID;
+    return super.convertIDToObject(potentialID);
   }
 
   /**
@@ -588,6 +591,13 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     if (CDOIDUtil.isNull(id))
     {
       return null;
+    }
+
+    if (id instanceof CDOIDDangling)
+    {
+      CDOIDDangling danglingID = (CDOIDDangling)id;
+      InternalEObject target = (InternalEObject)danglingID.getTarget();
+      return FSMUtil.adapt(target, this);
     }
 
     if (id.isTemporary() && isDetached(id))
@@ -627,50 +637,90 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
       progressMonitor = new NullProgressMonitor();
     }
 
-    ReferenceChanges referenceChanges = null;
+    CDOIDMapper idMapper = null;
 
     try
     {
-      referenceChanges = adjustDanglingReferences();
+      idMapper = adjustDanglingReferences();
       getTransactionStrategy().commit(this, progressMonitor);
     }
     catch (TransactionException ex)
     {
-      if (referenceChanges != null)
-      {
-        referenceChanges.undo();
-      }
-
+      undoIDMappings(idMapper);
       throw ex;
     }
     catch (Exception ex)
     {
-      if (referenceChanges != null)
-      {
-        referenceChanges.undo();
-      }
-
+      undoIDMappings(idMapper);
       throw new TransactionException(ex);
     }
   }
 
-  private ReferenceChanges adjustDanglingReferences()
+  private CDOIDMapper adjustDanglingReferences()
   {
-    return null;
+    final CDOIDMapper idMapper = new CDOIDMapper();
+    CDOReferenceAdjuster danglingReferenceAdjuster = new CDOReferenceAdjuster()
+    {
+      public CDOID adjustReference(CDOID id)
+      {
+        if (id instanceof CDOIDDangling)
+        {
+          CDOIDDangling danglingID = (CDOIDDangling)id;
+
+          // Was it already mapped?
+          CDOID newID = idMapper.getIDMapping(danglingID);
+          if (newID != null)
+          {
+            return newID;
+          }
+
+          // Was it attached in the meantime?
+          EObject target = danglingID.getTarget();
+          if (target instanceof InternalCDOObject) // TODO Legacy?
+          {
+            InternalCDOObject cdoObject = (InternalCDOObject)target;
+            if (cdoObject.cdoView() == CDOTransactionImpl.this)
+            {
+              newID = cdoObject.cdoID();
+              idMapper.putIDMapping(danglingID, newID);
+              return newID;
+            }
+          }
+
+          // Is it external?
+          if (target.eResource() != null)
+          {
+            newID = CDOIDUtil.createExternal(EcoreUtil.getURI(target).toString());
+            idMapper.putIDMapping(danglingID, newID);
+            return newID;
+          }
+
+          throw new DanglingReferenceException(target);
+        }
+
+        return id;
+      }
+    };
+
+    applyReferenceAdjuster(danglingReferenceAdjuster);
+    return idMapper;
   }
 
-  /**
-   * @author Eike Stepper
-   */
-  private static final class ReferenceChanges implements CDOReferenceAdjuster
+  private void undoIDMappings(CDOIDMapper idMapper)
   {
-    public CDOID adjustReference(CDOID id)
+    if (idMapper != null)
     {
-      return null;
+      idMapper.reverseIDMappings();
+      applyReferenceAdjuster(idMapper);
     }
+  }
 
-    public void undo()
+  public void applyReferenceAdjuster(CDOReferenceAdjuster referenceAdjuster)
+  {
+    for (CDOSavepointImpl itrSavepoint = lastSavepoint; itrSavepoint != null; itrSavepoint = itrSavepoint
+        .getPreviousSavepoint())
     {
+      itrSavepoint.applyReferenceAdjuster(referenceAdjuster);
     }
   }
 

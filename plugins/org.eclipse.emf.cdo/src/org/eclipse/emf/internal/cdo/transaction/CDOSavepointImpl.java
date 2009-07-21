@@ -14,6 +14,8 @@ package org.eclipse.emf.internal.cdo.transaction;
 
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjustable;
+import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
@@ -21,11 +23,14 @@ import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDeltaUtil;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.internal.common.revision.delta.CDORevisionDeltaImpl;
 import org.eclipse.emf.cdo.internal.common.revision.delta.InternalCDOFeatureDelta;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
 
 import org.eclipse.net4j.util.collection.MultiMap;
 
 import org.eclipse.emf.spi.cdo.InternalCDOTransaction;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,7 +44,7 @@ import java.util.concurrent.ConcurrentMap;
  * @author Simon McDuff
  * @since 2.0
  */
-public class CDOSavepointImpl extends AbstractSavepoint
+public class CDOSavepointImpl extends AbstractSavepoint implements CDOReferenceAdjustable
 {
   private Map<CDOID, CDOResource> newResources = new HashMap<CDOID, CDOResource>();
 
@@ -331,15 +336,15 @@ public class CDOSavepointImpl extends AbstractSavepoint
     return (CDOSavepointImpl)super.getPreviousSavepoint();
   }
 
+  public void setPreviousSavepoint(CDOSavepointImpl previousSavepoint)
+  {
+    super.setPreviousSavepoint(previousSavepoint);
+  }
+
   @Override
   public CDOSavepointImpl getNextSavepoint()
   {
     return (CDOSavepointImpl)super.getNextSavepoint();
-  }
-
-  public void setPreviousSavepoint(CDOSavepointImpl previousSavepoint)
-  {
-    super.setPreviousSavepoint(previousSavepoint);
   }
 
   public void setNextSavepoint(CDOSavepointImpl nextSavepoint)
@@ -351,5 +356,32 @@ public class CDOSavepointImpl extends AbstractSavepoint
   public void rollback()
   {
     getUserTransaction().rollback(this);
+  }
+
+  public void applyReferenceAdjuster(CDOReferenceAdjuster referenceAdjuster)
+  {
+    adjustObjects(referenceAdjuster, newResources.values());
+    adjustObjects(referenceAdjuster, newObjects.values());
+    adjustObjects(referenceAdjuster, dirtyObjects.values());
+    adjustRevisionDeltas(referenceAdjuster, revisionDeltas.values());
+  }
+
+  private static void adjustObjects(CDOReferenceAdjuster referenceAdjuster, Collection<? extends CDOObject> objects)
+  {
+    for (CDOObject object : objects)
+    {
+      InternalCDORevision revision = (InternalCDORevision)object.cdoRevision();
+      revision.applyReferenceAdjuster(referenceAdjuster);
+    }
+  }
+
+  private static void adjustRevisionDeltas(CDOReferenceAdjuster referenceAdjuster,
+      Collection<? extends CDORevisionDelta> deltas)
+  {
+    for (CDORevisionDelta delta : deltas)
+    {
+      InternalCDORevisionDelta revisionDelta = (InternalCDORevisionDelta)delta;
+      revisionDelta.applyReferenceAdjuster(referenceAdjuster);
+    }
   }
 }

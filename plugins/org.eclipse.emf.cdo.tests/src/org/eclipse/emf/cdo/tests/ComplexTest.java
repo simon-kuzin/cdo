@@ -95,10 +95,9 @@ public class ComplexTest extends AbstractCDOTest
     String path1 = resource1.getPath();
     String path2 = resource2.getPath();
 
-    transaction.close();
     session.close();
-
     clearCache(getRepository().getRevisionManager());
+
     init(path1, path2);
   }
 

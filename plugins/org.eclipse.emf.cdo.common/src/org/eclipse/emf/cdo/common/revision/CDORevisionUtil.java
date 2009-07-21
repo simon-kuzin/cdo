@@ -10,15 +10,11 @@
  */
 package org.eclipse.emf.cdo.common.revision;
 
-import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.internal.common.messages.Messages;
 import org.eclipse.emf.cdo.internal.common.revision.CDOFeatureMapEntryImpl;
-import org.eclipse.emf.cdo.internal.common.revision.CDORevisionImpl;
 
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.util.FeatureMap;
-
-import java.util.Map;
 
 /**
  * @author Eike Stepper
@@ -37,14 +33,6 @@ public final class CDORevisionUtil
   public static FeatureMap.Entry createFeatureMapEntry(EStructuralFeature feature, Object value)
   {
     return new CDOFeatureMapEntryImpl(feature, value);
-  }
-
-  /**
-   * @since 3.0
-   */
-  public static CDOID remapID(CDOID value, Map<CDOID, CDOID> idMappings)
-  {
-    return CDORevisionImpl.remapID(value, idMappings);
   }
 
   /**

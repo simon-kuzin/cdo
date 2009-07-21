@@ -39,6 +39,7 @@ import org.eclipse.emf.cdo.util.CDOUtil;
 import org.eclipse.emf.cdo.util.DanglingReferenceException;
 import org.eclipse.emf.cdo.util.InvalidURIException;
 import org.eclipse.emf.cdo.util.ReadOnlyException;
+import org.eclipse.emf.cdo.util.ResourceNotFoundException;
 import org.eclipse.emf.cdo.view.CDOAdapterPolicy;
 import org.eclipse.emf.cdo.view.CDOFeatureAnalyzer;
 import org.eclipse.emf.cdo.view.CDOQuery;
@@ -514,7 +515,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
       }
     }
 
-    throw new CDOException(MessageFormat.format(Messages.getString("CDOViewImpl.5"), name)); //$NON-NLS-1$
+    throw new ResourceNotFoundException(MessageFormat.format(Messages.getString("CDOViewImpl.5"), name)); //$NON-NLS-1$
   }
 
   /**
@@ -529,18 +530,18 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     {
       if (name == null)
       {
-        throw new CDOException(Messages.getString("CDOViewImpl.6")); //$NON-NLS-1$
+        throw new ResourceNotFoundException(Messages.getString("CDOViewImpl.6")); //$NON-NLS-1$
       }
       else
       {
-        throw new CDOException(MessageFormat.format(Messages.getString("CDOViewImpl.7"), name)); //$NON-NLS-1$
+        throw new ResourceNotFoundException(MessageFormat.format(Messages.getString("CDOViewImpl.7"), name)); //$NON-NLS-1$
       }
     }
 
     if (ids.size() > 1)
     {
       // TODO is this still needed since the is resourceQuery.setMaxResults(1) ??
-      throw new ImplementationError(Messages.getString("CDOViewImpl.8")); //$NON-NLS-1$
+      throw new IllegalStateException(Messages.getString("CDOViewImpl.8")); //$NON-NLS-1$
     }
 
     return ids.get(0);
@@ -1002,8 +1003,13 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     return null;
   }
 
-  public Object convertIDToObject(Object potentialID)
+  public InternalEObject convertIDToObject(Object potentialID)
   {
+    if (potentialID == null)
+    {
+      return null;
+    }
+
     if (potentialID instanceof CDOID)
     {
       if (potentialID == CDOID.NULL)
@@ -1014,19 +1020,24 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
       CDOID id = (CDOID)potentialID;
       if (id.isExternal())
       {
-        return getResourceSet().getEObject(URI.createURI(id.toURIFragment()), true);
+        return (InternalEObject)getResourceSet().getEObject(URI.createURI(id.toURIFragment()), true);
       }
 
       InternalCDOObject result = getObject(id, true);
       if (result == null)
       {
-        throw new ImplementationError(MessageFormat.format(Messages.getString("CDOViewImpl.17"), id)); //$NON-NLS-1$
+        throw new IllegalStateException(MessageFormat.format(Messages.getString("CDOViewImpl.17"), id)); //$NON-NLS-1$
       }
 
       return result.cdoInternalInstance();
     }
 
-    return potentialID;
+    if (potentialID instanceof InternalEObject)
+    {
+      return (InternalEObject)potentialID;
+    }
+
+    throw new IllegalStateException("Unable to convert to an object: " + potentialID);
   }
 
   /**
