@@ -106,8 +106,8 @@ public final class CDOStore implements EStore
       TRACER.format("setContainer({0}, {1}, {2}, {3})", cdoObject, newResource, newEContainer, newContainerFeatureID); //$NON-NLS-1$
     }
 
-    CDOID newContainerID = newEContainer == null ? CDOID.NULL : cdoObject.cdoView().convertObjectToID(newEContainer,
-        true);
+    CDOID newContainerID = newEContainer == null ? CDOID.NULL : (CDOID)cdoObject.cdoView().convertObjectToID(
+        newEContainer, true);
     CDOID newResourceID = newResource == null ? CDOID.NULL : newResource.cdoID();
 
     CDOFeatureDelta delta = new CDOContainerFeatureDeltaImpl(newResourceID, newContainerID, newContainerFeatureID);
@@ -126,7 +126,7 @@ public final class CDOStore implements EStore
     }
 
     InternalCDORevision revision = getRevisionForReading(cdoObject);
-    return (InternalEObject)cdoObject.cdoView().convertIDToObject(revision.getContainerID());
+    return cdoObject.cdoView().convertIDToObject(revision.getContainerID());
   }
 
   public int getContainingFeatureID(InternalEObject eObject)
@@ -153,7 +153,7 @@ public final class CDOStore implements EStore
     }
 
     InternalCDORevision revision = getRevisionForReading(cdoObject);
-    return (InternalEObject)cdoObject.cdoView().convertIDToObject(revision.getResourceID());
+    return cdoObject.cdoView().convertIDToObject(revision.getResourceID());
   }
 
   @Deprecated

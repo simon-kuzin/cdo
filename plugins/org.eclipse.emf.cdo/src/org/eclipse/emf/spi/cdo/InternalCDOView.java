@@ -91,12 +91,12 @@ public interface InternalCDOView extends CDOView, ILifecycle
   /**
    * @since 3.0
    */
-  public CDOID convertObjectToID(Object potentialObject);
+  public Object convertObjectToID(Object potentialObject);
 
   /**
    * @since 3.0
    */
-  public CDOID convertObjectToID(Object potentialObject, boolean onlyPersistedID);
+  public Object convertObjectToID(Object potentialObject, boolean onlyPersistedID);
 
   /**
    * @since 3.0

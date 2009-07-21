@@ -306,7 +306,7 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
     }
 
     InternalCDOView view = cdoView();
-    revision.setContainerID(eContainer == null ? CDOID.NULL : cdoView().convertObjectToID(eContainer, true));
+    revision.setContainerID(eContainer == null ? CDOID.NULL : (CDOID)cdoView().convertObjectToID(eContainer, true));
     revision.setContainingFeatureID(eContainerFeatureID);
 
     Resource directResource = eDirectResource();

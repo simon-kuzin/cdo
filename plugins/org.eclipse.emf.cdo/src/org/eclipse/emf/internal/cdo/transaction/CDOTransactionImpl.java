@@ -557,16 +557,16 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
   }
 
   @Override
-  public CDOID convertObjectToID(Object potentialObject, boolean onlyPersistedID)
+  public Object convertObjectToID(Object potentialObject, boolean onlyPersistedID)
   {
-    CDOID id = super.convertObjectToID(potentialObject, onlyPersistedID);
-    if (id == null && potentialObject instanceof InternalEObject)
+    potentialObject = super.convertObjectToID(potentialObject, onlyPersistedID);
+    if (potentialObject instanceof InternalEObject)
     {
       InternalEObject target = (InternalEObject)potentialObject;
-      id = new CDOIDDanglingImpl(target);
+      return new CDOIDDanglingImpl(target);
     }
 
-    return id;
+    return potentialObject;
   }
 
   @Override
