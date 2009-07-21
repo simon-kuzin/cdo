@@ -201,12 +201,11 @@ public class CDOListFeatureDeltaImpl extends CDOFeatureDeltaImpl implements CDOL
     }
   }
 
-  @Override
-  public void adjustReferences(CDOReferenceAdjuster adjuster)
+  public void applyReferenceAdjuster(CDOReferenceAdjuster adjuster)
   {
     for (CDOFeatureDelta featureDelta : featureDeltas)
     {
-      ((CDOFeatureDeltaImpl)featureDelta).adjustReferences(adjuster);
+      ((CDOFeatureDeltaImpl)featureDelta).applyReferenceAdjuster(adjuster);
     }
   }
 

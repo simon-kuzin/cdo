@@ -22,8 +22,6 @@ import org.eclipse.emf.cdo.util.CDOUtil;
 import org.eclipse.emf.internal.cdo.messages.Messages;
 import org.eclipse.emf.internal.cdo.transaction.CDOXATransactionImpl.CDOXAState;
 
-import org.eclipse.net4j.util.ImplementationError;
-
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.spi.cdo.InternalCDOObject;
 import org.eclipse.emf.spi.cdo.InternalCDOTransaction;
@@ -161,7 +159,8 @@ public class CDOXACommitContextImpl implements InternalCDOXACommitContext
       }
       else
       {
-        throw new ImplementationError(MessageFormat.format(Messages.getString("CDOXACommitContextImpl.0"), idOrObject)); //$NON-NLS-1$
+        throw new IllegalArgumentException(MessageFormat.format(
+            Messages.getString("CDOXACommitContextImpl.0"), idOrObject)); //$NON-NLS-1$
       }
     }
 

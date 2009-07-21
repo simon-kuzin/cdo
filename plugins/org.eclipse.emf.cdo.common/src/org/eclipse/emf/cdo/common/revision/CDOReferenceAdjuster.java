@@ -21,7 +21,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 public interface CDOReferenceAdjuster
 {
   /**
-   * Adjusts the internal structure of an object (e.g: {@link CDORevision}). This is mainly used after committing a
+   * Adjusts the internal structure of an object (e.g: {@link CDORevision}). This is mainly used when committing a
    * transaction. {@link CDORevision} must replace {@link CDOIDTemp} for non-temporary {@link CDOID} with a mapped ID.
    * Only the internal structure knows how to do these modifications. This is important to consider using different
    * implementation of {@link CDOList}.

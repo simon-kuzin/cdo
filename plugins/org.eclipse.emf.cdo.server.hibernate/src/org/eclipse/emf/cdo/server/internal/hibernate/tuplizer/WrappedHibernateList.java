@@ -106,14 +106,14 @@ public class WrappedHibernateList implements InternalCDOList
   /**
    * There's a duplicate of this method in CDOListImpl!!!
    */
-  public void adjustReferences(CDOReferenceAdjuster adjuster, EStructuralFeature feature)
+  public void applyReferenceAdjuster(CDOReferenceAdjuster adjuster, EStructuralFeature feature)
   {
     CDOType type = CDOModelUtil.getType(feature);
     int size = size();
     for (int i = 0; i < size; i++)
     {
       Object element = get(i);
-      Object newID = type.adjustReferences(adjuster, element);
+      Object newID = type.applyReferenceAdjuster(adjuster, element);
       if (newID != element)
       {
         set(i, newID);

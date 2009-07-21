@@ -199,9 +199,9 @@ public class CDORevisionProxy implements HibernateProxy, InternalCDORevision, Se
     li.getRevision().add(feature, index, value);
   }
 
-  public void adjustReferences(CDOReferenceAdjuster idMappings)
+  public void applyReferenceAdjuster(CDOReferenceAdjuster idMappings)
   {
-    li.getRevision().adjustReferences(idMappings);
+    li.getRevision().applyReferenceAdjuster(idMappings);
   }
 
   public void clear(EStructuralFeature feature)

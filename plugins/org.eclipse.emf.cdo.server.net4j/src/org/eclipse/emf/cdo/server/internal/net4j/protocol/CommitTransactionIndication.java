@@ -14,7 +14,6 @@ package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
-import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
@@ -347,10 +346,10 @@ public class CommitTransactionIndication extends IndicationWithMonitoring
   protected void respondingMappingNewObjects(CDODataOutput out) throws Exception
   {
     // ID mappings
-    Map<CDOIDTemp, CDOID> idMappings = commitContext.getIDMappings();
-    for (Entry<CDOIDTemp, CDOID> entry : idMappings.entrySet())
+    Map<CDOID, CDOID> idMappings = commitContext.getIDMappings();
+    for (Entry<CDOID, CDOID> entry : idMappings.entrySet())
     {
-      CDOIDTemp oldID = entry.getKey();
+      CDOID oldID = entry.getKey();
       if (!oldID.isMeta())
       {
         CDOID newID = entry.getValue();

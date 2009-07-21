@@ -94,7 +94,7 @@ public class CDOListImpl extends BasicEList<Object> implements InternalCDOList
   /**
    * There's a duplicate of this method in WrappedHibernateList!!!
    */
-  public void adjustReferences(CDOReferenceAdjuster revisionAdjuster, EStructuralFeature feature)
+  public void applyReferenceAdjuster(CDOReferenceAdjuster revisionAdjuster, EStructuralFeature feature)
   {
     CDOType type = CDOModelUtil.getType(feature);
     int size = size();
@@ -102,7 +102,7 @@ public class CDOListImpl extends BasicEList<Object> implements InternalCDOList
     {
       Object element = super.get(i);
       handleAdjustReference(i, element);
-      Object newID = type.adjustReferences(revisionAdjuster, element);
+      Object newID = type.applyReferenceAdjuster(revisionAdjuster, element);
       if (newID != element)
       {
         super.set(i, newID);

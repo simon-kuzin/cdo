@@ -389,7 +389,7 @@ public class RevisionHolderTest extends AbstractCDOTest
       throw new UnsupportedOperationException();
     }
 
-    public void adjustReferences(CDOReferenceAdjuster revisionAdjuster)
+    public void applyReferenceAdjuster(CDOReferenceAdjuster revisionAdjuster)
     {
       throw new UnsupportedOperationException();
     }

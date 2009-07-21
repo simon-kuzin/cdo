@@ -108,9 +108,9 @@ public interface CDOType
   public Object copyValue(Object value);
 
   /**
-   * @since 2.0
+   * @since 3.0
    */
-  public Object adjustReferences(CDOReferenceAdjuster adjuster, Object value);
+  public Object applyReferenceAdjuster(CDOReferenceAdjuster adjuster, Object value);
 
   /**
    * @since 2.0

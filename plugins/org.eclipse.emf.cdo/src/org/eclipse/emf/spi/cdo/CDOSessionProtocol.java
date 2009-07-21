@@ -14,7 +14,6 @@ import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.CDOCommonView;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
-import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocol;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.session.remote.CDORemoteSession;
@@ -282,7 +281,7 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, Revision
 
     // private List<CDOIDMetaRange> metaIDRanges = new ArrayList<CDOIDMetaRange>();
 
-    private Map<CDOIDTemp, CDOID> idMappings = new HashMap<CDOIDTemp, CDOID>();
+    private Map<CDOID, CDOID> idMappings = new HashMap<CDOID, CDOID>();
 
     private CDOReferenceAdjuster referenceAdjuster;
 
@@ -330,53 +329,57 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, Revision
       return timeStamp;
     }
 
-    public Map<CDOIDTemp, CDOID> getIDMappings()
+    public Map<CDOID, CDOID> getIDMappings()
     {
       return idMappings;
     }
 
-    public void addIDMapping(CDOIDTemp oldID, CDOID newID)
+    /**
+     * @since 3.0
+     */
+    public void addIDMapping(CDOID oldID, CDOID newID)
     {
       idMappings.put(oldID, newID);
     }
 
-    protected PostCommitReferenceAdjuster createReferenceAdjuster()
+    protected CDOReferenceAdjuster createReferenceAdjuster()
     {
-      return new PostCommitReferenceAdjuster(new CDOIDMapper(idMappings));
+      return new CDOIDMapper(idMappings);
+      // TTT return new PostCommitReferenceAdjuster(new CDOIDMapper(idMappings));
     }
 
-    /**
-     * @author Simon McDuff
-     */
-    protected static class PostCommitReferenceAdjuster implements CDOReferenceAdjuster
-    {
-      private CDOIDMapper idMapper;
-
-      /**
-       * @since 3.0
-       */
-      public PostCommitReferenceAdjuster(CDOIDMapper idMapper)
-      {
-        this.idMapper = idMapper;
-      }
-
-      public CDOIDMapper getIdMapper()
-      {
-        return idMapper;
-      }
-
-      /**
-       * @since 3.0
-       */
-      public CDOID adjustReference(CDOID id)
-      {
-        if (id == null || id == CDOID.NULL)
-        {
-          return id;
-        }
-
-        return idMapper.adjustReference(id);
-      }
-    }
+    // TTT /**
+    // * @author Simon McDuff
+    // */
+    // protected static class PostCommitReferenceAdjuster implements CDOReferenceAdjuster
+    // {
+    // private CDOIDMapper idMapper;
+    //
+    // /**
+    // * @since 3.0
+    // */
+    // public PostCommitReferenceAdjuster(CDOIDMapper idMapper)
+    // {
+    // this.idMapper = idMapper;
+    // }
+    //
+    // public CDOIDMapper getIdMapper()
+    // {
+    // return idMapper;
+    // }
+    //
+    // /**
+    // * @since 3.0
+    // */
+    // public CDOID adjustReference(CDOID id)
+    // {
+    // if (id == null || id == CDOID.NULL)
+    // {
+    // return id;
+    // }
+    //
+    // return idMapper.adjustReference(id);
+    // }
+    // }
   }
 }

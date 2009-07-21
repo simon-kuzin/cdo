@@ -23,6 +23,7 @@ import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.model.EMFUtil;
+import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
@@ -626,17 +627,50 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
       progressMonitor = new NullProgressMonitor();
     }
 
+    ReferenceChanges referenceChanges = null;
+
     try
     {
+      referenceChanges = adjustDanglingReferences();
       getTransactionStrategy().commit(this, progressMonitor);
     }
     catch (TransactionException ex)
     {
+      if (referenceChanges != null)
+      {
+        referenceChanges.undo();
+      }
+
       throw ex;
     }
     catch (Exception ex)
     {
+      if (referenceChanges != null)
+      {
+        referenceChanges.undo();
+      }
+
       throw new TransactionException(ex);
+    }
+  }
+
+  private ReferenceChanges adjustDanglingReferences()
+  {
+    return null;
+  }
+
+  /**
+   * @author Eike Stepper
+   */
+  private static final class ReferenceChanges implements CDOReferenceAdjuster
+  {
+    public CDOID adjustReference(CDOID id)
+    {
+      return null;
+    }
+
+    public void undo()
+    {
     }
   }
 
@@ -931,7 +965,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
         viewLock.unlock();
       }
 
-      Map<CDOIDTemp, CDOID> idMappings = Collections.emptyMap();
+      Map<CDOID, CDOID> idMappings = Collections.emptyMap();
       fireEvent(new FinishedEvent(CDOTransactionFinishedEvent.Type.ROLLED_BACK, idMappings));
       for (CDOTransactionHandler handler : getHandlers())
       {
@@ -1374,7 +1408,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
             // Adjust references in the deltas. Could be used in ChangeSubscription from others CDOView
             for (CDORevisionDelta dirtyObjectDelta : deltasCopy)
             {
-              ((InternalCDORevisionDelta)dirtyObjectDelta).adjustReferences(result.getReferenceAdjuster());
+              ((InternalCDORevisionDelta)dirtyObjectDelta).applyReferenceAdjuster(result.getReferenceAdjuster());
             }
 
             session.handleCommitNotification(timeStamp, newPackageUnits, dirtyIDs, detachedIDs, deltasCopy,
@@ -1391,7 +1425,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
           getAdapterManager().committedTransaction(getTransaction(), this);
 
           cleanUp();
-          Map<CDOIDTemp, CDOID> idMappings = result.getIDMappings();
+          Map<CDOID, CDOID> idMappings = result.getIDMappings();
           fireEvent(new FinishedEvent(CDOTransactionFinishedEvent.Type.COMMITTED, idMappings));
         }
         catch (RuntimeException ex)
@@ -1465,9 +1499,9 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
 
     private Type type;
 
-    private Map<CDOIDTemp, CDOID> idMappings;
+    private Map<CDOID, CDOID> idMappings;
 
-    private FinishedEvent(Type type, Map<CDOIDTemp, CDOID> idMappings)
+    private FinishedEvent(Type type, Map<CDOID, CDOID> idMappings)
     {
       this.type = type;
       this.idMappings = idMappings;
@@ -1478,7 +1512,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
       return type;
     }
 
-    public Map<CDOIDTemp, CDOID> getIDMappings()
+    public Map<CDOID, CDOID> getIDMappings()
     {
       return idMappings;
     }

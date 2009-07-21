@@ -81,8 +81,7 @@ public class CDOContainerFeatureDeltaImpl extends CDOFeatureDeltaImpl implements
     ((InternalCDORevision)revision).setContainingFeatureID(newContainerFeatureID);
   }
 
-  @Override
-  public void adjustReferences(CDOReferenceAdjuster referenceAdjuster)
+  public void applyReferenceAdjuster(CDOReferenceAdjuster referenceAdjuster)
   {
     newResourceID = referenceAdjuster.adjustReference(newResourceID);
     newContainerID = referenceAdjuster.adjustReference(newContainerID);

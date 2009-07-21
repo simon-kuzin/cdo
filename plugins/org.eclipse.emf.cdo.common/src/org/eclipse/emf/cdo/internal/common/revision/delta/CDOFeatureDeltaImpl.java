@@ -13,7 +13,6 @@ package org.eclipse.emf.cdo.internal.common.revision.delta;
 
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
-import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
 
 import org.eclipse.net4j.util.CheckUtil;
@@ -60,6 +59,4 @@ public abstract class CDOFeatureDeltaImpl implements InternalCDOFeatureDelta
   {
     return this;
   }
-
-  public abstract void adjustReferences(CDOReferenceAdjuster referenceAdjuster);
 }

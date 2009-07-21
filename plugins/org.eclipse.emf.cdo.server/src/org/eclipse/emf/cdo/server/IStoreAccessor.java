@@ -13,7 +13,6 @@ package org.eclipse.emf.cdo.server;
 import org.eclipse.emf.cdo.common.CDOCommonView;
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCacheAdder;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
@@ -250,9 +249,12 @@ public interface IStoreAccessor extends IQueryHandlerProvider
      * Returns an unmodifiable map from all temporary IDs (meta or not) to their persistent counter parts. It is
      * initially populated with the mappings of all new meta objects.
      */
-    public Map<CDOIDTemp, CDOID> getIDMappings();
+    public Map<CDOID, CDOID> getIDMappings();
 
-    public void addIDMapping(CDOIDTemp oldID, CDOID newID);
+    /**
+     * @since 3.0
+     */
+    public void addIDMapping(CDOID oldID, CDOID newID);
 
     public void applyIDMappings(OMMonitor monitor);
   }

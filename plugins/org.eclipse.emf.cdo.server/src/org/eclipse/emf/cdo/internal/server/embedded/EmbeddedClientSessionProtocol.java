@@ -14,7 +14,6 @@ import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.CDOCommonView;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
-import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDOAuthenticationResult;
 import org.eclipse.emf.cdo.common.protocol.CDOAuthenticator;
@@ -58,7 +57,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 
 /**
  * @author Eike Stepper
@@ -365,7 +363,7 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
       }
 
       result = new CommitTransactionResult(clientCommitContext, serverCommitContext.getTimeStamp());
-      for (Entry<CDOIDTemp, CDOID> entry : serverCommitContext.getIDMappings().entrySet())
+      for (Map.Entry<CDOID, CDOID> entry : serverCommitContext.getIDMappings().entrySet())
       {
         result.addIDMapping(entry.getKey(), entry.getValue());
       }

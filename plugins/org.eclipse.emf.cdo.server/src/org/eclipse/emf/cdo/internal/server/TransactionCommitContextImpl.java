@@ -84,7 +84,7 @@ public class TransactionCommitContextImpl implements InternalCommitContext
 
   private List<CDOIDMetaRange> metaIDRanges = new ArrayList<CDOIDMetaRange>();
 
-  private ConcurrentMap<CDOIDTemp, CDOID> idMappings = new ConcurrentHashMap<CDOIDTemp, CDOID>();
+  private ConcurrentMap<CDOID, CDOID> idMappings = new ConcurrentHashMap<CDOID, CDOID>();
 
   private CDOReferenceAdjuster idMapper = new CDOIDMapper(idMappings);
 
@@ -152,12 +152,12 @@ public class TransactionCommitContextImpl implements InternalCommitContext
     return Collections.unmodifiableList(metaIDRanges);
   }
 
-  public Map<CDOIDTemp, CDOID> getIDMappings()
+  public Map<CDOID, CDOID> getIDMappings()
   {
     return Collections.unmodifiableMap(idMappings);
   }
 
-  public void addIDMapping(CDOIDTemp oldID, CDOID newID)
+  public void addIDMapping(CDOID oldID, CDOID newID)
   {
     if (CDOIDUtil.isNull(newID) || newID.isTemporary())
     {
@@ -180,7 +180,7 @@ public class TransactionCommitContextImpl implements InternalCommitContext
       applyIDMappings(dirtyObjects, monitor.fork(dirtyObjects.length));
       for (CDORevisionDelta dirtyObjectDelta : dirtyObjectDeltas)
       {
-        ((InternalCDORevisionDelta)dirtyObjectDelta).adjustReferences(idMapper);
+        ((InternalCDORevisionDelta)dirtyObjectDelta).applyReferenceAdjuster(idMapper);
         monitor.worked();
       }
     }
@@ -512,7 +512,7 @@ public class TransactionCommitContextImpl implements InternalCommitContext
             revision.setID(newID);
           }
 
-          revision.adjustReferences(idMapper);
+          revision.applyReferenceAdjuster(idMapper);
           monitor.worked();
         }
       }

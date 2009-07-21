@@ -689,7 +689,7 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
     {
       InternalCDOView view = object.cdoView();
       InternalCDORevision revision = object.cdoRevision();
-      Map<CDOIDTemp, CDOID> idMappings = data.getIDMappings();
+      Map<CDOID, CDOID> idMappings = data.getIDMappings();
 
       // Adjust object
       CDOID id, oldID;
@@ -717,7 +717,7 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
       // }
       // else
       {
-        revision.adjustReferences(data.getReferenceAdjuster());
+        revision.applyReferenceAdjuster(data.getReferenceAdjuster());
       }
 
       InternalCDORevisionManager revisionManager = view.getSession().getRevisionManager();

@@ -485,7 +485,10 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     setValue(feature, null);
   }
 
-  public void adjustReferences(CDOReferenceAdjuster revisionAdjuster)
+  /**
+   * @since 3.0
+   */
+  public void applyReferenceAdjuster(CDOReferenceAdjuster revisionAdjuster)
   {
     if (TRACER.isEnabled())
     {
@@ -506,13 +509,13 @@ public abstract class AbstractCDORevision implements InternalCDORevision
           InternalCDOList list = (InternalCDOList)getValueAsList(i);
           if (list != null)
           {
-            list.adjustReferences(revisionAdjuster, feature);
+            list.applyReferenceAdjuster(revisionAdjuster, feature);
           }
         }
         else
         {
           CDOType type = CDOModelUtil.getType(feature);
-          setValue(i, type.adjustReferences(revisionAdjuster, getValue(i)));
+          setValue(i, type.applyReferenceAdjuster(revisionAdjuster, getValue(i)));
         }
       }
     }
@@ -698,11 +701,11 @@ public abstract class AbstractCDORevision implements InternalCDORevision
   /**
    * @since 3.0
    */
-  public static CDOID remapID(CDOID value, Map<CDOIDTemp, CDOID> idMappings)
+  public static CDOID remapID(CDOID value, Map<CDOID, CDOID> idMappings)
   {
     if (value instanceof CDOIDTemp)
     {
-      CDOIDTemp oldID = (CDOIDTemp)value;
+      CDOID oldID = value;
       if (!oldID.isNull())
       {
         CDOID newID = idMappings.get(oldID);

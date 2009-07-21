@@ -11,10 +11,10 @@
 package org.eclipse.emf.cdo.spi.common.revision;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -23,16 +23,34 @@ import java.util.Map;
  */
 public class CDOIDMapper implements CDOReferenceAdjuster
 {
-  private Map<CDOIDTemp, CDOID> idMappings;
+  private Map<CDOID, CDOID> idMappings;
 
-  public CDOIDMapper(Map<CDOIDTemp, CDOID> idMappings)
+  public CDOIDMapper(Map<CDOID, CDOID> idMappings)
   {
     this.idMappings = idMappings;
   }
 
-  public Map<CDOIDTemp, CDOID> getIDMappings()
+  public Map<CDOID, CDOID> getIDMappings()
   {
     return idMappings;
+  }
+
+  /**
+   * @since 3.0
+   */
+  public void reverseMappings()
+  {
+    Map<CDOID, CDOID> newMappings = new HashMap<CDOID, CDOID>();
+    for (Map.Entry<CDOID, CDOID> mapping : idMappings.entrySet())
+    {
+      CDOID old = newMappings.put(mapping.getValue(), mapping.getKey());
+      if (old != null)
+      {
+        throw new IllegalStateException("Duplicate key: " + old);
+      }
+    }
+
+    idMappings = newMappings;
   }
 
   /**

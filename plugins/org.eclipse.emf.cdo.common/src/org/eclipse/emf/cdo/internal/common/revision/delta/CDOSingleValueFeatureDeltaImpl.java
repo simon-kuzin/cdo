@@ -95,8 +95,7 @@ public abstract class CDOSingleValueFeatureDeltaImpl extends CDOFeatureDeltaImpl
     newValue = value;
   }
 
-  @Override
-  public void adjustReferences(CDOReferenceAdjuster referenceAdjuster)
+  public void applyReferenceAdjuster(CDOReferenceAdjuster referenceAdjuster)
   {
     if (newValue instanceof CDOID)
     {
