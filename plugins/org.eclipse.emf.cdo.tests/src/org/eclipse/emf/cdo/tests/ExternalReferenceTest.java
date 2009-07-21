@@ -48,7 +48,7 @@ import java.io.ByteArrayOutputStream;
  */
 public class ExternalReferenceTest extends AbstractCDOTest
 {
-  final static public String REPOSITORY2_NAME = "repo2";
+  public static final String REPOSITORY2_NAME = "repo2";
 
   public void testExternalWithDynamicEObject() throws Exception
   {

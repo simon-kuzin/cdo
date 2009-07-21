@@ -88,9 +88,15 @@ public interface InternalCDOView extends CDOView, CDOIDProvider, ILifecycle
 
   public InternalCDORevision getRevision(CDOID id, boolean loadOnDemand);
 
-  public Object convertObjectToID(Object potentialObject);
+  /**
+   * @since 3.0
+   */
+  public CDOID convertObjectToID(Object potentialObject);
 
-  public Object convertObjectToID(Object potentialObject, boolean onlyPersistedID);
+  /**
+   * @since 3.0
+   */
+  public CDOID convertObjectToID(Object potentialObject, boolean onlyPersistedID);
 
   public Object convertIDToObject(Object potentialID);
 

@@ -106,7 +106,7 @@ public final class CDOStore implements EStore
       TRACER.format("setContainer({0}, {1}, {2}, {3})", cdoObject, newResource, newEContainer, newContainerFeatureID); //$NON-NLS-1$
     }
 
-    Object newContainerID = newEContainer == null ? CDOID.NULL : cdoObject.cdoView().convertObjectToID(newEContainer,
+    CDOID newContainerID = newEContainer == null ? CDOID.NULL : cdoObject.cdoView().convertObjectToID(newEContainer,
         true);
     CDOID newResourceID = newResource == null ? CDOID.NULL : newResource.cdoID();
 

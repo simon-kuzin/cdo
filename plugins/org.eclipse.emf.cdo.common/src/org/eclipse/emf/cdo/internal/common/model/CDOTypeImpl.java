@@ -254,7 +254,7 @@ public abstract class CDOTypeImpl implements CDOType
     @Override
     public Object doAdjustReferences(CDOReferenceAdjuster adjuster, Object value)
     {
-      return adjuster.adjustReference(value);
+      return adjuster.adjustReference((CDOID)value);
     }
   };
 
@@ -758,16 +758,12 @@ public abstract class CDOTypeImpl implements CDOType
       // CHECK: should the same object array be returned with updated values
       // or a new object array?
       final Object[] objects = (Object[])value;
-      int i = 0;
-      for (Object object : objects)
+      for (int i = 0; i < objects.length; i++)
       {
+        Object object = objects[i];
         if (object instanceof CDOID)
         {
-          objects[i++] = adjuster.adjustReference(object);
-        }
-        else
-        {
-          objects[i++] = object;
+          objects[i] = adjuster.adjustReference((CDOID)object);
         }
       }
 
@@ -834,9 +830,9 @@ public abstract class CDOTypeImpl implements CDOType
     out.writeInt(typeID);
   }
 
-  final public Object adjustReferences(CDOReferenceAdjuster adjuster, Object value)
+  public final Object adjustReferences(CDOReferenceAdjuster adjuster, Object value)
   {
-    return value == null ? null : doAdjustReferences(adjuster, value);
+    return value instanceof CDOID ? doAdjustReferences(adjuster, value) : null;
   }
 
   protected Object doAdjustReferences(CDOReferenceAdjuster adjuster, Object value)

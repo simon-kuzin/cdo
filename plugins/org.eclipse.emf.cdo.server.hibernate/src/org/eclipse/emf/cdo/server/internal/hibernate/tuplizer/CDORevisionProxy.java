@@ -80,12 +80,12 @@ public class CDORevisionProxy implements HibernateProxy, InternalCDORevision, Se
     return li.getRevision().getEClass();
   }
 
-  public Object getContainerID()
+  public CDOID getContainerID()
   {
     return li.getRevision().getContainerID();
   }
 
-  public void setContainerID(Object containerID)
+  public void setContainerID(CDOID containerID)
   {
     li.getRevision().setContainerID(containerID);
   }

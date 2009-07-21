@@ -40,7 +40,10 @@ public final class CDORevisionUtil
     return new CDOFeatureMapEntryImpl(feature, value);
   }
 
-  public static Object remapID(Object value, Map<CDOIDTemp, CDOID> idMappings)
+  /**
+   * @since 3.0
+   */
+  public static CDOID remapID(CDOID value, Map<CDOIDTemp, CDOID> idMappings)
   {
     return CDORevisionImpl.remapID(value, idMappings);
   }

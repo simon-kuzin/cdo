@@ -49,7 +49,7 @@ public class CommitTransactionPhase1Indication extends CommitTransactionIndicati
 
     try
     {
-      ((XATransactionCommitContext)commitContext).getState().acquire(XATransactionCommitContext.PHASEAPPLYMAPPING);
+      ((XATransactionCommitContext)commitContext).getState().acquire(XATransactionCommitContext.PHASE_APPLY_MAPPING);
     }
     catch (Throwable ex)
     {

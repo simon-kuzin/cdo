@@ -32,7 +32,7 @@ import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
  */
 public class Bugzilla_259869_Test extends AbstractCDOTest
 {
-  final static public String REPOSITORY2_NAME = "repo2";
+  public static final String REPOSITORY2_NAME = "repo2";
 
   public void testBugzilla_259869() throws InterruptedException
   {

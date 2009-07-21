@@ -24,7 +24,7 @@ public enum DBAnnotation
   COLUMN_TYPE("columnType"), //
   COLUMN_LENGTH("columnLength");
 
-  public final static String SOURCE_URI = "http://www.eclipse.org/CDO/DBStore";
+  public static final String SOURCE_URI = "http://www.eclipse.org/CDO/DBStore";
 
   private String keyword;
 

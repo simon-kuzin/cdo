@@ -179,7 +179,7 @@ public class CDOXACommitContextImpl implements InternalCDOXACommitContext
       final CDOReferenceAdjuster defaultReferenceAdjuster = result.getReferenceAdjuster();
       result.setReferenceAdjuster(new CDOReferenceAdjuster()
       {
-        public Object adjustReference(Object id)
+        public CDOID adjustReference(CDOID id)
         {
           CDOIDTempObjectExternalImpl externalID = objectToID.get(id);
           if (externalID != null)

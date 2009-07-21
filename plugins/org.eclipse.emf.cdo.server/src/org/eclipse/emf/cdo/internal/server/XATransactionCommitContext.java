@@ -113,7 +113,7 @@ public class XATransactionCommitContext extends TransactionCommitContextImpl
 
     try
     {
-      state.acquire(PHASEAPPLYMAPPING_DONE);
+      state.acquire(PHASE_APPLY_MAPPING_DONE);
     }
     catch (InterruptedException ex)
     {
@@ -131,7 +131,7 @@ public class XATransactionCommitContext extends TransactionCommitContextImpl
   /**
    * Object to test if the process is at ApplyIDMapping
    */
-  final public static Object PHASEAPPLYMAPPING = new Object()
+  public static final Object PHASE_APPLY_MAPPING = new Object()
   {
     @Override
     public boolean equals(Object object)
@@ -148,7 +148,7 @@ public class XATransactionCommitContext extends TransactionCommitContextImpl
   /**
    * Object to test if the process did applyIDMapping
    */
-  final public static Object PHASEAPPLYMAPPING_DONE = new Object()
+  public static final Object PHASE_APPLY_MAPPING_DONE = new Object()
   {
     @Override
     public boolean equals(Object object)

@@ -415,7 +415,7 @@ public class RevisionHolderTest extends AbstractCDOTest
       throw new UnsupportedOperationException();
     }
 
-    public Object getContainerID()
+    public CDOID getContainerID()
     {
       throw new UnsupportedOperationException();
     }
@@ -485,7 +485,7 @@ public class RevisionHolderTest extends AbstractCDOTest
       throw new UnsupportedOperationException();
     }
 
-    public void setContainerID(Object containerID)
+    public void setContainerID(CDOID containerID)
     {
       throw new UnsupportedOperationException();
     }

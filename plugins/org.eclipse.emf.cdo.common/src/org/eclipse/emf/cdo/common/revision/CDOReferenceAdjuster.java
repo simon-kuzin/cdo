@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Simon McDuff - initial API and implementation
  *    Eike Stepper - maintenance
@@ -25,6 +25,8 @@ public interface CDOReferenceAdjuster
    * transaction. {@link CDORevision} must replace {@link CDOIDTemp} for non-temporary {@link CDOID} with a mapped ID.
    * Only the internal structure knows how to do these modifications. This is important to consider using different
    * implementation of {@link CDOList}.
+   * 
+   * @since 3.0
    */
-  public Object adjustReference(Object id);
+  public CDOID adjustReference(CDOID id);
 }

@@ -39,7 +39,7 @@ import junit.framework.Assert;
  */
 public class XATransactionTest extends AbstractCDOTest
 {
-  final static public String REPOSITORY2_NAME = "repo2";
+  public static final String REPOSITORY2_NAME = "repo2";
 
   public void testRollback() throws Exception
   {

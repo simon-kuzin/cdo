@@ -372,7 +372,10 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, Revision
         return idMapper;
       }
 
-      public Object adjustReference(Object id)
+      /**
+       * @since 3.0
+       */
+      public CDOID adjustReference(CDOID id)
       {
         if (id == null || id == CDOID.NULL)
         {

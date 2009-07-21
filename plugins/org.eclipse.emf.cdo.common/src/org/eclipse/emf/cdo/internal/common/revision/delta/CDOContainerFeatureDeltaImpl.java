@@ -4,11 +4,11 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Simon McDuff - initial API and implementation
  *    Eike Stepper - maintenance
- *    Simon McDuff - http://bugs.eclipse.org/204890 
+ *    Simon McDuff - http://bugs.eclipse.org/204890
  *    Simon McDuff - http://bugs.eclipse.org/213402
  */
 package org.eclipse.emf.cdo.internal.common.revision.delta;
@@ -34,11 +34,11 @@ public class CDOContainerFeatureDeltaImpl extends CDOFeatureDeltaImpl implements
 {
   private CDOID newResourceID;
 
-  private Object newContainerID;
+  private CDOID newContainerID;
 
   private int newContainerFeatureID;
 
-  public CDOContainerFeatureDeltaImpl(CDOID newResourceID, Object newContainerID, int newContainerFeatureID)
+  public CDOContainerFeatureDeltaImpl(CDOID newResourceID, CDOID newContainerID, int newContainerFeatureID)
   {
     super(CONTAINER_FEATURE);
     this.newResourceID = newResourceID;
@@ -64,7 +64,7 @@ public class CDOContainerFeatureDeltaImpl extends CDOFeatureDeltaImpl implements
     return newResourceID;
   }
 
-  public Object getContainerID()
+  public CDOID getContainerID()
   {
     return newContainerID;
   }
@@ -84,7 +84,7 @@ public class CDOContainerFeatureDeltaImpl extends CDOFeatureDeltaImpl implements
   @Override
   public void adjustReferences(CDOReferenceAdjuster referenceAdjuster)
   {
-    newResourceID = (CDOID)referenceAdjuster.adjustReference(newResourceID);
+    newResourceID = referenceAdjuster.adjustReference(newResourceID);
     newContainerID = referenceAdjuster.adjustReference(newContainerID);
   }
 

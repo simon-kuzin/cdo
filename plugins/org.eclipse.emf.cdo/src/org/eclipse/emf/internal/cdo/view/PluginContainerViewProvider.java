@@ -32,9 +32,9 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
  */
 public class PluginContainerViewProvider extends ManagedContainerViewProvider implements CDOViewProvider
 {
-  private final static String REGEX = "cdo:.*"; //$NON-NLS-1$
+  private static final String REGEX = "cdo:.*"; //$NON-NLS-1$
 
-  private final static int PRIORITY = 400;
+  private static final int PRIORITY = 400;
 
   public PluginContainerViewProvider()
   {

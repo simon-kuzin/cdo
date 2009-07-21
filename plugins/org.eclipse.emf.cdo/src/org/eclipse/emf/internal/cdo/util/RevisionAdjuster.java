@@ -26,7 +26,6 @@ import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
-import org.eclipse.emf.spi.cdo.CDOElementProxy;
 
 /**
  * @author Simon McDuff
@@ -53,7 +52,7 @@ public class RevisionAdjuster extends CDOFeatureDeltaVisitorImpl
   {
     // Delta value must have been adjusted before!
     revision.setContainerID(referenceAdjuster.adjustReference(revision.getContainerID()));
-    revision.setResourceID((CDOID)referenceAdjuster.adjustReference(revision.getResourceID()));
+    revision.setResourceID(referenceAdjuster.adjustReference(revision.getResourceID()));
   }
 
   @Override
@@ -70,9 +69,9 @@ public class RevisionAdjuster extends CDOFeatureDeltaVisitorImpl
     CDORevisionImpl.checkNoFeatureMap(feature);
 
     Object value = delta.getValue();
-    if (value != null && feature instanceof EReference && !(value instanceof CDOElementProxy))
+    if (value instanceof CDOID)
     {
-      revision.setValue(feature, referenceAdjuster.adjustReference(value));
+      revision.setValue(feature, referenceAdjuster.adjustReference((CDOID)value));
     }
   }
 
@@ -90,9 +89,9 @@ public class RevisionAdjuster extends CDOFeatureDeltaVisitorImpl
       {
         int index = indices[i];
         Object value = list.get(index);
-        if (value != null && !(value instanceof CDOElementProxy))
+        if (value instanceof CDOID)
         {
-          value = referenceAdjuster.adjustReference(value);
+          value = referenceAdjuster.adjustReference((CDOID)value);
           list.set(index, value);
         }
       }

@@ -507,7 +507,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
       Object value = folderRevision.data().get(nodesFeature, i);
       value = getStore().resolveProxy(folderRevision, nodesFeature, i, value);
 
-      CDORevision childRevision = getLocalRevision((CDOID)convertObjectToID(value));
+      CDORevision childRevision = getLocalRevision(convertObjectToID(value));
       if (name.equals(childRevision.data().get(nameFeature, 0)))
       {
         return childRevision.getID();
@@ -850,7 +850,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
   {
     EAttribute nameFeature = EresourcePackage.eINSTANCE.getCDOResourceNode_Name();
 
-    CDOID folderID = (CDOID)revision.data().getContainerID();
+    CDOID folderID = revision.data().getContainerID();
     String name = (String)revision.data().get(nameFeature, 0);
     if (CDOIDUtil.isNull(folderID))
     {
@@ -926,7 +926,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
         Messages.getString("CDOViewImpl.16"), idOrObject.getClass().getName())); //$NON-NLS-1$
   }
 
-  public Object convertObjectToID(Object potentialObject)
+  public CDOID convertObjectToID(Object potentialObject)
   {
     return convertObjectToID(potentialObject, false);
   }
@@ -934,11 +934,11 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
   /**
    * @since 2.0
    */
-  public Object convertObjectToID(Object potentialObject, boolean onlyPersistedID)
+  public CDOID convertObjectToID(Object potentialObject, boolean onlyPersistedID)
   {
     if (potentialObject instanceof CDOID)
     {
-      return potentialObject;
+      return (CDOID)potentialObject;
     }
 
     if (potentialObject instanceof InternalEObject)
@@ -975,7 +975,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
       }
     }
 
-    return potentialObject;
+    return null;
   }
 
   private CDOID getID(InternalCDOObject object, boolean onlyPersistedID)

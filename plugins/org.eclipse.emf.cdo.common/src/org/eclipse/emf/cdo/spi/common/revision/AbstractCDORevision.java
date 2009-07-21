@@ -74,7 +74,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
 
   private CDOID resourceID;
 
-  private Object containerID;
+  private CDOID containerID;
 
   private int containingFeatureID;
 
@@ -396,12 +396,18 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     this.resourceID = resourceID;
   }
 
-  public Object getContainerID()
+  /**
+   * @since 3.0
+   */
+  public CDOID getContainerID()
   {
     return containerID;
   }
 
-  public void setContainerID(Object containerID)
+  /**
+   * @since 3.0
+   */
+  public void setContainerID(CDOID containerID)
   {
     if (TRACER.isEnabled())
     {
@@ -548,7 +554,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
       TRACER.format("Adjusting references for revision {0}", this);
     }
 
-    resourceID = (CDOID)revisionAdjuster.adjustReference(resourceID);
+    resourceID = revisionAdjuster.adjustReference(resourceID);
     containerID = revisionAdjuster.adjustReference(containerID);
 
     EStructuralFeature[] features = classInfo.getAllPersistentFeatures();
@@ -756,7 +762,10 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     }
   }
 
-  public static Object remapID(Object value, Map<CDOIDTemp, CDOID> idMappings)
+  /**
+   * @since 3.0
+   */
+  public static CDOID remapID(CDOID value, Map<CDOIDTemp, CDOID> idMappings)
   {
     if (value instanceof CDOIDTemp)
     {
