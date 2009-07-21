@@ -19,9 +19,9 @@ import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.internal.net4j.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
-import org.eclipse.net4j.util.collection.MoveableList;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.io.IOException;
@@ -106,7 +106,7 @@ public class LoadChunkRequest extends CDOClientRequest<Object>
   {
     CDOType type = CDOModelUtil.getType(feature);
     Object accessID = null;
-    MoveableList<Object> list = revision.getList(feature);
+    EList<Object> list = revision.getList(feature);
     for (int i = fromIndex; i <= toIndex; i++)
     {
       Object value = type.readValue(in);

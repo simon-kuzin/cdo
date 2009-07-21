@@ -423,15 +423,6 @@ public final class CDOStore implements EStore
         // The EReference condition should be in the CDOType.convertToCDO. Since common package do not have access to
         // InternalCDOView I kept it here.
         value = view.convertObjectToID(value, true);
-        // TTT if (value instanceof InternalEObject)
-        // {
-        // CDOIDDangling id = view.convertDanglingObjectToID(object, feature, (InternalEObject)value);
-        // if (id != null)
-        // {
-        // // TODO assign at once from convertDanglingObjectToID() if dangling IDs are fully implemented
-        // value = id;
-        // }
-        // }
       }
       else if (FeatureMapUtil.isFeatureMap(feature))
       {

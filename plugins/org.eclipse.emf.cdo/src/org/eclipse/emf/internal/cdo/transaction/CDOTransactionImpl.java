@@ -12,6 +12,7 @@
  */
 package org.eclipse.emf.internal.cdo.transaction;
 
+import org.eclipse.emf.cdo.CDOIDDangling;
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.CDOState;
 import org.eclipse.emf.cdo.common.id.CDOID;
@@ -45,6 +46,7 @@ import org.eclipse.emf.cdo.transaction.CDOTransactionStartedEvent;
 import org.eclipse.emf.cdo.util.CDOURIUtil;
 import org.eclipse.emf.cdo.view.CDOViewResourcesEvent;
 
+import org.eclipse.emf.internal.cdo.CDOIDDanglingImpl;
 import org.eclipse.emf.internal.cdo.CDOObjectMerger;
 import org.eclipse.emf.internal.cdo.CDOStateMachine;
 import org.eclipse.emf.internal.cdo.bundle.OM;
@@ -62,8 +64,11 @@ import org.eclipse.net4j.util.om.trace.ContextTracer;
 import org.eclipse.net4j.util.options.OptionsEvent;
 import org.eclipse.net4j.util.transaction.TransactionException;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.spi.cdo.CDOTransactionStrategy;
 import org.eclipse.emf.spi.cdo.InternalCDOObject;
 import org.eclipse.emf.spi.cdo.InternalCDOSession;
@@ -434,7 +439,8 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
       }
       else
       {
-        getRootResource().getContents().add(node);
+        EList<EObject> contents = getRootResource().getContents();
+        contents.add(node);
       }
     }
     else
@@ -545,26 +551,31 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     return null;
   }
 
-  // TTT Map<InternalEObject, CDOIDDanglingImpl> danglingObjects = new HashMap<InternalEObject, CDOIDDanglingImpl>();
-  //
-  // @Override
-  // public CDOIDDangling convertDanglingObjectToID(InternalCDOObject source, EStructuralFeature feature,
-  // InternalEObject target)
-  // {
-  // CDOIDDanglingImpl id;
-  // synchronized (danglingObjects)
-  // {
-  // id = danglingObjects.get(target);
-  // if (id == null)
-  // {
-  // id = new CDOIDDanglingImpl(lastTemporaryID.incrementAndGet(), target);
-  // danglingObjects.put(target, id);
-  // }
-  // }
-  //
-  // id.addReference(source, feature);
-  // return id;
-  // }
+  @Override
+  public Object convertObjectToID(Object potentialObject, boolean onlyPersistedID)
+  {
+    potentialObject = super.convertObjectToID(potentialObject, onlyPersistedID);
+    if (potentialObject instanceof InternalEObject)
+    {
+      InternalEObject target = (InternalEObject)potentialObject;
+      return new CDOIDDanglingImpl(target);
+    }
+
+    return potentialObject;
+  }
+
+  @Override
+  public Object convertIDToObject(Object potentialID)
+  {
+    potentialID = super.convertIDToObject(potentialID);
+    if (potentialID instanceof CDOIDDangling)
+    {
+      CDOIDDangling id = (CDOIDDangling)potentialID;
+      return id.getTarget();
+    }
+
+    return potentialID;
+  }
 
   /**
    * @since 2.0
@@ -607,7 +618,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     checkActive();
     if (hasConflict())
     {
-      throw new TransactionException(Messages.getString("CDOTransactionImpl.2")); //$NON-NLS-1$
+      throw new TransactionException(Messages.getString("CDOTransactionImpl.2"));
     }
 
     if (progressMonitor == null)
@@ -617,7 +628,6 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
 
     try
     {
-      // TTT convertDanglingObjects();
       getTransactionStrategy().commit(this, progressMonitor);
     }
     catch (TransactionException ex)
@@ -634,35 +644,6 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
   {
     commit(null);
   }
-
-  // TTT private void convertDanglingObjects()
-  // {
-  // for (CDOIDDanglingImpl id : danglingObjects.values())
-  // {
-  //
-  // for (Reference reference : id.getReferences())
-  // {
-  // convertDanglingObject(reference.getSourceObject(), reference.getSourceFeature(), id);
-  // }
-  // }
-  // }
-  //
-  // private void convertDanglingObject(CDOObject object, EStructuralFeature feature, CDOIDDangling id)
-  // {
-  // InternalCDORevision revision = (InternalCDORevision)object.cdoRevision();
-  // Object value = revision.getValue(feature);
-  // if (value instanceof List<?>)
-  // {
-  // List<?> list = (List<?>)value;
-  // for (int i = 0; i < list.size(); i++)
-  // {
-  // if (list.get(i) == id)
-  // {
-  //
-  // }
-  // }
-  // }
-  // }
 
   /**
    * @since 2.0
@@ -901,24 +882,24 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
   {
     if (savepoint == null)
     {
-      throw new IllegalArgumentException(Messages.getString("CDOTransactionImpl.3")); //$NON-NLS-1$
+      throw new IllegalArgumentException(Messages.getString("CDOTransactionImpl.3"));
     }
 
     if (savepoint.getUserTransaction() != this)
     {
-      throw new IllegalArgumentException(MessageFormat.format(Messages.getString("CDOTransactionImpl.4"), savepoint)); //$NON-NLS-1$
+      throw new IllegalArgumentException(MessageFormat.format(Messages.getString("CDOTransactionImpl.4"), savepoint));
     }
 
     if (TRACER.isEnabled())
     {
-      TRACER.trace("handleRollback()"); //$NON-NLS-1$
+      TRACER.trace("handleRollback()");
     }
 
     try
     {
       if (!savepoint.isValid())
       {
-        throw new IllegalArgumentException(MessageFormat.format(Messages.getString("CDOTransactionImpl.6"), savepoint)); //$NON-NLS-1$
+        throw new IllegalArgumentException(MessageFormat.format(Messages.getString("CDOTransactionImpl.6"), savepoint));
       }
 
       // Use the state lock since rollback mechanism is playing with EObject and CDORevisions. We do not want to
@@ -1009,14 +990,14 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
   @Override
   public String toString()
   {
-    return MessageFormat.format("CDOTransaction({0})", getViewID()); //$NON-NLS-1$
+    return MessageFormat.format("CDOTransaction({0})", getViewID());
   }
 
   public void registerNew(InternalCDOObject object)
   {
     if (TRACER.isEnabled())
     {
-      TRACER.format("Registering new object {0}", object); //$NON-NLS-1$
+      TRACER.format("Registering new object {0}", object);
     }
 
     registerNewPackage(object.eClass().getEPackage());
@@ -1093,7 +1074,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
   {
     if (TRACER.isEnabled())
     {
-      TRACER.format("Registering dirty object {0}", object); //$NON-NLS-1$
+      TRACER.format("Registering dirty object {0}", object);
     }
 
     if (featureDelta != null)
@@ -1113,7 +1094,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     Object old = map.put(object.cdoID(), object);
     if (old != null)
     {
-      throw new ImplementationError(MessageFormat.format(Messages.getString("CDOTransactionImpl.10"), object)); //$NON-NLS-1$
+      throw new ImplementationError(MessageFormat.format(Messages.getString("CDOTransactionImpl.10"), object));
     }
 
     if (!dirty)
@@ -1179,7 +1160,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
         CDOPackageUnit packageUnit = packageRegistry.getPackageUnit(usedPackage);
         if (packageUnit == null)
         {
-          throw new CDOException(MessageFormat.format(Messages.getString("CDOTransactionImpl.11"), usedPackage)); //$NON-NLS-1$
+          throw new CDOException(MessageFormat.format(Messages.getString("CDOTransactionImpl.11"), usedPackage));
         }
 
         if (packageUnit.getState() == CDOPackageUnit.State.NEW)
@@ -1327,7 +1308,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
       {
         if (TRACER.isEnabled())
         {
-          TRACER.trace("commit()"); //$NON-NLS-1$
+          TRACER.trace("commit()");
         }
 
         for (CDOTransactionHandler handler : getHandlers())
@@ -1471,7 +1452,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     @Override
     public String toString()
     {
-      return MessageFormat.format("CDOTransactionStartedEvent[source={0}]", getSource()); //$NON-NLS-1$
+      return MessageFormat.format("CDOTransactionStartedEvent[source={0}]", getSource());
     }
   }
 
@@ -1505,7 +1486,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     @Override
     public String toString()
     {
-      return MessageFormat.format("CDOTransactionFinishedEvent[source={0}, type={1}, idMappings={2}]", getSource(), //$NON-NLS-1$
+      return MessageFormat.format("CDOTransactionFinishedEvent[source={0}, type={1}, idMappings={2}]", getSource(),
           getType(), idMappings == null ? 0 : idMappings.size());
     }
   }
@@ -1540,7 +1521,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     @Override
     public String toString()
     {
-      return MessageFormat.format("CDOTransactionConflictEvent[source={0}, conflictingObject={1}, firstConflict={2}]", //$NON-NLS-1$
+      return MessageFormat.format("CDOTransactionConflictEvent[source={0}, conflictingObject={1}, firstConflict={2}]",
           getSource(), getConflictingObject(), isFirstConflict());
     }
   }
@@ -1575,7 +1556,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     @Override
     public String toString()
     {
-      return MessageFormat.format("CDOViewResourcesEvent[source={0}, {1}={2}]", getSource(), resourcePath, kind); //$NON-NLS-1$
+      return MessageFormat.format("CDOViewResourcesEvent[source={0}, {1}={2}]", getSource(), resourcePath, kind);
     }
   }
 
@@ -1679,7 +1660,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     {
       if (resolver.getTransaction() != null)
       {
-        throw new IllegalArgumentException(Messages.getString("CDOTransactionImpl.17")); //$NON-NLS-1$
+        throw new IllegalArgumentException(Messages.getString("CDOTransactionImpl.17"));
       }
 
       resolver.setTransaction(CDOTransactionImpl.this);

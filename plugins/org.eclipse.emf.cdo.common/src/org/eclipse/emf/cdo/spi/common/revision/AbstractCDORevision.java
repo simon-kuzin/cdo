@@ -33,12 +33,13 @@ import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDeltaUtil;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.internal.common.messages.Messages;
 
-import org.eclipse.net4j.util.collection.MoveableList;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 import org.eclipse.net4j.util.om.trace.PerfTracer;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.util.FeatureMap;
@@ -616,6 +617,8 @@ public abstract class AbstractCDORevision implements InternalCDORevision
 
   protected Object basicSet(EStructuralFeature feature, Object value)
   {
+    // TTT
+    checkNotDangling(this, feature.getName(), value);
     int featureIndex = classInfo.getFeatureIndex(feature);
 
     try
@@ -631,6 +634,18 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     }
   }
 
+  /**
+   * @since 3.0
+   */
+  // TTT
+  public static void checkNotDangling(CDORevision revision, String feature, Object value)
+  {
+    if (value instanceof EObject)
+    {
+      throw new IllegalArgumentException("DANGLING OBJECT: " + revision + "[" + feature + "] --> " + value);
+    }
+  }
+
   public CDOList getList(EStructuralFeature feature)
   {
     return getList(feature, 0);
@@ -643,6 +658,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     if (list == null && size != -1)
     {
       list = CDOListFactory.DEFAULT.createList(size, 0, 0);
+      list.setRevision(this);
       setValue(featureIndex, list);
     }
 
@@ -657,7 +673,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
 
   public void setListSize(EStructuralFeature feature, int size)
   {
-    MoveableList<Object> list = getList(feature, size);
+    EList<Object> list = getList(feature, size);
     for (int j = list.size(); j < size; j++)
     {
       list.add(InternalCDOList.UNINITIALIZED);

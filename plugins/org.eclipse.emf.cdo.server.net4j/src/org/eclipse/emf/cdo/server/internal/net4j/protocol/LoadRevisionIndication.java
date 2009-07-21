@@ -22,9 +22,9 @@ import org.eclipse.emf.cdo.server.internal.net4j.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
 
-import org.eclipse.net4j.util.collection.MoveableList;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
@@ -195,7 +195,7 @@ public class LoadRevisionIndication extends CDOReadIndication
     {
       if (feature.isMany())
       {
-        MoveableList<Object> list = revision.getList(feature);
+        EList<Object> list = revision.getList(feature);
         int toIndex = Math.min(loadRevisionCollectionChunkSize, list.size()) - 1;
         for (int i = 0; i <= toIndex; i++)
         {

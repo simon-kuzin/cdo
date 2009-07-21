@@ -41,7 +41,7 @@ public class CDOListWithElementProxiesImpl extends CDOListImpl
     super(initialCapacity, initialChunk);
     for (int j = initialChunk; j < size; j++)
     {
-      this.add(new CDOElementProxyImpl(j));
+      add(new CDOElementProxyImpl(j));
     }
   }
 
@@ -54,7 +54,6 @@ public class CDOListWithElementProxiesImpl extends CDOListImpl
     }
 
     Object element = super.get(index);
-
     return element instanceof CDOElementProxy ? UNINITIALIZED : element;
   }
 

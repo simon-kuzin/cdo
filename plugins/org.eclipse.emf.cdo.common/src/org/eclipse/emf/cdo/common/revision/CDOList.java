@@ -4,20 +4,20 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Simon McDuff - initial API and implementation
  *    Eike Stepper - maintenance
  */
 package org.eclipse.emf.cdo.common.revision;
 
-import org.eclipse.net4j.util.collection.MoveableList;
+import org.eclipse.emf.common.util.EList;
 
 /**
  * @author Simon McDuff
  * @since 2.0
  */
-public interface CDOList extends MoveableList<Object>
+public interface CDOList extends EList<Object>
 {
   /**
    * Returns the element at position index of this list and optionally resolves {@link CDOElementProxy proxies}.
@@ -31,4 +31,10 @@ public interface CDOList extends MoveableList<Object>
    *          {@link CDOList#get(int)}.
    */
   public Object get(int index, boolean resolve);
+
+  /**
+   * @since 3.0
+   */
+  // TTT
+  public void setRevision(CDORevision revision);
 }

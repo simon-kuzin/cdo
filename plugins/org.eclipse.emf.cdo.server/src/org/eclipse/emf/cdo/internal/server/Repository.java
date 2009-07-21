@@ -50,7 +50,6 @@ import org.eclipse.emf.cdo.spi.server.InternalSessionManager;
 
 import org.eclipse.net4j.util.StringUtil;
 import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
-import org.eclipse.net4j.util.collection.MoveableList;
 import org.eclipse.net4j.util.concurrent.ConcurrencyUtil;
 import org.eclipse.net4j.util.container.Container;
 import org.eclipse.net4j.util.container.IPluginContainer;
@@ -58,6 +57,7 @@ import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 import org.eclipse.net4j.util.om.monitor.Monitor;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
@@ -287,7 +287,7 @@ public class Repository extends Container<Object> implements InternalRepository
       EStructuralFeature feature = features[i];
       if (feature.isMany())
       {
-        MoveableList<Object> list = revision.getList(feature);
+        EList<Object> list = revision.getList(feature);
         int chunkEnd = Math.min(referenceChunk, list.size());
         accessor = ensureChunk(revision, feature, accessor, list, 0, chunkEnd);
       }
@@ -297,13 +297,13 @@ public class Repository extends Container<Object> implements InternalRepository
   public IStoreAccessor ensureChunk(InternalCDORevision revision, EStructuralFeature feature, int chunkStart,
       int chunkEnd)
   {
-    MoveableList<Object> list = revision.getList(feature);
+    EList<Object> list = revision.getList(feature);
     chunkEnd = Math.min(chunkEnd, list.size());
     return ensureChunk(revision, feature, StoreThreadLocal.getAccessor(), list, chunkStart, chunkEnd);
   }
 
   protected IStoreAccessor ensureChunk(InternalCDORevision revision, EStructuralFeature feature,
-      IStoreAccessor accessor, MoveableList<Object> list, int chunkStart, int chunkEnd)
+      IStoreAccessor accessor, EList<Object> list, int chunkStart, int chunkEnd)
   {
     IStoreChunkReader chunkReader = null;
     int fromIndex = -1;

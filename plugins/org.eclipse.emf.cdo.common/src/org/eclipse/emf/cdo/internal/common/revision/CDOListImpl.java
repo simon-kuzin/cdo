@@ -16,23 +16,39 @@ import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDOListFactory;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
+import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.spi.common.revision.AbstractCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDOList;
 
-import org.eclipse.net4j.util.collection.MoveableArrayList;
-
+import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 /**
  * @author Simon McDuff
  */
-public class CDOListImpl extends MoveableArrayList<Object> implements InternalCDOList
+public class CDOListImpl extends BasicEList<Object> implements InternalCDOList
 {
   public static final CDOListFactory FACTORY = new CDOListFactory()
   {
     public CDOList createList(int initialCapacity, int size, int initialChunk)
     {
-      return new CDOListImpl(initialCapacity, size);
+      return new CDOListImpl(initialCapacity, size)
+      {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        protected Object validate(int index, Object object)
+        {
+          // TTT
+          if (revision != null)
+          {
+            AbstractCDORevision.checkNotDangling(revision, "index=" + index, object);
+          }
+
+          return super.validate(index, object);
+        }
+      };
     }
   };
 
@@ -59,6 +75,15 @@ public class CDOListImpl extends MoveableArrayList<Object> implements InternalCD
     }
 
     return list;
+  }
+
+  // TTT
+  protected CDORevision revision;
+
+  // TTT
+  public void setRevision(CDORevision revision)
+  {
+    this.revision = revision;
   }
 
   public Object get(int index, boolean resolve)

@@ -33,9 +33,9 @@ import org.eclipse.net4j.db.DBUtil;
 import org.eclipse.net4j.db.ddl.IDBField;
 import org.eclipse.net4j.db.ddl.IDBTable;
 import org.eclipse.net4j.db.ddl.IDBIndex.Type;
-import org.eclipse.net4j.util.collection.MoveableList;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
@@ -224,7 +224,7 @@ public abstract class AbstractListTableMapping implements IListMapping
 
   public void readValues(IDBStoreAccessor accessor, InternalCDORevision revision, int listChunk)
   {
-    MoveableList<Object> list = revision.getList(getFeature());
+    EList<Object> list = revision.getList(getFeature());
     int listSize = -1;
 
     if (listChunk != CDORevision.UNCHUNKED)

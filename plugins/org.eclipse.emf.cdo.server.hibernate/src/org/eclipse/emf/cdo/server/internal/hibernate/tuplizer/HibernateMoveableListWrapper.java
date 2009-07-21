@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Martin Taal - initial api
  *    Eike Stepper - maintenance
@@ -18,7 +18,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.internal.hibernate.HibernateUtil;
 
-import org.eclipse.net4j.util.collection.MoveableList;
+import org.eclipse.emf.common.util.EList;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,12 +33,17 @@ import java.util.ListIterator;
  * 
  * @author Martin Taal
  */
-public class HibernateMoveableListWrapper implements List<Object>, MoveableList<Object>
+public class HibernateMoveableListWrapper implements EList<Object>
 {
   private List<Object> delegate;
 
   public HibernateMoveableListWrapper()
   {
+  }
+
+  public void move(int newPosition, Object object)
+  {
+    move(newPosition, indexOf(object));
   }
 
   public Object move(int targetIndex, int sourceIndex)

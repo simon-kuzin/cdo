@@ -342,22 +342,6 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, Revision
       idMappings.put(oldID, newID);
     }
 
-    // /**
-    // * @since 3.0
-    // */
-    // public List<CDOIDMetaRange> getMetaIDRanges()
-    // {
-    // return metaIDRanges;
-    // }
-    //
-    // /**
-    // * @since 3.0
-    // */
-    // public void addMetaIDRange(CDOIDMetaRange metaIDRange)
-    // {
-    // metaIDRanges.add(metaIDRange);
-    // }
-
     protected PostCommitReferenceAdjuster createReferenceAdjuster()
     {
       return new PostCommitReferenceAdjuster(commitContext.getTransaction(), new CDOIDMapper(idMappings));

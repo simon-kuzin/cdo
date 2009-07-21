@@ -978,12 +978,6 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     return potentialObject;
   }
 
-  // TTT public CDOIDDangling convertDanglingObjectToID(InternalCDOObject source, EStructuralFeature feature,
-  // InternalEObject target)
-  // {
-  // throw new IllegalStateException("Dangling objects not possible outside of a transaction");
-  // }
-
   private CDOID getID(InternalCDOObject object, boolean onlyPersistedID)
   {
     if (onlyPersistedID)

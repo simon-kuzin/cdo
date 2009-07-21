@@ -90,6 +90,12 @@ public class CDOClassInfoImpl extends AdapterImpl implements CDOClassInfo
     return featureIDMappings[featureID];
   }
 
+  @Override
+  public String toString()
+  {
+    return getEClass().getName();
+  }
+
   private void init(EClass eClass)
   {
     int maxID = 0;

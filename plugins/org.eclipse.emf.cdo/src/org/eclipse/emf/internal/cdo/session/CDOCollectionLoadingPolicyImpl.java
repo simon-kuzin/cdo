@@ -16,8 +16,7 @@ import org.eclipse.emf.cdo.session.CDOCollectionLoadingPolicy;
 import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
-import org.eclipse.net4j.util.collection.MoveableList;
-
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.spi.cdo.CDOElementProxy;
 import org.eclipse.emf.spi.cdo.CDOSessionProtocol;
@@ -63,7 +62,7 @@ public class CDOCollectionLoadingPolicyImpl implements CDOCollectionLoadingPolic
       chunkSize = Integer.MAX_VALUE;
     }
 
-    MoveableList<Object> list = revision.getList(feature);
+    EList<Object> list = revision.getList(feature);
     int size = list.size();
     int fromIndex = accessIndex;
     int toIndex = accessIndex;

@@ -45,6 +45,16 @@ public class WrappedHibernateList implements InternalCDOList
   {
   }
 
+  // TTT
+  public void setRevision(CDORevision revision)
+  {
+  }
+
+  public void move(int newPosition, Object object)
+  {
+    move(newPosition, indexOf(object));
+  }
+
   public Object move(int targetIndex, int sourceIndex)
   {
     int size = size();

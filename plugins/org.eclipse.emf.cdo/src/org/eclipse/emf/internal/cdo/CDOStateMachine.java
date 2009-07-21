@@ -98,7 +98,7 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
     init(CDOState.NEW, CDOEvent.INVALIDATE, FAIL);
     init(CDOState.NEW, CDOEvent.DETACH_REMOTE, FAIL);
     init(CDOState.NEW, CDOEvent.RELOAD, FAIL);
-    init(CDOState.NEW, CDOEvent.COMMIT, new CommitTransition(false));
+    init(CDOState.NEW, CDOEvent.COMMIT, new CommitTransition());
     init(CDOState.NEW, CDOEvent.ROLLBACK, FAIL);
 
     init(CDOState.CLEAN, CDOEvent.PREPARE, FAIL);
@@ -120,7 +120,7 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
     init(CDOState.DIRTY, CDOEvent.INVALIDATE, new ConflictTransition());
     init(CDOState.DIRTY, CDOEvent.DETACH_REMOTE, new InvalidConflictTransition());
     init(CDOState.DIRTY, CDOEvent.RELOAD, new ReloadTransition());
-    init(CDOState.DIRTY, CDOEvent.COMMIT, new CommitTransition(true));
+    init(CDOState.DIRTY, CDOEvent.COMMIT, new CommitTransition());
     init(CDOState.DIRTY, CDOEvent.ROLLBACK, new RollbackTransition());
 
     init(CDOState.PROXY, CDOEvent.PREPARE, FAIL);
@@ -682,13 +682,9 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
   /**
    * @author Eike Stepper
    */
-  final private class CommitTransition implements
+  private final class CommitTransition implements
       ITransition<CDOState, CDOEvent, InternalCDOObject, CommitTransactionResult>
   {
-    public CommitTransition(boolean useDeltas)
-    {
-    }
-
     public void execute(InternalCDOObject object, CDOState state, CDOEvent event, CommitTransactionResult data)
     {
       InternalCDOView view = object.cdoView();
@@ -800,7 +796,7 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
   /**
    * @author Simon McDuff
    */
-  static private class DetachRemoteTransition implements ITransition<CDOState, CDOEvent, InternalCDOObject, Object>
+  private static class DetachRemoteTransition implements ITransition<CDOState, CDOEvent, InternalCDOObject, Object>
   {
     static DetachRemoteTransition INSTANCE = new DetachRemoteTransition();
 

@@ -22,9 +22,9 @@ import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
 import org.eclipse.emf.cdo.spi.server.InternalRepository;
 
-import org.eclipse.net4j.util.collection.MoveableList;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
@@ -98,7 +98,7 @@ public class LoadChunkIndication extends CDOReadIndication
     repository.ensureChunk(revision, feature, fromIndex, toIndex + 1);
 
     CDOType type = CDOModelUtil.getType(feature);
-    MoveableList<Object> list = revision.getList(feature);
+    EList<Object> list = revision.getList(feature);
     for (int i = fromIndex; i <= toIndex; i++)
     {
       type.writeValue(out, list.get(i));
