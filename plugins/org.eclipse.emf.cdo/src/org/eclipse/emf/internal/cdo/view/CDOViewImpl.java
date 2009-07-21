@@ -495,14 +495,14 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     for (int i = 0; i < size; i++)
     {
       Object value = folderRevision.data().get(nodesFeature, i);
+      if (value == null)
+      {
+        throw new IllegalStateException("Node " + i + " is null: " + folderRevision);
+      }
+
       value = getStore().resolveProxy(folderRevision, nodesFeature, i, value);
 
       CDOID id = (CDOID)convertObjectToID(value);
-      if (CDOIDUtil.isNull(id))
-      {
-        System.out.println(value);
-      }
-
       CDORevision childRevision = getLocalRevision(id);
       if (name.equals(childRevision.data().get(nameFeature, 0)))
       {

@@ -44,6 +44,14 @@ public class CDOListImpl extends BasicEList<Object> implements InternalCDOList
           if (revision != null)
           {
             AbstractCDORevision.checkNotDangling(revision, "index=" + index, object);
+            if ("CDOResourceFolder".equals(revision.getEClass().getName()))
+            {
+              if (object == null)
+              {
+                throw new IllegalArgumentException("Node " + index + " is null: " + revision);
+              }
+            }
+
           }
 
           return super.validate(index, object);
