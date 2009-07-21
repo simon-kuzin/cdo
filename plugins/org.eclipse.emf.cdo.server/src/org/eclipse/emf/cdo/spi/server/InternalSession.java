@@ -13,7 +13,6 @@ package org.eclipse.emf.cdo.spi.server;
 import org.eclipse.emf.cdo.common.CDOCommonSession;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
-import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
@@ -28,7 +27,7 @@ import java.util.Set;
  * @author Eike Stepper
  * @since 3.0
  */
-public interface InternalSession extends ISession, CDOIDProvider, CDOCommonSession.Options
+public interface InternalSession extends ISession, CDOCommonSession.Options
 {
   public InternalSessionManager getManager();
 

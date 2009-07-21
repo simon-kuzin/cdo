@@ -4,13 +4,12 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Simon McDuff - initial API and implementation
  **************************************************************************/
 package org.eclipse.emf.cdo.internal.net4j.protocol;
 
-import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
@@ -35,12 +34,6 @@ public class CommitTransactionPhase1Request extends CommitTransactionRequest
   public CommitTransactionPhase1Request(CDOClientProtocol protocol, InternalCDOXACommitContext xaContext)
   {
     super(protocol, CDOProtocolConstants.SIGNAL_COMMIT_TRANSACTION_PHASE1, xaContext);
-  }
-
-  @Override
-  protected CDOIDProvider getIDProvider()
-  {
-    return (CDOIDProvider)commitContext;
   }
 
   @Override

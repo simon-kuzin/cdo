@@ -19,7 +19,6 @@ import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
 
 import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.util.FeatureMap;
 import org.eclipse.emf.ecore.util.FeatureMapUtil;
@@ -76,11 +75,6 @@ public abstract class CDOSingleValueFeatureDeltaImpl extends CDOFeatureDeltaImpl
 
       int featureID = eClass.getFeatureID(feature);
       out.writeInt(featureID);
-    }
-
-    if (valueToWrite != null && feature instanceof EReference)
-    {
-      valueToWrite = out.getIDProvider().provideCDOID(newValue);
     }
 
     out.writeCDOFeatureValue(feature, valueToWrite);

@@ -4,13 +4,12 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Eike Stepper - initial API and implementation
  **************************************************************************/
 package org.eclipse.emf.spi.cdo;
 
-import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.internal.common.id.CDOIDTempObjectExternalImpl;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.cdo.transaction.CDOXATransaction;
@@ -33,7 +32,7 @@ public interface InternalCDOXATransaction extends CDOXATransaction
    * @author Eike Stepper
    * @since 2.0
    */
-  public interface InternalCDOXACommitContext extends Callable<Object>, CDOIDProvider, InternalCDOCommitContext
+  public interface InternalCDOXACommitContext extends Callable<Object>, InternalCDOCommitContext
   {
     public InternalCDOXATransaction getTransactionManager();
 

@@ -93,7 +93,7 @@ public class CDOContainerFeatureDeltaImpl extends CDOFeatureDeltaImpl implements
   {
     out.writeInt(getType().ordinal());
     out.writeInt(newContainerFeatureID);
-    out.writeCDOID(out.getIDProvider().provideCDOID(newContainerID));
+    out.writeCDOID(newContainerID);
     out.writeCDOID(newResourceID);
   }
 

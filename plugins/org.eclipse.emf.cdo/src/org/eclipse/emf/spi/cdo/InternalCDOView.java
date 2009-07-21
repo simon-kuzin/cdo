@@ -13,7 +13,6 @@ package org.eclipse.emf.spi.cdo;
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
-import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.eresource.impl.CDOResourceImpl;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
@@ -37,7 +36,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Eike Stepper
  * @since 2.0
  */
-public interface InternalCDOView extends CDOView, CDOIDProvider, ILifecycle
+public interface InternalCDOView extends CDOView, ILifecycle
 {
   public void setViewID(int viewId);
 

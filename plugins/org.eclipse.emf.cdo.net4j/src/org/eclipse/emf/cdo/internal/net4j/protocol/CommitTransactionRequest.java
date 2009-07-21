@@ -16,7 +16,6 @@ package org.eclipse.emf.cdo.internal.net4j.protocol;
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
-import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
@@ -90,11 +89,6 @@ public class CommitTransactionRequest extends RequestWithMonitoring<CommitTransa
     return (InternalCDOSession)getProtocol().getSession();
   }
 
-  protected CDOIDProvider getIDProvider()
-  {
-    return commitContext.getTransaction();
-  }
-
   @Override
   protected final void requesting(ExtendedDataOutputStream out, OMMonitor monitor) throws Exception
   {
@@ -103,11 +97,6 @@ public class CommitTransactionRequest extends RequestWithMonitoring<CommitTransa
       public CDOPackageRegistry getPackageRegistry()
       {
         return getSession().getPackageRegistry();
-      }
-
-      public CDOIDProvider getIDProvider()
-      {
-        return CommitTransactionRequest.this.getIDProvider();
       }
 
       @Override

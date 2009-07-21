@@ -336,14 +336,12 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
       for (CDOResource resource : nr)
       {
         InternalCDORevision revision = (InternalCDORevision)resource.cdoRevision();
-        revision.convertEObjects(clientTransaction);
         array[index++] = revision;
       }
 
       for (CDOObject object : no)
       {
         InternalCDORevision revision = (InternalCDORevision)object.cdoRevision();
-        revision.convertEObjects(clientTransaction);
         array[index++] = revision;
       }
 

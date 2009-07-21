@@ -13,7 +13,6 @@ package org.eclipse.emf.cdo.internal.common.io;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
-import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
@@ -44,7 +43,6 @@ import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
-import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.util.FeatureMap;
 import org.eclipse.emf.ecore.util.FeatureMapUtil;
@@ -226,7 +224,6 @@ public abstract class CDODataOutputImpl extends ExtendedDataOutput.Delegating im
       writeInt(size);
     }
 
-    CDOIDProvider idProvider = getIDProvider();
     boolean isFeatureMap = FeatureMapUtil.isFeatureMap(feature);
     for (int j = 0; j < size; j++)
     {
@@ -240,11 +237,6 @@ public abstract class CDODataOutputImpl extends ExtendedDataOutput.Delegating im
 
         int featureID = owner.getFeatureID(innerFeature);
         writeInt(featureID);
-      }
-
-      if (value != null && innerFeature instanceof EReference)
-      {
-        value = idProvider.provideCDOID(value);
       }
 
       if (TRACER.isEnabled())

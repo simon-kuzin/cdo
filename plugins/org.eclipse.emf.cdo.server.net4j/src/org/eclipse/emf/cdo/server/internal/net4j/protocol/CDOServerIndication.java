@@ -11,7 +11,6 @@
  */
 package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
-import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
@@ -114,11 +113,6 @@ public abstract class CDOServerIndication extends IndicationWithResponse
       public CDOPackageRegistry getPackageRegistry()
       {
         return getRepository().getPackageRegistry();
-      }
-
-      public CDOIDProvider getIDProvider()
-      {
-        return getSession();
       }
 
       @Override

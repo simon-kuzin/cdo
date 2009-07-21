@@ -317,11 +317,6 @@ public class Session extends Container<IView> implements InternalSession
     protocol.sendCommitNotification(timeStamp, packageUnits, dirtyIDs, detachedObjects, newDeltas);
   }
 
-  public CDOID provideCDOID(Object idObject)
-  {
-    return (CDOID)idObject;
-  }
-
   /**
    * TODO I can't see how recursion is controlled/limited
    * 

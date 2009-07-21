@@ -11,7 +11,6 @@
  **************************************************************************/
 package org.eclipse.emf.cdo.internal.net4j.protocol;
 
-import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
@@ -60,11 +59,6 @@ public abstract class CDOClientRequest<RESULT> extends RequestWithConfirmation<R
       public CDOPackageRegistry getPackageRegistry()
       {
         return getSession().getPackageRegistry();
-      }
-
-      public CDOIDProvider getIDProvider()
-      {
-        throw new UnsupportedOperationException();
       }
 
       @Override

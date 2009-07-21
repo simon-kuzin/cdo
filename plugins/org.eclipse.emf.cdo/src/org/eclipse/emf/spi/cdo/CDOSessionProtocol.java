@@ -14,7 +14,6 @@ import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.CDOCommonView;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
-import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocol;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
@@ -32,7 +31,6 @@ import org.eclipse.net4j.util.concurrent.IRWLockManager.LockType;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 
 import org.eclipse.emf.ecore.EStructuralFeature;
-import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.spi.cdo.InternalCDOTransaction.InternalCDOCommitContext;
 import org.eclipse.emf.spi.cdo.InternalCDOXATransaction.InternalCDOXACommitContext;
 
@@ -344,7 +342,7 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, Revision
 
     protected PostCommitReferenceAdjuster createReferenceAdjuster()
     {
-      return new PostCommitReferenceAdjuster(commitContext.getTransaction(), new CDOIDMapper(idMappings));
+      return new PostCommitReferenceAdjuster(new CDOIDMapper(idMappings));
     }
 
     /**
@@ -352,19 +350,14 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, Revision
      */
     protected static class PostCommitReferenceAdjuster implements CDOReferenceAdjuster
     {
-      private CDOIDProvider idProvider;
-
       private CDOIDMapper idMapper;
 
-      public PostCommitReferenceAdjuster(CDOIDProvider idProvider, CDOIDMapper idMapper)
+      /**
+       * @since 3.0
+       */
+      public PostCommitReferenceAdjuster(CDOIDMapper idMapper)
       {
-        this.idProvider = idProvider;
         this.idMapper = idMapper;
-      }
-
-      public CDOIDProvider getIdProvider()
-      {
-        return idProvider;
       }
 
       public CDOIDMapper getIdMapper()
@@ -380,11 +373,6 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, Revision
         if (id == null || id == CDOID.NULL)
         {
           return id;
-        }
-
-        if (idProvider != null && (id instanceof CDOID || id instanceof InternalEObject))
-        {
-          id = idProvider.provideCDOID(id);
         }
 
         return idMapper.adjustReference(id);

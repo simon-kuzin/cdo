@@ -10,7 +10,6 @@
  */
 package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
-import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.internal.common.io.CDODataOutputImpl;
@@ -59,11 +58,6 @@ public abstract class CDOServerRequest extends Request
       protected StringIO getPackageURICompressor()
       {
         return getProtocol().getPackageURICompressor();
-      }
-
-      public CDOIDProvider getIDProvider()
-      {
-        return getSession();
       }
     });
   }

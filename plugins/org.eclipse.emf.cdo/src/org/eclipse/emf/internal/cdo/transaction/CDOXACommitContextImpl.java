@@ -140,10 +140,11 @@ public class CDOXACommitContextImpl implements InternalCDOXACommitContext
     return true;
   }
 
+  @Deprecated
   public CDOID provideCDOID(Object idOrObject)
   {
-    CDOID id = getTransaction().provideCDOID(idOrObject);
-
+    // TODO Check / remove this method!!!
+    CDOID id = (CDOID)idOrObject;
     if (id instanceof CDOIDTempObjectExternalImpl)
     {
       if (idOrObject instanceof InternalEObject)

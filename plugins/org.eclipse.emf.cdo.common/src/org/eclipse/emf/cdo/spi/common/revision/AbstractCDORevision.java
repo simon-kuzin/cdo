@@ -14,7 +14,6 @@
 package org.eclipse.emf.cdo.spi.common.revision;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
@@ -42,9 +41,7 @@ import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
-import org.eclipse.emf.ecore.util.FeatureMap;
 import org.eclipse.emf.ecore.util.FeatureMapUtil;
-import org.eclipse.emf.ecore.util.FeatureMap.Entry;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -169,69 +166,10 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     }
 
     out.writeCDOID(resourceID);
-    out.writeCDOID(out.getIDProvider().provideCDOID(containerID));
+    out.writeCDOID(containerID);
     out.writeInt(containingFeatureID);
     writeValues(out, referenceChunk);
     WRITING.stop(this);
-  }
-
-  /**
-   * @see #write(CDODataOutput, int)
-   * @since 3.0
-   */
-  public void convertEObjects(CDOIDProvider idProvider)
-  {
-    if (!(containerID instanceof CDOID))
-    {
-      containerID = idProvider.provideCDOID(containerID);
-    }
-
-    EStructuralFeature[] features = classInfo.getAllPersistentFeatures();
-    for (int i = 0; i < features.length; i++)
-    {
-      EStructuralFeature feature = features[i];
-      if (feature.isMany())
-      {
-        CDOList list = getValueAsList(i);
-        if (list != null)
-        {
-          boolean isFeatureMap = FeatureMapUtil.isFeatureMap(feature);
-          for (int j = 0; j < list.size(); j++)
-          {
-            Object value = list.get(j, false);
-            EStructuralFeature innerFeature = feature; // Prepare for possible feature map
-            if (isFeatureMap)
-            {
-              Entry entry = (FeatureMap.Entry)value;
-              innerFeature = entry.getEStructuralFeature();
-              value = entry.getValue();
-            }
-
-            if (value != null && innerFeature instanceof EReference)
-            {
-              CDOID newValue = idProvider.provideCDOID(value);
-              if (newValue != value)
-              {
-                list.set(j, newValue);
-              }
-            }
-          }
-        }
-      }
-      else
-      {
-        checkNoFeatureMap(feature);
-        Object value = getValue(i);
-        if (value != null && feature instanceof EReference)
-        {
-          CDOID newValue = idProvider.provideCDOID(value);
-          if (newValue != value)
-          {
-            setValue(i, newValue);
-          }
-        }
-      }
-    }
   }
 
   public EClass getEClass()
@@ -739,11 +677,6 @@ public abstract class AbstractCDORevision implements InternalCDORevision
       {
         checkNoFeatureMap(feature);
         Object value = getValue(i);
-        if (value != null && feature instanceof EReference)
-        {
-          value = out.getIDProvider().provideCDOID(value);
-        }
-
         if (TRACER.isEnabled())
         {
           TRACER.format("Writing feature {0}: {1}", feature.getName(), value);

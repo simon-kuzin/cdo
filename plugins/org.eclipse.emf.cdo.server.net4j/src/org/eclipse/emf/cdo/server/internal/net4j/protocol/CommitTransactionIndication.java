@@ -14,7 +14,6 @@ package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
-import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
@@ -288,11 +287,6 @@ public class CommitTransactionIndication extends IndicationWithMonitoring
       public CDOPackageRegistry getPackageRegistry()
       {
         return commitContext.getPackageRegistry();
-      }
-
-      public CDOIDProvider getIDProvider()
-      {
-        return CommitTransactionIndication.this.getSession();
       }
 
       @Override
