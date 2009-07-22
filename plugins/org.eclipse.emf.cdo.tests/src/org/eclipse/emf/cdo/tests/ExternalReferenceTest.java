@@ -146,7 +146,7 @@ public class ExternalReferenceTest extends AbstractCDOTest
     }
   }
 
-  public void testOneXMIResourceManyViewsOnOneResourceSet() throws Exception
+  public void testOneXMIResourceManyViewsOnOneResourceSet_XA() throws Exception
   {
     byte[] dataOfresD = null;
     getRepository(REPOSITORY2_NAME);
@@ -252,7 +252,7 @@ public class ExternalReferenceTest extends AbstractCDOTest
     }
   }
 
-  public void testManyViewsOnOneResourceSet() throws Exception
+  public void testManyViewsOnOneResourceSet_XA() throws Exception
   {
     getRepository(REPOSITORY2_NAME);
 

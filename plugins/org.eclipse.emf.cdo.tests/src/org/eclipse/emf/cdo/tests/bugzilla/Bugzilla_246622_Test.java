@@ -4,13 +4,14 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Simon McDuff - initial API and implementation
  *    Eike Stepper - maintenance
  */
 package org.eclipse.emf.cdo.tests.bugzilla;
 
+import org.eclipse.emf.cdo.CDOIDDangling;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.tests.AbstractCDOTest;
@@ -44,9 +45,11 @@ public class Bugzilla_246622_Test extends AbstractCDOTest
     res.getContents().add(order);
     order.getOrderDetails().add(orderDetail);
     EStructuralFeature order_OrderDetailFeature = getModel1Package().getOrder_OrderDetails();
-    assertEquals(orderDetail, CDOUtil.getCDOObject(order).cdoRevision().data().get(order_OrderDetailFeature, 0));
-
-    assertEquals(order, CDOUtil.getCDOObject(orderDetail).cdoRevision().data().getContainerID());
+    CDOIDDangling actual = (CDOIDDangling)CDOUtil.getCDOObject(order).cdoRevision().data().get(
+        order_OrderDetailFeature, 0);
+    assertEquals(orderDetail, actual.getTarget());
+    assertEquals(CDOUtil.getCDOObject(order).cdoID(), CDOUtil.getCDOObject(orderDetail).cdoRevision().data()
+        .getContainerID());
 
     Order order2 = getModel1Factory().createOrder();
     OrderDetail orderDetail2 = getModel1Factory().createOrderDetail();
@@ -54,8 +57,10 @@ public class Bugzilla_246622_Test extends AbstractCDOTest
     order2.getOrderDetails().add(orderDetail2);
     res.getContents().add(order2);
 
-    assertEquals(orderDetail2, CDOUtil.getCDOObject(order2).cdoRevision().data().get(order_OrderDetailFeature, 0));
-    assertEquals(order2, CDOUtil.getCDOObject(orderDetail2).cdoRevision().data().getContainerID());
+    assertEquals(CDOUtil.getCDOObject(orderDetail2).cdoID(), CDOUtil.getCDOObject(order2).cdoRevision().data().get(
+        order_OrderDetailFeature, 0));
+    assertEquals(CDOUtil.getCDOObject(order2).cdoID(), CDOUtil.getCDOObject(orderDetail2).cdoRevision().data()
+        .getContainerID());
 
     msg("Committing");
     transaction1.commit();
@@ -77,7 +82,8 @@ public class Bugzilla_246622_Test extends AbstractCDOTest
 
     assertEquals(CDOUtil.getCDOObject(orderDetail2).cdoID(), CDOUtil.getCDOObject(order3).cdoRevision().data().get(
         order_OrderDetailFeature, 0));
-    assertEquals(CDOUtil.getCDOObject(order3), CDOUtil.getCDOObject(orderDetail2).cdoRevision().data().getContainerID());
+    assertEquals(CDOUtil.getCDOObject(order3).cdoID(), CDOUtil.getCDOObject(orderDetail2).cdoRevision().data()
+        .getContainerID());
 
     msg("Committing");
     transaction1.commit();
@@ -102,7 +108,9 @@ public class Bugzilla_246622_Test extends AbstractCDOTest
     EStructuralFeature supplier_PurchaseOrder = getModel1Package().getSupplier_PurchaseOrders();
     EStructuralFeature purchaseOrder_Supplier = getModel1Package().getPurchaseOrder_Supplier();
 
-    assertEquals(supplier, CDOUtil.getCDOObject(purchaseOrder).cdoRevision().data().get(purchaseOrder_Supplier, 0));
+    CDOIDDangling actual = (CDOIDDangling)CDOUtil.getCDOObject(purchaseOrder).cdoRevision().data().get(
+        purchaseOrder_Supplier, 0);
+    assertEquals(supplier, actual.getTarget());
     assertEquals(purchaseOrder, CDOUtil.getCDOObject(supplier).cdoRevision().data().get(supplier_PurchaseOrder, 0));
 
     msg("Test set with link after");

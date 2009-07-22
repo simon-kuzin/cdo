@@ -12,6 +12,7 @@ package org.eclipse.emf.cdo.tests;
 
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.id.CDOIDExternal;
 import org.eclipse.emf.cdo.common.revision.CDORevisionData;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.session.CDOSession;
@@ -413,7 +414,7 @@ public class CrossReferenceTest extends AbstractCDOTest
     transaction.commit();
     CDORevisionData data = ((CDOObject)salesOrder).cdoRevision().data();
     CDOID id = (CDOID)data.get(getModel1Package().getSalesOrder_Customer(), 0);
-    assertTrue(id.isExternal());
+    assertInstanceOf(CDOIDExternal.class, id);
   }
 
   public void testExternalMakeNew() throws Exception

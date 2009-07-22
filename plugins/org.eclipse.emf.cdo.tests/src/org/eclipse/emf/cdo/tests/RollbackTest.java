@@ -4,12 +4,13 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Eike Stepper - initial API and implementation
  */
 package org.eclipse.emf.cdo.tests;
 
+import org.eclipse.emf.cdo.CDOIDDangling;
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.session.CDOSession;
@@ -52,7 +53,6 @@ public class RollbackTest extends AbstractCDOTest
   protected void flow1(CDOTransaction transaction1, CDOTransaction transaction2)
   {
     EStructuralFeature category_Products1 = getModel1Package().getCategory_Products();
-
     EStructuralFeature category_Products2 = getModel1Package().getCategory_Products();
 
     // Client1
@@ -84,7 +84,7 @@ public class RollbackTest extends AbstractCDOTest
 
     msg("Object should contains internalEObject");
     Object testObject = cdoObjectCategory1.cdoRevision().data().get(category_Products1, 0);
-    assertEquals(product1, testObject);
+    assertEquals(product1, ((CDOIDDangling)testObject).getTarget());
 
     transaction1.commit();
 
@@ -108,7 +108,7 @@ public class RollbackTest extends AbstractCDOTest
       // Commit process should no have changed state of the object
       CDOObject cdoObjectCategory2 = CDOUtil.getCDOObject(category2);
       testObject = cdoObjectCategory2.cdoRevision().data().get(category_Products2, 0);
-      assertEquals(product2, testObject);
+      assertEquals(product2, ((CDOIDDangling)testObject).getTarget());
       transaction2.rollback();
     }
 
