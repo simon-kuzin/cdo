@@ -12,6 +12,7 @@
  */
 package org.eclipse.emf.internal.cdo.transaction;
 
+import org.eclipse.emf.cdo.CDOIDDangling;
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjustable;
@@ -364,6 +365,31 @@ public class CDOSavepointImpl extends AbstractSavepoint implements CDOReferenceA
     adjustObjects(referenceAdjuster, newObjects.values());
     adjustObjects(referenceAdjuster, dirtyObjects.values());
     adjustRevisionDeltas(referenceAdjuster, revisionDeltas.values());
+  }
+
+  // TTT
+  public void checkNotDanglig()
+  {
+    checkNotDanglig(newResources.keySet());
+    checkNotDanglig(newObjects.keySet());
+    checkNotDanglig(dirtyObjects.keySet());
+    checkNotDanglig(revisionDeltas.keySet());
+
+    checkNotDanglig(baseNewObjects.keySet());
+    checkNotDanglig(detachedObjects.keySet());
+    checkNotDanglig(sharedDetachedObjects);
+  }
+
+  // TTT
+  private void checkNotDanglig(Collection<CDOID> ids)
+  {
+    for (CDOID id : ids)
+    {
+      if (id instanceof CDOIDDangling)
+      {
+        throw new IllegalArgumentException("DANGLING ID: " + ((CDOIDDangling)id).getTarget());
+      }
+    }
   }
 
   private static void adjustObjects(CDOReferenceAdjuster referenceAdjuster, Collection<? extends CDOObject> objects)

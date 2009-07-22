@@ -17,6 +17,8 @@ import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.CDOState;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
+import org.eclipse.emf.cdo.common.id.CDOIDExternal;
+import org.eclipse.emf.cdo.common.id.CDOIDObject;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
@@ -659,11 +661,29 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
   private CDOIDMapper adjustDanglingReferences()
   {
     final CDOIDMapper idMapper = new CDOIDMapper();
+    final Map<CDOID, CDOObject> detachedObjects = getDetachedObjects();
     CDOReferenceAdjuster danglingReferenceAdjuster = new CDOReferenceAdjuster()
     {
       public CDOID adjustReference(CDOID id)
       {
-        if (id instanceof CDOIDDangling)
+        if (id instanceof CDOIDObject)
+        {
+          CDOIDObject objectID = (CDOIDObject)id;
+          CDOObject target = detachedObjects.get(objectID);
+          if (target != null)
+          {
+            // Is it external now?
+            if (target.eResource() != null)
+            {
+              CDOIDExternal newID = CDOIDUtil.createExternal(EcoreUtil.getURI(target).toString());
+              idMapper.putIDMapping(objectID, newID);
+              return newID;
+            }
+
+            throw new DanglingReferenceException(target);
+          }
+        }
+        else if (id instanceof CDOIDDangling)
         {
           CDOIDDangling danglingID = (CDOIDDangling)id;
 
@@ -703,6 +723,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     };
 
     applyReferenceAdjuster(danglingReferenceAdjuster);
+    checkNotDanglig();
     return idMapper;
   }
 
@@ -712,6 +733,16 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     {
       idMapper.reverseIDMappings();
       applyReferenceAdjuster(idMapper);
+    }
+  }
+
+  // TTT
+  public void checkNotDanglig()
+  {
+    for (CDOSavepointImpl itrSavepoint = lastSavepoint; itrSavepoint != null; itrSavepoint = itrSavepoint
+        .getPreviousSavepoint())
+    {
+      itrSavepoint.checkNotDanglig();
     }
   }
 

@@ -254,7 +254,12 @@ public abstract class CDOTypeImpl implements CDOType
     @Override
     public Object applyReferenceAdjuster(CDOReferenceAdjuster adjuster, Object value)
     {
-      return adjuster.adjustReference((CDOID)value);
+      if (value instanceof CDOID)
+      {
+        return adjuster.adjustReference((CDOID)value);
+      }
+
+      return value;
     }
   };
 
