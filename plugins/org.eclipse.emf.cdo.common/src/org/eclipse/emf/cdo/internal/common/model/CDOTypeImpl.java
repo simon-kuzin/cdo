@@ -639,15 +639,18 @@ public abstract class CDOTypeImpl implements CDOType
     @Override
     public Object applyReferenceAdjuster(CDOReferenceAdjuster adjuster, Object value)
     {
-      FeatureMap.Entry entry = (FeatureMap.Entry)value;
-      EStructuralFeature innerFeature = entry.getEStructuralFeature();
-      Object innerValue = entry.getValue();
-      CDOType innerType = CDOModelUtil.getType(innerFeature.getEType());
-
-      Object innerCopy = innerType.applyReferenceAdjuster(adjuster, innerValue);
-      if (innerCopy != innerValue)
+      if (value instanceof FeatureMap.Entry)
       {
-        value = CDORevisionUtil.createFeatureMapEntry(innerFeature, innerCopy);
+        FeatureMap.Entry entry = (FeatureMap.Entry)value;
+        EStructuralFeature innerFeature = entry.getEStructuralFeature();
+        Object innerValue = entry.getValue();
+        CDOType innerType = CDOModelUtil.getType(innerFeature.getEType());
+
+        Object innerCopy = innerType.applyReferenceAdjuster(adjuster, innerValue);
+        if (innerCopy != innerValue)
+        {
+          value = CDORevisionUtil.createFeatureMapEntry(innerFeature, innerCopy);
+        }
       }
 
       return value;
@@ -760,30 +763,35 @@ public abstract class CDOTypeImpl implements CDOType
     @Override
     public Object applyReferenceAdjuster(CDOReferenceAdjuster adjuster, Object value)
     {
-      Object[] oldObjects = (Object[])value;
-      Object[] newObjects = oldObjects; // Do not eagerly copy
-      for (int i = 0; i < oldObjects.length; i++)
+      if (value instanceof Object[])
       {
-        Object oldObject = oldObjects[i];
-        if (oldObject instanceof CDOID)
+        Object[] oldObjects = (Object[])value;
+        Object[] newObjects = oldObjects; // Do not eagerly copy
+        for (int i = 0; i < oldObjects.length; i++)
         {
-          CDOID oldID = (CDOID)oldObject;
-          CDOID newID = adjuster.adjustReference(oldID);
-          if (newID != oldID)
+          Object oldObject = oldObjects[i];
+          if (oldObject instanceof CDOID)
           {
-            if (newObjects == oldObjects)
+            CDOID oldID = (CDOID)oldObject;
+            CDOID newID = adjuster.adjustReference(oldID);
+            if (newID != oldID)
             {
-              // Lazy copy
-              newObjects = new Object[oldObjects.length];
-              System.arraycopy(oldObjects, 0, newObjects, 0, oldObjects.length);
-            }
+              if (newObjects == oldObjects)
+              {
+                // Lazy copy
+                newObjects = new Object[oldObjects.length];
+                System.arraycopy(oldObjects, 0, newObjects, 0, oldObjects.length);
+              }
 
-            newObjects[i] = newID;
+              newObjects[i] = newID;
+            }
           }
         }
+
+        return newObjects;
       }
 
-      return newObjects;
+      return value;
     }
   };
 
