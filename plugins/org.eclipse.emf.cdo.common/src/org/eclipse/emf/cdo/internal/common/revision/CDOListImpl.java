@@ -51,7 +51,6 @@ public class CDOListImpl extends BasicEList<Object> implements InternalCDOList
                 throw new IllegalArgumentException("Node " + index + " is null: " + revision);
               }
             }
-
           }
 
           return super.validate(index, object);

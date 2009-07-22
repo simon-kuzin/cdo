@@ -21,6 +21,7 @@ import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
 import org.eclipse.emf.cdo.eresource.CDOResource;
+import org.eclipse.emf.cdo.eresource.impl.CDOResourceFolderImpl;
 import org.eclipse.emf.cdo.internal.common.revision.delta.CDOAddFeatureDeltaImpl;
 import org.eclipse.emf.cdo.internal.common.revision.delta.CDOClearFeatureDeltaImpl;
 import org.eclipse.emf.cdo.internal.common.revision.delta.CDOContainerFeatureDeltaImpl;
@@ -92,29 +93,6 @@ public final class CDOStore implements EStore
   public InternalCDOView getView()
   {
     return view;
-  }
-
-  /**
-   * @since 2.0
-   */
-  public void setContainer(InternalEObject eObject, CDOResource newResource, InternalEObject newEContainer,
-      int newContainerFeatureID)
-  {
-    InternalCDOObject cdoObject = getCDOObject(eObject);
-    if (TRACER.isEnabled())
-    {
-      TRACER.format("setContainer({0}, {1}, {2}, {3})", cdoObject, newResource, newEContainer, newContainerFeatureID); //$NON-NLS-1$
-    }
-
-    CDOID newContainerID = newEContainer == null ? CDOID.NULL : (CDOID)cdoObject.cdoView().convertObjectToID(
-        newEContainer, true);
-    CDOID newResourceID = newResource == null ? CDOID.NULL : newResource.cdoID();
-
-    CDOFeatureDelta delta = new CDOContainerFeatureDeltaImpl(newResourceID, newContainerID, newContainerFeatureID);
-    InternalCDORevision revision = getRevisionForWriting(cdoObject, delta);
-    revision.setResourceID(newResourceID);
-    revision.setContainerID(newContainerID);
-    revision.setContainingFeatureID(newContainerFeatureID);
   }
 
   public InternalEObject getContainer(InternalEObject eObject)
@@ -348,6 +326,117 @@ public final class CDOStore implements EStore
   /**
    * @since 2.0
    */
+  public void setContainer(InternalEObject eObject, CDOResource newResource, InternalEObject newEContainer,
+      int newContainerFeatureID)
+  {
+    InternalCDOObject cdoObject = getCDOObject(eObject);
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("setContainer({0}, {1}, {2}, {3})", cdoObject, newResource, newEContainer, newContainerFeatureID); //$NON-NLS-1$
+    }
+
+    CDOID newContainerID = newEContainer == null ? CDOID.NULL : (CDOID)cdoObject.cdoView().convertObjectToID(
+        newEContainer, true);
+    CDOID newResourceID = newResource == null ? CDOID.NULL : newResource.cdoID();
+
+    CDOFeatureDelta delta = new CDOContainerFeatureDeltaImpl(newResourceID, newContainerID, newContainerFeatureID);
+    InternalCDORevision revision = getRevisionForWriting(cdoObject, delta);
+    revision.setResourceID(newResourceID);
+    revision.setContainerID(newContainerID);
+    revision.setContainingFeatureID(newContainerFeatureID);
+  }
+
+  public void unset(InternalEObject eObject, EStructuralFeature feature)
+  {
+    InternalCDOObject cdoObject = getCDOObject(eObject);
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("unset({0}, {1})", cdoObject, feature); //$NON-NLS-1$
+    }
+
+    CDOFeatureDelta delta = new CDOUnsetFeatureDeltaImpl(feature);
+    InternalCDORevision revision = getRevisionForWriting(cdoObject, delta);
+
+    // TODO Handle containment remove!!!
+    revision.set(feature, 0, null);
+  }
+
+  public void add(InternalEObject eObject, EStructuralFeature feature, int index, Object value)
+  {
+    InternalCDOObject cdoObject = getCDOObject(eObject);
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("add({0}, {1}, {2}, {3})", cdoObject, feature, index, value); //$NON-NLS-1$
+    }
+
+    value = convertToCDO(cdoObject, feature, value);
+
+    CDOFeatureDelta delta = new CDOAddFeatureDeltaImpl(feature, index, value);
+    InternalCDORevision revision = getRevisionForWriting(cdoObject, delta);
+    revision.add(feature, index, value);
+  }
+
+  public Object remove(InternalEObject eObject, EStructuralFeature feature, int index)
+  {
+    InternalCDOObject cdoObject = getCDOObject(eObject);
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("remove({0}, {1}, {2})", cdoObject, feature, index); //$NON-NLS-1$
+    }
+
+    CDOFeatureDelta delta = new CDORemoveFeatureDeltaImpl(feature, index);
+    InternalCDORevision revision = getRevisionForWriting(cdoObject, delta);
+    Object result = revision.remove(feature, index);
+
+    result = convertToEMF(eObject, revision, feature, index, result);
+
+    return result;
+  }
+
+  public void clear(InternalEObject eObject, EStructuralFeature feature)
+  {
+    InternalCDOObject cdoObject = getCDOObject(eObject);
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("clear({0}, {1})", cdoObject, feature); //$NON-NLS-1$
+    }
+
+    CDOFeatureDelta delta = new CDOClearFeatureDeltaImpl(feature);
+    InternalCDORevision revision = getRevisionForWriting(cdoObject, delta);
+    // TODO Handle containment remove!!!
+    revision.clear(feature);
+  }
+
+  public Object move(InternalEObject eObject, EStructuralFeature feature, int target, int source)
+  {
+    InternalCDOObject cdoObject = getCDOObject(eObject);
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("move({0}, {1}, {2}, {3})", cdoObject, feature, target, source); //$NON-NLS-1$
+    }
+
+    CDOFeatureDelta delta = new CDOMoveFeatureDeltaImpl(feature, target, source);
+    InternalCDORevision revision = getRevisionForWriting(cdoObject, delta);
+    Object result = revision.move(feature, target, source);
+
+    result = convertToEMF(eObject, revision, feature, EStore.NO_INDEX, result);
+    return result;
+  }
+
+  public EObject create(EClass eClass)
+  {
+    throw new UnsupportedOperationException("Use the generated factory to create objects"); //$NON-NLS-1$
+  }
+
+  @Override
+  public String toString()
+  {
+    return MessageFormat.format("CDOStore[{0}]", view); //$NON-NLS-1$
+  }
+
+  /**
+   * @since 2.0
+   */
   public Object convertToEMF(EObject eObject, InternalCDORevision revision, EStructuralFeature feature, int index,
       Object value)
   {
@@ -448,99 +537,6 @@ public final class CDOStore implements EStore
     return value;
   }
 
-  public void unset(InternalEObject eObject, EStructuralFeature feature)
-  {
-    InternalCDOObject cdoObject = getCDOObject(eObject);
-    if (TRACER.isEnabled())
-    {
-      TRACER.format("unset({0}, {1})", cdoObject, feature); //$NON-NLS-1$
-    }
-
-    CDOFeatureDelta delta = new CDOUnsetFeatureDeltaImpl(feature);
-    InternalCDORevision revision = getRevisionForWriting(cdoObject, delta);
-
-    // TODO Handle containment remove!!!
-    revision.set(feature, 0, null);
-  }
-
-  public void add(InternalEObject eObject, EStructuralFeature feature, int index, Object value)
-  {
-    InternalCDOObject cdoObject = getCDOObject(eObject);
-    if (TRACER.isEnabled())
-    {
-      TRACER.format("add({0}, {1}, {2}, {3})", cdoObject, feature, index, value); //$NON-NLS-1$
-    }
-
-    value = convertToCDO(cdoObject, feature, value);
-
-    CDOFeatureDelta delta = new CDOAddFeatureDeltaImpl(feature, index, value);
-    InternalCDORevision revision = getRevisionForWriting(cdoObject, delta);
-    revision.add(feature, index, value);
-  }
-
-  public Object remove(InternalEObject eObject, EStructuralFeature feature, int index)
-  {
-    InternalCDOObject cdoObject = getCDOObject(eObject);
-    if (TRACER.isEnabled())
-    {
-      TRACER.format("remove({0}, {1}, {2})", cdoObject, feature, index); //$NON-NLS-1$
-    }
-
-    CDOFeatureDelta delta = new CDORemoveFeatureDeltaImpl(feature, index);
-    InternalCDORevision revision = getRevisionForWriting(cdoObject, delta);
-    Object result = revision.remove(feature, index);
-
-    result = convertToEMF(eObject, revision, feature, index, result);
-
-    return result;
-  }
-
-  public void clear(InternalEObject eObject, EStructuralFeature feature)
-  {
-    InternalCDOObject cdoObject = getCDOObject(eObject);
-    if (TRACER.isEnabled())
-    {
-      TRACER.format("clear({0}, {1})", cdoObject, feature); //$NON-NLS-1$
-    }
-
-    CDOFeatureDelta delta = new CDOClearFeatureDeltaImpl(feature);
-    InternalCDORevision revision = getRevisionForWriting(cdoObject, delta);
-    // TODO Handle containment remove!!!
-    revision.clear(feature);
-  }
-
-  public Object move(InternalEObject eObject, EStructuralFeature feature, int target, int source)
-  {
-    InternalCDOObject cdoObject = getCDOObject(eObject);
-    if (TRACER.isEnabled())
-    {
-      TRACER.format("move({0}, {1}, {2}, {3})", cdoObject, feature, target, source); //$NON-NLS-1$
-    }
-
-    CDOFeatureDelta delta = new CDOMoveFeatureDeltaImpl(feature, target, source);
-    InternalCDORevision revision = getRevisionForWriting(cdoObject, delta);
-    Object result = revision.move(feature, target, source);
-
-    result = convertToEMF(eObject, revision, feature, EStore.NO_INDEX, result);
-    return result;
-  }
-
-  public EObject create(EClass eClass)
-  {
-    throw new UnsupportedOperationException("Use the generated factory to create objects"); //$NON-NLS-1$
-  }
-
-  @Override
-  public String toString()
-  {
-    return MessageFormat.format("CDOStore[{0}]", view); //$NON-NLS-1$
-  }
-
-  private InternalCDOObject getCDOObject(Object object)
-  {
-    return FSMUtil.adapt(object, view);
-  }
-
   /**
    * @since 2.0
    */
@@ -582,6 +578,11 @@ public final class CDOStore implements EStore
   // return feature;
   // }
 
+  private InternalCDOObject getCDOObject(Object object)
+  {
+    return FSMUtil.adapt(object, view);
+  }
+
   private static InternalCDORevision getRevisionForReading(InternalCDOObject cdoObject)
   {
     ReentrantLock viewLock = cdoObject.cdoView().getStateLock();
@@ -612,6 +613,8 @@ public final class CDOStore implements EStore
       throw new IllegalStateException("revision == null"); //$NON-NLS-1$
     }
 
+    // TTT
+    CDOResourceFolderImpl.checkNodes(revision);
     return revision;
   }
 }

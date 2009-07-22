@@ -579,18 +579,6 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     }
   }
 
-  /**
-   * @since 3.0
-   */
-  // TTT
-  public static void checkNotDangling(CDORevision revision, String feature, Object value)
-  {
-    if (value instanceof EObject)
-    {
-      throw new IllegalArgumentException("DANGLING OBJECT: " + revision + "[" + feature + "] --> " + value);
-    }
-  }
-
   public CDOList getList(EStructuralFeature feature)
   {
     return getList(feature, 0);
@@ -676,7 +664,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
       }
       else
       {
-        checkNoFeatureMap(feature);
+        checkNotFeatureMap(feature);
         Object value = getValue(i);
         if (TRACER.isEnabled())
         {
@@ -688,11 +676,26 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     }
   }
 
-  public static void checkNoFeatureMap(EStructuralFeature feature)
+  /**
+   * @since 3.0
+   */
+  public static void checkNotFeatureMap(EStructuralFeature feature)
   {
     if (FeatureMapUtil.isFeatureMap(feature))
     {
       throw new UnsupportedOperationException("Single-valued feature maps not yet handled");
+    }
+  }
+
+  /**
+   * @since 3.0
+   */
+  // TTT
+  public static void checkNotDangling(CDORevision revision, String feature, Object value)
+  {
+    if (value instanceof EObject)
+    {
+      throw new IllegalArgumentException("DANGLING OBJECT: " + revision + "[" + feature + "] --> " + value);
     }
   }
 }

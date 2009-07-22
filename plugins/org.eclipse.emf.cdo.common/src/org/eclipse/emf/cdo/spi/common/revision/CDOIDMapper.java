@@ -92,6 +92,12 @@ public class CDOIDMapper implements CDOReferenceAdjuster
       return id;
     }
 
-    return idMappings.get(id);
+    CDOID newID = idMappings.get(id);
+    if (newID != null)
+    {
+      return newID;
+    }
+
+    return id;
   }
 }

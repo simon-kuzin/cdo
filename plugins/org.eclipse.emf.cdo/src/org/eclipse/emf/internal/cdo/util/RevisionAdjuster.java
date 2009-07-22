@@ -66,7 +66,7 @@ public class RevisionAdjuster extends CDOFeatureDeltaVisitorImpl
   public void visit(CDOSetFeatureDelta delta)
   {
     EStructuralFeature feature = delta.getFeature();
-    CDORevisionImpl.checkNoFeatureMap(feature);
+    CDORevisionImpl.checkNotFeatureMap(feature);
 
     Object value = delta.getValue();
     if (value instanceof CDOID)
@@ -79,7 +79,7 @@ public class RevisionAdjuster extends CDOFeatureDeltaVisitorImpl
   public void visit(CDOListFeatureDelta deltas)
   {
     EStructuralFeature feature = deltas.getFeature();
-    CDORevisionImpl.checkNoFeatureMap(feature);
+    CDORevisionImpl.checkNotFeatureMap(feature);
 
     InternalCDOList list = (InternalCDOList)revision.getValue(feature);
     if (feature instanceof EReference)

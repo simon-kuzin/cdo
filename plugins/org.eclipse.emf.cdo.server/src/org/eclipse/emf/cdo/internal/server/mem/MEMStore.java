@@ -4,10 +4,10 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Simon McDuff - initial API and implementation
- *    Simon McDuff - http://bugs.eclipse.org/233273    
+ *    Simon McDuff - http://bugs.eclipse.org/233273
  *    Eike Stepper - maintenance
  */
 package org.eclipse.emf.cdo.internal.server.mem;
@@ -16,6 +16,7 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOModelConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.eresource.impl.CDOResourceFolderImpl;
 import org.eclipse.emf.cdo.server.IMEMStore;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
@@ -156,6 +157,9 @@ public class MEMStore extends LongIDStore implements IMEMStore
 
   public synchronized void addRevision(InternalCDORevision revision)
   {
+    // TTT
+    CDOResourceFolderImpl.checkNodes(revision);
+
     CDOID id = revision.getID();
     int version = revision.getVersion();
 
@@ -182,7 +186,7 @@ public class MEMStore extends LongIDStore implements IMEMStore
     {
       EStructuralFeature feature = revision.getEClass().getEStructuralFeature(
           CDOModelConstants.RESOURCE_NODE_NAME_ATTRIBUTE);
-      CDOID revisionFolder = (CDOID)revision.data().getContainerID();
+      CDOID revisionFolder = revision.data().getContainerID();
       String revisionName = (String)revision.data().get(feature, 0);
 
       IStoreAccessor accessor = StoreThreadLocal.getAccessor();
@@ -256,7 +260,7 @@ public class MEMStore extends LongIDStore implements IMEMStore
           revision = getRevisionByTime(list, context.getTimeStamp());
           if (revision != null)
           {
-            CDOID revisionFolder = (CDOID)revision.data().getContainerID();
+            CDOID revisionFolder = revision.data().getContainerID();
             if (CDOIDUtil.equals(revisionFolder, folderID))
             {
               EStructuralFeature feature = revision.getEClass().getEStructuralFeature(

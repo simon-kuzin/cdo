@@ -4,15 +4,17 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Eike Stepper - initial API and implementation
  */
 package org.eclipse.emf.cdo.eresource.impl;
 
+import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.eresource.CDOResourceFolder;
 import org.eclipse.emf.cdo.eresource.CDOResourceNode;
 import org.eclipse.emf.cdo.eresource.EresourcePackage;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.emf.internal.cdo.util.FSMUtil;
 
@@ -92,6 +94,25 @@ public class CDOResourceFolderImpl extends CDOResourceNodeImpl implements CDORes
       else
       {
         basicSetFolder(null, false);
+      }
+    }
+  }
+
+  /**
+   * @since 3.0
+   */
+  // TTT
+  public static void checkNodes(InternalCDORevision revision)
+  {
+    if ("CDOResourceFolder".equals(revision.getEClass().getName()))
+    {
+      CDOList list = revision.getList(EresourcePackage.eINSTANCE.getCDOResourceFolder_Nodes());
+      for (int i = 0; i < list.size(); i++)
+      {
+        if (list.get(i) == null)
+        {
+          throw new IllegalArgumentException("Node " + i + " is null: " + revision);
+        }
       }
     }
   }
