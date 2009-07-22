@@ -115,6 +115,12 @@ public abstract class AbstractCDOID implements CDOID
     }
   }
 
+  @Override
+  public String toString()
+  {
+    return "CDOID[" + toURIFragment() + "]";
+  }
+
   protected abstract int doCompareTo(CDOID o) throws ClassCastException;
 
   /**

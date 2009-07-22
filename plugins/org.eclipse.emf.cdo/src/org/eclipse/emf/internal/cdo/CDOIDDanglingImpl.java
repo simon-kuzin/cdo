@@ -157,6 +157,12 @@ public class CDOIDDanglingImpl extends AbstractCDOID implements CDOIDDangling
   }
 
   @Override
+  public String toString()
+  {
+    return "CDOIDDangling[" + target + "]";
+  }
+
+  @Override
   protected int doCompareTo(CDOID o) throws ClassCastException
   {
     return toURIFragment().compareTo(((CDOIDDanglingImpl)o).toURIFragment());
