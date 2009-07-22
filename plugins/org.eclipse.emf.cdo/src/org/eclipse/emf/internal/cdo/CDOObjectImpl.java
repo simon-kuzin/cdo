@@ -1059,14 +1059,14 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
         EList<Object> list = (EList<Object>)setting;
         for (Object value : list)
         {
-          value = cdoStore.convertToCDO(object, feature, value);
+          value = cdoStore.convertToCDO(feature, value);
           revision.add(feature, index++, value);
         }
       }
     }
     else
     {
-      setting = cdoStore.convertToCDO(object, feature, setting);
+      setting = cdoStore.convertToCDO(feature, setting);
       revision.set(feature, 0, setting);
     }
   }

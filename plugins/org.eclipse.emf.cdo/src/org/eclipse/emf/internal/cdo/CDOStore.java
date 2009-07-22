@@ -306,7 +306,7 @@ public final class CDOStore implements EStore
       TRACER.format("set({0}, {1}, {2}, {3})", cdoObject, feature, index, value); //$NON-NLS-1$
     }
 
-    value = convertToCDO(cdoObject, feature, value);
+    value = convertToCDO(feature, value);
 
     CDOFeatureDelta delta = new CDOSetFeatureDeltaImpl(feature, index, value);
     InternalCDORevision revision = getRevisionForWriting(cdoObject, delta);
@@ -369,7 +369,7 @@ public final class CDOStore implements EStore
       TRACER.format("add({0}, {1}, {2}, {3})", cdoObject, feature, index, value); //$NON-NLS-1$
     }
 
-    value = convertToCDO(cdoObject, feature, value);
+    value = convertToCDO(feature, value);
 
     CDOFeatureDelta delta = new CDOAddFeatureDeltaImpl(feature, index, value);
     InternalCDORevision revision = getRevisionForWriting(cdoObject, delta);
@@ -499,7 +499,7 @@ public final class CDOStore implements EStore
   /**
    * @since 3.0
    */
-  public Object convertToCDO(InternalCDOObject object, EStructuralFeature feature, Object value)
+  public Object convertToCDO(EStructuralFeature feature, Object value)
   {
     if (value != null)
     {
