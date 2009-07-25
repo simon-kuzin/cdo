@@ -81,11 +81,15 @@ public class SessionTest extends AbstractCDOTest
     try
     {
       openSession("authrepo");
-      fail("RemoteException expected");
+      fail("SecurityException expected");
     }
-    catch (RemoteException success)
+    catch (SecurityException exception)
     {
-      assertEquals(SecurityException.class, success.getCause().getClass());
+      // Success
+    }
+    catch (RemoteException exception)
+    {
+      assertEquals(SecurityException.class, exception.getCause().getClass());
     }
   }
 
@@ -103,7 +107,11 @@ public class SessionTest extends AbstractCDOTest
     try
     {
       openSession("authrepo");
-      fail("RemoteException expected");
+      fail("SecurityException expected");
+    }
+    catch (SecurityException exception)
+    {
+      // Success
     }
     catch (RemoteException success)
     {
@@ -126,7 +134,11 @@ public class SessionTest extends AbstractCDOTest
     try
     {
       openSession("authrepo");
-      fail("RemoteException expected");
+      fail("SecurityException expected");
+    }
+    catch (SecurityException exception)
+    {
+      // Success
     }
     catch (RemoteException success)
     {
@@ -149,7 +161,11 @@ public class SessionTest extends AbstractCDOTest
     try
     {
       openSession("authrepo");
-      fail("RemoteException expected");
+      fail("SecurityException expected");
+    }
+    catch (SecurityException exception)
+    {
+      // Success
     }
     catch (RemoteException success)
     {
@@ -172,7 +188,11 @@ public class SessionTest extends AbstractCDOTest
     try
     {
       openSession("authrepo");
-      fail("RemoteException expected");
+      fail("SecurityException expected");
+    }
+    catch (SecurityException exception)
+    {
+      // Success
     }
     catch (RemoteException success)
     {

@@ -18,6 +18,7 @@ import org.eclipse.emf.cdo.server.ITransaction;
 import org.eclipse.emf.cdo.server.InternalNotificationManager;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry.PackageLoader;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry.PackageProcessor;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager.RevisionLoader;
@@ -32,7 +33,7 @@ import java.util.List;
  * @author Eike Stepper
  * @since 3.0
  */
-public interface InternalRepository extends IRepository, PackageLoader, RevisionLoader
+public interface InternalRepository extends IRepository, PackageProcessor, PackageLoader, RevisionLoader
 {
   public InternalCDORevisionManager getRevisionManager();
 

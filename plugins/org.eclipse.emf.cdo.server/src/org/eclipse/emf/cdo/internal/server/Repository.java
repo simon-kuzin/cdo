@@ -48,6 +48,8 @@ import org.eclipse.emf.cdo.spi.server.InternalRepository;
 import org.eclipse.emf.cdo.spi.server.InternalSession;
 import org.eclipse.emf.cdo.spi.server.InternalSessionManager;
 
+import org.eclipse.emf.internal.cdo.CDOFactoryImpl;
+
 import org.eclipse.net4j.util.StringUtil;
 import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
 import org.eclipse.net4j.util.concurrent.ConcurrencyUtil;
@@ -188,6 +190,12 @@ public class Repository extends Container<Object> implements InternalRepository
   public boolean isVerifyingRevisions()
   {
     return verifyingRevisions;
+  }
+
+  public Object processPackage(Object value)
+  {
+    CDOFactoryImpl.prepareDynamicEPackage(value);
+    return value;
   }
 
   public EPackage[] loadPackages(CDOPackageUnit packageUnit)
@@ -750,6 +758,7 @@ public class Repository extends Container<Object> implements InternalRepository
     checkState(lockManager, "lockingManager"); //$NON-NLS-1$
 
     packageRegistry.setReplacingDescriptors(true);
+    packageRegistry.setPackageProcessor(this);
     packageRegistry.setPackageLoader(this);
     revisionManager.setRevisionLoader(this);
     sessionManager.setRepository(this);

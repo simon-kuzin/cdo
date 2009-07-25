@@ -108,19 +108,14 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
     return result;
   }
 
-  public void setPassiveUpdate(Map<CDOID, CDOIDAndVersion> idAndVersions, int initialChunkSize,
-      boolean passiveUpdateEnabled)
-  {
-    // serverSessionProtocol.getSession().setPassiveUpdateEnabled(passiveUpdateEnabled);
-    // TODO: implement EmbeddedClientSessionProtocol.setPassiveUpdate(idAndVersions, initialChunkSize,
-    // passiveUpdateEnabled)
-    throw new UnsupportedOperationException();
-  }
-
   public Object loadChunk(InternalCDORevision revision, EStructuralFeature feature, int accessIndex, int fetchIndex,
       int fromIndex, int toIndex)
   {
-    throw new UnsupportedOperationException();
+    // int diffIndex = accessIndex - fetchIndex;
+    // repository.ensureChunk(revision, feature, fromIndex - diffIndex, toIndex - diffIndex);
+    // return revision.get(feature, accessIndex);
+
+    throw new ImplementationError("Should not be called");
   }
 
   public InternalCDORevision loadRevision(CDOID id, int referenceChunk)
@@ -206,7 +201,14 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
 
   public Collection<CDOTimeStampContext> syncRevisions(Map<CDOID, CDOIDAndVersion> allRevisions, int initialChunkSize)
   {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(); // TODO
+  }
+
+  public void setPassiveUpdate(Map<CDOID, CDOIDAndVersion> idAndVersions, int initialChunkSize,
+      boolean passiveUpdateEnabled)
+  {
+    // serverSessionProtocol.getSession().setPassiveUpdateEnabled(passiveUpdateEnabled);
+    throw new UnsupportedOperationException(); // TODO
   }
 
   public void openView(int viewID, CDOCommonView.Type viewType, long timeStamp)
@@ -239,7 +241,29 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
 
   public void changeSubscription(int viewID, List<CDOID> cdoIDs, boolean subscribeMode, boolean clear)
   {
-    throw new UnsupportedOperationException();
+    InternalView view = serverSessionProtocol.getSession().getView(viewID);
+    if (view != null)
+    {
+      if (clear)
+      {
+        view.clearChangeSubscription();
+      }
+
+      if (subscribeMode)
+      {
+        for (CDOID id : cdoIDs)
+        {
+          view.subscribe(id);
+        }
+      }
+      else
+      {
+        for (CDOID id : cdoIDs)
+        {
+          view.unsubscribe(id);
+        }
+      }
+    }
   }
 
   public void query(int viewID, AbstractQueryIterator<?> query)
@@ -281,18 +305,18 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
 
   public boolean isObjectLocked(CDOView view, CDOObject object, LockType lockType, boolean byOthers)
   {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(); // TODO
   }
 
   public void lockObjects(CDOView view, Map<CDOID, CDOIDAndVersion> objects, long timeout, LockType lockType)
       throws InterruptedException
   {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(); // TODO
   }
 
   public void unlockObjects(CDOView view, Collection<? extends CDOObject> objects, LockType lockType)
   {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(); // TODO
   }
 
   public boolean[] setAudit(int viewID, long timeStamp, List<InternalCDOObject> invalidObjects)
@@ -383,37 +407,37 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
 
   public CommitTransactionResult commitTransactionCancel(InternalCDOXACommitContext xaContext, OMMonitor monitor)
   {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(); // TODO
   }
 
   public CommitTransactionResult commitTransactionPhase1(InternalCDOXACommitContext xaContext, OMMonitor monitor)
   {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(); // TODO
   }
 
   public CommitTransactionResult commitTransactionPhase2(InternalCDOXACommitContext xaContext, OMMonitor monitor)
   {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(); // TODO
   }
 
   public CommitTransactionResult commitTransactionPhase3(InternalCDOXACommitContext xaContext, OMMonitor monitor)
   {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(); // TODO
   }
 
   public List<CDORemoteSession> getRemoteSessions(InternalCDORemoteSessionManager manager, boolean subscribe)
   {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(); // TODO
   }
 
   public Set<Integer> sendRemoteMessage(CDORemoteSessionMessage message, List<CDORemoteSession> recipients)
   {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(); // TODO
   }
 
   public boolean unsubscribeRemoteSessions()
   {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException(); // TODO
   }
 
   @Override

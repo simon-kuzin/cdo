@@ -59,15 +59,19 @@ public class ChangeSubscriptionIndication extends CDOReadIndication
       view.clearChangeSubscription();
     }
 
-    for (int i = 0; i < size; i++)
+    if (subscribeMode)
     {
-      CDOID id = in.readCDOID();
-      if (subscribeMode)
+      for (int i = 0; i < size; i++)
       {
+        CDOID id = in.readCDOID();
         view.subscribe(id);
       }
-      else
+    }
+    else
+    {
+      for (int i = 0; i < size; i++)
       {
+        CDOID id = in.readCDOID();
         view.unsubscribe(id);
       }
     }
