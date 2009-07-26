@@ -130,14 +130,17 @@ public final class CDOServerUtil
         throwException(session, violations);
       }
 
-      for (Iterator<CDORevision> it = additionalRevisions.iterator(); it.hasNext();)
+      if (additionalRevisions != null)
       {
-        CDORevision revision = it.next();
-        String violation = validate(session, revision);
-        if (violation != null)
+        for (Iterator<CDORevision> it = additionalRevisions.iterator(); it.hasNext();)
         {
-          OM.LOG.info("Revision can not be delivered to " + session + ": " + violation); //$NON-NLS-1$ //$NON-NLS-2$
-          it.remove();
+          CDORevision revision = it.next();
+          String violation = validate(session, revision);
+          if (violation != null)
+          {
+            OM.LOG.info("Revision can not be delivered to " + session + ": " + violation); //$NON-NLS-1$ //$NON-NLS-2$
+            it.remove();
+          }
         }
       }
     }

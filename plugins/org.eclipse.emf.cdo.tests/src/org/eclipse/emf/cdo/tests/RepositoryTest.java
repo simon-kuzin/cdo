@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Eike Stepper - initial API and implementation
  */
@@ -155,7 +155,7 @@ public class RepositoryTest extends AbstractCDOTest
       for (EObject object : resource.getContents())
       {
         Customer customer = (Customer)object;
-        System.out.println(customer.getName());
+        msg(customer.getName());
         ++read;
       }
     }
@@ -163,6 +163,7 @@ public class RepositoryTest extends AbstractCDOTest
     {
     }
 
+    // The load-loop exits after the second customer!
     assertEquals(2, read);
     session.close();
   }

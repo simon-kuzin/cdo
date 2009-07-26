@@ -17,6 +17,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDOAuthenticationResult;
 import org.eclipse.emf.cdo.common.protocol.CDOAuthenticator;
+import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.common.util.CDOQueryQueue;
 import org.eclipse.emf.cdo.eresource.CDOResource;
@@ -155,7 +156,9 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
     {
       InternalSession session = serverSessionProtocol.getSession();
       StoreThreadLocal.setSession(session);
-      return (InternalCDORevision)repository.getRevisionManager().getRevision(id, referenceChunk);
+      CDORevision revision = repository.getRevisionManager().getRevision(id, referenceChunk);
+      repository.notifyReadAccessHandlers(session, new CDORevision[] { revision }, null);
+      return (InternalCDORevision)revision;
     }
     finally
     {
@@ -169,7 +172,9 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
     {
       InternalSession session = serverSessionProtocol.getSession();
       StoreThreadLocal.setSession(session);
-      return (InternalCDORevision)repository.getRevisionManager().getRevisionByTime(id, referenceChunk, timeStamp);
+      CDORevision revision = repository.getRevisionManager().getRevisionByTime(id, referenceChunk, timeStamp);
+      repository.notifyReadAccessHandlers(session, new CDORevision[] { revision }, null);
+      return (InternalCDORevision)revision;
     }
     finally
     {
@@ -183,7 +188,9 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
     {
       InternalSession session = serverSessionProtocol.getSession();
       StoreThreadLocal.setSession(session);
-      return (InternalCDORevision)repository.getRevisionManager().getRevisionByVersion(id, referenceChunk, version);
+      CDORevision revision = repository.getRevisionManager().getRevisionByVersion(id, referenceChunk, version);
+      repository.notifyReadAccessHandlers(session, new CDORevision[] { revision }, null);
+      return (InternalCDORevision)revision;
     }
     finally
     {
@@ -200,6 +207,7 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
       @SuppressWarnings("unchecked")
       List<InternalCDORevision> revisions = (List<InternalCDORevision>)(List<?>)repository.getRevisionManager()
           .getRevisions(ids, referenceChunk);
+      repository.notifyReadAccessHandlers(session, revisions.toArray(new CDORevision[revisions.size()]), null);
       return revisions;
     }
     finally
@@ -217,6 +225,7 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
       @SuppressWarnings("unchecked")
       List<InternalCDORevision> revisions = (List<InternalCDORevision>)(List<?>)repository.getRevisionManager()
           .getRevisionsByTime(ids, referenceChunk, timeStamp, true);
+      repository.notifyReadAccessHandlers(session, revisions.toArray(new CDORevision[revisions.size()]), null);
       return revisions;
     }
     finally
@@ -419,17 +428,19 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
       serverCommitContext.setDetachedObjects(detachedObjects.toArray(new CDOID[detachedObjects.size()]));
 
       serverCommitContext.write(monitor.fork());
-      success = serverCommitContext.getRollbackMessage() == null;
+      String rollbackMessage = serverCommitContext.getRollbackMessage();
+      success = rollbackMessage == null;
       if (success)
       {
         serverCommitContext.commit(monitor.fork());
+        result = new CommitTransactionResult(clientCommitContext, serverCommitContext.getTimeStamp());
       }
       else
       {
         monitor.worked();
+        result = new CommitTransactionResult(clientCommitContext, rollbackMessage);
       }
 
-      result = new CommitTransactionResult(clientCommitContext, serverCommitContext.getTimeStamp());
       for (Map.Entry<CDOID, CDOID> entry : serverCommitContext.getIDMappings().entrySet())
       {
         result.addIDMapping(entry.getKey(), entry.getValue());
