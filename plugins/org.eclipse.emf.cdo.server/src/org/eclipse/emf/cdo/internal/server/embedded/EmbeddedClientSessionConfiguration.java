@@ -17,6 +17,7 @@ import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.embedded.CDOSessionConfiguration;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
 import org.eclipse.emf.cdo.spi.server.InternalRepository;
+import org.eclipse.emf.cdo.spi.server.InternalSession;
 
 import org.eclipse.emf.internal.cdo.session.CDOSessionConfigurationImpl;
 
@@ -81,7 +82,9 @@ public class EmbeddedClientSessionConfiguration extends CDOSessionConfigurationI
     EmbeddedClientSessionProtocol protocol = new EmbeddedClientSessionProtocol((EmbeddedClientSession)session);
     session.setSessionProtocol(protocol);
     protocol.activate();
-    protocol.openSession(isPassiveUpdateEnabled());
+
+    InternalSession serverSession = protocol.openSession(isPassiveUpdateEnabled());
+    session.setSessionID(serverSession.getSessionID());
     session.setRepositoryInfo(new RepositoryInfo());
 
     revisionManager = new CDORevisionManagerImpl();

@@ -34,7 +34,7 @@ public class SyncRevisionsRequest extends AbstractSyncRevisionsRequest
     this(protocol, CDOProtocolConstants.SIGNAL_SYNC_REVISIONS, idAndVersions, referenceChunk);
   }
 
-  public SyncRevisionsRequest(CDOClientProtocol protocol, short signalID, Map<CDOID, CDOIDAndVersion> idAndVersions,
+  protected SyncRevisionsRequest(CDOClientProtocol protocol, short signalID, Map<CDOID, CDOIDAndVersion> idAndVersions,
       int referenceChunk)
   {
     super(protocol, signalID, idAndVersions, referenceChunk);

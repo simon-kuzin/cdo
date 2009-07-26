@@ -28,10 +28,12 @@ import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
 import org.eclipse.emf.cdo.spi.server.InternalAudit;
 import org.eclipse.emf.cdo.spi.server.InternalCommitContext;
+import org.eclipse.emf.cdo.spi.server.InternalLockManager;
 import org.eclipse.emf.cdo.spi.server.InternalQueryManager;
 import org.eclipse.emf.cdo.spi.server.InternalQueryResult;
 import org.eclipse.emf.cdo.spi.server.InternalRepository;
 import org.eclipse.emf.cdo.spi.server.InternalSession;
+import org.eclipse.emf.cdo.spi.server.InternalSessionManager;
 import org.eclipse.emf.cdo.spi.server.InternalTransaction;
 import org.eclipse.emf.cdo.spi.server.InternalView;
 import org.eclipse.emf.cdo.transaction.CDOTimeStampContext;
@@ -90,6 +92,35 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
     repository = session.getRepository();
     activate();
     return serverSessionProtocol.openSession(repository, passiveUpdateEnabled);
+  }
+
+  public CDOAuthenticationResult handleAuthenticationChallenge(byte[] randomToken) throws Exception
+  {
+    CDOAuthenticator authenticator = getSession().getConfiguration().getAuthenticator();
+    if (authenticator == null)
+    {
+      throw new IllegalStateException("No authenticator configured"); //$NON-NLS-1$
+    }
+
+    CDOAuthenticationResult result = authenticator.authenticate(randomToken);
+    if (result == null)
+    {
+      throw new SecurityException("Not authenticated"); //$NON-NLS-1$
+    }
+
+    String userID = result.getUserID();
+    if (userID == null)
+    {
+      throw new SecurityException("No user ID"); //$NON-NLS-1$
+    }
+
+    byte[] cryptedToken = result.getCryptedToken();
+    if (cryptedToken == null)
+    {
+      throw new SecurityException("No crypted token"); //$NON-NLS-1$
+    }
+
+    return result;
   }
 
   public EPackage[] loadPackages(CDOPackageUnit packageUnit)
@@ -242,26 +273,23 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
   public void changeSubscription(int viewID, List<CDOID> cdoIDs, boolean subscribeMode, boolean clear)
   {
     InternalView view = serverSessionProtocol.getSession().getView(viewID);
-    if (view != null)
+    if (clear)
     {
-      if (clear)
-      {
-        view.clearChangeSubscription();
-      }
+      view.clearChangeSubscription();
+    }
 
-      if (subscribeMode)
+    if (subscribeMode)
+    {
+      for (CDOID id : cdoIDs)
       {
-        for (CDOID id : cdoIDs)
-        {
-          view.subscribe(id);
-        }
+        view.subscribe(id);
       }
-      else
+    }
+    else
+    {
+      for (CDOID id : cdoIDs)
       {
-        for (CDOID id : cdoIDs)
-        {
-          view.unsubscribe(id);
-        }
+        view.unsubscribe(id);
       }
     }
   }
@@ -305,30 +333,45 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
 
   public boolean isObjectLocked(CDOView view, CDOObject object, LockType lockType, boolean byOthers)
   {
-    throw new UnsupportedOperationException(); // TODO
+    InternalView serverView = serverSessionProtocol.getSession().getView(view.getViewID());
+    InternalLockManager lockManager = repository.getLockManager();
+    if (byOthers)
+    {
+      return lockManager.hasLockByOthers(lockType, serverView, object.cdoID());
+    }
+
+    return lockManager.hasLock(lockType, serverView, object.cdoID());
   }
 
   public void lockObjects(CDOView view, Map<CDOID, CDOIDAndVersion> objects, long timeout, LockType lockType)
       throws InterruptedException
   {
-    throw new UnsupportedOperationException(); // TODO
+    InternalView serverView = serverSessionProtocol.getSession().getView(view.getViewID());
+    InternalLockManager lockManager = repository.getLockManager();
+    lockManager.lock(lockType, serverView, objects.keySet(), timeout);
+    // ((InternalCDOView)view).handleInvalidationWithoutNotification(timestampContext.getDirtyObjects(),
+    // timestampContext
+    // .getDetachedObjects(), new HashSet<InternalCDOObject>(), new HashSet<InternalCDOObject>());
   }
 
   public void unlockObjects(CDOView view, Collection<? extends CDOObject> objects, LockType lockType)
   {
-    throw new UnsupportedOperationException(); // TODO
+    InternalView serverView = serverSessionProtocol.getSession().getView(view.getViewID());
+    InternalLockManager lockManager = repository.getLockManager();
+    if (objects == null)
+    {
+      lockManager.unlock(serverView);
+    }
+    else
+    {
+      lockManager.unlock(lockType, serverView, getObjectIDs(objects));
+    }
   }
 
   public boolean[] setAudit(int viewID, long timeStamp, List<InternalCDOObject> invalidObjects)
   {
-    List<CDOID> ids = new ArrayList<CDOID>(invalidObjects.size());
-    for (InternalCDOObject object : invalidObjects)
-    {
-      ids.add(object.cdoID());
-    }
-
     InternalAudit audit = (InternalAudit)serverSessionProtocol.getSession().getView(viewID);
-    return audit.setTimeStamp(timeStamp, ids);
+    return audit.setTimeStamp(timeStamp, getObjectIDs(invalidObjects));
   }
 
   public CommitTransactionResult commitTransaction(InternalCDOCommitContext clientCommitContext, OMMonitor monitor)
@@ -427,17 +470,37 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
 
   public List<CDORemoteSession> getRemoteSessions(InternalCDORemoteSessionManager manager, boolean subscribe)
   {
-    throw new UnsupportedOperationException(); // TODO
+    InternalSession localSession = serverSessionProtocol.getSession();
+    InternalSession[] sessions = repository.getSessionManager().getSessions();
+    List<CDORemoteSession> result = new ArrayList<CDORemoteSession>();
+
+    for (InternalSession session : sessions)
+    {
+      if (session != localSession)
+      {
+        CDORemoteSession remoteSession = manager.createRemoteSession(session.getSessionID(), session.getUserID(),
+            session.isSubscribed());
+        result.add(remoteSession);
+
+      }
+    }
+
+    localSession.setSubscribed(subscribe);
+    return result;
   }
 
   public Set<Integer> sendRemoteMessage(CDORemoteSessionMessage message, List<CDORemoteSession> recipients)
   {
-    throw new UnsupportedOperationException(); // TODO
+    InternalSession localSession = serverSessionProtocol.getSession();
+    InternalSessionManager sessionManager = repository.getSessionManager();
+    return sessionManager.sendMessage(localSession, message, getRemoteSessionIDs(recipients));
   }
 
   public boolean unsubscribeRemoteSessions()
   {
-    throw new UnsupportedOperationException(); // TODO
+    InternalSession localSession = serverSessionProtocol.getSession();
+    localSession.setSubscribed(false);
+    return true;
   }
 
   @Override
@@ -456,32 +519,35 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
     super.doDeactivate();
   }
 
-  public CDOAuthenticationResult handleAuthenticationChallenge(byte[] randomToken) throws Exception
+  private List<CDOID> getObjectIDs(Collection<? extends CDOObject> objects)
   {
-    CDOAuthenticator authenticator = getSession().getConfiguration().getAuthenticator();
-    if (authenticator == null)
+    if (objects == null)
     {
-      throw new IllegalStateException("No authenticator configured"); //$NON-NLS-1$
+      return null;
     }
 
-    CDOAuthenticationResult result = authenticator.authenticate(randomToken);
-    if (result == null)
+    List<CDOID> ids = new ArrayList<CDOID>(objects.size());
+    for (CDOObject object : objects)
     {
-      throw new SecurityException("Not authenticated"); //$NON-NLS-1$
+      ids.add(object.cdoID());
     }
 
-    String userID = result.getUserID();
-    if (userID == null)
+    return ids;
+  }
+
+  private int[] getRemoteSessionIDs(List<CDORemoteSession> recipients)
+  {
+    if (recipients == null)
     {
-      throw new SecurityException("No user ID"); //$NON-NLS-1$
+      return null;
     }
 
-    byte[] cryptedToken = result.getCryptedToken();
-    if (cryptedToken == null)
+    int[] ids = new int[recipients.size()];
+    for (int i = 0; i < ids.length; i++)
     {
-      throw new SecurityException("No crypted token"); //$NON-NLS-1$
+      ids[i] = recipients.get(i).getSessionID();
     }
 
-    return result;
+    return ids;
   }
 }

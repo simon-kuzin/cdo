@@ -190,7 +190,7 @@ public class RWLockManager<K, V> extends Lifecycle implements IRWLockManager<K, 
       return writeLockStrategy;
     }
 
-    throw new IllegalArgumentException(type.toString());
+    throw new IllegalArgumentException(type == null ? "type == null" : type.toString());
   }
 
   /**

@@ -21,6 +21,7 @@ import org.eclipse.emf.cdo.session.remote.CDORemoteSessionMessage;
 import org.eclipse.net4j.util.security.IUserManager;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Eike Stepper
@@ -50,5 +51,5 @@ public interface InternalSessionManager extends ISessionManager
 
   public void handleRemoteSessionNotification(byte opcode, InternalSession excludedSession);
 
-  public List<Integer> sendMessage(InternalSession sender, CDORemoteSessionMessage message, int[] recipients);
+  public Set<Integer> sendMessage(InternalSession sender, CDORemoteSessionMessage message, int[] recipients);
 }

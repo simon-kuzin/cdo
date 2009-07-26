@@ -10,6 +10,7 @@
  */
 package org.eclipse.emf.cdo.tests.bugzilla;
 
+import org.eclipse.emf.cdo.CDOLock;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.tests.AbstractCDOTest;
@@ -17,6 +18,9 @@ import org.eclipse.emf.cdo.tests.model1.Order;
 import org.eclipse.emf.cdo.tests.model1.OrderDetail;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.cdo.util.CDOUtil;
+
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import junit.framework.Assert;
 
@@ -180,7 +184,7 @@ public class Bugzilla_273565_Test extends AbstractCDOTest
     for (int i = 0; i < 50 && exception[0] == null; i++)
     {
       orderDetail.setPrice(1);
-      CDOUtil.getCDOObject(orderDetail.getOrder()).cdoWriteLock().lock();
+      lock(CDOUtil.getCDOObject(orderDetail.getOrder()).cdoWriteLock());
       orderDetail.getOrder().getOrderDetails().add(getModel1Factory().createOrderDetail());
       transaction.commit();
 
@@ -234,7 +238,7 @@ public class Bugzilla_273565_Test extends AbstractCDOTest
 
           while (!done[0])
           {
-            CDOUtil.getCDOObject(orderDetail2).cdoWriteLock().lock();
+            lock(CDOUtil.getCDOObject(orderDetail2).cdoWriteLock());
             orderDetail2.setPrice(3);
             transaction.commit();
           }
@@ -253,7 +257,7 @@ public class Bugzilla_273565_Test extends AbstractCDOTest
 
     for (int i = 0; i < 50 && exception[0] == null; i++)
     {
-      CDOUtil.getCDOObject(orderDetail).cdoWriteLock().lock();
+      lock(CDOUtil.getCDOObject(orderDetail).cdoWriteLock());
       orderDetail.setPrice(1);
       transaction.commit();
     }
@@ -266,5 +270,13 @@ public class Bugzilla_273565_Test extends AbstractCDOTest
     }
 
     session.close();
+  }
+
+  private static void lock(CDOLock lock) throws InterruptedException, TimeoutException
+  {
+    if (!lock.tryLock(DEFAULT_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS))
+    {
+      throw new TimeoutException();
+    }
   }
 }

@@ -79,8 +79,6 @@ public abstract class AbstractSyncRevisionsIndication extends CDOReadIndication
     }
   }
 
-  protected abstract void process(CDOID id, int version);
-
   protected void udpateObjectList(CDOID id, int version)
   {
     try
@@ -117,4 +115,6 @@ public abstract class AbstractSyncRevisionsIndication extends CDOReadIndication
 
     return CDORevision.UNSPECIFIED_DATE;
   }
+
+  protected abstract void process(CDOID id, int version);
 }

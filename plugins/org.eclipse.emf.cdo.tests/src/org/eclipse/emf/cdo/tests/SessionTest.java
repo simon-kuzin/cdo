@@ -31,6 +31,21 @@ public class SessionTest extends AbstractCDOTest
 
   private static final char[] PASSWORD2 = "invalid".toCharArray(); //$NON-NLS-1$
 
+  public void testSessionIDs() throws Exception
+  {
+    CDOSession session1 = openSession();
+    assertEquals(1, session1.getSessionID());
+
+    CDOSession session2 = openSession();
+    assertEquals(2, session2.getSessionID());
+    session2.close();
+
+    CDOSession session3 = openSession();
+    assertEquals(3, session3.getSessionID());
+    session3.close();
+    session1.close();
+  }
+
   public void testIsSupportingAudits() throws Exception
   {
     CDOSession session = openSession();

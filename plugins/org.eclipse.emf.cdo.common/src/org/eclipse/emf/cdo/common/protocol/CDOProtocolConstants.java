@@ -117,6 +117,21 @@ public interface CDOProtocolConstants
   // //////////////////////////////////////////////////////////////////////
   // Locking Objects
 
+  /**
+   * @since 3.0
+   */
+  public static final byte LOCK_TYPE_NULL = 0;
+
+  /**
+   * @since 3.0
+   */
+  public static final byte LOCK_TYPE_READ = 1;
+
+  /**
+   * @since 3.0
+   */
+  public static final byte LOCK_TYPE_WRITE = 2;
+
   public static final int RELEASE_ALL_LOCKS = -1;
 
   // //////////////////////////////////////////////////////////////////////

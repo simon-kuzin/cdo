@@ -13,7 +13,6 @@ package org.eclipse.emf.cdo.internal.net4j.protocol;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
-import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
@@ -74,7 +73,7 @@ public abstract class AbstractSyncRevisionsRequest extends CDOClientRequest<Coll
   protected Collection<CDOTimeStampContext> confirming(CDODataInput in) throws IOException
   {
     InternalCDORevisionManager revisionManager = getSession().getRevisionManager();
-    TreeMap<Long, CDOTimeStampContext> mapofContext = new TreeMap<Long, CDOTimeStampContext>();
+    Map<Long, CDOTimeStampContext> contexts = new TreeMap<Long, CDOTimeStampContext>();
 
     int size = in.readInt();
     for (int i = 0; i < size; i++)
@@ -89,8 +88,8 @@ public abstract class AbstractSyncRevisionsRequest extends CDOClientRequest<Coll
             Messages.getString("SyncRevisionsRequest.2"), revision.getID())); //$NON-NLS-1$
       }
 
-      Set<CDOIDAndVersion> dirtyObjects = getMap(mapofContext, revised).getDirtyObjects();
-      dirtyObjects.add(CDOIDUtil.createIDAndVersion(idAndVersion.getID(), idAndVersion.getVersion()));
+      Set<CDOIDAndVersion> dirtyObjects = getContext(contexts, revised).getDirtyObjects();
+      dirtyObjects.add(idAndVersion);
       revisionManager.getCache().addRevision(revision);
     }
 
@@ -105,34 +104,34 @@ public abstract class AbstractSyncRevisionsRequest extends CDOClientRequest<Coll
       CDOID id = in.readCDOID();
       long revised = in.readLong();
 
-      Collection<CDOID> detachedObjects = getMap(mapofContext, revised).getDetachedObjects();
+      Collection<CDOID> detachedObjects = getContext(contexts, revised).getDetachedObjects();
       detachedObjects.add(id);
     }
 
-    for (CDOTimeStampContext timestampContext : mapofContext.values())
+    for (CDOTimeStampContext context : contexts.values())
     {
-      Set<CDOIDAndVersion> dirtyObjects = timestampContext.getDirtyObjects();
-      Collection<CDOID> detachedObjects = timestampContext.getDetachedObjects();
+      Set<CDOIDAndVersion> dirtyObjects = context.getDirtyObjects();
+      Collection<CDOID> detachedObjects = context.getDetachedObjects();
 
       dirtyObjects = Collections.unmodifiableSet(dirtyObjects);
       detachedObjects = Collections.unmodifiableCollection(detachedObjects);
 
-      ((CDOTimeStampContextImpl)timestampContext).setDirtyObjects(dirtyObjects);
-      ((CDOTimeStampContextImpl)timestampContext).setDetachedObjects(detachedObjects);
+      ((CDOTimeStampContextImpl)context).setDirtyObjects(dirtyObjects);
+      ((CDOTimeStampContextImpl)context).setDetachedObjects(detachedObjects);
     }
 
-    return Collections.unmodifiableCollection(mapofContext.values());
+    return Collections.unmodifiableCollection(contexts.values());
   }
 
-  private CDOTimeStampContext getMap(Map<Long, CDOTimeStampContext> mapOfContext, long timestamp)
+  private CDOTimeStampContext getContext(Map<Long, CDOTimeStampContext> contexts, long timestamp)
   {
-    CDOTimeStampContext result = mapOfContext.get(timestamp);
-    if (result == null)
+    CDOTimeStampContext context = contexts.get(timestamp);
+    if (context == null)
     {
-      result = new CDOTimeStampContextImpl(timestamp);
-      mapOfContext.put(timestamp, result);
+      context = new CDOTimeStampContextImpl(timestamp);
+      contexts.put(timestamp, context);
     }
 
-    return result;
+    return context;
   }
 }

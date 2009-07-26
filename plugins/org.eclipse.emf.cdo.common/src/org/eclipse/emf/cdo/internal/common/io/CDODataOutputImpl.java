@@ -19,6 +19,7 @@ import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.model.CDOType;
+import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
@@ -342,7 +343,22 @@ public abstract class CDODataOutputImpl extends ExtendedDataOutput.Delegating im
 
   public void writeCDOLockType(LockType lockType) throws IOException
   {
-    writeBoolean(lockType == LockType.WRITE ? true : false);
+    if (lockType == null)
+    {
+      writeByte(CDOProtocolConstants.LOCK_TYPE_NULL);
+    }
+    else if (lockType == LockType.READ)
+    {
+      writeByte(CDOProtocolConstants.LOCK_TYPE_READ);
+    }
+    else if (lockType == LockType.WRITE)
+    {
+      writeByte(CDOProtocolConstants.LOCK_TYPE_WRITE);
+    }
+    else
+    {
+      throw new IOException("Invalid lock type: " + lockType);
+    }
   }
 
   protected StringIO getPackageURICompressor()

@@ -36,11 +36,12 @@ import org.eclipse.net4j.util.security.NegotiationException;
 import org.eclipse.net4j.util.security.Randomizer;
 import org.eclipse.net4j.util.security.SecurityUtil;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Eike Stepper
@@ -265,9 +266,9 @@ public class SessionManager extends Container<ISession> implements InternalSessi
     }
   }
 
-  public List<Integer> sendMessage(InternalSession sender, CDORemoteSessionMessage message, int[] recipients)
+  public Set<Integer> sendMessage(InternalSession sender, CDORemoteSessionMessage message, int[] recipients)
   {
-    List<Integer> result = new ArrayList<Integer>();
+    Set<Integer> result = new HashSet<Integer>();
     for (int i = 0; i < recipients.length; i++)
     {
       InternalSession recipient = getSession(recipients[i]);

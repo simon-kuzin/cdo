@@ -37,6 +37,8 @@ import java.util.concurrent.locks.Lock;
  */
 public abstract class AbstractCDOTest extends ConfigTest
 {
+  public static final long DEFAULT_TIMEOUT_MILLIS = 30 * 1000;
+
   @Override
   protected void doSetUp() throws Exception
   {
@@ -198,8 +200,6 @@ public abstract class AbstractCDOTest extends ConfigTest
    */
   public static class AsyncResult<T>
   {
-    public static final long DEFAULT_TIMEOUT = 30 * 1000;
-
     private volatile T value;
 
     private CountDownLatch latch = new CountDownLatch(1);
@@ -226,7 +226,7 @@ public abstract class AbstractCDOTest extends ConfigTest
 
     public T getValue() throws Exception
     {
-      return getValue(DEFAULT_TIMEOUT);
+      return getValue(DEFAULT_TIMEOUT_MILLIS);
     }
   }
 

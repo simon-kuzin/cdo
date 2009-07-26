@@ -14,6 +14,7 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDOAuthenticationResult;
+import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.session.remote.CDORemoteSessionMessage;
@@ -22,6 +23,8 @@ import org.eclipse.emf.cdo.spi.server.InternalRepository;
 import org.eclipse.emf.cdo.spi.server.InternalSession;
 
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
+
+import org.eclipse.emf.spi.cdo.InternalCDORemoteSessionManager;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -74,11 +77,31 @@ public class EmbeddedServerSessionProtocol extends Lifecycle implements ISession
 
   public void sendRemoteSessionNotification(byte opcode, ISession session)
   {
-    throw new UnsupportedOperationException();
+    InternalCDORemoteSessionManager manager = clientSessionProtocol.getSession().getRemoteSessionManager();
+    switch (opcode)
+    {
+    case CDOProtocolConstants.REMOTE_SESSION_OPENED:
+      manager.handleRemoteSessionOpened(session.getSessionID(), session.getUserID());
+      break;
+
+    case CDOProtocolConstants.REMOTE_SESSION_CLOSED:
+      manager.handleRemoteSessionClosed(session.getSessionID());
+      break;
+
+    case CDOProtocolConstants.REMOTE_SESSION_SUBSCRIBED:
+      manager.handleRemoteSessionSubscribed(session.getSessionID(), true);
+      break;
+
+    case CDOProtocolConstants.REMOTE_SESSION_UNSUBSCRIBED:
+      manager.handleRemoteSessionSubscribed(session.getSessionID(), false);
+      break;
+    }
   }
 
   public boolean sendRemoteMessageNotification(InternalSession sender, CDORemoteSessionMessage message)
   {
-    throw new UnsupportedOperationException();
+    InternalCDORemoteSessionManager manager = clientSessionProtocol.getSession().getRemoteSessionManager();
+    manager.handleRemoteSessionMessage(sender.getSessionID(), message);
+    return true;
   }
 }

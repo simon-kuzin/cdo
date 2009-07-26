@@ -20,7 +20,7 @@ import org.eclipse.emf.cdo.spi.server.InternalSessionManager;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Set;
 
 /**
  * @author Eike Stepper
@@ -29,7 +29,7 @@ public class RemoteMessageIndication extends CDOReadIndication
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, RemoteMessageIndication.class);
 
-  private List<Integer> result;
+  private Set<Integer> result;
 
   public RemoteMessageIndication(CDOServerProtocol protocol)
   {
