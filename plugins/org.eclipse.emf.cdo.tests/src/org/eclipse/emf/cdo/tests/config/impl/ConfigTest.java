@@ -443,18 +443,18 @@ public abstract class ConfigTest extends AbstractOMTest implements IConstants
 
   protected void skipConfig(Config config)
   {
-    skipTest(getContainerConfig() == config //
-        || getRepositoryConfig() == config //
-        || getSessionConfig() == config //
-        || getModelConfig() == config);
+    skipTest(ObjectUtil.equals(getContainerConfig(), config) //
+        || ObjectUtil.equals(getRepositoryConfig(), config) //
+        || ObjectUtil.equals(getSessionConfig(), config) //
+        || ObjectUtil.equals(getModelConfig(), config));
   }
 
   protected void skipUnlessConfig(Config config)
   {
-    skipTest(getContainerConfig() != config //
-        && getRepositoryConfig() != config //
-        && getSessionConfig() != config //
-        && getModelConfig() != config);
+    skipTest(!ObjectUtil.equals(getContainerConfig(), config) //
+        && !ObjectUtil.equals(getRepositoryConfig(), config) //
+        && !ObjectUtil.equals(getSessionConfig(), config) //
+        && !ObjectUtil.equals(getModelConfig(), config));
   }
 
   protected void skipConfig(String name)

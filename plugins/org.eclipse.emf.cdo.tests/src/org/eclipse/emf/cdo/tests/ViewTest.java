@@ -14,6 +14,7 @@ import org.eclipse.emf.cdo.common.revision.CDORevisionData;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.session.CDOSession;
+import org.eclipse.emf.cdo.tests.config.impl.SessionConfig;
 import org.eclipse.emf.cdo.tests.model1.Company;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.cdo.util.CDOUtil;
@@ -132,8 +133,13 @@ public class ViewTest extends AbstractCDOTest
 
     CDORevisionData revision = resource.cdoRevision().data();
     EStructuralFeature contentsFeature = EresourcePackage.eINSTANCE.getCDOResource_Contents();
-    assertEquals(true, revision.get(contentsFeature, 99) instanceof CDOElementProxy);
-    assertEquals(false, revision.get(contentsFeature, 100) instanceof CDOElementProxy);
+    if (!SessionConfig.Embedded.INSTANCE.equals(getSessionConfig()))
+    {
+      // EmbeddedSession reuses server-side revision manager, so do not rely on it here:
+      assertInstanceOf(CDOElementProxy.class, revision.get(contentsFeature, 99));
+    }
+
+    assertNotInstanceOf(CDOElementProxy.class, revision.get(contentsFeature, 100));
     session.close();
   }
 
@@ -171,11 +177,16 @@ public class ViewTest extends AbstractCDOTest
 
     CDORevisionData revision = resource.cdoRevision().data();
     EStructuralFeature contentsFeature = EresourcePackage.eINSTANCE.getCDOResource_Contents();
-    assertEquals(false, revision.get(contentsFeature, 0) instanceof CDOElementProxy);
-    assertEquals(false, revision.get(contentsFeature, 1) instanceof CDOElementProxy);
-    assertEquals(true, revision.get(contentsFeature, 2) instanceof CDOElementProxy);
-    assertEquals(true, revision.get(contentsFeature, 99) instanceof CDOElementProxy);
-    assertEquals(false, revision.get(contentsFeature, 100) instanceof CDOElementProxy);
+    assertNotInstanceOf(CDOElementProxy.class, revision.get(contentsFeature, 0));
+    assertNotInstanceOf(CDOElementProxy.class, revision.get(contentsFeature, 1));
+    if (!SessionConfig.Embedded.INSTANCE.equals(getSessionConfig()))
+    {
+      // EmbeddedSession reuses server-side revision manager, so do not rely on it here:
+      assertInstanceOf(CDOElementProxy.class, revision.get(contentsFeature, 2));
+      assertInstanceOf(CDOElementProxy.class, revision.get(contentsFeature, 99));
+    }
+
+    assertNotInstanceOf(CDOElementProxy.class, revision.get(contentsFeature, 100));
     session.close();
   }
 

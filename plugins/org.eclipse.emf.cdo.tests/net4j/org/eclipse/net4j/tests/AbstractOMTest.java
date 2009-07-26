@@ -195,6 +195,11 @@ public abstract class AbstractOMTest extends TestCase
     assertTrue("Not an instance of " + expected + ": " + object.getClass().getName(), expected.isInstance(object));
   }
 
+  public static void assertNotInstanceOf(Class<?> expected, Object object)
+  {
+    assertFalse("An instance of " + expected, expected.isInstance(object));
+  }
+
   public static void assertActive(Object object)
   {
     assertEquals(true, LifecycleUtil.isActive(object));

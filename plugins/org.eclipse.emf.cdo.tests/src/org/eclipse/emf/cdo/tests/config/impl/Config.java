@@ -4,13 +4,15 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Eike Stepper - initial API and implementation
  */
 package org.eclipse.emf.cdo.tests.config.impl;
 
 import org.eclipse.emf.cdo.tests.config.IConfig;
+
+import org.eclipse.net4j.util.ObjectUtil;
 
 import java.util.Map;
 import java.util.Set;
@@ -83,5 +85,28 @@ public abstract class Config implements IConfig
 
   public void tearDown() throws Exception
   {
+  }
+
+  @Override
+  public boolean equals(Object obj)
+  {
+    if (obj == this)
+    {
+      return true;
+    }
+
+    if (obj instanceof IConfig)
+    {
+      IConfig that = (IConfig)obj;
+      return ObjectUtil.equals(name, that.getName());
+    }
+
+    return false;
+  }
+
+  @Override
+  public int hashCode()
+  {
+    return ObjectUtil.hashCode(name);
   }
 }
