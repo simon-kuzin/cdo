@@ -98,13 +98,13 @@ public class SessionTest extends AbstractCDOTest
       openSession("authrepo");
       fail("SecurityException expected");
     }
-    catch (SecurityException exception)
+    catch (SecurityException expected)
     {
       // Success
     }
-    catch (RemoteException exception)
+    catch (RemoteException expected)
     {
-      assertEquals(SecurityException.class, exception.getCause().getClass());
+      assertEquals(SecurityException.class, expected.getCause().getClass());
     }
   }
 

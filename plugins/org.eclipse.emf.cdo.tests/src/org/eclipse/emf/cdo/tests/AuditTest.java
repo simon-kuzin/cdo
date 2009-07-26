@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Eike Stepper - initial API and implementation
  */
@@ -347,11 +347,15 @@ public class AuditTest extends AbstractCDOTest
 
       session = openSession2();
       session.openAudit(timeStampPriorToRepoCreation);
-      fail("SignalRemoteException expected");
+      fail("IllegalArgumentException expected");
     }
-    catch (RemoteException eexpected)
+    catch (IllegalArgumentException expected)
     {
       // Success
+    }
+    catch (RemoteException expected)
+    {
+      assertEquals(IllegalArgumentException.class, expected.getCause().getClass());
     }
     finally
     {
@@ -382,11 +386,15 @@ public class AuditTest extends AbstractCDOTest
       session = openSession2();
       CDOAudit audit = session.openAudit(commitTime1);
       audit.setTimeStamp(timeStampPriorToRepoCreation);
-      fail("SignalRemoteException expected");
+      fail("IllegalArgumentException expected");
+    }
+    catch (IllegalArgumentException expected)
+    {
+      // Success
     }
     catch (RemoteException expected)
     {
-      // Success
+      assertEquals(IllegalArgumentException.class, expected.getCause().getClass());
     }
     finally
     {
