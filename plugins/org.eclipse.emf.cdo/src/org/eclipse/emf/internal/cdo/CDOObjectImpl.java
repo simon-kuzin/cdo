@@ -306,7 +306,7 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
     }
 
     InternalCDOView view = cdoView();
-    revision.setContainerID(eContainer == null ? CDOID.NULL : (CDOID)cdoView().convertObjectToID(eContainer, true));
+    revision.setContainerID(eContainer == null ? CDOID.NULL : (CDOID)cdoView().convertObjectToID(eContainer));
     revision.setContainingFeatureID(eContainerFeatureID);
 
     Resource directResource = eDirectResource();
@@ -1005,7 +1005,7 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
     }
 
     EStructuralFeature.Internal internalFeature = (EStructuralFeature.Internal)eFeature;
-    EReference oppositeReference = instance.cdoID().isTemporary() ? null : internalFeature.getEOpposite();
+    EReference oppositeReference = internalFeature.getEOpposite();
 
     CDOStore cdoStore = instance.cdoView().getStore();
     EStore eStore = instance.eStore();

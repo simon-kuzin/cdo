@@ -12,6 +12,10 @@
 package org.eclipse.emf.internal.cdo.transaction;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.id.CDOIDUtil;
+import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
+import org.eclipse.emf.cdo.internal.common.id.CDOIDTempObjectExternalImpl;
+import org.eclipse.emf.cdo.spi.common.revision.CDOIDMapper;
 import org.eclipse.emf.cdo.transaction.CDOSavepoint;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.cdo.transaction.CDOXATransaction;
@@ -30,6 +34,8 @@ import org.eclipse.net4j.util.transaction.TransactionException;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.Notifier;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.spi.cdo.CDOSessionProtocol;
 import org.eclipse.emf.spi.cdo.CDOTransactionStrategy;
 import org.eclipse.emf.spi.cdo.InternalCDOTransaction;
@@ -105,6 +111,8 @@ public class CDOXATransactionImpl implements InternalCDOXATransaction
 
   private CDOXAInternalAdapter internalAdapter = new CDOXAInternalAdapter();
 
+  private Map<EObject, CDOIDTempObjectExternalImpl> objectToID = new HashMap<EObject, CDOIDTempObjectExternalImpl>();
+
   public CDOXATransactionImpl()
   {
   }
@@ -160,6 +168,18 @@ public class CDOXATransactionImpl implements InternalCDOXATransaction
 
     viewSet.eAdapters().remove(internalAdapter);
   };
+
+  public synchronized CDOIDTempObjectExternalImpl getCDOIDExternalTemp(EObject object)
+  {
+    CDOIDTempObjectExternalImpl cdoID = objectToID.get(object);
+    if (cdoID == null)
+    {
+      cdoID = (CDOIDTempObjectExternalImpl)CDOIDUtil.createTempObjectExternal(EcoreUtil.getURI(object).toString());
+      objectToID.put(object, cdoID);
+    }
+  
+    return cdoID;
+  }
 
   public void add(InternalCDOTransaction view, CDOID object)
   {
@@ -258,6 +278,8 @@ public class CDOXATransactionImpl implements InternalCDOXATransaction
     CheckUtil.checkArg(progressMonitor, "progressMonitor"); //$NON-NLS-1$
     progressMonitor.beginTask(Messages.getString("CDOXATransactionImpl.4"), 3); //$NON-NLS-1$
     int phase = 0;
+
+    objectToID.clear();
 
     for (InternalCDOTransaction transaction : transactions)
     {
@@ -467,7 +489,14 @@ public class CDOXATransactionImpl implements InternalCDOXATransaction
     @Override
     protected void handle(CDOXACommitContextImpl xaContext, IProgressMonitor progressMonitor) throws Exception
     {
+      CDOIDMapper idMapper = new CDOIDMapper();
+
+      CDOReferenceAdjuster referenceAdjuster = xaContext.createAdjuster(idMapper);
+
+      CDOSavepointImpl.applyReferenceAdjuster(xaContext, referenceAdjuster);
+
       xaContext.preCommit();
+
       CommitTransactionResult result = null;
       if (xaContext.getTransaction().isDirty())
       {
@@ -552,6 +581,7 @@ public class CDOXATransactionImpl implements InternalCDOXATransaction
       CDOSessionProtocol sessionProtocol = xaContext.getTransaction().getSession().getSessionProtocol();
       OMMonitor monitor = new EclipseMonitor(progressMonitor);
       CommitTransactionResult result = sessionProtocol.commitTransactionCancel(xaContext, monitor);
+      xaContext.commitFail();
       check_result(result);
     }
   };

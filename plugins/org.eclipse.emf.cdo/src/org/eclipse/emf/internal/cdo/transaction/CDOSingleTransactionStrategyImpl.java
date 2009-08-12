@@ -4,12 +4,14 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *   Simon McDuff - initial API and implementation
  **************************************************************************/
 package org.eclipse.emf.internal.cdo.transaction;
 
+import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
+import org.eclipse.emf.cdo.spi.common.revision.CDOIDMapper;
 import org.eclipse.emf.cdo.transaction.CDOSavepoint;
 
 import org.eclipse.emf.internal.cdo.bundle.OM;
@@ -49,24 +51,38 @@ public class CDOSingleTransactionStrategyImpl implements CDOTransactionStrategy
       TRACER.format("CDOCommitContext.preCommit"); //$NON-NLS-1$
     }
 
-    commitContext.preCommit();
+    CDOIDMapper idMapper = new CDOIDMapper();
+    CDOReferenceAdjuster referenceAdjuster = commitContext.createAdjuster(idMapper);
+    CDOSavepointImpl.applyReferenceAdjuster(commitContext, referenceAdjuster);
 
     CommitTransactionResult result = null;
-    if (commitContext.getTransaction().isDirty())
-    {
-      OMMonitor monitor = new EclipseMonitor(progressMonitor);
-      result = transaction.getSession().getSessionProtocol().commitTransaction(commitContext, monitor);
 
-      String rollbackMessage = result.getRollbackMessage();
-      if (rollbackMessage != null)
+    try
+    {
+      commitContext.preCommit();
+
+      if (commitContext.getTransaction().isDirty())
       {
-        throw new TransactionException(rollbackMessage);
+        OMMonitor monitor = new EclipseMonitor(progressMonitor);
+        result = transaction.getSession().getSessionProtocol().commitTransaction(commitContext, monitor);
+
+        String rollbackMessage = result.getRollbackMessage();
+        if (rollbackMessage != null)
+        {
+          throw new TransactionException(rollbackMessage);
+        }
+      }
+
+      if (TRACER.isEnabled())
+      {
+        TRACER.format("CDOCommitContext.postCommit"); //$NON-NLS-1$
       }
     }
-
-    if (TRACER.isEnabled())
+    catch (Exception ex)
     {
-      TRACER.format("CDOCommitContext.postCommit"); //$NON-NLS-1$
+      idMapper.reverseIDMappings();
+      CDOSavepointImpl.applyReferenceAdjuster(commitContext, idMapper);
+      throw ex;
     }
 
     commitContext.postCommit(result);

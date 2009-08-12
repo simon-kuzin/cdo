@@ -12,10 +12,8 @@
  */
 package org.eclipse.emf.internal.cdo.transaction;
 
-import org.eclipse.emf.cdo.CDOIDDangling;
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjustable;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
@@ -30,6 +28,7 @@ import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
 import org.eclipse.net4j.util.collection.MultiMap;
 
 import org.eclipse.emf.spi.cdo.InternalCDOTransaction;
+import org.eclipse.emf.spi.cdo.InternalCDOTransaction.InternalCDOCommitContext;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -45,7 +44,7 @@ import java.util.concurrent.ConcurrentMap;
  * @author Simon McDuff
  * @since 2.0
  */
-public class CDOSavepointImpl extends AbstractSavepoint implements CDOReferenceAdjustable
+public class CDOSavepointImpl extends AbstractSavepoint
 {
   private Map<CDOID, CDOResource> newResources = new HashMap<CDOID, CDOResource>();
 
@@ -359,40 +358,15 @@ public class CDOSavepointImpl extends AbstractSavepoint implements CDOReferenceA
     getUserTransaction().rollback(this);
   }
 
-  public void applyReferenceAdjuster(CDOReferenceAdjuster referenceAdjuster)
+  public static void applyReferenceAdjuster(InternalCDOCommitContext context, CDOReferenceAdjuster referenceAdjuster)
   {
-    adjustObjects(referenceAdjuster, newResources.values());
-    adjustObjects(referenceAdjuster, newObjects.values());
-    adjustObjects(referenceAdjuster, dirtyObjects.values());
-    adjustRevisionDeltas(referenceAdjuster, revisionDeltas.values());
+    adjustObjects(referenceAdjuster, context.getNewResources().values());
+    adjustObjects(referenceAdjuster, context.getNewObjects().values());
+    adjustObjects(referenceAdjuster, context.getDirtyObjects().values());
+    adjustRevisionDeltas(referenceAdjuster, context.getRevisionDeltas().values());
   }
 
-  // TTT
-  public void checkNotDanglig()
-  {
-    checkNotDanglig(newResources.keySet());
-    checkNotDanglig(newObjects.keySet());
-    checkNotDanglig(dirtyObjects.keySet());
-    checkNotDanglig(revisionDeltas.keySet());
-
-    checkNotDanglig(baseNewObjects.keySet());
-    checkNotDanglig(detachedObjects.keySet());
-    checkNotDanglig(sharedDetachedObjects);
-  }
-
-  // TTT
-  private void checkNotDanglig(Collection<CDOID> ids)
-  {
-    for (CDOID id : ids)
-    {
-      if (id instanceof CDOIDDangling)
-      {
-        throw new IllegalArgumentException("DANGLING ID: " + ((CDOIDDangling)id).getTarget());
-      }
-    }
-  }
-
-  private static void adjustObjects(CDOReferenceAdjuster referenceAdjuster, Collection<? extends CDOObject> objects)
+  public static void adjustObjects(CDOReferenceAdjuster referenceAdjuster, Collection<? extends CDOObject> objects)
   {
     for (CDOObject object : objects)
     {
@@ -401,7 +375,7 @@ public class CDOSavepointImpl extends AbstractSavepoint implements CDOReferenceA
     }
   }
 
-  private static void adjustRevisionDeltas(CDOReferenceAdjuster referenceAdjuster,
+  public static void adjustRevisionDeltas(CDOReferenceAdjuster referenceAdjuster,
       Collection<? extends CDORevisionDelta> deltas)
   {
     for (CDORevisionDelta delta : deltas)

@@ -10,6 +10,7 @@
  **************************************************************************/
 package org.eclipse.emf.internal.cdo.transaction;
 
+import org.eclipse.emf.cdo.CDOIDDangling;
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
@@ -17,12 +18,13 @@ import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.internal.common.id.CDOIDTempObjectExternalImpl;
+import org.eclipse.emf.cdo.spi.common.revision.CDOIDMapper;
 import org.eclipse.emf.cdo.util.CDOUtil;
 
-import org.eclipse.emf.internal.cdo.messages.Messages;
 import org.eclipse.emf.internal.cdo.transaction.CDOXATransactionImpl.CDOXAState;
+import org.eclipse.emf.internal.cdo.util.FSMUtil;
 
-import org.eclipse.emf.ecore.InternalEObject;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.spi.cdo.InternalCDOObject;
 import org.eclipse.emf.spi.cdo.InternalCDOTransaction;
 import org.eclipse.emf.spi.cdo.CDOSessionProtocol.CommitTransactionResult;
@@ -31,7 +33,6 @@ import org.eclipse.emf.spi.cdo.InternalCDOXATransaction.InternalCDOXACommitConte
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +56,8 @@ public class CDOXACommitContextImpl implements InternalCDOXACommitContext
   private Map<CDOIDTempObjectExternalImpl, InternalCDOTransaction> requestedIDs = new HashMap<CDOIDTempObjectExternalImpl, InternalCDOTransaction>();
 
   private Map<InternalCDOObject, CDOIDTempObjectExternalImpl> objectToID = new HashMap<InternalCDOObject, CDOIDTempObjectExternalImpl>();
+
+  private CDOIDMapper idMapper;
 
   public CDOXACommitContextImpl(CDOXATransactionImpl manager, InternalCDOCommitContext commitContext)
   {
@@ -138,33 +141,9 @@ public class CDOXACommitContextImpl implements InternalCDOXACommitContext
     return true;
   }
 
-  @Deprecated
-  public CDOID provideCDOID(Object idOrObject)
+  public CDOIDMapper getCDOIDMapper()
   {
-    // TODO Check / remove this method!!!
-    CDOID id = (CDOID)idOrObject;
-    if (id instanceof CDOIDTempObjectExternalImpl)
-    {
-      if (idOrObject instanceof InternalEObject)
-      {
-        CDOIDTempObjectExternalImpl proxyTemp = (CDOIDTempObjectExternalImpl)id;
-        if (!requestedIDs.containsKey(proxyTemp))
-        {
-          InternalCDOObject cdoObject = (InternalCDOObject)CDOUtil.getCDOObject((InternalEObject)idOrObject);
-          InternalCDOTransaction cdoTransaction = (InternalCDOTransaction)cdoObject.cdoView();
-          getTransactionManager().add(cdoTransaction, proxyTemp);
-          requestedIDs.put(proxyTemp, cdoTransaction);
-          objectToID.put(cdoObject, proxyTemp);
-        }
-      }
-      else
-      {
-        throw new IllegalArgumentException(MessageFormat.format(
-            Messages.getString("CDOXACommitContextImpl.0"), idOrObject)); //$NON-NLS-1$
-      }
-    }
-
-    return id;
+    return idMapper;
   }
 
   public void preCommit()
@@ -193,5 +172,53 @@ public class CDOXACommitContextImpl implements InternalCDOXACommitContext
     }
 
     delegateCommitContext.postCommit(result);
+  }
+
+  public void commitFail()
+  {
+    getCDOIDMapper().reverseIDMappings();
+    CDOSavepointImpl.applyReferenceAdjuster(this, getCDOIDMapper());
+  }
+
+  public CDOReferenceAdjuster createAdjuster(CDOIDMapper idMapper)
+  {
+    this.idMapper = idMapper;
+    final CDOReferenceAdjuster delegateAjuster = delegateCommitContext.createAdjuster(idMapper);
+    CDOReferenceAdjuster adjuster = new CDOReferenceAdjuster()
+    {
+      public CDOID adjustReference(CDOID id)
+      {
+        if (id instanceof CDOIDDangling)
+        {
+          CDOIDDangling danglingID = (CDOIDDangling)id;
+          EObject target = danglingID.getTarget();
+          InternalCDOObject cdoObject = (InternalCDOObject)CDOUtil.getCDOObject(target);
+
+          if (!FSMUtil.isTransient(cdoObject) && cdoObject.cdoView() != delegateCommitContext.getTransaction())
+          {
+            // Only register objects from others CDO repository that are persisted
+            if (target.eResource() != null)
+            {
+              InternalCDOTransaction transaction = (InternalCDOTransaction)cdoObject.cdoView();
+              CDOIDTempObjectExternalImpl idExternalTemp = getTransactionManager().getCDOIDExternalTemp(target);
+              getTransactionManager().add(transaction, idExternalTemp);
+              requestedIDs.put(idExternalTemp, transaction);
+              objectToID.put(cdoObject, idExternalTemp);
+              getCDOIDMapper().putIDMapping(danglingID, idExternalTemp);
+              id = idExternalTemp;
+            }
+          }
+        }
+
+        return delegateAjuster.adjustReference(id);
+      }
+    };
+
+    return adjuster;
+  }
+
+  public void adjustReferences(CDOReferenceAdjuster adjuster)
+  {
+    CDOSavepointImpl.applyReferenceAdjuster(this, adjuster);
   }
 };

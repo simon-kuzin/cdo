@@ -492,7 +492,6 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
         CDORemoteSession remoteSession = manager.createRemoteSession(session.getSessionID(), session.getUserID(),
             session.isSubscribed());
         result.add(remoteSession);
-
       }
     }
 

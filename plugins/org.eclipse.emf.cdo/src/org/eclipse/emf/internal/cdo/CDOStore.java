@@ -200,7 +200,7 @@ public final class CDOStore implements EStore
     // TODO Clarify feature maps
     if (feature instanceof EReference)
     {
-      value = cdoObject.cdoView().convertObjectToID(value, true);
+      value = cdoObject.cdoView().convertObjectToID(value);
     }
 
     InternalCDORevision revision = getRevisionForReading(cdoObject);
@@ -218,7 +218,7 @@ public final class CDOStore implements EStore
     // TODO Clarify feature maps
     if (feature instanceof EReference)
     {
-      value = cdoObject.cdoView().convertObjectToID(value, true);
+      value = cdoObject.cdoView().convertObjectToID(value);
     }
 
     InternalCDORevision revision = getRevisionForReading(cdoObject);
@@ -236,7 +236,7 @@ public final class CDOStore implements EStore
     // TODO Clarify feature maps
     if (feature instanceof EReference)
     {
-      value = cdoObject.cdoView().convertObjectToID(value, true);
+      value = cdoObject.cdoView().convertObjectToID(value);
     }
 
     InternalCDORevision revision = getRevisionForReading(cdoObject);
@@ -315,7 +315,7 @@ public final class CDOStore implements EStore
     {
       Object oldValue = revision.basicGet(feature, index);
       oldValue = resolveProxy(revision, feature, index, oldValue);
-      value = cdoObject.cdoView().convertObjectToID(value, true);
+      value = cdoObject.cdoView().convertObjectToID(value);
     }
 
     Object oldValue = revision.basicSet(feature, index, value);
@@ -336,7 +336,7 @@ public final class CDOStore implements EStore
     }
 
     CDOID newContainerID = newEContainer == null ? CDOID.NULL : (CDOID)cdoObject.cdoView().convertObjectToID(
-        newEContainer, true);
+        newEContainer);
     CDOID newResourceID = newResource == null ? CDOID.NULL : newResource.cdoID();
 
     CDOFeatureDelta delta = new CDOContainerFeatureDeltaImpl(newResourceID, newContainerID, newContainerFeatureID);
@@ -511,7 +511,7 @@ public final class CDOStore implements EStore
       {
         // The EReference condition should be in the CDOType.convertToCDO. Since common package do not have access to
         // InternalCDOView I kept it here.
-        value = view.convertObjectToID(value, true);
+        value = view.convertObjectToID(value);
       }
       else if (FeatureMapUtil.isFeatureMap(feature))
       {

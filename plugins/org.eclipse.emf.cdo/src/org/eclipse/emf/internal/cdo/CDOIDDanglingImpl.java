@@ -35,8 +35,6 @@ public class CDOIDDanglingImpl extends AbstractCDOID implements CDOIDDangling
 
   private InternalEObject target;
 
-  // private List<Reference> references = new ArrayList<Reference>();
-
   public CDOIDDanglingImpl(InternalEObject target)
   {
     CheckUtil.checkArg(target, "target");
@@ -47,33 +45,6 @@ public class CDOIDDanglingImpl extends AbstractCDOID implements CDOIDDangling
   {
     return target;
   }
-
-  // public List<Reference> getReferences()
-  // {
-  // return references;
-  // }
-  //
-  // public void addReference(InternalCDOObject sourceObject, EStructuralFeature sourceFeature)
-  // {
-  // synchronized (references)
-  // {
-  // for (Reference reference : references)
-  // {
-  // if (reference.getSourceObject() == sourceObject && reference.getSourceFeature() == sourceFeature)
-  // {
-  // return;
-  // }
-  // }
-  //
-  // references.add(new ReferenceImpl(sourceObject, sourceFeature));
-  // }
-  // }
-  //
-  // public void dispose()
-  // {
-  // target = null;
-  // references.clear();
-  // }
 
   public Type getType()
   {
@@ -167,35 +138,4 @@ public class CDOIDDanglingImpl extends AbstractCDOID implements CDOIDDangling
   {
     return toURIFragment().compareTo(((CDOIDDanglingImpl)o).toURIFragment());
   }
-
-  // /**
-  // * @author Eike Stepper
-  // */
-  // public final class ReferenceImpl implements Reference
-  // {
-  // private InternalCDOObject sourceObject;
-  //
-  // private EStructuralFeature sourceFeature;
-  //
-  // public ReferenceImpl(InternalCDOObject sourceObject, EStructuralFeature sourceFeature)
-  // {
-  // this.sourceObject = sourceObject;
-  // this.sourceFeature = sourceFeature;
-  // }
-  //
-  // public InternalCDOObject getSourceObject()
-  // {
-  // return sourceObject;
-  // }
-  //
-  // public EStructuralFeature getSourceFeature()
-  // {
-  // return sourceFeature;
-  // }
-  //
-  // public CDOIDDangling getTargetID()
-  // {
-  // return CDOIDDanglingImpl.this;
-  // }
-  // }
 }

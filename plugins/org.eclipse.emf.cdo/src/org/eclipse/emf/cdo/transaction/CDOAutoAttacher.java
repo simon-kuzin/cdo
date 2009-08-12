@@ -11,6 +11,7 @@
  */
 package org.eclipse.emf.cdo.transaction;
 
+import org.eclipse.emf.cdo.CDOIDDangling;
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.revision.delta.CDOAddFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOClearFeatureDelta;
@@ -87,6 +88,11 @@ public class CDOAutoAttacher extends CDODefaultTransactionHandler
       {
         res.eResource().getContents().add(cdoObject);
       }
+    }
+    else if (object instanceof CDOIDDangling)
+    {
+      CDOIDDangling cdoIDDangling = (CDOIDDangling)object;
+      res.eResource().getContents().add(cdoIDDangling.getTarget());
     }
   }
 

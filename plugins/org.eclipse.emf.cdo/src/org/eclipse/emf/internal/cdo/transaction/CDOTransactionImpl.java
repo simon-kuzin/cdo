@@ -17,8 +17,6 @@ import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.CDOState;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
-import org.eclipse.emf.cdo.common.id.CDOIDExternal;
-import org.eclipse.emf.cdo.common.id.CDOIDObject;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
@@ -48,6 +46,7 @@ import org.eclipse.emf.cdo.transaction.CDOTransactionFinishedEvent;
 import org.eclipse.emf.cdo.transaction.CDOTransactionHandler;
 import org.eclipse.emf.cdo.transaction.CDOTransactionStartedEvent;
 import org.eclipse.emf.cdo.util.CDOURIUtil;
+import org.eclipse.emf.cdo.util.CDOUtil;
 import org.eclipse.emf.cdo.util.DanglingReferenceException;
 import org.eclipse.emf.cdo.util.ResourceNotFoundException;
 import org.eclipse.emf.cdo.view.CDOViewResourcesEvent;
@@ -559,9 +558,9 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
   }
 
   @Override
-  public Object convertObjectToID(Object potentialObject, boolean onlyPersistedID)
+  public Object convertObjectToID(Object potentialObject)
   {
-    potentialObject = super.convertObjectToID(potentialObject, onlyPersistedID);
+    potentialObject = super.convertObjectToID(potentialObject);
     if (potentialObject instanceof InternalEObject)
     {
       InternalEObject target = (InternalEObject)potentialObject;
@@ -639,119 +638,17 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
       progressMonitor = new NullProgressMonitor();
     }
 
-    CDOIDMapper idMapper = null;
-
     try
     {
-      idMapper = adjustDanglingReferences();
       getTransactionStrategy().commit(this, progressMonitor);
     }
     catch (TransactionException ex)
     {
-      undoIDMappings(idMapper);
       throw ex;
     }
     catch (Exception ex)
     {
-      undoIDMappings(idMapper);
       throw new TransactionException(ex);
-    }
-  }
-
-  private CDOIDMapper adjustDanglingReferences()
-  {
-    final CDOIDMapper idMapper = new CDOIDMapper();
-    final Map<CDOID, CDOObject> detachedObjects = getDetachedObjects();
-    CDOReferenceAdjuster danglingReferenceAdjuster = new CDOReferenceAdjuster()
-    {
-      public CDOID adjustReference(CDOID id)
-      {
-        if (id instanceof CDOIDObject)
-        {
-          CDOIDObject objectID = (CDOIDObject)id;
-          CDOObject target = detachedObjects.get(objectID);
-          if (target != null)
-          {
-            // Is it external now?
-            if (target.eResource() != null)
-            {
-              CDOIDExternal newID = CDOIDUtil.createExternal(EcoreUtil.getURI(target).toString());
-              idMapper.putIDMapping(objectID, newID);
-              return newID;
-            }
-
-            throw new DanglingReferenceException(target);
-          }
-        }
-        else if (id instanceof CDOIDDangling)
-        {
-          CDOIDDangling danglingID = (CDOIDDangling)id;
-
-          // Was it already mapped?
-          CDOID newID = idMapper.getIDMapping(danglingID);
-          if (newID != null)
-          {
-            return newID;
-          }
-
-          // Was it attached in the meantime?
-          EObject target = danglingID.getTarget();
-          if (target instanceof InternalCDOObject) // TODO Legacy?
-          {
-            InternalCDOObject cdoObject = (InternalCDOObject)target;
-            if (cdoObject.cdoView() == CDOTransactionImpl.this)
-            {
-              newID = cdoObject.cdoID();
-              idMapper.putIDMapping(danglingID, newID);
-              return newID;
-            }
-          }
-
-          // Is it external?
-          if (target.eResource() != null)
-          {
-            newID = CDOIDUtil.createExternal(EcoreUtil.getURI(target).toString());
-            idMapper.putIDMapping(danglingID, newID);
-            return newID;
-          }
-
-          throw new DanglingReferenceException(target);
-        }
-
-        return id;
-      }
-    };
-
-    applyReferenceAdjuster(danglingReferenceAdjuster);
-    checkNotDanglig();
-    return idMapper;
-  }
-
-  private void undoIDMappings(CDOIDMapper idMapper)
-  {
-    if (idMapper != null)
-    {
-      idMapper.reverseIDMappings();
-      applyReferenceAdjuster(idMapper);
-    }
-  }
-
-  // TTT
-  public void checkNotDanglig()
-  {
-    for (CDOSavepointImpl itrSavepoint = lastSavepoint; itrSavepoint != null; itrSavepoint = itrSavepoint
-        .getPreviousSavepoint())
-    {
-      itrSavepoint.checkNotDanglig();
-    }
-  }
-
-  public void applyReferenceAdjuster(CDOReferenceAdjuster referenceAdjuster)
-  {
-    for (CDOSavepointImpl itrSavepoint = lastSavepoint; itrSavepoint != null; itrSavepoint = itrSavepoint
-        .getPreviousSavepoint())
-    {
-      itrSavepoint.applyReferenceAdjuster(referenceAdjuster);
     }
   }
 
@@ -1371,6 +1268,8 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
 
     private List<CDOPackageUnit> newPackageUnits;
 
+    private CDOIDMapper mapper = new CDOIDMapper();
+
     public CDOCommitContextImpl()
     {
       CDOTransactionImpl transaction = getTransaction();
@@ -1417,6 +1316,11 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
       return revisionDeltas;
     }
 
+    public CDOIDMapper getCDOIDMapper()
+    {
+      return mapper;
+    }
+
     public void preCommit()
     {
       if (isDirty())
@@ -1446,6 +1350,69 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
           throw new TransactionException(ex);
         }
       }
+    }
+
+    public CDOReferenceAdjuster createAdjuster(final CDOIDMapper idMapper)
+    {
+      CDOReferenceAdjuster danglingReferenceAdjuster = new CDOReferenceAdjuster()
+      {
+        public CDOID adjustReference(CDOID id)
+        {
+          if (id instanceof CDOIDDangling)
+          {
+            CDOIDDangling danglingID = (CDOIDDangling)id;
+
+            // Was it already mapped?
+            CDOID newID = idMapper.getIDMapping(danglingID);
+            if (newID != null)
+            {
+              return newID;
+            }
+
+            // Was it attached in the meantime?
+            EObject target = danglingID.getTarget();
+            InternalCDOObject cdoObject = (InternalCDOObject)CDOUtil.getCDOObject(target);
+            if (cdoObject != null) // TODO Legacy?
+            {
+              if (cdoObject.cdoView() == CDOTransactionImpl.this)
+              {
+                newID = cdoObject.cdoID();
+                idMapper.putIDMapping(danglingID, newID);
+                return newID;
+              }
+              else if (!FSMUtil.isTransient(cdoObject))
+              {
+                // Object belong to another repository
+                if (!FSMUtil.isNew(cdoObject))
+                {
+                  // Create an external reference
+                  newID = CDOIDUtil.createExternal(EcoreUtil.getURI(target).toString());
+                  idMapper.putIDMapping(danglingID, newID);
+                  return newID;
+                }
+
+                // If it belong to another Repository and it is a new objects.... probably need to be in a XATransaction
+                // or commit the other transaction before.
+                throw new DanglingReferenceException(target);
+              }
+            }
+
+            // Not from CDO Repository but external
+            if (target.eResource() != null)
+            {
+              newID = CDOIDUtil.createExternal(EcoreUtil.getURI(target).toString());
+              idMapper.putIDMapping(danglingID, newID);
+              return newID;
+            }
+
+            throw new DanglingReferenceException(target);
+          }
+
+          return id;
+        }
+      };
+
+      return danglingReferenceAdjuster;
     }
 
     public void postCommit(CommitTransactionResult result)
@@ -1526,6 +1493,12 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
           unlockObjects(null, null);
         }
       }
+    }
+
+    public void commitFail()
+    {
+      getCDOIDMapper().reverseIDMappings();
+      CDOSavepointImpl.applyReferenceAdjuster(this, getCDOIDMapper());
     }
 
     @SuppressWarnings("unchecked")

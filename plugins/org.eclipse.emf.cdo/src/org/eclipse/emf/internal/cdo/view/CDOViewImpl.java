@@ -893,14 +893,6 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
 
   public Object convertObjectToID(Object potentialObject)
   {
-    return convertObjectToID(potentialObject, false);
-  }
-
-  /**
-   * @since 2.0
-   */
-  public Object convertObjectToID(Object potentialObject, boolean onlyPersistedID)
-  {
     if (potentialObject instanceof CDOID)
     {
       return potentialObject;
@@ -911,7 +903,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
       if (potentialObject instanceof InternalCDOObject)
       {
         InternalCDOObject object = (InternalCDOObject)potentialObject;
-        CDOID id = getID(object, onlyPersistedID);
+        CDOID id = getID(object);
         if (id != null)
         {
           return id;
@@ -924,7 +916,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
           InternalCDOObject object = FSMUtil.getLegacyAdapter(((InternalEObject)potentialObject).eAdapters());
           if (object != null)
           {
-            CDOID id = getID(object, onlyPersistedID);
+            CDOID id = getID(object);
             if (id != null)
             {
               return id;
@@ -943,7 +935,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     return potentialObject;
   }
 
-  private CDOID getID(InternalCDOObject object, boolean onlyPersistedID)
+  private CDOID getID(InternalCDOObject object)
   {
     // if (onlyPersistedID)
     // {
@@ -952,6 +944,11 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     // return null;
     // }
     // }
+    // Need to check the state of the object before doing anything else.
+    if (FSMUtil.isTransient(object))
+    {
+      return null;
+    }
 
     CDOView view = object.cdoView();
     if (view == this)
