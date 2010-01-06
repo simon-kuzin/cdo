@@ -1425,22 +1425,6 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       }
     }
 
-    public InternalCDORevision verifyRevision(InternalCDORevision revision, int referenceChunk)
-    {
-      int attempt = 0;
-      for (;;)
-      {
-        try
-        {
-          return delegate.verifyRevision(revision, referenceChunk);
-        }
-        catch (Exception ex)
-        {
-          handleException(++attempt, ex);
-        }
-      }
-    }
-
     public void lockObjects(CDOView view, Map<CDOID, CDOIDAndVersion> objects, long timeout, LockType lockType)
         throws InterruptedException
     {

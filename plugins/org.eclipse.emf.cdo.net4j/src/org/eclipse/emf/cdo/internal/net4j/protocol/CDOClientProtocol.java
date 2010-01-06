@@ -131,11 +131,6 @@ public class CDOClientProtocol extends SignalProtocol<CDOSession> implements CDO
     return send(new LoadRevisionByVersionRequest(this, id, referenceChunk, prefetchDepth, version)).get(0);
   }
 
-  public InternalCDORevision verifyRevision(InternalCDORevision revision, int referenceChunk)
-  {
-    return revision;
-  }
-
   public Collection<CDORefreshContext> syncRevisions(Map<CDOID, CDOIDAndVersion> idAndVersions, int initialChunkSize)
   {
     return send(new SyncRevisionsRequest(this, idAndVersions, initialChunkSize));

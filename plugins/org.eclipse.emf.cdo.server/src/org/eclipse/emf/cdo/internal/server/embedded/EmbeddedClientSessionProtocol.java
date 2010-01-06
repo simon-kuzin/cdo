@@ -182,11 +182,6 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
     }
   }
 
-  public InternalCDORevision verifyRevision(InternalCDORevision revision, int referenceChunk)
-  {
-    throw new ImplementationError("Should not be called");
-  }
-
   public Collection<CDORefreshContext> syncRevisions(Map<CDOID, CDOIDAndVersion> allRevisions, int initialChunkSize)
   {
     throw new UnsupportedOperationException();

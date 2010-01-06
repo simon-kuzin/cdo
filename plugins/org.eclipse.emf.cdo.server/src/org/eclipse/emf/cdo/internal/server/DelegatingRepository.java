@@ -286,9 +286,4 @@ public abstract class DelegatingRepository implements InternalRepository
   {
     getDelegate().validateTimeStamp(timeStamp);
   }
-
-  public InternalCDORevision verifyRevision(InternalCDORevision revision, int referenceChunk)
-  {
-    return getDelegate().verifyRevision(revision, referenceChunk);
-  }
 }

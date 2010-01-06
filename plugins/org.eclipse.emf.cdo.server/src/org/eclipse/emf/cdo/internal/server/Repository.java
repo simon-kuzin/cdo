@@ -262,19 +262,6 @@ public class Repository extends Container<Object> implements InternalRepository
     return revisions;
   }
 
-  public InternalCDORevision verifyRevision(InternalCDORevision revision, int referenceChunk)
-  {
-    IStoreAccessor accessor = null;
-    if (isVerifyingRevisions())
-    {
-      accessor = StoreThreadLocal.getAccessor();
-      revision = accessor.verifyRevision(revision);
-    }
-
-    ensureChunks(revision, referenceChunk, accessor);
-    return revision;
-  }
-
   protected void ensureChunks(InternalCDORevision revision, int referenceChunk, IStoreAccessor accessor)
   {
     EClass eClass = revision.getEClass();
