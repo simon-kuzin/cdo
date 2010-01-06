@@ -41,7 +41,7 @@ public class CDORevisionPrefetchingPolicyImpl implements CDORevisionPrefetchingP
   public Collection<CDOID> loadAhead(CDORevisionManager revisionManager, EObject eObject, EStructuralFeature feature,
       CDOList list, int accessIndex, CDOID accessID)
   {
-    if (chunkSize > 1 && !revisionManager.containsRevisionByTime(accessID, CDORevision.UNSPECIFIED_DATE))
+    if (chunkSize > 1 && !revisionManager.containsRevision(accessID, CDORevision.UNSPECIFIED_DATE))
     {
       int fromIndex = accessIndex;
       int toIndex = Math.min(accessIndex + chunkSize, list.size()) - 1;
@@ -55,7 +55,7 @@ public class CDORevisionPrefetchingPolicyImpl implements CDORevisionPrefetchingP
           CDOID idElement = (CDOID)element;
           if (!idElement.isTemporary())
           {
-            if (!revisionManager.containsRevisionByTime(idElement, CDORevision.UNSPECIFIED_DATE))
+            if (!revisionManager.containsRevision(idElement, CDORevision.UNSPECIFIED_DATE))
             {
               if (!notRegistered.contains(idElement))
               {

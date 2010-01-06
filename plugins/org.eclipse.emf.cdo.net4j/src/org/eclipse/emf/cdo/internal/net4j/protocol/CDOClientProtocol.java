@@ -115,7 +115,7 @@ public class CDOClientProtocol extends SignalProtocol<CDOSession> implements CDO
     return send(new LoadChunkRequest(this, revision, feature, accessIndex, fetchIndex, fromIndex, toIndex));
   }
 
-  public InternalCDORevision loadRevisionByTime(CDOID id, int referenceChunk, int prefetchDepth, long timeStamp)
+  public InternalCDORevision loadRevision(CDOID id, int referenceChunk, int prefetchDepth, long timeStamp)
   {
     return loadRevisionsByTime(Collections.singleton(id), referenceChunk, prefetchDepth, timeStamp).get(0);
   }

@@ -51,7 +51,7 @@ public interface InternalCDORevisionManager extends CDORevisionManager, ILifecyc
    */
   public interface RevisionLoader
   {
-    public InternalCDORevision loadRevisionByTime(CDOID id, int referenceChunk, int prefetchDepth, long timeStamp);
+    public InternalCDORevision loadRevision(CDOID id, int referenceChunk, int prefetchDepth, long timeStamp);
 
     public InternalCDORevision loadRevisionByVersion(CDOID id, int referenceChunk, int prefetchDepth, int version);
 

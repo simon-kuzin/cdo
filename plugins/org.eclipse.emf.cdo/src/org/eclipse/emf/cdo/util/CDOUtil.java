@@ -324,7 +324,7 @@ public final class CDOUtil
       }
 
       return session.getRevisionManager()
-          .getRevisionByVersion(object.cdoID(), 0, CDORevision.DEPTH_NONE, version, true);
+          .getRevisionByVersion(object.cdoID(), version, 0, CDORevision.DEPTH_NONE, true);
     }
 
     return revision;

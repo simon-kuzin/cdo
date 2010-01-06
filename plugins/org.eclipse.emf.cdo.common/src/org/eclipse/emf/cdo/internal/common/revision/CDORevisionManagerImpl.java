@@ -98,7 +98,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     this.cache = cache;
   }
 
-  public boolean containsRevisionByTime(CDOID id, long timeStamp)
+  public boolean containsRevision(CDOID id, long timeStamp)
   {
     return cache.getRevisionByTime(id, timeStamp) != null;
   }
@@ -157,7 +157,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     }
   }
 
-  public InternalCDORevision getRevisionByTime(CDOID id, int referenceChunk, int prefetchDepth, long timeStamp,
+  public InternalCDORevision getRevision(CDOID id, long timeStamp, int referenceChunk, int prefetchDepth,
       boolean loadOnDemand)
   {
     acquireAtomicRequestLock(loadAndAddLock);
@@ -175,7 +175,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
             TRACER.format("Loading revision {0} by time {1,date} {1,time}", id, timeStamp); //$NON-NLS-1$
           }
 
-          revision = revisionLoader.loadRevisionByTime(id, referenceChunk, prefetchDepth, timeStamp);
+          revision = revisionLoader.loadRevision(id, referenceChunk, prefetchDepth, timeStamp);
           addCachedRevisionIfNotNull(revision);
         }
       }
@@ -197,7 +197,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     }
   }
 
-  public InternalCDORevision getRevisionByVersion(CDOID id, int referenceChunk, int prefetchDepth, int version,
+  public InternalCDORevision getRevisionByVersion(CDOID id, int version, int referenceChunk, int prefetchDepth,
       boolean loadOnDemand)
   {
     acquireAtomicRequestLock(loadAndAddLock);
@@ -228,14 +228,14 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     }
   }
 
-  public List<CDORevision> getRevisionsByTime(Collection<CDOID> ids, int referenceChunk, int prefetchDepth,
-      long timeStamp, boolean loadOnDemand)
+  public List<CDORevision> getRevisions(Collection<CDOID> ids, long timeStamp, int referenceChunk,
+      int prefetchDepth, boolean loadOnDemand)
   {
     List<CDOID> missingIDs = loadOnDemand ? new ArrayList<CDOID>(0) : null;
     List<CDORevision> revisions = new ArrayList<CDORevision>(ids.size());
     for (CDOID id : ids)
     {
-      InternalCDORevision revision = getRevisionByTime(id, referenceChunk, prefetchDepth, timeStamp, false);
+      InternalCDORevision revision = getRevision(id, timeStamp, referenceChunk, prefetchDepth, false);
       revisions.add(revision);
       if (revision == null && missingIDs != null)
       {

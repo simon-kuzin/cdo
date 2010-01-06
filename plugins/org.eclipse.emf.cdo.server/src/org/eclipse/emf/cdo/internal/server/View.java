@@ -95,8 +95,8 @@ public class View implements InternalView
   {
     checkOpen();
     setTimeStamp(timeStamp);
-    List<CDORevision> revisions = repository.getRevisionManager().getRevisionsByTime(invalidObjects, 0,
-        CDORevision.DEPTH_NONE, timeStamp, false);
+    List<CDORevision> revisions = repository.getRevisionManager().getRevisions(invalidObjects, timeStamp,
+        0, CDORevision.DEPTH_NONE, false);
     boolean[] existanceFlags = new boolean[revisions.size()];
     for (int i = 0; i < existanceFlags.length; i++)
     {

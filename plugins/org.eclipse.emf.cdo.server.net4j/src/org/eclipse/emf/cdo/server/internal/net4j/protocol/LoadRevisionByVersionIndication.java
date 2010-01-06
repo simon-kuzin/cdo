@@ -50,7 +50,7 @@ public class LoadRevisionByVersionIndication extends AbstractLoadRevisionIndicat
   @Override
   protected InternalCDORevision getRevision(CDOID id)
   {
-    return (InternalCDORevision)getRepository().getRevisionManager().getRevisionByVersion(id, referenceChunk,
-        CDORevision.DEPTH_NONE, version, true);
+    return (InternalCDORevision)getRepository().getRevisionManager().getRevisionByVersion(id, version,
+        referenceChunk, CDORevision.DEPTH_NONE, true);
   }
 }

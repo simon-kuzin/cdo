@@ -49,7 +49,7 @@ public class LoadRevisionByTimeIndication extends AbstractLoadRevisionIndication
   @Override
   protected InternalCDORevision getRevision(CDOID cdoID)
   {
-    return (InternalCDORevision)getRepository().getRevisionManager().getRevisionByTime(cdoID, referenceChunk,
-        CDORevision.DEPTH_NONE, timeStamp, true);
+    return (InternalCDORevision)getRepository().getRevisionManager().getRevision(cdoID, timeStamp,
+        referenceChunk, CDORevision.DEPTH_NONE, true);
   }
 }

@@ -28,16 +28,16 @@ public interface CDORevisionManager
    */
   public EClass getObjectType(CDOID id);
 
-  public boolean containsRevisionByTime(CDOID id, long timeStamp);
+  public boolean containsRevision(CDOID id, long timeStamp);
 
   public boolean containsRevisionByVersion(CDOID id, int version);
 
-  public CDORevision getRevisionByTime(CDOID id, int referenceChunk, int prefetchDepth, long timeStamp,
+  public CDORevision getRevision(CDOID id, long timeStamp, int referenceChunk, int prefetchDepth,
       boolean loadOnDemand);
 
-  public CDORevision getRevisionByVersion(CDOID id, int referenceChunk, int prefetchDepth, int version,
+  public CDORevision getRevisionByVersion(CDOID id, int version, int referenceChunk, int prefetchDepth,
       boolean loadOnDemand);
 
-  public List<CDORevision> getRevisionsByTime(Collection<CDOID> ids, int referenceChunk, int prefetchDepth,
-      long timeStamp, boolean loadOnDemand);
+  public List<CDORevision> getRevisions(Collection<CDOID> ids, long timeStamp, int referenceChunk,
+      int prefetchDepth, boolean loadOnDemand);
 }

@@ -72,9 +72,9 @@ public abstract class DelegatingCDORevisionManager extends Lifecycle implements 
     getDelegate().setRevisionLocker(revisionLocker);
   }
 
-  public boolean containsRevisionByTime(CDOID id, long timeStamp)
+  public boolean containsRevision(CDOID id, long timeStamp)
   {
-    return getDelegate().containsRevisionByTime(id, timeStamp);
+    return getDelegate().containsRevision(id, timeStamp);
   }
 
   public boolean containsRevisionByVersion(CDOID id, int version)
@@ -87,22 +87,22 @@ public abstract class DelegatingCDORevisionManager extends Lifecycle implements 
     return getDelegate().getObjectType(id);
   }
 
-  public CDORevision getRevisionByTime(CDOID id, int referenceChunk, int prefetchDepth, long timeStamp,
+  public CDORevision getRevision(CDOID id, long timeStamp, int referenceChunk, int prefetchDepth,
       boolean loadOnDemand)
   {
-    return getDelegate().getRevisionByTime(id, referenceChunk, prefetchDepth, timeStamp, loadOnDemand);
+    return getDelegate().getRevision(id, timeStamp, referenceChunk, prefetchDepth, loadOnDemand);
   }
 
-  public CDORevision getRevisionByVersion(CDOID id, int referenceChunk, int prefetchDepth, int version,
+  public CDORevision getRevisionByVersion(CDOID id, int version, int referenceChunk, int prefetchDepth,
       boolean loadOnDemand)
   {
-    return getDelegate().getRevisionByVersion(id, referenceChunk, prefetchDepth, version, loadOnDemand);
+    return getDelegate().getRevisionByVersion(id, version, referenceChunk, prefetchDepth, loadOnDemand);
   }
 
-  public List<CDORevision> getRevisionsByTime(Collection<CDOID> ids, int referenceChunk, int prefetchDepth,
-      long timeStamp, boolean loadOnDemand)
+  public List<CDORevision> getRevisions(Collection<CDOID> ids, long timeStamp, int referenceChunk,
+      int prefetchDepth, boolean loadOnDemand)
   {
-    return getDelegate().getRevisionsByTime(ids, referenceChunk, prefetchDepth, timeStamp, loadOnDemand);
+    return getDelegate().getRevisions(ids, timeStamp, referenceChunk, prefetchDepth, loadOnDemand);
   }
 
   public void reviseLatest(CDOID id)

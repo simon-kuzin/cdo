@@ -200,8 +200,8 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
       long created, CDOListFeatureDelta delta)
   {
     InternalCDORevision originalRevision = (InternalCDORevision)accessor.getStore().getRepository()
-        .getRevisionManager().getRevisionByTime(id, CDORevision.UNCHUNKED, CDORevision.DEPTH_NONE,
-            CDORevision.UNSPECIFIED_DATE, true);
+        .getRevisionManager().getRevision(id, CDORevision.UNSPECIFIED_DATE, CDORevision.UNCHUNKED,
+            CDORevision.DEPTH_NONE, true);
     int oldListSize = originalRevision.getList(getFeature()).size();
 
     // reset the clear-flag
