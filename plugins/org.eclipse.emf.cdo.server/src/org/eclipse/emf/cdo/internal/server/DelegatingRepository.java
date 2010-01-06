@@ -220,9 +220,9 @@ public abstract class DelegatingRepository implements InternalRepository
     return getDelegate().loadRevision(id, timeStamp, referenceChunk, prefetchDepth);
   }
 
-  public InternalCDORevision loadRevisionByVersion(CDOID id, int referenceChunk, int prefetchDepth, int version)
+  public InternalCDORevision loadRevisionByVersion(CDOID id, int version, int referenceChunk, int prefetchDepth)
   {
-    return getDelegate().loadRevisionByVersion(id, referenceChunk, prefetchDepth, version);
+    return getDelegate().loadRevisionByVersion(id, version, referenceChunk, prefetchDepth);
   }
 
   public List<InternalCDORevision> loadRevisions(Collection<CDOID> ids, long timeStamp, int referenceChunk,

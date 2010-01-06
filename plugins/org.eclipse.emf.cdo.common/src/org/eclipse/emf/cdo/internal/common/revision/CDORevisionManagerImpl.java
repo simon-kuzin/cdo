@@ -215,7 +215,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
             TRACER.format("Loading revision {0} by version {1}", id, version); //$NON-NLS-1$
           }
 
-          revision = revisionLoader.loadRevisionByVersion(id, referenceChunk, prefetchDepth, version);
+          revision = revisionLoader.loadRevisionByVersion(id, version, referenceChunk, prefetchDepth);
           addCachedRevisionIfNotNull(revision);
         }
       }

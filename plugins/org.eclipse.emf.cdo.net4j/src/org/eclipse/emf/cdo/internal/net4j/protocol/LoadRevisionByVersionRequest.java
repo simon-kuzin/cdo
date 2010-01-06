@@ -30,8 +30,8 @@ public class LoadRevisionByVersionRequest extends AbstractLoadRevisionRequest
 
   private int version;
 
-  public LoadRevisionByVersionRequest(CDOClientProtocol protocol, CDOID id, int referenceChunk, int prefetchDepth,
-      int version)
+  public LoadRevisionByVersionRequest(CDOClientProtocol protocol, CDOID id, int version, int referenceChunk,
+      int prefetchDepth)
   {
     super(protocol, CDOProtocolConstants.SIGNAL_LOAD_REVISION_BY_VERSION, Collections.singleton(id), referenceChunk,
         prefetchDepth);
