@@ -100,7 +100,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
 
   public boolean containsRevision(CDOID id)
   {
-    return cache.getRevision(id) != null;
+    return cache.getRevisionByTime(id, CDORevision.UNSPECIFIED_DATE) != null;
   }
 
   public boolean containsRevisionByTime(CDOID id, long timeStamp)
@@ -125,7 +125,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     try
     {
       // TODO Consider CDORevisionCache.removeLatestRevision()
-      InternalCDORevision revision = (InternalCDORevision)cache.getRevision(id);
+      InternalCDORevision revision = (InternalCDORevision)cache.getRevisionByTime(id, CDORevision.UNSPECIFIED_DATE);
       if (revision != null)
       {
         cache.removeRevision(revision.getID(), revision.getVersion());
@@ -174,7 +174,8 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     try
     {
       boolean prefetch = prefetchDepth != CDORevision.DEPTH_NONE;
-      InternalCDORevision revision = prefetch ? null : (InternalCDORevision)cache.getRevision(id);
+      InternalCDORevision revision = prefetch ? null : (InternalCDORevision)cache.getRevisionByTime(id,
+          CDORevision.UNSPECIFIED_DATE);
       if (revision == null)
       {
         if (loadOnDemand)
