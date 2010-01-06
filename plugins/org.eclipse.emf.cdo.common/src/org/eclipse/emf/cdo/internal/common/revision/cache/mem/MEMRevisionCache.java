@@ -82,28 +82,14 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
     return null;
   }
 
-  public InternalCDORevision getRevision(CDOID id)
+  public InternalCDORevision getRevision(CDOID id, long timeStamp)
   {
     synchronized (cacheLists)
     {
       CacheList list = cacheLists.get(id);
       if (list != null)
       {
-        return list.getRevision();
-      }
-    }
-
-    return null;
-  }
-
-  public InternalCDORevision getRevisionByTime(CDOID id, long timeStamp)
-  {
-    synchronized (cacheLists)
-    {
-      CacheList list = cacheLists.get(id);
-      if (list != null)
-      {
-        return list.getRevisionByTime(timeStamp);
+        return list.getRevision(timeStamp);
       }
     }
 
@@ -132,7 +118,7 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
       for (Entry<CDOID, CacheList> entry : cacheLists.entrySet())
       {
         CacheList list = entry.getValue();
-        InternalCDORevision revision = list.getRevision();
+        InternalCDORevision revision = list.getRevision(CDORevision.UNSPECIFIED_DATE);
         if (revision != null)
         {
           currentRevisions.add(revision);
@@ -254,22 +240,53 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
     {
     }
 
-    public InternalCDORevision getRevision()
+    public InternalCDORevision getRevision(long timeStamp)
     {
-      KeyedReference<CDOIDAndVersion, InternalCDORevision> ref = isEmpty() ? null : getFirst();
-      if (ref != null)
+      if (timeStamp == CDORevision.UNSPECIFIED_DATE)
       {
+        KeyedReference<CDOIDAndVersion, InternalCDORevision> ref = isEmpty() ? null : getFirst();
+        if (ref != null)
+        {
+          InternalCDORevision revision = ref.get();
+          if (revision != null)
+          {
+            if (revision.isCurrent())
+            {
+              return revision;
+            }
+          }
+          else
+          {
+            removeFirst();
+          }
+        }
+
+        return null;
+      }
+
+      for (Iterator<KeyedReference<CDOIDAndVersion, InternalCDORevision>> it = iterator(); it.hasNext();)
+      {
+        KeyedReference<CDOIDAndVersion, InternalCDORevision> ref = it.next();
         InternalCDORevision revision = ref.get();
         if (revision != null)
         {
-          if (revision.isCurrent())
+          long created = revision.getCreated();
+          if (created <= timeStamp)
           {
-            return revision;
+            long revised = revision.getRevised();
+            if (timeStamp <= revised || revised == CDORevision.UNSPECIFIED_DATE)
+            {
+              return revision;
+            }
+            else
+            {
+              break;
+            }
           }
         }
         else
         {
-          removeFirst();
+          it.remove();
         }
       }
 
@@ -301,11 +318,6 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
       }
 
       return null;
-    }
-
-    public InternalCDORevision getRevisionByTime(long timeStamp)
-    {
-      return getRevisionByTime(timeStamp, false);
     }
 
     public void removeRevision(int version)
@@ -363,42 +375,6 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
 
       addLast(reference);
       return true;
-    }
-
-    private InternalCDORevision getRevisionByTime(long timeStamp, boolean onlyResource)
-    {
-      for (Iterator<KeyedReference<CDOIDAndVersion, InternalCDORevision>> it = iterator(); it.hasNext();)
-      {
-        KeyedReference<CDOIDAndVersion, InternalCDORevision> ref = it.next();
-        InternalCDORevision revision = ref.get();
-        if (revision != null)
-        {
-          if (onlyResource && !revision.isResource())
-          {
-            return null;
-          }
-
-          long created = revision.getCreated();
-          if (created <= timeStamp)
-          {
-            long revised = revision.getRevised();
-            if (timeStamp <= revised || revised == CDORevision.UNSPECIFIED_DATE)
-            {
-              return revision;
-            }
-            else
-            {
-              break;
-            }
-          }
-        }
-        else
-        {
-          it.remove();
-        }
-      }
-
-      return null;
     }
   }
 }

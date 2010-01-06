@@ -76,12 +76,12 @@ public class TwoLevelRevisionCache extends Lifecycle implements CDORevisionCache
     return objectType;
   }
 
-  public CDORevision getRevisionByTime(CDOID id, long timeStamp)
+  public CDORevision getRevision(CDOID id, long timeStamp)
   {
-    CDORevision revision = level1.getRevisionByTime(id, timeStamp);
+    CDORevision revision = level1.getRevision(id, timeStamp);
     if (revision == null)
     {
-      revision = level2.getRevisionByTime(id, timeStamp);
+      revision = level2.getRevision(id, timeStamp);
     }
 
     return revision;
@@ -116,7 +116,7 @@ public class TwoLevelRevisionCache extends Lifecycle implements CDORevisionCache
     if (added && revision.isCurrent())
     {
       CDOID id = revision.getID();
-      CDORevision revisionInLevel2 = level2.getRevisionByTime(id, CDORevision.UNSPECIFIED_DATE);
+      CDORevision revisionInLevel2 = level2.getRevision(id, CDORevision.UNSPECIFIED_DATE);
       if (revisionInLevel2 != null && revisionInLevel2.isCurrent())
       {
         // We can only revise if the revisions are consecutive

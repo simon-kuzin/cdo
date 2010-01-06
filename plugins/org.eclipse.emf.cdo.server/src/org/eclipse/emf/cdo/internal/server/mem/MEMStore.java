@@ -145,7 +145,7 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
   /**
    * @since 2.0
    */
-  public synchronized InternalCDORevision getRevisionByTime(CDOID id, long timeStamp)
+  public synchronized InternalCDORevision getRevision(CDOID id, long timeStamp)
   {
     if (timeStamp == CDORevision.UNSPECIFIED_DATE)
     {
@@ -163,7 +163,7 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
       List<InternalCDORevision> list = revisions.get(id);
       if (list != null)
       {
-        return getRevisionByTime(list, timeStamp);
+        return getRevision(list, timeStamp);
       }
 
       return null;
@@ -271,7 +271,7 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
         InternalCDORevision revision = list.get(0);
         if (revision.isResourceNode())
         {
-          revision = getRevisionByTime(list, context.getTimeStamp());
+          revision = getRevision(list, context.getTimeStamp());
           if (revision != null)
           {
             CDOID revisionFolder = (CDOID)revision.data().getContainerID();
@@ -370,7 +370,7 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
     return null;
   }
 
-  private InternalCDORevision getRevisionByTime(List<InternalCDORevision> list, long timeStamp)
+  private InternalCDORevision getRevision(List<InternalCDORevision> list, long timeStamp)
   {
     for (InternalCDORevision revision : list)
     {

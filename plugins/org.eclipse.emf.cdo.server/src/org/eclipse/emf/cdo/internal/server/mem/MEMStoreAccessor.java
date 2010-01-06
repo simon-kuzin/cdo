@@ -156,7 +156,7 @@ public class MEMStoreAccessor extends LongIDStoreAccessor
 
   public InternalCDORevision readRevision(CDOID id, long timeStamp, int listChunk, CDORevisionCacheAdder cache)
   {
-    return getStore().getRevisionByTime(id, timeStamp);
+    return getStore().getRevision(id, timeStamp);
   }
 
   public InternalCDORevision readRevisionByVersion(CDOID id, int version, int listChunk, CDORevisionCacheAdder cache)
@@ -232,7 +232,7 @@ public class MEMStoreAccessor extends LongIDStoreAccessor
    */
   protected void writeRevisionDelta(InternalCDORevisionDelta revisionDelta, long created)
   {
-    InternalCDORevision revision = getStore().getRevisionByTime(revisionDelta.getID(), CDORevision.UNSPECIFIED_DATE);
+    InternalCDORevision revision = getStore().getRevision(revisionDelta.getID(), CDORevision.UNSPECIFIED_DATE);
     if (revision.getVersion() != revisionDelta.getOriginVersion())
     {
       throw new ConcurrentModificationException("Trying to update object " + revisionDelta.getID() //$NON-NLS-1$

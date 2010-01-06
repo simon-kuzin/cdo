@@ -40,7 +40,7 @@ public class MEMStoreChunkReader extends StoreChunkReader
     for (Chunk chunk : chunks)
     {
       int startIndex = chunk.getStartIndex();
-      InternalCDORevision revision = store.getRevisionByTime(getRevision().getID(), CDORevision.UNSPECIFIED_DATE);
+      InternalCDORevision revision = store.getRevision(getRevision().getID(), CDORevision.UNSPECIFIED_DATE);
       for (int i = 0; i < chunk.size(); i++)
       {
         Object object = revision.get(getFeature(), startIndex + i);

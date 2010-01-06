@@ -171,7 +171,6 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
   public InternalCDORevision readRevision(CDOID id, long timeStamp, int listChunk, CDORevisionCacheAdder cache)
   {
     IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
-
     if (!mappingStrategy.hasAuditSupport())
     {
       throw new UnsupportedOperationException("Mapping strategy does not support audits."); //$NON-NLS-1$

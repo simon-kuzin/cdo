@@ -127,10 +127,10 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
     return revision;
   }
 
-  public synchronized InternalCDORevision getRevisionByTime(CDOID id, long timeStamp)
+  public synchronized InternalCDORevision getRevision(CDOID id, long timeStamp)
   {
     RevisionHolder holder = getHolder(id);
-    return getRevisionByTime(holder, timeStamp);
+    return getRevision(holder, timeStamp);
   }
 
   public synchronized InternalCDORevision getRevisionByVersion(CDOID id, int version)
@@ -244,7 +244,7 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
     revisedLRU = new LRU(capacityRevised);
   }
 
-  private InternalCDORevision getRevisionByTime(RevisionHolder holder, long timeStamp)
+  private InternalCDORevision getRevision(RevisionHolder holder, long timeStamp)
   {
     while (holder != null)
     {

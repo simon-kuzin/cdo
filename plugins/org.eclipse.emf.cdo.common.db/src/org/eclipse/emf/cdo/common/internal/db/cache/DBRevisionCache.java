@@ -214,7 +214,7 @@ public class DBRevisionCache extends Lifecycle implements CDORevisionCache
    *          the time stamp
    * @return the revision by time
    */
-  public InternalCDORevision getRevisionByTime(final CDOID id, final long timeStamp)
+  public InternalCDORevision getRevision(final CDOID id, final long timeStamp)
   {
     Connection connection = null;
 

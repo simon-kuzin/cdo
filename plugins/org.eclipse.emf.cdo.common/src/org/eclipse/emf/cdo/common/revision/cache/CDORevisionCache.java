@@ -37,7 +37,7 @@ public interface CDORevisionCache extends INotifier, CDORevisionCacheAdder
   /**
    * @since 3.0
    */
-  public CDORevision getRevisionByTime(CDOID id, long timeStamp);
+  public CDORevision getRevision(CDOID id, long timeStamp);
 
   /**
    * @since 3.0
