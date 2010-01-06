@@ -126,17 +126,6 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
     return simpleRevisions;
   }
 
-  public synchronized InternalCDORevision getRevision(CDOID id)
-  {
-    List<InternalCDORevision> list = revisions.get(id);
-    if (list != null)
-    {
-      return list.get(list.size() - 1);
-    }
-
-    return null;
-  }
-
   public synchronized InternalCDORevision getRevisionByVersion(CDOID id, int version)
   {
     if (getRepository().isSupportingAudits())
@@ -158,6 +147,17 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
    */
   public synchronized InternalCDORevision getRevisionByTime(CDOID id, long timeStamp)
   {
+    if (timeStamp == CDORevision.UNSPECIFIED_DATE)
+    {
+      List<InternalCDORevision> list = revisions.get(id);
+      if (list != null)
+      {
+        return list.get(list.size() - 1);
+      }
+
+      return null;
+    }
+
     if (getRepository().isSupportingAudits())
     {
       List<InternalCDORevision> list = revisions.get(id);

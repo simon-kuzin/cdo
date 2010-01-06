@@ -15,6 +15,7 @@ package org.eclipse.emf.cdo.internal.server.mem;
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCacheAdder;
 import org.eclipse.emf.cdo.server.IQueryContext;
 import org.eclipse.emf.cdo.server.IQueryHandler;
@@ -153,17 +154,12 @@ public class MEMStoreAccessor extends LongIDStoreAccessor
     return getStore().createBranch(baseBranchID, baseTimeStamp, name);
   }
 
-  public InternalCDORevision readRevision(CDOID id, int listChunk, CDORevisionCacheAdder cache)
-  {
-    return getStore().getRevision(id);
-  }
-
-  public InternalCDORevision readRevisionByTime(CDOID id, int listChunk, CDORevisionCacheAdder cache, long timeStamp)
+  public InternalCDORevision readRevision(CDOID id, long timeStamp, int listChunk, CDORevisionCacheAdder cache)
   {
     return getStore().getRevisionByTime(id, timeStamp);
   }
 
-  public InternalCDORevision readRevisionByVersion(CDOID id, int listChunk, CDORevisionCacheAdder cache, int version)
+  public InternalCDORevision readRevisionByVersion(CDOID id, int version, int listChunk, CDORevisionCacheAdder cache)
   {
     return getStore().getRevisionByVersion(id, version);
   }
@@ -236,7 +232,7 @@ public class MEMStoreAccessor extends LongIDStoreAccessor
    */
   protected void writeRevisionDelta(InternalCDORevisionDelta revisionDelta, long created)
   {
-    InternalCDORevision revision = getStore().getRevision(revisionDelta.getID());
+    InternalCDORevision revision = getStore().getRevisionByTime(revisionDelta.getID(), CDORevision.UNSPECIFIED_DATE);
     if (revision.getVersion() != revisionDelta.getOriginVersion())
     {
       throw new ConcurrentModificationException("Trying to update object " + revisionDelta.getID() //$NON-NLS-1$

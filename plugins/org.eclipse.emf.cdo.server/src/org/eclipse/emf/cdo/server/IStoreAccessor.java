@@ -83,12 +83,13 @@ public interface IStoreAccessor extends IQueryHandlerProvider, BranchLoader
   public EPackage[] loadPackageUnit(InternalCDOPackageUnit packageUnit);
 
   /**
-   * Reads a current revision (i.e. one with revised == 0) from the back-end. Returns <code>null</code> if the id is
+   * Reads a revision from the back-end that was valid at the given timeStamp. This method will only be called by the
+   * framework if {@link IRepository#isSupportingAudits()} is <code>true</code>. Returns <code>null</code> if the id is
    * invalid.
    * 
    * @since 3.0
    */
-  public InternalCDORevision readRevision(CDOID id, int listChunk, CDORevisionCacheAdder cache);
+  public InternalCDORevision readRevision(CDOID id, long timeStamp, int listChunk, CDORevisionCacheAdder cache);
 
   /**
    * Reads a revision with the given version from the back-end. This method will only be called by the framework if
@@ -96,16 +97,7 @@ public interface IStoreAccessor extends IQueryHandlerProvider, BranchLoader
    * 
    * @since 3.0
    */
-  public InternalCDORevision readRevisionByVersion(CDOID id, int listChunk, CDORevisionCacheAdder cache, int version);
-
-  /**
-   * Reads a revision from the back-end that was valid at the given timeStamp. This method will only be called by the
-   * framework if {@link IRepository#isSupportingAudits()} is <code>true</code>. Returns <code>null</code> if the id is
-   * invalid.
-   * 
-   * @since 3.0
-   */
-  public InternalCDORevision readRevisionByTime(CDOID id, int listChunk, CDORevisionCacheAdder cache, long timeStamp);
+  public InternalCDORevision readRevisionByVersion(CDOID id, int version, int listChunk, CDORevisionCacheAdder cache);
 
   /**
    * Returns the <code>CDOID</code> of the resource node with the given folderID and name if a resource with this

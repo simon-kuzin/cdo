@@ -168,33 +168,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     return result;
   }
 
-  public InternalCDORevision readRevision(CDOID id, int listChunk, CDORevisionCacheAdder cache)
-  {
-    if (TRACER.isEnabled())
-    {
-      TRACER.format("Selecting revision: {0}", id); //$NON-NLS-1$
-    }
-
-    EClass eClass = getObjectType(id);
-    if (eClass == null)
-    {
-      return null;
-    }
-
-    InternalCDORevision revision = getStore().createRevision(eClass, id);
-
-    IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
-    IClassMapping mapping = mappingStrategy.getClassMapping(eClass);
-    if (mapping.readRevision(this, revision, listChunk))
-    {
-      return revision;
-    }
-
-    // Reading failed - revision does not exist.
-    return null;
-  }
-
-  public InternalCDORevision readRevisionByTime(CDOID id, int listChunk, CDORevisionCacheAdder cache, long timeStamp)
+  public InternalCDORevision readRevision(CDOID id, long timeStamp, int listChunk, CDORevisionCacheAdder cache)
   {
     IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
 
@@ -221,7 +195,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     return null;
   }
 
-  public InternalCDORevision readRevisionByVersion(CDOID id, int listChunk, CDORevisionCacheAdder cache, int version)
+  public InternalCDORevision readRevisionByVersion(CDOID id, int version, int listChunk, CDORevisionCacheAdder cache)
   {
     IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
 

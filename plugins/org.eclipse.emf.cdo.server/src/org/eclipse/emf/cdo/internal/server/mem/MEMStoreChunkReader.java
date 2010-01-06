@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Simon McDuff - initial API and implementation
  *    Eike Stepper - maintenance
@@ -40,7 +40,7 @@ public class MEMStoreChunkReader extends StoreChunkReader
     for (Chunk chunk : chunks)
     {
       int startIndex = chunk.getStartIndex();
-      InternalCDORevision revision = store.getRevision(getRevision().getID());
+      InternalCDORevision revision = store.getRevisionByTime(getRevision().getID(), CDORevision.UNSPECIFIED_DATE);
       for (int i = 0; i < chunk.size(); i++)
       {
         Object object = revision.get(getFeature(), startIndex + i);

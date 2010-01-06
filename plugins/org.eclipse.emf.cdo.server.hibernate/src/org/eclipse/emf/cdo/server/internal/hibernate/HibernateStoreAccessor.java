@@ -308,13 +308,15 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
    * 
    * @param id
    *          identifies the CDORevision to read
+   * @param timeStamp
+   *          ignored until auditing is supported.
    * @param listChunk
    *          not used by Hibernate
    * @param cache
    *          the revision cache, the read revision is added to the cache
    * @return the read revision
    */
-  public InternalCDORevision readRevision(CDOID id, int listChunk, CDORevisionCacheAdder cache)
+  public InternalCDORevision readRevision(CDOID id, long timeStamp, int listChunk, CDORevisionCacheAdder cache)
   {
     if (!HibernateUtil.getInstance().isStoreCreatedID(id))
     {
@@ -345,15 +347,7 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
   /**
    * Not supported by the Hibernate Store, auditing is not supported
    */
-  public InternalCDORevision readRevisionByTime(CDOID id, int listChunk, CDORevisionCacheAdder cache, long timeStamp)
-  {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Not supported by the Hibernate Store, auditing is not supported
-   */
-  public InternalCDORevision readRevisionByVersion(CDOID id, int listChunk, CDORevisionCacheAdder cache, int version)
+  public InternalCDORevision readRevisionByVersion(CDOID id, int version, int listChunk, CDORevisionCacheAdder cache)
   {
     throw new UnsupportedOperationException();
   }

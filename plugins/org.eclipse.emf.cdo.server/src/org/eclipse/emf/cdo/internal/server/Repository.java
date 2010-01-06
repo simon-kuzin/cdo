@@ -229,7 +229,7 @@ public class Repository extends Container<Object> implements InternalRepository
     }
 
     IStoreAccessor accessor = StoreThreadLocal.getAccessor();
-    return accessor.readRevisionByTime(id, referenceChunk, revisionManager.getCache(), timeStamp);
+    return accessor.readRevision(id, timeStamp, referenceChunk, revisionManager.getCache());
   }
 
   public InternalCDORevision loadRevisionByVersion(CDOID id, int version, int referenceChunk, int prefetchDepth)
@@ -237,7 +237,7 @@ public class Repository extends Container<Object> implements InternalRepository
     IStoreAccessor accessor = StoreThreadLocal.getAccessor();
     if (isSupportingAudits())
     {
-      return accessor.readRevisionByVersion(id, referenceChunk, revisionManager.getCache(), version);
+      return accessor.readRevisionByVersion(id, version, referenceChunk, revisionManager.getCache());
     }
 
     InternalCDORevision revision = loadRevision(id, CDORevision.UNSPECIFIED_DATE, referenceChunk, prefetchDepth);
