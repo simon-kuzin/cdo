@@ -72,11 +72,6 @@ public abstract class DelegatingCDORevisionManager extends Lifecycle implements 
     getDelegate().setRevisionLocker(revisionLocker);
   }
 
-  public boolean containsRevision(CDOID id)
-  {
-    return getDelegate().containsRevision(id);
-  }
-
   public boolean containsRevisionByTime(CDOID id, long timeStamp)
   {
     return getDelegate().containsRevisionByTime(id, timeStamp);
@@ -92,41 +87,16 @@ public abstract class DelegatingCDORevisionManager extends Lifecycle implements 
     return getDelegate().getObjectType(id);
   }
 
-  public CDORevision getRevision(CDOID id, int referenceChunk, int prefetchDepth, boolean loadOnDemand)
-  {
-    return getDelegate().getRevision(id, referenceChunk, prefetchDepth, loadOnDemand);
-  }
-
-  public CDORevision getRevision(CDOID id, int referenceChunk, int prefetchDepth)
-  {
-    return getDelegate().getRevision(id, referenceChunk, prefetchDepth);
-  }
-
   public CDORevision getRevisionByTime(CDOID id, int referenceChunk, int prefetchDepth, long timeStamp,
       boolean loadOnDemand)
   {
     return getDelegate().getRevisionByTime(id, referenceChunk, prefetchDepth, timeStamp, loadOnDemand);
   }
 
-  public CDORevision getRevisionByTime(CDOID id, int referenceChunk, int prefetchDepth, long timeStamp)
-  {
-    return getDelegate().getRevisionByTime(id, referenceChunk, prefetchDepth, timeStamp);
-  }
-
   public CDORevision getRevisionByVersion(CDOID id, int referenceChunk, int prefetchDepth, int version,
       boolean loadOnDemand)
   {
     return getDelegate().getRevisionByVersion(id, referenceChunk, prefetchDepth, version, loadOnDemand);
-  }
-
-  public CDORevision getRevisionByVersion(CDOID id, int referenceChunk, int prefetchDepth, int version)
-  {
-    return getDelegate().getRevisionByVersion(id, referenceChunk, prefetchDepth, version);
-  }
-
-  public List<CDORevision> getRevisions(Collection<CDOID> ids, int referenceChunk, int prefetchDepth)
-  {
-    return getDelegate().getRevisions(ids, referenceChunk, prefetchDepth);
   }
 
   public List<CDORevision> getRevisionsByTime(Collection<CDOID> ids, int referenceChunk, int prefetchDepth,

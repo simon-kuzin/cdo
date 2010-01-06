@@ -1376,22 +1376,6 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       }
     }
 
-    public InternalCDORevision loadRevision(CDOID id, int referenceChunk, int prefetchDepth)
-    {
-      int attempt = 0;
-      for (;;)
-      {
-        try
-        {
-          return delegate.loadRevision(id, referenceChunk, prefetchDepth);
-        }
-        catch (Exception ex)
-        {
-          handleException(++attempt, ex);
-        }
-      }
-    }
-
     public InternalCDORevision loadRevisionByTime(CDOID id, int referenceChunk, int prefetchDepth, long timeStamp)
     {
       int attempt = 0;
@@ -1416,22 +1400,6 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
         try
         {
           return delegate.loadRevisionByVersion(id, referenceChunk, prefetchDepth, version);
-        }
-        catch (Exception ex)
-        {
-          handleException(++attempt, ex);
-        }
-      }
-    }
-
-    public List<InternalCDORevision> loadRevisions(Collection<CDOID> ids, int referenceChunk, int prefetchDepth)
-    {
-      int attempt = 0;
-      for (;;)
-      {
-        try
-        {
-          return delegate.loadRevisions(ids, referenceChunk, prefetchDepth);
         }
         catch (Exception ex)
         {

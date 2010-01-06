@@ -115,19 +115,9 @@ public class CDOClientProtocol extends SignalProtocol<CDOSession> implements CDO
     return send(new LoadChunkRequest(this, revision, feature, accessIndex, fetchIndex, fromIndex, toIndex));
   }
 
-  public InternalCDORevision loadRevision(CDOID id, int referenceChunk, int prefetchDepth)
-  {
-    return loadRevisions(Collections.singleton(id), referenceChunk, prefetchDepth).get(0);
-  }
-
   public InternalCDORevision loadRevisionByTime(CDOID id, int referenceChunk, int prefetchDepth, long timeStamp)
   {
     return loadRevisionsByTime(Collections.singleton(id), referenceChunk, prefetchDepth, timeStamp).get(0);
-  }
-
-  public List<InternalCDORevision> loadRevisions(Collection<CDOID> ids, int referenceChunk, int prefetchDepth)
-  {
-    return send(new LoadRevisionRequest(this, ids, referenceChunk, prefetchDepth));
   }
 
   public List<InternalCDORevision> loadRevisionsByTime(Collection<CDOID> ids, int referenceChunk, int prefetchDepth,
@@ -144,11 +134,6 @@ public class CDOClientProtocol extends SignalProtocol<CDOSession> implements CDO
   public InternalCDORevision verifyRevision(InternalCDORevision revision, int referenceChunk)
   {
     return revision;
-  }
-
-  public List<InternalCDORevision> verifyRevisions(List<InternalCDORevision> revisions) throws TransportException
-  {
-    return send(new VerifyRevisionRequest(this, revisions));
   }
 
   public Collection<CDORefreshContext> syncRevisions(Map<CDOID, CDOIDAndVersion> idAndVersions, int initialChunkSize)
@@ -348,7 +333,7 @@ public class CDOClientProtocol extends SignalProtocol<CDOSession> implements CDO
     }
   }
 
-  private List<InternalCDORevision> send(LoadRevisionRequest request)
+  private List<InternalCDORevision> send(AbstractLoadRevisionRequest request)
   {
     try
     {

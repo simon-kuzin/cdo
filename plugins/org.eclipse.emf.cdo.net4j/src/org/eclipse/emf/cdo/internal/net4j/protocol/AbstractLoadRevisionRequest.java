@@ -14,7 +14,6 @@ import org.eclipse.emf.cdo.common.CDOFetchRule;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
-import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.internal.net4j.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
@@ -31,9 +30,9 @@ import java.util.List;
 /**
  * @author Eike Stepper
  */
-public class LoadRevisionRequest extends CDOClientRequest<List<InternalCDORevision>>
+public abstract class AbstractLoadRevisionRequest extends CDOClientRequest<List<InternalCDORevision>>
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, LoadRevisionRequest.class);
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, AbstractLoadRevisionRequest.class);
 
   private Collection<CDOID> ids;
 
@@ -41,13 +40,8 @@ public class LoadRevisionRequest extends CDOClientRequest<List<InternalCDORevisi
 
   private int prefetchDepth;
 
-  public LoadRevisionRequest(CDOClientProtocol protocol, Collection<CDOID> ids, int referenceChunk, int prefetchDepth)
-  {
-    this(protocol, CDOProtocolConstants.SIGNAL_LOAD_REVISION, ids, referenceChunk, prefetchDepth);
-  }
-
-  protected LoadRevisionRequest(CDOClientProtocol protocol, short signalID, Collection<CDOID> ids, int referenceChunk,
-      int prefetchDepth)
+  protected AbstractLoadRevisionRequest(CDOClientProtocol protocol, short signalID, Collection<CDOID> ids,
+      int referenceChunk, int prefetchDepth)
   {
     super(protocol, signalID);
     this.ids = ids;

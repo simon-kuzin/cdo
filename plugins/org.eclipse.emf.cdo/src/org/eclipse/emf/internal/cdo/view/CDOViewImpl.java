@@ -792,7 +792,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
   protected void prefetchRevisions(CDOID id, int depth, int initialChunkSize)
   {
     CDORevisionManager revisionManager = session.getRevisionManager();
-    revisionManager.getRevisionByTime(id, initialChunkSize, depth, timeStamp);
+    revisionManager.getRevisionByTime(id, initialChunkSize, depth, timeStamp, true);
   }
 
   public InternalCDOObject getObject(CDOID id)

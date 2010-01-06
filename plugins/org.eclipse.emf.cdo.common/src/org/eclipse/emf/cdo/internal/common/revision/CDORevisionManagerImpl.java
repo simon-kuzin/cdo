@@ -98,11 +98,6 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     this.cache = cache;
   }
 
-  public boolean containsRevision(CDOID id)
-  {
-    return cache.getRevisionByTime(id, CDORevision.UNSPECIFIED_DATE) != null;
-  }
-
   public boolean containsRevisionByTime(CDOID id, long timeStamp)
   {
     return cache.getRevisionByTime(id, timeStamp) != null;
@@ -162,56 +157,6 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     }
   }
 
-  public InternalCDORevision getRevision(CDOID id, int referenceChunk, int prefetchDepth)
-  {
-    return getRevision(id, referenceChunk, prefetchDepth, true);
-  }
-
-  public InternalCDORevision getRevision(CDOID id, int referenceChunk, int prefetchDepth, boolean loadOnDemand)
-  {
-    acquireAtomicRequestLock(loadAndAddLock);
-
-    try
-    {
-      boolean prefetch = prefetchDepth != CDORevision.DEPTH_NONE;
-      InternalCDORevision revision = prefetch ? null : (InternalCDORevision)cache.getRevisionByTime(id,
-          CDORevision.UNSPECIFIED_DATE);
-      if (revision == null)
-      {
-        if (loadOnDemand)
-        {
-          if (TRACER.isEnabled())
-          {
-            TRACER.format("Loading revision {0}", id); //$NON-NLS-1$
-          }
-
-          revision = revisionLoader.loadRevision(id, referenceChunk, prefetchDepth);
-          addCachedRevisionIfNotNull(revision);
-        }
-      }
-      else
-      {
-        InternalCDORevision oldRevision = revision;
-        revision = verifyRevision(oldRevision, referenceChunk);
-        if (revision != oldRevision)
-        {
-          addCachedRevisionIfNotNull(revision);
-        }
-      }
-
-      return revision;
-    }
-    finally
-    {
-      releaseAtomicRequestLock(loadAndAddLock);
-    }
-  }
-
-  public InternalCDORevision getRevisionByTime(CDOID id, int referenceChunk, int prefetchDepth, long timeStamp)
-  {
-    return getRevisionByTime(id, referenceChunk, prefetchDepth, timeStamp, true);
-  }
-
   public InternalCDORevision getRevisionByTime(CDOID id, int referenceChunk, int prefetchDepth, long timeStamp,
       boolean loadOnDemand)
   {
@@ -252,12 +197,6 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     }
   }
 
-  public synchronized InternalCDORevision getRevisionByVersion(CDOID id, int referenceChunk, int prefetchDepth,
-      int version)
-  {
-    return getRevisionByVersion(id, referenceChunk, prefetchDepth, version, true);
-  }
-
   public InternalCDORevision getRevisionByVersion(CDOID id, int referenceChunk, int prefetchDepth, int version,
       boolean loadOnDemand)
   {
@@ -287,40 +226,6 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     {
       releaseAtomicRequestLock(loadAndAddLock);
     }
-  }
-
-  public List<CDORevision> getRevisions(Collection<CDOID> ids, int referenceChunk, int prefetchDepth)
-  {
-    List<CDOID> missingIDs = new ArrayList<CDOID>(0);
-    List<CDORevision> revisions = new ArrayList<CDORevision>(ids.size());
-    for (CDOID id : ids)
-    {
-      // TODO Combination of prefetch=true and loadOnDemand=false does not make sense!
-      InternalCDORevision revision = getRevision(id, referenceChunk, prefetchDepth, false);
-      revisions.add(revision);
-      if (revision == null)
-      {
-        missingIDs.add(id);
-      }
-    }
-
-    if (!missingIDs.isEmpty())
-    {
-      acquireAtomicRequestLock(loadAndAddLock);
-
-      try
-      {
-        List<InternalCDORevision> missingRevisions = revisionLoader.loadRevisions(missingIDs, referenceChunk,
-            prefetchDepth);
-        handleMissingRevisions(revisions, missingRevisions);
-      }
-      finally
-      {
-        releaseAtomicRequestLock(loadAndAddLock);
-      }
-    }
-
-    return revisions;
   }
 
   public List<CDORevision> getRevisionsByTime(Collection<CDOID> ids, int referenceChunk, int prefetchDepth,

@@ -530,8 +530,8 @@ public final class CDOStore implements EStore
           Collection<CDOID> listOfIDs = policy.loadAhead(revisionManager, eObject, feature, list, index, id);
           if (!listOfIDs.isEmpty())
           {
-            revisionManager.getRevisions(listOfIDs, view.getSession().options().getCollectionLoadingPolicy()
-                .getInitialChunkSize(), CDORevision.DEPTH_NONE);
+            revisionManager.getRevisionsByTime(listOfIDs, view.getSession().options().getCollectionLoadingPolicy()
+                .getInitialChunkSize(), CDORevision.DEPTH_NONE, CDORevision.UNSPECIFIED_DATE, true);
           }
         }
       }

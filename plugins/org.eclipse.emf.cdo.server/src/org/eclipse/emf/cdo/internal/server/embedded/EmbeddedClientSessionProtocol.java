@@ -134,20 +134,6 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
     throw new UnsupportedOperationException();
   }
 
-  public InternalCDORevision loadRevision(CDOID id, int referenceChunk, int prefetchDepth)
-  {
-    try
-    {
-      InternalSession session = serverSessionProtocol.getSession();
-      StoreThreadLocal.setSession(session);
-      return (InternalCDORevision)repository.getRevisionManager().getRevision(id, referenceChunk, prefetchDepth);
-    }
-    finally
-    {
-      StoreThreadLocal.release();
-    }
-  }
-
   public InternalCDORevision loadRevisionByTime(CDOID id, int referenceChunk, int prefetchDepth, long timeStamp)
   {
     try
@@ -155,7 +141,7 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
       InternalSession session = serverSessionProtocol.getSession();
       StoreThreadLocal.setSession(session);
       return (InternalCDORevision)repository.getRevisionManager().getRevisionByTime(id, referenceChunk, prefetchDepth,
-          timeStamp);
+          timeStamp, true);
     }
     finally
     {
@@ -170,24 +156,7 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
       InternalSession session = serverSessionProtocol.getSession();
       StoreThreadLocal.setSession(session);
       return (InternalCDORevision)repository.getRevisionManager().getRevisionByVersion(id, referenceChunk,
-          prefetchDepth, version);
-    }
-    finally
-    {
-      StoreThreadLocal.release();
-    }
-  }
-
-  public List<InternalCDORevision> loadRevisions(Collection<CDOID> ids, int referenceChunk, int prefetchDepth)
-  {
-    try
-    {
-      InternalSession session = serverSessionProtocol.getSession();
-      StoreThreadLocal.setSession(session);
-      @SuppressWarnings("unchecked")
-      List<InternalCDORevision> revisions = (List<InternalCDORevision>)(List<?>)repository.getRevisionManager()
-          .getRevisions(ids, referenceChunk, prefetchDepth);
-      return revisions;
+          prefetchDepth, version, true);
     }
     finally
     {

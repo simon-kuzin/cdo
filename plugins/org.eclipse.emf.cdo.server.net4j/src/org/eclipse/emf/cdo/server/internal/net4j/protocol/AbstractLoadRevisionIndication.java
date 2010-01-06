@@ -16,12 +16,9 @@ import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.model.CDOClassInfo;
-import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
-import org.eclipse.emf.cdo.common.revision.CDORevisionManager;
 import org.eclipse.emf.cdo.server.internal.net4j.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
-import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
 
 import org.eclipse.net4j.util.collection.MoveableList;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
@@ -42,9 +39,9 @@ import java.util.Set;
 /**
  * @author Eike Stepper
  */
-public class LoadRevisionIndication extends CDOReadIndication
+public abstract class AbstractLoadRevisionIndication extends CDOReadIndication
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, LoadRevisionIndication.class);
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, AbstractLoadRevisionIndication.class);
 
   protected CDOID[] ids;
 
@@ -58,12 +55,7 @@ public class LoadRevisionIndication extends CDOReadIndication
 
   protected int loadRevisionCollectionChunkSize;
 
-  public LoadRevisionIndication(CDOServerProtocol protocol)
-  {
-    super(protocol, CDOProtocolConstants.SIGNAL_LOAD_REVISION);
-  }
-
-  public LoadRevisionIndication(CDOServerProtocol protocol, short signalID)
+  protected AbstractLoadRevisionIndication(CDOServerProtocol protocol, short signalID)
   {
     super(protocol, signalID);
   }
@@ -189,11 +181,7 @@ public class LoadRevisionIndication extends CDOReadIndication
     }
   }
 
-  protected InternalCDORevision getRevision(CDOID id)
-  {
-    CDORevisionManager revisionManager = getRepository().getRevisionManager();
-    return (InternalCDORevision)revisionManager.getRevision(id, referenceChunk, CDORevision.DEPTH_NONE);
-  }
+  protected abstract InternalCDORevision getRevision(CDOID id);
 
   private void collectRevisions(InternalCDORevision revision, Set<CDOID> revisions,
       List<CDORevision> additionalRevisions, Set<CDOFetchRule> visitedFetchRules)
@@ -207,7 +195,6 @@ public class LoadRevisionIndication extends CDOReadIndication
 
     visitedFetchRules.add(fetchRule);
 
-    InternalCDORevisionManager revisionManager = getSession().getManager().getRepository().getRevisionManager();
     for (EStructuralFeature feature : fetchRule.getFeatures())
     {
       if (feature.isMany())
@@ -222,8 +209,7 @@ public class LoadRevisionIndication extends CDOReadIndication
             CDOID id = (CDOID)value;
             if (!CDOIDUtil.isNull(id) && !revisions.contains(id))
             {
-              InternalCDORevision containedRevision = (InternalCDORevision)revisionManager.getRevision(id,
-                  referenceChunk, CDORevision.DEPTH_NONE);
+              InternalCDORevision containedRevision = getRevision(id);
               revisions.add(containedRevision.getID());
               additionalRevisions.add(containedRevision);
               collectRevisions(containedRevision, revisions, additionalRevisions, visitedFetchRules);
@@ -239,8 +225,7 @@ public class LoadRevisionIndication extends CDOReadIndication
           CDOID id = (CDOID)value;
           if (!id.isNull() && !revisions.contains(id))
           {
-            InternalCDORevision containedRevision = (InternalCDORevision)revisionManager.getRevision(id,
-                referenceChunk, CDORevision.DEPTH_NONE);
+            InternalCDORevision containedRevision = getRevision(id);
             revisions.add(containedRevision.getID());
             additionalRevisions.add(containedRevision);
             collectRevisions(containedRevision, revisions, additionalRevisions, visitedFetchRules);

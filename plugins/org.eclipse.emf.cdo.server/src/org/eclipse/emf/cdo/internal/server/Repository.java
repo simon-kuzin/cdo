@@ -221,31 +221,15 @@ public class Repository extends Container<Object> implements InternalRepository
     }
   }
 
-  public InternalCDORevision loadRevision(CDOID id, int referenceChunk, int prefetchDepth)
-  {
-    IStoreAccessor accessor = StoreThreadLocal.getAccessor();
-    return accessor.readRevision(id, referenceChunk, revisionManager.getCache());
-  }
-
   public InternalCDORevision loadRevisionByTime(CDOID id, int referenceChunk, int prefetchDepth, long timeStamp)
   {
-    if (isSupportingAudits())
+    if (timeStamp != CDORevision.UNSPECIFIED_DATE && !isSupportingAudits())
     {
-      IStoreAccessor accessor = StoreThreadLocal.getAccessor();
-      return accessor.readRevisionByTime(id, referenceChunk, revisionManager.getCache(), timeStamp);
+      throw new IllegalStateException("No support for auditing mode"); //$NON-NLS-1$
     }
 
-    // TODO Simon*: Is this check necessary here?
-    // TODO Eike: To have better exception message.
-    // By knowing if the back-end supports it, it let know the user that it could be achieved by changing its
-    // configuration file at the server.
-    // if (getRepository().getStore().hasAuditingSupport())
-    // {
-    // throw new UnsupportedOperationException(
-    // "Auditing supports isn't activated (see IRepository.Props.PROP_SUPPORTING_AUDITS).");
-    // }
-
-    throw new IllegalStateException("No support for auditing mode"); //$NON-NLS-1$
+    IStoreAccessor accessor = StoreThreadLocal.getAccessor();
+    return accessor.readRevisionByTime(id, referenceChunk, revisionManager.getCache(), timeStamp);
   }
 
   public InternalCDORevision loadRevisionByVersion(CDOID id, int referenceChunk, int prefetchDepth, int version)
@@ -256,26 +240,13 @@ public class Repository extends Container<Object> implements InternalRepository
       return accessor.readRevisionByVersion(id, referenceChunk, revisionManager.getCache(), version);
     }
 
-    InternalCDORevision revision = loadRevision(id, referenceChunk, prefetchDepth);
+    InternalCDORevision revision = loadRevisionByTime(id, referenceChunk, prefetchDepth, CDORevision.UNSPECIFIED_DATE);
     if (revision.getVersion() == version)
     {
       return revision;
     }
 
     throw new IllegalStateException("Cannot access object with id " + id + " and version " + version); //$NON-NLS-1$ //$NON-NLS-2$
-  }
-
-  public List<InternalCDORevision> loadRevisions(Collection<CDOID> ids, int referenceChunk, int prefetchDepth)
-  {
-    IStoreAccessor accessor = StoreThreadLocal.getAccessor();
-    List<InternalCDORevision> revisions = new ArrayList<InternalCDORevision>();
-    for (CDOID id : ids)
-    {
-      InternalCDORevision revision = accessor.readRevision(id, referenceChunk, revisionManager.getCache());
-      revisions.add(revision);
-    }
-
-    return revisions;
   }
 
   public List<InternalCDORevision> loadRevisionsByTime(Collection<CDOID> ids, int referenceChunk, int prefetchDepth,

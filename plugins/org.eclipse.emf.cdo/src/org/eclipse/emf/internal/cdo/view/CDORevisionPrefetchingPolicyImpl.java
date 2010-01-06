@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Simon McDuff - initial API and implementation
  *    Eike Stepper - maintenance
@@ -13,6 +13,7 @@ package org.eclipse.emf.internal.cdo.view;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDOList;
+import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionManager;
 import org.eclipse.emf.cdo.view.CDORevisionPrefetchingPolicy;
 
@@ -40,7 +41,7 @@ public class CDORevisionPrefetchingPolicyImpl implements CDORevisionPrefetchingP
   public Collection<CDOID> loadAhead(CDORevisionManager revisionManager, EObject eObject, EStructuralFeature feature,
       CDOList list, int accessIndex, CDOID accessID)
   {
-    if (chunkSize > 1 && !revisionManager.containsRevision(accessID))
+    if (chunkSize > 1 && !revisionManager.containsRevisionByTime(accessID, CDORevision.UNSPECIFIED_DATE))
     {
       int fromIndex = accessIndex;
       int toIndex = Math.min(accessIndex + chunkSize, list.size()) - 1;
@@ -54,7 +55,7 @@ public class CDORevisionPrefetchingPolicyImpl implements CDORevisionPrefetchingP
           CDOID idElement = (CDOID)element;
           if (!idElement.isTemporary())
           {
-            if (!revisionManager.containsRevision(idElement))
+            if (!revisionManager.containsRevisionByTime(idElement, CDORevision.UNSPECIFIED_DATE))
             {
               if (!notRegistered.contains(idElement))
               {

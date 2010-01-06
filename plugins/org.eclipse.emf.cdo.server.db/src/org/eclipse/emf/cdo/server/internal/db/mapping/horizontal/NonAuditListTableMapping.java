@@ -49,7 +49,7 @@ import java.util.ArrayList;
 
 /**
  * This is a list-to-table mapping optimized for non-audit-mode. It doesn't care about version and has delta support.
- *
+ * 
  * @author Eike Stepper
  * @since 2.0
  */
@@ -170,7 +170,7 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
 
   /**
    * Clear a list of a given revision.
-   *
+   * 
    * @param accessor
    *          the accessor to use
    * @param id
@@ -200,7 +200,8 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
       long created, CDOListFeatureDelta delta)
   {
     InternalCDORevision originalRevision = (InternalCDORevision)accessor.getStore().getRepository()
-        .getRevisionManager().getRevision(id, CDORevision.UNCHUNKED, CDORevision.DEPTH_NONE);
+        .getRevisionManager().getRevisionByTime(id, CDORevision.UNCHUNKED, CDORevision.DEPTH_NONE,
+            CDORevision.UNSPECIFIED_DATE, true);
     int oldListSize = originalRevision.getList(getFeature()).size();
 
     // reset the clear-flag
@@ -251,7 +252,7 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
 
   /**
    * Write calculated changes to the database
-   *
+   * 
    * @param accessor
    *          ,
    */

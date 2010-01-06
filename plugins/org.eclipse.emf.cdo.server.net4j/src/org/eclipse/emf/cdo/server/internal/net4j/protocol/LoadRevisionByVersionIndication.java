@@ -24,7 +24,7 @@ import java.io.IOException;
 /**
  * @author Eike Stepper
  */
-public class LoadRevisionByVersionIndication extends LoadRevisionIndication
+public class LoadRevisionByVersionIndication extends AbstractLoadRevisionIndication
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
       LoadRevisionByVersionIndication.class);
@@ -51,6 +51,6 @@ public class LoadRevisionByVersionIndication extends LoadRevisionIndication
   protected InternalCDORevision getRevision(CDOID id)
   {
     return (InternalCDORevision)getRepository().getRevisionManager().getRevisionByVersion(id, referenceChunk,
-        CDORevision.DEPTH_NONE, version);
+        CDORevision.DEPTH_NONE, version, true);
   }
 }

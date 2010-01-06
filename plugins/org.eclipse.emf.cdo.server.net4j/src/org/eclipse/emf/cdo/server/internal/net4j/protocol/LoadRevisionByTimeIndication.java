@@ -24,7 +24,7 @@ import java.io.IOException;
 /**
  * @author Eike Stepper
  */
-public class LoadRevisionByTimeIndication extends LoadRevisionIndication
+public class LoadRevisionByTimeIndication extends AbstractLoadRevisionIndication
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, LoadRevisionByTimeIndication.class);
 
@@ -50,6 +50,6 @@ public class LoadRevisionByTimeIndication extends LoadRevisionIndication
   protected InternalCDORevision getRevision(CDOID cdoID)
   {
     return (InternalCDORevision)getRepository().getRevisionManager().getRevisionByTime(cdoID, referenceChunk,
-        CDORevision.DEPTH_NONE, timeStamp);
+        CDORevision.DEPTH_NONE, timeStamp, true);
   }
 }

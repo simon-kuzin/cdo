@@ -193,9 +193,6 @@ public class CDOServerProtocol extends SignalProtocol<InternalSession> implement
     case CDOProtocolConstants.SIGNAL_CREATE_BRANCH:
       return new CreateBranchIndication(this);
 
-    case CDOProtocolConstants.SIGNAL_LOAD_REVISION:
-      return new LoadRevisionIndication(this);
-
     case CDOProtocolConstants.SIGNAL_LOAD_REVISION_BY_TIME:
       return new LoadRevisionByTimeIndication(this);
 
@@ -204,9 +201,6 @@ public class CDOServerProtocol extends SignalProtocol<InternalSession> implement
 
     case CDOProtocolConstants.SIGNAL_LOAD_CHUNK:
       return new LoadChunkIndication(this);
-
-    case CDOProtocolConstants.SIGNAL_VERIFY_REVISION:
-      return new VerifyRevisionIndication(this);
 
     case CDOProtocolConstants.SIGNAL_COMMIT_TRANSACTION:
       return new CommitTransactionIndication(this);

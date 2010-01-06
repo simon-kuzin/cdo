@@ -789,7 +789,7 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
 
       // Compute a revision delta and register it with the tx
       CDORevision originalRevision = revisionManager.getRevisionByVersion(id, -1, CDORevision.DEPTH_NONE, revision
-          .getVersion() - 1);
+          .getVersion() - 1, true);
       CDORevisionDelta revisionDelta = CDORevisionDeltaUtil.create(originalRevision, revision);
       transaction.registerRevisionDelta(revisionDelta);
       transaction.registerDirty(object, null);

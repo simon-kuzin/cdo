@@ -96,7 +96,7 @@ public class LoadChunkIndication extends CDOReadIndication
     InternalCDORevisionManager revisionManager = repository.getRevisionManager();
 
     InternalCDORevision revision = (InternalCDORevision)revisionManager.getRevisionByVersion(id, 0,
-        CDORevision.DEPTH_NONE, version);
+        CDORevision.DEPTH_NONE, version, true);
     repository.ensureChunk(revision, feature, fromIndex, toIndex + 1);
 
     CDOType type = CDOModelUtil.getType(feature);

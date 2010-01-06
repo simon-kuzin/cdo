@@ -323,7 +323,8 @@ public final class CDOUtil
         throw new IllegalStateException(Messages.getString("CDOUtil.0")); //$NON-NLS-1$
       }
 
-      return session.getRevisionManager().getRevisionByVersion(object.cdoID(), 0, CDORevision.DEPTH_NONE, version);
+      return session.getRevisionManager()
+          .getRevisionByVersion(object.cdoID(), 0, CDORevision.DEPTH_NONE, version, true);
     }
 
     return revision;
