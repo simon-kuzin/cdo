@@ -160,11 +160,6 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
     }
   }
 
-  public void removeRevision(CDORevision revision)
-  {
-    removeRevision(revision.getID(), revision.getVersion());
-  }
-
   public InternalCDORevision removeRevision(CDOID id, int version)
   {
     synchronized (cacheLists)

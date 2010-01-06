@@ -67,10 +67,6 @@ public class NOOPRevisionCache extends Lifecycle implements CDORevisionCache
     return false;
   }
 
-  public void removeRevision(CDORevision revision)
-  {
-  }
-
   public InternalCDORevision removeRevision(CDOID id, int version)
   {
     return null;

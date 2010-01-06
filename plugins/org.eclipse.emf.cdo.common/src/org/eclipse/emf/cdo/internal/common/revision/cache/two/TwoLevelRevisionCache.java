@@ -134,11 +134,6 @@ public class TwoLevelRevisionCache extends Lifecycle implements CDORevisionCache
     return added;
   }
 
-  public void removeRevision(CDORevision revision)
-  {
-    removeRevision(revision.getID(), revision.getVersion());
-  }
-
   public CDORevision removeRevision(CDOID id, int version)
   {
     CDORevision revision = level1.removeRevision(id, version);

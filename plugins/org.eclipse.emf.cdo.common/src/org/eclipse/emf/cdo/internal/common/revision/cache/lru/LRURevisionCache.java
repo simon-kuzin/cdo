@@ -195,11 +195,6 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
     return true;
   }
 
-  public synchronized void removeRevision(CDORevision revision)
-  {
-    removeRevision(revision.getID(), revision.getVersion());
-  }
-
   public synchronized InternalCDORevision removeRevision(CDOID id, int version)
   {
     InternalCDORevision revision = null;

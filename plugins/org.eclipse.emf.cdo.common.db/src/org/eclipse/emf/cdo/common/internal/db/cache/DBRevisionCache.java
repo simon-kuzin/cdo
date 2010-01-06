@@ -538,11 +538,6 @@ public class DBRevisionCache extends Lifecycle implements CDORevisionCache
     };
   }
 
-  public void removeRevision(CDORevision revision)
-  {
-    removeRevision(revision.getID(), revision.getVersion());
-  }
-
   /**
    * Removes a revision by its Id and version. If the given revision does not exist <tt>null</tt> is returned. Otherwise
    * the {@link InternalCDORevision}, that was removed is returned
