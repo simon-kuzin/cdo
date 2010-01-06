@@ -32,12 +32,12 @@ public interface CDORevisionManager
 
   public boolean containsRevisionByVersion(CDOID id, int version);
 
+  public List<CDORevision> getRevisions(Collection<CDOID> ids, long timeStamp, int referenceChunk,
+  int prefetchDepth, boolean loadOnDemand);
+
   public CDORevision getRevision(CDOID id, long timeStamp, int referenceChunk, int prefetchDepth,
       boolean loadOnDemand);
 
   public CDORevision getRevisionByVersion(CDOID id, int version, int referenceChunk, int prefetchDepth,
       boolean loadOnDemand);
-
-  public List<CDORevision> getRevisions(Collection<CDOID> ids, long timeStamp, int referenceChunk,
-      int prefetchDepth, boolean loadOnDemand);
 }
