@@ -11,7 +11,7 @@
 package org.eclipse.emf.cdo.internal.net4j.protocol;
 
 import org.eclipse.emf.cdo.CDOObject;
-import org.eclipse.emf.cdo.common.CDOCommonView;
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
@@ -24,7 +24,7 @@ import org.eclipse.emf.cdo.session.remote.CDORemoteSession;
 import org.eclipse.emf.cdo.session.remote.CDORemoteSessionMessage;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
-import org.eclipse.emf.cdo.transaction.CDOTimeStampContext;
+import org.eclipse.emf.cdo.transaction.CDORefreshContext;
 import org.eclipse.emf.cdo.view.CDOView;
 
 import org.eclipse.net4j.signal.RemoteException;
@@ -99,6 +99,16 @@ public class CDOClientProtocol extends SignalProtocol<CDOSession> implements CDO
     return send(new LoadPackagesRequest(this, (InternalCDOPackageUnit)packageUnit));
   }
 
+  public CDOBranch loadBranch(int branchID)
+  {
+    return send(new LoadBranchRequest(this, branchID));
+  }
+
+  public CDOBranch createBranch(int baseBranchID, long baseTimeStamp, String name)
+  {
+    return send(new CreateBranchRequest(this, baseBranchID, baseTimeStamp, name));
+  }
+
   public Object loadChunk(InternalCDORevision revision, EStructuralFeature feature, int accessIndex, int fetchIndex,
       int fromIndex, int toIndex)
   {
@@ -141,29 +151,29 @@ public class CDOClientProtocol extends SignalProtocol<CDOSession> implements CDO
     return send(new VerifyRevisionRequest(this, revisions));
   }
 
-  public Collection<CDOTimeStampContext> syncRevisions(Map<CDOID, CDOIDAndVersion> idAndVersions, int initialChunkSize)
+  public Collection<CDORefreshContext> syncRevisions(Map<CDOID, CDOIDAndVersion> idAndVersions, int initialChunkSize)
   {
     return send(new SyncRevisionsRequest(this, idAndVersions, initialChunkSize));
   }
 
-  public void openView(int viewId, CDOCommonView.Type viewType, long timeStamp)
+  public void openView(int viewID, int branchID, long timeStamp, boolean readOnly)
   {
-    send(new ViewsChangedRequest(this, viewId, viewType, timeStamp));
+    send(new OpenViewRequest(this, viewID, branchID, timeStamp, readOnly));
   }
 
-  public void closeView(int viewId)
+  public boolean[] changeView(int viewID, int branchID, long timeStamp, List<InternalCDOObject> invalidObjects)
   {
-    send(new ViewsChangedRequest(this, viewId));
+    return send(new ChangeViewRequest(this, viewID, branchID, timeStamp, invalidObjects));
   }
 
-  public boolean[] setAudit(int viewId, long timeStamp, List<InternalCDOObject> invalidObjects)
+  public void closeView(int viewID)
   {
-    return send(new SetAuditRequest(this, viewId, timeStamp, invalidObjects));
+    send(new CloseViewRequest(this, viewID));
   }
 
-  public void changeSubscription(int viewId, List<CDOID> cdoIDs, boolean subscribeMode, boolean clear)
+  public void changeSubscription(int viewID, List<CDOID> cdoIDs, boolean subscribeMode, boolean clear)
   {
-    send(new ChangeSubscriptionRequest(this, viewId, cdoIDs, subscribeMode, clear));
+    send(new ChangeSubscriptionRequest(this, viewID, cdoIDs, subscribeMode, clear));
   }
 
   public void query(int viewID, AbstractQueryIterator<?> queryResult)
@@ -278,6 +288,9 @@ public class CDOClientProtocol extends SignalProtocol<CDOSession> implements CDO
     {
     case CDOProtocolConstants.SIGNAL_AUTHENTICATION:
       return new AuthenticationIndication(this);
+
+    case CDOProtocolConstants.SIGNAL_BRANCH_NOTIFICATION:
+      return new BranchNotificationIndication(this);
 
     case CDOProtocolConstants.SIGNAL_COMMIT_NOTIFICATION:
       return new CommitNotificationIndication(this);

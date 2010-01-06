@@ -4,19 +4,18 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Eike Stepper - initial API and implementation
  *    Victor Roldan Betancort - maintenance
  */
 package org.eclipse.emf.cdo.internal.ui.actions;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.internal.ui.SharedIcons;
 import org.eclipse.emf.cdo.internal.ui.dialogs.OpenAuditDialog;
 import org.eclipse.emf.cdo.internal.ui.messages.Messages;
 import org.eclipse.emf.cdo.session.CDOSession;
-
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ui.IWorkbenchPage;
@@ -54,6 +53,6 @@ public final class OpenAuditAction extends AbstractOpenViewAction
   @Override
   protected void doRun(IProgressMonitor progressMonitor) throws Exception
   {
-    getSession().openAudit(new ResourceSetImpl(), timeStamp);
+    getSession().openView(CDOBranch.MAIN_BRANCH_ID, timeStamp);
   }
 }

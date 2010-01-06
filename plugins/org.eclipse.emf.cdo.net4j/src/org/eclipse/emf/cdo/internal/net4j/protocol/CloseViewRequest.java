@@ -10,7 +10,6 @@
  **************************************************************************/
 package org.eclipse.emf.cdo.internal.net4j.protocol;
 
-import org.eclipse.emf.cdo.common.CDOCommonView;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
@@ -20,36 +19,20 @@ import java.io.IOException;
 /**
  * @author Eike Stepper
  */
-public class ViewsChangedRequest extends CDOClientRequest<Boolean>
+public class CloseViewRequest extends CDOClientRequest<Boolean>
 {
   private int viewID;
 
-  private CDOCommonView.Type viewType;
-
-  private long timeStamp;
-
-  public ViewsChangedRequest(CDOClientProtocol protocol, int viewID, CDOCommonView.Type viewType, long timeStamp)
+  public CloseViewRequest(CDOClientProtocol protocol, int viewID)
   {
-    super(protocol, CDOProtocolConstants.SIGNAL_VIEWS_CHANGED);
+    super(protocol, CDOProtocolConstants.SIGNAL_CLOSE_VIEW);
     this.viewID = viewID;
-    this.viewType = viewType;
-    this.timeStamp = timeStamp;
-  }
-
-  public ViewsChangedRequest(CDOClientProtocol protocol, int viewID)
-  {
-    this(protocol, viewID, null, CDOCommonView.UNSPECIFIED_DATE);
   }
 
   @Override
   protected void requesting(CDODataOutput out) throws IOException
   {
     out.writeInt(viewID);
-    out.writeByte(viewType == null ? CDOProtocolConstants.VIEW_CLOSED : (byte)viewType.ordinal());
-    if (viewType == CDOCommonView.Type.AUDIT)
-    {
-      out.writeLong(timeStamp);
-    }
   }
 
   @Override

@@ -11,14 +11,15 @@
  */
 package org.eclipse.emf.cdo.internal.server;
 
-import org.eclipse.emf.cdo.common.CDOCommonView;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.spi.server.InternalRepository;
 import org.eclipse.emf.cdo.spi.server.InternalSession;
 import org.eclipse.emf.cdo.spi.server.InternalView;
 
 import java.text.MessageFormat;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -30,6 +31,10 @@ public class View implements InternalView
 
   private int viewID;
 
+  private int branchID;
+
+  private long timeStamp;
+
   private InternalRepository repository;
 
   private Set<CDOID> changeSubscriptionIDs = new HashSet<CDOID>();
@@ -37,11 +42,14 @@ public class View implements InternalView
   /**
    * @since 2.0
    */
-  public View(InternalSession session, int viewID)
+  public View(InternalSession session, int viewID, int branchID, long timeStamp)
   {
     this.session = session;
-    this.viewID = viewID;
     repository = session.getManager().getRepository();
+
+    this.viewID = viewID;
+    this.branchID = branchID;
+    setTimeStamp(timeStamp);
   }
 
   public InternalSession getSession()
@@ -54,12 +62,24 @@ public class View implements InternalView
     return viewID;
   }
 
-  /**
-   * @since 2.0
-   */
-  public Type getViewType()
+  public int getBranchID()
   {
-    return Type.READONLY;
+    return branchID;
+  }
+
+  public long getTimeStamp()
+  {
+    return timeStamp;
+  }
+
+  public boolean isReadOnly()
+  {
+    return true;
+  }
+
+  public boolean isHistorical()
+  {
+    return timeStamp != UNSPECIFIED_DATE;
   }
 
   /**
@@ -71,15 +91,25 @@ public class View implements InternalView
     return repository;
   }
 
-  /**
-   * The timeStamp of the view ({@link CDOCommonView#UNSPECIFIED_DATE} if the view is an
-   * {@link CDOCommonView.Type#AUDIT audit} view.
-   * 
-   * @since 2.0
-   */
-  public long getTimeStamp()
+  public boolean[] changeTarget(int branchID, long timeStamp, List<CDOID> invalidObjects)
   {
-    return UNSPECIFIED_DATE;
+    checkOpen();
+    setTimeStamp(timeStamp);
+    List<CDORevision> revisions = repository.getRevisionManager().getRevisionsByTime(invalidObjects, 0,
+        CDORevision.DEPTH_NONE, timeStamp, false);
+    boolean[] existanceFlags = new boolean[revisions.size()];
+    for (int i = 0; i < existanceFlags.length; i++)
+    {
+      existanceFlags[i] = revisions.get(i) != null;
+    }
+
+    return existanceFlags;
+  }
+
+  private void setTimeStamp(long timeStamp)
+  {
+    repository.validateTimeStamp(timeStamp);
+    this.timeStamp = timeStamp;
   }
 
   /**

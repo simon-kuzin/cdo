@@ -14,6 +14,8 @@
  */
 package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
@@ -27,7 +29,6 @@ import org.eclipse.emf.cdo.session.remote.CDORemoteSessionMessage;
 import org.eclipse.emf.cdo.spi.server.ISessionProtocol;
 import org.eclipse.emf.cdo.spi.server.InternalSession;
 
-import org.eclipse.net4j.channel.IChannel;
 import org.eclipse.net4j.signal.SignalProtocol;
 import org.eclipse.net4j.signal.SignalReactor;
 import org.eclipse.net4j.util.io.StringCompressor;
@@ -85,15 +86,33 @@ public class CDOServerProtocol extends SignalProtocol<InternalSession> implement
     return new AuthenticationRequest(this, randomToken).send(negotiationTimeout);
   }
 
-  public void sendCommitNotification(long timeStamp, CDOPackageUnit[] packageUnits, List<CDOIDAndVersion> dirtyIDs,
-      List<CDOID> detachedObjects, List<CDORevisionDelta> newDeltas)
+  public void sendBranchNotification(CDOBranch branch)
   {
     try
     {
-      IChannel channel = getChannel();
-      if (LifecycleUtil.isActive(channel))
+      if (LifecycleUtil.isActive(getChannel()))
       {
-        new CommitNotificationRequest(channel, timeStamp, packageUnits, dirtyIDs, detachedObjects, newDeltas)
+        new BranchNotificationRequest(this, branch).sendAsync();
+      }
+      else
+      {
+        OM.LOG.warn("Session channel is inactive: " + this); //$NON-NLS-1$
+      }
+    }
+    catch (Exception ex)
+    {
+      OM.LOG.error(ex);
+    }
+  }
+
+  public void sendCommitNotification(CDOBranchPoint branchPoint, CDOPackageUnit[] packageUnits,
+      List<CDOIDAndVersion> dirtyIDs, List<CDOID> detachedObjects, List<CDORevisionDelta> newDeltas)
+  {
+    try
+    {
+      if (LifecycleUtil.isActive(getChannel()))
+      {
+        new CommitNotificationRequest(this, branchPoint, packageUnits, dirtyIDs, detachedObjects, newDeltas)
             .sendAsync();
       }
       else
@@ -111,10 +130,9 @@ public class CDOServerProtocol extends SignalProtocol<InternalSession> implement
   {
     try
     {
-      IChannel channel = getChannel();
-      if (LifecycleUtil.isActive(channel))
+      if (LifecycleUtil.isActive(getChannel()))
       {
-        new RemoteSessionNotificationRequest(channel, opcode, session).sendAsync();
+        new RemoteSessionNotificationRequest(this, opcode, session).sendAsync();
       }
       else
       {
@@ -131,10 +149,9 @@ public class CDOServerProtocol extends SignalProtocol<InternalSession> implement
   {
     try
     {
-      IChannel channel = getChannel();
-      if (LifecycleUtil.isActive(channel))
+      if (LifecycleUtil.isActive(getChannel()))
       {
-        new RemoteMessageNotificationRequest(channel, sender, message).sendAsync();
+        new RemoteMessageNotificationRequest(this, sender, message).sendAsync();
         return true;
       }
       else
@@ -158,11 +175,23 @@ public class CDOServerProtocol extends SignalProtocol<InternalSession> implement
     case CDOProtocolConstants.SIGNAL_OPEN_SESSION:
       return new OpenSessionIndication(this);
 
-    case CDOProtocolConstants.SIGNAL_VIEWS_CHANGED:
-      return new ViewsChangedIndication(this);
+    case CDOProtocolConstants.SIGNAL_OPEN_VIEW:
+      return new OpenViewIndication(this);
+
+    case CDOProtocolConstants.SIGNAL_CHANGE_VIEW:
+      return new ChangeViewIndication(this);
+
+    case CDOProtocolConstants.SIGNAL_CLOSE_VIEW:
+      return new CloseViewIndication(this);
 
     case CDOProtocolConstants.SIGNAL_LOAD_PACKAGES:
       return new LoadPackagesIndication(this);
+
+    case CDOProtocolConstants.SIGNAL_LOAD_BRANCH:
+      return new LoadBranchIndication(this);
+
+    case CDOProtocolConstants.SIGNAL_CREATE_BRANCH:
+      return new CreateBranchIndication(this);
 
     case CDOProtocolConstants.SIGNAL_LOAD_REVISION:
       return new LoadRevisionIndication(this);
@@ -208,9 +237,6 @@ public class CDOServerProtocol extends SignalProtocol<InternalSession> implement
 
     case CDOProtocolConstants.SIGNAL_CHANGE_SUBSCRIPTION:
       return new ChangeSubscriptionIndication(this);
-
-    case CDOProtocolConstants.SIGNAL_SET_AUDIT:
-      return new SetAuditIndication(this);
 
     case CDOProtocolConstants.SIGNAL_REPOSITORY_TIME:
       return new RepositoryTimeIndication(this);

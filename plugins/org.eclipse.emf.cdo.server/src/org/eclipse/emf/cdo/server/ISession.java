@@ -37,17 +37,12 @@ public interface ISession extends CDOCommonSession, IContainer<IView>
   public boolean isSubscribed();
 
   /**
-   * @since 2.0
+   * @since 3.0
    */
-  public IView openView(int viewID);
+  public IView openView(int viewID, int branchID, long timeStamp);
 
   /**
-   * @since 2.0
+   * @since 3.0
    */
-  public IAudit openAudit(int viewID, long timeStamp);
-
-  /**
-   * @since 2.0
-   */
-  public ITransaction openTransaction(int viewID);
+  public ITransaction openTransaction(int viewID, int branchID);
 }

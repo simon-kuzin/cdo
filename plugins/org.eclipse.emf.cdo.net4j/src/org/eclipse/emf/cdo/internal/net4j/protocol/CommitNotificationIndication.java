@@ -4,13 +4,14 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Eike Stepper - initial API and implementation
- *    Simon McDuff - bug 233490    
+ *    Simon McDuff - bug 233490
  **************************************************************************/
 package org.eclipse.emf.cdo.internal.net4j.protocol;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
@@ -47,11 +48,7 @@ public class CommitNotificationIndication extends CDOClientIndication
   @Override
   protected void indicating(CDODataInput in) throws IOException
   {
-    long timeStamp = in.readLong();
-    if (TRACER.isEnabled())
-    {
-      TRACER.format("Read timeStamp: {0,date} {0,time}", timeStamp); //$NON-NLS-1$
-    }
+    CDOBranchPoint branchPoint = in.readCDOBranchPoint();
 
     CDOPackageUnit[] packageUnits = in.readCDOPackageUnits(null);
     InternalCDOPackageRegistry packageRegistry = getSession().getPackageRegistry();
@@ -104,6 +101,7 @@ public class CommitNotificationIndication extends CDOClientIndication
       detachedObjects.add(in.readCDOID());
     }
 
-    session.handleCommitNotification(timeStamp, Arrays.asList(packageUnits), dirtyOIDs, detachedObjects, deltas, null);
+    session
+        .handleCommitNotification(branchPoint, Arrays.asList(packageUnits), dirtyOIDs, detachedObjects, deltas, null);
   }
 }

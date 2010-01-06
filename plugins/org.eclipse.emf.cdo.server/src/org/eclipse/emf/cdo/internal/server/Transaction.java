@@ -12,7 +12,6 @@
  */
 package org.eclipse.emf.cdo.internal.server;
 
-import org.eclipse.emf.cdo.common.CDOCommonView;
 import org.eclipse.emf.cdo.spi.server.InternalCommitContext;
 import org.eclipse.emf.cdo.spi.server.InternalSession;
 import org.eclipse.emf.cdo.spi.server.InternalTransaction;
@@ -25,26 +24,21 @@ import java.text.MessageFormat;
  */
 public class Transaction extends View implements InternalTransaction
 {
-  public Transaction(InternalSession session, int viewID)
+  public Transaction(InternalSession session, int viewID, int branchID)
   {
-    super(session, viewID);
+    super(session, viewID, branchID, UNSPECIFIED_DATE);
   }
 
   @Override
-  public Type getViewType()
+  public boolean isReadOnly()
   {
-    return CDOCommonView.Type.TRANSACTION;
-  }
-
-  public int getTransactionID()
-  {
-    return getViewID();
+    return false;
   }
 
   @Override
   public String toString()
   {
-    return MessageFormat.format("Transaction[{0}]", getTransactionID()); //$NON-NLS-1$
+    return MessageFormat.format("Transaction[{0}]", getViewID()); //$NON-NLS-1$
   }
 
   /**

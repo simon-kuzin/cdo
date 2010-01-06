@@ -11,7 +11,7 @@
 package org.eclipse.emf.cdo.internal.server.embedded;
 
 import org.eclipse.emf.cdo.CDOObject;
-import org.eclipse.emf.cdo.common.CDOCommonView;
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
@@ -27,7 +27,6 @@ import org.eclipse.emf.cdo.session.remote.CDORemoteSessionMessage;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
-import org.eclipse.emf.cdo.spi.server.InternalAudit;
 import org.eclipse.emf.cdo.spi.server.InternalCommitContext;
 import org.eclipse.emf.cdo.spi.server.InternalQueryManager;
 import org.eclipse.emf.cdo.spi.server.InternalQueryResult;
@@ -35,7 +34,7 @@ import org.eclipse.emf.cdo.spi.server.InternalRepository;
 import org.eclipse.emf.cdo.spi.server.InternalSession;
 import org.eclipse.emf.cdo.spi.server.InternalTransaction;
 import org.eclipse.emf.cdo.spi.server.InternalView;
-import org.eclipse.emf.cdo.transaction.CDOTimeStampContext;
+import org.eclipse.emf.cdo.transaction.CDORefreshContext;
 import org.eclipse.emf.cdo.view.CDOView;
 
 import org.eclipse.net4j.util.ImplementationError;
@@ -95,6 +94,16 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
   }
 
   public EPackage[] loadPackages(CDOPackageUnit packageUnit)
+  {
+    throw new ImplementationError("Should not be called");
+  }
+
+  public CDOBranch loadBranch(int branchID)
+  {
+    throw new ImplementationError("Should not be called");
+  }
+
+  public CDOBranch createBranch(int baseBranchID, long baseTimeStamp, String name)
   {
     throw new ImplementationError("Should not be called");
   }
@@ -209,28 +218,39 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
     throw new ImplementationError("Should not be called");
   }
 
-  public Collection<CDOTimeStampContext> syncRevisions(Map<CDOID, CDOIDAndVersion> allRevisions, int initialChunkSize)
+  public Collection<CDORefreshContext> syncRevisions(Map<CDOID, CDOIDAndVersion> allRevisions, int initialChunkSize)
   {
     throw new UnsupportedOperationException();
   }
 
-  public void openView(int viewID, CDOCommonView.Type viewType, long timeStamp)
+  public void openView(int viewID, int branchID, long timeStamp, boolean readOnly)
   {
     InternalSession session = serverSessionProtocol.getSession();
-    switch (viewType)
+    if (readOnly)
     {
-    case AUDIT:
-      session.openAudit(viewID, timeStamp);
-      break;
-
-    case READONLY:
-      session.openView(viewID);
-      break;
-
-    case TRANSACTION:
-      session.openTransaction(viewID);
-      break;
+      session.openView(viewID, branchID, timeStamp);
     }
+    else
+    {
+      session.openTransaction(viewID, branchID);
+    }
+  }
+
+  public boolean[] changeView(int viewID, int branchID, long timeStamp, List<InternalCDOObject> invalidObjects)
+  {
+    InternalView view = serverSessionProtocol.getSession().getView(viewID);
+    if (view != null)
+    {
+      List<CDOID> ids = new ArrayList<CDOID>(invalidObjects.size());
+      for (InternalCDOObject object : invalidObjects)
+      {
+        ids.add(object.cdoID());
+      }
+
+      return view.changeTarget(branchID, timeStamp, ids);
+    }
+
+    return null;
   }
 
   public void closeView(int viewID)
@@ -300,18 +320,6 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
     throw new UnsupportedOperationException();
   }
 
-  public boolean[] setAudit(int viewID, long timeStamp, List<InternalCDOObject> invalidObjects)
-  {
-    List<CDOID> ids = new ArrayList<CDOID>(invalidObjects.size());
-    for (InternalCDOObject object : invalidObjects)
-    {
-      ids.add(object.cdoID());
-    }
-
-    InternalAudit audit = (InternalAudit)serverSessionProtocol.getSession().getView(viewID);
-    return audit.setTimeStamp(timeStamp, ids);
-  }
-
   public CommitTransactionResult commitTransaction(InternalCDOCommitContext clientCommitContext, OMMonitor monitor)
   {
     monitor.begin(2);
@@ -369,7 +377,7 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
         monitor.worked();
       }
 
-      result = new CommitTransactionResult(clientCommitContext, serverCommitContext.getTimeStamp());
+      result = new CommitTransactionResult(clientCommitContext, serverCommitContext.getBranchPoint());
       for (Entry<CDOIDTemp, CDOID> entry : serverCommitContext.getIDMappings().entrySet())
       {
         result.addIDMapping(entry.getKey(), entry.getValue());

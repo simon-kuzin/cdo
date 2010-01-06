@@ -13,6 +13,7 @@
 package org.eclipse.emf.cdo.internal.server.mem;
 
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCacheAdder;
 import org.eclipse.emf.cdo.server.IQueryContext;
@@ -142,31 +143,19 @@ public class MEMStoreAccessor extends LongIDStoreAccessor
     throw new UnsupportedOperationException();
   }
 
+  public CDOBranch loadBranch(int branchID)
+  {
+    return getStore().loadBranch(branchID);
+  }
+
+  public CDOBranch createBranch(int baseBranchID, long baseTimeStamp, String name)
+  {
+    return getStore().createBranch(baseBranchID, baseTimeStamp, name);
+  }
+
   public InternalCDORevision readRevision(CDOID id, int listChunk, CDORevisionCacheAdder cache)
   {
-    InternalCDORevision storeRevision = getStore().getRevision(id);
-    // CDORevisionManager revisionManager = getStore().getRepository().getRevisionManager();
-    // InternalCDORevision newRevision = new InternalCDORevision(revisionManager, storeRevision.getEClass(),
-    // storeRevision
-    // .getID());
-    // newRevision.setResourceID(storeRevision.getResourceID());
-    //
-    // for (EStructuralFeature feature : storeRevision.TODO.getAllPersistentFeatures(getEClass()))
-    // {
-    // if (feature.isMany())
-    // {
-    // newRevision.setListSize(feature, storeRevision.getList(feature).size());
-    // MoveableList<Object> list = newRevision.getList(feature);
-    // int size = referenceChunk == CDORevision.UNCHUNKED ? list.size() : referenceChunk;
-    // for (int i = 0; i < size; i++)
-    // {
-    // list.set(i, storeRevision.get(feature, i));
-    // }
-    // }
-    // }
-    //
-    // return newRevision;
-    return storeRevision;
+    return getStore().getRevision(id);
   }
 
   public InternalCDORevision readRevisionByTime(CDOID id, int listChunk, CDORevisionCacheAdder cache, long timeStamp)

@@ -4,24 +4,27 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Simon McDuff - initial API and implementation
- *    Simon McDuff - bug 233273    
+ *    Simon McDuff - bug 233273
  *    Eike Stepper - maintenance
  */
 package org.eclipse.emf.cdo.internal.server.mem;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOModelConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.internal.common.branch.CDOBranchImpl;
 import org.eclipse.emf.cdo.server.IMEMStore;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.ITransaction;
 import org.eclipse.emf.cdo.server.IView;
 import org.eclipse.emf.cdo.server.StoreThreadLocal;
+import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager.BranchLoader;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.server.LongIDStore;
 import org.eclipse.emf.cdo.spi.server.StoreAccessorPool;
@@ -39,11 +42,13 @@ import java.util.Map;
 /**
  * @author Simon McDuff
  */
-public class MEMStore extends LongIDStore implements IMEMStore
+public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
 {
   public static final String TYPE = "mem"; //$NON-NLS-1$
 
   private long creationTime;
+
+  private Map<Integer, CDOBranch> branches = new HashMap<Integer, CDOBranch>();
 
   private Map<CDOID, List<InternalCDORevision>> revisions = new HashMap<CDOID, List<InternalCDORevision>>();
 
@@ -65,6 +70,19 @@ public class MEMStore extends LongIDStore implements IMEMStore
   public MEMStore()
   {
     this(UNLIMITED);
+  }
+
+  public synchronized CDOBranch loadBranch(int branchID)
+  {
+    return branches.get(branchID);
+  }
+
+  public synchronized CDOBranch createBranch(int baseBranchID, long baseTimeStamp, String name)
+  {
+    int id = branches.size() + 1;
+    CDOBranch branch = new CDOBranchImpl(id, name, baseBranchID, baseTimeStamp);
+    branches.put(id, branch);
+    return branch;
   }
 
   /**

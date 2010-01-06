@@ -15,6 +15,7 @@ package org.eclipse.emf.internal.cdo.transaction;
 
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.CDOState;
+import org.eclipse.emf.cdo.common.commit.CDOCommit;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
@@ -131,8 +132,6 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
 
   private int conflict;
 
-  private long lastCommitTime = CDORevision.UNSPECIFIED_DATE;
-
   private AtomicInteger lastTemporaryID = new AtomicInteger();
 
   private CDOTransactionStrategy transactionStrategy;
@@ -150,11 +149,9 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     }
   };
 
-  /**
-   * @since 2.0
-   */
-  public CDOTransactionImpl()
+  public CDOTransactionImpl(int branchID)
   {
+    super(branchID, UNSPECIFIED_DATE);
   }
 
   /**
@@ -176,28 +173,21 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
   }
 
   @Override
-  public Type getViewType()
+  public boolean isReadOnly()
   {
-    return Type.TRANSACTION;
+    return false;
   }
 
-  @Deprecated
-  public void addHandler(CDOTransactionHandler handler)
+  @Override
+  public void setBranchID(int branchID)
   {
-    addTransactionHandler(handler);
+    throw new UnsupportedOperationException("Changing the target branch is not supported by transactions");
   }
 
-  @Deprecated
-  public void removeHandler(CDOTransactionHandler handler)
+  @Override
+  public void setTimeStamp(long timeStamp)
   {
-    removeTransactionHandler(handler);
-  }
-
-  @Deprecated
-  public CDOTransactionHandler[] getHandlers()
-  {
-    CDOTransactionHandler[] handlers = getTransactionHandlers();
-    return handlers == null ? new CDOTransactionHandler[0] : null;
+    throw new UnsupportedOperationException("Changing the target time is not supported by transactions");
   }
 
   public void addTransactionHandler(CDOTransactionHandler handler)
@@ -358,14 +348,6 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
         uniqueObjects.put(cdoId, CDOIDUtil.createIDAndVersion(cdoId, version));
       }
     }
-  }
-
-  /**
-   * @since 2.0
-   */
-  public long getLastCommitTime()
-  {
-    return lastCommitTime;
   }
 
   public CDOIDTemp getNextTemporaryID()
@@ -657,7 +639,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
   /**
    * @since 2.0
    */
-  public void commit(IProgressMonitor progressMonitor) throws TransactionException
+  public CDOCommit commit(IProgressMonitor progressMonitor) throws TransactionException
   {
     checkActive();
     // TODO Consider fixing Bug 294700 without this commit lock.
@@ -677,7 +659,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
           progressMonitor = new NullProgressMonitor();
         }
 
-        getTransactionStrategy().commit(this, progressMonitor);
+        return getTransactionStrategy().commit(this, progressMonitor);
       }
       catch (TransactionException ex)
       {
@@ -694,9 +676,9 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     }
   }
 
-  public void commit() throws TransactionException
+  public CDOCommit commit() throws TransactionException
   {
-    commit(null);
+    return commit(null);
   }
 
   /**
@@ -1701,18 +1683,10 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
             ((InternalCDOPackageUnit)newPackageUnit).setState(CDOPackageUnit.State.LOADED);
           }
 
-          long timeStamp = result.getTimeStamp();
-
           Map<CDOID, CDOObject> dirtyObjects = getDirtyObjects();
           Set<CDOIDAndVersion> dirtyIDs = new HashSet<CDOIDAndVersion>();
           for (CDOObject dirtyObject : dirtyObjects.values())
           {
-            CDOState cdoState = dirtyObject.cdoState();
-            if (cdoState != CDOState.CLEAN)
-            {
-              System.out.println(cdoState);
-            }
-
             CDORevision revision = dirtyObject.cdoRevision();
             CDOIDAndVersion dirtyID = CDOIDUtil.createIDAndVersion(revision.getID(), revision.getVersion() - 1);
             dirtyIDs.add(dirtyID);
@@ -1730,15 +1704,13 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
               ((InternalCDORevisionDelta)dirtyObjectDelta).adjustReferences(result.getReferenceAdjuster());
             }
 
-            session.handleCommitNotification(timeStamp, newPackageUnits, dirtyIDs, detachedIDs, deltasCopy,
-                getTransaction());
+            session.handleCommitNotification(result.getBranchPoint(), newPackageUnits, dirtyIDs, detachedIDs,
+                deltasCopy, getTransaction());
           }
           else
           {
-            session.setLastUpdateTime(timeStamp);
+            session.setLastUpdateTime(result.getBranchPoint().getTimeStamp());
           }
-
-          lastCommitTime = timeStamp;
 
           CDOTransactionHandler[] handlers = getTransactionHandlers();
           if (handlers != null)

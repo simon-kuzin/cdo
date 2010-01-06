@@ -121,6 +121,16 @@ public class CDORevisionProxy implements HibernateProxy, InternalCDORevision, Se
     li.getRevision().setID(id);
   }
 
+  public int getBranchID()
+  {
+    return li.getRevision().getBranchID();
+  }
+
+  public void setBranchID(int branchID)
+  {
+    li.getRevision().setBranchID(branchID);
+  }
+
   public int getVersion()
   {
     return li.getRevision().getVersion();

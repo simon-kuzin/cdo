@@ -17,7 +17,9 @@ import org.eclipse.emf.cdo.CDOInvalidationNotification;
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.CDOState;
 import org.eclipse.emf.cdo.common.CDOCommonView;
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.eresource.CDOResourceFolder;
 import org.eclipse.emf.cdo.eresource.CDOResourceNode;
@@ -105,11 +107,23 @@ public interface CDOView extends CDOCommonView, INotifier, IOptionsContainer
    */
   public ResourceSet getResourceSet();
 
-  /**
-   * @deprecated This API is provisional and subject to change or removal.
-   */
-  @Deprecated
   public URIHandler getURIHandler();
+
+  /**
+   * Sets the ID of the {@link CDOBranch branch} this view should refer to.
+   * 
+   * @since 3.0
+   */
+  public void setBranchID(int branchID);
+
+  /**
+   * Sets the point in (repository) time this view should refer to. {@link CDOObject Objects} provided by this view will
+   * be {@link CDORevision#isValid(long) valid} at this time. The special value {@link CDOCommonView#UNSPECIFIED_DATE
+   * UNSPECIFIED_DATE} denotes a "floating view" that always shows the latest state of the repository.
+   * 
+   * @since 3.0
+   */
+  public void setTimeStamp(long timeStamp);
 
   /**
    * Returns a reentrant lock that can be used to prevent the framework from writing to any object in this view (as it

@@ -11,6 +11,7 @@
  */
 package org.eclipse.emf.cdo.defs.impl;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.defs.CDOAuditDef;
 import org.eclipse.emf.cdo.defs.CDODefsPackage;
 import org.eclipse.emf.cdo.session.CDOSession;
@@ -189,7 +190,7 @@ public class CDOAuditDefImpl extends CDOViewDefImpl implements CDOAuditDef
   protected Object createInstance()
   {
     CDOSession cdoSession = (CDOSession)getCdoSessionDef().getInstance();
-    return cdoSession.openAudit(getTimeStamp().getTime());
+    return cdoSession.openView(CDOBranch.MAIN_BRANCH_ID, getTimeStamp().getTime());
   }
 
   @Override

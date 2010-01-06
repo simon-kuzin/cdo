@@ -860,7 +860,7 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
       // Adjust revision
       revision.setID(id);
       revision.setTransactional(false);
-      revision.setCreated(data.getTimeStamp());
+      revision.setCreated(data.getBranchPoint().getTimeStamp());
 
       // if (useDeltas)
       // {

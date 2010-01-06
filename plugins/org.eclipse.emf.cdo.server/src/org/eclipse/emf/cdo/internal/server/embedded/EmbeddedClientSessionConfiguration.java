@@ -55,6 +55,7 @@ public class EmbeddedClientSessionConfiguration extends CDOSessionConfigurationI
 
   public void setRevisionManager(CDORevisionManager revisionManager)
   {
+    checkNotOpen();
     this.revisionManager = (InternalCDORevisionManager)revisionManager;
   }
 

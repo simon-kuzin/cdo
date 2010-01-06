@@ -7,25 +7,20 @@
  *
  * Contributors:
  *    Eike Stepper - initial API and implementation
- *    Simon McDuff - bug 213402
  */
-package org.eclipse.emf.cdo.server;
+package org.eclipse.emf.cdo.common.branch;
 
-import org.eclipse.emf.cdo.common.id.CDOID;
-
-import java.util.List;
+import org.eclipse.net4j.util.event.INotifier;
 
 /**
  * @author Eike Stepper
- * @noimplement This interface is not intended to be implemented by clients.
- * @since 2.0
+ * @since 3.0
  */
-public interface IAudit extends IView
+public interface CDOBranchManager extends INotifier
 {
-  public long getTimeStamp();
+  public CDOBranch getMainBranch();
 
-  /**
-   * @since 3.0
-   */
-  public boolean[] setTimeStamp(long timeStamp, List<CDOID> invalidObjects);
+  public CDOBranch getBranch(int branchID);
+
+  public CDOBranch createBranch(int baseBranchID, long baseTimeStamp, String name);
 }

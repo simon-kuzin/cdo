@@ -11,6 +11,7 @@
 package org.eclipse.emf.cdo.transaction;
 
 import org.eclipse.emf.cdo.CDOObject;
+import org.eclipse.emf.cdo.common.commit.CDOCommit;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
@@ -191,12 +192,12 @@ public class CDOPushTransaction extends Notifier implements CDOTransaction
     }
   }
 
-  public void commit() throws TransactionException
+  public CDOCommit commit() throws TransactionException
   {
-    commit(null);
+    return commit(null);
   }
 
-  public void commit(IProgressMonitor progressMonitor) throws TransactionException
+  public CDOCommit commit(IProgressMonitor progressMonitor) throws TransactionException
   {
     OutputStream out = null;
 
@@ -205,6 +206,7 @@ public class CDOPushTransaction extends Notifier implements CDOTransaction
       out = new FileOutputStream(file);
       delegate.exportChanges(out);
       setDirty(false);
+      return null;
     }
     catch (IOException ex)
     {
@@ -309,11 +311,6 @@ public class CDOPushTransaction extends Notifier implements CDOTransaction
     return delegate.getDirtyObjects();
   }
 
-  public long getLastCommitTime()
-  {
-    return delegate.getLastCommitTime();
-  }
-
   public CDOSavepoint getLastSavepoint()
   {
     return delegate.getLastSavepoint();
@@ -414,11 +411,6 @@ public class CDOPushTransaction extends Notifier implements CDOTransaction
     return delegate.getViewSet();
   }
 
-  public Type getViewType()
-  {
-    return delegate.getViewType();
-  }
-
   public boolean hasConflict()
   {
     return delegate.hasConflict();
@@ -496,33 +488,39 @@ public class CDOPushTransaction extends Notifier implements CDOTransaction
     delegate.unlockObjects(objects, lockType);
   }
 
-  @Deprecated
+  public static File createTempFile(CDOTransaction transaction) throws IOException
+  {
+    String prefix = "cdo_tx_" + transaction.getSession().getSessionID() + "_" + transaction.getViewID() + "__";
+    return File.createTempFile(prefix, null);
+  }
+
+  public boolean isReadOnly()
+  {
+    return delegate.isReadOnly();
+  }
+
+  public boolean isHistorical()
+  {
+    return delegate.isHistorical();
+  }
+
+  public int getBranchID()
+  {
+    return delegate.getBranchID();
+  }
+
   public URIHandler getURIHandler()
   {
     return delegate.getURIHandler();
   }
 
-  @Deprecated
-  public void addHandler(CDOTransactionHandler handler)
+  public void setBranchID(int branchID)
   {
-    delegate.addHandler(handler);
+    delegate.setBranchID(branchID);
   }
 
-  @Deprecated
-  public void removeHandler(CDOTransactionHandler handler)
+  public void setTimeStamp(long timeStamp)
   {
-    delegate.removeHandler(handler);
-  }
-
-  @Deprecated
-  public CDOTransactionHandler[] getHandlers()
-  {
-    return delegate.getHandlers();
-  }
-
-  public static File createTempFile(CDOTransaction transaction) throws IOException
-  {
-    String prefix = "cdo_tx_" + transaction.getSession().getSessionID() + "_" + transaction.getViewID() + "__";
-    return File.createTempFile(prefix, null);
+    delegate.setTimeStamp(timeStamp);
   }
 }

@@ -45,9 +45,9 @@ public class SessionTest extends AbstractCDOTest
     CDOSession session = openSession();
     CDOTransaction transaction = session.openTransaction();
     transaction.createResource("ttt");
-    transaction.commit();
+    long commitTime = transaction.commit().getTimeStamp();
 
-    waitForUpdate(transaction.getLastCommitTime(), session);
+    waitForUpdate(commitTime, session);
     session.close();
   }
 
@@ -56,14 +56,14 @@ public class SessionTest extends AbstractCDOTest
     CDOSession session1 = openSession();
     final CDOTransaction transaction = session1.openTransaction();
     transaction.createResource("ttt");
-    transaction.commit();
+    long commitTime1 = transaction.commit().getTimeStamp();
 
     final CDOSession session2 = openSession();
-    waitForUpdate(transaction.getLastCommitTime(), session2);
+    waitForUpdate(commitTime1, session2);
 
     transaction.createResource("xxx");
-    transaction.commit();
-    waitForUpdate(transaction.getLastCommitTime(), session2);
+    long commitTime2 = transaction.commit().getTimeStamp();
+    waitForUpdate(commitTime2, session2);
 
     session1.close();
     session2.close();
@@ -86,9 +86,9 @@ public class SessionTest extends AbstractCDOTest
     CDOSession session = openSession();
     CDOTransaction transaction = session.openTransaction();
     transaction.createResource("ttt");
-    transaction.commit();
+    long commitTime = transaction.commit().getTimeStamp();
 
-    assertEquals(true, session.waitForUpdate(transaction.getLastCommitTime(), DEFAULT_TIMEOUT));
+    assertEquals(true, session.waitForUpdate(commitTime, DEFAULT_TIMEOUT));
     session.close();
   }
 

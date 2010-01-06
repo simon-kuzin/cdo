@@ -117,7 +117,7 @@ public abstract class StoreAccessor extends Lifecycle implements IStoreAccessor
     }
 
     commitContexts.add(context);
-    long timeStamp = context.getTimeStamp();
+    long timeStamp = context.getBranchPoint().getTimeStamp();
     boolean deltas = store.getRepository().isSupportingRevisionDeltas();
     InternalCDOPackageUnit[] newPackageUnits = context.getNewPackageUnits();
     InternalCDORevision[] newObjects = context.getNewObjects();

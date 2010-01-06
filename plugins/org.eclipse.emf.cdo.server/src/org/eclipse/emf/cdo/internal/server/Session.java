@@ -14,6 +14,8 @@
  */
 package org.eclipse.emf.cdo.internal.server;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
@@ -22,13 +24,11 @@ import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
-import org.eclipse.emf.cdo.server.ITransaction;
 import org.eclipse.emf.cdo.server.IView;
 import org.eclipse.emf.cdo.server.SessionCreationException;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
 import org.eclipse.emf.cdo.spi.server.ISessionProtocol;
-import org.eclipse.emf.cdo.spi.server.InternalAudit;
 import org.eclipse.emf.cdo.spi.server.InternalSession;
 import org.eclipse.emf.cdo.spi.server.InternalSessionManager;
 import org.eclipse.emf.cdo.spi.server.InternalTransaction;
@@ -219,10 +219,10 @@ public class Session extends Container<IView> implements InternalSession
   /**
    * @since 2.0
    */
-  public InternalView openView(int viewID)
+  public InternalView openView(int viewID, int branchID, long timeStamp)
   {
     checkActive();
-    InternalView view = new View(this, viewID);
+    InternalView view = new View(this, viewID, branchID, timeStamp);
     addView(view);
     return view;
   }
@@ -230,21 +230,10 @@ public class Session extends Container<IView> implements InternalSession
   /**
    * @since 2.0
    */
-  public InternalAudit openAudit(int viewID, long timeStamp)
+  public InternalTransaction openTransaction(int viewID, int branchID)
   {
     checkActive();
-    InternalAudit audit = new Audit(this, viewID, timeStamp);
-    addView(audit);
-    return audit;
-  }
-
-  /**
-   * @since 2.0
-   */
-  public ITransaction openTransaction(int viewID)
-  {
-    checkActive();
-    InternalTransaction transaction = new Transaction(this, viewID);
+    InternalTransaction transaction = new Transaction(this, viewID, branchID);
     addView(transaction);
     return transaction;
   }
@@ -268,11 +257,16 @@ public class Session extends Container<IView> implements InternalSession
     }
   }
 
+  public void handleBranchNotification(CDOBranch branch)
+  {
+    protocol.sendBranchNotification(branch);
+  }
+
   /**
    * @since 2.0
    */
-  public void handleCommitNotification(long timeStamp, CDOPackageUnit[] packageUnits, List<CDOIDAndVersion> dirtyIDs,
-      List<CDOID> detachedObjects, List<CDORevisionDelta> deltas)
+  public void handleCommitNotification(CDOBranchPoint branchPoint, CDOPackageUnit[] packageUnits,
+      List<CDOIDAndVersion> dirtyIDs, List<CDOID> detachedObjects, List<CDORevisionDelta> deltas)
   {
     if (!isPassiveUpdateEnabled())
     {
@@ -314,7 +308,7 @@ public class Session extends Container<IView> implements InternalSession
       detachedObjects = subDetached;
     }
 
-    protocol.sendCommitNotification(timeStamp, packageUnits, dirtyIDs, detachedObjects, newDeltas);
+    protocol.sendCommitNotification(branchPoint, packageUnits, dirtyIDs, detachedObjects, newDeltas);
   }
 
   public CDOID provideCDOID(Object idObject)

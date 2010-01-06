@@ -274,7 +274,7 @@ public class SavePointTest extends AbstractCDOTest
    * CDORepositoryInfo: object1 not modified, object2 is modified
    * client1: same as repository
    * client2: same as repository
-   *</pre>
+   * </pre>
    */
   public void _testScenario1()
   {

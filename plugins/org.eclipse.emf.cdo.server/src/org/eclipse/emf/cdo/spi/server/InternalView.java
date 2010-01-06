@@ -13,6 +13,8 @@ package org.eclipse.emf.cdo.spi.server;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.server.IView;
 
+import java.util.List;
+
 /**
  * @author Eike Stepper
  * @since 3.0
@@ -22,6 +24,8 @@ public interface InternalView extends IView
   public InternalSession getSession();
 
   public InternalRepository getRepository();
+
+  public boolean[] changeTarget(int branchID, long timeStamp, List<CDOID> invalidObjects);
 
   public void subscribe(CDOID id);
 

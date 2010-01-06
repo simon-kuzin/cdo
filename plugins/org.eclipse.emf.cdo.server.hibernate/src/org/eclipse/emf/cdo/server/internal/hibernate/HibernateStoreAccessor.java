@@ -12,6 +12,7 @@
 package org.eclipse.emf.cdo.server.internal.hibernate;
 
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
@@ -327,6 +328,18 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
     }
 
     return revision;
+  }
+
+  public CDOBranch loadBranch(int branchID)
+  {
+    // TODO: implement HibernateStoreAccessor.loadBranch(branchID)
+    throw new UnsupportedOperationException();
+  }
+
+  public CDOBranch createBranch(int baseBranchID, long baseTimeStamp, String name)
+  {
+    // TODO: implement HibernateStoreAccessor.createBranch(baseBranchID, baseTimeStamp, name)
+    throw new UnsupportedOperationException();
   }
 
   /**

@@ -11,6 +11,7 @@
  */
 package org.eclipse.emf.cdo.internal.server;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
@@ -20,6 +21,7 @@ import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
+import org.eclipse.emf.cdo.internal.common.branch.CDOBranchPointImpl;
 import org.eclipse.emf.cdo.internal.common.model.CDOPackageRegistryImpl;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
@@ -112,9 +114,9 @@ public class TransactionCommitContextImpl implements InternalCommitContext
     return transaction;
   }
 
-  public long getTimeStamp()
+  public CDOBranchPoint getBranchPoint()
   {
-    return timeStamp;
+    return new CDOBranchPointImpl(transaction.getBranchID(), timeStamp);
   }
 
   public InternalCDOPackageRegistry getPackageRegistry()
@@ -639,7 +641,7 @@ public class TransactionCommitContextImpl implements InternalCommitContext
       monitor.begin(detachedRevisions.size());
       for (InternalCDORevision revision : detachedRevisions)
       {
-        revision.setRevised(getTimeStamp() - 1);
+        revision.setRevised(getBranchPoint().getTimeStamp() - 1);
         monitor.worked();
       }
     }

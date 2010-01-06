@@ -13,6 +13,7 @@ package org.eclipse.emf.cdo.tests;
 
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.CDOState;
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.eresource.CDOResource;
@@ -95,7 +96,7 @@ public class ResourceTest extends AbstractCDOTest
     {
       CDOSession session = openModel1Session();
       ResourceSet resourceSet = new ResourceSetImpl();
-      CDOTransaction transaction = session.openTransaction(resourceSet);
+      CDOTransaction transaction = session.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
 
       resourceURI = URI.createURI("cdo:/" + resourcePath);
       Resource res1 = resourceSet.createResource(resourceURI);
@@ -107,7 +108,7 @@ public class ResourceTest extends AbstractCDOTest
 
     CDOSession session = openModel1Session();
     ResourceSet resourceSet = new ResourceSetImpl();
-    CDOTransaction transaction = session.openTransaction(resourceSet);
+    CDOTransaction transaction = session.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
     CDOResource rootResource = (CDOResource)resourceSet.getEObject(rootResourceURI, true);
     assertProxy(rootResource);
     assertSame(rootResource, transaction.getRootResource());
@@ -124,7 +125,7 @@ public class ResourceTest extends AbstractCDOTest
   {
     CDOSession session = openModel1Session();
     ResourceSet resourceSet = new ResourceSetImpl();
-    CDOTransaction transaction = session.openTransaction(resourceSet);
+    CDOTransaction transaction = session.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
 
     final URI uri = URI.createURI("cdo:/test1");
     CDOResource resource = (CDOResource)resourceSet.createResource(uri);
@@ -157,7 +158,7 @@ public class ResourceTest extends AbstractCDOTest
   {
     CDOSession session = openModel1Session();
     ResourceSet resourceSet = new ResourceSetImpl();
-    CDOTransaction transaction = session.openTransaction(resourceSet);
+    CDOTransaction transaction = session.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
 
     final URI uri = URI.createURI("cdo:/folder/test1");
     CDOResource resource = (CDOResource)resourceSet.createResource(uri);
@@ -214,7 +215,7 @@ public class ResourceTest extends AbstractCDOTest
   {
     CDOSession session = openModel1Session();
     ResourceSet resourceSet = new ResourceSetImpl();
-    CDOTransaction transaction = session.openTransaction(resourceSet);
+    CDOTransaction transaction = session.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
 
     final URI uri = URI.createURI("cdo:/test1");
     CDOResource resource = (CDOResource)resourceSet.getResource(uri, false);
@@ -1313,7 +1314,7 @@ public class ResourceTest extends AbstractCDOTest
   {
     CDOSession session = openModel1Session();
     ResourceSet resourceSet = new ResourceSetImpl();
-    CDOTransaction transaction = session.openTransaction(resourceSet);
+    CDOTransaction transaction = session.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
     CDOResource rootResource = transaction.getRootResource();
     assertSame(rootResource, rootResource.eResource());
     String path = "";

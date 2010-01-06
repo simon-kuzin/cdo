@@ -29,7 +29,20 @@ public interface CDOProtocolConstants
 
   public static final short SIGNAL_AUTHENTICATION = 2;
 
-  public static final short SIGNAL_VIEWS_CHANGED = 4;
+  /**
+   * @since 3.0
+   */
+  public static final short SIGNAL_OPEN_VIEW = 3;
+
+  /**
+   * @since 3.0
+   */
+  public static final short SIGNAL_CHANGE_VIEW = 4;
+
+  /**
+   * @since 3.0
+   */
+  public static final short SIGNAL_CLOSE_VIEW = 5;
 
   public static final short SIGNAL_LOAD_PACKAGES = 6;
 
@@ -65,22 +78,20 @@ public interface CDOProtocolConstants
 
   public static final short SIGNAL_CHANGE_SUBSCRIPTION = 22;
 
-  public static final short SIGNAL_SET_AUDIT = 23;
+  public static final short SIGNAL_REPOSITORY_TIME = 23;
 
-  public static final short SIGNAL_REPOSITORY_TIME = 24;
+  public static final short SIGNAL_LOCK_OBJECTS = 24;
 
-  public static final short SIGNAL_LOCK_OBJECTS = 25;
+  public static final short SIGNAL_UNLOCK_OBJECTS = 25;
 
-  public static final short SIGNAL_UNLOCK_OBJECTS = 26;
+  public static final short SIGNAL_OBJECT_LOCKED = 26;
 
-  public static final short SIGNAL_OBJECT_LOCKED = 27;
-
-  public static final short SIGNAL_GET_REMOTE_SESSIONS = 28;
+  public static final short SIGNAL_GET_REMOTE_SESSIONS = 27;
 
   /**
    * @since 3.0
    */
-  public static final short SIGNAL_REMOTE_MESSAGE = 29;
+  public static final short SIGNAL_REMOTE_MESSAGE = 28;
 
   /**
    * @since 3.0
@@ -91,17 +102,27 @@ public interface CDOProtocolConstants
 
   public static final short SIGNAL_REMOTE_SESSION_NOTIFICATION = 32;
 
+  /**
+   * @since 3.0
+   */
+  public static final short SIGNAL_LOAD_BRANCH = 33;
+
+  /**
+   * @since 3.0
+   */
+  public static final short SIGNAL_CREATE_BRANCH = 34;
+
+  /**
+   * @since 3.0
+   */
+  public static final short SIGNAL_BRANCH_NOTIFICATION = 35;
+
   // //////////////////////////////////////////////////////////////////////
   // Session Management
 
   public static final int ERROR_REPOSITORY_NOT_FOUND = -1;
 
   public static final int ERROR_NO_SESSION = -2;
-
-  // //////////////////////////////////////////////////////////////////////
-  // View Management
-
-  public static final byte VIEW_CLOSED = -1;
 
   // //////////////////////////////////////////////////////////////////////
   // Query Support

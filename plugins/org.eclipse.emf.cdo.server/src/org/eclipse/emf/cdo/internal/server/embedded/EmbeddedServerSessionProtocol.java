@@ -10,6 +10,8 @@
  */
 package org.eclipse.emf.cdo.internal.server.embedded;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
@@ -64,11 +66,17 @@ public class EmbeddedServerSessionProtocol extends Lifecycle implements ISession
     return clientSessionProtocol.handleAuthenticationChallenge(randomToken);
   }
 
-  public void sendCommitNotification(long timeStamp, CDOPackageUnit[] packageUnits, List<CDOIDAndVersion> dirtyIDs,
-      List<CDOID> detachedObjects, List<CDORevisionDelta> newDeltas)
+  public void sendBranchNotification(CDOBranch branch)
   {
     EmbeddedClientSession clientSession = clientSessionProtocol.getSession();
-    clientSession.handleCommitNotification(timeStamp, Arrays.asList(packageUnits), new HashSet<CDOIDAndVersion>(
+    clientSession.handleBranchNotification(branch);
+  }
+
+  public void sendCommitNotification(CDOBranchPoint branchPoint, CDOPackageUnit[] packageUnits,
+      List<CDOIDAndVersion> dirtyIDs, List<CDOID> detachedObjects, List<CDORevisionDelta> newDeltas)
+  {
+    EmbeddedClientSession clientSession = clientSessionProtocol.getSession();
+    clientSession.handleCommitNotification(branchPoint, Arrays.asList(packageUnits), new HashSet<CDOIDAndVersion>(
         dirtyIDs), detachedObjects, newDeltas, null);
   }
 

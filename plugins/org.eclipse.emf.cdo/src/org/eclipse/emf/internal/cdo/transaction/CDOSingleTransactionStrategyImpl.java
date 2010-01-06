@@ -10,6 +10,10 @@
  **************************************************************************/
 package org.eclipse.emf.internal.cdo.transaction;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.commit.CDOCommit;
+import org.eclipse.emf.cdo.internal.common.commit.CDOCommitImpl;
+
 import org.eclipse.emf.internal.cdo.bundle.OM;
 
 import org.eclipse.net4j.util.om.monitor.EclipseMonitor;
@@ -41,7 +45,7 @@ public class CDOSingleTransactionStrategyImpl implements CDOTransactionStrategy
   {
   }
 
-  public void commit(InternalCDOTransaction transaction, IProgressMonitor progressMonitor) throws Exception
+  public CDOCommit commit(InternalCDOTransaction transaction, IProgressMonitor progressMonitor) throws Exception
   {
     InternalCDOCommitContext commitContext = transaction.createCommitContext();
     if (TRACER.isEnabled())
@@ -70,6 +74,9 @@ public class CDOSingleTransactionStrategyImpl implements CDOTransactionStrategy
     }
 
     commitContext.postCommit(result);
+
+    CDOBranchPoint branchPoint = result.getBranchPoint();
+    return new CDOCommitImpl(branchPoint.getBranchID(), branchPoint.getTimeStamp(), null, null);
   }
 
   public void rollback(InternalCDOTransaction transaction, InternalCDOUserSavepoint savepoint)

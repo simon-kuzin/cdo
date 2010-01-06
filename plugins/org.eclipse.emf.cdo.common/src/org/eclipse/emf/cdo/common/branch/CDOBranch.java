@@ -16,9 +16,13 @@ package org.eclipse.emf.cdo.common.branch;
  */
 public interface CDOBranch
 {
+  public static final int MAIN_BRANCH_ID = 0;
+
+  public static final String MAIN_BRANCH_NAME = "MAIN";
+
   public int getID();
 
   public String getName();
 
-  public CDOBranchTag getBase();
+  public CDOBranchPoint getBase();
 }

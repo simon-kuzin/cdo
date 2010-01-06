@@ -10,6 +10,8 @@
  */
 package org.eclipse.emf.spi.cdo;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
@@ -17,6 +19,7 @@ import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.session.CDORepositoryInfo;
 import org.eclipse.emf.cdo.session.CDOSession;
+import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry.PackageLoader;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry.PackageProcessor;
@@ -50,6 +53,11 @@ public interface InternalCDOSession extends CDOSession, PackageProcessor, Packag
   public void setSessionProtocol(CDOSessionProtocol sessionProtocol);
 
   public InternalCDOPackageRegistry getPackageRegistry();
+
+  /**
+   * @since 3.0
+   */
+  public InternalCDOBranchManager getBranchManager();
 
   /**
    * @since 3.0
@@ -102,11 +110,22 @@ public interface InternalCDOSession extends CDOSession, PackageProcessor, Packag
    */
   public Object getCommitLock();
 
-  public void handleCommitNotification(long timeStamp, Collection<CDOPackageUnit> newPackageUnits,
+  /**
+   * @since 3.0
+   */
+  public void handleBranchNotification(CDOBranch branch);
+
+  /**
+   * @since 3.0
+   */
+  public void handleCommitNotification(CDOBranchPoint branchPoint, Collection<CDOPackageUnit> newPackageUnits,
       Set<CDOIDAndVersion> dirtyOIDs, Collection<CDOID> detachedObjects, Collection<CDORevisionDelta> deltas,
       InternalCDOView excludedView);
 
-  public void handleSyncResponse(long timestamp, Collection<CDOPackageUnit> newPackageUnits,
+  /**
+   * @since 3.0
+   */
+  public void handleSyncResponse(CDOBranchPoint branchPoint, Collection<CDOPackageUnit> newPackageUnits,
       Set<CDOIDAndVersion> dirtyOIDs, Collection<CDOID> detachedObjects);
 
   /**

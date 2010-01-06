@@ -45,6 +45,11 @@ public interface InternalCDORevision extends CDORevision, CDORevisionData, CDORe
    */
   public int setTransactional(boolean on);
 
+  /**
+   * @since 3.0
+   */
+  public void setBranchID(int branchID);
+
   public void setCreated(long created);
 
   public void setRevised(long revised);

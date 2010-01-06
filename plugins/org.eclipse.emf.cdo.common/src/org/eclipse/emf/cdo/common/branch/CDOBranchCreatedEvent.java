@@ -8,14 +8,17 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  */
-package org.eclipse.emf.cdo.spi.server;
+package org.eclipse.emf.cdo.common.branch;
 
-import org.eclipse.emf.cdo.server.IAudit;
+import org.eclipse.net4j.util.event.IEvent;
 
 /**
  * @author Eike Stepper
  * @since 3.0
  */
-public interface InternalAudit extends IAudit, InternalView
+public interface CDOBranchCreatedEvent extends IEvent
 {
+  public CDOBranchManager getSource();
+
+  public CDOBranch getBranch();
 }

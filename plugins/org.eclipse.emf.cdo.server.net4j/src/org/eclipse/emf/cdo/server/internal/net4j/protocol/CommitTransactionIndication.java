@@ -337,7 +337,7 @@ public class CommitTransactionIndication extends IndicationWithMonitoring
 
   protected void respondingTimestamp(CDODataOutput out) throws Exception
   {
-    out.writeLong(commitContext.getTimeStamp());
+    out.writeLong(commitContext.getBranchPoint().getTimeStamp());
   }
 
   protected void respondingMappingNewPackages(CDODataOutput out) throws Exception

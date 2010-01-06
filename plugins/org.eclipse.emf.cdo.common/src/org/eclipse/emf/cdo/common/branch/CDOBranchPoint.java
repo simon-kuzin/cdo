@@ -10,14 +10,21 @@
  */
 package org.eclipse.emf.cdo.common.branch;
 
-
 /**
  * @author Eike Stepper
  * @since 3.0
  */
 public interface CDOBranchPoint
 {
+  public static final long UNSPECIFIED_DATE = 0;
+
   public int getBranchID();
 
   public long getTimeStamp();
+
+  /**
+   * Returns <code>true</code> exactly if {@link #getTimeStamp()} does not return {@link #UNSPECIFIED_DATE},
+   * <code>false</code> otherwise.
+   */
+  public boolean isHistorical();
 }

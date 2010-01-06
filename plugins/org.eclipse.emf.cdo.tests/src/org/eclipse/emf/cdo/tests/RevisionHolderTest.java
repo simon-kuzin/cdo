@@ -10,6 +10,7 @@
  */
 package org.eclipse.emf.cdo.tests;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
@@ -257,6 +258,8 @@ public class RevisionHolderTest extends AbstractCDOTest
   {
     private CDOID id;
 
+    private int branchID = CDOBranch.MAIN_BRANCH_ID;
+
     private int version;
 
     private long created;
@@ -299,6 +302,16 @@ public class RevisionHolderTest extends AbstractCDOTest
     public void setID(CDOID id)
     {
       this.id = id;
+    }
+
+    public int getBranchID()
+    {
+      return branchID;
+    }
+
+    public void setBranchID(int branchID)
+    {
+      this.branchID = branchID;
     }
 
     public int getVersion()

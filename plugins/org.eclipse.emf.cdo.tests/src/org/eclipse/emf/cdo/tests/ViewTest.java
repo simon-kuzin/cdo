@@ -10,6 +10,7 @@
  */
 package org.eclipse.emf.cdo.tests;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.revision.CDORevisionData;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.eresource.EresourcePackage;
@@ -184,7 +185,7 @@ public class ViewTest extends AbstractCDOTest
     {
       ResourceSet resourceSet = new ResourceSetImpl();
       CDOSession session = openModel1Session();
-      CDOTransaction transaction = session.openTransaction(resourceSet);
+      CDOTransaction transaction = session.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
       transaction.createResource("/test1");
       transaction.commit();
       session.close();

@@ -12,9 +12,11 @@ package org.eclipse.emf.cdo.server;
 
 import org.eclipse.emf.cdo.common.CDOCommonView;
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCacheAdder;
+import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager.BranchLoader;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
@@ -32,7 +34,7 @@ import java.util.Map;
 /**
  * @author Eike Stepper
  */
-public interface IStoreAccessor extends IQueryHandlerProvider
+public interface IStoreAccessor extends IQueryHandlerProvider, BranchLoader
 {
   /**
    * Returns the store this accessor is associated with.
@@ -203,9 +205,11 @@ public interface IStoreAccessor extends IQueryHandlerProvider
     public int getTransactionID();
 
     /**
-     * Returns the time stamp of this commit operation.
+     * Returns the branch ID and timestamp of this commit operation.
+     * 
+     * @since 3.0
      */
-    public long getTimeStamp();
+    public CDOBranchPoint getBranchPoint();
 
     /**
      * Returns the temporary, transactional package manager associated with the commit operation represented by this
@@ -248,7 +252,7 @@ public interface IStoreAccessor extends IQueryHandlerProvider
 
     /**
      * Returns an unmodifiable map from all temporary IDs (meta or not) to their persistent counter parts. It is
-     * initially populated with the mappings of all new meta objects.
+     * initially populated with the mappings of all new <b>meta</b> objects.
      */
     public Map<CDOIDTemp, CDOID> getIDMappings();
 

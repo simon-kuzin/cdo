@@ -10,6 +10,8 @@
  */
 package org.eclipse.emf.cdo.spi.server;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
@@ -45,8 +47,11 @@ public interface InternalSessionManager extends ISessionManager
 
   public void sessionClosed(InternalSession session);
 
-  public void handleCommitNotification(long timeStamp, CDOPackageUnit[] packageUnits, List<CDOIDAndVersion> dirtyIDs,
-      List<CDOID> detachedObjects, List<CDORevisionDelta> deltas, InternalSession excludedSession);
+  public void handleBranchNotification(CDOBranch branch, InternalSession session);
+
+  public void handleCommitNotification(CDOBranchPoint branchPoint, CDOPackageUnit[] packageUnits,
+      List<CDOIDAndVersion> dirtyIDs, List<CDOID> detachedObjects, List<CDORevisionDelta> deltas,
+      InternalSession excludedSession);
 
   public void handleRemoteSessionNotification(byte opcode, InternalSession excludedSession);
 

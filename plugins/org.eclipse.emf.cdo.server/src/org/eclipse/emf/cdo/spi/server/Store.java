@@ -15,6 +15,7 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevisionFactory;
+import org.eclipse.emf.cdo.internal.server.Repository;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.ISessionManager;
@@ -44,7 +45,15 @@ import java.util.Set;
  */
 public abstract class Store extends Lifecycle implements IStore
 {
-  protected static final long CRASHED = -1L;
+  /**
+   * @since 3.0
+   */
+  protected static final long CRASHED_OID = -1L;
+
+  /**
+   * @since 3.0
+   */
+  protected static final int CRASHED_BRANCHID = 0;
 
   @ExcludeFromDump
   private final transient String type;
@@ -69,6 +78,12 @@ public abstract class Store extends Lifecycle implements IStore
 
   @ExcludeFromDump
   private transient Object lastMetaIDLock = new Object();
+
+  /**
+   * Is protected against concurrent thread access through {@link Repository#createBranchLock}.
+   */
+  @ExcludeFromDump
+  private transient int lastBranchID;
 
   @ExcludeFromDump
   private transient ProgressDistributor indicatingCommitDistributor = new ProgressDistributor.Geometric()
@@ -187,6 +202,30 @@ public abstract class Store extends Lifecycle implements IStore
       lastMetaID += count;
       return CDOIDUtil.createMetaRange(lowerBound, count);
     }
+  }
+
+  /**
+   * @since 3.0
+   */
+  public int getLastBranchID()
+  {
+    return lastBranchID;
+  }
+
+  /**
+   * @since 3.0
+   */
+  public void setLastBranchID(int lastBranchID)
+  {
+    this.lastBranchID = lastBranchID;
+  }
+
+  /**
+   * @since 3.0
+   */
+  public int getNextBranchID()
+  {
+    return ++lastBranchID;
   }
 
   public IStoreAccessor getReader(ISession session)

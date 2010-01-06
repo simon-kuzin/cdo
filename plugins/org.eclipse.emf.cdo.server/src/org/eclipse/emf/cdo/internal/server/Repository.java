@@ -15,6 +15,7 @@
 package org.eclipse.emf.cdo.internal.server;
 
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
@@ -23,6 +24,7 @@ import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.eresource.EresourcePackage;
+import org.eclipse.emf.cdo.internal.common.branch.CDOBranchManagerImpl;
 import org.eclipse.emf.cdo.internal.common.model.CDOPackageRegistryImpl;
 import org.eclipse.emf.cdo.internal.common.revision.CDORevisionManagerImpl;
 import org.eclipse.emf.cdo.server.IQueryHandler;
@@ -34,6 +36,7 @@ import org.eclipse.emf.cdo.server.ITransaction;
 import org.eclipse.emf.cdo.server.InternalNotificationManager;
 import org.eclipse.emf.cdo.server.StoreThreadLocal;
 import org.eclipse.emf.cdo.server.IStoreChunkReader.Chunk;
+import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
@@ -89,9 +92,13 @@ public class Repository extends Container<Object> implements InternalRepository
 
   private boolean supportingAudits;
 
+  private boolean supportingBranches;
+
   private boolean verifyingRevisions;
 
   private InternalCDOPackageRegistry packageRegistry;
+
+  private InternalCDOBranchManager branchManager;
 
   private InternalCDORevisionManager revisionManager;
 
@@ -116,6 +123,9 @@ public class Repository extends Container<Object> implements InternalRepository
 
   @ExcludeFromDump
   private transient Object lastCommitTimeStampLock = new Object();
+
+  @ExcludeFromDump
+  private transient Object createBranchLock = new Object();
 
   public Repository()
   {
@@ -194,6 +204,21 @@ public class Repository extends Container<Object> implements InternalRepository
   {
     IStoreAccessor accessor = StoreThreadLocal.getAccessor();
     return accessor.loadPackageUnit((InternalCDOPackageUnit)packageUnit);
+  }
+
+  public CDOBranch loadBranch(int branchID)
+  {
+    IStoreAccessor accessor = StoreThreadLocal.getAccessor();
+    return accessor.loadBranch(branchID);
+  }
+
+  public CDOBranch createBranch(int baseBranchID, long baseTimeStamp, String name)
+  {
+    synchronized (createBranchLock)
+    {
+      IStoreAccessor accessor = StoreThreadLocal.getAccessor();
+      return accessor.createBranch(baseBranchID, baseTimeStamp, name);
+    }
   }
 
   public InternalCDORevision loadRevision(CDOID id, int referenceChunk, int prefetchDepth)
@@ -426,6 +451,16 @@ public class Repository extends Container<Object> implements InternalRepository
   public void setSessionManager(InternalSessionManager sessionManager)
   {
     this.sessionManager = sessionManager;
+  }
+
+  public InternalCDOBranchManager getBranchManager()
+  {
+    return branchManager;
+  }
+
+  public void setBranchManager(InternalCDOBranchManager branchManager)
+  {
+    this.branchManager = branchManager;
   }
 
   public InternalCDORevisionManager getRevisionManager()
@@ -752,6 +787,7 @@ public class Repository extends Container<Object> implements InternalRepository
     checkState(!StringUtil.isEmpty(name), "name is empty"); //$NON-NLS-1$
     checkState(packageRegistry, "packageRegistry"); //$NON-NLS-1$
     checkState(sessionManager, "sessionManager"); //$NON-NLS-1$
+    checkState(branchManager, "branchManager"); //$NON-NLS-1$
     checkState(revisionManager, "revisionManager"); //$NON-NLS-1$
     checkState(queryManager, "queryManager"); //$NON-NLS-1$
     checkState(notificationManager, "notificationManager"); //$NON-NLS-1$
@@ -760,6 +796,7 @@ public class Repository extends Container<Object> implements InternalRepository
 
     packageRegistry.setReplacingDescriptors(true);
     packageRegistry.setPackageLoader(this);
+    branchManager.setBranchLoader(this);
     revisionManager.setRevisionLoader(this);
     sessionManager.setRepository(this);
     queryManager.setRepository(this);
@@ -780,6 +817,20 @@ public class Repository extends Container<Object> implements InternalRepository
       else
       {
         supportingAudits = store.getRevisionTemporality() == IStore.RevisionTemporality.AUDITING;
+      }
+    }
+
+    {
+      String value = getProperties().get(Props.SUPPORTING_BRANCHES);
+      if (value != null)
+      {
+        supportingBranches = Boolean.valueOf(value);
+        store.setRevisionParallelism(supportingBranches ? IStore.RevisionParallelism.BRANCHING
+            : IStore.RevisionParallelism.NONE);
+      }
+      else
+      {
+        supportingBranches = store.getRevisionParallelism() == IStore.RevisionParallelism.NONE;
       }
     }
 
@@ -909,6 +960,11 @@ public class Repository extends Container<Object> implements InternalRepository
         setSessionManager(createSessionManager());
       }
 
+      if (getBranchManager() == null)
+      {
+        setBranchManager(createBranchManager());
+      }
+
       if (getRevisionManager() == null)
       {
         setRevisionManager(createRevisionManager());
@@ -945,6 +1001,11 @@ public class Repository extends Container<Object> implements InternalRepository
     protected InternalSessionManager createSessionManager()
     {
       return new SessionManager();
+    }
+
+    protected InternalCDOBranchManager createBranchManager()
+    {
+      return new CDOBranchManagerImpl();
     }
 
     protected InternalCDORevisionManager createRevisionManager()

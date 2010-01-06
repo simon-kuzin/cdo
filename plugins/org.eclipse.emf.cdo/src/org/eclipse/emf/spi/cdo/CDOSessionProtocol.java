@@ -11,7 +11,7 @@
 package org.eclipse.emf.spi.cdo;
 
 import org.eclipse.emf.cdo.CDOObject;
-import org.eclipse.emf.cdo.common.CDOCommonView;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
@@ -20,12 +20,13 @@ import org.eclipse.emf.cdo.common.protocol.CDOProtocol;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.session.remote.CDORemoteSession;
 import org.eclipse.emf.cdo.session.remote.CDORemoteSessionMessage;
+import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager.BranchLoader;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry.PackageLoader;
 import org.eclipse.emf.cdo.spi.common.revision.CDOIDMapper;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager.RevisionLoader;
-import org.eclipse.emf.cdo.transaction.CDOTimeStampContext;
+import org.eclipse.emf.cdo.transaction.CDORefreshContext;
 import org.eclipse.emf.cdo.view.CDOView;
 
 import org.eclipse.net4j.util.concurrent.IRWLockManager.LockType;
@@ -48,7 +49,7 @@ import java.util.Set;
  * @author Eike Stepper
  * @since 2.0
  */
-public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, RevisionLoader
+public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, BranchLoader, RevisionLoader
 {
   public void setPassiveUpdate(Map<CDOID, CDOIDAndVersion> idAndVersions, int initialChunkSize,
       boolean passiveUpdateEnabled);
@@ -70,16 +71,19 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, Revision
   public Object loadChunk(InternalCDORevision revision, EStructuralFeature feature, int accessIndex, int fetchIndex,
       int fromIndex, int toIndex);
 
-  public Collection<CDOTimeStampContext> syncRevisions(Map<CDOID, CDOIDAndVersion> allRevisions, int initialChunkSize);
+  public Collection<CDORefreshContext> syncRevisions(Map<CDOID, CDOIDAndVersion> allRevisions, int initialChunkSize);
 
   /**
    * @since 3.0
    */
-  public void openView(int viewId, CDOCommonView.Type type, long timeStamp);
+  public void openView(int viewID, int branchID, long timeStamp, boolean readOnly);
 
-  public void closeView(int viewId);
+  /**
+   * @since 3.0
+   */
+  public boolean[] changeView(int viewID, int branchID, long timeStamp, List<InternalCDOObject> invalidObjects);
 
-  public boolean[] setAudit(int viewId, long timeStamp, List<InternalCDOObject> invalidObjects);
+  public void closeView(int viewID);
 
   public void changeSubscription(int viewId, List<CDOID> cdoIDs, boolean subscribeMode, boolean clear);
 
@@ -291,7 +295,7 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, Revision
   {
     private String rollbackMessage;
 
-    private long timeStamp;
+    private CDOBranchPoint branchPoint;
 
     private Map<CDOIDTemp, CDOID> idMappings = new HashMap<CDOIDTemp, CDOID>();
 
@@ -301,14 +305,17 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, Revision
 
     public CommitTransactionResult(InternalCDOCommitContext commitContext, String rollbackMessage)
     {
-      this.rollbackMessage = rollbackMessage;
       this.commitContext = commitContext;
+      this.rollbackMessage = rollbackMessage;
     }
 
-    public CommitTransactionResult(InternalCDOCommitContext commitContext, long timeStamp)
+    /**
+     * @since 3.0
+     */
+    public CommitTransactionResult(InternalCDOCommitContext commitContext, CDOBranchPoint branchPoint)
     {
-      this.timeStamp = timeStamp;
       this.commitContext = commitContext;
+      this.branchPoint = branchPoint;
     }
 
     public CDOReferenceAdjuster getReferenceAdjuster()
@@ -336,9 +343,12 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, Revision
       return rollbackMessage;
     }
 
-    public long getTimeStamp()
+    /**
+     * @since 3.0
+     */
+    public CDOBranchPoint getBranchPoint()
     {
-      return timeStamp;
+      return branchPoint;
     }
 
     public Map<CDOIDTemp, CDOID> getIDMappings()

@@ -4,16 +4,17 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Simon McDuff - initial API and implementation
  *    Eike Stepper - maintenance
  */
 package org.eclipse.emf.internal.cdo.transaction;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
-import org.eclipse.emf.cdo.transaction.CDOTimeStampContext;
+import org.eclipse.emf.cdo.transaction.CDORefreshContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,24 +23,24 @@ import java.util.Set;
 
 /**
  * @author Simon McDuff
- * @since 2.0
+ * @since 3.0
  */
-public class CDOTimeStampContextImpl implements CDOTimeStampContext
+public class CDORefreshContextImpl implements CDORefreshContext
 {
-  private long timeStamp;
+  private CDOBranchPoint branchPoint;
 
   private Set<CDOIDAndVersion> dirtyObjects = new HashSet<CDOIDAndVersion>();
 
   private Collection<CDOID> detachedObjects = new ArrayList<CDOID>();
 
-  public CDOTimeStampContextImpl(long timeStamp)
+  public CDORefreshContextImpl(CDOBranchPoint branchPoint)
   {
-    this.timeStamp = timeStamp;
+    this.branchPoint = branchPoint;
   }
 
-  public long getTimeStamp()
+  public CDOBranchPoint getBranchPoint()
   {
-    return timeStamp;
+    return branchPoint;
   }
 
   public Set<CDOIDAndVersion> getDirtyObjects()

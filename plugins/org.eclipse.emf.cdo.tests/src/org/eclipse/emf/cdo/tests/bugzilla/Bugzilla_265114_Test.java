@@ -12,6 +12,7 @@
 package org.eclipse.emf.cdo.tests.bugzilla;
 
 import org.eclipse.emf.cdo.CDOObject;
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.eresource.impl.CDOResourceFactoryImpl;
@@ -109,9 +110,9 @@ public class Bugzilla_265114_Test extends AbstractCDOTest
       return null;
     }
 
-    public CDOView getView(URI uri, ResourceSet viewSet)
+    public CDOView getView(URI uri, ResourceSet resourceSet)
     {
-      return session.openTransaction(viewSet);
+      return session.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
     }
 
     public boolean matchesRegex(URI uri)

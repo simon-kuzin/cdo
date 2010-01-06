@@ -13,9 +13,6 @@ package org.eclipse.emf.cdo.internal.net4j.protocol;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
-import org.eclipse.emf.cdo.internal.net4j.bundle.OM;
-
-import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.emf.spi.cdo.InternalCDOObject;
 
@@ -25,20 +22,22 @@ import java.util.List;
 /**
  * @author Eike Stepper
  */
-public class SetAuditRequest extends CDOClientRequest<boolean[]>
+public class ChangeViewRequest extends CDOClientRequest<boolean[]>
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, SetAuditRequest.class);
-
   private int viewID;
+
+  private int branchID;
 
   private long timeStamp;
 
   private List<InternalCDOObject> invalidObjects;
 
-  public SetAuditRequest(CDOClientProtocol protocol, int viewID, long timeStamp, List<InternalCDOObject> invalidObjects)
+  public ChangeViewRequest(CDOClientProtocol protocol, int viewID, int branchID, long timeStamp,
+      List<InternalCDOObject> invalidObjects)
   {
-    super(protocol, CDOProtocolConstants.SIGNAL_SET_AUDIT);
+    super(protocol, CDOProtocolConstants.SIGNAL_CHANGE_VIEW);
     this.viewID = viewID;
+    this.branchID = branchID;
     this.timeStamp = timeStamp;
     this.invalidObjects = invalidObjects;
   }
@@ -46,33 +45,14 @@ public class SetAuditRequest extends CDOClientRequest<boolean[]>
   @Override
   protected void requesting(CDODataOutput out) throws IOException
   {
-    if (TRACER.isEnabled())
-    {
-      TRACER.format("Writing viewID: {0}", viewID); //$NON-NLS-1$
-    }
-
     out.writeInt(viewID);
-    if (TRACER.isEnabled())
-    {
-      TRACER.format("Writing timeStamp: {0,date} {0,time}", timeStamp); //$NON-NLS-1$
-    }
-
+    out.writeLong(branchID);
     out.writeLong(timeStamp);
 
     int size = invalidObjects.size();
-    if (TRACER.isEnabled())
-    {
-      TRACER.format("Writing {0} IDs", size); //$NON-NLS-1$
-    }
-
     out.writeInt(size);
     for (InternalCDOObject object : invalidObjects)
     {
-      if (TRACER.isEnabled())
-      {
-        TRACER.format("Writing ID: {0}", object.cdoID()); //$NON-NLS-1$
-      }
-
       out.writeCDOID(object.cdoID());
     }
   }
@@ -81,20 +61,11 @@ public class SetAuditRequest extends CDOClientRequest<boolean[]>
   protected boolean[] confirming(CDODataInput in) throws IOException
   {
     int size = in.readInt();
-    if (TRACER.isEnabled())
-    {
-      TRACER.format("Reading {0} existanceFlags", size); //$NON-NLS-1$
-    }
-
     boolean[] existanceFlags = new boolean[size];
     for (int i = 0; i < size; i++)
     {
       boolean existanceFlag = in.readBoolean();
       existanceFlags[i] = existanceFlag;
-      if (TRACER.isEnabled())
-      {
-        TRACER.format("Read existanceFlag: {0}", existanceFlag); //$NON-NLS-1$
-      }
     }
 
     return existanceFlags;

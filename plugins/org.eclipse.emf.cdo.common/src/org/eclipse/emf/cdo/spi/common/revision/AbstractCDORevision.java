@@ -13,6 +13,7 @@
  */
 package org.eclipse.emf.cdo.spi.common.revision;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
@@ -71,6 +72,8 @@ public abstract class AbstractCDORevision implements InternalCDORevision
 
   private CDOID id;
 
+  private int branchID;
+
   private int version;
 
   private long created;
@@ -96,6 +99,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
       }
 
       classInfo = CDOModelUtil.getClassInfo(eClass);
+      branchID = CDOBranch.MAIN_BRANCH_ID;
       version = 0;
       created = UNSPECIFIED_DATE;
       revised = UNSPECIFIED_DATE;
@@ -110,6 +114,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
   {
     classInfo = source.classInfo;
     id = source.id;
+    branchID = source.branchID;
     version = source.version;
     created = source.created;
     revised = source.revised; // == UNSPECIFIED
@@ -128,6 +133,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     classInfo = CDOModelUtil.getClassInfo((EClass)classifier);
 
     id = in.readCDOID();
+    branchID = in.readInt();
     version = in.readInt();
     if (!id.isTemporary())
     {
@@ -166,6 +172,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
 
     out.writeCDOClassifierRef(classRef);
     out.writeCDOID(id);
+    out.writeInt(branchID);
     out.writeInt(getVersion());
     if (!id.isTemporary())
     {
@@ -270,6 +277,22 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     }
 
     this.id = id;
+  }
+
+  /**
+   * @since 3.0
+   */
+  public int getBranchID()
+  {
+    return branchID;
+  }
+
+  /**
+   * @since 3.0
+   */
+  public void setBranchID(int branchID)
+  {
+    this.branchID = branchID;
   }
 
   public int getVersion()

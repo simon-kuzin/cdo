@@ -11,6 +11,7 @@
  */
 package org.eclipse.emf.cdo.tests;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.tests.model1.Company;
@@ -59,7 +60,7 @@ public class ExternalReferenceTest extends AbstractCDOTest
       CDOSession sessionA = openSession();
       sessionA.getPackageRegistry().putEPackage(getModel4InterfacesPackage());
       sessionA.getPackageRegistry().putEPackage(getModel4Package());
-      CDOTransaction transactionA1 = sessionA.openTransaction(resourceSet);
+      CDOTransaction transactionA1 = sessionA.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
 
       CDOResource resA = transactionA1.createResource("/resA");
       Resource resD = resourceSet.createResource(URI.createURI("test://1"));
@@ -87,7 +88,7 @@ public class ExternalReferenceTest extends AbstractCDOTest
       CDOSession sessionA = openSession();
       sessionA.getPackageRegistry().putEPackage(getModel4InterfacesPackage());
       sessionA.getPackageRegistry().putEPackage(getModel4Package());
-      CDOTransaction transactionA1 = sessionA.openTransaction(resourceSet);
+      CDOTransaction transactionA1 = sessionA.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
 
       CDOResource resA = transactionA1.createResource("/resA");
       GenRefSingleNonContained objectFromResA = getModel4Factory().createGenRefSingleNonContained();
@@ -103,7 +104,7 @@ public class ExternalReferenceTest extends AbstractCDOTest
       ResourceSet resourceSet = new ResourceSetImpl();
       resourceSet.getPackageRegistry().put(getModel1Package().getNsURI(), getModel1Package());
 
-      CDOTransaction transactionA1 = sessionA.openTransaction(resourceSet);
+      CDOTransaction transactionA1 = sessionA.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
       CDOResource resA = transactionA1.getResource("/resA");
 
       GenRefSingleNonContained objectFromResA = (GenRefSingleNonContained)resA.getContents().get(0);
@@ -122,7 +123,7 @@ public class ExternalReferenceTest extends AbstractCDOTest
       sessionA.getPackageRegistry().putEPackage(getModel4Package());
       sessionA.getPackageRegistry().putEPackage(getModel4InterfacesPackage());
 
-      CDOTransaction transactionA1 = sessionA.openTransaction(resourceSet);
+      CDOTransaction transactionA1 = sessionA.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
       CDOResource resA = transactionA1.createResource("/resA");
       GenRefSingleNonContained objectFromResA = getModel4Factory().createGenRefSingleNonContained();
       objectFromResA.setElement(getModel1Package());
@@ -137,7 +138,7 @@ public class ExternalReferenceTest extends AbstractCDOTest
       ResourceSet resourceSet = new ResourceSetImpl();
       resourceSet.getPackageRegistry().put(getModel1Package().getNsURI(), getModel1Package());
 
-      CDOTransaction transactionA1 = sessionA.openTransaction(resourceSet);
+      CDOTransaction transactionA1 = sessionA.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
       CDOResource resA = transactionA1.getResource("/resA");
 
       GenRefSingleNonContained objectFromResA = (GenRefSingleNonContained)resA.getContents().get(0);
@@ -162,8 +163,8 @@ public class ExternalReferenceTest extends AbstractCDOTest
       sessionB.getPackageRegistry().putEPackage(getModel1Package());
       sessionB.getPackageRegistry().putEPackage(Model2Package.eINSTANCE);
 
-      CDOTransaction transactionA1 = sessionA.openTransaction(resourceSet);
-      CDOTransaction transactionB1 = sessionB.openTransaction(resourceSet);
+      CDOTransaction transactionA1 = sessionA.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
+      CDOTransaction transactionB1 = sessionB.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
 
       CDOResource resA = transactionA1.createResource("/resA");
       CDOResource resB = transactionB1.createResource("/resB");
@@ -215,10 +216,10 @@ public class ExternalReferenceTest extends AbstractCDOTest
     {
       ResourceSet resourceSet = new ResourceSetImpl();
       CDOSession session = openSession();
-      CDOTransaction transaction = session.openTransaction(resourceSet);
+      CDOTransaction transaction = session.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
 
       CDOSession session2 = openSession(REPOSITORY2_NAME);
-      CDOTransaction transaction2 = session2.openTransaction(resourceSet);
+      CDOTransaction transaction2 = session2.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
 
       CDOViewSet set = CDOUtil.getViewSet(resourceSet);
       assertNotNull(set);
@@ -263,8 +264,8 @@ public class ExternalReferenceTest extends AbstractCDOTest
       CDOSession sessionB = openSession(REPOSITORY2_NAME);
 
       ResourceSet resourceSet = new ResourceSetImpl();
-      CDOTransaction transactionA1 = sessionA.openTransaction(resourceSet);
-      CDOTransaction transactionB1 = sessionB.openTransaction(resourceSet);
+      CDOTransaction transactionA1 = sessionA.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
+      CDOTransaction transactionB1 = sessionB.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
 
       CDOResource resA = transactionA1.createResource("/resA");
       CDOResource resB = transactionB1.createResource("/resB");
@@ -287,10 +288,10 @@ public class ExternalReferenceTest extends AbstractCDOTest
     {
       ResourceSet resourceSet = new ResourceSetImpl();
       CDOSession sessionA = openSession();
-      CDOTransaction transactionA = sessionA.openTransaction(resourceSet);
+      CDOTransaction transactionA = sessionA.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
 
       CDOSession sessionB = openSession(REPOSITORY2_NAME);
-      CDOTransaction transactionB = sessionB.openTransaction(resourceSet);
+      CDOTransaction transactionB = sessionB.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
 
       CDOResource resA = transactionA.getResource("/resA");
       assertNotNull(resA);

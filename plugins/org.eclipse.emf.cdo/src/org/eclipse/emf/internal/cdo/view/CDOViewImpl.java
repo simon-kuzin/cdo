@@ -124,6 +124,10 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
 
   private InternalCDOViewSet viewSet;
 
+  private int branchID;
+
+  private long timeStamp;
+
   private CDOURIHandler uriHandler = new CDOURIHandler(this);
 
   private CDOFeatureAnalyzer featureAnalyzer = CDOFeatureAnalyzer.NOOP;
@@ -162,8 +166,10 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
   /**
    * @since 2.0
    */
-  public CDOViewImpl()
+  public CDOViewImpl(int branchID, long timeStamp)
   {
+    this.branchID = branchID;
+    this.timeStamp = timeStamp;
     options = createOptions();
   }
 
@@ -188,9 +194,14 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     viewID = viewId;
   }
 
-  public Type getViewType()
+  public boolean isReadOnly()
   {
-    return Type.READONLY;
+    return true;
+  }
+
+  public boolean isHistorical()
+  {
+    return timeStamp != UNSPECIFIED_DATE;
   }
 
   public ResourceSet getResourceSet()
@@ -271,6 +282,84 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     return uriHandler;
   }
 
+  public int getBranchID()
+  {
+    return branchID;
+  }
+
+  public void setBranchID(int branchID)
+  {
+    changeViewTarget(branchID, timeStamp);
+  }
+
+  /**
+   * @since 2.0
+   */
+  public long getTimeStamp()
+  {
+    return timeStamp;
+  }
+
+  public void setTimeStamp(long timeStamp)
+  {
+    changeViewTarget(branchID, timeStamp);
+  }
+
+  private void changeViewTarget(int branchID, long timeStamp)
+  {
+    checkActive();
+    if (this.branchID != branchID || this.timeStamp != timeStamp)
+    {
+      if (TRACER.isEnabled())
+      {
+        TRACER.format("Changing view target: branch={0}, {1,date} {1,time}", branchID, timeStamp);
+      }
+
+      List<InternalCDOObject> invalidObjects = getInvalidObjects(timeStamp);
+      boolean[] existanceFlags = getSession().getSessionProtocol().changeView(viewID, branchID, timeStamp,
+          invalidObjects);
+      this.timeStamp = timeStamp;
+      int i = 0;
+      for (InternalCDOObject invalidObject : invalidObjects)
+      {
+        boolean existanceFlag = existanceFlags[i++];
+        if (existanceFlag)
+        {
+          // --> PROXY
+          CDOStateMachine.INSTANCE.invalidate(invalidObject, CDORevision.UNSPECIFIED_VERSION);
+        }
+        else
+        {
+          // --> DETACHED
+          CDOStateMachine.INSTANCE.detachRemote(invalidObject);
+        }
+      }
+    }
+  }
+
+  private List<InternalCDOObject> getInvalidObjects(long timeStamp)
+  {
+    List<InternalCDOObject> result = new ArrayList<InternalCDOObject>();
+    synchronized (objects)
+    {
+      for (InternalCDOObject object : objects.values())
+      {
+        CDORevision revision = object.cdoRevision();
+        if (revision == null)
+        {
+          revision = getRevision(object.cdoID(), false);
+        }
+
+        if (revision == null || !revision.isValid(timeStamp))
+        {
+          result.add(object);
+        }
+      }
+    }
+
+    return result;
+  }
+
   /**
    * @since 2.0
    */
@@ -334,14 +423,6 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
   {
     checkActive();
     return session.getSessionProtocol().isObjectLocked(this, object, lockType, byOthers);
-  }
-
-  /**
-   * @since 2.0
-   */
-  public long getTimeStamp()
-  {
-    return UNSPECIFIED_DATE;
   }
 
   public boolean isDirty()
@@ -696,7 +777,9 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
   {
     CDORevisionManager revisionManager = session.getRevisionManager();
     int initialChunkSize = session.options().getCollectionLoadingPolicy().getInitialChunkSize();
-    return (InternalCDORevision)revisionManager.getRevision(id, initialChunkSize, CDORevision.DEPTH_NONE, loadOnDemand);
+    return (InternalCDORevision)revisionManager.getRevisionByTime(id, initialChunkSize, CDORevision.DEPTH_NONE,
+        timeStamp, loadOnDemand);
+
   }
 
   public void prefetchRevisions(CDOID id, int depth)
@@ -708,7 +791,8 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
 
   protected void prefetchRevisions(CDOID id, int depth, int initialChunkSize)
   {
-    session.getRevisionManager().getRevision(id, initialChunkSize, depth);
+    CDORevisionManager revisionManager = session.getRevisionManager();
+    revisionManager.getRevisionByTime(id, initialChunkSize, depth, timeStamp);
   }
 
   public InternalCDOObject getObject(CDOID id)
@@ -1444,34 +1528,6 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     return changeSubscriptionManager;
   }
 
-  /**
-   * Needed for {@link CDOAuditImpl#setTimeStamp(long)}.
-   * 
-   * @since 2.0
-   */
-  protected List<InternalCDOObject> getInvalidObjects(long timeStamp)
-  {
-    List<InternalCDOObject> result = new ArrayList<InternalCDOObject>();
-    synchronized (objects)
-    {
-      for (InternalCDOObject object : objects.values())
-      {
-        CDORevision revision = object.cdoRevision();
-        if (revision == null)
-        {
-          revision = getRevision(object.cdoID(), false);
-        }
-
-        if (revision == null || !revision.isValid(timeStamp))
-        {
-          result.add(object);
-        }
-      }
-    }
-
-    return result;
-  }
-
   public int reload(CDOObject... objects)
   {
     Collection<InternalCDOObject> internalObjects;
@@ -1572,7 +1628,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
   @Override
   protected void doActivate() throws Exception
   {
-    session.getSessionProtocol().openView(getViewID(), getViewType(), getTimeStamp());
+    session.getSessionProtocol().openView(getViewID(), getBranchID(), getTimeStamp(), isReadOnly());
   }
 
   /**

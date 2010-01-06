@@ -93,7 +93,7 @@ public class DBStore extends LongIDStore implements IDBStore
   {
     super(TYPE, set(ChangeFormat.REVISION, ChangeFormat.DELTA), //
         set(RevisionTemporality.AUDITING, RevisionTemporality.NONE), //
-        set(RevisionParallelism.NONE));
+        set(RevisionParallelism.NONE, RevisionParallelism.BRANCHING));
   }
 
   public IMappingStrategy getMappingStrategy()
@@ -285,26 +285,30 @@ public class DBStore extends LongIDStore implements IDBStore
     creationTime = getStartupTime();
     firstTime = true;
 
-    DBUtil.insertRow(connection, dbAdapter, CDODBSchema.REPOSITORY, creationTime, 1, creationTime, 0, CRASHED, CRASHED);
+    DBUtil.insertRow(connection, dbAdapter, CDODBSchema.REPOSITORY, creationTime, 1, creationTime, 0, CRASHED_OID,
+        CRASHED_OID, CRASHED_BRANCHID);
     OM.LOG.info(MessageFormat.format(Messages.getString("DBStore.8"), creationTime)); //$NON-NLS-1$
   }
 
   protected void reStart(Connection connection)
   {
     creationTime = DBUtil.selectMaximumLong(connection, CDODBSchema.REPOSITORY_CREATED);
-    long lastMetaId = DBUtil.selectMaximumLong(connection, CDODBSchema.REPOSITORY_NEXT_METAID);
-    long lastObjectID = DBUtil.selectMaximumLong(connection, CDODBSchema.REPOSITORY_NEXT_CDOID);
+    long lastMetaId = DBUtil.selectMaximumLong(connection, CDODBSchema.REPOSITORY_LAST_METAID);
+    long lastObjectID = DBUtil.selectMaximumLong(connection, CDODBSchema.REPOSITORY_LAST_CDOID);
+    int lastBranchID = DBUtil.selectMaximumInt(connection, CDODBSchema.BRANCHES_ID);
 
-    if (lastObjectID == CRASHED || getLastMetaID() == CRASHED)
+    if (lastObjectID == CRASHED_OID || getLastMetaID() == CRASHED_OID || getLastBranchID() == CRASHED_BRANCHID)
     {
       OM.LOG.info(Messages.getString("DBStore.9")); //$NON-NLS-1$
       lastObjectID = mappingStrategy.repairAfterCrash(dbAdapter, connection);
       lastMetaId = DBUtil.selectMaximumLong(connection, CDODBSchema.PACKAGE_INFOS_META_UB);
+      lastBranchID = DBUtil.selectMaximumInt(connection, CDODBSchema.BRANCHES_ID);
       OM.LOG.info(MessageFormat.format(Messages.getString("DBStore.10"), lastObjectID, lastMetaId)); //$NON-NLS-1$
     }
 
     setLastMetaID(lastMetaId);
     setLastObjectID(lastObjectID);
+    setLastBranchID(lastBranchID);
 
     StringBuilder builder = new StringBuilder();
     builder.append("UPDATE "); //$NON-NLS-1$
@@ -320,13 +324,17 @@ public class DBStore extends LongIDStore implements IDBStore
     builder.append(", "); //$NON-NLS-1$
     builder.append(CDODBSchema.REPOSITORY_STOPPED);
     builder.append("=0, "); //$NON-NLS-1$
-    builder.append(CDODBSchema.REPOSITORY_NEXT_CDOID);
+    builder.append(CDODBSchema.REPOSITORY_LAST_CDOID);
     builder.append("="); //$NON-NLS-1$
-    builder.append(CRASHED);
+    builder.append(CRASHED_OID);
     builder.append(", "); //$NON-NLS-1$
-    builder.append(CDODBSchema.REPOSITORY_NEXT_METAID);
+    builder.append(CDODBSchema.REPOSITORY_LAST_METAID);
     builder.append("="); //$NON-NLS-1$
-    builder.append(CRASHED);
+    builder.append(CRASHED_OID);
+    builder.append(", "); //$NON-NLS-1$
+    builder.append(CDODBSchema.REPOSITORY_LAST_BRANCHID);
+    builder.append("="); //$NON-NLS-1$
+    builder.append(CRASHED_BRANCHID);
 
     String sql = builder.toString();
     int count = DBUtil.update(connection, sql);
@@ -361,13 +369,17 @@ public class DBStore extends LongIDStore implements IDBStore
       builder.append("="); //$NON-NLS-1$
       builder.append(getShutdownTime());
       builder.append(", "); //$NON-NLS-1$
-      builder.append(CDODBSchema.REPOSITORY_NEXT_CDOID);
+      builder.append(CDODBSchema.REPOSITORY_LAST_CDOID);
       builder.append("="); //$NON-NLS-1$
       builder.append(getLastObjectID());
       builder.append(", "); //$NON-NLS-1$
-      builder.append(CDODBSchema.REPOSITORY_NEXT_METAID);
+      builder.append(CDODBSchema.REPOSITORY_LAST_METAID);
       builder.append("="); //$NON-NLS-1$
       builder.append(getLastMetaID());
+      builder.append(", "); //$NON-NLS-1$
+      builder.append(CDODBSchema.REPOSITORY_LAST_BRANCHID);
+      builder.append("="); //$NON-NLS-1$
+      builder.append(getLastBranchID());
 
       String sql = builder.toString();
       int count = DBUtil.update(connection, sql);
@@ -407,5 +419,11 @@ public class DBStore extends LongIDStore implements IDBStore
   protected long getShutdownTime()
   {
     return System.currentTimeMillis();
+  }
+
+  @Override
+  public int getNextBranchID()
+  {
+    return 0;
   }
 }

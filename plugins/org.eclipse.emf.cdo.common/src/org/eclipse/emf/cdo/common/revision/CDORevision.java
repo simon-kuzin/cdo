@@ -11,6 +11,8 @@
  */
 package org.eclipse.emf.cdo.common.revision;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 
@@ -21,7 +23,12 @@ import org.eclipse.emf.ecore.EClass;
  */
 public interface CDORevision
 {
-  public static final long UNSPECIFIED_DATE = 0;
+  /**
+   * @since 3.0
+   */
+  public static final int MAIN_BRANCH_ID = CDOBranch.MAIN_BRANCH_ID;
+
+  public static final long UNSPECIFIED_DATE = CDOBranchPoint.UNSPECIFIED_DATE;
 
   /**
    * @since 2.0
@@ -47,10 +54,10 @@ public interface CDORevision
 
   public CDOID getID();
 
-  // /**
-  // * @since 3.0
-  // */
-  // public int getBranchID();
+  /**
+   * @since 3.0
+   */
+  public int getBranchID();
 
   public int getVersion();
 

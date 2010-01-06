@@ -4,19 +4,20 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Eike Stepper - initial API and implementation
  */
 package org.eclipse.emf.cdo.tests;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.tests.model1.Company;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.cdo.util.CDOURIUtil;
-import org.eclipse.emf.cdo.view.CDOAudit;
+import org.eclipse.emf.cdo.view.CDOView;
 
 import org.eclipse.net4j.signal.RemoteException;
 
@@ -66,21 +67,18 @@ public class AuditTest extends AbstractCDOTest
     Company company = getModel1Factory().createCompany();
     company.setName("ESC");
     resource.getContents().add(company);
-    transaction.commit();
-    long commitTime1 = transaction.getLastCommitTime();
+    long commitTime1 = transaction.commit().getTimeStamp();
     assertEquals(true, session.getRepositoryInfo().getCreationTime() < commitTime1);
     assertEquals("ESC", company.getName());
 
     company.setName("Sympedia");
-    transaction.commit();
-    long commitTime2 = transaction.getLastCommitTime();
+    long commitTime2 = transaction.commit().getTimeStamp();
     assertEquals(true, commitTime1 < commitTime2);
     assertEquals(true, session.getRepositoryInfo().getCreationTime() < commitTime2);
     assertEquals("Sympedia", company.getName());
 
     company.setName("Eclipse");
-    transaction.commit();
-    long commitTime3 = transaction.getLastCommitTime();
+    long commitTime3 = transaction.commit().getTimeStamp();
     assertEquals(true, commitTime2 < commitTime3);
     assertEquals(true, session.getRepositoryInfo().getCreationTime() < commitTime2);
     assertEquals("Eclipse", company.getName());
@@ -88,12 +86,12 @@ public class AuditTest extends AbstractCDOTest
     closeSession1();
     session = openSession2();
 
-    CDOAudit audit = session.openAudit(commitTime1);
+    CDOView audit = session.openView(CDOBranch.MAIN_BRANCH_ID, commitTime1);
     CDOResource auditResource = audit.getResource("/res1");
     Company auditCompany = (Company)auditResource.getContents().get(0);
     assertEquals("ESC", auditCompany.getName());
 
-    CDOAudit audit2 = session.openAudit(commitTime2);
+    CDOView audit2 = session.openView(CDOBranch.MAIN_BRANCH_ID, commitTime2);
     CDOResource auditResource2 = audit2.getResource("/res1");
     Company auditCompany2 = (Company)auditResource2.getContents().get(0);
     assertEquals("Sympedia", auditCompany2.getName());
@@ -109,21 +107,18 @@ public class AuditTest extends AbstractCDOTest
     Company company = getModel1Factory().createCompany();
     company.setName("ESC");
     resource.getContents().add(company);
-    transaction.commit();
-    long commitTime1 = transaction.getLastCommitTime();
+    long commitTime1 = transaction.commit().getTimeStamp();
     assertEquals(true, session.getRepositoryInfo().getCreationTime() < commitTime1);
     assertEquals("ESC", company.getName());
 
     company.setName("Sympedia");
-    transaction.commit();
-    long commitTime2 = transaction.getLastCommitTime();
+    long commitTime2 = transaction.commit().getTimeStamp();
     assertEquals(true, commitTime1 < commitTime2);
     assertEquals(true, session.getRepositoryInfo().getCreationTime() < commitTime2);
     assertEquals("Sympedia", company.getName());
 
     company.setName("Eclipse");
-    transaction.commit();
-    long commitTime3 = transaction.getLastCommitTime();
+    long commitTime3 = transaction.commit().getTimeStamp();
     assertEquals(true, commitTime2 < commitTime3);
     assertEquals(true, session.getRepositoryInfo().getCreationTime() < commitTime2);
     assertEquals("Eclipse", company.getName());
@@ -131,7 +126,7 @@ public class AuditTest extends AbstractCDOTest
     closeSession1();
     session = openSession2();
 
-    CDOAudit audit = session.openAudit(commitTime1);
+    CDOView audit = session.openView(CDOBranch.MAIN_BRANCH_ID, commitTime1);
     {
       CDOResource auditResource = audit.getResource("/res1");
       Company auditCompany = (Company)auditResource.getContents().get(0);
@@ -164,21 +159,18 @@ public class AuditTest extends AbstractCDOTest
     Company company = getModel1Factory().createCompany();
     company.setName("ESC");
     resource.getContents().add(company);
-    transaction.commit();
-    long commitTime1 = transaction.getLastCommitTime();
+    long commitTime1 = transaction.commit().getTimeStamp();
     assertEquals(true, session.getRepositoryInfo().getCreationTime() < commitTime1);
     assertEquals("ESC", company.getName());
 
     company.setName("Sympedia");
-    transaction.commit();
-    long commitTime2 = transaction.getLastCommitTime();
+    long commitTime2 = transaction.commit().getTimeStamp();
     assertEquals(true, commitTime1 < commitTime2);
     assertEquals(true, session.getRepositoryInfo().getCreationTime() < commitTime2);
     assertEquals("Sympedia", company.getName());
 
     company.setName("Eclipse");
-    transaction.commit();
-    long commitTime3 = transaction.getLastCommitTime();
+    long commitTime3 = transaction.commit().getTimeStamp();
     assertEquals(true, commitTime2 < commitTime3);
     assertEquals(true, session.getRepositoryInfo().getCreationTime() < commitTime2);
     assertEquals("Eclipse", company.getName());
@@ -186,7 +178,7 @@ public class AuditTest extends AbstractCDOTest
     closeSession1();
     session = openSession2();
 
-    CDOAudit audit = session.openAudit(commitTime1);
+    CDOView audit = session.openView(CDOBranch.MAIN_BRANCH_ID, commitTime1);
     CDOResource auditResource = audit.getResource("/res1");
     Company auditCompany = (Company)auditResource.getContents().get(0);
     assertEquals("ESC", auditCompany.getName());
@@ -206,21 +198,18 @@ public class AuditTest extends AbstractCDOTest
     CDOResource resource = transaction.createResource("/res1");
 
     resource.getContents().add(getModel1Factory().createCompany());
-    transaction.commit();
-    long commitTime1 = transaction.getLastCommitTime();
+    long commitTime1 = transaction.commit().getTimeStamp();
 
     resource.getContents().add(getModel1Factory().createCompany());
-    transaction.commit();
-    long commitTime2 = transaction.getLastCommitTime();
+    long commitTime2 = transaction.commit().getTimeStamp();
 
     resource.getContents().add(getModel1Factory().createCompany());
-    transaction.commit();
-    long commitTime3 = transaction.getLastCommitTime();
+    long commitTime3 = transaction.commit().getTimeStamp();
     closeSession1();
 
     session = openSession2();
 
-    CDOAudit audit = session.openAudit(commitTime1);
+    CDOView audit = session.openView(CDOBranch.MAIN_BRANCH_ID, commitTime1);
     CDOResource auditResource = audit.getResource("/res1");
     assertEquals(1, auditResource.getContents().size());
 
@@ -243,21 +232,18 @@ public class AuditTest extends AbstractCDOTest
     resource.getContents().add(getModel1Factory().createCompany());
     resource.getContents().add(getModel1Factory().createCompany());
     resource.getContents().add(getModel1Factory().createCompany());
-    transaction.commit();
-    long commitTime1 = transaction.getLastCommitTime();
+    long commitTime1 = transaction.commit().getTimeStamp();
 
     resource.getContents().remove(2);
-    transaction.commit();
-    long commitTime2 = transaction.getLastCommitTime();
+    long commitTime2 = transaction.commit().getTimeStamp();
 
     resource.getContents().remove(2);
-    transaction.commit();
-    long commitTime3 = transaction.getLastCommitTime();
+    long commitTime3 = transaction.commit().getTimeStamp();
     closeSession1();
 
     session = openSession2();
 
-    CDOAudit audit = session.openAudit(commitTime1);
+    CDOView audit = session.openView(CDOBranch.MAIN_BRANCH_ID, commitTime1);
     CDOResource auditResource = audit.getResource("/res1");
     assertEquals(5, auditResource.getContents().size());
 
@@ -283,17 +269,15 @@ public class AuditTest extends AbstractCDOTest
     resource.getContents().add(company);
     resource.getContents().add(getModel1Factory().createCompany());
     resource.getContents().add(getModel1Factory().createCompany());
-    transaction.commit();
-    long commitTime1 = transaction.getLastCommitTime();
+    long commitTime1 = transaction.commit().getTimeStamp();
 
     resource.getContents().remove(2);
-    transaction.commit();
-    long commitTime2 = transaction.getLastCommitTime();
+    long commitTime2 = transaction.commit().getTimeStamp();
 
     closeSession1();
     session = openSession2();
 
-    CDOAudit audit = session.openAudit(commitTime1);
+    CDOView audit = session.openView(CDOBranch.MAIN_BRANCH_ID, commitTime1);
     CDOResource auditResource = audit.getResource("/res1");
     assertEquals(5, auditResource.getContents().size());
 
@@ -322,7 +306,7 @@ public class AuditTest extends AbstractCDOTest
     closeSession1();
 
     session = openSession2();
-    session.openAudit(session.getRepositoryInfo().getCreationTime());
+    session.openView(CDOBranch.MAIN_BRANCH_ID, session.getRepositoryInfo().getCreationTime());
     session.close();
   }
 
@@ -346,7 +330,7 @@ public class AuditTest extends AbstractCDOTest
       closeSession1();
 
       session = openSession2();
-      session.openAudit(timeStampPriorToRepoCreation);
+      session.openView(CDOBranch.MAIN_BRANCH_ID, timeStampPriorToRepoCreation);
       fail("SignalRemoteException expected");
     }
     catch (RemoteException eexpected)
@@ -375,12 +359,11 @@ public class AuditTest extends AbstractCDOTest
       CDOResource resource = transaction.createResource("/res1");
       Company company = getModel1Factory().createCompany();
       resource.getContents().add(company);
-      transaction.commit();
-      long commitTime1 = transaction.getLastCommitTime();
+      long commitTime1 = transaction.commit().getTimeStamp();
       closeSession1();
 
       session = openSession2();
-      CDOAudit audit = session.openAudit(commitTime1);
+      CDOView audit = session.openView(CDOBranch.MAIN_BRANCH_ID, commitTime1);
       audit.setTimeStamp(timeStampPriorToRepoCreation);
       fail("SignalRemoteException expected");
     }
@@ -403,21 +386,19 @@ public class AuditTest extends AbstractCDOTest
       CDOSession session = openModel1Session();
       CDOTransaction transaction = session.openTransaction();
       CDOResource resource = transaction.createResource("/my/resource");
-      transaction.commit();
-      commitTime1 = transaction.getLastCommitTime();
+      commitTime1 = transaction.commit().getTimeStamp();
 
       resource.setPath("/renamed");
-      transaction.commit();
-      commitTime2 = transaction.getLastCommitTime();
+      commitTime2 = transaction.commit().getTimeStamp();
       session.close();
     }
 
     CDOSession session = openModel1Session();
-    CDOAudit audit1 = session.openAudit(commitTime1);
+    CDOView audit1 = session.openView(CDOBranch.MAIN_BRANCH_ID, commitTime1);
     assertEquals(true, audit1.hasResource("/my/resource"));
     assertEquals(false, audit1.hasResource("/renamed"));
 
-    CDOAudit audit2 = session.openAudit(commitTime2);
+    CDOView audit2 = session.openView(CDOBranch.MAIN_BRANCH_ID, commitTime2);
     assertEquals(false, audit2.hasResource("/my/resource"));
     assertEquals(true, audit2.hasResource("/renamed"));
     session.close();
@@ -432,24 +413,22 @@ public class AuditTest extends AbstractCDOTest
       CDOSession session = openModel1Session();
       CDOTransaction transaction = session.openTransaction();
       CDOResource resource = transaction.createResource("/my/resource");
-      transaction.commit();
-      commitTime1 = transaction.getLastCommitTime();
+      commitTime1 = transaction.commit().getTimeStamp();
 
       URI uri = URI.createURI("cdo://repo1/renamed");
       assertEquals(CDOURIUtil.createResourceURI(session, "/renamed"), uri);
       resource.setURI(uri);
 
-      transaction.commit();
-      commitTime2 = transaction.getLastCommitTime();
+      commitTime2 = transaction.commit().getTimeStamp();
       session.close();
     }
 
     CDOSession session = openModel1Session();
-    CDOAudit audit1 = session.openAudit(commitTime1);
+    CDOView audit1 = session.openView(CDOBranch.MAIN_BRANCH_ID, commitTime1);
     assertEquals(true, audit1.hasResource("/my/resource"));
     assertEquals(false, audit1.hasResource("/renamed"));
 
-    CDOAudit audit2 = session.openAudit(commitTime2);
+    CDOView audit2 = session.openView(CDOBranch.MAIN_BRANCH_ID, commitTime2);
     assertEquals(false, audit2.hasResource("/my/resource"));
     assertEquals(true, audit2.hasResource("/renamed"));
     session.close();

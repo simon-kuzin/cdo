@@ -10,11 +10,9 @@
  */
 package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
-import org.eclipse.emf.cdo.common.CDOCommonView;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
-import org.eclipse.emf.cdo.server.IView;
 import org.eclipse.emf.cdo.spi.server.InternalSession;
 
 import java.io.IOException;
@@ -22,45 +20,29 @@ import java.io.IOException;
 /**
  * @author Eike Stepper
  */
-public class ViewsChangedIndication extends CDOServerIndication
+public class OpenViewIndication extends CDOServerIndication
 {
-  public ViewsChangedIndication(CDOServerProtocol protocol)
+  public OpenViewIndication(CDOServerProtocol protocol)
   {
-    super(protocol, CDOProtocolConstants.SIGNAL_VIEWS_CHANGED);
+    super(protocol, CDOProtocolConstants.SIGNAL_OPEN_VIEW);
   }
 
   @Override
   protected void indicating(CDODataInput in) throws IOException
   {
+    boolean readOnly = in.readBoolean();
     int viewID = in.readInt();
-    byte viewType = in.readByte();
-    InternalSession session = getSession();
+    int branchID = in.readInt();
 
-    if (viewType == CDOProtocolConstants.VIEW_CLOSED)
+    InternalSession session = getSession();
+    if (readOnly)
     {
-      IView view = session.getView(viewID);
-      if (view != null)
-      {
-        view.close();
-      }
+      long timeStamp = in.readLong();
+      session.openView(viewID, branchID, timeStamp);
     }
     else
     {
-      switch (CDOCommonView.Type.values()[viewType])
-      {
-      case TRANSACTION:
-        session.openTransaction(viewID);
-        break;
-
-      case READONLY:
-        session.openView(viewID);
-        break;
-
-      case AUDIT:
-        long timeStamp = in.readLong();
-        session.openAudit(viewID, timeStamp);
-        break;
-      }
+      session.openTransaction(viewID, branchID);
     }
   }
 

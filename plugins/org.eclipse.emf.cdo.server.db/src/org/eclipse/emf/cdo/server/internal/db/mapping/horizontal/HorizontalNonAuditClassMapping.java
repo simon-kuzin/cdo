@@ -291,6 +291,7 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
   public boolean readRevision(IDBStoreAccessor accessor, InternalCDORevision revision, int listChunk)
   {
     PreparedStatement pstmt = null;
+
     try
     {
       // TODO add caching
