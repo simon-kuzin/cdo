@@ -30,8 +30,8 @@ public class LoadRevisionByTimeRequest extends AbstractLoadRevisionRequest
 
   private long timeStamp;
 
-  public LoadRevisionByTimeRequest(CDOClientProtocol protocol, Collection<CDOID> ids, int referenceChunk,
-      int prefetchDepth, long timeStamp)
+  public LoadRevisionByTimeRequest(CDOClientProtocol protocol, Collection<CDOID> ids, long timeStamp,
+      int referenceChunk, int prefetchDepth)
   {
     super(protocol, CDOProtocolConstants.SIGNAL_LOAD_REVISION_BY_TIME, ids, referenceChunk, prefetchDepth);
     this.timeStamp = timeStamp;

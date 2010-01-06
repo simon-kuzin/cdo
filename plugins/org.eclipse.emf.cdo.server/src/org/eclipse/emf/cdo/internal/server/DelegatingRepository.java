@@ -215,9 +215,9 @@ public abstract class DelegatingRepository implements InternalRepository
     return getDelegate().createBranch(baseBranchID, baseTimeStamp, name);
   }
 
-  public InternalCDORevision loadRevision(CDOID id, int referenceChunk, int prefetchDepth, long timeStamp)
+  public InternalCDORevision loadRevision(CDOID id, long timeStamp, int referenceChunk, int prefetchDepth)
   {
-    return getDelegate().loadRevision(id, referenceChunk, prefetchDepth, timeStamp);
+    return getDelegate().loadRevision(id, timeStamp, referenceChunk, prefetchDepth);
   }
 
   public InternalCDORevision loadRevisionByVersion(CDOID id, int referenceChunk, int prefetchDepth, int version)
@@ -225,10 +225,10 @@ public abstract class DelegatingRepository implements InternalRepository
     return getDelegate().loadRevisionByVersion(id, referenceChunk, prefetchDepth, version);
   }
 
-  public List<InternalCDORevision> loadRevisionsByTime(Collection<CDOID> ids, int referenceChunk, int prefetchDepth,
-      long timeStamp)
+  public List<InternalCDORevision> loadRevisions(Collection<CDOID> ids, long timeStamp, int referenceChunk,
+      int prefetchDepth)
   {
-    return getDelegate().loadRevisionsByTime(ids, referenceChunk, prefetchDepth, timeStamp);
+    return getDelegate().loadRevisions(ids, timeStamp, referenceChunk, prefetchDepth);
   }
 
   public void notifyReadAccessHandlers(InternalSession session, CDORevision[] revisions,
