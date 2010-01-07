@@ -32,7 +32,6 @@ import org.eclipse.emf.cdo.server.db.mapping.IListMappingDeltaSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
-import org.eclipse.emf.cdo.server.internal.db.mapping.horizontal.AbstractListTableMapping.FieldInfo;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.db.DBException;
@@ -72,7 +71,7 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
    * This is a flag to remember if a delta of type "clear" has been encountered. If so, the list in the DB has to be
    * cleared before writing out the changes.
    */
-  private boolean clearFirst = false;
+  private boolean clearFirst;
 
   private String sqlClear;
 
