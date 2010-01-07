@@ -51,12 +51,12 @@ public class NOOPRevisionCache extends Lifecycle implements CDORevisionCache
     return null;
   }
 
-  public InternalCDORevision getRevision(CDOID id, long timeStamp)
+  public InternalCDORevision getRevision(CDOID id, int branchID, long timeStamp)
   {
     return null;
   }
 
-  public InternalCDORevision getRevisionByVersion(CDOID id, int version)
+  public InternalCDORevision getRevisionByVersion(CDOID id, int branchID, int version)
   {
     return null;
   }
@@ -67,7 +67,7 @@ public class NOOPRevisionCache extends Lifecycle implements CDORevisionCache
     return false;
   }
 
-  public InternalCDORevision removeRevision(CDOID id, int version)
+  public InternalCDORevision removeRevision(CDOID id, int branchID, int version)
   {
     return null;
   }

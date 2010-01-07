@@ -76,23 +76,23 @@ public class TwoLevelRevisionCache extends Lifecycle implements CDORevisionCache
     return objectType;
   }
 
-  public CDORevision getRevision(CDOID id, long timeStamp)
+  public CDORevision getRevision(CDOID id, int branchID, long timeStamp)
   {
-    CDORevision revision = level1.getRevision(id, timeStamp);
+    CDORevision revision = level1.getRevision(id, branchID, timeStamp);
     if (revision == null)
     {
-      revision = level2.getRevision(id, timeStamp);
+      revision = level2.getRevision(id, branchID, timeStamp);
     }
 
     return revision;
   }
 
-  public CDORevision getRevisionByVersion(CDOID id, int version)
+  public CDORevision getRevisionByVersion(CDOID id, int branchID, int version)
   {
-    CDORevision revision = level1.getRevisionByVersion(id, version);
+    CDORevision revision = level1.getRevisionByVersion(id, branchID, version);
     if (revision == null)
     {
-      revision = level2.getRevisionByVersion(id, version);
+      revision = level2.getRevisionByVersion(id, branchID, version);
     }
 
     return revision;
@@ -116,7 +116,8 @@ public class TwoLevelRevisionCache extends Lifecycle implements CDORevisionCache
     if (added && revision.isCurrent())
     {
       CDOID id = revision.getID();
-      CDORevision revisionInLevel2 = level2.getRevision(id, CDORevision.UNSPECIFIED_DATE);
+      int branchID = revision.getBranchID();
+      CDORevision revisionInLevel2 = level2.getRevision(id, branchID, CDORevision.UNSPECIFIED_DATE);
       if (revisionInLevel2 != null && revisionInLevel2.isCurrent())
       {
         // We can only revise if the revisions are consecutive
@@ -126,7 +127,7 @@ public class TwoLevelRevisionCache extends Lifecycle implements CDORevisionCache
         }
         else
         {
-          level2.removeRevision(id, revisionInLevel2.getVersion());
+          level2.removeRevision(id, branchID, revisionInLevel2.getVersion());
         }
       }
     }
@@ -134,14 +135,10 @@ public class TwoLevelRevisionCache extends Lifecycle implements CDORevisionCache
     return added;
   }
 
-  public CDORevision removeRevision(CDOID id, int version)
+  public CDORevision removeRevision(CDOID id, int branchID, int version)
   {
-    CDORevision revision = level1.removeRevision(id, version);
-    if (revision == null)
-    {
-      revision = level2.removeRevision(id, version);
-    }
-
+    CDORevision revision = level1.removeRevision(id, branchID, version);
+    level2.removeRevision(id, branchID, version);
     return revision;
   }
 

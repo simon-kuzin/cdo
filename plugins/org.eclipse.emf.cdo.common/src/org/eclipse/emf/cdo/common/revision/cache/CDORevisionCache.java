@@ -35,19 +35,23 @@ public interface CDORevisionCache extends INotifier, CDORevisionCacheAdder
   public EClass getObjectType(CDOID id);
 
   /**
+   * @param branchID
+   *          TODO
    * @since 3.0
    */
-  public CDORevision getRevision(CDOID id, long timeStamp);
+  public CDORevision getRevision(CDOID id, int branchID, long timeStamp);
+
+  /**
+   * @param branchID
+   *          TODO
+   * @since 3.0
+   */
+  public CDORevision getRevisionByVersion(CDOID id, int branchID, int version);
 
   /**
    * @since 3.0
    */
-  public CDORevision getRevisionByVersion(CDOID id, int version);
-
-  /**
-   * @since 3.0
-   */
-  public CDORevision removeRevision(CDOID id, int version);
+  public CDORevision removeRevision(CDOID id, int branchID, int version);
 
   /**
    * Returns a list of {@link CDORevision revisions} that are current.

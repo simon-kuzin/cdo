@@ -48,7 +48,7 @@ public class Bugzilla_292372_Test extends AbstractCDOTest
     // Now we add a revision r1v2 that SHOULD cause r1v1.revised to get set
     TestRevision r1v2 = new TestRevision(9, 2, 20);
     twoLevelCache.addRevision(r1v2); // Into L1 cache
-    CDORevision r1v = twoLevelCache.getRevisionByVersion(r1v1.getID(), 1); // From L2 cache
+    CDORevision r1v = twoLevelCache.getRevisionByVersion(r1v1.getID(), CDORevision.MAIN_BRANCH_ID, 1); // From L2 cache
 
     // But it doesn't, cause twoLevelCache forgot to delegate to the L2,
     // so this will fail:

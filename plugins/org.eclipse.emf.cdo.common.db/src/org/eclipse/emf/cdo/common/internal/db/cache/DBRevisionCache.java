@@ -214,7 +214,7 @@ public class DBRevisionCache extends Lifecycle implements CDORevisionCache
    *          the time stamp
    * @return the revision by time
    */
-  public InternalCDORevision getRevision(final CDOID id, final long timeStamp)
+  public InternalCDORevision getRevision(final CDOID id, int branchID, final long timeStamp)
   {
     Connection connection = null;
 
@@ -278,7 +278,7 @@ public class DBRevisionCache extends Lifecycle implements CDORevisionCache
    *          the version to match the revision against
    * @return the revision by version
    */
-  public InternalCDORevision getRevisionByVersion(final CDOID id, final int version)
+  public InternalCDORevision getRevisionByVersion(final CDOID id, int branchID, final int version)
   {
     Connection connection = null;
 
@@ -548,13 +548,13 @@ public class DBRevisionCache extends Lifecycle implements CDORevisionCache
    *          the version of the revision to remove
    * @return the {@link InternalCDORevision} that was removed, <tt>null</tt> otherwise
    */
-  public InternalCDORevision removeRevision(CDOID id, int version)
+  public InternalCDORevision removeRevision(CDOID id, int branchID, int version)
   {
     Connection connection = null;
 
     try
     {
-      final InternalCDORevision revision = getRevisionByVersion(id, version);
+      final InternalCDORevision revision = getRevisionByVersion(id, branchID, version);
       if (revision != null)
       {
         connection = getConnection();

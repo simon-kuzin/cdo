@@ -127,13 +127,13 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
     return revision;
   }
 
-  public synchronized InternalCDORevision getRevision(CDOID id, long timeStamp)
+  public synchronized InternalCDORevision getRevision(CDOID id, int branchID, long timeStamp)
   {
     RevisionHolder holder = getHolder(id);
     return getRevision(holder, timeStamp);
   }
 
-  public synchronized InternalCDORevision getRevisionByVersion(CDOID id, int version)
+  public synchronized InternalCDORevision getRevisionByVersion(CDOID id, int branchID, int version)
   {
     RevisionHolder holder = getHolder(id);
     while (holder != null)
@@ -195,7 +195,7 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
     return true;
   }
 
-  public synchronized InternalCDORevision removeRevision(CDOID id, int version)
+  public synchronized InternalCDORevision removeRevision(CDOID id, int branchID, int version)
   {
     InternalCDORevision revision = null;
     RevisionHolder holder = getHolder(id);
@@ -223,7 +223,7 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
     return revision;
   }
 
-  public synchronized boolean removeRevisions(CDOID id)
+  public synchronized boolean removeRevisions(CDOID id, int branchID)
   {
     RevisionHolder lookupHolder = getHolder(id);
     RevisionHolder holder = lookupHolder;

@@ -643,7 +643,7 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
     return new ManipulationElement(ManipulationConstants.NONE, index, value, ManipulationConstants.INSERT);
   }
 
-  private class ListDeltaVisitor implements CDOFeatureDeltaVisitor
+  private final class ListDeltaVisitor implements CDOFeatureDeltaVisitor
   {
     public void visit(CDOAddFeatureDelta delta)
     {
@@ -767,7 +767,10 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
     }
   }
 
-  private static class ManipulationConstants
+  /**
+   * @author Eike Stepper
+   */
+  private static final class ManipulationConstants
   {
     public static final int NO_INDEX = Integer.MIN_VALUE;
 
@@ -784,7 +787,10 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
     public static final int NONE = 0;
   }
 
-  private class ManipulationElement
+  /**
+   * @author Eike Stepper
+   */
+  private static final class ManipulationElement
   {
     public int type;
 

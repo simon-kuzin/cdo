@@ -21,6 +21,11 @@ import java.io.IOException;
  */
 public class CDOBranchImpl implements CDOBranch
 {
+  /**
+   * @since 3.0
+   */
+  public static final int ILLEGAL_BRANCH_ID = Integer.MIN_VALUE;
+
   private int id;
 
   private String name;
