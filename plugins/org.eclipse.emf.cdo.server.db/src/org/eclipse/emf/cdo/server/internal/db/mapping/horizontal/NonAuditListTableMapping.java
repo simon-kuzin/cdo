@@ -643,6 +643,9 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
     return new ManipulationElement(ManipulationConstants.NONE, index, value, ManipulationConstants.INSERT);
   }
 
+  /**
+   * @author Eike Stepper
+   */
   private final class ListDeltaVisitor implements CDOFeatureDeltaVisitor
   {
     public void visit(CDOAddFeatureDelta delta)
