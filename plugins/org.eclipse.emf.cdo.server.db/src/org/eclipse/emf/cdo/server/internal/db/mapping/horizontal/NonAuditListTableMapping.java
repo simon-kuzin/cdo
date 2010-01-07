@@ -32,6 +32,7 @@ import org.eclipse.emf.cdo.server.db.mapping.IListMappingDeltaSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
+import org.eclipse.emf.cdo.server.internal.db.mapping.horizontal.AbstractListTableMapping.FieldInfo;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.db.DBException;
@@ -58,6 +59,10 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, NonAuditListTableMapping.class);
 
+  private static final FieldInfo[] KEY_FIELDS = { new FieldInfo(CDODBSchema.LIST_REVISION_ID, DBType.BIGINT) };
+
+  private static final int UNBOUNDED_SHIFT = -1;
+
   /**
    * The central data structure which is used to calculate the outcomes of the list deltas.
    */
@@ -68,10 +73,6 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
    * cleared before writing out the changes.
    */
   private boolean clearFirst = false;
-
-  private static final FieldInfo[] KEY_FIELDS = { new FieldInfo(CDODBSchema.LIST_REVISION_ID, DBType.BIGINT) };
-
-  private static final int UNBOUNDED_SHIFT = -1;
 
   private String sqlClear;
 
