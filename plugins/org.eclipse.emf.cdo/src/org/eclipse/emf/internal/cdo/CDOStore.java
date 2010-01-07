@@ -525,13 +525,17 @@ public final class CDOStore implements EStore
         {
           CDOID id = (CDOID)value;
           CDOList list = revision.getList(feature);
-          InternalCDORevisionManager revisionManager = view.getSession().getRevisionManager();
           CDORevisionPrefetchingPolicy policy = view.options().getRevisionPrefetchingPolicy();
-          Collection<CDOID> listOfIDs = policy.loadAhead(revisionManager, eObject, feature, list, index, id);
+          InternalCDORevisionManager revisionManager = view.getSession().getRevisionManager();
+          int branchID = view.getBranchID();
+          long timeStamp = view.getTimeStamp();
+          Collection<CDOID> listOfIDs = policy.loadAhead(revisionManager, branchID, timeStamp, eObject, feature, list,
+              index, id);
           if (!listOfIDs.isEmpty())
           {
-            revisionManager.getRevisions(listOfIDs, CDORevision.UNSPECIFIED_DATE, view.getSession().options().getCollectionLoadingPolicy()
-                    .getInitialChunkSize(), CDORevision.DEPTH_NONE, true);
+            int initialChunkSize = view.getSession().options().getCollectionLoadingPolicy().getInitialChunkSize();
+            revisionManager
+                .getRevisions(listOfIDs, branchID, timeStamp, initialChunkSize, CDORevision.DEPTH_NONE, true);
           }
         }
       }

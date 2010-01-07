@@ -30,6 +30,7 @@ import org.eclipse.emf.ecore.EClass;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -98,22 +99,22 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     this.cache = cache;
   }
 
-  public boolean containsRevision(CDOID id, long timeStamp)
-  {
-    return cache.getRevision(id, timeStamp) != null;
-  }
-
-  public boolean containsRevisionByVersion(CDOID id, int version)
-  {
-    return cache.getRevisionByVersion(id, version) != null;
-  }
-
   public EClass getObjectType(CDOID id)
   {
     return cache.getObjectType(id);
   }
 
-  public void reviseLatest(CDOID id)
+  public boolean containsRevision(CDOID id, int branchID, long timeStamp)
+  {
+    return cache.getRevision(id, timeStamp) != null;
+  }
+
+  public boolean containsRevisionByVersion(CDOID id, int branchID, int version)
+  {
+    return cache.getRevisionByVersion(id, version) != null;
+  }
+
+  public void reviseLatest(CDOID id, int branchID)
   {
     acquireAtomicRequestLock(revisedLock);
 
@@ -132,7 +133,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     }
   }
 
-  public void reviseVersion(CDOID id, int version, long timeStamp)
+  public void reviseVersion(CDOID id, int branchID, int version, long timeStamp)
   {
     acquireAtomicRequestLock(revisedLock);
 
@@ -157,7 +158,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     }
   }
 
-  public InternalCDORevision getRevision(CDOID id, long timeStamp, int referenceChunk, int prefetchDepth,
+  public InternalCDORevision getRevision(CDOID id, int branchID, long timeStamp, int referenceChunk, int prefetchDepth,
       boolean loadOnDemand)
   {
     acquireAtomicRequestLock(loadAndAddLock);
@@ -175,7 +176,8 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
             TRACER.format("Loading revision {0} by time {1,date} {1,time}", id, timeStamp); //$NON-NLS-1$
           }
 
-          revision = revisionLoader.loadRevision(id, timeStamp, referenceChunk, prefetchDepth);
+          revision = revisionLoader.loadRevisions(Collections.singleton(id), branchID, timeStamp, referenceChunk,
+              prefetchDepth).get(0);
           addCachedRevisionIfNotNull(revision);
         }
       }
@@ -197,15 +199,14 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     }
   }
 
-  public InternalCDORevision getRevisionByVersion(CDOID id, int version, int referenceChunk, int prefetchDepth,
+  public InternalCDORevision getRevisionByVersion(CDOID id, int branchID, int version, int referenceChunk,
       boolean loadOnDemand)
   {
     acquireAtomicRequestLock(loadAndAddLock);
 
     try
     {
-      boolean prefetch = prefetchDepth != CDORevision.DEPTH_NONE;
-      InternalCDORevision revision = prefetch ? null : (InternalCDORevision)cache.getRevisionByVersion(id, version);
+      InternalCDORevision revision = (InternalCDORevision)cache.getRevisionByVersion(id, version);
       if (revision == null)
       {
         if (loadOnDemand)
@@ -215,7 +216,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
             TRACER.format("Loading revision {0} by version {1}", id, version); //$NON-NLS-1$
           }
 
-          revision = revisionLoader.loadRevisionByVersion(id, version, referenceChunk, prefetchDepth);
+          revision = revisionLoader.loadRevisionByVersion(id, branchID, version, referenceChunk);
           addCachedRevisionIfNotNull(revision);
         }
       }
@@ -228,14 +229,14 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     }
   }
 
-  public List<CDORevision> getRevisions(Collection<CDOID> ids, long timeStamp, int referenceChunk, int prefetchDepth,
-      boolean loadOnDemand)
+  public List<CDORevision> getRevisions(Collection<CDOID> ids, int branchID, long timeStamp, int referenceChunk,
+      int prefetchDepth, boolean loadOnDemand)
   {
     List<CDOID> missingIDs = loadOnDemand ? new ArrayList<CDOID>(0) : null;
     List<CDORevision> revisions = new ArrayList<CDORevision>(ids.size());
     for (CDOID id : ids)
     {
-      InternalCDORevision revision = getRevision(id, timeStamp, referenceChunk, prefetchDepth, false);
+      InternalCDORevision revision = getRevision(id, branchID, timeStamp, referenceChunk, prefetchDepth, false);
       revisions.add(revision);
       if (revision == null && missingIDs != null)
       {
@@ -249,7 +250,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
 
       try
       {
-        List<InternalCDORevision> missingRevisions = revisionLoader.loadRevisions(missingIDs, timeStamp,
+        List<InternalCDORevision> missingRevisions = revisionLoader.loadRevisions(missingIDs, branchID, timeStamp,
             referenceChunk, prefetchDepth);
         handleMissingRevisions(revisions, missingRevisions);
       }

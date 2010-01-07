@@ -315,6 +315,25 @@ public final class CDOUtil
     }
 
     CDORevision revision = CDOStateMachine.INSTANCE.read((InternalCDOObject)object);
+    return getRevisionByVersion(object, revision.getBranchID(), version, revision);
+  }
+
+  /**
+   * @since 3.0
+   */
+  public static CDORevision getRevisionByVersion(CDOObject object, int branchID, int version)
+  {
+    if (FSMUtil.isTransient(object))
+    {
+      return null;
+    }
+
+    CDORevision revision = CDOStateMachine.INSTANCE.read((InternalCDOObject)object);
+    return getRevisionByVersion(object, branchID, version, revision);
+  }
+
+  private static CDORevision getRevisionByVersion(CDOObject object, int branchID, int version, CDORevision revision)
+  {
     if (revision.getVersion() != version)
     {
       CDOSession session = object.cdoView().getSession();
@@ -323,8 +342,7 @@ public final class CDOUtil
         throw new IllegalStateException(Messages.getString("CDOUtil.0")); //$NON-NLS-1$
       }
 
-      return session.getRevisionManager()
-          .getRevisionByVersion(object.cdoID(), version, 0, CDORevision.DEPTH_NONE, true);
+      revision = session.getRevisionManager().getRevisionByVersion(object.cdoID(), branchID, version, 0, true);
     }
 
     return revision;

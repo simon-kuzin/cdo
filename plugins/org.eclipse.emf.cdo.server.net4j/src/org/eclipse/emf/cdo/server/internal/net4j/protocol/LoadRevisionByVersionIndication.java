@@ -12,10 +12,10 @@ package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
+import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.internal.net4j.bundle.OM;
-import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
@@ -24,12 +24,18 @@ import java.io.IOException;
 /**
  * @author Eike Stepper
  */
-public class LoadRevisionByVersionIndication extends AbstractLoadRevisionIndication
+public class LoadRevisionByVersionIndication extends CDOReadIndication
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
       LoadRevisionByVersionIndication.class);
 
+  private CDOID id;
+
+  private int branchID;
+
   private int version;
+
+  private int referenceChunk;
 
   public LoadRevisionByVersionIndication(CDOServerProtocol protocol)
   {
@@ -39,18 +45,36 @@ public class LoadRevisionByVersionIndication extends AbstractLoadRevisionIndicat
   @Override
   protected void indicating(CDODataInput in) throws IOException
   {
-    super.indicating(in);
+    id = in.readCDOID();
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("Read id: {0}", id); //$NON-NLS-1$
+    }
+
+    branchID = in.readInt();
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("Read branchID: {0}", branchID); //$NON-NLS-1$
+    }
+
     version = in.readInt();
     if (TRACER.isEnabled())
     {
       TRACER.format("Read version: {0}", version); //$NON-NLS-1$
     }
+
+    referenceChunk = in.readInt();
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("Read referenceChunk: {0}", referenceChunk); //$NON-NLS-1$
+    }
   }
 
   @Override
-  protected InternalCDORevision getRevision(CDOID id)
+  protected void responding(CDODataOutput out) throws IOException
   {
-    return (InternalCDORevision)getRepository().getRevisionManager().getRevisionByVersion(id, version,
-        referenceChunk, CDORevision.DEPTH_NONE, true);
+    CDORevision revision = getRepository().getRevisionManager().getRevisionByVersion(id, branchID, version,
+        referenceChunk, true);
+    out.writeCDORevision(revision, referenceChunk);
   }
 }

@@ -11,50 +11,81 @@
 package org.eclipse.emf.cdo.internal.net4j.protocol;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.internal.net4j.bundle.OM;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.Collections;
 
 /**
  * @author Eike Stepper
  */
-public class LoadRevisionByVersionRequest extends AbstractLoadRevisionRequest
+public class LoadRevisionByVersionRequest extends CDOClientRequest<InternalCDORevision>
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, LoadRevisionByVersionRequest.class);
 
+  private CDOID id;
+
+  private int branchID;
+
   private int version;
 
-  public LoadRevisionByVersionRequest(CDOClientProtocol protocol, CDOID id, int version, int referenceChunk,
-      int prefetchDepth)
+  private int referenceChunk;
+
+  public LoadRevisionByVersionRequest(CDOClientProtocol protocol, CDOID id, int branchID, int version,
+      int referenceChunk)
   {
-    super(protocol, CDOProtocolConstants.SIGNAL_LOAD_REVISION_BY_VERSION, Collections.singleton(id), referenceChunk,
-        prefetchDepth);
+    super(protocol, CDOProtocolConstants.SIGNAL_LOAD_REVISION_BY_VERSION);
+    this.id = id;
+    this.branchID = branchID;
     this.version = version;
+    this.referenceChunk = referenceChunk;
   }
 
   @Override
   protected void requesting(CDODataOutput out) throws IOException
   {
-    super.requesting(out);
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("Writing id: {0}", id); //$NON-NLS-1$
+    }
+
+    out.writeCDOID(id);
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("Writing branchID: {0}", branchID); //$NON-NLS-1$
+    }
+
+    out.writeInt(branchID);
     if (TRACER.isEnabled())
     {
       TRACER.format("Writing version: {0}", version); //$NON-NLS-1$
     }
 
     out.writeInt(version);
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("Writing referenceChunk: {0}", referenceChunk); //$NON-NLS-1$
+    }
+
+    out.writeInt(referenceChunk);
+  }
+
+  @Override
+  protected InternalCDORevision confirming(CDODataInput in) throws IOException
+  {
+    return (InternalCDORevision)in.readCDORevision();
   }
 
   @Override
   public String toString()
   {
-    return MessageFormat.format(
-        "{0}(ids={1}, referenceChunk={2}, prefetchDepth={3}, version={4})", getClass().getSimpleName(), getIDs(), //$NON-NLS-1$
-        getReferenceChunk(), getPrefetchDepth(), version);
+    return MessageFormat.format("LoadRevisionByVersionRequest(id={0}, branchID={1}, version={2}, referenceChunk={3})",
+        id, branchID, version, referenceChunk);
   }
 }

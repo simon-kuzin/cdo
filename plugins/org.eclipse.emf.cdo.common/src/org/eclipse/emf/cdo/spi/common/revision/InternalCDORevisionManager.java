@@ -42,21 +42,19 @@ public interface InternalCDORevisionManager extends CDORevisionManager, ILifecyc
 
   public void setCache(CDORevisionCache cache);
 
-  public void reviseLatest(CDOID id);
+  public void reviseLatest(CDOID id, int branchID);
 
-  public void reviseVersion(CDOID id, int version, long timeStamp);
+  public void reviseVersion(CDOID id, int branchID, int version, long timeStamp);
 
   /**
    * @author Eike Stepper
    */
   public interface RevisionLoader
   {
-    public List<InternalCDORevision> loadRevisions(Collection<CDOID> ids, long timeStamp, int referenceChunk,
-    int prefetchDepth);
+    public List<InternalCDORevision> loadRevisions(Collection<CDOID> ids, int branchID, long timeStamp,
+        int referenceChunk, int prefetchDepth);
 
-    public InternalCDORevision loadRevision(CDOID id, long timeStamp, int referenceChunk, int prefetchDepth);
-
-    public InternalCDORevision loadRevisionByVersion(CDOID id, int version, int referenceChunk, int prefetchDepth);
+    public InternalCDORevision loadRevisionByVersion(CDOID id, int branchID, int version, int referenceChunk);
   }
 
   /**

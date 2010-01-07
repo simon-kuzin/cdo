@@ -321,8 +321,8 @@ public class Session extends Container<IView> implements InternalSession
    * 
    * @since 2.0
    */
-  public void collectContainedRevisions(InternalCDORevision revision, int referenceChunk, Set<CDOID> revisions,
-      List<CDORevision> additionalRevisions)
+  public void collectContainedRevisions(InternalCDORevision revision, int branchID, long timeStamp, int referenceChunk,
+      Set<CDOID> revisions, List<CDORevision> additionalRevisions)
   {
     InternalCDORevisionManager revisionManager = getManager().getRepository().getRevisionManager();
     EClass eClass = revision.getEClass();
@@ -339,12 +339,13 @@ public class Session extends Container<IView> implements InternalSession
           CDOID id = (CDOID)value;
           if (!CDOIDUtil.isNull(id) && !revisions.contains(id))
           {
-            InternalCDORevision containedRevision = (InternalCDORevision)revisionManager.getRevision(id,
-                CDORevision.UNSPECIFIED_DATE, referenceChunk, CDORevision.DEPTH_NONE, true);
+            InternalCDORevision containedRevision = (InternalCDORevision)revisionManager.getRevision(id, branchID,
+                timeStamp, referenceChunk, CDORevision.DEPTH_NONE, true);
             revisions.add(id);
             additionalRevisions.add(containedRevision);
 
-            collectContainedRevisions(containedRevision, referenceChunk, revisions, additionalRevisions);
+            collectContainedRevisions(containedRevision, branchID, timeStamp, referenceChunk, revisions,
+                additionalRevisions);
           }
         }
       }

@@ -48,7 +48,6 @@ import org.eclipse.emf.spi.cdo.InternalCDOTransaction.InternalCDOCommitContext;
 import org.eclipse.emf.spi.cdo.InternalCDOXATransaction.InternalCDOXACommitContext;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -115,20 +114,15 @@ public class CDOClientProtocol extends SignalProtocol<CDOSession> implements CDO
     return send(new LoadChunkRequest(this, revision, feature, accessIndex, fetchIndex, fromIndex, toIndex));
   }
 
-  public InternalCDORevision loadRevision(CDOID id, long timeStamp, int referenceChunk, int prefetchDepth)
+  public List<InternalCDORevision> loadRevisions(Collection<CDOID> ids, int branchID, long timeStamp,
+      int referenceChunk, int prefetchDepth)
   {
-    return loadRevisions(Collections.singleton(id), timeStamp, referenceChunk, prefetchDepth).get(0);
+    return send(new LoadRevisionsRequest(this, ids, branchID, timeStamp, referenceChunk, prefetchDepth));
   }
 
-  public List<InternalCDORevision> loadRevisions(Collection<CDOID> ids, long timeStamp, int referenceChunk,
-      int prefetchDepth)
+  public InternalCDORevision loadRevisionByVersion(CDOID id, int branchID, int version, int referenceChunk)
   {
-    return send(new LoadRevisionByTimeRequest(this, ids, timeStamp, referenceChunk, prefetchDepth));
-  }
-
-  public InternalCDORevision loadRevisionByVersion(CDOID id, int version, int referenceChunk, int prefetchDepth)
-  {
-    return send(new LoadRevisionByVersionRequest(this, id, version, referenceChunk, prefetchDepth)).get(0);
+    return send(new LoadRevisionByVersionRequest(this, id, branchID, version, referenceChunk));
   }
 
   public Collection<CDORefreshContext> syncRevisions(Map<CDOID, CDOIDAndVersion> idAndVersions, int initialChunkSize)
@@ -328,7 +322,7 @@ public class CDOClientProtocol extends SignalProtocol<CDOSession> implements CDO
     }
   }
 
-  private List<InternalCDORevision> send(AbstractLoadRevisionRequest request)
+  private List<InternalCDORevision> send(LoadRevisionsRequest request)
   {
     try
     {

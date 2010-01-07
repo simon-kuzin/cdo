@@ -16,6 +16,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.model.CDOClassInfo;
+import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.internal.net4j.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
@@ -39,25 +40,29 @@ import java.util.Set;
 /**
  * @author Eike Stepper
  */
-public abstract class AbstractLoadRevisionIndication extends CDOReadIndication
+public class LoadRevisionsIndication extends CDOReadIndication
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, AbstractLoadRevisionIndication.class);
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, LoadRevisionsIndication.class);
 
-  protected CDOID[] ids;
+  private CDOID[] ids;
 
-  protected int referenceChunk;
+  private int branchID;
 
-  protected int prefetchDepth;
+  private long timeStamp;
 
-  protected Map<EClass, CDOFetchRule> fetchRules = new HashMap<EClass, CDOFetchRule>();
+  private int referenceChunk;
 
-  protected CDOID contextID = CDOID.NULL;
+  private int prefetchDepth;
 
-  protected int loadRevisionCollectionChunkSize;
+  private Map<EClass, CDOFetchRule> fetchRules = new HashMap<EClass, CDOFetchRule>();
 
-  protected AbstractLoadRevisionIndication(CDOServerProtocol protocol, short signalID)
+  private CDOID contextID = CDOID.NULL;
+
+  private int loadRevisionCollectionChunkSize;
+
+  public LoadRevisionsIndication(CDOServerProtocol protocol)
   {
-    super(protocol, signalID);
+    super(protocol, CDOProtocolConstants.SIGNAL_LOAD_REVISIONS);
   }
 
   @Override
@@ -93,6 +98,9 @@ public abstract class AbstractLoadRevisionIndication extends CDOReadIndication
 
       ids[i] = id;
     }
+
+    branchID = in.readInt();
+    timeStamp = in.readLong();
 
     int fetchSize = in.readInt();
     if (fetchSize > 0)
@@ -181,12 +189,17 @@ public abstract class AbstractLoadRevisionIndication extends CDOReadIndication
     }
   }
 
-  protected abstract InternalCDORevision getRevision(CDOID id);
+  protected InternalCDORevision getRevision(CDOID id)
+  {
+    return (InternalCDORevision)getRepository().getRevisionManager().getRevision(id, branchID, timeStamp,
+        referenceChunk, CDORevision.DEPTH_NONE, true);
+  }
 
   private void collectRevisions(InternalCDORevision revision, Set<CDOID> revisions,
       List<CDORevision> additionalRevisions, Set<CDOFetchRule> visitedFetchRules)
   {
-    getSession().collectContainedRevisions(revision, referenceChunk, revisions, additionalRevisions);
+    getSession().collectContainedRevisions(revision, branchID, timeStamp, referenceChunk, revisions,
+        additionalRevisions);
     CDOFetchRule fetchRule = fetchRules.get(revision.getEClass());
     if (fetchRule == null || visitedFetchRules.contains(fetchRule))
     {

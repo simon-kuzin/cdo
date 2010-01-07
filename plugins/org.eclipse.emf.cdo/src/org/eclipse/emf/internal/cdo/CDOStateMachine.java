@@ -788,8 +788,9 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
       object.cdoInternalPostAttach();
 
       // Compute a revision delta and register it with the tx
-      CDORevision originalRevision = revisionManager.getRevisionByVersion(id, revision
-          .getVersion() - 1, -1, CDORevision.DEPTH_NONE, true);
+      int branchID = transaction.getBranchID();
+      int version = revision.getVersion() - 1;
+      CDORevision originalRevision = revisionManager.getRevisionByVersion(id, branchID, version, -1, true);
       CDORevisionDelta revisionDelta = CDORevisionDeltaUtil.create(originalRevision, revision);
       transaction.registerRevisionDelta(revisionDelta);
       transaction.registerDirty(object, null);

@@ -11,7 +11,7 @@
 package org.eclipse.emf.cdo.internal.common.id;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
+import org.eclipse.emf.cdo.common.id.CDOIDAndVersionAndBranch;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 
@@ -21,38 +21,32 @@ import java.text.MessageFormat;
 /**
  * @author Eike Stepper
  */
-public class CDOIDAndVersionImpl implements CDOIDAndVersion
+public final class CDOIDAndVersionAndBranchImpl extends CDOIDAndVersionImpl implements CDOIDAndVersionAndBranch
 {
-  private CDOID id;
+  private int branchID;
 
-  private int version;
-
-  public CDOIDAndVersionImpl(CDOID id, int version)
+  public CDOIDAndVersionAndBranchImpl(CDOID id, int version, int branchID)
   {
-    this.id = id;
-    this.version = version;
+    super(id, version);
+    this.branchID = branchID;
   }
 
-  public CDOIDAndVersionImpl(CDODataInput in) throws IOException
+  public CDOIDAndVersionAndBranchImpl(CDODataInput in) throws IOException
   {
-    id = in.readCDOID();
-    version = in.readInt();
+    super(in);
+    branchID = in.readInt();
   }
 
+  @Override
   public void write(CDODataOutput out) throws IOException
   {
-    out.writeCDOID(id);
-    out.writeInt(version);
+    super.write(out);
+    out.writeInt(branchID);
   }
 
-  public CDOID getID()
+  public int getBranchID()
   {
-    return id;
-  }
-
-  public int getVersion()
-  {
-    return version;
+    return branchID;
   }
 
   @Override
@@ -63,10 +57,10 @@ public class CDOIDAndVersionImpl implements CDOIDAndVersion
       return true;
     }
 
-    if (obj instanceof CDOIDAndVersion)
+    if (obj instanceof CDOIDAndVersionAndBranch)
     {
-      CDOIDAndVersion that = (CDOIDAndVersion)obj;
-      return id.equals(that.getID()) && version == that.getVersion();
+      CDOIDAndVersionAndBranch that = (CDOIDAndVersionAndBranch)obj;
+      return getID().equals(that.getID()) && getVersion() == that.getVersion() && branchID == that.getBranchID();
     }
 
     return false;
@@ -75,12 +69,12 @@ public class CDOIDAndVersionImpl implements CDOIDAndVersion
   @Override
   public int hashCode()
   {
-    return id.hashCode() ^ version;
+    return getID().hashCode() ^ getVersion() ^ branchID;
   }
 
   @Override
   public String toString()
   {
-    return MessageFormat.format("{0}v{1}", id, version); //$NON-NLS-1$
+    return MessageFormat.format("{0}v{1}b{2}", getID(), getVersion(), branchID); //$NON-NLS-1$
   }
 }

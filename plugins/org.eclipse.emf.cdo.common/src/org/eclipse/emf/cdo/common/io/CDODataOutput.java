@@ -15,6 +15,7 @@ import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
+import org.eclipse.emf.cdo.common.id.CDOIDAndVersionAndBranch;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
@@ -72,6 +73,11 @@ public interface CDODataOutput extends ExtendedDataOutput
   public void writeCDOID(CDOID id) throws IOException;
 
   public void writeCDOIDAndVersion(CDOIDAndVersion idAndVersion) throws IOException;
+
+  /**
+   * @since 3.0
+   */
+  public void writeCDOIDAndVersionAndBranch(CDOIDAndVersionAndBranch idAndVersionAndBranch) throws IOException;
 
   public void writeCDOIDMetaRange(CDOIDMetaRange metaRange) throws IOException;
 

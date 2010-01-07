@@ -14,6 +14,7 @@ import org.eclipse.emf.cdo.common.CDOFetchRule;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
+import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.internal.net4j.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
@@ -30,38 +31,29 @@ import java.util.List;
 /**
  * @author Eike Stepper
  */
-public abstract class AbstractLoadRevisionRequest extends CDOClientRequest<List<InternalCDORevision>>
+public class LoadRevisionsRequest extends CDOClientRequest<List<InternalCDORevision>>
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, AbstractLoadRevisionRequest.class);
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, LoadRevisionsRequest.class);
 
-  private Collection<CDOID> ids;
+  protected Collection<CDOID> ids;
 
-  private int referenceChunk;
+  protected int branchID;
 
-  private int prefetchDepth;
+  private long timeStamp;
 
-  protected AbstractLoadRevisionRequest(CDOClientProtocol protocol, short signalID, Collection<CDOID> ids,
+  protected int referenceChunk;
+
+  protected int prefetchDepth;
+
+  public LoadRevisionsRequest(CDOClientProtocol protocol, Collection<CDOID> ids, int branchID, long timeStamp,
       int referenceChunk, int prefetchDepth)
   {
-    super(protocol, signalID);
+    super(protocol, CDOProtocolConstants.SIGNAL_LOAD_REVISIONS);
     this.ids = ids;
+    this.branchID = branchID;
+    this.timeStamp = timeStamp;
     this.referenceChunk = referenceChunk;
     this.prefetchDepth = prefetchDepth;
-  }
-
-  public Collection<CDOID> getIDs()
-  {
-    return ids;
-  }
-
-  public int getReferenceChunk()
-  {
-    return referenceChunk;
-  }
-
-  public int getPrefetchDepth()
-  {
-    return prefetchDepth;
   }
 
   @Override
@@ -102,6 +94,9 @@ public abstract class AbstractLoadRevisionRequest extends CDOClientRequest<List<
 
       out.writeCDOID(id);
     }
+
+    out.writeInt(branchID);
+    out.writeLong(timeStamp);
 
     CDOFetchRuleManager ruleManager = getSession().getFetchRuleManager();
     List<CDOFetchRule> fetchRules = ruleManager.getFetchRules(ids);
@@ -167,8 +162,8 @@ public abstract class AbstractLoadRevisionRequest extends CDOClientRequest<List<
   @Override
   public String toString()
   {
-    return MessageFormat
-        .format(
-            "{0}(ids={1}, referenceChunk={2}, prefetchDepth={3})", getClass().getSimpleName(), ids, referenceChunk, prefetchDepth); //$NON-NLS-1$
+    return MessageFormat.format(
+        "LoadRevisionsRequest(ids={0}, branchID={1}, timeStamp={2}, referenceChunk={3}, prefetchDepth={4})", ids,
+        branchID, timeStamp, referenceChunk, prefetchDepth);
   }
 }

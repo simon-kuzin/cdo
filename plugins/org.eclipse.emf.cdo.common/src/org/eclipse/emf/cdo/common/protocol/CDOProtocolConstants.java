@@ -46,7 +46,10 @@ public interface CDOProtocolConstants
 
   public static final short SIGNAL_LOAD_PACKAGES = 6;
 
-  public static final short SIGNAL_LOAD_REVISION_BY_TIME = 8;
+  /**
+   * @since 3.0
+   */
+  public static final short SIGNAL_LOAD_REVISIONS = 8;
 
   public static final short SIGNAL_LOAD_REVISION_BY_VERSION = 9;
 

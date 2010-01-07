@@ -72,14 +72,14 @@ public abstract class DelegatingCDORevisionManager extends Lifecycle implements 
     getDelegate().setRevisionLocker(revisionLocker);
   }
 
-  public boolean containsRevision(CDOID id, long timeStamp)
+  public boolean containsRevision(CDOID id, int branchID, long timeStamp)
   {
-    return getDelegate().containsRevision(id, timeStamp);
+    return getDelegate().containsRevision(id, branchID, timeStamp);
   }
 
-  public boolean containsRevisionByVersion(CDOID id, int version)
+  public boolean containsRevisionByVersion(CDOID id, int branchID, int version)
   {
-    return getDelegate().containsRevisionByVersion(id, version);
+    return getDelegate().containsRevisionByVersion(id, branchID, version);
   }
 
   public EClass getObjectType(CDOID id)
@@ -87,32 +87,31 @@ public abstract class DelegatingCDORevisionManager extends Lifecycle implements 
     return getDelegate().getObjectType(id);
   }
 
-  public CDORevision getRevision(CDOID id, long timeStamp, int referenceChunk, int prefetchDepth,
+  public CDORevision getRevision(CDOID id, int branchID, long timeStamp, int referenceChunk, int prefetchDepth,
       boolean loadOnDemand)
   {
-    return getDelegate().getRevision(id, timeStamp, referenceChunk, prefetchDepth, loadOnDemand);
+    return getDelegate().getRevision(id, branchID, timeStamp, referenceChunk, prefetchDepth, loadOnDemand);
   }
 
-  public CDORevision getRevisionByVersion(CDOID id, int version, int referenceChunk, int prefetchDepth,
-      boolean loadOnDemand)
+  public CDORevision getRevisionByVersion(CDOID id, int branchID, int version, int referenceChunk, boolean loadOnDemand)
   {
-    return getDelegate().getRevisionByVersion(id, version, referenceChunk, prefetchDepth, loadOnDemand);
+    return getDelegate().getRevisionByVersion(id, branchID, version, referenceChunk, loadOnDemand);
   }
 
-  public List<CDORevision> getRevisions(Collection<CDOID> ids, long timeStamp, int referenceChunk,
+  public List<CDORevision> getRevisions(Collection<CDOID> ids, int branchID, long timeStamp, int referenceChunk,
       int prefetchDepth, boolean loadOnDemand)
   {
-    return getDelegate().getRevisions(ids, timeStamp, referenceChunk, prefetchDepth, loadOnDemand);
+    return getDelegate().getRevisions(ids, branchID, timeStamp, referenceChunk, prefetchDepth, loadOnDemand);
   }
 
-  public void reviseLatest(CDOID id)
+  public void reviseLatest(CDOID id, int branchID)
   {
-    getDelegate().reviseLatest(id);
+    getDelegate().reviseLatest(id, branchID);
   }
 
-  public void reviseVersion(CDOID id, int version, long timeStamp)
+  public void reviseVersion(CDOID id, int branchID, int version, long timeStamp)
   {
-    getDelegate().reviseVersion(id, version, timeStamp);
+    getDelegate().reviseVersion(id, branchID, version, timeStamp);
   }
 
   protected abstract InternalCDORevisionManager getDelegate();

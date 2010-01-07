@@ -193,8 +193,8 @@ public class CDOServerProtocol extends SignalProtocol<InternalSession> implement
     case CDOProtocolConstants.SIGNAL_CREATE_BRANCH:
       return new CreateBranchIndication(this);
 
-    case CDOProtocolConstants.SIGNAL_LOAD_REVISION_BY_TIME:
-      return new LoadRevisionByTimeIndication(this);
+    case CDOProtocolConstants.SIGNAL_LOAD_REVISIONS:
+      return new LoadRevisionsIndication(this);
 
     case CDOProtocolConstants.SIGNAL_LOAD_REVISION_BY_VERSION:
       return new LoadRevisionByVersionIndication(this);

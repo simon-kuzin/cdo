@@ -134,14 +134,14 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
     throw new UnsupportedOperationException();
   }
 
-  public InternalCDORevision loadRevision(CDOID id, long timeStamp, int referenceChunk, int prefetchDepth)
+  public InternalCDORevision loadRevisionByVersion(CDOID id, int branchID, int version, int referenceChunk)
   {
     try
     {
       InternalSession session = serverSessionProtocol.getSession();
       StoreThreadLocal.setSession(session);
-      return (InternalCDORevision)repository.getRevisionManager().getRevision(id, timeStamp, referenceChunk,
-          prefetchDepth, true);
+      return (InternalCDORevision)repository.getRevisionManager().getRevisionByVersion(id, branchID, version,
+          referenceChunk, true);
     }
     finally
     {
@@ -149,23 +149,8 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
     }
   }
 
-  public InternalCDORevision loadRevisionByVersion(CDOID id, int version, int referenceChunk, int prefetchDepth)
-  {
-    try
-    {
-      InternalSession session = serverSessionProtocol.getSession();
-      StoreThreadLocal.setSession(session);
-      return (InternalCDORevision)repository.getRevisionManager().getRevisionByVersion(id, version, referenceChunk,
-          prefetchDepth, true);
-    }
-    finally
-    {
-      StoreThreadLocal.release();
-    }
-  }
-
-  public List<InternalCDORevision> loadRevisions(Collection<CDOID> ids, long timeStamp, int referenceChunk,
-      int prefetchDepth)
+  public List<InternalCDORevision> loadRevisions(Collection<CDOID> ids, int branchID, long timeStamp,
+      int referenceChunk, int prefetchDepth)
   {
     try
     {
@@ -173,7 +158,7 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
       StoreThreadLocal.setSession(session);
       @SuppressWarnings("unchecked")
       List<InternalCDORevision> revisions = (List<InternalCDORevision>)(List<?>)repository.getRevisionManager()
-          .getRevisions(ids, timeStamp, referenceChunk, prefetchDepth, true);
+          .getRevisions(ids, branchID, timeStamp, referenceChunk, prefetchDepth, true);
       return revisions;
     }
     finally

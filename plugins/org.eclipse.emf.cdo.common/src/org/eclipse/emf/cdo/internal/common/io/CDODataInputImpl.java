@@ -15,6 +15,7 @@ import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
+import org.eclipse.emf.cdo.common.id.CDOIDAndVersionAndBranch;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.id.CDOID.Type;
@@ -35,6 +36,7 @@ import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.internal.common.branch.CDOBranchImpl;
 import org.eclipse.emf.cdo.internal.common.branch.CDOBranchPointImpl;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
+import org.eclipse.emf.cdo.internal.common.id.CDOIDAndVersionAndBranchImpl;
 import org.eclipse.emf.cdo.internal.common.id.CDOIDAndVersionImpl;
 import org.eclipse.emf.cdo.internal.common.id.CDOIDExternalImpl;
 import org.eclipse.emf.cdo.internal.common.id.CDOIDMetaImpl;
@@ -241,6 +243,11 @@ public abstract class CDODataInputImpl extends ExtendedDataInput.Delegating impl
   public CDOIDAndVersion readCDOIDAndVersion() throws IOException
   {
     return new CDOIDAndVersionImpl(this);
+  }
+
+  public CDOIDAndVersionAndBranch readCDOIDAndVersionAndBranch() throws IOException
+  {
+    return new CDOIDAndVersionAndBranchImpl(this);
   }
 
   public CDOIDMetaRange readCDOIDMetaRange() throws IOException
