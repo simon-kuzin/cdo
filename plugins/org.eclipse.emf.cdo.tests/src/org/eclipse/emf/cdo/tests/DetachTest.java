@@ -79,7 +79,7 @@ public class DetachTest extends AbstractCDOTest
 
     resource.getContents().remove(c1);
     assertTransient(c1);
-    assertSame(c1, transaction.getObject(id));
+    assertSame(c1, CDOUtil.getEObject(transaction.getObject(id)));
     assertSame(c1, transaction.getResourceSet().getEObject(uriC1, false));
 
     transaction.commit();

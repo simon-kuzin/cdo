@@ -768,7 +768,8 @@ public class InitialTest extends AbstractCDOTest
 
     msg("Opening transaction");
     transaction = session.openTransaction();
-    orderAddress = (OrderAddress)transaction.getObject(CDOUtil.getCDOObject(orderAddress).cdoID(), true);
+    orderAddress = (OrderAddress)CDOUtil.getEObject(transaction.getObject(CDOUtil.getCDOObject(orderAddress).cdoID(),
+        true));
 
     assertEquals(2.8f, orderAddress.getPrice());
     assertEquals("ALLO", orderAddress.getCity());
@@ -780,7 +781,8 @@ public class InitialTest extends AbstractCDOTest
     session = openModel1Session();
 
     transaction = session.openTransaction();
-    orderAddress = (OrderAddress)transaction.getObject(CDOUtil.getCDOObject(orderAddress).cdoID(), true);
+    orderAddress = (OrderAddress)CDOUtil.getEObject(transaction.getObject(CDOUtil.getCDOObject(orderAddress).cdoID(),
+        true));
 
     assertEquals(2.8f, orderAddress.getPrice());
     assertEquals("ALLO", orderAddress.getCity());

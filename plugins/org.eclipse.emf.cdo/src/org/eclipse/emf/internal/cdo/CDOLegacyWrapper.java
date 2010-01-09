@@ -77,12 +77,12 @@ public abstract class CDOLegacyWrapper extends CDOObjectWrapper
    * This local ThreadMap stores all pre-registered objects. This avoids a neverending loop when setting the container
    * for the object.
    */
-  private static ThreadLocal<Map<CDOID, EObject>> preRegisteredObjects = new InheritableThreadLocal<Map<CDOID, EObject>>()
+  private static ThreadLocal<Map<CDOID, CDOLegacyWrapper>> wrapperRegistry = new InheritableThreadLocal<Map<CDOID, CDOLegacyWrapper>>()
   {
     @Override
-    protected Map<CDOID, EObject> initialValue()
+    protected Map<CDOID, CDOLegacyWrapper> initialValue()
     {
-      return new HashMap<CDOID, EObject>();
+      return new HashMap<CDOID, CDOLegacyWrapper>();
     }
   };
 
@@ -191,6 +191,7 @@ public abstract class CDOLegacyWrapper extends CDOObjectWrapper
 
   public void cdoInternalCleanup()
   {
+    // clean();
   }
 
   @Override
@@ -284,7 +285,7 @@ public abstract class CDOLegacyWrapper extends CDOObjectWrapper
     Counter counter = recursionCounter.get();
     try
     {
-      preRegisterObject(this);
+      registerWrapper(this);
       counter.increment();
 
       revisionToInstanceContainment();
@@ -306,25 +307,10 @@ public abstract class CDOLegacyWrapper extends CDOObjectWrapper
         instance.eSetDeliver(true);
       }
 
-      int newThreadCount = counter.decrement();
-
-      if (newThreadCount == 0 && getPreRegisteredObjects() != null)
-      {
-        // localThread.remove(); // TODO Martin: check why new
-        // objects will be created if this list is cleared
-      }
-
+      counter.decrement();
+      unregisterWrapper(this);
       underConstruction = false;
     }
-  }
-
-  /**
-   * adds an object to the pre-registered objects list which hold all created objects even if they are not registered in
-   * the view
-   */
-  private void preRegisterObject(CDOLegacyWrapper wrapper)
-  {
-    getPreRegisteredObjects().put(wrapper.cdoID(), wrapper);
   }
 
   protected void revisionToInstanceContainment()
@@ -338,15 +324,9 @@ public abstract class CDOLegacyWrapper extends CDOObjectWrapper
     setInstanceContainer(container, revision.getContainingFeatureID());
   }
 
-  private Map<CDOID, EObject> getPreRegisteredObjects()
-  {
-    return preRegisteredObjects.get();
-  }
-
   /**
    * @since 3.0
    */
-
   protected void revisionToInstanceFeature(EStructuralFeature feature)
   {
     if (feature.isMany())
@@ -370,7 +350,7 @@ public abstract class CDOLegacyWrapper extends CDOObjectWrapper
 
           if (TRACER.isEnabled())
           {
-            TRACER.format(("Adding " + object + " to feature " + feature + "in instance " + instance));
+            TRACER.format("Adding " + object + " to feature " + feature + "in instance " + instance);
           }
 
           list.basicAdd(object, null);
@@ -400,25 +380,24 @@ public abstract class CDOLegacyWrapper extends CDOObjectWrapper
 
         int featureID = instance.eClass().getFeatureID(feature);
         Class<? extends Object> baseClass = object == null ? null : object.getClass();
+        EStructuralFeature.Internal internalFeature = (EStructuralFeature.Internal)feature;
+        EReference oppositeReference = cdoID().isTemporary() ? null : internalFeature.getEOpposite();
 
-        try
+        if (oppositeReference != null)
         {
           instance.eInverseAdd((InternalEObject)object, featureID, baseClass, null);
+
+          if (object != null && !EMFUtil.isPersistent(oppositeReference))
+          {
+            adjustOppositeReference(instance, (InternalEObject)object, oppositeReference);
+          }
         }
-        catch (NullPointerException e)
+        else
         {
-          // TODO: Martin:quick hack, because there is still a problem with the feature id. Should investigate this soon
           instance.eSet(feature, object);
         }
 
         // Adjust opposite for transient opposite features
-        EStructuralFeature.Internal internalFeature = (EStructuralFeature.Internal)feature;
-        EReference oppositeReference = cdoID().isTemporary() ? null : internalFeature.getEOpposite();
-        if (oppositeReference != null && object != null && !EMFUtil.isPersistent(oppositeReference))
-        {
-          adjustOppositeReference(instance, (InternalEObject)object, oppositeReference);
-        }
-
         if (TRACER.isEnabled())
         {
           TRACER.format(("Added object " + object + " to feature " + feature + " in instance " + instance));
@@ -494,27 +473,35 @@ public abstract class CDOLegacyWrapper extends CDOObjectWrapper
       return null;
     }
 
+    if (object instanceof CDOLegacyWrapper)
+    {
+      return ((CDOLegacyWrapper)object).cdoInternalInstance();
+    }
+
     CDOType type = CDOModelUtil.getType(feature.getEType());
     object = type.convertToEMF(feature.getEType(), object);
 
     if (type == CDOType.OBJECT)
     {
-      CDOID id = (CDOID)object;
-      if (id.isNull())
+      if (object instanceof CDOID)
       {
-        return null;
-      }
+        CDOID id = (CDOID)object;
+        if (id.isNull())
+        {
+          return null;
+        }
 
-      object = getPreRegisteredObjects().get(id);
-      if (object != null)
-      {
-        return ((CDOLegacyWrapper)object).cdoInternalInstance();
-      }
+        object = getRegisteredWrapper(id);
+        if (object != null)
+        {
+          return ((CDOLegacyWrapper)object).cdoInternalInstance();
+        }
 
-      object = view.getObject(id);
-      if (object instanceof CDOObjectWrapper)
-      {
-        return ((CDOObjectWrapper)object).cdoInternalInstance();
+        object = view.getObject(id);
+        if (object instanceof CDOObjectWrapper)
+        {
+          return ((CDOObjectWrapper)object).cdoInternalInstance();
+        }
       }
     }
 
@@ -569,13 +556,14 @@ public abstract class CDOLegacyWrapper extends CDOObjectWrapper
   protected InternalEObject getEObjectFromPotentialID(InternalCDOView view, EStructuralFeature feature,
       Object potentialID)
   {
-    if (getPreRegisteredObjects().get(potentialID) != null)
+    CDOLegacyWrapper wrapper;
+    if (potentialID instanceof CDOID && (wrapper = getRegisteredWrapper((CDOID)potentialID)) != null)
     {
-      potentialID = ((CDOLegacyWrapper)getPreRegisteredObjects().get(potentialID)).instance;
+      potentialID = wrapper.instance;
 
       if (TRACER.isEnabled())
       {
-        TRACER.format(("getting Object (" + potentialID + ") from localThread instead of the view"));
+        TRACER.format("getting Object (" + potentialID + ") from localThread instead of the view");
       }
     }
     else
@@ -759,6 +747,11 @@ public abstract class CDOLegacyWrapper extends CDOObjectWrapper
     }
   }
 
+  public static boolean isLegacyProxy(Object object)
+  {
+    return object instanceof LegacyProxy;
+  }
+
   protected static int getEFlagMask(Class<?> instanceClass, String flagName)
   {
     Field field = ReflectUtil.getField(instanceClass, flagName);
@@ -777,9 +770,23 @@ public abstract class CDOLegacyWrapper extends CDOObjectWrapper
     }
   }
 
-  public static boolean isLegacyProxy(Object object)
+  private static CDOLegacyWrapper getRegisteredWrapper(CDOID id)
   {
-    return object instanceof LegacyProxy;
+    return wrapperRegistry.get().get(id);
+  }
+
+  /**
+   * adds an object to the pre-registered objects list which hold all created objects even if they are not registered in
+   * the view
+   */
+  private static void registerWrapper(CDOLegacyWrapper wrapper)
+  {
+    wrapperRegistry.get().put(wrapper.cdoID(), wrapper);
+  }
+
+  private static void unregisterWrapper(CDOLegacyWrapper wrapper)
+  {
+    wrapperRegistry.get().remove(wrapper.cdoID());
   }
 
   /**
