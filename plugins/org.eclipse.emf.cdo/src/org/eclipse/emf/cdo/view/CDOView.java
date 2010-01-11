@@ -121,6 +121,13 @@ public interface CDOView extends CDOCommonView, INotifier, IOptionsContainer
   public boolean setBranchPoint(CDOBranch branch, long timeStamp);
 
   /**
+   * Same as calling {@link #setBranchPoint(CDOBranch, long) setBranchPoint(branch, getTimeStamp())}.
+   * 
+   * @since 3.0
+   */
+  public boolean setBranch(CDOBranch branch);
+
+  /**
    * Same as calling {@link #setBranchPoint(CDOBranch, long) setBranchPoint(getBranch(), timeStamp)}.
    * 
    * @since 3.0

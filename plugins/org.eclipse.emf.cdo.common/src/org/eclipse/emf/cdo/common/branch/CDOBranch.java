@@ -28,6 +28,8 @@ public interface CDOBranch
 
   public CDOBranchPoint getHead();
 
+  public CDOBranchPoint getPoint(long timeStamp);
+
   public CDOBranchManager getBranchManager();
 
   public CDOBranch createBranch(String name, long timeStamp);

@@ -79,6 +79,11 @@ public class CDOBranchImpl implements CDOBranch
     return head;
   }
 
+  public CDOBranchPoint getPoint(long timeStamp)
+  {
+    return new CDOBranchPointImpl(this, timeStamp);
+  }
+
   public CDOBranch createBranch(String name, long timeStamp)
   {
     return getBranchManager().createBranch(name, this, timeStamp);

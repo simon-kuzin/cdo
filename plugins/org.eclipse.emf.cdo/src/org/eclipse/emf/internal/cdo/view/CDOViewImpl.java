@@ -295,6 +295,11 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     return branchPoint.isHistorical();
   }
 
+  public boolean setBranch(CDOBranch branch)
+  {
+    return setBranchPoint(branch, getTimeStamp());
+  }
+
   public boolean setTimeStamp(long timeStamp)
   {
     return setBranchPoint(getBranch(), timeStamp);
@@ -303,8 +308,18 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
   public boolean setBranchPoint(CDOBranch branch, long timeStamp)
   {
     checkActive();
-    validateTimeStamp(timeStamp);
-    CDOBranchPoint branchPoint = new CDOBranchPointImpl(branch, timeStamp);
+    return setBranchPoint(new CDOBranchPointImpl(branch, timeStamp));
+  }
+
+  protected boolean setBranchPoint(CDOBranchPoint branchPoint)
+  {
+    long timeStamp = branchPoint.getTimeStamp();
+    long creationTimeStamp = getSession().getRepositoryInfo().getCreationTime();
+    if (timeStamp != UNSPECIFIED_DATE && timeStamp < creationTimeStamp)
+    {
+      throw new IllegalArgumentException("timeStamp < repository creation time: " + creationTimeStamp); //$NON-NLS-1$
+    }
+
     if (branchPoint.equals(this.branchPoint))
     {
       return false;
@@ -312,7 +327,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
 
     if (TRACER.isEnabled())
     {
-      TRACER.format("Changing view target: branch={0}, {1,date} {1,time}", branch, timeStamp);
+      TRACER.format("Changing view target to {0}", branchPoint);
     }
 
     List<InternalCDOObject> invalidObjects = getInvalidObjects(timeStamp);
@@ -335,26 +350,6 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     }
 
     return true;
-  }
-
-  protected void validateTimeStamp(long timeStamp) throws IllegalArgumentException
-  {
-    if (timeStamp == UNSPECIFIED_DATE)
-    {
-      return;
-    }
-
-    long creationTimeStamp = getSession().getRepositoryInfo().getCreationTime();
-    if (timeStamp < creationTimeStamp)
-    {
-      throw new IllegalArgumentException("timeStamp < repository creation time: " + creationTimeStamp); //$NON-NLS-1$
-    }
-
-    long currentTimeStamp = System.currentTimeMillis();
-    if (timeStamp > currentTimeStamp)
-    {
-      throw new IllegalArgumentException("timeStamp > current time: " + currentTimeStamp); //$NON-NLS-1$
-    }
   }
 
   private List<InternalCDOObject> getInvalidObjects(long timeStamp)

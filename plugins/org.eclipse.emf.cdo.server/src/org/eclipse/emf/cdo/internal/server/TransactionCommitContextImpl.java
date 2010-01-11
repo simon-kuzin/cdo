@@ -365,8 +365,13 @@ public class TransactionCommitContextImpl implements InternalCommitContext
 
     for (InternalCDORevision newObject : newObjects)
     {
-      newObject.setCreated(timeStamp);
+      setCreated(newObject, timeStamp);
     }
+  }
+
+  private void setCreated(InternalCDORevision revision, long timeStamp)
+  {
+    revision.setBranchPoint(revision.getBranch().getPoint(timeStamp));
   }
 
   private void adjustMetaRanges()
@@ -498,7 +503,7 @@ public class TransactionCommitContextImpl implements InternalCommitContext
 
       InternalCDORevision dirtyObject = (InternalCDORevision)originObject.copy();
       dirtyObjectDelta.apply(dirtyObject);
-      dirtyObject.setCreated(timeStamp);
+      setCreated(dirtyObject, timeStamp);
       return dirtyObject;
     }
 

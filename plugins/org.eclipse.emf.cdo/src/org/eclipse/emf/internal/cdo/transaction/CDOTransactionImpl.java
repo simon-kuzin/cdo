@@ -17,6 +17,7 @@ import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.CDOState;
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchManager;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.commit.CDOCommit;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
@@ -181,12 +182,19 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
   }
 
   @Override
-  protected void validateTimeStamp(long timeStamp) throws IllegalArgumentException
+  protected boolean setBranchPoint(CDOBranchPoint branchPoint)
   {
-    if (timeStamp != UNSPECIFIED_DATE)
+    if (branchPoint.getTimeStamp() != UNSPECIFIED_DATE)
     {
       throw new IllegalArgumentException("Changing the target time is not supported by transactions");
     }
+
+    if (isDirty() && !getBranch().equals(branchPoint.getBranch()))
+    {
+      throw new IllegalStateException("Changing the target branch is impossible while transaction is dirty");
+    }
+
+    return super.setBranchPoint(branchPoint);
   }
 
   public void addTransactionHandler(CDOTransactionHandler handler)
