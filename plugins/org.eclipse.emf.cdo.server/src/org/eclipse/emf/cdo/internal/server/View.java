@@ -15,6 +15,7 @@ import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.internal.common.branch.CDOBranchPointImpl;
 import org.eclipse.emf.cdo.spi.server.InternalRepository;
 import org.eclipse.emf.cdo.spi.server.InternalSession;
 import org.eclipse.emf.cdo.spi.server.InternalView;
@@ -94,8 +95,8 @@ public class View implements InternalView
   {
     checkOpen();
     setBranchPoint(branchPoint);
-    List<CDORevision> revisions = repository.getRevisionManager().getRevisions(invalidObjects,
-        branchPoint.getBranch().getID(), branchPoint.getTimeStamp(), 0, CDORevision.DEPTH_NONE, false);
+    List<CDORevision> revisions = repository.getRevisionManager().getRevisions(invalidObjects, branchPoint, 0,
+        CDORevision.DEPTH_NONE, false);
     boolean[] existanceFlags = new boolean[revisions.size()];
     for (int i = 0; i < existanceFlags.length; i++)
     {
@@ -107,6 +108,7 @@ public class View implements InternalView
 
   private void setBranchPoint(CDOBranchPoint branchPoint)
   {
+    branchPoint = new CDOBranchPointImpl(branchPoint.getBranch(), branchPoint.getTimeStamp());
     repository.validateTimeStamp(branchPoint.getTimeStamp());
     this.branchPoint = branchPoint;
   }

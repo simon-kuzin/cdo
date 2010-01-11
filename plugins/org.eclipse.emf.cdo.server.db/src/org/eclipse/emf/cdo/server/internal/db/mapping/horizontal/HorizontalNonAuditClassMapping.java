@@ -215,7 +215,7 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
       stmt.setLong(col++, CDOIDUtil.getLong(revision.getID()));
       stmt.setInt(col++, revision.getVersion());
       stmt.setLong(col++, accessor.getStore().getMetaDataManager().getMetaID(revision.getEClass()));
-      stmt.setLong(col++, revision.getCreated());
+      stmt.setLong(col++, revision.getTimeStamp());
       stmt.setLong(col++, revision.getRevised());
       stmt.setLong(col++, CDODBUtil.convertCDOIDToLong(getExternalReferenceManager(), accessor, revision
           .getResourceID()));

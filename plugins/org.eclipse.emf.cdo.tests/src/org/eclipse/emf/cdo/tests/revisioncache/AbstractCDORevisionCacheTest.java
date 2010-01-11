@@ -12,12 +12,15 @@
 package org.eclipse.emf.cdo.tests.revisioncache;
 
 import org.eclipse.emf.cdo.CDOObject;
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.internal.db.cache.DBRevisionCache;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
 import org.eclipse.emf.cdo.eresource.CDOResource;
+import org.eclipse.emf.cdo.internal.common.branch.CDOBranchPointImpl;
 import org.eclipse.emf.cdo.internal.common.revision.cache.lru.LRURevisionCache;
 import org.eclipse.emf.cdo.internal.common.revision.cache.mem.MEMRevisionCache;
 import org.eclipse.emf.cdo.session.CDOSession;
@@ -55,6 +58,10 @@ public abstract class AbstractCDORevisionCacheTest extends AbstractOMTest
 
   private static final int MAX_THREADS = 10;
 
+  private static final CDOBranch BRANCH = null;
+
+  private static final CDOBranchPoint BRANCH_POINT = new CDOBranchPointImpl(BRANCH, CDOBranchPoint.UNSPECIFIED_DATE);
+
   private CDOResource resource;
 
   private CDORevisionCache revisionCache;
@@ -89,8 +96,7 @@ public abstract class AbstractCDORevisionCacheTest extends AbstractOMTest
     revisionCache.addRevision(cdoRevision);
 
     CDOID cdoID = ((CDOObject)company).cdoID();
-    CDORevision fetchedCDORevision = revisionCache.getRevision(cdoID, CDORevision.MAIN_BRANCH_ID,
-        CDORevision.UNSPECIFIED_DATE);
+    CDORevision fetchedCDORevision = revisionCache.getRevision(cdoID, BRANCH_POINT);
     assertTrue(CDOIDUtil.equals(cdoRevision.getID(), fetchedCDORevision.getID()));
   }
 
@@ -106,8 +112,7 @@ public abstract class AbstractCDORevisionCacheTest extends AbstractOMTest
     assertEquals(2, secondRevision.getVersion());
     revisionCache.addRevision(secondRevision);
 
-    CDORevision fetchedCDORevision = revisionCache.getRevision(company.cdoID(), CDORevision.MAIN_BRANCH_ID,
-        CDORevision.UNSPECIFIED_DATE);
+    CDORevision fetchedCDORevision = revisionCache.getRevision(company.cdoID(), BRANCH_POINT);
     assertEquals(2, fetchedCDORevision.getVersion());
   }
 
@@ -118,8 +123,7 @@ public abstract class AbstractCDORevisionCacheTest extends AbstractOMTest
     revisionCache.addRevision(firstRevision);
 
     CDOID cdoID = company.cdoID();
-    CDORevision fetchedRevision = revisionCache.getRevision(cdoID, CDORevision.MAIN_BRANCH_ID,
-        CDORevision.UNSPECIFIED_DATE);
+    CDORevision fetchedRevision = revisionCache.getRevision(cdoID, BRANCH_POINT);
     assertTrue(fetchedRevision.getRevised() == 0);
   }
 
@@ -137,8 +141,7 @@ public abstract class AbstractCDORevisionCacheTest extends AbstractOMTest
 
     // fetch older version and check version and ID equality
     CDOID cdoID = company.cdoID();
-    CDORevision fetchedRevision = revisionCache.getRevisionByVersion(cdoID, CDORevision.MAIN_BRANCH_ID, firstRevision
-        .getVersion());
+    CDORevision fetchedRevision = revisionCache.getRevisionByVersion(cdoID, BRANCH, firstRevision.getVersion());
     assertNotNull(fetchedRevision);
     assertTrue(firstRevision.getID().equals(fetchedRevision.getID()));
     assertTrue(firstRevision.getVersion() == fetchedRevision.getVersion());
@@ -152,8 +155,7 @@ public abstract class AbstractCDORevisionCacheTest extends AbstractOMTest
     InternalCDORevision firstVersion = company.cdoRevision();
     revisionCache.addRevision(firstVersion);
 
-    CDORevision fetchedRevision = revisionCache.getRevision(cdoID, CDORevision.MAIN_BRANCH_ID,
-        CDORevision.UNSPECIFIED_DATE);
+    CDORevision fetchedRevision = revisionCache.getRevision(cdoID, BRANCH_POINT);
     assertTrue(fetchedRevision.getRevised() == 0);
 
     // add new version
@@ -163,9 +165,9 @@ public abstract class AbstractCDORevisionCacheTest extends AbstractOMTest
     revisionCache.addRevision(secondVersion);
 
     // fetch older version and check revised timestamp
-    fetchedRevision = revisionCache.getRevisionByVersion(cdoID, CDORevision.MAIN_BRANCH_ID, firstVersion.getVersion());
+    fetchedRevision = revisionCache.getRevisionByVersion(cdoID, BRANCH, firstVersion.getVersion());
     assertTrue(fetchedRevision.getRevised() != 0);
-    assertTrue(fetchedRevision.getRevised() < secondVersion.getCreated());
+    assertTrue(fetchedRevision.getRevised() < secondVersion.getTimeStamp());
     assertTrue(fetchedRevision.getRevised() == firstVersion.getRevised());
   }
 
@@ -189,8 +191,7 @@ public abstract class AbstractCDORevisionCacheTest extends AbstractOMTest
     revisionCache.addRevision(thirdRevision);
 
     // fetch version by timstamp check version and ID equality
-    CDORevision fetchedRevision = revisionCache.getRevision(cdoID, CDORevision.MAIN_BRANCH_ID, secondRevision
-        .getCreated());
+    CDORevision fetchedRevision = revisionCache.getRevision(cdoID, BRANCH_POINT);
     assertTrue(secondRevision.getID().equals(fetchedRevision.getID()));
     assertTrue(secondRevision.getVersion() == fetchedRevision.getVersion());
   }
@@ -225,7 +226,7 @@ public abstract class AbstractCDORevisionCacheTest extends AbstractOMTest
     InternalCDORevision secondVersion = company.cdoRevision();
     revisionCache.addRevision(secondVersion);
 
-    CDORevision removedRevision = revisionCache.removeRevision(firstVersion.getID(), firstVersion.getBranchID(),
+    CDORevision removedRevision = revisionCache.removeRevision(firstVersion.getID(), firstVersion.getBranch(),
         firstVersion.getVersion());
     assertNotNull(removedRevision);
     assertEqualRevisions(firstVersion, removedRevision);
@@ -242,9 +243,8 @@ public abstract class AbstractCDORevisionCacheTest extends AbstractOMTest
     InternalCDORevision secondVersion = company.cdoRevision();
     revisionCache.addRevision(secondVersion);
 
-    revisionCache.removeRevision(secondVersion.getID(), secondVersion.getBranchID(), secondVersion.getVersion());
-    assertNull(revisionCache.getRevisionByVersion(secondVersion.getID(), CDORevision.MAIN_BRANCH_ID, secondVersion
-        .getVersion()));
+    revisionCache.removeRevision(secondVersion.getID(), secondVersion.getBranch(), secondVersion.getVersion());
+    assertNull(revisionCache.getRevisionByVersion(secondVersion.getID(), BRANCH, secondVersion.getVersion()));
   }
 
   public void testRemoveSecondRevisionResultsInNoActiveRevision()
@@ -258,9 +258,8 @@ public abstract class AbstractCDORevisionCacheTest extends AbstractOMTest
     InternalCDORevision secondVersion = company.cdoRevision();
     revisionCache.addRevision(secondVersion);
 
-    revisionCache.removeRevision(secondVersion.getID(), secondVersion.getBranchID(), secondVersion.getVersion());
-    CDORevision fetchedRevision = revisionCache.getRevision(firstVersion.getID(), CDORevision.MAIN_BRANCH_ID,
-        CDORevision.UNSPECIFIED_DATE);
+    revisionCache.removeRevision(secondVersion.getID(), secondVersion.getBranch(), secondVersion.getVersion());
+    CDORevision fetchedRevision = revisionCache.getRevision(firstVersion.getID(), BRANCH_POINT);
     assertNull(fetchedRevision);
   }
 
@@ -275,9 +274,8 @@ public abstract class AbstractCDORevisionCacheTest extends AbstractOMTest
     InternalCDORevision secondVersion = company.cdoRevision();
     revisionCache.addRevision(secondVersion);
 
-    revisionCache.removeRevision(firstVersion.getID(), firstVersion.getBranchID(), firstVersion.getVersion());
-    CDORevision fetchedRevision = revisionCache.getRevision(firstVersion.getID(), CDORevision.MAIN_BRANCH_ID,
-        firstVersion.getRevised() - 1);
+    revisionCache.removeRevision(firstVersion.getID(), firstVersion.getBranch(), firstVersion.getVersion());
+    CDORevision fetchedRevision = revisionCache.getRevision(firstVersion.getID(), BRANCH_POINT);
     assertNull(fetchedRevision);
   }
 
@@ -293,12 +291,11 @@ public abstract class AbstractCDORevisionCacheTest extends AbstractOMTest
     revisionCache.addRevision(secondVersion);
 
     revisionCache.clear();
-    CDORevision fetchedRevision = revisionCache.getRevisionByVersion(firstVersion.getID(), CDORevision.MAIN_BRANCH_ID,
-        firstVersion.getVersion());
+    CDORevision fetchedRevision = revisionCache.getRevisionByVersion(firstVersion.getID(), BRANCH, firstVersion
+        .getVersion());
     assertNull(fetchedRevision);
 
-    fetchedRevision = revisionCache.getRevisionByVersion(secondVersion.getID(), CDORevision.MAIN_BRANCH_ID,
-        secondVersion.getVersion());
+    fetchedRevision = revisionCache.getRevisionByVersion(secondVersion.getID(), BRANCH, secondVersion.getVersion());
     assertNull(fetchedRevision);
   }
 
@@ -315,36 +312,35 @@ public abstract class AbstractCDORevisionCacheTest extends AbstractOMTest
         CDOObject company = createCompanyInResource("Puzzle", session.openTransaction());
         CDORevision revision = company.cdoRevision();
         revisionCache.addRevision(revision);
-        CDORevision fetchedRevision = revisionCache.getRevision(revision.getID(), CDORevision.MAIN_BRANCH_ID,
-            CDORevision.UNSPECIFIED_DATE);
+        CDORevision fetchedRevision = revisionCache.getRevision(revision.getID(), BRANCH_POINT);
         assertNotNull(fetchedRevision != null);
       }
     } //
 
-    , new Runnable()
-    {
-      public void run()
-      {
-        CDOObject company = createCompanyInResource("Puzzle", session.openTransaction());
-        CDORevision revision = company.cdoRevision();
-        revisionCache.addRevision(revision);
-        CDORevision fetchedRevision = revisionCache.getRevisionByVersion(revision.getID(), CDORevision.MAIN_BRANCH_ID,
-            revision.getVersion());
-        assertEquals(revision.getVersion(), fetchedRevision.getVersion());
-        assertEquals(revision.getCreated(), fetchedRevision.getCreated());
-      }
-    } //
+        , new Runnable()
+        {
+          public void run()
+          {
+            CDOObject company = createCompanyInResource("Puzzle", session.openTransaction());
+            CDORevision revision = company.cdoRevision();
+            revisionCache.addRevision(revision);
+            CDORevision fetchedRevision = revisionCache.getRevisionByVersion(revision.getID(), BRANCH, revision
+                .getVersion());
+            assertEquals(revision.getVersion(), fetchedRevision.getVersion());
+            assertEquals(revision.getTimeStamp(), fetchedRevision.getTimeStamp());
+          }
+        } //
 
-    , new Runnable()
-    {
-      public void run()
-      {
-        CDOObject company = createCompanyInResource("Puzzle", session.openTransaction());
-        CDORevision revision = company.cdoRevision();
-        revisionCache.addRevision(revision);
-        revisionCache.removeRevision(revision.getID(), revision.getBranchID(), revision.getVersion());
-      }
-    } //
+        , new Runnable()
+        {
+          public void run()
+          {
+            CDOObject company = createCompanyInResource("Puzzle", session.openTransaction());
+            CDORevision revision = company.cdoRevision();
+            revisionCache.addRevision(revision);
+            revisionCache.removeRevision(revision.getID(), revision.getBranch(), revision.getVersion());
+          }
+        } //
 
         , new Runnable()
         {
@@ -361,11 +357,10 @@ public abstract class AbstractCDORevisionCacheTest extends AbstractOMTest
             CDOObject company = createCompanyInResource("Puzzle", session.openTransaction());
             CDORevision revision = company.cdoRevision();
             revisionCache.addRevision(revision);
-            CDORevision fetchedRevision = revisionCache.getRevision(revision.getID(), CDORevision.MAIN_BRANCH_ID,
-                revision.getCreated());
+            CDORevision fetchedRevision = revisionCache.getRevision(revision.getID(), BRANCH_POINT);
             assertEquals(revision.getVersion(), fetchedRevision.getVersion());
-            assertEquals(revision.getCreated(), fetchedRevision.getCreated());
-            revisionCache.removeRevision(revision.getID(), revision.getBranchID(), revision.getVersion());
+            assertEquals(revision.getTimeStamp(), fetchedRevision.getTimeStamp());
+            revisionCache.removeRevision(revision.getID(), revision.getBranch(), revision.getVersion());
           }
         } };
 
@@ -375,7 +370,7 @@ public abstract class AbstractCDORevisionCacheTest extends AbstractOMTest
   private void assertEqualRevisions(CDORevision thisRevision, CDORevision thatRevision)
   {
     assertEquals(thisRevision.getVersion(), thatRevision.getVersion());
-    assertEquals(thisRevision.getCreated(), thatRevision.getCreated());
+    assertEquals(thisRevision.getTimeStamp(), thatRevision.getTimeStamp());
     assertEquals(thisRevision.getRevised(), thatRevision.getRevised());
   }
 

@@ -11,6 +11,7 @@
 package org.eclipse.emf.cdo.tests;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
@@ -22,6 +23,7 @@ import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionData;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
+import org.eclipse.emf.cdo.internal.common.branch.CDOBranchPointImpl;
 import org.eclipse.emf.cdo.internal.common.revision.cache.lru.DLRevisionHolder;
 import org.eclipse.emf.cdo.internal.common.revision.cache.lru.LRURevisionCache;
 import org.eclipse.emf.cdo.internal.common.revision.cache.lru.LRURevisionHolder;
@@ -54,13 +56,13 @@ public class RevisionHolderTest extends AbstractCDOTest
     TestRevision r1v2 = new TestRevision(1, 2, 6);
     cache.addRevision(r1v2);
     assertEquals(CDORevision.UNSPECIFIED_DATE, r1v2.getRevised());
-    assertEquals(r1v2.getCreated() - 1, r1v1.getRevised());
+    assertEquals(r1v2.getTimeStamp() - 1, r1v1.getRevised());
 
     TestRevision r1v3 = new TestRevision(1, 3, 11);
     cache.addRevision(r1v3);
     assertEquals(CDORevision.UNSPECIFIED_DATE, r1v3.getRevised());
-    assertEquals(r1v3.getCreated() - 1, r1v2.getRevised());
-    assertEquals(r1v2.getCreated() - 1, r1v1.getRevised());
+    assertEquals(r1v3.getTimeStamp() - 1, r1v2.getRevised());
+    assertEquals(r1v2.getTimeStamp() - 1, r1v1.getRevised());
 
     CDOID id = r1v1.getID();
 
@@ -210,7 +212,7 @@ public class RevisionHolderTest extends AbstractCDOTest
     TestRevision r1v3 = new TestRevision(1, 3, 11);
     cache.addRevision(r1v3);
     assertEquals(CDORevision.UNSPECIFIED_DATE, r1v3.getRevised());
-    assertNotSame(r1v3.getCreated() - 1, r1v1.getRevised());
+    assertNotSame(r1v3.getTimeStamp() - 1, r1v1.getRevised());
 
     CDOID id = r1v1.getID();
 
@@ -258,19 +260,17 @@ public class RevisionHolderTest extends AbstractCDOTest
   {
     private CDOID id;
 
-    private int branchID = CDOBranch.MAIN_BRANCH_ID;
+    private CDOBranchPoint branchPoint;
 
     private int version;
-
-    private long created;
 
     private long revised;
 
     public TestRevision(long id, int version, long created, long revised)
     {
       this.id = CDOIDUtil.createLong(id);
+      branchPoint = new CDOBranchPointImpl(null, created);
       this.version = version;
-      this.created = created;
       this.revised = revised;
     }
 
@@ -304,14 +304,29 @@ public class RevisionHolderTest extends AbstractCDOTest
       this.id = id;
     }
 
-    public int getBranchID()
+    public CDOBranch getBranch()
     {
-      return branchID;
+      return branchPoint.getBranch();
     }
 
-    public void setBranchID(int branchID)
+    public long getTimeStamp()
     {
-      this.branchID = branchID;
+      return branchPoint.getTimeStamp();
+    }
+
+    public boolean isHistorical()
+    {
+      return branchPoint.isHistorical();
+    }
+
+    public void setBranchPoint(CDOBranchPoint branchPoint)
+    {
+      this.branchPoint = new CDOBranchPointImpl(branchPoint.getBranch(), branchPoint.getTimeStamp());
+    }
+
+    public void setCreated(long timeStamp)
+    {
+      setBranchPoint(new CDOBranchPointImpl(getBranch(), timeStamp));
     }
 
     public int getVersion()
@@ -322,16 +337,6 @@ public class RevisionHolderTest extends AbstractCDOTest
     public void setVersion(int version)
     {
       this.version = version;
-    }
-
-    public long getCreated()
-    {
-      return created;
-    }
-
-    public void setCreated(long created)
-    {
-      this.created = created;
     }
 
     public long getRevised()
@@ -356,7 +361,7 @@ public class RevisionHolderTest extends AbstractCDOTest
 
     public boolean isValid(long timeStamp)
     {
-      return (revised == UNSPECIFIED_DATE || revised >= timeStamp) && timeStamp >= created;
+      return (revised == UNSPECIFIED_DATE || revised >= timeStamp) && timeStamp >= branchPoint.getTimeStamp();
     }
 
     public CDORevisionData data()
@@ -391,7 +396,7 @@ public class RevisionHolderTest extends AbstractCDOTest
 
     public CDORevision copy()
     {
-      return new TestRevision(CDOIDUtil.getLong(id), version, created, revised);
+      return new TestRevision(CDOIDUtil.getLong(id), version, branchPoint.getTimeStamp(), revised);
     }
 
     public void read(CDODataInput in) throws IOException

@@ -144,7 +144,7 @@ public abstract class AbstractCDOTest extends ConfigTest
     CDOObject object = CDOUtil.getCDOObject(eObject);
     if (object != null)
     {
-      assertEquals(timeStamp, object.cdoRevision().getCreated());
+      assertEquals(timeStamp, object.cdoRevision().getTimeStamp());
     }
   }
 }

@@ -10,6 +10,8 @@
  */
 package org.eclipse.emf.cdo.common.revision;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 
 import org.eclipse.emf.ecore.EClass;
@@ -28,15 +30,16 @@ public interface CDORevisionManager
    */
   public EClass getObjectType(CDOID id);
 
-  public boolean containsRevision(CDOID id, int branchID, long timeStamp);
+  public boolean containsRevision(CDOID id, CDOBranchPoint branchPoint);
 
-  public boolean containsRevisionByVersion(CDOID id, int branchID, int version);
-
-  public List<CDORevision> getRevisions(Collection<CDOID> ids, int branchID, long timeStamp, int referenceChunk,
-      int prefetchDepth, boolean loadOnDemand);
-
-  public CDORevision getRevision(CDOID id, int branchID, long timeStamp, int referenceChunk, int prefetchDepth,
+  public CDORevision getRevision(CDOID id, CDOBranchPoint branchPoint, int referenceChunk, int prefetchDepth,
       boolean loadOnDemand);
 
-  public CDORevision getRevisionByVersion(CDOID id, int branchID, int version, int referenceChunk, boolean loadOnDemand);
+  public List<CDORevision> getRevisions(Collection<CDOID> ids, CDOBranchPoint branchPoint, int referenceChunk,
+      int prefetchDepth, boolean loadOnDemand);
+
+  public boolean containsRevisionByVersion(CDOID id, CDOBranch branch, int version);
+
+  public CDORevision getRevisionByVersion(CDOID id, CDOBranch branch, int version, int referenceChunk,
+      boolean loadOnDemand);
 }

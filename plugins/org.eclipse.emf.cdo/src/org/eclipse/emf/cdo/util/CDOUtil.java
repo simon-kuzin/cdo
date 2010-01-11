@@ -13,6 +13,7 @@
 package org.eclipse.emf.cdo.util;
 
 import org.eclipse.emf.cdo.CDOObject;
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.session.CDOCollectionLoadingPolicy;
@@ -315,13 +316,13 @@ public final class CDOUtil
     }
 
     CDORevision revision = CDOStateMachine.INSTANCE.read((InternalCDOObject)object);
-    return getRevisionByVersion(object, revision.getBranchID(), version, revision);
+    return getRevisionByVersion(object, revision.getBranch(), version, revision);
   }
 
   /**
    * @since 3.0
    */
-  public static CDORevision getRevisionByVersion(CDOObject object, int branchID, int version)
+  public static CDORevision getRevisionByVersion(CDOObject object, CDOBranch branch, int version)
   {
     if (FSMUtil.isTransient(object))
     {
@@ -329,10 +330,10 @@ public final class CDOUtil
     }
 
     CDORevision revision = CDOStateMachine.INSTANCE.read((InternalCDOObject)object);
-    return getRevisionByVersion(object, branchID, version, revision);
+    return getRevisionByVersion(object, branch, version, revision);
   }
 
-  private static CDORevision getRevisionByVersion(CDOObject object, int branchID, int version, CDORevision revision)
+  private static CDORevision getRevisionByVersion(CDOObject object, CDOBranch branch, int version, CDORevision revision)
   {
     if (revision.getVersion() != version)
     {
@@ -342,7 +343,7 @@ public final class CDOUtil
         throw new IllegalStateException(Messages.getString("CDOUtil.0")); //$NON-NLS-1$
       }
 
-      revision = session.getRevisionManager().getRevisionByVersion(object.cdoID(), branchID, version, 0, true);
+      revision = session.getRevisionManager().getRevisionByVersion(object.cdoID(), branch, version, 0, true);
     }
 
     return revision;

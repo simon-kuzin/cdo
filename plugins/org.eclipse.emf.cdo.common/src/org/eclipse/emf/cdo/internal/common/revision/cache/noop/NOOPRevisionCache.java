@@ -10,6 +10,8 @@
  */
 package org.eclipse.emf.cdo.internal.common.revision.cache.noop;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
@@ -51,12 +53,12 @@ public class NOOPRevisionCache extends Lifecycle implements CDORevisionCache
     return null;
   }
 
-  public InternalCDORevision getRevision(CDOID id, int branchID, long timeStamp)
+  public InternalCDORevision getRevision(CDOID id, CDOBranchPoint branchPoint)
   {
     return null;
   }
 
-  public InternalCDORevision getRevisionByVersion(CDOID id, int branchID, int version)
+  public InternalCDORevision getRevisionByVersion(CDOID id, CDOBranch branch, int version)
   {
     return null;
   }
@@ -67,7 +69,7 @@ public class NOOPRevisionCache extends Lifecycle implements CDORevisionCache
     return false;
   }
 
-  public InternalCDORevision removeRevision(CDOID id, int branchID, int version)
+  public InternalCDORevision removeRevision(CDOID id, CDOBranch branch, int version)
   {
     return null;
   }

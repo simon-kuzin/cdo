@@ -15,6 +15,8 @@
 package org.eclipse.emf.cdo.internal.server;
 
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
@@ -220,21 +222,22 @@ public class Repository extends Container<Object> implements InternalRepository
     }
   }
 
-  public List<InternalCDORevision> loadRevisions(Collection<CDOID> ids, int branchID, long timeStamp,
-      int referenceChunk, int prefetchDepth)
+  public List<InternalCDORevision> loadRevisions(Collection<CDOID> ids, CDOBranchPoint branchPoint, int referenceChunk,
+      int prefetchDepth)
   {
     List<InternalCDORevision> revisions = new ArrayList<InternalCDORevision>();
     for (CDOID id : ids)
     {
-      InternalCDORevision revision = loadRevision(id, branchID, timeStamp, referenceChunk, prefetchDepth);
+      InternalCDORevision revision = loadRevision(id, branchPoint, referenceChunk, prefetchDepth);
       revisions.add(revision);
     }
 
     return revisions;
   }
 
-  private InternalCDORevision loadRevision(CDOID id, int branchID, long timeStamp, int referenceChunk, int prefetchDepth)
+  private InternalCDORevision loadRevision(CDOID id, CDOBranchPoint branchPoint, int referenceChunk, int prefetchDepth)
   {
+    long timeStamp = branchPoint.getTimeStamp();
     if (timeStamp != CDORevision.UNSPECIFIED_DATE && !isSupportingAudits())
     {
       throw new IllegalStateException("No support for auditing mode"); //$NON-NLS-1$
@@ -244,7 +247,7 @@ public class Repository extends Container<Object> implements InternalRepository
     return accessor.readRevision(id, timeStamp, referenceChunk, revisionManager.getCache());
   }
 
-  public InternalCDORevision loadRevisionByVersion(CDOID id, int branchID, int version, int referenceChunk)
+  public InternalCDORevision loadRevisionByVersion(CDOID id, CDOBranch branch, int version, int referenceChunk)
   {
     IStoreAccessor accessor = StoreThreadLocal.getAccessor();
     if (isSupportingAudits())
@@ -252,8 +255,7 @@ public class Repository extends Container<Object> implements InternalRepository
       return accessor.readRevisionByVersion(id, version, referenceChunk, revisionManager.getCache());
     }
 
-    InternalCDORevision revision = loadRevision(id, branchID, CDORevision.UNSPECIFIED_DATE, referenceChunk,
-        CDORevision.DEPTH_NONE);
+    InternalCDORevision revision = loadRevision(id, branch.getHead(), referenceChunk, CDORevision.DEPTH_NONE);
     if (revision.getVersion() == version)
     {
       return revision;

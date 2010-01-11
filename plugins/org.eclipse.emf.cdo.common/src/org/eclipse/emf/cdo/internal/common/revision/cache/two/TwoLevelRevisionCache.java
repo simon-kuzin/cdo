@@ -12,6 +12,8 @@
  */
 package org.eclipse.emf.cdo.internal.common.revision.cache.two;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
@@ -76,23 +78,23 @@ public class TwoLevelRevisionCache extends Lifecycle implements CDORevisionCache
     return objectType;
   }
 
-  public CDORevision getRevision(CDOID id, int branchID, long timeStamp)
+  public CDORevision getRevision(CDOID id, CDOBranchPoint branchPoint)
   {
-    CDORevision revision = level1.getRevision(id, branchID, timeStamp);
+    CDORevision revision = level1.getRevision(id, branchPoint);
     if (revision == null)
     {
-      revision = level2.getRevision(id, branchID, timeStamp);
+      revision = level2.getRevision(id, branchPoint);
     }
 
     return revision;
   }
 
-  public CDORevision getRevisionByVersion(CDOID id, int branchID, int version)
+  public CDORevision getRevisionByVersion(CDOID id, CDOBranch branch, int version)
   {
-    CDORevision revision = level1.getRevisionByVersion(id, branchID, version);
+    CDORevision revision = level1.getRevisionByVersion(id, branch, version);
     if (revision == null)
     {
-      revision = level2.getRevisionByVersion(id, branchID, version);
+      revision = level2.getRevisionByVersion(id, branch, version);
     }
 
     return revision;
@@ -116,18 +118,17 @@ public class TwoLevelRevisionCache extends Lifecycle implements CDORevisionCache
     if (added && revision.isCurrent())
     {
       CDOID id = revision.getID();
-      int branchID = revision.getBranchID();
-      CDORevision revisionInLevel2 = level2.getRevision(id, branchID, CDORevision.UNSPECIFIED_DATE);
+      CDORevision revisionInLevel2 = level2.getRevision(id, revision);
       if (revisionInLevel2 != null && revisionInLevel2.isCurrent())
       {
         // We can only revise if the revisions are consecutive
         if (revision.getVersion() == revisionInLevel2.getVersion() + 1)
         {
-          ((InternalCDORevision)revisionInLevel2).setRevised(revision.getCreated() - 1);
+          ((InternalCDORevision)revisionInLevel2).setRevised(revision.getTimeStamp() - 1);
         }
         else
         {
-          level2.removeRevision(id, branchID, revisionInLevel2.getVersion());
+          level2.removeRevision(id, revision.getBranch(), revisionInLevel2.getVersion());
         }
       }
     }
@@ -135,11 +136,11 @@ public class TwoLevelRevisionCache extends Lifecycle implements CDORevisionCache
     return added;
   }
 
-  public CDORevision removeRevision(CDOID id, int branchID, int version)
+  public CDORevision removeRevision(CDOID id, CDOBranch branch, int version)
   {
-    CDORevision revision = level1.removeRevision(id, branchID, version);
-    level2.removeRevision(id, branchID, version);
-    return revision;
+    CDORevision revision1 = level1.removeRevision(id, branch, version);
+    CDORevision revision2 = level2.removeRevision(id, branch, version);
+    return revision1 != null ? revision1 : revision2;
   }
 
   public void clear()

@@ -11,6 +11,7 @@
  */
 package org.eclipse.emf.cdo.spi.common.revision;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
@@ -48,9 +49,9 @@ public interface InternalCDORevision extends CDORevision, CDORevisionData, CDORe
   /**
    * @since 3.0
    */
-  public void setBranchID(int branchID);
+  public void setBranchPoint(CDOBranchPoint branchPoint);
 
-  public void setCreated(long created);
+  public void setCreated(long timeStamp);
 
   public void setRevised(long revised);
 

@@ -14,6 +14,7 @@
 package org.eclipse.emf.cdo.spi.common.revision;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
@@ -31,6 +32,7 @@ import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionData;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDeltaUtil;
+import org.eclipse.emf.cdo.internal.common.branch.CDOBranchPointImpl;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.internal.common.messages.Messages;
 
@@ -72,11 +74,9 @@ public abstract class AbstractCDORevision implements InternalCDORevision
 
   private CDOID id;
 
-  private int branchID;
+  private CDOBranchPoint branchPoint;
 
   private int version;
-
-  private long created;
 
   private long revised;
 
@@ -99,9 +99,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
       }
 
       classInfo = CDOModelUtil.getClassInfo(eClass);
-      branchID = CDOBranch.MAIN_BRANCH_ID;
       version = 0;
-      created = UNSPECIFIED_DATE;
       revised = UNSPECIFIED_DATE;
       resourceID = CDOID.NULL;
       containerID = CDOID.NULL;
@@ -114,9 +112,8 @@ public abstract class AbstractCDORevision implements InternalCDORevision
   {
     classInfo = source.classInfo;
     id = source.id;
-    branchID = source.branchID;
+    branchPoint = source.branchPoint;
     version = source.version;
-    created = source.created;
     revised = source.revised; // == UNSPECIFIED
     resourceID = source.resourceID;
     containerID = source.containerID;
@@ -133,11 +130,10 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     classInfo = CDOModelUtil.getClassInfo((EClass)classifier);
 
     id = in.readCDOID();
-    branchID = in.readInt();
+    branchPoint = in.readCDOBranchPoint();
     version = in.readInt();
     if (!id.isTemporary())
     {
-      created = in.readLong();
       revised = in.readLong();
     }
 
@@ -148,8 +144,8 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     {
       TRACER
           .format(
-              "Reading revision: ID={0}, className={1}, version={2}, created={3}, revised={4}, resource={5}, container={6}, featureID={7}", //$NON-NLS-1$
-              id, getEClass().getName(), version, created, revised, resourceID, containerID, containingFeatureID);
+              "Reading revision: ID={0}, className={1}, version={2}, branchPoint={3}, revised={4}, resource={5}, container={6}, featureID={7}", //$NON-NLS-1$
+              id, getEClass().getName(), version, branchPoint, revised, resourceID, containerID, containingFeatureID);
     }
 
     readValues(in);
@@ -164,19 +160,18 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     {
       TRACER
           .format(
-              "Writing revision: ID={0}, className={1}, version={2}, created={3}, revised={4}, resource={5}, container={6}, featureID={7}", //$NON-NLS-1$
-              id, eClass.getName(), getVersion(), created, revised, resourceID, containerID, containingFeatureID);
+              "Writing revision: ID={0}, className={1}, version={2}, branchPoint={3}, revised={4}, resource={5}, container={6}, featureID={7}", //$NON-NLS-1$
+              id, eClass.getName(), getVersion(), branchPoint, revised, resourceID, containerID, containingFeatureID);
     }
 
     WRITING.start(this);
 
     out.writeCDOClassifierRef(classRef);
     out.writeCDOID(id);
-    out.writeInt(branchID);
+    out.writeCDOBranchPoint(branchPoint);
     out.writeInt(getVersion());
     if (!id.isTemporary())
     {
-      out.writeLong(created);
       out.writeLong(revised);
     }
 
@@ -282,17 +277,44 @@ public abstract class AbstractCDORevision implements InternalCDORevision
   /**
    * @since 3.0
    */
-  public int getBranchID()
+  public CDOBranch getBranch()
   {
-    return branchID;
+    return branchPoint.getBranch();
   }
 
   /**
    * @since 3.0
    */
-  public void setBranchID(int branchID)
+  public long getTimeStamp()
   {
-    this.branchID = branchID;
+    return branchPoint.getTimeStamp();
+  }
+
+  /**
+   * @since 3.0
+   */
+  public boolean isHistorical()
+  {
+    return branchPoint.isHistorical();
+  }
+
+  /**
+   * @since 3.0
+   */
+  public void setBranchPoint(CDOBranchPoint branchPoint)
+  {
+    branchPoint = new CDOBranchPointImpl(branchPoint.getBranch(), branchPoint.getTimeStamp());
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("Setting branchPoint {0}: {1}", this, branchPoint);
+    }
+
+    this.branchPoint = branchPoint;
+  }
+
+  public void setCreated(long timeStamp)
+  {
+    setBranchPoint(new CDOBranchPointImpl(getBranch(), timeStamp));
   }
 
   public int getVersion()
@@ -337,21 +359,6 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     return version;
   }
 
-  public long getCreated()
-  {
-    return created;
-  }
-
-  public void setCreated(long created)
-  {
-    if (TRACER.isEnabled())
-    {
-      TRACER.format("Setting created {0}: {1,date} {1,time}", this, created);
-    }
-
-    this.created = created;
-  }
-
   public long getRevised()
   {
     return revised;
@@ -359,6 +366,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
 
   public void setRevised(long revised)
   {
+    long created = branchPoint.getTimeStamp();
     if (revised != UNSPECIFIED_DATE && revised < Math.max(0, created))
     {
       throw new IllegalArgumentException("created=" + created + ", revised=" + revised);
@@ -379,7 +387,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
 
   public boolean isValid(long timeStamp)
   {
-    return (revised == UNSPECIFIED_DATE || revised >= timeStamp) && timeStamp >= created;
+    return (revised == UNSPECIFIED_DATE || revised >= timeStamp) && timeStamp >= branchPoint.getTimeStamp();
   }
 
   public boolean isResourceNode()

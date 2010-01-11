@@ -11,6 +11,7 @@
 package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
 import org.eclipse.emf.cdo.common.CDOFetchRule;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
@@ -46,9 +47,7 @@ public class LoadRevisionsIndication extends CDOReadIndication
 
   private CDOID[] ids;
 
-  private int branchID;
-
-  private long timeStamp;
+  private CDOBranchPoint branchPoint;
 
   private int referenceChunk;
 
@@ -99,8 +98,7 @@ public class LoadRevisionsIndication extends CDOReadIndication
       ids[i] = id;
     }
 
-    branchID = in.readInt();
-    timeStamp = in.readLong();
+    branchPoint = in.readCDOBranchPoint();
 
     int fetchSize = in.readInt();
     if (fetchSize > 0)
@@ -191,15 +189,14 @@ public class LoadRevisionsIndication extends CDOReadIndication
 
   protected InternalCDORevision getRevision(CDOID id)
   {
-    return (InternalCDORevision)getRepository().getRevisionManager().getRevision(id, branchID, timeStamp,
-        referenceChunk, CDORevision.DEPTH_NONE, true);
+    return (InternalCDORevision)getRepository().getRevisionManager().getRevision(id, branchPoint, referenceChunk,
+        CDORevision.DEPTH_NONE, true);
   }
 
   private void collectRevisions(InternalCDORevision revision, Set<CDOID> revisions,
       List<CDORevision> additionalRevisions, Set<CDOFetchRule> visitedFetchRules)
   {
-    getSession().collectContainedRevisions(revision, branchID, timeStamp, referenceChunk, revisions,
-        additionalRevisions);
+    getSession().collectContainedRevisions(revision, branchPoint, referenceChunk, revisions, additionalRevisions);
     CDOFetchRule fetchRule = fetchRules.get(revision.getEClass());
     if (fetchRule == null || visitedFetchRules.contains(fetchRule))
     {

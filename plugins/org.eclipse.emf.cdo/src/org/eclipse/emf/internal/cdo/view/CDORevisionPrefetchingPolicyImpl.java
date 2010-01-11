@@ -11,6 +11,7 @@
  */
 package org.eclipse.emf.internal.cdo.view;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDORevisionManager;
@@ -37,10 +38,10 @@ public class CDORevisionPrefetchingPolicyImpl implements CDORevisionPrefetchingP
     this.chunkSize = chunkSize;
   }
 
-  public Collection<CDOID> loadAhead(CDORevisionManager revisionManager, int branchID, long timeStamp, EObject eObject,
+  public Collection<CDOID> loadAhead(CDORevisionManager revisionManager, CDOBranchPoint branchPoint, EObject eObject,
       EStructuralFeature feature, CDOList list, int accessIndex, CDOID accessID)
   {
-    if (chunkSize > 1 && !revisionManager.containsRevision(accessID, branchID, timeStamp))
+    if (chunkSize > 1 && !revisionManager.containsRevision(accessID, branchPoint))
     {
       int fromIndex = accessIndex;
       int toIndex = Math.min(accessIndex + chunkSize, list.size()) - 1;
@@ -54,7 +55,7 @@ public class CDORevisionPrefetchingPolicyImpl implements CDORevisionPrefetchingP
           CDOID idElement = (CDOID)element;
           if (!idElement.isTemporary())
           {
-            if (!revisionManager.containsRevision(idElement, branchID, timeStamp))
+            if (!revisionManager.containsRevision(idElement, branchPoint))
             {
               if (!notRegistered.contains(idElement))
               {

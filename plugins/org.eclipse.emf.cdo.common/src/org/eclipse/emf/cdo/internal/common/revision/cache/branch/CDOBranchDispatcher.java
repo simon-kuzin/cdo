@@ -10,6 +10,8 @@
  */
 package org.eclipse.emf.cdo.internal.common.revision.cache.branch;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
@@ -29,7 +31,7 @@ import java.util.Map;
  */
 public class CDOBranchDispatcher extends Lifecycle implements CDORevisionCache
 {
-  private Map<Integer, CDORevisionCache> caches = new HashMap<Integer, CDORevisionCache>();
+  private Map<CDOBranch, CDORevisionCache> caches = new HashMap<CDOBranch, CDORevisionCache>();
 
   private CDORevisionCacheFactory factory;
 
@@ -62,50 +64,50 @@ public class CDOBranchDispatcher extends Lifecycle implements CDORevisionCache
     return null;
   }
 
-  public CDORevision getRevision(CDOID id, int branchID, long timeStamp)
+  public CDORevision getRevision(CDOID id, CDOBranchPoint branchPoint)
   {
-    CDORevisionCache cache = getCache(branchID);
+    CDORevisionCache cache = getCache(branchPoint.getBranch());
     if (cache == null)
     {
       return null;
     }
 
-    return cache.getRevision(id, branchID, timeStamp);
+    return cache.getRevision(id, branchPoint);
   }
 
-  public CDORevision getRevisionByVersion(CDOID id, int branchID, int version)
+  public CDORevision getRevisionByVersion(CDOID id, CDOBranch branch, int version)
   {
-    CDORevisionCache cache = getCache(branchID);
+    CDORevisionCache cache = getCache(branch);
     if (cache == null)
     {
       return null;
     }
 
-    return cache.getRevisionByVersion(id, branchID, version);
+    return cache.getRevisionByVersion(id, branch, version);
   }
 
-  public CDORevision removeRevision(CDOID id, int branchID, int version)
+  public CDORevision removeRevision(CDOID id, CDOBranch branch, int version)
   {
-    CDORevisionCache cache = getCache(branchID);
+    CDORevisionCache cache = getCache(branch);
     if (cache == null)
     {
       return null;
     }
 
-    return cache.removeRevision(id, branchID, version);
+    return cache.removeRevision(id, branch, version);
   }
 
   public boolean addRevision(CDORevision revision)
   {
-    int branchID = revision.getBranchID();
+    CDOBranch branch = revision.getBranch();
     CDORevisionCache cache;
     synchronized (caches)
     {
-      cache = caches.get(branchID);
+      cache = caches.get(branch);
       if (cache == null)
       {
         cache = factory.createRevisionCache(revision);
-        caches.put(branchID, cache);
+        caches.put(branch, cache);
       }
     }
 
@@ -138,11 +140,11 @@ public class CDOBranchDispatcher extends Lifecycle implements CDORevisionCache
     checkState(factory, "factory");
   }
 
-  private CDORevisionCache getCache(int branchID)
+  private CDORevisionCache getCache(CDOBranch branch)
   {
     synchronized (caches)
     {
-      return caches.get(branchID);
+      return caches.get(branch);
     }
   }
 

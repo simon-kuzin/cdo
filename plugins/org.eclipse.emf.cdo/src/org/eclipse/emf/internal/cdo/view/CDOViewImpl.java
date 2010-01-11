@@ -782,9 +782,8 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
   {
     CDORevisionManager revisionManager = session.getRevisionManager();
     int initialChunkSize = session.options().getCollectionLoadingPolicy().getInitialChunkSize();
-    return (InternalCDORevision)revisionManager.getRevision(id, branchPoint.getBranch().getID(), branchPoint
-        .getTimeStamp(), initialChunkSize, CDORevision.DEPTH_NONE, loadOnDemand);
-
+    return (InternalCDORevision)revisionManager.getRevision(id, branchPoint, initialChunkSize, CDORevision.DEPTH_NONE,
+        loadOnDemand);
   }
 
   public void prefetchRevisions(CDOID id, int depth)
@@ -797,8 +796,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
   protected void prefetchRevisions(CDOID id, int depth, int initialChunkSize)
   {
     CDORevisionManager revisionManager = session.getRevisionManager();
-    revisionManager.getRevision(id, branchPoint.getBranch().getID(), branchPoint.getTimeStamp(), initialChunkSize,
-        depth, true);
+    revisionManager.getRevision(id, branchPoint, initialChunkSize, depth, true);
   }
 
   public InternalCDOObject getObject(CDOID id)

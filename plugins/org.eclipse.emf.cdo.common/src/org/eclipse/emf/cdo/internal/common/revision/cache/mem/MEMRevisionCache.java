@@ -12,12 +12,13 @@
  */
 package org.eclipse.emf.cdo.internal.common.revision.cache.mem;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
-import org.eclipse.emf.cdo.internal.common.branch.CDOBranchImpl;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.internal.common.messages.Messages;
 import org.eclipse.emf.cdo.internal.common.revision.cache.EvictionEventImpl;
@@ -83,21 +84,21 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
     return null;
   }
 
-  public InternalCDORevision getRevision(CDOID id, int branchID, long timeStamp)
+  public InternalCDORevision getRevision(CDOID id, CDOBranchPoint branchPoint)
   {
     synchronized (cacheLists)
     {
       CacheList list = cacheLists.get(id);
       if (list != null)
       {
-        return list.getRevision(timeStamp);
+        return list.getRevision(branchPoint.getTimeStamp());
       }
     }
 
     return null;
   }
 
-  public InternalCDORevision getRevisionByVersion(CDOID id, int branchID, int version)
+  public InternalCDORevision getRevisionByVersion(CDOID id, CDOBranch branch, int version)
   {
     synchronized (cacheLists)
     {
@@ -147,7 +148,7 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
     }
   }
 
-  public InternalCDORevision removeRevision(CDOID id, int branchID, int version)
+  public InternalCDORevision removeRevision(CDOID id, CDOBranch branch, int version)
   {
     synchronized (cacheLists)
     {
@@ -186,7 +187,7 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
     CDOID id = key.getID();
     int version = key.getVersion();
 
-    InternalCDORevision revision = removeRevision(id, CDOBranchImpl.ILLEGAL_BRANCH_ID, version);
+    InternalCDORevision revision = removeRevision(id, null, version);
     if (revision == null)
     {
       IListener[] listeners = getListeners();
@@ -271,7 +272,7 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
         InternalCDORevision revision = ref.get();
         if (revision != null)
         {
-          long created = revision.getCreated();
+          long created = revision.getTimeStamp();
           if (created <= timeStamp)
           {
             long revised = revision.getRevised();

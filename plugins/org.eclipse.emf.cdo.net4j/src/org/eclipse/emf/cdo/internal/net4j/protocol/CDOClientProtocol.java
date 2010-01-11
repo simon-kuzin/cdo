@@ -11,6 +11,7 @@
 package org.eclipse.emf.cdo.internal.net4j.protocol;
 
 import org.eclipse.emf.cdo.CDOObject;
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
@@ -114,15 +115,15 @@ public class CDOClientProtocol extends SignalProtocol<CDOSession> implements CDO
     return send(new LoadChunkRequest(this, revision, feature, accessIndex, fetchIndex, fromIndex, toIndex));
   }
 
-  public List<InternalCDORevision> loadRevisions(Collection<CDOID> ids, int branchID, long timeStamp,
-      int referenceChunk, int prefetchDepth)
+  public List<InternalCDORevision> loadRevisions(Collection<CDOID> ids, CDOBranchPoint branchPoint, int referenceChunk,
+      int prefetchDepth)
   {
-    return send(new LoadRevisionsRequest(this, ids, branchID, timeStamp, referenceChunk, prefetchDepth));
+    return send(new LoadRevisionsRequest(this, ids, branchPoint, referenceChunk, prefetchDepth));
   }
 
-  public InternalCDORevision loadRevisionByVersion(CDOID id, int branchID, int version, int referenceChunk)
+  public InternalCDORevision loadRevisionByVersion(CDOID id, CDOBranch branch, int version, int referenceChunk)
   {
-    return send(new LoadRevisionByVersionRequest(this, id, branchID, version, referenceChunk));
+    return send(new LoadRevisionByVersionRequest(this, id, branch, version, referenceChunk));
   }
 
   public Collection<CDORefreshContext> syncRevisions(Map<CDOID, CDOIDAndVersion> idAndVersions, int initialChunkSize)

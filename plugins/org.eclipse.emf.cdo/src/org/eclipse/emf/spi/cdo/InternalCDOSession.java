@@ -132,6 +132,6 @@ public interface InternalCDOSession extends CDOSession, PackageProcessor, Packag
    * 
    * @since 3.0
    */
-  public void reviseRevisions(int branchID, long timeStamp, Set<CDOIDAndVersion> dirtyOIDs,
-      Collection<CDOID> detachedObjects, InternalCDOView excludedView);
+  public void reviseRevisions(CDOBranchPoint branchPoint, Set<CDOIDAndVersion> dirtyOIDs, Collection<CDOID> detachedObjects,
+      InternalCDOView excludedView);
 }

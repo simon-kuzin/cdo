@@ -21,14 +21,12 @@ import org.eclipse.emf.ecore.EClass;
 /**
  * @author Eike Stepper
  */
-public interface CDORevision
+public interface CDORevision extends CDOBranchPoint
 {
   /**
    * @since 3.0
    */
   public static final int MAIN_BRANCH_ID = CDOBranch.MAIN_BRANCH_ID;
-
-  public static final long UNSPECIFIED_DATE = CDOBranchPoint.UNSPECIFIED_DATE;
 
   /**
    * @since 2.0
@@ -54,14 +52,7 @@ public interface CDORevision
 
   public CDOID getID();
 
-  /**
-   * @since 3.0
-   */
-  public int getBranchID();
-
   public int getVersion();
-
-  public long getCreated();
 
   public long getRevised();
 

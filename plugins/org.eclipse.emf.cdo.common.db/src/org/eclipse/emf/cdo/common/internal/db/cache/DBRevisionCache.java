@@ -11,7 +11,9 @@
  **************************************************************************/
 package org.eclipse.emf.cdo.common.internal.db.cache;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchManager;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.internal.db.AbstractQueryStatement;
@@ -211,11 +213,9 @@ public class DBRevisionCache extends Lifecycle implements CDORevisionCache
    * 
    * @param id
    *          the id
-   * @param timeStamp
-   *          the time stamp
    * @return the revision by time
    */
-  public InternalCDORevision getRevision(final CDOID id, int branchID, final long timeStamp)
+  public InternalCDORevision getRevision(final CDOID id, final CDOBranchPoint branchPoint)
   {
     Connection connection = null;
 
@@ -244,6 +244,7 @@ public class DBRevisionCache extends Lifecycle implements CDORevisionCache
         @Override
         protected void setParameters(PreparedStatement preparedStatement) throws SQLException
         {
+          long timeStamp = branchPoint.getTimeStamp();
           preparedStatement.setString(1, id.toURIFragment());
           preparedStatement.setLong(2, timeStamp);
           preparedStatement.setLong(3, timeStamp);
@@ -279,7 +280,7 @@ public class DBRevisionCache extends Lifecycle implements CDORevisionCache
    *          the version to match the revision against
    * @return the revision by version
    */
-  public InternalCDORevision getRevisionByVersion(final CDOID id, int branchID, final int version)
+  public InternalCDORevision getRevisionByVersion(final CDOID id, CDOBranch branch, final int version)
   {
     Connection connection = null;
 
@@ -463,7 +464,7 @@ public class DBRevisionCache extends Lifecycle implements CDORevisionCache
       @Override
       protected void setParameters(PreparedStatement preparedStatement) throws SQLException
       {
-        preparedStatement.setLong(1, revision.getCreated() - 1);
+        preparedStatement.setLong(1, revision.getTimeStamp() - 1);
         preparedStatement.setString(2, revision.getID().toURIFragment());
         preparedStatement.setInt(3, revision.getVersion() - 1);
       }
@@ -504,7 +505,7 @@ public class DBRevisionCache extends Lifecycle implements CDORevisionCache
       {
         preparedStatement.setString(1, revision.getID().toURIFragment());
         preparedStatement.setInt(2, revision.getVersion());
-        preparedStatement.setLong(3, revision.getCreated());
+        preparedStatement.setLong(3, revision.getTimeStamp());
         preparedStatement.setLong(4, revision.getRevised());
         preparedStatement.setBytes(5, toBytes(revision));
         setResourceNodeValues(revision, preparedStatement);
@@ -549,13 +550,13 @@ public class DBRevisionCache extends Lifecycle implements CDORevisionCache
    *          the version of the revision to remove
    * @return the {@link InternalCDORevision} that was removed, <tt>null</tt> otherwise
    */
-  public InternalCDORevision removeRevision(CDOID id, int branchID, int version)
+  public InternalCDORevision removeRevision(CDOID id, CDOBranch branch, int version)
   {
     Connection connection = null;
 
     try
     {
-      final InternalCDORevision revision = getRevisionByVersion(id, branchID, version);
+      final InternalCDORevision revision = getRevisionByVersion(id, branch, version);
       if (revision != null)
       {
         connection = getConnection();

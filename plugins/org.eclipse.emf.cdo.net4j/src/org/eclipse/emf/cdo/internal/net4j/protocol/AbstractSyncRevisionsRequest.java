@@ -18,6 +18,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.internal.common.branch.CDOBranchPointImpl;
 import org.eclipse.emf.cdo.internal.net4j.bundle.OM;
 import org.eclipse.emf.cdo.internal.net4j.messages.Messages;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
@@ -82,7 +83,7 @@ public abstract class AbstractSyncRevisionsRequest extends CDOClientRequest<Coll
     {
       CDORevision revision = in.readCDORevision();
       long oldRevised = in.readLong();
-      CDOBranchPoint branchPoint = CDOBranchUtil.createBranchPoint(revision.getBranchID(), oldRevised);
+      CDOBranchPoint branchPoint = new CDOBranchPointImpl(revision.getBranch(), oldRevised);
 
       CDOIDAndVersion idAndVersion = idAndVersions.get(revision.getID());
       if (idAndVersion == null)

@@ -11,6 +11,8 @@
  */
 package org.eclipse.emf.cdo.internal.common.revision.cache.lru;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
@@ -127,13 +129,13 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
     return revision;
   }
 
-  public synchronized InternalCDORevision getRevision(CDOID id, int branchID, long timeStamp)
+  public synchronized InternalCDORevision getRevision(CDOID id, CDOBranchPoint branchPoint)
   {
     RevisionHolder holder = getHolder(id);
-    return getRevision(holder, timeStamp);
+    return getRevision(holder, branchPoint.getTimeStamp());
   }
 
-  public synchronized InternalCDORevision getRevisionByVersion(CDOID id, int branchID, int version)
+  public synchronized InternalCDORevision getRevisionByVersion(CDOID id, CDOBranch branch, int version)
   {
     RevisionHolder holder = getHolder(id);
     while (holder != null)
@@ -161,8 +163,8 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
     CheckUtil.checkArg(revision, "revision");
     if (TRACER.isEnabled())
     {
-      TRACER.format("Adding revision: {0}, created={1,date} {1,time}, revised={2,date} {2,time}, current={3}", //$NON-NLS-1$
-          revision, revision.getCreated(), revision.getRevised(), revision.isCurrent());
+      TRACER.format("Adding revision: {0}, timeStamp={1,date} {1,time}, revised={2,date} {2,time}, current={3}", //$NON-NLS-1$
+          revision, revision.getTimeStamp(), revision.getRevised(), revision.isCurrent());
     }
 
     int version = revision.getVersion();
@@ -195,7 +197,7 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
     return true;
   }
 
-  public synchronized InternalCDORevision removeRevision(CDOID id, int branchID, int version)
+  public synchronized InternalCDORevision removeRevision(CDOID id, CDOBranch branch, int version)
   {
     InternalCDORevision revision = null;
     RevisionHolder holder = getHolder(id);

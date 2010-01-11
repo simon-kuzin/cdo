@@ -472,7 +472,7 @@ public class TransactionCommitContextImpl implements InternalCommitContext
     InternalRepository repository = transaction.getRepository();
     InternalCDORevisionManager revisionManager = repository.getRevisionManager();
 
-    CDORevision originObject = revisionManager.getRevisionByVersion(id, transaction.getBranch().getID(), version,
+    CDORevision originObject = revisionManager.getRevisionByVersion(id, transaction.getBranch(), version,
         CDORevision.UNCHUNKED, loadOnDemand);
     if (originObject != null)
     {
@@ -662,8 +662,8 @@ public class TransactionCommitContextImpl implements InternalCommitContext
       monitor.begin(detachedObjects.length);
       for (CDOID id : detachedObjects)
       {
-        InternalCDORevision revision = (InternalCDORevision)revisionManager.getRevision(id, transaction.getBranch()
-            .getID(), CDORevision.UNSPECIFIED_DATE, CDORevision.UNCHUNKED, CDORevision.DEPTH_NONE, false);
+        InternalCDORevision revision = (InternalCDORevision)revisionManager.getRevision(id, transaction,
+            CDORevision.UNCHUNKED, CDORevision.DEPTH_NONE, false);
         if (revision != null)
         {
           detachedRevisions.add(revision);

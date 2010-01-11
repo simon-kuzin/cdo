@@ -791,7 +791,7 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
       // Compute a revision delta and register it with the tx
       CDOBranch branch = transaction.getBranch();
       int version = revision.getVersion() - 1;
-      CDORevision originalRevision = revisionManager.getRevisionByVersion(id, branch.getID(), version, -1, true);
+      CDORevision originalRevision = revisionManager.getRevisionByVersion(id, branch, version, -1, true);
       CDORevisionDelta revisionDelta = CDORevisionDeltaUtil.create(originalRevision, revision);
       transaction.registerRevisionDelta(revisionDelta);
       transaction.registerDirty(object, null);
@@ -862,7 +862,7 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
       // Adjust revision
       revision.setID(id);
       revision.setTransactional(false);
-      revision.setCreated(data.getBranchPoint().getTimeStamp());
+      revision.setBranchPoint(data.getBranchPoint());
 
       // if (useDeltas)
       // {

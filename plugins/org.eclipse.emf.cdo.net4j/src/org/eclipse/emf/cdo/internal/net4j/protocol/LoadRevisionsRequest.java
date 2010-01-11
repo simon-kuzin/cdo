@@ -11,6 +11,7 @@
 package org.eclipse.emf.cdo.internal.net4j.protocol;
 
 import org.eclipse.emf.cdo.common.CDOFetchRule;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
@@ -35,23 +36,20 @@ public class LoadRevisionsRequest extends CDOClientRequest<List<InternalCDORevis
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, LoadRevisionsRequest.class);
 
-  protected Collection<CDOID> ids;
+  private Collection<CDOID> ids;
 
-  protected int branchID;
+  private CDOBranchPoint branchPoint;
 
-  private long timeStamp;
+  private int referenceChunk;
 
-  protected int referenceChunk;
+  private int prefetchDepth;
 
-  protected int prefetchDepth;
-
-  public LoadRevisionsRequest(CDOClientProtocol protocol, Collection<CDOID> ids, int branchID, long timeStamp,
+  public LoadRevisionsRequest(CDOClientProtocol protocol, Collection<CDOID> ids, CDOBranchPoint branchPoint,
       int referenceChunk, int prefetchDepth)
   {
     super(protocol, CDOProtocolConstants.SIGNAL_LOAD_REVISIONS);
     this.ids = ids;
-    this.branchID = branchID;
-    this.timeStamp = timeStamp;
+    this.branchPoint = branchPoint;
     this.referenceChunk = referenceChunk;
     this.prefetchDepth = prefetchDepth;
   }
@@ -95,8 +93,7 @@ public class LoadRevisionsRequest extends CDOClientRequest<List<InternalCDORevis
       out.writeCDOID(id);
     }
 
-    out.writeInt(branchID);
-    out.writeLong(timeStamp);
+    out.writeCDOBranchPoint(branchPoint);
 
     CDOFetchRuleManager ruleManager = getSession().getFetchRuleManager();
     List<CDOFetchRule> fetchRules = ruleManager.getFetchRules(ids);
@@ -163,7 +160,7 @@ public class LoadRevisionsRequest extends CDOClientRequest<List<InternalCDORevis
   public String toString()
   {
     return MessageFormat.format(
-        "LoadRevisionsRequest(ids={0}, branchID={1}, timeStamp={2}, referenceChunk={3}, prefetchDepth={4})", ids,
-        branchID, timeStamp, referenceChunk, prefetchDepth);
+        "LoadRevisionsRequest(ids={0}, branchPoint={1}, referenceChunk={2}, prefetchDepth={3})", ids, branchPoint,
+        referenceChunk, prefetchDepth);
   }
 }

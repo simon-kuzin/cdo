@@ -190,7 +190,7 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
     rev = getRevisionByVersion(list, version - 1);
     if (rev != null)
     {
-      rev.setRevised(revision.getCreated() - 1);
+      rev.setRevised(revision.getTimeStamp() - 1);
     }
 
     if (revision.isResource())
@@ -201,7 +201,7 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
       String revisionName = (String)revision.data().get(feature, 0);
 
       IStoreAccessor accessor = StoreThreadLocal.getAccessor();
-      CDOID resourceID = accessor.readResourceID(revisionFolder, revisionName, revision.getCreated());
+      CDOID resourceID = accessor.readResourceID(revisionFolder, revisionName, revision.getTimeStamp());
       if (!CDOIDUtil.isNull(resourceID))
       {
         throw new IllegalStateException("Duplicate resource: " + revisionName + " (folderID=" + revisionFolder + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

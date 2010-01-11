@@ -11,6 +11,7 @@
 package org.eclipse.emf.cdo.internal.server.embedded;
 
 import org.eclipse.emf.cdo.CDOObject;
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
@@ -134,13 +135,13 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
     throw new UnsupportedOperationException();
   }
 
-  public InternalCDORevision loadRevisionByVersion(CDOID id, int branchID, int version, int referenceChunk)
+  public InternalCDORevision loadRevisionByVersion(CDOID id, CDOBranch branch, int version, int referenceChunk)
   {
     try
     {
       InternalSession session = serverSessionProtocol.getSession();
       StoreThreadLocal.setSession(session);
-      return (InternalCDORevision)repository.getRevisionManager().getRevisionByVersion(id, branchID, version,
+      return (InternalCDORevision)repository.getRevisionManager().getRevisionByVersion(id, branch, version,
           referenceChunk, true);
     }
     finally
@@ -149,8 +150,8 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
     }
   }
 
-  public List<InternalCDORevision> loadRevisions(Collection<CDOID> ids, int branchID, long timeStamp,
-      int referenceChunk, int prefetchDepth)
+  public List<InternalCDORevision> loadRevisions(Collection<CDOID> ids, CDOBranchPoint branchPoint, int referenceChunk,
+      int prefetchDepth)
   {
     try
     {
@@ -158,7 +159,7 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
       StoreThreadLocal.setSession(session);
       @SuppressWarnings("unchecked")
       List<InternalCDORevision> revisions = (List<InternalCDORevision>)(List<?>)repository.getRevisionManager()
-          .getRevisions(ids, branchID, timeStamp, referenceChunk, prefetchDepth, true);
+          .getRevisions(ids, branchPoint, referenceChunk, prefetchDepth, true);
       return revisions;
     }
     finally

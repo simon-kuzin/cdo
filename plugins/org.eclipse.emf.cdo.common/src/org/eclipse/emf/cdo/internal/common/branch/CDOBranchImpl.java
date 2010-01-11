@@ -30,11 +30,14 @@ public class CDOBranchImpl implements CDOBranch
 
   private Object baseOrBranchManager;
 
+  private CDOBranchPoint head;
+
   public CDOBranchImpl(int id, String name, CDOBranchPoint base)
   {
     this.id = id;
     this.name = name;
     baseOrBranchManager = base;
+    head = new CDOBranchPointImpl(this);
   }
 
   public CDOBranchImpl(int id, InternalCDOBranchManager branchManager)
@@ -69,6 +72,11 @@ public class CDOBranchImpl implements CDOBranch
   {
     loadIdNeeded();
     return (CDOBranchPoint)baseOrBranchManager;
+  }
+
+  public CDOBranchPoint getHead()
+  {
+    return head;
   }
 
   public CDOBranch createBranch(String name, long timeStamp)

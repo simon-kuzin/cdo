@@ -10,6 +10,8 @@
  */
 package org.eclipse.emf.cdo.server.internal.hibernate.tuplizer;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
@@ -121,14 +123,29 @@ public class CDORevisionProxy implements HibernateProxy, InternalCDORevision, Se
     li.getRevision().setID(id);
   }
 
-  public int getBranchID()
+  public CDOBranch getBranch()
   {
-    return li.getRevision().getBranchID();
+    return li.getRevision().getBranch();
   }
 
-  public void setBranchID(int branchID)
+  public long getTimeStamp()
   {
-    li.getRevision().setBranchID(branchID);
+    return li.getRevision().getTimeStamp();
+  }
+
+  public boolean isHistorical()
+  {
+    return li.getRevision().isHistorical();
+  }
+
+  public void setBranchPoint(CDOBranchPoint branchPoint)
+  {
+    li.getRevision().setBranchPoint(branchPoint);
+  }
+
+  public void setCreated(long timeStamp)
+  {
+    li.getRevision().setCreated(timeStamp);
   }
 
   public int getVersion()
@@ -159,16 +176,6 @@ public class CDORevisionProxy implements HibernateProxy, InternalCDORevision, Se
   public void setResourceID(CDOID resourceID)
   {
     li.getRevision().setResourceID(resourceID);
-  }
-
-  public long getCreated()
-  {
-    return li.getRevision().getCreated();
-  }
-
-  public void setCreated(long created)
-  {
-    li.getRevision().setCreated(created);
   }
 
   public long getRevised()

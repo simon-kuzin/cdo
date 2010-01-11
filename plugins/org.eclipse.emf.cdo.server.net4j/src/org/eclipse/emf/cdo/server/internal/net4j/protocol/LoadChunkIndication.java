@@ -11,13 +11,13 @@
  */
 package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
-import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.internal.net4j.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
@@ -39,6 +39,8 @@ public class LoadChunkIndication extends CDOReadIndication
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, LoadChunkIndication.class);
 
   private CDOID id;
+
+  private CDOBranch branch;
 
   private int version;
 
@@ -62,10 +64,16 @@ public class LoadChunkIndication extends CDOReadIndication
       TRACER.format("Read revision ID: {0}", id); //$NON-NLS-1$
     }
 
+    branch = in.readCDOBranch();
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("Read  branch: {0}", branch); //$NON-NLS-1$
+    }
+
     version = in.readInt();
     if (TRACER.isEnabled())
     {
-      TRACER.format("Read revision version: {0}", version); //$NON-NLS-1$
+      TRACER.format("Read  version: {0}", version); //$NON-NLS-1$
     }
 
     EClass eClass = (EClass)in.readCDOClassifierRefAndResolve();
@@ -95,8 +103,8 @@ public class LoadChunkIndication extends CDOReadIndication
     InternalRepository repository = getRepository();
     InternalCDORevisionManager revisionManager = repository.getRevisionManager();
 
-    InternalCDORevision revision = (InternalCDORevision)revisionManager.getRevisionByVersion(id, version,
-        0, CDORevision.DEPTH_NONE, true);
+    InternalCDORevision revision = (InternalCDORevision)revisionManager.getRevisionByVersion(id, branch, version, 0,
+        true);
     repository.ensureChunk(revision, feature, fromIndex, toIndex + 1);
 
     CDOType type = CDOModelUtil.getType(feature);

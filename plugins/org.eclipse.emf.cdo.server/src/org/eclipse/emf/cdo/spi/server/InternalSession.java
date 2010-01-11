@@ -49,6 +49,6 @@ public interface InternalSession extends ISession, CDOIDProvider, CDOCommonSessi
   public void handleCommitNotification(CDOBranchPoint branchPoint, CDOPackageUnit[] packageUnits,
       List<CDOIDAndVersion> dirtyIDs, List<CDOID> detachedObjects, List<CDORevisionDelta> deltas);
 
-  public void collectContainedRevisions(InternalCDORevision revision, int branchID, long timeStamp, int referenceChunk,
+  public void collectContainedRevisions(InternalCDORevision revision, CDOBranchPoint branchPoint, int referenceChunk,
       Set<CDOID> revisions, List<CDORevision> additionalRevisions);
 }

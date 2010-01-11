@@ -10,6 +10,7 @@
  **************************************************************************/
 package org.eclipse.emf.cdo.internal.net4j.protocol;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
@@ -31,18 +32,18 @@ public class LoadRevisionByVersionRequest extends CDOClientRequest<InternalCDORe
 
   private CDOID id;
 
-  private int branchID;
+  private CDOBranch branch;
 
   private int version;
 
   private int referenceChunk;
 
-  public LoadRevisionByVersionRequest(CDOClientProtocol protocol, CDOID id, int branchID, int version,
+  public LoadRevisionByVersionRequest(CDOClientProtocol protocol, CDOID id, CDOBranch branch, int version,
       int referenceChunk)
   {
     super(protocol, CDOProtocolConstants.SIGNAL_LOAD_REVISION_BY_VERSION);
     this.id = id;
-    this.branchID = branchID;
+    this.branch = branch;
     this.version = version;
     this.referenceChunk = referenceChunk;
   }
@@ -58,10 +59,10 @@ public class LoadRevisionByVersionRequest extends CDOClientRequest<InternalCDORe
     out.writeCDOID(id);
     if (TRACER.isEnabled())
     {
-      TRACER.format("Writing branchID: {0}", branchID); //$NON-NLS-1$
+      TRACER.format("Writing branch: {0}", branch); //$NON-NLS-1$
     }
 
-    out.writeInt(branchID);
+    out.writeCDOBranch(branch);
     if (TRACER.isEnabled())
     {
       TRACER.format("Writing version: {0}", version); //$NON-NLS-1$
@@ -85,7 +86,7 @@ public class LoadRevisionByVersionRequest extends CDOClientRequest<InternalCDORe
   @Override
   public String toString()
   {
-    return MessageFormat.format("LoadRevisionByVersionRequest(id={0}, branchID={1}, version={2}, referenceChunk={3})",
-        id, branchID, version, referenceChunk);
+    return MessageFormat.format("LoadRevisionByVersionRequest(id={0}, branch={1}, version={2}, referenceChunk={3})",
+        id, branch, version, referenceChunk);
   }
 }

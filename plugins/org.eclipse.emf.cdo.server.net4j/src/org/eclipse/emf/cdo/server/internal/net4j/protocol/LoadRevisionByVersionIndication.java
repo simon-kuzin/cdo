@@ -10,6 +10,7 @@
  */
 package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
@@ -31,7 +32,7 @@ public class LoadRevisionByVersionIndication extends CDOReadIndication
 
   private CDOID id;
 
-  private int branchID;
+  private CDOBranch branch;
 
   private int version;
 
@@ -51,10 +52,10 @@ public class LoadRevisionByVersionIndication extends CDOReadIndication
       TRACER.format("Read id: {0}", id); //$NON-NLS-1$
     }
 
-    branchID = in.readInt();
+    branch = in.readCDOBranch();
     if (TRACER.isEnabled())
     {
-      TRACER.format("Read branchID: {0}", branchID); //$NON-NLS-1$
+      TRACER.format("Read branch: {0}", branch); //$NON-NLS-1$
     }
 
     version = in.readInt();
@@ -73,7 +74,7 @@ public class LoadRevisionByVersionIndication extends CDOReadIndication
   @Override
   protected void responding(CDODataOutput out) throws IOException
   {
-    CDORevision revision = getRepository().getRevisionManager().getRevisionByVersion(id, branchID, version,
+    CDORevision revision = getRepository().getRevisionManager().getRevisionByVersion(id, branch, version,
         referenceChunk, true);
     out.writeCDORevision(revision, referenceChunk);
   }

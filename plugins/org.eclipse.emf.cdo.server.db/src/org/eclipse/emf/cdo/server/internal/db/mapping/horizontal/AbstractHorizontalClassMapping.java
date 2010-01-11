@@ -344,7 +344,7 @@ public abstract class AbstractHorizontalClassMapping implements IClassMapping
       }
       else
       {
-        long revised = revision.getCreated() - 1;
+        long revised = revision.getTimeStamp() - 1;
         reviseObject(accessor, id, revised);
         for (IListMapping mapping : getListMappings())
         {
