@@ -12,6 +12,7 @@
  */
 package org.eclipse.emf.cdo.internal.common.revision.delta;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
@@ -44,7 +45,9 @@ public class CDORevisionDeltaImpl implements InternalCDORevisionDelta
 {
   private EClass eClass;
 
-  private CDOID cdoID;
+  private CDOID id;
+
+  private CDOBranch branch;
 
   private int version;
 
@@ -53,14 +56,16 @@ public class CDORevisionDeltaImpl implements InternalCDORevisionDelta
   public CDORevisionDeltaImpl(CDORevision revision)
   {
     eClass = revision.getEClass();
-    cdoID = revision.getID();
-    version = revision.getVersion() - 1;
+    id = revision.getID();
+    branch = revision.getBranch();
+    version = revision.getVersion();
   }
 
   public CDORevisionDeltaImpl(CDORevisionDelta revisionDelta)
   {
     eClass = revisionDelta.getEClass();
-    cdoID = revisionDelta.getID();
+    id = revisionDelta.getID();
+    branch = revisionDelta.getBranch();
     version = revisionDelta.getVersion();
 
     for (CDOFeatureDelta delta : revisionDelta.getFeatureDeltas())
@@ -77,7 +82,8 @@ public class CDORevisionDeltaImpl implements InternalCDORevisionDelta
     }
 
     eClass = originRevision.getEClass();
-    cdoID = originRevision.getID();
+    id = originRevision.getID();
+    branch = originRevision.getBranch();
     version = originRevision.getVersion();
 
     compare(originRevision, dirtyRevision);
@@ -96,7 +102,8 @@ public class CDORevisionDeltaImpl implements InternalCDORevisionDelta
   public CDORevisionDeltaImpl(CDODataInput in) throws IOException
   {
     eClass = (EClass)in.readCDOClassifierRefAndResolve();
-    cdoID = in.readCDOID();
+    id = in.readCDOID();
+    branch = in.readCDOBranch();
     version = in.readInt();
     int size = in.readInt();
     for (int i = 0; i < size; i++)
@@ -109,7 +116,8 @@ public class CDORevisionDeltaImpl implements InternalCDORevisionDelta
   public void write(CDODataOutput out) throws IOException
   {
     out.writeCDOClassifierRef(eClass);
-    out.writeCDOID(cdoID);
+    out.writeCDOID(id);
+    out.writeCDOBranch(branch);
     out.writeInt(version);
     out.writeInt(featureDeltas.size());
     for (CDOFeatureDelta featureDelta : featureDeltas.values())
@@ -125,7 +133,17 @@ public class CDORevisionDeltaImpl implements InternalCDORevisionDelta
 
   public CDOID getID()
   {
-    return cdoID;
+    return id;
+  }
+
+  public CDOBranch getBranch()
+  {
+    return branch;
+  }
+
+  public void setBranch(CDOBranch branch)
+  {
+    this.branch = branch;
   }
 
   public int getVersion()
@@ -145,7 +163,8 @@ public class CDORevisionDeltaImpl implements InternalCDORevisionDelta
 
   public void apply(CDORevision revision)
   {
-    ((InternalCDORevision)revision).setVersion(version + 1);
+    ((InternalCDORevision)revision).setBranchPoint(branch.getPoint(revision.getTimeStamp()));
+    ((InternalCDORevision)revision).setVersion(version);
     for (CDOFeatureDelta featureDelta : featureDeltas.values())
     {
       ((CDOFeatureDeltaImpl)featureDelta).apply(revision);
@@ -290,6 +309,6 @@ public class CDORevisionDeltaImpl implements InternalCDORevisionDelta
   @Override
   public String toString()
   {
-    return MessageFormat.format("CDORevisionDelta[{0}@{1}v{2}]", eClass.getName(), cdoID, version);
+    return MessageFormat.format("CDORevisionDelta[{0}@{1}b{2}v{3}]", eClass.getName(), id, branch, version);
   }
 }

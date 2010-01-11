@@ -11,6 +11,7 @@
  */
 package org.eclipse.emf.cdo.common.revision.delta;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 
@@ -30,6 +31,11 @@ public interface CDORevisionDelta
   public EClass getEClass();
 
   public CDOID getID();
+
+  /**
+   * @since 3.0
+   */
+  public CDOBranch getBranch();
 
   /**
    * @since 3.0

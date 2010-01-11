@@ -10,6 +10,7 @@
  */
 package org.eclipse.emf.cdo.spi.common.revision;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
@@ -24,6 +25,11 @@ public interface InternalCDORevisionDelta extends CDORevisionDelta
   public void addFeatureDelta(CDOFeatureDelta delta);
 
   public void adjustReferences(CDOReferenceAdjuster idMappings);
+
+  /**
+   * @since 3.0
+   */
+  public void setBranch(CDOBranch branch);
 
   /**
    * @since 3.0
