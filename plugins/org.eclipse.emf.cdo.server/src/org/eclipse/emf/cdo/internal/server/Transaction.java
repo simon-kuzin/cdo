@@ -69,6 +69,15 @@ public class Transaction extends View implements InternalTransaction
     };
   }
 
+  @Override
+  protected void validateTimeStamp(long timeStamp) throws IllegalArgumentException
+  {
+    if (timeStamp != UNSPECIFIED_DATE)
+    {
+      throw new IllegalArgumentException("Changing the target time is not supported by transactions");
+    }
+  }
+
   private void checkOpen()
   {
     if (isClosed())

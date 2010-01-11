@@ -583,8 +583,8 @@ public class Repository extends Container<Object> implements InternalRepository
 
   public Object[] getElements()
   {
-    final Object[] elements = { packageRegistry, sessionManager, revisionManager, queryManager, notificationManager,
-        commitManager, lockManager, store };
+    final Object[] elements = { packageRegistry, branchManager, revisionManager, sessionManager, queryManager,
+        notificationManager, commitManager, lockManager, store };
     return elements;
   }
 
@@ -817,6 +817,8 @@ public class Repository extends Container<Object> implements InternalRepository
     LifecycleUtil.activate(lockManager);
 
     lastCommitTimeStamp = getCreationTime();
+    branchManager.initMainBranch(lastCommitTimeStamp);
+    LifecycleUtil.activate(branchManager);
     if (store.isFirstTime())
     {
       initSystemPackages();
@@ -838,6 +840,7 @@ public class Repository extends Container<Object> implements InternalRepository
     LifecycleUtil.deactivate(revisionManager);
     LifecycleUtil.deactivate(sessionManager);
     LifecycleUtil.deactivate(store);
+    LifecycleUtil.deactivate(branchManager);
     LifecycleUtil.deactivate(packageRegistry);
     super.doDeactivate();
   }

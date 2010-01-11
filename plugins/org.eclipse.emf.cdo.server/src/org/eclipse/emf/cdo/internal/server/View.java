@@ -108,9 +108,15 @@ public class View implements InternalView
 
   private void setBranchPoint(CDOBranchPoint branchPoint)
   {
-    branchPoint = new CDOBranchPointImpl(branchPoint.getBranch(), branchPoint.getTimeStamp());
-    repository.validateTimeStamp(branchPoint.getTimeStamp());
+    long timeStamp = branchPoint.getTimeStamp();
+    branchPoint = new CDOBranchPointImpl(branchPoint.getBranch(), timeStamp);
+    validateTimeStamp(timeStamp);
     this.branchPoint = branchPoint;
+  }
+
+  protected void validateTimeStamp(long timeStamp) throws IllegalArgumentException
+  {
+    repository.validateTimeStamp(timeStamp);
   }
 
   /**

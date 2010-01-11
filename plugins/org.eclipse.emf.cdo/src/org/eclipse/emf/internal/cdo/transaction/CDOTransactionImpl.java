@@ -181,7 +181,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
   }
 
   @Override
-  protected void checkTimeStamp(long timeStamp) throws IllegalArgumentException
+  protected void validateTimeStamp(long timeStamp) throws IllegalArgumentException
   {
     if (timeStamp != UNSPECIFIED_DATE)
     {

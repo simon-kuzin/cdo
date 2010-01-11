@@ -303,7 +303,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
   public boolean setBranchPoint(CDOBranch branch, long timeStamp)
   {
     checkActive();
-    checkTimeStamp(timeStamp);
+    validateTimeStamp(timeStamp);
     CDOBranchPoint branchPoint = new CDOBranchPointImpl(branch, timeStamp);
     if (branchPoint.equals(this.branchPoint))
     {
@@ -337,9 +337,24 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     return true;
   }
 
-  protected void checkTimeStamp(long timeStamp) throws IllegalArgumentException
+  protected void validateTimeStamp(long timeStamp) throws IllegalArgumentException
   {
-    // All time stamps are valid. CDOTransactionImpl will override.
+    if (timeStamp == UNSPECIFIED_DATE)
+    {
+      return;
+    }
+
+    long creationTimeStamp = getSession().getRepositoryInfo().getCreationTime();
+    if (timeStamp < creationTimeStamp)
+    {
+      throw new IllegalArgumentException("timeStamp < repository creation time: " + creationTimeStamp); //$NON-NLS-1$
+    }
+
+    long currentTimeStamp = System.currentTimeMillis();
+    if (timeStamp > currentTimeStamp)
+    {
+      throw new IllegalArgumentException("timeStamp > current time: " + currentTimeStamp); //$NON-NLS-1$
+    }
   }
 
   private List<InternalCDOObject> getInvalidObjects(long timeStamp)
