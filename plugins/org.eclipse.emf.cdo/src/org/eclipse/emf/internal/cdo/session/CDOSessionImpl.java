@@ -564,9 +564,9 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     handleCommitNotification(branchPoint, newPackageUnits, dirtyOIDs, detachedObjects, null, null, true, false);
   }
 
-  public void handleBranchNotification(int branchID)
+  public void handleBranchNotification(CDOBranch branch)
   {
-    getBranchManager().handleBranchCreated(branchID);
+    getBranchManager().handleBranchCreated(branch);
   }
 
   /**

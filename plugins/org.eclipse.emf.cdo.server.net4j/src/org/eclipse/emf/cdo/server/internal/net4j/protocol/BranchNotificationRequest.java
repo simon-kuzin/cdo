@@ -12,6 +12,7 @@
  */
 package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 
@@ -22,17 +23,17 @@ import java.io.IOException;
  */
 public class BranchNotificationRequest extends CDOServerRequest
 {
-  private int branchID;
+  private CDOBranch branch;
 
-  public BranchNotificationRequest(CDOServerProtocol serverProtocol, int branchID)
+  public BranchNotificationRequest(CDOServerProtocol serverProtocol, CDOBranch branch)
   {
     super(serverProtocol, CDOProtocolConstants.SIGNAL_BRANCH_NOTIFICATION);
-    this.branchID = branchID;
+    this.branch = branch;
   }
 
   @Override
   protected void requesting(CDODataOutput out) throws IOException
   {
-    out.writeInt(branchID);
+    out.writeCDOBranch(branch);
   }
 }

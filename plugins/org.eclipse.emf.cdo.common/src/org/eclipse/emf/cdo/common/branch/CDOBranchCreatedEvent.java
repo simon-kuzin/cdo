@@ -20,5 +20,5 @@ public interface CDOBranchCreatedEvent extends IEvent
 {
   public CDOBranchManager getSource();
 
-  public int getBranchID();
+  public CDOBranch getBranch();
 }

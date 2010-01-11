@@ -225,7 +225,7 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
     return revision;
   }
 
-  public synchronized boolean removeRevisions(CDOID id, int branchID)
+  public synchronized boolean removeRevisions(CDOID id, CDOBranch branch)
   {
     RevisionHolder lookupHolder = getHolder(id);
     RevisionHolder holder = lookupHolder;

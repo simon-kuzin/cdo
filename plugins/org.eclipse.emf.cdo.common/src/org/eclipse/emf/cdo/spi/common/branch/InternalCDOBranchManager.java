@@ -33,7 +33,7 @@ public interface InternalCDOBranchManager extends CDOBranchManager, ILifecycle
 
   public CDOBranch createBranch(String name, CDOBranch baseBranch, long baseTimeStamp);
 
-  public void handleBranchCreated(int branchID);
+  public void handleBranchCreated(CDOBranch branch);
 
   /**
    * @author Eike Stepper

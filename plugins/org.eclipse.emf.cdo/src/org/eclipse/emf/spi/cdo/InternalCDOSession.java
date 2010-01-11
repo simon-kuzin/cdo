@@ -10,6 +10,7 @@
  */
 package org.eclipse.emf.spi.cdo;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
@@ -112,7 +113,7 @@ public interface InternalCDOSession extends CDOSession, PackageProcessor, Packag
   /**
    * @since 3.0
    */
-  public void handleBranchNotification(int branchID);
+  public void handleBranchNotification(CDOBranch branch);
 
   /**
    * @since 3.0

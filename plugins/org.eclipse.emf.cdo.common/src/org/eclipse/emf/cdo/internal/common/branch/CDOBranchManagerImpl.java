@@ -56,9 +56,9 @@ public class CDOBranchManagerImpl extends Lifecycle implements InternalCDOBranch
     mainBranch = new CDOBranchImpl.Main(this, repositoryCreationTime);
   }
 
-  public void handleBranchCreated(int branchID)
+  public void handleBranchCreated(CDOBranch branch)
   {
-    fireEvent(new BranchCreatedEvent(this, branchID));
+    fireEvent(new BranchCreatedEvent(branch));
   }
 
   public CDOBranch getMainBranch()
@@ -100,7 +100,7 @@ public class CDOBranchManagerImpl extends Lifecycle implements InternalCDOBranch
       putBranch(branch);
     }
 
-    handleBranchCreated(branchID);
+    handleBranchCreated(branch);
     return branch;
   }
 
@@ -139,12 +139,12 @@ public class CDOBranchManagerImpl extends Lifecycle implements InternalCDOBranch
   {
     private static final long serialVersionUID = 1L;
 
-    private int branchID;
+    private CDOBranch branch;
 
-    public BranchCreatedEvent(CDOBranchManager source, int branchID)
+    public BranchCreatedEvent(CDOBranch branch)
     {
-      super(source);
-      this.branchID = branchID;
+      super(branch.getBranchManager());
+      this.branch = branch;
     }
 
     @Override
@@ -153,9 +153,9 @@ public class CDOBranchManagerImpl extends Lifecycle implements InternalCDOBranch
       return (CDOBranchManager)super.getSource();
     }
 
-    public int getBranchID()
+    public CDOBranch getBranch()
     {
-      return branchID;
+      return branch;
     }
   }
 }
