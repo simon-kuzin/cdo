@@ -13,6 +13,8 @@
 package org.eclipse.emf.cdo.server.internal.db;
 
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
@@ -166,7 +168,8 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     return result;
   }
 
-  public InternalCDORevision readRevision(CDOID id, long timeStamp, int listChunk, CDORevisionCacheAdder cache)
+  public InternalCDORevision readRevision(CDOID id, CDOBranchPoint branchPoint, int listChunk,
+      CDORevisionCacheAdder cache)
   {
     IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
     if (!mappingStrategy.hasAuditSupport())
@@ -176,14 +179,14 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
 
     if (TRACER.isEnabled())
     {
-      TRACER.format("Selecting revision: {0}, timestamp={1,date} {1,time}", id, timeStamp); //$NON-NLS-1$
+      TRACER.format("Selecting revision {0} from {1}", id, branchPoint); //$NON-NLS-1$
     }
 
     EClass eClass = getObjectType(id);
     InternalCDORevision revision = getStore().createRevision(eClass, id);
 
     IClassMappingAuditSupport mapping = (IClassMappingAuditSupport)mappingStrategy.getClassMapping(eClass);
-    if (mapping.readRevisionByTime(this, revision, timeStamp, listChunk))
+    if (mapping.readRevision(this, revision, branchPoint, listChunk))
     {
       return revision;
     }
@@ -192,7 +195,8 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     return null;
   }
 
-  public InternalCDORevision readRevisionByVersion(CDOID id, int version, int listChunk, CDORevisionCacheAdder cache)
+  public InternalCDORevision readRevisionByVersion(CDOID id, CDOBranch branch, int version, int listChunk,
+      CDORevisionCacheAdder cache)
   {
     IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
 
@@ -210,7 +214,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
       }
 
       // if audit support is present, just use the audit method
-      success = ((IClassMappingAuditSupport)mapping).readRevisionByVersion(this, revision, version, listChunk);
+      success = ((IClassMappingAuditSupport)mapping).readRevisionByVersion(this, revision, branch, version, listChunk);
     }
     else
     {
@@ -276,7 +280,8 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
   }
 
   @Override
-  protected void writeRevisionDeltas(InternalCDORevisionDelta[] revisionDeltas, long created, OMMonitor monitor)
+  protected void writeRevisionDeltas(InternalCDORevisionDelta[] revisionDeltas, CDOBranch branch, long created,
+      OMMonitor monitor)
   {
     IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
 
@@ -308,7 +313,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
   }
 
   @Override
-  protected void writeRevisions(InternalCDORevision[] revisions, OMMonitor monitor)
+  protected void writeRevisions(InternalCDORevision[] revisions, CDOBranch branch, OMMonitor monitor)
   {
     try
     {
@@ -337,7 +342,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
   }
 
   @Override
-  protected void detachObjects(CDOID[] detachedObjects, long revised, OMMonitor monitor)
+  protected void detachObjects(CDOID[] detachedObjects, CDOBranch branch, long revised, OMMonitor monitor)
   {
     try
     {

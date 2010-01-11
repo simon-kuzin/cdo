@@ -12,6 +12,8 @@
  */
 package org.eclipse.emf.cdo.server.internal.db.mapping.horizontal;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
@@ -182,9 +184,10 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
     sqlSelectAllObjectIds = builder.toString();
   }
 
-  public boolean readRevisionByTime(IDBStoreAccessor accessor, InternalCDORevision revision, long timeStamp,
+  public boolean readRevision(IDBStoreAccessor accessor, InternalCDORevision revision, CDOBranchPoint branchPoint,
       int listChunk)
   {
+    long timeStamp = branchPoint.getTimeStamp();
     PreparedStatement pstmt = null;
 
     try
@@ -215,8 +218,8 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
     }
   }
 
-  public boolean readRevisionByVersion(IDBStoreAccessor accessor, InternalCDORevision revision, int version,
-      int listChunk)
+  public boolean readRevisionByVersion(IDBStoreAccessor accessor, InternalCDORevision revision, CDOBranch branch,
+      int version, int listChunk)
   {
     PreparedStatement pstmt = null;
     try

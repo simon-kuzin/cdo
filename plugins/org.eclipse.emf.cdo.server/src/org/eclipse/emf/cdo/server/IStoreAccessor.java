@@ -12,6 +12,7 @@ package org.eclipse.emf.cdo.server;
 
 import org.eclipse.emf.cdo.common.CDOCommonView;
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
@@ -89,7 +90,8 @@ public interface IStoreAccessor extends IQueryHandlerProvider, BranchLoader
    * 
    * @since 3.0
    */
-  public InternalCDORevision readRevision(CDOID id, long timeStamp, int listChunk, CDORevisionCacheAdder cache);
+  public InternalCDORevision readRevision(CDOID id, CDOBranchPoint branchPoint, int listChunk,
+      CDORevisionCacheAdder cache);
 
   /**
    * Reads a revision with the given version from the back-end. This method will only be called by the framework if
@@ -97,7 +99,8 @@ public interface IStoreAccessor extends IQueryHandlerProvider, BranchLoader
    * 
    * @since 3.0
    */
-  public InternalCDORevision readRevisionByVersion(CDOID id, int version, int listChunk, CDORevisionCacheAdder cache);
+  public InternalCDORevision readRevisionByVersion(CDOID id, CDOBranch branch, int version, int listChunk,
+      CDORevisionCacheAdder cache);
 
   /**
    * Returns the <code>CDOID</code> of the resource node with the given folderID and name if a resource with this

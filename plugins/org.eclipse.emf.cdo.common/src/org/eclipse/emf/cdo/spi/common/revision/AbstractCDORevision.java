@@ -99,7 +99,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
       }
 
       classInfo = CDOModelUtil.getClassInfo(eClass);
-      version = 0;
+      version = UNSPECIFIED_VERSION;
       revised = UNSPECIFIED_DATE;
       resourceID = CDOID.NULL;
       containerID = CDOID.NULL;

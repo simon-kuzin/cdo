@@ -8,19 +8,16 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  */
-package org.eclipse.emf.cdo.common.branch;
+package org.eclipse.emf.cdo.common.revision;
+
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
+import org.eclipse.emf.cdo.common.id.CDOID;
 
 /**
  * @author Eike Stepper
  * @since 3.0
  */
-public interface CDOBranchVersion
+public interface CDORevisionKey extends CDOBranchVersion
 {
-  public static final int UNSPECIFIED_VERSION = 0;
-
-  public static final int FIRST_VERSION = 1;
-
-  public CDOBranch getBranch();
-
-  public int getVersion();
+  public CDOID getID();
 }

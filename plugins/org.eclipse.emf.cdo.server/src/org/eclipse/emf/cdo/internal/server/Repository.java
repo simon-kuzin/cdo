@@ -237,14 +237,13 @@ public class Repository extends Container<Object> implements InternalRepository
 
   private InternalCDORevision loadRevision(CDOID id, CDOBranchPoint branchPoint, int referenceChunk, int prefetchDepth)
   {
-    long timeStamp = branchPoint.getTimeStamp();
-    if (timeStamp != CDORevision.UNSPECIFIED_DATE && !isSupportingAudits())
+    if (branchPoint.getTimeStamp() != CDORevision.UNSPECIFIED_DATE && !isSupportingAudits())
     {
       throw new IllegalStateException("No support for auditing mode"); //$NON-NLS-1$
     }
 
     IStoreAccessor accessor = StoreThreadLocal.getAccessor();
-    return accessor.readRevision(id, timeStamp, referenceChunk, revisionManager.getCache());
+    return accessor.readRevision(id, branchPoint, referenceChunk, revisionManager.getCache());
   }
 
   public InternalCDORevision loadRevisionByVersion(CDOID id, CDOBranch branch, int version, int referenceChunk)
@@ -252,7 +251,7 @@ public class Repository extends Container<Object> implements InternalRepository
     IStoreAccessor accessor = StoreThreadLocal.getAccessor();
     if (isSupportingAudits())
     {
-      return accessor.readRevisionByVersion(id, version, referenceChunk, revisionManager.getCache());
+      return accessor.readRevisionByVersion(id, branch, version, referenceChunk, revisionManager.getCache());
     }
 
     InternalCDORevision revision = loadRevision(id, branch.getHead(), referenceChunk, CDORevision.DEPTH_NONE);

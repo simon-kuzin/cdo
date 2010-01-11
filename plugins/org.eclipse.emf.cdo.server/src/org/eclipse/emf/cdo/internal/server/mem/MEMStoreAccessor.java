@@ -13,8 +13,9 @@
 package org.eclipse.emf.cdo.internal.server.mem;
 
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCacheAdder;
 import org.eclipse.emf.cdo.server.IQueryContext;
 import org.eclipse.emf.cdo.server.IQueryHandler;
@@ -153,14 +154,16 @@ public class MEMStoreAccessor extends LongIDStoreAccessor
     return getStore().createBranch(branchInfo);
   }
 
-  public InternalCDORevision readRevision(CDOID id, long timeStamp, int listChunk, CDORevisionCacheAdder cache)
+  public InternalCDORevision readRevision(CDOID id, CDOBranchPoint branchPoint, int listChunk,
+      CDORevisionCacheAdder cache)
   {
-    return getStore().getRevision(id, timeStamp);
+    return getStore().getRevision(id, branchPoint);
   }
 
-  public InternalCDORevision readRevisionByVersion(CDOID id, int version, int listChunk, CDORevisionCacheAdder cache)
+  public InternalCDORevision readRevisionByVersion(CDOID id, CDOBranch branch, int version, int listChunk,
+      CDORevisionCacheAdder cache)
   {
-    return getStore().getRevisionByVersion(id, version);
+    return getStore().getRevisionByVersion(id, branch, version);
   }
 
   /**
@@ -200,7 +203,7 @@ public class MEMStoreAccessor extends LongIDStoreAccessor
   }
 
   @Override
-  protected void writeRevisions(InternalCDORevision[] revisions, OMMonitor monitor)
+  protected void writeRevisions(InternalCDORevision[] revisions, CDOBranch branch, OMMonitor monitor)
   {
     for (InternalCDORevision revision : revisions)
     {
@@ -218,47 +221,50 @@ public class MEMStoreAccessor extends LongIDStoreAccessor
    * @since 2.0
    */
   @Override
-  protected void writeRevisionDeltas(InternalCDORevisionDelta[] revisionDeltas, long created, OMMonitor monitor)
+  protected void writeRevisionDeltas(InternalCDORevisionDelta[] revisionDeltas, CDOBranch branch, long created,
+      OMMonitor monitor)
   {
     for (InternalCDORevisionDelta revisionDelta : revisionDeltas)
     {
-      writeRevisionDelta(revisionDelta, created);
+      writeRevisionDelta(revisionDelta, branch, created);
     }
   }
 
   /**
    * @since 2.0
    */
-  protected void writeRevisionDelta(InternalCDORevisionDelta revisionDelta, long created)
+  protected void writeRevisionDelta(InternalCDORevisionDelta revisionDelta, CDOBranch branch, long created)
   {
-    InternalCDORevision revision = getStore().getRevision(revisionDelta.getID(), CDORevision.UNSPECIFIED_DATE);
+    CDOID id = revisionDelta.getID();
+    CDOBranchPoint head = revisionDelta.getBranch().getHead();
+    InternalCDORevision revision = getStore().getRevision(id, head);
     if (revision.getVersion() != revisionDelta.getVersion())
     {
-      throw new ConcurrentModificationException("Trying to update object " + revisionDelta.getID() //$NON-NLS-1$
+      throw new ConcurrentModificationException("Trying to update object " + id //$NON-NLS-1$
           + " that was already modified"); //$NON-NLS-1$
     }
 
     InternalCDORevision newRevision = (InternalCDORevision)revision.copy();
     revisionDelta.apply(newRevision);
-    newRevision.setCreated(created);
+    newRevision.setBranchPoint(branch.getPoint(created));
     writeRevision(newRevision);
   }
 
   @Override
-  protected void detachObjects(CDOID[] detachedObjects, long revised, OMMonitor monitor)
+  protected void detachObjects(CDOID[] detachedObjects, CDOBranch branch, long revised, OMMonitor monitor)
   {
     for (CDOID id : detachedObjects)
     {
-      detachObject(id);
+      detachObject(id, branch);
     }
   }
 
   /**
    * @since 2.0
    */
-  protected void detachObject(CDOID id)
+  protected void detachObject(CDOID id, CDOBranch branch)
   {
-    getStore().removeID(id);
+    getStore().detachObject(id, branch);
   }
 
   /**

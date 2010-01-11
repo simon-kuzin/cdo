@@ -12,6 +12,8 @@
 package org.eclipse.emf.cdo.server.internal.hibernate;
 
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
@@ -315,7 +317,8 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
    *          the revision cache, the read revision is added to the cache
    * @return the read revision
    */
-  public InternalCDORevision readRevision(CDOID id, long timeStamp, int listChunk, CDORevisionCacheAdder cache)
+  public InternalCDORevision readRevision(CDOID id, CDOBranchPoint branchPoint, int listChunk,
+      CDORevisionCacheAdder cache)
   {
     if (!HibernateUtil.getInstance().isStoreCreatedID(id))
     {
@@ -346,7 +349,8 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
   /**
    * Not supported by the Hibernate Store, auditing is not supported
    */
-  public InternalCDORevision readRevisionByVersion(CDOID id, int version, int listChunk, CDORevisionCacheAdder cache)
+  public InternalCDORevision readRevisionByVersion(CDOID id, CDOBranch branch, int version, int listChunk,
+      CDORevisionCacheAdder cache)
   {
     throw new UnsupportedOperationException();
   }
@@ -597,7 +601,7 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
   }
 
   @Override
-  protected void detachObjects(CDOID[] detachedObjects, long revised, OMMonitor monitor)
+  protected void detachObjects(CDOID[] detachedObjects, CDOBranch branch, long revised, OMMonitor monitor)
   {
     // handled by the write method
   }
@@ -628,9 +632,9 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
   }
 
   @Override
-  protected void writeRevisions(InternalCDORevision[] revisions, OMMonitor monitor)
+  protected void writeRevisions(InternalCDORevision[] revisions, CDOBranch branch, OMMonitor monitor)
   {
-    // Don't do anything it is done at commit
+    // Doesn't do anything. It is done in commit().
   }
 
   @Override
@@ -640,7 +644,8 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
   }
 
   @Override
-  protected void writeRevisionDeltas(InternalCDORevisionDelta[] revisionDeltas, long created, OMMonitor monitor)
+  protected void writeRevisionDeltas(InternalCDORevisionDelta[] revisionDeltas, CDOBranch branch, long created,
+      OMMonitor monitor)
   {
     throw new UnsupportedOperationException();
   }
