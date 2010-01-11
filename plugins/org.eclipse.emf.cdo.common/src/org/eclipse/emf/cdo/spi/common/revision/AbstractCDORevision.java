@@ -312,11 +312,6 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     this.branchPoint = branchPoint;
   }
 
-  public void setCreated(long timeStamp)
-  {
-    setBranchPoint(new CDOBranchPointImpl(getBranch(), timeStamp));
-  }
-
   public int getVersion()
   {
     return version < 0 ? -version : version;

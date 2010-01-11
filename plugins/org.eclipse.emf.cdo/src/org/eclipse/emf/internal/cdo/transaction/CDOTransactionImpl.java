@@ -340,7 +340,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
           CDORevisionDelta delta = deltaMap.get(cdoId);
           if (delta != null)
           {
-            version = delta.getOriginVersion();
+            version = delta.getVersion();
           }
         }
 
@@ -1419,7 +1419,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
           registerRevisionDelta(delta);
           registerDirty(object, null);
 
-          if (delta.getOriginVersion() < revision.getVersion())
+          if (delta.getVersion() < revision.getVersion())
           {
             setConflict(object);
           }

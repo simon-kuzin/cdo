@@ -143,11 +143,6 @@ public class CDORevisionProxy implements HibernateProxy, InternalCDORevision, Se
     li.getRevision().setBranchPoint(branchPoint);
   }
 
-  public void setCreated(long timeStamp)
-  {
-    li.getRevision().setCreated(timeStamp);
-  }
-
   public int getVersion()
   {
     return li.getRevision().getVersion();

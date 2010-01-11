@@ -232,7 +232,7 @@ public class MEMStoreAccessor extends LongIDStoreAccessor
   protected void writeRevisionDelta(InternalCDORevisionDelta revisionDelta, long created)
   {
     InternalCDORevision revision = getStore().getRevision(revisionDelta.getID(), CDORevision.UNSPECIFIED_DATE);
-    if (revision.getVersion() != revisionDelta.getOriginVersion())
+    if (revision.getVersion() != revisionDelta.getVersion())
     {
       throw new ConcurrentModificationException("Trying to update object " + revisionDelta.getID() //$NON-NLS-1$
           + " that was already modified"); //$NON-NLS-1$

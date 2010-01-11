@@ -51,8 +51,6 @@ public interface InternalCDORevision extends CDORevision, CDORevisionData, CDORe
    */
   public void setBranchPoint(CDOBranchPoint branchPoint);
 
-  public void setCreated(long timeStamp);
-
   public void setRevised(long revised);
 
   public void setResourceID(CDOID resourceID);

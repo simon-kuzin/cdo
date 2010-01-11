@@ -125,8 +125,7 @@ public abstract class AbstractObjectConflictResolver implements CDOConflictResol
     int originVersion = revision.getVersion();
     revision.setTransactional(true);
 
-    ((InternalCDORevisionDelta)revisionDelta).setOriginVersion(originVersion);
-    ((InternalCDORevisionDelta)revisionDelta).setDirtyVersion(revision.getVersion());
+    ((InternalCDORevisionDelta)revisionDelta).setVersion(originVersion);
 
     CDORevisionMerger merger = new CDORevisionMerger();
     merger.merge(revision, revisionDelta);

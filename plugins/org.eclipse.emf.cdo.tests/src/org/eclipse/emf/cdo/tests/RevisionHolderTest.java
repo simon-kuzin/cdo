@@ -324,11 +324,6 @@ public class RevisionHolderTest extends AbstractCDOTest
       this.branchPoint = new CDOBranchPointImpl(branchPoint.getBranch(), branchPoint.getTimeStamp());
     }
 
-    public void setCreated(long timeStamp)
-    {
-      setBranchPoint(new CDOBranchPointImpl(getBranch(), timeStamp));
-    }
-
     public int getVersion()
     {
       return version;

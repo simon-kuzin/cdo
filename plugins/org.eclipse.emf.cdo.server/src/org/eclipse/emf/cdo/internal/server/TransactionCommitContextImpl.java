@@ -467,7 +467,7 @@ public class TransactionCommitContextImpl implements InternalCommitContext
   private InternalCDORevision computeDirtyObject(InternalCDORevisionDelta dirtyObjectDelta, boolean loadOnDemand)
   {
     CDOID id = dirtyObjectDelta.getID();
-    int version = dirtyObjectDelta.getOriginVersion();
+    int version = dirtyObjectDelta.getVersion();
 
     InternalRepository repository = transaction.getRepository();
     InternalCDORevisionManager revisionManager = repository.getRevisionManager();

@@ -388,8 +388,6 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
 
     private int oldVersion;
 
-    private int newVersion;
-
     private long created;
 
     private IDBStoreAccessor accessor;
@@ -421,8 +419,7 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
 
       reset();
       id = d.getID();
-      oldVersion = d.getOriginVersion();
-      newVersion = d.getDirtyVersion();
+      oldVersion = d.getVersion();
       created = c;
       accessor = a;
 
@@ -432,12 +429,12 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
       // update attributes
       if (updateContainer)
       {
-        updateAttributes(accessor, id, newVersion, created, newContainerID, newContainingFeatureID, newResourceID,
+        updateAttributes(accessor, id, oldVersion + 1, created, newContainerID, newContainingFeatureID, newResourceID,
             attributeChanges);
       }
       else
       {
-        updateAttributes(accessor, id, newVersion, created, attributeChanges);
+        updateAttributes(accessor, id, oldVersion + 1, created, attributeChanges);
       }
     }
 
@@ -473,7 +470,7 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
     public void visit(CDOListFeatureDelta delta)
     {
       IListMappingDeltaSupport listMapping = (IListMappingDeltaSupport)getListMapping(delta.getFeature());
-      listMapping.processDelta(accessor, id, oldVersion, newVersion, created, delta);
+      listMapping.processDelta(accessor, id, oldVersion, oldVersion + 1, created, delta);
     }
 
     public void visit(CDOClearFeatureDelta delta)

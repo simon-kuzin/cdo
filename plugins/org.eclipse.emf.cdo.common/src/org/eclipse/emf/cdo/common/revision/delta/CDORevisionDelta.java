@@ -24,22 +24,17 @@ import java.util.List;
  */
 public interface CDORevisionDelta
 {
-  public CDOID getID();
-
   /**
    * @since 3.0
    */
   public EClass getEClass();
 
-  /**
-   * Specify the version of the object BEFORE it was modified.
-   */
-  public int getOriginVersion();
+  public CDOID getID();
 
   /**
-   * Specify the version of the object AFTER it was modified.
+   * @since 3.0
    */
-  public int getDirtyVersion();
+  public int getVersion();
 
   public List<CDOFeatureDelta> getFeatureDeltas();
 
