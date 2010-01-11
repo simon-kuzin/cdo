@@ -11,6 +11,8 @@
  */
 package org.eclipse.emf.cdo.internal.server;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.spi.server.InternalRepository;
@@ -31,9 +33,7 @@ public class View implements InternalView
 
   private int viewID;
 
-  private int branchID;
-
-  private long timeStamp;
+  private CDOBranchPoint branchPoint;
 
   private InternalRepository repository;
 
@@ -42,14 +42,13 @@ public class View implements InternalView
   /**
    * @since 2.0
    */
-  public View(InternalSession session, int viewID, int branchID, long timeStamp)
+  public View(InternalSession session, int viewID, CDOBranchPoint branchPoint)
   {
     this.session = session;
     repository = session.getManager().getRepository();
 
     this.viewID = viewID;
-    this.branchID = branchID;
-    setTimeStamp(timeStamp);
+    setBranchPoint(branchPoint);
   }
 
   public InternalSession getSession()
@@ -62,14 +61,14 @@ public class View implements InternalView
     return viewID;
   }
 
-  public int getBranchID()
+  public CDOBranch getBranch()
   {
-    return branchID;
+    return branchPoint.getBranch();
   }
 
   public long getTimeStamp()
   {
-    return timeStamp;
+    return branchPoint.getTimeStamp();
   }
 
   public boolean isReadOnly()
@@ -79,7 +78,7 @@ public class View implements InternalView
 
   public boolean isHistorical()
   {
-    return timeStamp != UNSPECIFIED_DATE;
+    return branchPoint.isHistorical();
   }
 
   /**
@@ -91,12 +90,12 @@ public class View implements InternalView
     return repository;
   }
 
-  public boolean[] changeTarget(int branchID, long timeStamp, List<CDOID> invalidObjects)
+  public boolean[] changeTarget(CDOBranchPoint branchPoint, List<CDOID> invalidObjects)
   {
     checkOpen();
-    setTimeStamp(timeStamp);
-    List<CDORevision> revisions = repository.getRevisionManager().getRevisions(invalidObjects, branchID, timeStamp, 0,
-        CDORevision.DEPTH_NONE, false);
+    setBranchPoint(branchPoint);
+    List<CDORevision> revisions = repository.getRevisionManager().getRevisions(invalidObjects,
+        branchPoint.getBranch().getID(), branchPoint.getTimeStamp(), 0, CDORevision.DEPTH_NONE, false);
     boolean[] existanceFlags = new boolean[revisions.size()];
     for (int i = 0; i < existanceFlags.length; i++)
     {
@@ -106,10 +105,10 @@ public class View implements InternalView
     return existanceFlags;
   }
 
-  private void setTimeStamp(long timeStamp)
+  private void setBranchPoint(CDOBranchPoint branchPoint)
   {
-    repository.validateTimeStamp(timeStamp);
-    this.timeStamp = timeStamp;
+    repository.validateTimeStamp(branchPoint.getTimeStamp());
+    this.branchPoint = branchPoint;
   }
 
   /**

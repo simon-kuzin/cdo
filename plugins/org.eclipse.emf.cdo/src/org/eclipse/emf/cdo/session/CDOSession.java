@@ -107,7 +107,15 @@ public interface CDOSession extends CDOCommonSession, IContainer<CDOView>
    * @see #openTransaction()
    * @since 3.0
    */
-  public CDOTransaction openTransaction(int branchID, ResourceSet resourceSet);
+  public CDOTransaction openTransaction(CDOBranch branch, ResourceSet resourceSet);
+
+  /**
+   * Opens and returns a new {@link CDOTransaction transaction} on the given EMF {@link ResourceSet resource set}.
+   * 
+   * @see #openTransaction()
+   * @since 3.0
+   */
+  public CDOTransaction openTransaction(ResourceSet resourceSet);
 
   /**
    * Opens and returns a new {@link CDOTransaction transaction} on a new EMF {@link ResourceSet resource set}.
@@ -117,7 +125,7 @@ public interface CDOSession extends CDOCommonSession, IContainer<CDOView>
    * @see #openTransaction(ResourceSet)
    * @since 3.0
    */
-  public CDOTransaction openTransaction(int branchID);
+  public CDOTransaction openTransaction(CDOBranch branch);
 
   /**
    * Opens and returns a new {@link CDOTransaction transaction} on a new EMF {@link ResourceSet resource set}.
@@ -134,7 +142,7 @@ public interface CDOSession extends CDOCommonSession, IContainer<CDOView>
    * @see #openView()
    * @since 3.0
    */
-  public CDOView openView(int branchID, long timeStamp, ResourceSet resourceSet);
+  public CDOView openView(CDOBranch branch, long timeStamp, ResourceSet resourceSet);
 
   /**
    * Opens and returns a new {@link CDOView view} on a new EMF {@link ResourceSet resource set}.
@@ -144,7 +152,7 @@ public interface CDOSession extends CDOCommonSession, IContainer<CDOView>
    * @see #openView(ResourceSet)
    * @since 3.0
    */
-  public CDOView openView(int branchID, long timeStamp);
+  public CDOView openView(CDOBranch branch, long timeStamp);
 
   /**
    * Opens and returns a new {@link CDOView view} on a new EMF {@link ResourceSet resource set}.
@@ -154,7 +162,17 @@ public interface CDOSession extends CDOCommonSession, IContainer<CDOView>
    * @see #openView(ResourceSet)
    * @since 3.0
    */
-  public CDOView openView(int branchID);
+  public CDOView openView(CDOBranch branch);
+
+  /**
+   * Opens and returns a new {@link CDOView view} on a new EMF {@link ResourceSet resource set}.
+   * <p>
+   * Same as calling <code>openView(new ResourceSetImpl())</code>.
+   * 
+   * @see #openView(ResourceSet)
+   * @since 3.0
+   */
+  public CDOView openView(long timeStamp);
 
   /**
    * Opens and returns a new {@link CDOView view} on a new EMF {@link ResourceSet resource set}.
@@ -178,8 +196,8 @@ public interface CDOSession extends CDOCommonSession, IContainer<CDOView>
   /**
    * Refreshes the objects cache.
    * <p>
-   * Takes CDOID and version of all objects in the cache and sends it to the server. {@link CDORefreshContext}
-   * contains informations of which objects changed/detached. The collection is ordered by timestamp. In the case where
+   * Takes CDOID and version of all objects in the cache and sends it to the server. {@link CDORefreshContext} contains
+   * informations of which objects changed/detached. The collection is ordered by timestamp. In the case where
    * {@link #isPassiveUpdateEnabled()} is <code>true</code>, this method will return immediately without doing anything.
    */
   public Collection<CDORefreshContext> refresh();

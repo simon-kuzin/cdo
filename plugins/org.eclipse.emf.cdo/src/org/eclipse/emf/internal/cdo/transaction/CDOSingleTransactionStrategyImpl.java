@@ -76,7 +76,7 @@ public class CDOSingleTransactionStrategyImpl implements CDOTransactionStrategy
     commitContext.postCommit(result);
 
     CDOBranchPoint branchPoint = result.getBranchPoint();
-    return new CDOCommitImpl(branchPoint.getBranchID(), branchPoint.getTimeStamp(), null, null);
+    return new CDOCommitImpl(branchPoint.getBranch(), branchPoint.getTimeStamp(), null, null);
   }
 
   public void rollback(InternalCDOTransaction transaction, InternalCDOUserSavepoint savepoint)

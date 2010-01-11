@@ -11,7 +11,7 @@
 package org.eclipse.emf.cdo.internal.net4j.protocol;
 
 import org.eclipse.emf.cdo.CDOObject;
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
@@ -98,14 +98,14 @@ public class CDOClientProtocol extends SignalProtocol<CDOSession> implements CDO
     return send(new LoadPackagesRequest(this, (InternalCDOPackageUnit)packageUnit));
   }
 
-  public CDOBranch loadBranch(int branchID)
+  public BranchInfo loadBranch(int branchID)
   {
     return send(new LoadBranchRequest(this, branchID));
   }
 
-  public CDOBranch createBranch(int baseBranchID, long baseTimeStamp, String name)
+  public int createBranch(BranchInfo branchInfo)
   {
-    return send(new CreateBranchRequest(this, baseBranchID, baseTimeStamp, name));
+    return send(new CreateBranchRequest(this, branchInfo));
   }
 
   public Object loadChunk(InternalCDORevision revision, EStructuralFeature feature, int accessIndex, int fetchIndex,
@@ -130,14 +130,14 @@ public class CDOClientProtocol extends SignalProtocol<CDOSession> implements CDO
     return send(new SyncRevisionsRequest(this, idAndVersions, initialChunkSize));
   }
 
-  public void openView(int viewID, int branchID, long timeStamp, boolean readOnly)
+  public void openView(int viewID, CDOBranchPoint branchPoint, boolean readOnly)
   {
-    send(new OpenViewRequest(this, viewID, branchID, timeStamp, readOnly));
+    send(new OpenViewRequest(this, viewID, branchPoint, readOnly));
   }
 
-  public boolean[] changeView(int viewID, int branchID, long timeStamp, List<InternalCDOObject> invalidObjects)
+  public boolean[] changeView(int viewID, CDOBranchPoint branchPoint, List<InternalCDOObject> invalidObjects)
   {
-    return send(new ChangeViewRequest(this, viewID, branchID, timeStamp, invalidObjects));
+    return send(new ChangeViewRequest(this, viewID, branchPoint, invalidObjects));
   }
 
   public void closeView(int viewID)

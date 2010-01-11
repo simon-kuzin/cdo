@@ -10,6 +10,7 @@
  */
 package org.eclipse.emf.cdo.internal.common.commit;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.commit.CDOCommit;
 import org.eclipse.emf.cdo.internal.common.branch.CDOBranchPointImpl;
 
@@ -22,9 +23,9 @@ public class CDOCommitImpl extends CDOBranchPointImpl implements CDOCommit
 
   private String comment;
 
-  public CDOCommitImpl(int branchID, long timeStamp, String userID, String comment)
+  public CDOCommitImpl(CDOBranch branch, long timeStamp, String userID, String comment)
   {
-    super(branchID, timeStamp);
+    super(branch, timeStamp);
     this.userID = userID;
     this.comment = comment;
   }

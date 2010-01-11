@@ -15,6 +15,8 @@ package org.eclipse.emf.internal.cdo.transaction;
 
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.CDOState;
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchManager;
 import org.eclipse.emf.cdo.common.commit.CDOCommit;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
@@ -149,9 +151,9 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     }
   };
 
-  public CDOTransactionImpl(int branchID)
+  public CDOTransactionImpl(CDOBranch branch)
   {
-    super(branchID, UNSPECIFIED_DATE);
+    super(branch, UNSPECIFIED_DATE);
   }
 
   /**
@@ -179,15 +181,12 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
   }
 
   @Override
-  public void setBranchID(int branchID)
+  protected void checkTimeStamp(long timeStamp) throws IllegalArgumentException
   {
-    throw new UnsupportedOperationException("Changing the target branch is not supported by transactions");
-  }
-
-  @Override
-  public void setTimeStamp(long timeStamp)
-  {
-    throw new UnsupportedOperationException("Changing the target time is not supported by transactions");
+    if (timeStamp != UNSPECIFIED_DATE)
+    {
+      throw new IllegalArgumentException("Changing the target time is not supported by transactions");
+    }
   }
 
   public void addTransactionHandler(CDOTransactionHandler handler)
@@ -1355,6 +1354,12 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
         protected CDOPackageRegistry getPackageRegistry()
         {
           return getSession().getPackageRegistry();
+        }
+
+        @Override
+        protected CDOBranchManager getBranchManager()
+        {
+          return getSession().getBranchManager();
         }
 
         @Override

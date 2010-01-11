@@ -21,6 +21,4 @@ public interface CDOBranchManager extends INotifier
   public CDOBranch getMainBranch();
 
   public CDOBranch getBranch(int branchID);
-
-  public CDOBranch createBranch(int baseBranchID, long baseTimeStamp, String name);
 }

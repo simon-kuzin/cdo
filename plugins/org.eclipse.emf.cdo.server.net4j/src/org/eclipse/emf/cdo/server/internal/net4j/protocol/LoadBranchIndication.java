@@ -11,10 +11,12 @@
 package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager;
+import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager.BranchLoader.BranchInfo;
 
 import java.io.IOException;
 
@@ -39,21 +41,10 @@ public class LoadBranchIndication extends CDOReadIndication
   @Override
   protected void responding(CDODataOutput out) throws IOException
   {
-    writeBranches(out, getRepository().getBranchManager(), branchID);
-  }
-
-  public static void writeBranches(CDODataOutput out, InternalCDOBranchManager branchManager, int branchID)
-      throws IOException
-  {
-    while (branchID != CDOBranch.MAIN_BRANCH_ID)
-    {
-      CDOBranch branch = branchManager.getBranch(branchID);
-      out.writeBoolean(true);
-      out.writeCDOBranch(branch);
-
-      branchID = branch.getBase().getBranchID();
-    }
-
-    out.writeBoolean(false);
+    InternalCDOBranchManager branchManager = getRepository().getBranchManager();
+    CDOBranch branch = branchManager.getBranch(branchID);
+    CDOBranchPoint base = branch.getBase();
+    BranchInfo branchInfo = new BranchInfo(branch.getName(), base.getBranch().getID(), base.getTimeStamp());
+    branchInfo.write(out);
   }
 }

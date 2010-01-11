@@ -246,7 +246,7 @@ public class SessionManager extends Container<ISession> implements InternalSessi
       {
         try
         {
-          session.handleBranchNotification(branch);
+          session.handleBranchNotification(branch.getID());
         }
         catch (Exception ex)
         {

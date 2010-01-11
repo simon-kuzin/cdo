@@ -10,17 +10,17 @@
  **************************************************************************/
 package org.eclipse.emf.cdo.internal.net4j.protocol;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
+import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager.BranchLoader.BranchInfo;
 
 import java.io.IOException;
 
 /**
  * @author Eike Stepper
  */
-public class LoadBranchRequest extends CDOClientRequest<CDOBranch>
+public class LoadBranchRequest extends CDOClientRequest<BranchInfo>
 {
   private int branchID;
 
@@ -37,8 +37,8 @@ public class LoadBranchRequest extends CDOClientRequest<CDOBranch>
   }
 
   @Override
-  protected CDOBranch confirming(CDODataInput in) throws IOException
+  protected BranchInfo confirming(CDODataInput in) throws IOException
   {
-    return in.readCDOBranch();
+    return new BranchInfo(in);
   }
 }

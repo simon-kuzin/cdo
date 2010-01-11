@@ -12,38 +12,46 @@ package org.eclipse.emf.cdo.internal.common.branch;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
-import org.eclipse.emf.cdo.common.io.CDODataInput;
+import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager;
+import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager.BranchLoader.BranchInfo;
 
-import java.io.IOException;
+import java.text.MessageFormat;
 
 /**
  * @author Eike Stepper
  */
 public class CDOBranchImpl implements CDOBranch
 {
-  /**
-   * @since 3.0
-   */
   public static final int ILLEGAL_BRANCH_ID = Integer.MIN_VALUE;
 
   private int id;
 
   private String name;
 
-  private CDOBranchPoint base;
+  private Object baseOrBranchManager;
 
-  public CDOBranchImpl(int id, String name, int baseBranchID, long baseTimeStamp)
+  public CDOBranchImpl(int id, String name, CDOBranchPoint base)
   {
     this.id = id;
     this.name = name;
-    base = new CDOBranchPointImpl(baseBranchID, baseTimeStamp);
+    baseOrBranchManager = base;
   }
 
-  public CDOBranchImpl(CDODataInput in) throws IOException
+  public CDOBranchImpl(int id, InternalCDOBranchManager branchManager)
   {
-    id = in.readInt();
-    name = in.readString();
-    base = in.readCDOBranchPoint();
+    this.id = id;
+    baseOrBranchManager = branchManager;
+  }
+
+  public InternalCDOBranchManager getBranchManager()
+  {
+    if (isProxy())
+    {
+      return (InternalCDOBranchManager)baseOrBranchManager;
+    }
+
+    CDOBranchPoint base = (CDOBranchPoint)baseOrBranchManager;
+    return (InternalCDOBranchManager)base.getBranch().getBranchManager();
   }
 
   public int getID()
@@ -53,11 +61,89 @@ public class CDOBranchImpl implements CDOBranch
 
   public String getName()
   {
+    loadIdNeeded();
     return name;
   }
 
   public CDOBranchPoint getBase()
   {
-    return base;
+    loadIdNeeded();
+    return (CDOBranchPoint)baseOrBranchManager;
+  }
+
+  public CDOBranch createBranch(String name, long timeStamp)
+  {
+    return getBranchManager().createBranch(name, this, timeStamp);
+  }
+
+  @Override
+  public int hashCode()
+  {
+    return id;
+  }
+
+  @Override
+  public boolean equals(Object obj)
+  {
+    if (obj == this)
+    {
+      return true;
+    }
+
+    if (obj instanceof CDOBranch)
+    {
+      CDOBranch that = (CDOBranch)obj;
+      return id == that.getID();
+    }
+
+    return false;
+  }
+
+  @Override
+  public String toString()
+  {
+    if (isProxy())
+    {
+      return MessageFormat.format("Branch[id={0}, PROXY]", id);
+    }
+
+    return MessageFormat.format("Branch[id={0}, name={1}]", id, name);
+  }
+
+  private boolean isProxy()
+  {
+    return name == null;
+  }
+
+  private void loadIdNeeded()
+  {
+    if (isProxy())
+    {
+      InternalCDOBranchManager branchManager = (InternalCDOBranchManager)baseOrBranchManager;
+      BranchInfo branchInfo = branchManager.getBranchLoader().loadBranch(id);
+      CDOBranch baseBranch = branchManager.getBranch(branchInfo.getBaseBranchID());
+      name = branchInfo.getName();
+      baseOrBranchManager = new CDOBranchPointImpl(baseBranch, branchInfo.getBaseTimeStamp());
+    }
+  }
+
+  /**
+   * @author Eike Stepper
+   */
+  public static class Main extends CDOBranchImpl
+  {
+    private InternalCDOBranchManager branchManager;
+
+    public Main(InternalCDOBranchManager branchManager, long timeStamp)
+    {
+      super(MAIN_BRANCH_ID, MAIN_BRANCH_NAME, new CDOBranchPointImpl(null, timeStamp));
+      this.branchManager = branchManager;
+    }
+
+    @Override
+    public InternalCDOBranchManager getBranchManager()
+    {
+      return branchManager;
+    }
   }
 }

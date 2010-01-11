@@ -11,7 +11,6 @@
 package org.eclipse.emf.cdo.internal.server;
 
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
@@ -205,14 +204,14 @@ public abstract class DelegatingRepository implements InternalRepository
     getDelegate().setBranchManager(branchManager);
   }
 
-  public CDOBranch loadBranch(int branchID)
+  public BranchInfo loadBranch(int branchID)
   {
     return getDelegate().loadBranch(branchID);
   }
 
-  public CDOBranch createBranch(int baseBranchID, long baseTimeStamp, String name)
+  public int createBranch(BranchInfo branchInfo)
   {
-    return getDelegate().createBranch(baseBranchID, baseTimeStamp, name);
+    return getDelegate().createBranch(branchInfo);
   }
 
   public List<InternalCDORevision> loadRevisions(Collection<CDOID> ids, int branchID, long timeStamp,

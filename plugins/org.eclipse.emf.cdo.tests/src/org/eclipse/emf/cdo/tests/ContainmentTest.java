@@ -10,7 +10,6 @@
  */
 package org.eclipse.emf.cdo.tests;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.tests.model1.Address;
@@ -358,7 +357,7 @@ public class ContainmentTest extends AbstractCDOTest
       ResourceSet resourceSet = new ResourceSetImpl();
       resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap().put("test", new XMIResourceFactoryImpl());
 
-      CDOTransaction transaction = session.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
+      CDOTransaction transaction = session.openTransaction(resourceSet);
       Resource resource1 = resourceSet.createResource(URI.createURI("test://1"));
       Resource resource2 = transaction.createResource("test");
 
@@ -390,7 +389,7 @@ public class ContainmentTest extends AbstractCDOTest
     ResourceSet resourceSet = new ResourceSetImpl();
     CDOSession session = openSession();
     session.getPackageRegistry().putEPackage(packageObject);
-    CDOTransaction transaction = session.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
+    CDOTransaction transaction = session.openTransaction(resourceSet);
 
     resourceSet.getPackageRegistry().put(packageObject.getNsURI(), packageObject);
     resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap().put("test", new XMIResourceFactoryImpl());
@@ -415,7 +414,7 @@ public class ContainmentTest extends AbstractCDOTest
       CDOSession session = openModel1Session();
       ResourceSet resourceSet = new ResourceSetImpl();
 
-      CDOTransaction transaction = session.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
+      CDOTransaction transaction = session.openTransaction(resourceSet);
       Resource resource1 = transaction.createResource("testA");
       Resource resource2 = transaction.createResource("testB");
 
@@ -444,7 +443,7 @@ public class ContainmentTest extends AbstractCDOTest
     ResourceSet resourceSet = new ResourceSetImpl();
 
     CDOSession session = openSession();
-    CDOTransaction transaction = session.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
+    CDOTransaction transaction = session.openTransaction(resourceSet);
     Resource resource1 = transaction.getResource("testA");
     Resource resource2 = transaction.getResource("testB");
 

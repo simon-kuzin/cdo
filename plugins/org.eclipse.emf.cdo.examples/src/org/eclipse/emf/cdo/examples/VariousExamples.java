@@ -10,7 +10,6 @@
  */
 package org.eclipse.emf.cdo.examples;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.net4j.CDONet4jUtil;
 import org.eclipse.emf.cdo.net4j.CDOSession;
 import org.eclipse.emf.cdo.net4j.CDOSessionConfiguration;
@@ -39,7 +38,7 @@ public class VariousExamples
     configuration.setRepositoryName("MyRepo");
 
     CDOSession session = configuration.openSession();
-    CDOTransaction transaction = session.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
+    CDOTransaction transaction = session.openTransaction(resourceSet);
 
     // Work with the resource set....
     transaction.commit();

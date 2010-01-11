@@ -13,7 +13,6 @@
 package org.eclipse.emf.cdo.server.internal.db;
 
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
@@ -32,7 +31,6 @@ import org.eclipse.emf.cdo.server.db.mapping.IClassMappingAuditSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMappingDeltaSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
-import org.eclipse.emf.cdo.spi.common.branch.CDOBranchUtil;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
@@ -484,7 +482,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     }
   }
 
-  public CDOBranch loadBranch(int branchID)
+  public BranchInfo loadBranch(int branchID)
   {
     PreparedStatement pstmt = null;
     ResultSet resultSet = null;
@@ -497,14 +495,13 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
       resultSet = pstmt.executeQuery();
       if (!resultSet.next())
       {
-        throw new DBException("Branch with ID=" + branchID + " does not exist");
+        throw new DBException("Branch with ID " + branchID + " does not exist");
       }
 
-      int id = resultSet.getInt(1);
-      String name = resultSet.getString(2);
-      int baseBranchID = resultSet.getInt(3);
-      long baseTimeStamp = resultSet.getLong(4);
-      return CDOBranchUtil.createBranch(id, name, baseBranchID, baseTimeStamp);
+      String name = resultSet.getString(1);
+      int baseBranchID = resultSet.getInt(2);
+      long baseTimeStamp = resultSet.getLong(3);
+      return new BranchInfo(name, baseBranchID, baseTimeStamp);
     }
     catch (SQLException ex)
     {
@@ -517,7 +514,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     }
   }
 
-  public CDOBranch createBranch(int baseBranchID, long baseTimeStamp, String name)
+  public int createBranch(BranchInfo branchInfo)
   {
     int id = getStore().getNextBranchID();
     PreparedStatement pstmt = null;
@@ -526,23 +523,23 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     {
       pstmt = statementCache.getPreparedStatement(CDODBSchema.SQL_CREATE_BRANCH, ReuseProbability.LOW);
       pstmt.setInt(1, id);
-      pstmt.setString(2, name);
-      pstmt.setInt(3, baseBranchID);
-      pstmt.setLong(4, baseTimeStamp);
+      pstmt.setString(2, branchInfo.getName());
+      pstmt.setInt(3, branchInfo.getBaseBranchID());
+      pstmt.setLong(4, branchInfo.getBaseTimeStamp());
 
       int updatedRows = pstmt.executeUpdate();
       if (updatedRows < 1)
       {
-        throw new DBException("Branch with name=" + name + " was not inserted");
+        throw new DBException("Branch with name " + branchInfo.getName() + " was not inserted");
       }
 
       if (updatedRows > 1)
       {
         // Should not happen
-        throw new DBException("Branch with name=" + name + " was not inserted multiple times");
+        throw new DBException("Branch with name " + branchInfo.getName() + " was inserted multiple times");
       }
 
-      return CDOBranchUtil.createBranch(id, name, baseBranchID, baseTimeStamp);
+      return id;
     }
     catch (SQLException ex)
     {

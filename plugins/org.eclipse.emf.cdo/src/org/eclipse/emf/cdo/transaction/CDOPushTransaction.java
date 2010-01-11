@@ -11,6 +11,7 @@
 package org.eclipse.emf.cdo.transaction;
 
 import org.eclipse.emf.cdo.CDOObject;
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.commit.CDOCommit;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
@@ -504,23 +505,23 @@ public class CDOPushTransaction extends Notifier implements CDOTransaction
     return delegate.isHistorical();
   }
 
-  public int getBranchID()
+  public CDOBranch getBranch()
   {
-    return delegate.getBranchID();
+    return delegate.getBranch();
+  }
+
+  public boolean setBranchPoint(CDOBranch branch, long timeStamp)
+  {
+    return delegate.setBranchPoint(branch, timeStamp);
+  }
+
+  public boolean setTimeStamp(long timeStamp)
+  {
+    return delegate.setTimeStamp(timeStamp);
   }
 
   public URIHandler getURIHandler()
   {
     return delegate.getURIHandler();
-  }
-
-  public void setBranchID(int branchID)
-  {
-    delegate.setBranchID(branchID);
-  }
-
-  public void setTimeStamp(long timeStamp)
-  {
-    delegate.setTimeStamp(timeStamp);
   }
 }

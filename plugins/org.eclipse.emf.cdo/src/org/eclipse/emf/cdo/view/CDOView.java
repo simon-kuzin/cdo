@@ -110,20 +110,22 @@ public interface CDOView extends CDOCommonView, INotifier, IOptionsContainer
   public URIHandler getURIHandler();
 
   /**
-   * Sets the ID of the {@link CDOBranch branch} this view should refer to.
+   * Sets the {@link CDOBranch branch} and the point in (repository) time this view should refer to. {@link CDOObject
+   * Objects} provided by this view will be {@link CDORevision#isValid(long) valid} at this time. The special value
+   * {@link CDOCommonView#UNSPECIFIED_DATE UNSPECIFIED_DATE} denotes a "floating view" that always shows the latest
+   * state of the repository.
    * 
+   * @return <code>true</code> if the branch point was changed, <code>false</code> otherwise.
    * @since 3.0
    */
-  public void setBranchID(int branchID);
+  public boolean setBranchPoint(CDOBranch branch, long timeStamp);
 
   /**
-   * Sets the point in (repository) time this view should refer to. {@link CDOObject Objects} provided by this view will
-   * be {@link CDORevision#isValid(long) valid} at this time. The special value {@link CDOCommonView#UNSPECIFIED_DATE
-   * UNSPECIFIED_DATE} denotes a "floating view" that always shows the latest state of the repository.
+   * Same as calling {@link #setBranchPoint(CDOBranch, long) setBranchPoint(getBranch(), timeStamp)}.
    * 
    * @since 3.0
    */
-  public void setTimeStamp(long timeStamp);
+  public boolean setTimeStamp(long timeStamp);
 
   /**
    * Returns a reentrant lock that can be used to prevent the framework from writing to any object in this view (as it

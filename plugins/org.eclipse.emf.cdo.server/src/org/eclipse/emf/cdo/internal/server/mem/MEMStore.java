@@ -12,12 +12,10 @@
  */
 package org.eclipse.emf.cdo.internal.server.mem;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOModelConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
-import org.eclipse.emf.cdo.internal.common.branch.CDOBranchImpl;
 import org.eclipse.emf.cdo.server.IMEMStore;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
@@ -48,7 +46,7 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
 
   private long creationTime;
 
-  private Map<Integer, CDOBranch> branches = new HashMap<Integer, CDOBranch>();
+  private Map<Integer, BranchInfo> branchInfos = new HashMap<Integer, BranchInfo>();
 
   private Map<CDOID, List<InternalCDORevision>> revisions = new HashMap<CDOID, List<InternalCDORevision>>();
 
@@ -72,17 +70,16 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
     this(UNLIMITED);
   }
 
-  public synchronized CDOBranch loadBranch(int branchID)
+  public synchronized BranchInfo loadBranch(int branchID)
   {
-    return branches.get(branchID);
+    return branchInfos.get(branchID);
   }
 
-  public synchronized CDOBranch createBranch(int baseBranchID, long baseTimeStamp, String name)
+  public synchronized int createBranch(BranchInfo branchInfo)
   {
-    int id = branches.size() + 1;
-    CDOBranch branch = new CDOBranchImpl(id, name, baseBranchID, baseTimeStamp);
-    branches.put(id, branch);
-    return branch;
+    int id = branchInfos.size() + 1;
+    branchInfos.put(id, branchInfo);
+    return id;
   }
 
   /**

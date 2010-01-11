@@ -11,7 +11,6 @@
  */
 package org.eclipse.emf.internal.cdo.view;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.util.CDOURIUtil;
 import org.eclipse.emf.cdo.view.CDOView;
@@ -76,6 +75,6 @@ public class PluginContainerViewProvider extends ManagedContainerViewProvider im
 
   protected CDOView openView(CDOSession session, ResourceSet resourceSet)
   {
-    return session.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
+    return session.openTransaction(resourceSet);
   }
 }

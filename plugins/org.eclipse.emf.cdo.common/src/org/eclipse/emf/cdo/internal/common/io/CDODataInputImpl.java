@@ -12,6 +12,7 @@
 package org.eclipse.emf.cdo.internal.common.io;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchManager;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
@@ -33,7 +34,6 @@ import org.eclipse.emf.cdo.common.revision.CDORevisionFactory;
 import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
-import org.eclipse.emf.cdo.internal.common.branch.CDOBranchImpl;
 import org.eclipse.emf.cdo.internal.common.branch.CDOBranchPointImpl;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.internal.common.id.CDOIDAndVersionAndBranchImpl;
@@ -153,6 +153,19 @@ public abstract class CDODataInputImpl extends ExtendedDataInput.Delegating impl
     return CDOModelUtil.getType(typeID);
   }
 
+  public CDOBranch readCDOBranch() throws IOException
+  {
+    int branchID = readInt();
+    return getBranchManager().getBranch(branchID);
+  }
+
+  public CDOBranchPoint readCDOBranchPoint() throws IOException
+  {
+    CDOBranch branch = readCDOBranch();
+    long timeStamp = readLong();
+    return new CDOBranchPointImpl(branch, timeStamp);
+  }
+
   public CDOID readCDOID() throws IOException
   {
     byte ordinal = readByte();
@@ -259,16 +272,6 @@ public abstract class CDODataInputImpl extends ExtendedDataInput.Delegating impl
     }
 
     return null;
-  }
-
-  public CDOBranch readCDOBranch() throws IOException
-  {
-    return new CDOBranchImpl(this);
-  }
-
-  public CDOBranchPoint readCDOBranchPoint() throws IOException
-  {
-    return new CDOBranchPointImpl(this);
   }
 
   public CDORevision readCDORevision() throws IOException
@@ -414,6 +417,8 @@ public abstract class CDODataInputImpl extends ExtendedDataInput.Delegating impl
   }
 
   protected abstract CDOPackageRegistry getPackageRegistry();
+
+  protected abstract CDOBranchManager getBranchManager();
 
   protected abstract CDORevisionFactory getRevisionFactory();
 

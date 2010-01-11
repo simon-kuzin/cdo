@@ -18,7 +18,7 @@ public interface CDOBranchPoint
 {
   public static final long UNSPECIFIED_DATE = 0;
 
-  public int getBranchID();
+  public CDOBranch getBranch();
 
   public long getTimeStamp();
 

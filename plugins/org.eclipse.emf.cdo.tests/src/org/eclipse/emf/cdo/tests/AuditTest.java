@@ -10,7 +10,6 @@
  */
 package org.eclipse.emf.cdo.tests;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.session.CDOSession;
@@ -91,12 +90,12 @@ public class AuditTest extends AbstractCDOTest
     closeSession1();
     session = openSession2();
 
-    CDOView audit = session.openView(CDOBranch.MAIN_BRANCH_ID, commitTime1);
+    CDOView audit = session.openView(commitTime1);
     CDOResource auditResource = audit.getResource("/res1");
     Company auditCompany = (Company)auditResource.getContents().get(0);
     assertEquals("ESC", auditCompany.getName());
 
-    CDOView audit2 = session.openView(CDOBranch.MAIN_BRANCH_ID, commitTime2);
+    CDOView audit2 = session.openView(commitTime2);
     CDOResource auditResource2 = audit2.getResource("/res1");
     Company auditCompany2 = (Company)auditResource2.getContents().get(0);
     assertEquals("Sympedia", auditCompany2.getName());
@@ -131,7 +130,7 @@ public class AuditTest extends AbstractCDOTest
     closeSession1();
     session = openSession2();
 
-    CDOView audit = session.openView(CDOBranch.MAIN_BRANCH_ID, commitTime1);
+    CDOView audit = session.openView(commitTime1);
     {
       CDOResource auditResource = audit.getResource("/res1");
       Company auditCompany = (Company)auditResource.getContents().get(0);
@@ -183,7 +182,7 @@ public class AuditTest extends AbstractCDOTest
     closeSession1();
     session = openSession2();
 
-    CDOView audit = session.openView(CDOBranch.MAIN_BRANCH_ID, commitTime1);
+    CDOView audit = session.openView(commitTime1);
     CDOResource auditResource = audit.getResource("/res1");
     Company auditCompany = (Company)auditResource.getContents().get(0);
     assertEquals("ESC", auditCompany.getName());
@@ -214,7 +213,7 @@ public class AuditTest extends AbstractCDOTest
 
     session = openSession2();
 
-    CDOView audit = session.openView(CDOBranch.MAIN_BRANCH_ID, commitTime1);
+    CDOView audit = session.openView(commitTime1);
     CDOResource auditResource = audit.getResource("/res1");
     assertEquals(1, auditResource.getContents().size());
 
@@ -248,7 +247,7 @@ public class AuditTest extends AbstractCDOTest
 
     session = openSession2();
 
-    CDOView audit = session.openView(CDOBranch.MAIN_BRANCH_ID, commitTime1);
+    CDOView audit = session.openView(commitTime1);
     CDOResource auditResource = audit.getResource("/res1");
     assertEquals(5, auditResource.getContents().size());
 
@@ -282,7 +281,7 @@ public class AuditTest extends AbstractCDOTest
     closeSession1();
     session = openSession2();
 
-    CDOView audit = session.openView(CDOBranch.MAIN_BRANCH_ID, commitTime1);
+    CDOView audit = session.openView(commitTime1);
     CDOResource auditResource = audit.getResource("/res1");
     assertEquals(5, auditResource.getContents().size());
 
@@ -378,7 +377,7 @@ public class AuditTest extends AbstractCDOTest
 
       for (int i = 0; i < timestamps.size(); i++)
       {
-        CDOView audit = session.openView(CDOBranch.MAIN_BRANCH_ID, timestamps.get(i));
+        CDOView audit = session.openView(timestamps.get(i));
         CDOResource res = audit.getResource("/res1");
         GenListOfInt persistentList = (GenListOfInt)res.getContents().get(0);
 
@@ -413,7 +412,7 @@ public class AuditTest extends AbstractCDOTest
     closeSession1();
 
     session = openSession2();
-    session.openView(CDOBranch.MAIN_BRANCH_ID, session.getRepositoryInfo().getCreationTime());
+    session.openView(session.getRepositoryInfo().getCreationTime());
     session.close();
   }
 
@@ -437,7 +436,7 @@ public class AuditTest extends AbstractCDOTest
       closeSession1();
 
       session = openSession2();
-      session.openView(CDOBranch.MAIN_BRANCH_ID, timeStampPriorToRepoCreation);
+      session.openView(timeStampPriorToRepoCreation);
       fail("SignalRemoteException expected");
     }
     catch (RemoteException eexpected)
@@ -470,7 +469,7 @@ public class AuditTest extends AbstractCDOTest
       closeSession1();
 
       session = openSession2();
-      CDOView audit = session.openView(CDOBranch.MAIN_BRANCH_ID, commitTime1);
+      CDOView audit = session.openView(commitTime1);
       audit.setTimeStamp(timeStampPriorToRepoCreation);
       fail("SignalRemoteException expected");
     }
@@ -501,11 +500,11 @@ public class AuditTest extends AbstractCDOTest
     }
 
     CDOSession session = openModel1Session();
-    CDOView audit1 = session.openView(CDOBranch.MAIN_BRANCH_ID, commitTime1);
+    CDOView audit1 = session.openView(commitTime1);
     assertEquals(true, audit1.hasResource("/my/resource"));
     assertEquals(false, audit1.hasResource("/renamed"));
 
-    CDOView audit2 = session.openView(CDOBranch.MAIN_BRANCH_ID, commitTime2);
+    CDOView audit2 = session.openView(commitTime2);
     assertEquals(false, audit2.hasResource("/my/resource"));
     assertEquals(true, audit2.hasResource("/renamed"));
     session.close();
@@ -531,11 +530,11 @@ public class AuditTest extends AbstractCDOTest
     }
 
     CDOSession session = openModel1Session();
-    CDOView audit1 = session.openView(CDOBranch.MAIN_BRANCH_ID, commitTime1);
+    CDOView audit1 = session.openView(commitTime1);
     assertEquals(true, audit1.hasResource("/my/resource"));
     assertEquals(false, audit1.hasResource("/renamed"));
 
-    CDOView audit2 = session.openView(CDOBranch.MAIN_BRANCH_ID, commitTime2);
+    CDOView audit2 = session.openView(commitTime2);
     assertEquals(false, audit2.hasResource("/my/resource"));
     assertEquals(true, audit2.hasResource("/renamed"));
     session.close();

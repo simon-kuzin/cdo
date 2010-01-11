@@ -15,6 +15,8 @@ package org.eclipse.emf.internal.cdo.view;
 import org.eclipse.emf.cdo.CDONotification;
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.CDOState;
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDMeta;
@@ -30,6 +32,7 @@ import org.eclipse.emf.cdo.eresource.CDOResourceFolder;
 import org.eclipse.emf.cdo.eresource.CDOResourceNode;
 import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.eresource.impl.CDOResourceImpl;
+import org.eclipse.emf.cdo.internal.common.branch.CDOBranchPointImpl;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.transaction.CDOCommitContext;
@@ -124,9 +127,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
 
   private InternalCDOViewSet viewSet;
 
-  private int branchID;
-
-  private long timeStamp;
+  private CDOBranchPoint branchPoint;
 
   private CDOURIHandler uriHandler = new CDOURIHandler(this);
 
@@ -166,10 +167,9 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
   /**
    * @since 2.0
    */
-  public CDOViewImpl(int branchID, long timeStamp)
+  public CDOViewImpl(CDOBranch branch, long timeStamp)
   {
-    this.branchID = branchID;
-    this.timeStamp = timeStamp;
+    branchPoint = new CDOBranchPointImpl(branch, timeStamp);
     options = createOptions();
   }
 
@@ -197,11 +197,6 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
   public boolean isReadOnly()
   {
     return true;
-  }
-
-  public boolean isHistorical()
-  {
-    return timeStamp != UNSPECIFIED_DATE;
   }
 
   public ResourceSet getResourceSet()
@@ -282,14 +277,9 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     return uriHandler;
   }
 
-  public int getBranchID()
+  public CDOBranch getBranch()
   {
-    return branchID;
-  }
-
-  public void setBranchID(int branchID)
-  {
-    changeViewTarget(branchID, timeStamp);
+    return branchPoint.getBranch();
   }
 
   /**
@@ -297,44 +287,59 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
    */
   public long getTimeStamp()
   {
-    return timeStamp;
+    return branchPoint.getTimeStamp();
   }
 
-  public void setTimeStamp(long timeStamp)
+  public boolean isHistorical()
   {
-    changeViewTarget(branchID, timeStamp);
+    return branchPoint.isHistorical();
   }
 
-  private void changeViewTarget(int branchID, long timeStamp)
+  public boolean setTimeStamp(long timeStamp)
+  {
+    return setBranchPoint(getBranch(), timeStamp);
+  }
+
+  public boolean setBranchPoint(CDOBranch branch, long timeStamp)
   {
     checkActive();
-    if (this.branchID != branchID || this.timeStamp != timeStamp)
+    checkTimeStamp(timeStamp);
+    CDOBranchPoint branchPoint = new CDOBranchPointImpl(branch, timeStamp);
+    if (branchPoint.equals(this.branchPoint))
     {
-      if (TRACER.isEnabled())
-      {
-        TRACER.format("Changing view target: branch={0}, {1,date} {1,time}", branchID, timeStamp);
-      }
+      return false;
+    }
 
-      List<InternalCDOObject> invalidObjects = getInvalidObjects(timeStamp);
-      boolean[] existanceFlags = getSession().getSessionProtocol().changeView(viewID, branchID, timeStamp,
-          invalidObjects);
-      this.timeStamp = timeStamp;
-      int i = 0;
-      for (InternalCDOObject invalidObject : invalidObjects)
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("Changing view target: branch={0}, {1,date} {1,time}", branch, timeStamp);
+    }
+
+    List<InternalCDOObject> invalidObjects = getInvalidObjects(timeStamp);
+    boolean[] existanceFlags = getSession().getSessionProtocol().changeView(viewID, branchPoint, invalidObjects);
+    this.branchPoint = branchPoint;
+    int i = 0;
+    for (InternalCDOObject invalidObject : invalidObjects)
+    {
+      boolean existanceFlag = existanceFlags[i++];
+      if (existanceFlag)
       {
-        boolean existanceFlag = existanceFlags[i++];
-        if (existanceFlag)
-        {
-          // --> PROXY
-          CDOStateMachine.INSTANCE.invalidate(invalidObject, CDORevision.UNSPECIFIED_VERSION);
-        }
-        else
-        {
-          // --> DETACHED
-          CDOStateMachine.INSTANCE.detachRemote(invalidObject);
-        }
+        // --> PROXY
+        CDOStateMachine.INSTANCE.invalidate(invalidObject, CDORevision.UNSPECIFIED_VERSION);
+      }
+      else
+      {
+        // --> DETACHED
+        CDOStateMachine.INSTANCE.detachRemote(invalidObject);
       }
     }
+
+    return true;
+  }
+
+  protected void checkTimeStamp(long timeStamp) throws IllegalArgumentException
+  {
+    // All time stamps are valid. CDOTransactionImpl will override.
   }
 
   private List<InternalCDOObject> getInvalidObjects(long timeStamp)
@@ -777,8 +782,8 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
   {
     CDORevisionManager revisionManager = session.getRevisionManager();
     int initialChunkSize = session.options().getCollectionLoadingPolicy().getInitialChunkSize();
-    return (InternalCDORevision)revisionManager.getRevision(id, branchID, timeStamp, initialChunkSize,
-        CDORevision.DEPTH_NONE, loadOnDemand);
+    return (InternalCDORevision)revisionManager.getRevision(id, branchPoint.getBranch().getID(), branchPoint
+        .getTimeStamp(), initialChunkSize, CDORevision.DEPTH_NONE, loadOnDemand);
 
   }
 
@@ -792,7 +797,8 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
   protected void prefetchRevisions(CDOID id, int depth, int initialChunkSize)
   {
     CDORevisionManager revisionManager = session.getRevisionManager();
-    revisionManager.getRevision(id, branchID, timeStamp, initialChunkSize, depth, true);
+    revisionManager.getRevision(id, branchPoint.getBranch().getID(), branchPoint.getTimeStamp(), initialChunkSize,
+        depth, true);
   }
 
   public InternalCDOObject getObject(CDOID id)
@@ -1628,7 +1634,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
   @Override
   protected void doActivate() throws Exception
   {
-    session.getSessionProtocol().openView(getViewID(), getBranchID(), getTimeStamp(), isReadOnly());
+    session.getSessionProtocol().openView(getViewID(), branchPoint, isReadOnly());
   }
 
   /**

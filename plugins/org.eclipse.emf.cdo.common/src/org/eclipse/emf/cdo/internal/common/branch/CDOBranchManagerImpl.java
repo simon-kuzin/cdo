@@ -15,6 +15,7 @@ import org.eclipse.emf.cdo.common.branch.CDOBranchCreatedEvent;
 import org.eclipse.emf.cdo.common.branch.CDOBranchManager;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager;
+import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager.BranchLoader.BranchInfo;
 
 import org.eclipse.net4j.util.event.Event;
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
@@ -30,7 +31,7 @@ public class CDOBranchManagerImpl extends Lifecycle implements InternalCDOBranch
 {
   private BranchLoader branchLoader;
 
-  private MainBranch mainBranch;
+  private CDOBranch mainBranch;
 
   private Map<Integer, CDOBranch> branches = createMap();
 
@@ -52,20 +53,15 @@ public class CDOBranchManagerImpl extends Lifecycle implements InternalCDOBranch
   public void initMainBranch(long repositoryCreationTime)
   {
     checkInactive();
-    mainBranch = new MainBranch(repositoryCreationTime);
+    mainBranch = new CDOBranchImpl.Main(this, repositoryCreationTime);
   }
 
-  public void handleBranchCreated(CDOBranch branch)
+  public void handleBranchCreated(int branchID)
   {
-    synchronized (branches)
-    {
-      putBranch(branch);
-    }
-
-    fireEvent(new BranchCreatedEvent(this, branch));
+    fireEvent(new BranchCreatedEvent(this, branchID));
   }
 
-  public MainBranch getMainBranch()
+  public CDOBranch getMainBranch()
   {
     checkActive();
     return mainBranch;
@@ -85,7 +81,7 @@ public class CDOBranchManagerImpl extends Lifecycle implements InternalCDOBranch
       branch = branches.get(branchID);
       if (branch == null)
       {
-        branch = branchLoader.loadBranch(branchID);
+        branch = new CDOBranchImpl(branchID, this);
         putBranch(branch);
       }
     }
@@ -93,29 +89,34 @@ public class CDOBranchManagerImpl extends Lifecycle implements InternalCDOBranch
     return branch;
   }
 
-  public CDOBranch createBranch(int baseBranchID, long baseTimeStamp, String name)
+  public CDOBranch createBranch(String name, CDOBranch baseBranch, long baseTimeStamp)
   {
     checkActive();
-    CDOBranch branch = branchLoader.createBranch(baseBranchID, baseTimeStamp, name);
+    int branchID = branchLoader.createBranch(new BranchInfo(name, baseBranch.getID(), baseTimeStamp));
+    CDOBranchPoint base = new CDOBranchPointImpl(baseBranch, baseTimeStamp);
+    CDOBranch branch = new CDOBranchImpl(branchID, name, base);
     synchronized (branches)
     {
       putBranch(branch);
     }
 
-    fireEvent(new BranchCreatedEvent(this, branch));
+    handleBranchCreated(branchID);
     return branch;
   }
 
   /**
    * {@link #branches} must be synchronized by caller!
    */
-  private void putBranch(CDOBranch branch)
+  private boolean putBranch(CDOBranch branch)
   {
     int id = branch.getID();
-    if (!branches.containsKey(id))
+    if (branches.containsKey(id))
     {
-      branches.put(id, branch);
+      return false;
     }
+
+    branches.put(id, branch);
+    return true;
   }
 
   protected Soft<Integer, CDOBranch> createMap()
@@ -138,12 +139,12 @@ public class CDOBranchManagerImpl extends Lifecycle implements InternalCDOBranch
   {
     private static final long serialVersionUID = 1L;
 
-    private CDOBranch branch;
+    private int branchID;
 
-    public BranchCreatedEvent(CDOBranchManager source, CDOBranch branch)
+    public BranchCreatedEvent(CDOBranchManager source, int branchID)
     {
       super(source);
-      this.branch = branch;
+      this.branchID = branchID;
     }
 
     @Override
@@ -152,37 +153,9 @@ public class CDOBranchManagerImpl extends Lifecycle implements InternalCDOBranch
       return (CDOBranchManager)super.getSource();
     }
 
-    public CDOBranch getBranch()
+    public int getBranchID()
     {
-      return branch;
-    }
-  }
-
-  /**
-   * @author Eike Stepper
-   */
-  private static final class MainBranch implements CDOBranch
-  {
-    private CDOBranchPoint base;
-
-    public MainBranch(long repositoryCreationTime)
-    {
-      base = new CDOBranchPointImpl(getID(), repositoryCreationTime);
-    }
-
-    public int getID()
-    {
-      return MAIN_BRANCH_ID;
-    }
-
-    public String getName()
-    {
-      return MAIN_BRANCH_NAME;
-    }
-
-    public CDOBranchPoint getBase()
-    {
-      return base;
+      return branchID;
     }
   }
 }

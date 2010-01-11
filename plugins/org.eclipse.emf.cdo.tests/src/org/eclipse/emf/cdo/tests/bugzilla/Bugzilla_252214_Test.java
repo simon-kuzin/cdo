@@ -12,7 +12,6 @@
 package org.eclipse.emf.cdo.tests.bugzilla;
 
 import org.eclipse.emf.cdo.CDOObject;
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.server.IRepository;
@@ -71,7 +70,7 @@ public class Bugzilla_252214_Test extends AbstractCDOTest
     }
 
     CDOSession session = openModel1Session();
-    CDOView audit = session.openView(CDOBranch.MAIN_BRANCH_ID, commitTime1);
+    CDOView audit = session.openView(commitTime1);
 
     {
       CDOResource auditResource = audit.getResource("/res1");

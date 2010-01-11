@@ -12,6 +12,7 @@
  */
 package org.eclipse.emf.cdo.internal.server;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.spi.server.InternalCommitContext;
 import org.eclipse.emf.cdo.spi.server.InternalSession;
 import org.eclipse.emf.cdo.spi.server.InternalTransaction;
@@ -24,9 +25,9 @@ import java.text.MessageFormat;
  */
 public class Transaction extends View implements InternalTransaction
 {
-  public Transaction(InternalSession session, int viewID, int branchID)
+  public Transaction(InternalSession session, int viewID, CDOBranchPoint branchPoint)
   {
-    super(session, viewID, branchID, UNSPECIFIED_DATE);
+    super(session, viewID, branchPoint);
   }
 
   @Override

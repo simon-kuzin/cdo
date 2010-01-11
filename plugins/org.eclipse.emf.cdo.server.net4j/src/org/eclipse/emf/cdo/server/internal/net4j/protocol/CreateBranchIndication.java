@@ -15,6 +15,7 @@ import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager;
+import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager.BranchLoader.BranchInfo;
 import org.eclipse.emf.cdo.spi.server.InternalSessionManager;
 
 import java.io.IOException;
@@ -24,11 +25,7 @@ import java.io.IOException;
  */
 public class CreateBranchIndication extends CDOReadIndication
 {
-  private int baseBranchID;
-
-  private long baseTimeStamp;
-
-  private String name;
+  private BranchInfo branchInfo;
 
   public CreateBranchIndication(CDOServerProtocol protocol)
   {
@@ -38,17 +35,16 @@ public class CreateBranchIndication extends CDOReadIndication
   @Override
   protected void indicating(CDODataInput in) throws IOException
   {
-    baseBranchID = in.readInt();
-    baseTimeStamp = in.readLong();
-    name = in.readString();
+    branchInfo = new BranchInfo(in);
   }
 
   @Override
   protected void responding(CDODataOutput out) throws IOException
   {
     InternalCDOBranchManager branchManager = getRepository().getBranchManager();
-    CDOBranch branch = branchManager.createBranch(baseBranchID, baseTimeStamp, name);
-    LoadBranchIndication.writeBranches(out, branchManager, branch.getID());
+    CDOBranch baseBranch = branchManager.getBranch(branchInfo.getBaseBranchID());
+    CDOBranch branch = branchManager.createBranch(branchInfo.getName(), baseBranch, branchInfo.getBaseTimeStamp());
+    out.writeInt(branch.getID());
 
     InternalSessionManager sessionManager = getRepository().getSessionManager();
     sessionManager.handleBranchNotification(branch, getSession());

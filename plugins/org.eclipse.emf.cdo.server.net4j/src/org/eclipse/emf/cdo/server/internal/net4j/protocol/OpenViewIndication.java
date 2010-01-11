@@ -10,6 +10,7 @@
  */
 package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
@@ -32,17 +33,16 @@ public class OpenViewIndication extends CDOServerIndication
   {
     boolean readOnly = in.readBoolean();
     int viewID = in.readInt();
-    int branchID = in.readInt();
+    CDOBranchPoint branchPoint = in.readCDOBranchPoint();
 
     InternalSession session = getSession();
     if (readOnly)
     {
-      long timeStamp = in.readLong();
-      session.openView(viewID, branchID, timeStamp);
+      session.openView(viewID, branchPoint);
     }
     else
     {
-      session.openTransaction(viewID, branchID);
+      session.openTransaction(viewID, branchPoint);
     }
   }
 

@@ -11,7 +11,6 @@
  */
 package org.eclipse.emf.cdo.tests;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.tests.model1.PurchaseOrder;
@@ -58,8 +57,8 @@ public class XATransactionTest extends AbstractCDOTest
     sessionA.getPackageRegistry().putEPackage(getModel1Package());
     sessionB.getPackageRegistry().putEPackage(getModel1Package());
 
-    CDOTransaction transactionA1 = sessionA.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
-    CDOTransaction transactionB1 = sessionB.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
+    CDOTransaction transactionA1 = sessionA.openTransaction(resourceSet);
+    CDOTransaction transactionB1 = sessionB.openTransaction(resourceSet);
 
     CDOResource resA = transactionA1.createResource("/resA");
     CDOResource resB = transactionB1.createResource("/resB");
@@ -98,8 +97,8 @@ public class XATransactionTest extends AbstractCDOTest
     sessionA.getPackageRegistry().putEPackage(getModel1Package());
     sessionB.getPackageRegistry().putEPackage(getModel1Package());
 
-    CDOTransaction transactionA1 = sessionA.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
-    CDOTransaction transactionB1 = sessionB.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
+    CDOTransaction transactionA1 = sessionA.openTransaction(resourceSet);
+    CDOTransaction transactionB1 = sessionB.openTransaction(resourceSet);
 
     CDOResource resA = transactionA1.createResource("/resA");
     CDOResource resB = transactionB1.createResource("/resB");
@@ -156,8 +155,8 @@ public class XATransactionTest extends AbstractCDOTest
       sessionB.getPackageRegistry().putEPackage(getModel4Package());
 
       ResourceSet resourceSet = new ResourceSetImpl();
-      CDOTransaction transactionA1 = sessionA.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
-      CDOTransaction transactionB1 = sessionB.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
+      CDOTransaction transactionA1 = sessionA.openTransaction(resourceSet);
+      CDOTransaction transactionB1 = sessionB.openTransaction(resourceSet);
 
       CDOResource resA = transactionA1.createResource("/resA");
       CDOResource resB = transactionB1.createResource("/resB");
@@ -201,8 +200,8 @@ public class XATransactionTest extends AbstractCDOTest
       sessionB.getPackageRegistry().putEPackage(getModel4Package());
 
       ResourceSet resourceSet = new ResourceSetImpl();
-      CDOTransaction transactionA1 = sessionA.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
-      CDOTransaction transactionB1 = sessionB.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
+      CDOTransaction transactionA1 = sessionA.openTransaction(resourceSet);
+      CDOTransaction transactionB1 = sessionB.openTransaction(resourceSet);
 
       CDOResource resA = transactionA1.createResource("/resA");
       CDOResource resB = transactionB1.createResource("/resB");
@@ -245,8 +244,8 @@ public class XATransactionTest extends AbstractCDOTest
     sessionA.getPackageRegistry().putEPackage(getModel1Package());
     sessionB.getPackageRegistry().putEPackage(getModel1Package());
 
-    CDOTransaction transactionA1 = sessionA.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
-    CDOTransaction transactionB1 = sessionB.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
+    CDOTransaction transactionA1 = sessionA.openTransaction(resourceSet);
+    CDOTransaction transactionB1 = sessionB.openTransaction(resourceSet);
 
     CDOResource resA = transactionA1.createResource("/resA");
     CDOResource resB = transactionB1.createResource("/resB");
@@ -291,8 +290,8 @@ public class XATransactionTest extends AbstractCDOTest
     sessionA.getPackageRegistry().putEPackage(getModel1Package());
     sessionB.getPackageRegistry().putEPackage(getModel1Package());
 
-    CDOTransaction transactionA1 = sessionA.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
-    CDOTransaction transactionB1 = sessionB.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
+    CDOTransaction transactionA1 = sessionA.openTransaction(resourceSet);
+    CDOTransaction transactionB1 = sessionB.openTransaction(resourceSet);
 
     CDOResource resA = transactionA1.createResource("/resA");
     CDOResource resB = transactionB1.createResource("/resB");

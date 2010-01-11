@@ -10,6 +10,7 @@
  **************************************************************************/
 package org.eclipse.emf.cdo.internal.net4j.protocol;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
@@ -26,19 +27,16 @@ public class ChangeViewRequest extends CDOClientRequest<boolean[]>
 {
   private int viewID;
 
-  private int branchID;
-
-  private long timeStamp;
+  private CDOBranchPoint branchPoint;
 
   private List<InternalCDOObject> invalidObjects;
 
-  public ChangeViewRequest(CDOClientProtocol protocol, int viewID, int branchID, long timeStamp,
+  public ChangeViewRequest(CDOClientProtocol protocol, int viewID, CDOBranchPoint branchPoint,
       List<InternalCDOObject> invalidObjects)
   {
     super(protocol, CDOProtocolConstants.SIGNAL_CHANGE_VIEW);
     this.viewID = viewID;
-    this.branchID = branchID;
-    this.timeStamp = timeStamp;
+    this.branchPoint = branchPoint;
     this.invalidObjects = invalidObjects;
   }
 
@@ -46,11 +44,9 @@ public class ChangeViewRequest extends CDOClientRequest<boolean[]>
   protected void requesting(CDODataOutput out) throws IOException
   {
     out.writeInt(viewID);
-    out.writeLong(branchID);
-    out.writeLong(timeStamp);
+    out.writeCDOBranchPoint(branchPoint);
 
-    int size = invalidObjects.size();
-    out.writeInt(size);
+    out.writeInt(invalidObjects.size());
     for (InternalCDOObject object : invalidObjects)
     {
       out.writeCDOID(object.cdoID());

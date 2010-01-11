@@ -15,7 +15,6 @@
 package org.eclipse.emf.cdo.internal.server;
 
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
@@ -206,18 +205,18 @@ public class Repository extends Container<Object> implements InternalRepository
     return accessor.loadPackageUnit((InternalCDOPackageUnit)packageUnit);
   }
 
-  public CDOBranch loadBranch(int branchID)
+  public BranchInfo loadBranch(int branchID)
   {
     IStoreAccessor accessor = StoreThreadLocal.getAccessor();
     return accessor.loadBranch(branchID);
   }
 
-  public CDOBranch createBranch(int baseBranchID, long baseTimeStamp, String name)
+  public int createBranch(BranchInfo branchInfo)
   {
     synchronized (createBranchLock)
     {
       IStoreAccessor accessor = StoreThreadLocal.getAccessor();
-      return accessor.createBranch(baseBranchID, baseTimeStamp, name);
+      return accessor.createBranch(branchInfo);
     }
   }
 

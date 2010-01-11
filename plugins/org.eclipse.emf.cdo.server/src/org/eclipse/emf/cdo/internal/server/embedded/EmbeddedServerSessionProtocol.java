@@ -10,7 +10,6 @@
  */
 package org.eclipse.emf.cdo.internal.server.embedded;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
@@ -66,10 +65,10 @@ public class EmbeddedServerSessionProtocol extends Lifecycle implements ISession
     return clientSessionProtocol.handleAuthenticationChallenge(randomToken);
   }
 
-  public void sendBranchNotification(CDOBranch branch)
+  public void sendBranchNotification(int branchID)
   {
     EmbeddedClientSession clientSession = clientSessionProtocol.getSession();
-    clientSession.handleBranchNotification(branch);
+    clientSession.handleBranchNotification(branchID);
   }
 
   public void sendCommitNotification(CDOBranchPoint branchPoint, CDOPackageUnit[] packageUnits,

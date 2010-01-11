@@ -10,43 +10,35 @@
  **************************************************************************/
 package org.eclipse.emf.cdo.internal.net4j.protocol;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
+import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager.BranchLoader.BranchInfo;
 
 import java.io.IOException;
 
 /**
  * @author Eike Stepper
  */
-public class CreateBranchRequest extends CDOClientRequest<CDOBranch>
+public class CreateBranchRequest extends CDOClientRequest<Integer>
 {
-  private int baseBranchID;
+  private BranchInfo branchInfo;
 
-  private long baseTimeStamp;
-
-  private String name;
-
-  public CreateBranchRequest(CDOClientProtocol protocol, int baseBranchID, long baseTimeStamp, String name)
+  public CreateBranchRequest(CDOClientProtocol protocol, BranchInfo branchInfo)
   {
     super(protocol, CDOProtocolConstants.SIGNAL_CREATE_BRANCH);
-    this.baseBranchID = baseBranchID;
-    this.baseTimeStamp = baseTimeStamp;
-    this.name = name;
+    this.branchInfo = branchInfo;
   }
 
   @Override
   protected void requesting(CDODataOutput out) throws IOException
   {
-    out.writeInt(baseBranchID);
-    out.writeLong(baseTimeStamp);
-    out.writeString(name);
+    branchInfo.write(out);
   }
 
   @Override
-  protected CDOBranch confirming(CDODataInput in) throws IOException
+  protected Integer confirming(CDODataInput in) throws IOException
   {
-    return in.readCDOBranch();
+    return in.readInt();
   }
 }

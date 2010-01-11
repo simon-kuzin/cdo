@@ -12,6 +12,7 @@
 package org.eclipse.emf.cdo.server;
 
 import org.eclipse.emf.cdo.common.CDOCommonSession;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.spi.server.ISessionProtocol;
 
 import org.eclipse.net4j.util.container.IContainer;
@@ -39,10 +40,10 @@ public interface ISession extends CDOCommonSession, IContainer<IView>
   /**
    * @since 3.0
    */
-  public IView openView(int viewID, int branchID, long timeStamp);
+  public IView openView(int viewID, CDOBranchPoint branchPoint);
 
   /**
    * @since 3.0
    */
-  public ITransaction openTransaction(int viewID, int branchID);
+  public ITransaction openTransaction(int viewID, CDOBranchPoint branchPoint);
 }

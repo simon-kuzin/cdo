@@ -10,7 +10,6 @@
  */
 package org.eclipse.emf.cdo.tests.hibernate;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.tests.AbstractCDOTest;
@@ -80,8 +79,8 @@ public class HibernateExternalAnnotationTest extends AbstractCDOTest
       sessionB.getPackageRegistry().putEPackage(getModel1Package());
       sessionB.getPackageRegistry().putEPackage(Model2Package.eINSTANCE);
 
-      CDOTransaction transactionA1 = sessionA.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
-      CDOTransaction transactionB1 = sessionB.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
+      CDOTransaction transactionA1 = sessionA.openTransaction(resourceSet);
+      CDOTransaction transactionB1 = sessionB.openTransaction(resourceSet);
 
       CDOResource resA = transactionA1.createResource("/resA");
       CDOResource resB = transactionB1.createResource("/resB");
@@ -134,10 +133,10 @@ public class HibernateExternalAnnotationTest extends AbstractCDOTest
     {
       ResourceSet resourceSet = new ResourceSetImpl();
       CDOSession session = openSession();
-      CDOTransaction transaction = session.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
+      CDOTransaction transaction = session.openTransaction(resourceSet);
 
       CDOSession session2 = openSession(REPOSITORY2_NAME);
-      CDOTransaction transaction2 = session2.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
+      CDOTransaction transaction2 = session2.openTransaction(resourceSet);
 
       CDOViewSet set = CDOUtil.getViewSet(resourceSet);
       assertNotNull(set);

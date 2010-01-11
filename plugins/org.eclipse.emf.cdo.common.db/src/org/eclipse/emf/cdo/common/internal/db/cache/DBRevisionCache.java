@@ -11,6 +11,7 @@
  **************************************************************************/
 package org.eclipse.emf.cdo.common.internal.db.cache;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranchManager;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.internal.db.AbstractQueryStatement;
@@ -711,21 +712,27 @@ public class DBRevisionCache extends Lifecycle implements CDORevisionCache
     return new CDODataInputImpl(inputStream)
     {
       @Override
-      protected CDOListFactory getListFactory()
-      {
-        return listFactory;
-      }
-
-      @Override
       protected CDOPackageRegistry getPackageRegistry()
       {
         return packageRegistry;
       }
 
       @Override
+      protected CDOBranchManager getBranchManager()
+      {
+        return null;
+      }
+
+      @Override
       protected CDORevisionFactory getRevisionFactory()
       {
         return revisionFactory;
+      }
+
+      @Override
+      protected CDOListFactory getListFactory()
+      {
+        return listFactory;
       }
     };
   }

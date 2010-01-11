@@ -323,17 +323,22 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     this.remoteSessionManager = remoteSessionManager;
   }
 
-  public InternalCDOTransaction openTransaction(int branchID, ResourceSet resourceSet)
+  public InternalCDOTransaction openTransaction(CDOBranch branch, ResourceSet resourceSet)
   {
     checkActive();
-    InternalCDOTransaction transaction = createTransaction(branchID);
+    InternalCDOTransaction transaction = createTransaction(branch);
     initView(transaction, resourceSet);
     return transaction;
   }
 
-  public InternalCDOTransaction openTransaction(int branchID)
+  public InternalCDOTransaction openTransaction(ResourceSet resourceSet)
   {
-    return openTransaction(branchID, createResourceSet());
+    return openTransaction(getBranchManager().getMainBranch(), resourceSet);
+  }
+
+  public InternalCDOTransaction openTransaction(CDOBranch branch)
+  {
+    return openTransaction(branch, createResourceSet());
   }
 
   /**
@@ -341,33 +346,38 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
    */
   public InternalCDOTransaction openTransaction()
   {
-    return openTransaction(CDOBranch.MAIN_BRANCH_ID);
+    return openTransaction(getBranchManager().getMainBranch());
   }
 
   /**
    * @since 2.0
    */
-  protected InternalCDOTransaction createTransaction(int branchID)
+  protected InternalCDOTransaction createTransaction(CDOBranch branch)
   {
-    return new CDOTransactionImpl(branchID);
+    return new CDOTransactionImpl(branch);
   }
 
-  public InternalCDOView openView(int branchID, long timeStamp, ResourceSet resourceSet)
+  public InternalCDOView openView(CDOBranch branch, long timeStamp, ResourceSet resourceSet)
   {
     checkActive();
-    InternalCDOView view = createView(branchID, timeStamp);
+    InternalCDOView view = createView(branch, timeStamp);
     initView(view, resourceSet);
     return view;
   }
 
-  public InternalCDOView openView(int branchID, long timeStamp)
+  public InternalCDOView openView(CDOBranch branch, long timeStamp)
   {
-    return openView(branchID, timeStamp, createResourceSet());
+    return openView(branch, timeStamp, createResourceSet());
   }
 
-  public InternalCDOView openView(int branchID)
+  public InternalCDOView openView(CDOBranch branch)
   {
-    return openView(branchID, CDOBranchPoint.UNSPECIFIED_DATE);
+    return openView(branch, CDOBranchPoint.UNSPECIFIED_DATE);
+  }
+
+  public InternalCDOView openView(long timeStamp)
+  {
+    return openView(getBranchManager().getMainBranch(), timeStamp);
   }
 
   /**
@@ -375,15 +385,15 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
    */
   public InternalCDOView openView()
   {
-    return openView(CDOBranch.MAIN_BRANCH_ID);
+    return openView(CDOBranchPoint.UNSPECIFIED_DATE);
   }
 
   /**
    * @since 2.0
    */
-  protected InternalCDOView createView(int branchID, long timeStamp)
+  protected InternalCDOView createView(CDOBranch branch, long timeStamp)
   {
-    return new CDOViewImpl(branchID, timeStamp);
+    return new CDOViewImpl(branch, timeStamp);
   }
 
   /**
@@ -554,9 +564,9 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     handleCommitNotification(branchPoint, newPackageUnits, dirtyOIDs, detachedObjects, null, null, true, false);
   }
 
-  public void handleBranchNotification(CDOBranch branch)
+  public void handleBranchNotification(int branchID)
   {
-    getBranchManager().handleBranchCreated(branch);
+    getBranchManager().handleBranchCreated(branchID);
   }
 
   /**
@@ -570,19 +580,21 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
         .isPassiveUpdateEnabled(), true);
   }
 
-  private void handleCommitNotification(final CDOBranchPoint branchPoint,
-      final Collection<CDOPackageUnit> newPackageUnits, Set<CDOIDAndVersion> dirtyOIDs,
-      final Collection<CDOID> detachedObjects, final Collection<CDORevisionDelta> deltas, InternalCDOView excludedView,
-      final boolean passiveUpdate, final boolean async)
+  private void handleCommitNotification(CDOBranchPoint branchPoint, final Collection<CDOPackageUnit> newPackageUnits,
+      Set<CDOIDAndVersion> dirtyOIDs, final Collection<CDOID> detachedObjects,
+      final Collection<CDORevisionDelta> deltas, InternalCDOView excludedView, final boolean passiveUpdate,
+      final boolean async)
   {
+    final CDOBranch branch = branchPoint.getBranch();
+    final long timeStamp = branchPoint.getTimeStamp();
+
     try
     {
       synchronized (commitLock)
       {
         if (passiveUpdate)
         {
-          reviseRevisions(branchPoint.getBranchID(), branchPoint.getTimeStamp(), dirtyOIDs, detachedObjects,
-              excludedView);
+          reviseRevisions(branch.getID(), timeStamp, dirtyOIDs, detachedObjects, excludedView);
         }
 
         final Set<CDOIDAndVersion> finalDirtyOIDs = Collections.unmodifiableSet(dirtyOIDs);
@@ -592,7 +604,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
 
         for (final InternalCDOView view : getViews())
         {
-          if (view != excludedView && view.getBranchID() == branchPoint.getBranchID())
+          if (view != excludedView && view.getBranch().equals(branch))
           {
             final Runnable runnable = new Runnable()
             {
@@ -603,8 +615,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
                   Set<CDOObject> conflicts = null;
                   if (passiveUpdate)
                   {
-                    conflicts = view.handleInvalidation(branchPoint.getTimeStamp(), finalDirtyOIDs,
-                        finalDetachedObjects);
+                    conflicts = view.handleInvalidation(timeStamp, finalDirtyOIDs, finalDetachedObjects);
                   }
 
                   if (!skipChangeSubscription)
@@ -617,7 +628,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
                     ((InternalCDOTransaction)view).handleConflicts(conflicts);
                   }
 
-                  view.fireAdaptersNotifiedEvent(branchPoint.getTimeStamp());
+                  view.fireAdaptersNotifiedEvent(timeStamp);
                 }
                 catch (RuntimeException ex)
                 {
@@ -682,7 +693,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       }
     }
 
-    setLastUpdateTime(branchPoint.getTimeStamp());
+    setLastUpdateTime(timeStamp);
     fireInvalidationEvent(branchPoint, newPackageUnits, dirtyOIDs, detachedObjects, excludedView);
   }
 
@@ -1054,7 +1065,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
 
     public int getBranchID()
     {
-      return branchPoint.getBranchID();
+      return branchPoint.getBranch().getID();
     }
 
     public long getTimeStamp()
@@ -1150,14 +1161,14 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       }
     }
 
-    public void openView(int viewID, int branchID, long timeStamp, boolean readOnly)
+    public void openView(int viewID, CDOBranchPoint branchPoint, boolean readOnly)
     {
       int attempt = 0;
       for (;;)
       {
         try
         {
-          delegate.openView(viewID, branchID, timeStamp, readOnly);
+          delegate.openView(viewID, branchPoint, readOnly);
           return;
         }
         catch (Exception ex)
@@ -1167,14 +1178,14 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       }
     }
 
-    public boolean[] changeView(int viewID, int branchID, long timeStamp, List<InternalCDOObject> invalidObjects)
+    public boolean[] changeView(int viewID, CDOBranchPoint branchPoint, List<InternalCDOObject> invalidObjects)
     {
       int attempt = 0;
       for (;;)
       {
         try
         {
-          return delegate.changeView(viewID, branchID, timeStamp, invalidObjects);
+          return delegate.changeView(viewID, branchPoint, invalidObjects);
         }
         catch (Exception ex)
         {
@@ -1328,7 +1339,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       }
     }
 
-    public CDOBranch loadBranch(int branchID)
+    public BranchInfo loadBranch(int branchID)
     {
       int attempt = 0;
       for (;;)
@@ -1344,14 +1355,14 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       }
     }
 
-    public CDOBranch createBranch(int baseBranchID, long baseTimeStamp, String name)
+    public int createBranch(BranchInfo branchInfo)
     {
       int attempt = 0;
       for (;;)
       {
         try
         {
-          return delegate.createBranch(baseBranchID, baseTimeStamp, name);
+          return delegate.createBranch(branchInfo);
         }
         catch (Exception ex)
         {

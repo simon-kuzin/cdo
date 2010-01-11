@@ -14,7 +14,6 @@
  */
 package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
@@ -86,13 +85,13 @@ public class CDOServerProtocol extends SignalProtocol<InternalSession> implement
     return new AuthenticationRequest(this, randomToken).send(negotiationTimeout);
   }
 
-  public void sendBranchNotification(CDOBranch branch)
+  public void sendBranchNotification(int branchID)
   {
     try
     {
       if (LifecycleUtil.isActive(getChannel()))
       {
-        new BranchNotificationRequest(this, branch).sendAsync();
+        new BranchNotificationRequest(this, branchID).sendAsync();
       }
       else
       {

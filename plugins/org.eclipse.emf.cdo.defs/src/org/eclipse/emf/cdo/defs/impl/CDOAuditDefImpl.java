@@ -4,14 +4,13 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Andre Dietisheim - initial API and implementation
  *    Eike Stepper - maintenance
  */
 package org.eclipse.emf.cdo.defs.impl;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.defs.CDOAuditDef;
 import org.eclipse.emf.cdo.defs.CDODefsPackage;
 import org.eclipse.emf.cdo.session.CDOSession;
@@ -98,8 +97,10 @@ public class CDOAuditDefImpl extends CDOViewDefImpl implements CDOAuditDef
     Date oldTimeStamp = timeStamp;
     timeStamp = newTimeStamp;
     if (eNotificationRequired())
+    {
       eNotify(new ENotificationImpl(this, Notification.SET, CDODefsPackage.CDO_AUDIT_DEF__TIME_STAMP, oldTimeStamp,
           timeStamp));
+    }
   }
 
   /**
@@ -177,7 +178,9 @@ public class CDOAuditDefImpl extends CDOViewDefImpl implements CDOAuditDef
   public String toString()
   {
     if (eIsProxy())
+    {
       return super.toString();
+    }
 
     StringBuffer result = new StringBuffer(super.toString());
     result.append(" (timeStamp: ");
@@ -190,7 +193,7 @@ public class CDOAuditDefImpl extends CDOViewDefImpl implements CDOAuditDef
   protected Object createInstance()
   {
     CDOSession cdoSession = (CDOSession)getCdoSessionDef().getInstance();
-    return cdoSession.openView(CDOBranch.MAIN_BRANCH_ID, getTimeStamp().getTime());
+    return cdoSession.openView(getTimeStamp().getTime());
   }
 
   @Override

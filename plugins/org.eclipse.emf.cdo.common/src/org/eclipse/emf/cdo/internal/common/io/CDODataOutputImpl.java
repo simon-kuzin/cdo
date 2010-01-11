@@ -119,6 +119,17 @@ public abstract class CDODataOutputImpl extends ExtendedDataOutput.Delegating im
     ((CDOTypeImpl)cdoType).write(this);
   }
 
+  public void writeCDOBranch(CDOBranch branch) throws IOException
+  {
+    writeInt(branch.getID());
+  }
+
+  public void writeCDOBranchPoint(CDOBranchPoint branchPoint) throws IOException
+  {
+    writeCDOBranch(branchPoint.getBranch());
+    writeLong(branchPoint.getTimeStamp());
+  }
+
   public void writeCDOID(CDOID id) throws IOException
   {
     if (id == null)
@@ -176,19 +187,6 @@ public abstract class CDODataOutputImpl extends ExtendedDataOutput.Delegating im
       writeCDOID(metaRange.getLowerBound());
       writeInt(metaRange.size());
     }
-  }
-
-  public void writeCDOBranch(CDOBranch branch) throws IOException
-  {
-    writeInt(branch.getID());
-    writeString(branch.getName());
-    writeCDOBranchPoint(branch.getBase());
-  }
-
-  public void writeCDOBranchPoint(CDOBranchPoint branchPoint) throws IOException
-  {
-    writeInt(branchPoint.getBranchID());
-    writeLong(branchPoint.getTimeStamp());
   }
 
   public void writeCDORevision(CDORevision revision, int referenceChunk) throws IOException

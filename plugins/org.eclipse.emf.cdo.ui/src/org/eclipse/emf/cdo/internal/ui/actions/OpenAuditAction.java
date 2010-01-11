@@ -11,7 +11,6 @@
  */
 package org.eclipse.emf.cdo.internal.ui.actions;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.internal.ui.SharedIcons;
 import org.eclipse.emf.cdo.internal.ui.dialogs.OpenAuditDialog;
 import org.eclipse.emf.cdo.internal.ui.messages.Messages;
@@ -53,6 +52,6 @@ public final class OpenAuditAction extends AbstractOpenViewAction
   @Override
   protected void doRun(IProgressMonitor progressMonitor) throws Exception
   {
-    getSession().openView(CDOBranch.MAIN_BRANCH_ID, timeStamp);
+    getSession().openView(timeStamp);
   }
 }

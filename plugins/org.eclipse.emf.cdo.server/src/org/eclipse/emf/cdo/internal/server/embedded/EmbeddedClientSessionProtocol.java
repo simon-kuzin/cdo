@@ -11,7 +11,7 @@
 package org.eclipse.emf.cdo.internal.server.embedded;
 
 import org.eclipse.emf.cdo.CDOObject;
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
@@ -98,12 +98,12 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
     throw new ImplementationError("Should not be called");
   }
 
-  public CDOBranch loadBranch(int branchID)
+  public BranchInfo loadBranch(int branchID)
   {
     throw new ImplementationError("Should not be called");
   }
 
-  public CDOBranch createBranch(int baseBranchID, long baseTimeStamp, String name)
+  public int createBranch(BranchInfo branchInfo)
   {
     throw new ImplementationError("Should not be called");
   }
@@ -172,20 +172,20 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
     throw new UnsupportedOperationException();
   }
 
-  public void openView(int viewID, int branchID, long timeStamp, boolean readOnly)
+  public void openView(int viewID, CDOBranchPoint branchPoint, boolean readOnly)
   {
     InternalSession session = serverSessionProtocol.getSession();
     if (readOnly)
     {
-      session.openView(viewID, branchID, timeStamp);
+      session.openView(viewID, branchPoint);
     }
     else
     {
-      session.openTransaction(viewID, branchID);
+      session.openTransaction(viewID, branchPoint);
     }
   }
 
-  public boolean[] changeView(int viewID, int branchID, long timeStamp, List<InternalCDOObject> invalidObjects)
+  public boolean[] changeView(int viewID, CDOBranchPoint branchPoint, List<InternalCDOObject> invalidObjects)
   {
     InternalView view = serverSessionProtocol.getSession().getView(viewID);
     if (view != null)
@@ -196,7 +196,7 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
         ids.add(object.cdoID());
       }
 
-      return view.changeTarget(branchID, timeStamp, ids);
+      return view.changeTarget(branchPoint, ids);
     }
 
     return null;

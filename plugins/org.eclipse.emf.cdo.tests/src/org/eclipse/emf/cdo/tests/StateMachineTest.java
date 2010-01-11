@@ -158,7 +158,7 @@ public class StateMachineTest extends AbstractCDOTest
     assertTransient(supplier);
     try
     {
-      commit(supplier, new CommitTransactionResult(null, new CDOBranchPointImpl(0, 12345678L)));
+      commit(supplier, new CommitTransactionResult(null, new CDOBranchPointImpl(null, 12345678L)));
       fail("IllegalStateException expected");
     }
     catch (IllegalStateException expected)
@@ -299,7 +299,7 @@ public class StateMachineTest extends AbstractCDOTest
 
     try
     {
-      commit(supplier, new CommitTransactionResult(null, new CDOBranchPointImpl(0, TIMESTAMP)));
+      commit(supplier, new CommitTransactionResult(null, new CDOBranchPointImpl(null, TIMESTAMP)));
       fail("IllegalStateException expected");
     }
     catch (IllegalStateException expected)

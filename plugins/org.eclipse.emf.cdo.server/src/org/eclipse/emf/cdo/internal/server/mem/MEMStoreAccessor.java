@@ -13,7 +13,6 @@
 package org.eclipse.emf.cdo.internal.server.mem;
 
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCacheAdder;
@@ -144,14 +143,14 @@ public class MEMStoreAccessor extends LongIDStoreAccessor
     throw new UnsupportedOperationException();
   }
 
-  public CDOBranch loadBranch(int branchID)
+  public BranchInfo loadBranch(int branchID)
   {
     return getStore().loadBranch(branchID);
   }
 
-  public CDOBranch createBranch(int baseBranchID, long baseTimeStamp, String name)
+  public int createBranch(BranchInfo branchInfo)
   {
-    return getStore().createBranch(baseBranchID, baseTimeStamp, name);
+    return getStore().createBranch(branchInfo);
   }
 
   public InternalCDORevision readRevision(CDOID id, long timeStamp, int listChunk, CDORevisionCacheAdder cache)

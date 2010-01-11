@@ -11,7 +11,6 @@
 package org.eclipse.emf.cdo.tests;
 
 import org.eclipse.emf.cdo.CDOState;
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.commit.CDOCommit;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.session.CDOSession;
@@ -181,7 +180,7 @@ public class InitialTest extends AbstractCDOTest
     CDOSession session = openModel1Session();
 
     msg("Opening transaction");
-    CDOTransaction transaction = session.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
+    CDOTransaction transaction = session.openTransaction(resourceSet);
     final URI newURI = CDOURIUtil.createResourceURI(session, "test1");
     msg("Verifying resource");
     assertNew(resource, transaction);
@@ -234,7 +233,7 @@ public class InitialTest extends AbstractCDOTest
     CDOSession session = openModel1Session();
 
     msg("Opening transaction");
-    CDOTransaction transaction = session.openTransaction(CDOBranch.MAIN_BRANCH_ID, resourceSet);
+    CDOTransaction transaction = session.openTransaction(resourceSet);
 
     msg("Verifying resource");
     assertNew(resource, transaction);

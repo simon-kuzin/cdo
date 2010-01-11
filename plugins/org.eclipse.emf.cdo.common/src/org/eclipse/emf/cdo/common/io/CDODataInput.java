@@ -62,6 +62,18 @@ public interface CDODataInput extends ExtendedDataInput
 
   // /////////////////////////////////////////////////////////////////////////////////////////////////
 
+  /**
+   * @since 3.0
+   */
+  public CDOBranch readCDOBranch() throws IOException;
+
+  /**
+   * @since 3.0
+   */
+  public CDOBranchPoint readCDOBranchPoint() throws IOException;
+
+  // /////////////////////////////////////////////////////////////////////////////////////////////////
+
   public CDOID readCDOID() throws IOException;
 
   public CDOIDAndVersion readCDOIDAndVersion() throws IOException;
@@ -74,16 +86,6 @@ public interface CDODataInput extends ExtendedDataInput
   public CDOIDMetaRange readCDOIDMetaRange() throws IOException;
 
   // /////////////////////////////////////////////////////////////////////////////////////////////////
-
-  /**
-   * @since 3.0
-   */
-  public CDOBranch readCDOBranch() throws IOException;
-
-  /**
-   * @since 3.0
-   */
-  public CDOBranchPoint readCDOBranchPoint() throws IOException;
 
   public CDORevision readCDORevision() throws IOException;
 

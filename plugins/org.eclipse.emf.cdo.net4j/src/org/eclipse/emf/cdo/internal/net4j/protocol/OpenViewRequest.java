@@ -10,6 +10,7 @@
  **************************************************************************/
 package org.eclipse.emf.cdo.internal.net4j.protocol;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
@@ -23,18 +24,15 @@ public class OpenViewRequest extends CDOClientRequest<Boolean>
 {
   private int viewID;
 
-  private int branchID;
-
-  private long timeStamp;
+  private CDOBranchPoint branchPoint;
 
   private boolean readOnly;
 
-  public OpenViewRequest(CDOClientProtocol protocol, int viewID, int branchID, long timeStamp, boolean readOnly)
+  public OpenViewRequest(CDOClientProtocol protocol, int viewID, CDOBranchPoint branchPoint, boolean readOnly)
   {
     super(protocol, CDOProtocolConstants.SIGNAL_OPEN_VIEW);
     this.viewID = viewID;
-    this.branchID = branchID;
-    this.timeStamp = timeStamp;
+    this.branchPoint = branchPoint;
     this.readOnly = readOnly;
   }
 
@@ -43,8 +41,7 @@ public class OpenViewRequest extends CDOClientRequest<Boolean>
   {
     out.writeBoolean(readOnly);
     out.writeInt(viewID);
-    out.writeInt(branchID);
-    out.writeLong(timeStamp);
+    out.writeCDOBranchPoint(branchPoint);
   }
 
   @Override

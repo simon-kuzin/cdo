@@ -10,6 +10,7 @@
  */
 package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
@@ -36,8 +37,7 @@ public class ChangeViewIndication extends CDOReadIndication
   protected void indicating(CDODataInput in) throws IOException
   {
     int viewID = in.readInt();
-    int branchID = in.readInt();
-    long timeStamp = in.readLong();
+    CDOBranchPoint branchPoint = in.readCDOBranchPoint();
 
     int size = in.readInt();
     List<CDOID> invalidObjects = new ArrayList<CDOID>(size);
@@ -48,7 +48,7 @@ public class ChangeViewIndication extends CDOReadIndication
     }
 
     InternalView view = getSession().getView(viewID);
-    existanceFlags = view.changeTarget(branchID, timeStamp, invalidObjects);
+    existanceFlags = view.changeTarget(branchPoint, invalidObjects);
   }
 
   @Override

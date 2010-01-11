@@ -14,7 +14,6 @@
  */
 package org.eclipse.emf.cdo.internal.server;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
@@ -219,10 +218,10 @@ public class Session extends Container<IView> implements InternalSession
   /**
    * @since 2.0
    */
-  public InternalView openView(int viewID, int branchID, long timeStamp)
+  public InternalView openView(int viewID, CDOBranchPoint branchPoint)
   {
     checkActive();
-    InternalView view = new View(this, viewID, branchID, timeStamp);
+    InternalView view = new View(this, viewID, branchPoint);
     addView(view);
     return view;
   }
@@ -230,10 +229,10 @@ public class Session extends Container<IView> implements InternalSession
   /**
    * @since 2.0
    */
-  public InternalTransaction openTransaction(int viewID, int branchID)
+  public InternalTransaction openTransaction(int viewID, CDOBranchPoint branchPoint)
   {
     checkActive();
-    InternalTransaction transaction = new Transaction(this, viewID, branchID);
+    InternalTransaction transaction = new Transaction(this, viewID, branchPoint);
     addView(transaction);
     return transaction;
   }
@@ -257,9 +256,9 @@ public class Session extends Container<IView> implements InternalSession
     }
   }
 
-  public void handleBranchNotification(CDOBranch branch)
+  public void handleBranchNotification(int branchID)
   {
-    protocol.sendBranchNotification(branch);
+    protocol.sendBranchNotification(branchID);
   }
 
   /**
