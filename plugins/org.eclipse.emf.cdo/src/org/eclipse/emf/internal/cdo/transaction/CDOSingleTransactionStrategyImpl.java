@@ -10,7 +10,6 @@
  **************************************************************************/
 package org.eclipse.emf.internal.cdo.transaction;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.commit.CDOCommit;
 import org.eclipse.emf.cdo.internal.common.commit.CDOCommitImpl;
 
@@ -75,8 +74,7 @@ public class CDOSingleTransactionStrategyImpl implements CDOTransactionStrategy
 
     commitContext.postCommit(result);
 
-    CDOBranchPoint branchPoint = result.getBranchPoint();
-    return new CDOCommitImpl(branchPoint.getBranch(), branchPoint.getTimeStamp(), null, null);
+    return new CDOCommitImpl(transaction.getBranch(), result.getTimeStamp(), null, null);
   }
 
   public void rollback(InternalCDOTransaction transaction, InternalCDOUserSavepoint savepoint)

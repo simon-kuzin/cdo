@@ -327,7 +327,7 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
         monitor.worked();
       }
 
-      result = new CommitTransactionResult(clientCommitContext, serverCommitContext.getBranchPoint());
+      result = new CommitTransactionResult(clientCommitContext, serverCommitContext.getBranchPoint().getTimeStamp());
       for (Entry<CDOIDTemp, CDOID> entry : serverCommitContext.getIDMappings().entrySet())
       {
         result.addIDMapping(entry.getKey(), entry.getValue());

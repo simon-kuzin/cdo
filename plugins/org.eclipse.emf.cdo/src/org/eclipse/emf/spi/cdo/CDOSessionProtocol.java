@@ -295,7 +295,7 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, BranchLo
   {
     private String rollbackMessage;
 
-    private CDOBranchPoint branchPoint;
+    private long timeStamp;
 
     private Map<CDOIDTemp, CDOID> idMappings = new HashMap<CDOIDTemp, CDOID>();
 
@@ -309,13 +309,10 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, BranchLo
       this.rollbackMessage = rollbackMessage;
     }
 
-    /**
-     * @since 3.0
-     */
-    public CommitTransactionResult(InternalCDOCommitContext commitContext, CDOBranchPoint branchPoint)
+    public CommitTransactionResult(InternalCDOCommitContext commitContext, long timeStamp)
     {
       this.commitContext = commitContext;
-      this.branchPoint = branchPoint;
+      this.timeStamp = timeStamp;
     }
 
     public CDOReferenceAdjuster getReferenceAdjuster()
@@ -343,12 +340,9 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, BranchLo
       return rollbackMessage;
     }
 
-    /**
-     * @since 3.0
-     */
-    public CDOBranchPoint getBranchPoint()
+    public long getTimeStamp()
     {
-      return branchPoint;
+      return timeStamp;
     }
 
     public Map<CDOIDTemp, CDOID> getIDMappings()

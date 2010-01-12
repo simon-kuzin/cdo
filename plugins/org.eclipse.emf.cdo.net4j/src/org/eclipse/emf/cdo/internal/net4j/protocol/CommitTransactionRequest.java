@@ -15,7 +15,6 @@ package org.eclipse.emf.cdo.internal.net4j.protocol;
 
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.branch.CDOBranchManager;
-import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
@@ -245,8 +244,8 @@ public class CommitTransactionRequest extends RequestWithMonitoring<CommitTransa
 
   protected CommitTransactionResult confirmingTransactionResult(CDODataInput in) throws IOException
   {
-    CDOBranchPoint branchPoint = in.readCDOBranchPoint();
-    return new CommitTransactionResult(commitContext, branchPoint);
+    long timeStamp = in.readLong();
+    return new CommitTransactionResult(commitContext, timeStamp);
   }
 
   protected void confirmingNewPackage(CDODataInput in, CommitTransactionResult result) throws IOException

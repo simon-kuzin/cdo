@@ -1717,12 +1717,12 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
               ((InternalCDORevisionDelta)dirtyObjectDelta).adjustReferences(result.getReferenceAdjuster());
             }
 
-            session.handleCommitNotification(result.getBranchPoint(), newPackageUnits, dirtyIDs, detachedIDs,
-                deltasCopy, getTransaction());
+            session.handleCommitNotification(getBranch().getPoint(result.getTimeStamp()), newPackageUnits, dirtyIDs,
+                detachedIDs, deltasCopy, getTransaction());
           }
           else
           {
-            session.setLastUpdateTime(result.getBranchPoint().getTimeStamp());
+            session.setLastUpdateTime(result.getTimeStamp());
           }
 
           CDOTransactionHandler[] handlers = getTransactionHandlers();
