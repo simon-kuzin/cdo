@@ -37,6 +37,7 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Map;
 
 /**
  * TODO use async monitors
@@ -70,6 +71,8 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
 
   private void initSqlStrings()
   {
+    Map<EStructuralFeature, String> unsettableFields = getUnsettableFields();
+
     // ----------- Select Revision ---------------------------
     StringBuilder builder = new StringBuilder();
 
@@ -90,6 +93,15 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
     {
       builder.append(", "); //$NON-NLS-1$
       builder.append(singleMapping.getField().getName());
+    }
+
+    if (unsettableFields != null)
+    {
+      for (String fieldName : unsettableFields.values())
+      {
+        builder.append(", ");
+        builder.append(fieldName);
+      }
     }
 
     builder.append(" FROM "); //$NON-NLS-1$
@@ -151,11 +163,28 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
       builder.append(singleMapping.getField().getName());
     }
 
+    if (unsettableFields != null)
+    {
+      for (String fieldName : unsettableFields.values())
+      {
+        builder.append(", ");
+        builder.append(fieldName);
+      }
+    }
+
     builder.append(") VALUES (?, ?, ?, ?, ?, ?, ?, ?"); //$NON-NLS-1$
 
     for (int i = 0; i < getValueMappings().size(); i++)
     {
       builder.append(", ?"); //$NON-NLS-1$
+    }
+
+    if (unsettableFields != null)
+    {
+      for (int i = 0; i < unsettableFields.size(); i++)
+      {
+        builder.append(", ?"); //$NON-NLS-1$
+      }
     }
 
     builder.append(")"); //$NON-NLS-1$
@@ -390,8 +419,27 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
           .getContainerID()));
       stmt.setInt(col++, revision.getContainingFeatureID());
 
+      int isSetCol = col + getValueMappings().size();
+
       for (ITypeMapping mapping : getValueMappings())
       {
+        EStructuralFeature feature = mapping.getFeature();
+        if (feature.isUnsettable())
+        {
+          if (revision.getValue(feature) == null)
+          {
+            stmt.setBoolean(isSetCol++, false);
+
+            // also set value column to default value
+            mapping.setDefaultValue(stmt, col++);
+
+            continue;
+          }
+          else
+          {
+            stmt.setBoolean(isSetCol++, true);
+          }
+        }
         mapping.setValueFromRevision(stmt, col++, revision);
       }
 
