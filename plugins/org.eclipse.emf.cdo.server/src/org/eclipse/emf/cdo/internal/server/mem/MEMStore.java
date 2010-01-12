@@ -475,7 +475,7 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
     @Override
     public String toString()
     {
-      return MessageFormat.format("{0}b{1}", id, branch);
+      return MessageFormat.format("{0}:{1}", id, branch.getID());
     }
   }
 }
