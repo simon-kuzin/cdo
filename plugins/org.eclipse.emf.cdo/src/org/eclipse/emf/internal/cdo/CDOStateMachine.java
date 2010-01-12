@@ -651,7 +651,9 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
         CDORevisionFactory factory = transaction.getSession().getRevisionManager().getFactory();
         InternalCDORevision revision = (InternalCDORevision)factory.createRevision(eClass);
         revision.setID(id);
-        revision.setVersion(-1);
+        revision.setBranchPoint(transaction.getBranch().getHead());
+        revision.setVersion(CDOBranchVersion.FIRST_VERSION);
+        revision.setTransactional(true);
 
         object.cdoInternalSetRevision(revision);
 
@@ -764,6 +766,7 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
         CDORevisionFactory factory = revisionManager.getFactory();
         revision = (InternalCDORevision)factory.createRevision(eClass);
         revision.setID(id);
+        revision.setBranchPoint(transaction.getBranch().getHead());
         revision.setVersion(formerRevision.getVersion());
         revision.setTransactional(true);
       }
