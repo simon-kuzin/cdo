@@ -11,28 +11,28 @@
 package org.eclipse.emf.cdo.internal.common.branch;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
-import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 
 import java.text.MessageFormat;
 
 /**
  * @author Eike Stepper
  */
-public class CDOBranchVersionImpl implements CDOBranchPoint
+public class CDOBranchVersionImpl implements CDOBranchVersion
 {
   private CDOBranch branch;
 
-  private long timeStamp;
+  private int version;
 
-  public CDOBranchVersionImpl(CDOBranch branch, long timeStamp)
+  public CDOBranchVersionImpl(CDOBranch branch, int version)
   {
     this.branch = branch;
-    this.timeStamp = timeStamp;
+    this.version = version;
   }
 
   public CDOBranchVersionImpl(CDOBranch branch)
   {
-    this(branch, UNSPECIFIED_DATE);
+    this(branch, FIRST_VERSION);
   }
 
   public CDOBranch getBranch()
@@ -40,20 +40,15 @@ public class CDOBranchVersionImpl implements CDOBranchPoint
     return branch;
   }
 
-  public long getTimeStamp()
+  public int getVersion()
   {
-    return timeStamp;
-  }
-
-  public boolean isHistorical()
-  {
-    return timeStamp != UNSPECIFIED_DATE;
+    return version;
   }
 
   @Override
   public int hashCode()
   {
-    return branch.hashCode() ^ new Long(timeStamp).hashCode();
+    return branch.hashCode() ^ version;
   }
 
   @Override
@@ -64,10 +59,10 @@ public class CDOBranchVersionImpl implements CDOBranchPoint
       return true;
     }
 
-    if (obj instanceof CDOBranchPoint)
+    if (obj instanceof CDOBranchVersion)
     {
-      CDOBranchPoint that = (CDOBranchPoint)obj;
-      return branch.equals(that.getBranch()) && timeStamp == that.getTimeStamp();
+      CDOBranchVersion that = (CDOBranchVersion)obj;
+      return branch.equals(that.getBranch()) && version == that.getVersion();
     }
 
     return false;
@@ -76,6 +71,6 @@ public class CDOBranchVersionImpl implements CDOBranchPoint
   @Override
   public String toString()
   {
-    return MessageFormat.format("BranchPoint[branch={0}, timeStamp={1,date} {1,time}]", branch, timeStamp);
+    return MessageFormat.format("BranchVersion[branch={0}, version={1}]", branch, version);
   }
 }

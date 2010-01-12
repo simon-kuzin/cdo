@@ -10,8 +10,8 @@
  */
 package org.eclipse.emf.cdo.common.revision;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 
 import org.eclipse.emf.ecore.EClass;
@@ -38,8 +38,7 @@ public interface CDORevisionManager
   public List<CDORevision> getRevisions(Collection<CDOID> ids, CDOBranchPoint branchPoint, int referenceChunk,
       int prefetchDepth, boolean loadOnDemand);
 
-  public boolean containsRevisionByVersion(CDOID id, CDOBranch branch, int version);
+  public boolean containsRevisionByVersion(CDOID id, CDOBranchVersion branchVersion);
 
-  public CDORevision getRevisionByVersion(CDOID id, CDOBranch branch, int version, int referenceChunk,
-      boolean loadOnDemand);
+  public CDORevision getRevisionByVersion(CDOID id, CDOBranchVersion branchVersion, int referenceChunk, boolean loadOnDemand);
 }

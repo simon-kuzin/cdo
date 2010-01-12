@@ -10,7 +10,7 @@
  **************************************************************************/
 package org.eclipse.emf.cdo.internal.net4j.protocol;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
@@ -32,19 +32,16 @@ public class LoadRevisionByVersionRequest extends CDOClientRequest<InternalCDORe
 
   private CDOID id;
 
-  private CDOBranch branch;
-
-  private int version;
+  private CDOBranchVersion branchVersion;
 
   private int referenceChunk;
 
-  public LoadRevisionByVersionRequest(CDOClientProtocol protocol, CDOID id, CDOBranch branch, int version,
+  public LoadRevisionByVersionRequest(CDOClientProtocol protocol, CDOID id, CDOBranchVersion branchVersion,
       int referenceChunk)
   {
     super(protocol, CDOProtocolConstants.SIGNAL_LOAD_REVISION_BY_VERSION);
     this.id = id;
-    this.branch = branch;
-    this.version = version;
+    this.branchVersion = branchVersion;
     this.referenceChunk = referenceChunk;
   }
 
@@ -59,16 +56,10 @@ public class LoadRevisionByVersionRequest extends CDOClientRequest<InternalCDORe
     out.writeCDOID(id);
     if (TRACER.isEnabled())
     {
-      TRACER.format("Writing branch: {0}", branch); //$NON-NLS-1$
+      TRACER.format("Writing branchVersion: {0}", branchVersion); //$NON-NLS-1$
     }
 
-    out.writeCDOBranch(branch);
-    if (TRACER.isEnabled())
-    {
-      TRACER.format("Writing version: {0}", version); //$NON-NLS-1$
-    }
-
-    out.writeInt(version);
+    out.writeCDOBranchVersion(branchVersion);
     if (TRACER.isEnabled())
     {
       TRACER.format("Writing referenceChunk: {0}", referenceChunk); //$NON-NLS-1$
@@ -86,7 +77,7 @@ public class LoadRevisionByVersionRequest extends CDOClientRequest<InternalCDORe
   @Override
   public String toString()
   {
-    return MessageFormat.format("LoadRevisionByVersionRequest(id={0}, branch={1}, version={2}, referenceChunk={3})",
-        id, branch, version, referenceChunk);
+    return MessageFormat.format("LoadRevisionByVersionRequest(id={0}, branchVersion={1}, referenceChunk={2})", id,
+        branchVersion, referenceChunk);
   }
 }

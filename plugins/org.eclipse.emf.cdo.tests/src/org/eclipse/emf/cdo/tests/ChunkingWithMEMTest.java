@@ -63,8 +63,7 @@ public class ChunkingWithMEMTest extends AbstractCDOTest
     }
 
     InternalCDORevisionManager revisionManager = getRepository().getRevisionManager();
-    revisionManager.getCache().removeRevision(revisionToRemove.getID(), revisionToRemove.getBranch(),
-        revisionToRemove.getVersion());
+    revisionManager.getCache().removeRevision(revisionToRemove.getID(), revisionToRemove);
 
     msg("Opening session");
     CDOSession session = openModel1Session();
@@ -123,8 +122,7 @@ public class ChunkingWithMEMTest extends AbstractCDOTest
     }
 
     InternalCDORevisionManager revisionManager = getRepository().getRevisionManager();
-    revisionManager.getCache().removeRevision(revisionToRemove.getID(), revisionToRemove.getBranch(),
-        revisionToRemove.getVersion());
+    revisionManager.getCache().removeRevision(revisionToRemove.getID(), revisionToRemove);
 
     msg("Opening session");
     CDOSession session = openModel1Session();

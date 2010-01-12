@@ -12,8 +12,8 @@
  */
 package org.eclipse.emf.cdo.server.internal.db.mapping.horizontal;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
@@ -218,15 +218,15 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
     }
   }
 
-  public boolean readRevisionByVersion(IDBStoreAccessor accessor, InternalCDORevision revision, CDOBranch branch,
-      int version, int listChunk)
+  public boolean readRevisionByVersion(IDBStoreAccessor accessor, InternalCDORevision revision,
+      CDOBranchVersion branchVersion, int listChunk)
   {
     PreparedStatement pstmt = null;
     try
     {
       pstmt = accessor.getStatementCache().getPreparedStatement(sqlSelectAttributesByVersion, ReuseProbability.HIGH);
       pstmt.setLong(1, CDOIDUtil.getLong(revision.getID()));
-      pstmt.setInt(2, version);
+      pstmt.setInt(2, branchVersion.getVersion());
 
       // Read singleval-attribute table always (even without modeled attributes!)
       boolean success = readValuesFromStatement(pstmt, revision, accessor);

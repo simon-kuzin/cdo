@@ -13,6 +13,7 @@ package org.eclipse.emf.cdo.internal.common.revision.cache.lru;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
@@ -135,12 +136,13 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
     return getRevision(holder, branchPoint.getTimeStamp());
   }
 
-  public synchronized InternalCDORevision getRevisionByVersion(CDOID id, CDOBranch branch, int version)
+  public synchronized InternalCDORevision getRevisionByVersion(CDOID id, CDOBranchVersion branchVersion)
   {
     RevisionHolder holder = getHolder(id);
     while (holder != null)
     {
       int holderVersion = holder.getVersion();
+      int version = branchVersion.getVersion();
       if (holderVersion > version)
       {
         holder = holder.getNext();
@@ -197,13 +199,14 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
     return true;
   }
 
-  public synchronized InternalCDORevision removeRevision(CDOID id, CDOBranch branch, int version)
+  public synchronized InternalCDORevision removeRevision(CDOID id, CDOBranchVersion branchVersion)
   {
     InternalCDORevision revision = null;
     RevisionHolder holder = getHolder(id);
     while (holder != null)
     {
       int holderVersion = holder.getVersion();
+      int version = branchVersion.getVersion();
       if (holderVersion > version)
       {
         holder = holder.getNext();

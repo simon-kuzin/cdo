@@ -11,9 +11,9 @@
  **************************************************************************/
 package org.eclipse.emf.cdo.common.internal.db.cache;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchManager;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.internal.db.AbstractQueryStatement;
@@ -276,11 +276,9 @@ public class DBRevisionCache extends Lifecycle implements CDORevisionCache
    * 
    * @param id
    *          the id to match the revision against
-   * @param version
-   *          the version to match the revision against
    * @return the revision by version
    */
-  public InternalCDORevision getRevisionByVersion(final CDOID id, CDOBranch branch, final int version)
+  public InternalCDORevision getRevisionByVersion(final CDOID id, final CDOBranchVersion branchVersion)
   {
     Connection connection = null;
 
@@ -311,7 +309,7 @@ public class DBRevisionCache extends Lifecycle implements CDORevisionCache
         protected void setParameters(PreparedStatement preparedStatement) throws SQLException
         {
           preparedStatement.setString(1, id.toURIFragment());
-          preparedStatement.setInt(2, version);
+          preparedStatement.setInt(2, branchVersion.getVersion());
         }
 
         @Override
@@ -546,17 +544,15 @@ public class DBRevisionCache extends Lifecycle implements CDORevisionCache
    * 
    * @param id
    *          the id of the revision to remove
-   * @param version
-   *          the version of the revision to remove
    * @return the {@link InternalCDORevision} that was removed, <tt>null</tt> otherwise
    */
-  public InternalCDORevision removeRevision(CDOID id, CDOBranch branch, int version)
+  public InternalCDORevision removeRevision(CDOID id, CDOBranchVersion branchVersion)
   {
     Connection connection = null;
 
     try
     {
-      final InternalCDORevision revision = getRevisionByVersion(id, branch, version);
+      final InternalCDORevision revision = getRevisionByVersion(id, branchVersion);
       if (revision != null)
       {
         connection = getConnection();

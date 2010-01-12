@@ -11,8 +11,8 @@
  */
 package org.eclipse.emf.cdo.server.db.mapping;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
@@ -48,7 +48,7 @@ public interface IClassMappingAuditSupport
    * @since 3.0
    */
   public boolean readRevisionByVersion(IDBStoreAccessor storeAccessor, InternalCDORevision revision,
-      CDOBranch branch, int version, int listChunk);
+      CDOBranchVersion branchVersion, int listChunk);
 
   /**
    * Read a specific past version of a revision. If this method returns <code>true</code> it is guaranteed that
@@ -68,6 +68,6 @@ public interface IClassMappingAuditSupport
    *         could not be found. In this case, the content of <code>revision</code> is undefined.
    * @since 3.0
    */
-  public boolean readRevision(IDBStoreAccessor storeAccessor, InternalCDORevision revision,
-      CDOBranchPoint branchPoint, int listChunk);
+  public boolean readRevision(IDBStoreAccessor storeAccessor, InternalCDORevision revision, CDOBranchPoint branchPoint,
+      int listChunk);
 }

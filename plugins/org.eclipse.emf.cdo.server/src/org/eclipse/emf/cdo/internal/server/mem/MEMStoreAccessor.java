@@ -15,6 +15,7 @@ package org.eclipse.emf.cdo.internal.server.mem;
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCacheAdder;
 import org.eclipse.emf.cdo.server.IQueryContext;
@@ -160,10 +161,9 @@ public class MEMStoreAccessor extends LongIDStoreAccessor
     return getStore().getRevision(id, branchPoint);
   }
 
-  public InternalCDORevision readRevisionByVersion(CDOID id, CDOBranch branch, int version, int listChunk,
-      CDORevisionCacheAdder cache)
+  public InternalCDORevision readRevisionByVersion(CDOID id, CDOBranchVersion branchVersion, int listChunk, CDORevisionCacheAdder cache)
   {
-    return getStore().getRevisionByVersion(id, branch, version);
+    return getStore().getRevisionByVersion(id, branchVersion);
   }
 
   /**

@@ -12,8 +12,8 @@
  */
 package org.eclipse.emf.cdo.internal.common.revision.cache.two;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
@@ -89,12 +89,12 @@ public class TwoLevelRevisionCache extends Lifecycle implements CDORevisionCache
     return revision;
   }
 
-  public CDORevision getRevisionByVersion(CDOID id, CDOBranch branch, int version)
+  public CDORevision getRevisionByVersion(CDOID id, CDOBranchVersion branchVersion)
   {
-    CDORevision revision = level1.getRevisionByVersion(id, branch, version);
+    CDORevision revision = level1.getRevisionByVersion(id, branchVersion);
     if (revision == null)
     {
-      revision = level2.getRevisionByVersion(id, branch, version);
+      revision = level2.getRevisionByVersion(id, branchVersion);
     }
 
     return revision;
@@ -128,7 +128,7 @@ public class TwoLevelRevisionCache extends Lifecycle implements CDORevisionCache
         }
         else
         {
-          level2.removeRevision(id, revision.getBranch(), revisionInLevel2.getVersion());
+          level2.removeRevision(id, revision.getBranch().getVersion(revisionInLevel2.getVersion()));
         }
       }
     }
@@ -136,10 +136,10 @@ public class TwoLevelRevisionCache extends Lifecycle implements CDORevisionCache
     return added;
   }
 
-  public CDORevision removeRevision(CDOID id, CDOBranch branch, int version)
+  public CDORevision removeRevision(CDOID id, CDOBranchVersion branchVersion)
   {
-    CDORevision revision1 = level1.removeRevision(id, branch, version);
-    CDORevision revision2 = level2.removeRevision(id, branch, version);
+    CDORevision revision1 = level1.removeRevision(id, branchVersion);
+    CDORevision revision2 = level2.removeRevision(id, branchVersion);
     return revision1 != null ? revision1 : revision2;
   }
 

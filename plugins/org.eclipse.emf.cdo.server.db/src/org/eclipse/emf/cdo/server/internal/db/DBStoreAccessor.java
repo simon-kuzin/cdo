@@ -15,6 +15,7 @@ package org.eclipse.emf.cdo.server.internal.db;
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
@@ -195,7 +196,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     return null;
   }
 
-  public InternalCDORevision readRevisionByVersion(CDOID id, CDOBranch branch, int version, int listChunk,
+  public InternalCDORevision readRevisionByVersion(CDOID id, CDOBranchVersion branchVersion, int listChunk,
       CDORevisionCacheAdder cache)
   {
     IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
@@ -210,11 +211,11 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     {
       if (TRACER.isEnabled())
       {
-        TRACER.format("Selecting revision: {0}, version={1}", id, version); //$NON-NLS-1$
+        TRACER.format("Selecting revision {0} from {1}", id, branchVersion); //$NON-NLS-1$
       }
 
       // if audit support is present, just use the audit method
-      success = ((IClassMappingAuditSupport)mapping).readRevisionByVersion(this, revision, branch, version, listChunk);
+      success = ((IClassMappingAuditSupport)mapping).readRevisionByVersion(this, revision, branchVersion, listChunk);
     }
     else
     {
@@ -231,10 +232,10 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
 
       success = mapping.readRevision(this, revision, listChunk);
 
-      if (success && revision.getVersion() != version)
+      if (success && revision.getVersion() != branchVersion.getVersion())
       {
         throw new IllegalStateException("Can only retrieve current version " + revision.getVersion() + " for " + id //$NON-NLS-1$ //$NON-NLS-2$
-            + " - version requested was " + version + "."); //$NON-NLS-1$ //$NON-NLS-2$
+            + " - version requested was " + branchVersion + "."); //$NON-NLS-1$ //$NON-NLS-2$
       }
     }
 

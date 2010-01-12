@@ -12,6 +12,7 @@ package org.eclipse.emf.cdo.internal.common.branch;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager.BranchLoader.BranchInfo;
 
@@ -82,6 +83,11 @@ public class CDOBranchImpl implements CDOBranch
   public CDOBranchPoint getPoint(long timeStamp)
   {
     return new CDOBranchPointImpl(this, timeStamp);
+  }
+
+  public CDOBranchVersion getVersion(int version)
+  {
+    return new CDOBranchVersionImpl(this, version);
   }
 
   public CDOBranch createBranch(String name, long timeStamp)

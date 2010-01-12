@@ -14,6 +14,7 @@ package org.eclipse.emf.cdo.internal.common.revision;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionFactory;
@@ -111,9 +112,9 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     return cache.getRevision(id, branchPoint) != null;
   }
 
-  public boolean containsRevisionByVersion(CDOID id, CDOBranch branch, int version)
+  public boolean containsRevisionByVersion(CDOID id, CDOBranchVersion branchVersion)
   {
-    return cache.getRevisionByVersion(id, branch, version) != null;
+    return cache.getRevisionByVersion(id, branchVersion) != null;
   }
 
   public void reviseLatest(CDOID id, CDOBranch branch)
@@ -126,7 +127,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
       InternalCDORevision revision = (InternalCDORevision)cache.getRevision(id, branch.getHead());
       if (revision != null)
       {
-        cache.removeRevision(id, branch, revision.getVersion());
+        cache.removeRevision(id, branch.getVersion(revision.getVersion()));
       }
     }
     finally
@@ -135,18 +136,18 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     }
   }
 
-  public void reviseVersion(CDOID id, CDOBranch branch, int version, long timeStamp)
+  public void reviseVersion(CDOID id, CDOBranchVersion branchVersion, long timeStamp)
   {
     acquireAtomicRequestLock(revisedLock);
 
     try
     {
-      InternalCDORevision revision = (InternalCDORevision)cache.getRevisionByVersion(id, branch, version);
+      InternalCDORevision revision = (InternalCDORevision)cache.getRevisionByVersion(id, branchVersion);
       if (revision != null)
       {
         if (timeStamp == CDORevision.UNSPECIFIED_DATE)
         {
-          cache.removeRevision(id, branch, revision.getVersion());
+          cache.removeRevision(id, branchVersion);
         }
         else
         {
@@ -201,24 +202,24 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     }
   }
 
-  public InternalCDORevision getRevisionByVersion(CDOID id, CDOBranch branch, int version, int referenceChunk,
+  public InternalCDORevision getRevisionByVersion(CDOID id, CDOBranchVersion branchVersion, int referenceChunk,
       boolean loadOnDemand)
   {
     acquireAtomicRequestLock(loadAndAddLock);
 
     try
     {
-      InternalCDORevision revision = (InternalCDORevision)cache.getRevisionByVersion(id, branch, version);
+      InternalCDORevision revision = (InternalCDORevision)cache.getRevisionByVersion(id, branchVersion);
       if (revision == null)
       {
         if (loadOnDemand)
         {
           if (TRACER.isEnabled())
           {
-            TRACER.format("Loading revision {0} by version {1}", id, version); //$NON-NLS-1$
+            TRACER.format("Loading revision {0} from {1}", id, branchVersion); //$NON-NLS-1$
           }
 
-          revision = revisionLoader.loadRevisionByVersion(id, branch, version, referenceChunk);
+          revision = revisionLoader.loadRevisionByVersion(id, branchVersion, referenceChunk);
           addCachedRevisionIfNotNull(revision);
         }
       }

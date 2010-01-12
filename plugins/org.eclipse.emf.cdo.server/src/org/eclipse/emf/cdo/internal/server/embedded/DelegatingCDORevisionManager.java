@@ -12,6 +12,7 @@ package org.eclipse.emf.cdo.internal.server.embedded;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionFactory;
@@ -79,9 +80,9 @@ public abstract class DelegatingCDORevisionManager extends Lifecycle implements 
     return getDelegate().containsRevision(id, branchPoint);
   }
 
-  public boolean containsRevisionByVersion(CDOID id, CDOBranch branch, int version)
+  public boolean containsRevisionByVersion(CDOID id, CDOBranchVersion branchVersion)
   {
-    return getDelegate().containsRevisionByVersion(id, branch, version);
+    return getDelegate().containsRevisionByVersion(id, branchVersion);
   }
 
   public EClass getObjectType(CDOID id)
@@ -95,10 +96,10 @@ public abstract class DelegatingCDORevisionManager extends Lifecycle implements 
     return getDelegate().getRevision(id, branchPoint, referenceChunk, prefetchDepth, loadOnDemand);
   }
 
-  public CDORevision getRevisionByVersion(CDOID id, CDOBranch branch, int version, int referenceChunk,
+  public CDORevision getRevisionByVersion(CDOID id, CDOBranchVersion branchVersion, int referenceChunk,
       boolean loadOnDemand)
   {
-    return getDelegate().getRevisionByVersion(id, branch, version, referenceChunk, loadOnDemand);
+    return getDelegate().getRevisionByVersion(id, branchVersion, referenceChunk, loadOnDemand);
   }
 
   public List<CDORevision> getRevisions(Collection<CDOID> ids, CDOBranchPoint branchPoint, int referenceChunk,
@@ -112,9 +113,9 @@ public abstract class DelegatingCDORevisionManager extends Lifecycle implements 
     getDelegate().reviseLatest(id, branch);
   }
 
-  public void reviseVersion(CDOID id, CDOBranch branch, int version, long timeStamp)
+  public void reviseVersion(CDOID id, CDOBranchVersion branchVersion, long timeStamp)
   {
-    getDelegate().reviseVersion(id, branch, version, timeStamp);
+    getDelegate().reviseVersion(id, branchVersion, timeStamp);
   }
 
   protected abstract InternalCDORevisionManager getDelegate();

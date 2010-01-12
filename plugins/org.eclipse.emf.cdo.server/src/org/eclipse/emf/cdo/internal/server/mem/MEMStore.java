@@ -14,6 +14,7 @@ package org.eclipse.emf.cdo.internal.server.mem;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOModelConstants;
@@ -127,15 +128,15 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
     return simpleRevisions;
   }
 
-  public synchronized InternalCDORevision getRevisionByVersion(CDOID id, CDOBranch branch, int version)
+  public synchronized InternalCDORevision getRevisionByVersion(CDOID id, CDOBranchVersion branchVersion)
   {
     if (getRepository().isSupportingAudits())
     {
-      Object listKey = getListKey(id, branch);
+      Object listKey = getListKey(id, branchVersion.getBranch());
       List<InternalCDORevision> list = revisions.get(listKey);
       if (list != null)
       {
-        return getRevisionByVersion(list, version);
+        return getRevisionByVersion(list, branchVersion.getVersion());
       }
 
       return null;

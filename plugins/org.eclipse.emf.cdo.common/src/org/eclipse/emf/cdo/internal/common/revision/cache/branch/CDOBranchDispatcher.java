@@ -12,6 +12,7 @@ package org.eclipse.emf.cdo.internal.common.revision.cache.branch;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
@@ -75,26 +76,26 @@ public class CDOBranchDispatcher extends Lifecycle implements CDORevisionCache
     return cache.getRevision(id, branchPoint);
   }
 
-  public CDORevision getRevisionByVersion(CDOID id, CDOBranch branch, int version)
+  public CDORevision getRevisionByVersion(CDOID id, CDOBranchVersion branchVersion)
   {
-    CDORevisionCache cache = getCache(branch);
+    CDORevisionCache cache = getCache(branchVersion.getBranch());
     if (cache == null)
     {
       return null;
     }
 
-    return cache.getRevisionByVersion(id, branch, version);
+    return cache.getRevisionByVersion(id, branchVersion);
   }
 
-  public CDORevision removeRevision(CDOID id, CDOBranch branch, int version)
+  public CDORevision removeRevision(CDOID id, CDOBranchVersion branchVersion)
   {
-    CDORevisionCache cache = getCache(branch);
+    CDORevisionCache cache = getCache(branchVersion.getBranch());
     if (cache == null)
     {
       return null;
     }
 
-    return cache.removeRevision(id, branch, version);
+    return cache.removeRevision(id, branchVersion);
   }
 
   public boolean addRevision(CDORevision revision)

@@ -11,8 +11,8 @@
 package org.eclipse.emf.cdo.internal.server;
 
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
@@ -222,9 +222,9 @@ public abstract class DelegatingRepository implements InternalRepository
     return getDelegate().loadRevisions(ids, branchPoint, referenceChunk, prefetchDepth);
   }
 
-  public InternalCDORevision loadRevisionByVersion(CDOID id, CDOBranch branch, int version, int referenceChunk)
+  public InternalCDORevision loadRevisionByVersion(CDOID id, CDOBranchVersion branchVersion, int referenceChunk)
   {
-    return getDelegate().loadRevisionByVersion(id, branch, version, referenceChunk);
+    return getDelegate().loadRevisionByVersion(id, branchVersion, referenceChunk);
   }
 
   public void notifyReadAccessHandlers(InternalSession session, CDORevision[] revisions,

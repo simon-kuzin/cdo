@@ -11,7 +11,7 @@
  */
 package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
@@ -40,9 +40,7 @@ public class LoadChunkIndication extends CDOReadIndication
 
   private CDOID id;
 
-  private CDOBranch branch;
-
-  private int version;
+  private CDOBranchVersion branchVersion;
 
   private EStructuralFeature feature;
 
@@ -64,16 +62,10 @@ public class LoadChunkIndication extends CDOReadIndication
       TRACER.format("Read revision ID: {0}", id); //$NON-NLS-1$
     }
 
-    branch = in.readCDOBranch();
+    branchVersion = in.readCDOBranchVersion();
     if (TRACER.isEnabled())
     {
-      TRACER.format("Read  branch: {0}", branch); //$NON-NLS-1$
-    }
-
-    version = in.readInt();
-    if (TRACER.isEnabled())
-    {
-      TRACER.format("Read  version: {0}", version); //$NON-NLS-1$
+      TRACER.format("Read  branchVersion: {0}", branchVersion); //$NON-NLS-1$
     }
 
     EClass eClass = (EClass)in.readCDOClassifierRefAndResolve();
@@ -103,8 +95,8 @@ public class LoadChunkIndication extends CDOReadIndication
     InternalRepository repository = getRepository();
     InternalCDORevisionManager revisionManager = repository.getRevisionManager();
 
-    InternalCDORevision revision = (InternalCDORevision)revisionManager.getRevisionByVersion(id, branch, version, 0,
-        true);
+    InternalCDORevision revision = (InternalCDORevision)revisionManager
+        .getRevisionByVersion(id, branchVersion, 0, true);
     repository.ensureChunk(revision, feature, fromIndex, toIndex + 1);
 
     CDOType type = CDOModelUtil.getType(feature);

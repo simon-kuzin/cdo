@@ -18,7 +18,7 @@ import org.eclipse.emf.cdo.tests.RevisionHolderTest.TestRevision;
  * Exception Holder RevisionHolder[AAA@OID297v1] does not belong to this list
  * <p>
  * See bug 289984
- * 
+ *
  * @author Simon McDuff
  */
 public class Bugzilla_289984_Test extends AbstractCDOTest
@@ -35,7 +35,7 @@ public class Bugzilla_289984_Test extends AbstractCDOTest
 
     TestRevision r1v3 = new TestRevision(1, 3, 6);
     cache.addRevision(r1v3);
-    cache.removeRevision(r1v3.getID(), r1v3.getBranch(), 3);
+    cache.removeRevision(r1v3.getID(), r1v3.getBranch().getVersion(3));
 
     TestRevision r1v5 = new TestRevision(1, 5, 6);
     cache.addRevision(r1v5);

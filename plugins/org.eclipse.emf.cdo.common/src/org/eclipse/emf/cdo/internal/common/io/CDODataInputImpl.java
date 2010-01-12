@@ -14,6 +14,7 @@ package org.eclipse.emf.cdo.internal.common.io;
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchManager;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersionAndBranch;
@@ -35,6 +36,7 @@ import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.internal.common.branch.CDOBranchPointImpl;
+import org.eclipse.emf.cdo.internal.common.branch.CDOBranchVersionImpl;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.internal.common.id.CDOIDAndVersionAndBranchImpl;
 import org.eclipse.emf.cdo.internal.common.id.CDOIDAndVersionImpl;
@@ -164,6 +166,13 @@ public abstract class CDODataInputImpl extends ExtendedDataInput.Delegating impl
     CDOBranch branch = readCDOBranch();
     long timeStamp = readLong();
     return new CDOBranchPointImpl(branch, timeStamp);
+  }
+
+  public CDOBranchVersion readCDOBranchVersion() throws IOException
+  {
+    CDOBranch branch = readCDOBranch();
+    int version = readInt();
+    return new CDOBranchVersionImpl(branch, version);
   }
 
   public CDOID readCDOID() throws IOException

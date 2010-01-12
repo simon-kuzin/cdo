@@ -30,6 +30,8 @@ public interface CDOBranch
 
   public CDOBranchPoint getPoint(long timeStamp);
 
+  public CDOBranchVersion getVersion(int version);
+
   public CDOBranchManager getBranchManager();
 
   public CDOBranch createBranch(String name, long timeStamp);

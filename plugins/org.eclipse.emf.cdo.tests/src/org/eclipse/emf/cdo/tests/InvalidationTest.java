@@ -927,9 +927,9 @@ public class InvalidationTest extends AbstractCDOTest
     {
       clearCache(getRepository().getRevisionManager());
       getRepository().getRevisionManager().getCache().removeRevision(resourceA.cdoID(),
-          resourceA.cdoRevision().getBranch(), 1);
+          resourceA.cdoRevision().getBranch().getVersion(1));
       getRepository().getRevisionManager().getCache().removeRevision(resourceA.cdoID(),
-          resourceA.cdoRevision().getBranch(), 2);
+          resourceA.cdoRevision().getBranch().getVersion(2));
     }
 
     msg("Checking after commit");

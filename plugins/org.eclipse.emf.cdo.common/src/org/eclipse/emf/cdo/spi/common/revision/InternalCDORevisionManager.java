@@ -12,6 +12,7 @@ package org.eclipse.emf.cdo.spi.common.revision;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevisionFactory;
 import org.eclipse.emf.cdo.common.revision.CDORevisionManager;
@@ -46,7 +47,7 @@ public interface InternalCDORevisionManager extends CDORevisionManager, ILifecyc
 
   public void reviseLatest(CDOID id, CDOBranch branch);
 
-  public void reviseVersion(CDOID id, CDOBranch branch, int version, long timeStamp);
+  public void reviseVersion(CDOID id, CDOBranchVersion branchVersion, long timeStamp);
 
   /**
    * @author Eike Stepper
@@ -56,7 +57,7 @@ public interface InternalCDORevisionManager extends CDORevisionManager, ILifecyc
     public List<InternalCDORevision> loadRevisions(Collection<CDOID> ids, CDOBranchPoint branchPoint,
         int referenceChunk, int prefetchDepth);
 
-    public InternalCDORevision loadRevisionByVersion(CDOID id, CDOBranch branch, int version, int referenceChunk);
+    public InternalCDORevision loadRevisionByVersion(CDOID id, CDOBranchVersion branchVersion, int referenceChunk);
   }
 
   /**

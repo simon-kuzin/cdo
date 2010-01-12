@@ -10,7 +10,7 @@
  */
 package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
@@ -32,9 +32,7 @@ public class LoadRevisionByVersionIndication extends CDOReadIndication
 
   private CDOID id;
 
-  private CDOBranch branch;
-
-  private int version;
+  private CDOBranchVersion branchVersion;
 
   private int referenceChunk;
 
@@ -52,16 +50,10 @@ public class LoadRevisionByVersionIndication extends CDOReadIndication
       TRACER.format("Read id: {0}", id); //$NON-NLS-1$
     }
 
-    branch = in.readCDOBranch();
+    branchVersion = in.readCDOBranchVersion();
     if (TRACER.isEnabled())
     {
-      TRACER.format("Read branch: {0}", branch); //$NON-NLS-1$
-    }
-
-    version = in.readInt();
-    if (TRACER.isEnabled())
-    {
-      TRACER.format("Read version: {0}", version); //$NON-NLS-1$
+      TRACER.format("Read branchVersion: {0}", branchVersion); //$NON-NLS-1$
     }
 
     referenceChunk = in.readInt();
@@ -74,8 +66,8 @@ public class LoadRevisionByVersionIndication extends CDOReadIndication
   @Override
   protected void responding(CDODataOutput out) throws IOException
   {
-    CDORevision revision = getRepository().getRevisionManager().getRevisionByVersion(id, branch, version,
-        referenceChunk, true);
+    CDORevision revision = getRepository().getRevisionManager().getRevisionByVersion(id, branchVersion, referenceChunk,
+        true);
     out.writeCDORevision(revision, referenceChunk);
   }
 }

@@ -12,6 +12,7 @@ package org.eclipse.emf.cdo.internal.common.io;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersionAndBranch;
@@ -128,6 +129,12 @@ public abstract class CDODataOutputImpl extends ExtendedDataOutput.Delegating im
   {
     writeCDOBranch(branchPoint.getBranch());
     writeLong(branchPoint.getTimeStamp());
+  }
+
+  public void writeCDOBranchVersion(CDOBranchVersion branchVersion) throws IOException
+  {
+    writeCDOBranch(branchVersion.getBranch());
+    writeInt(branchVersion.getVersion());
   }
 
   public void writeCDOID(CDOID id) throws IOException

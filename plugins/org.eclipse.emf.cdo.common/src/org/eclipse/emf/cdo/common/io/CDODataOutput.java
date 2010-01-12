@@ -13,6 +13,7 @@ package org.eclipse.emf.cdo.common.io;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersionAndBranch;
@@ -79,6 +80,11 @@ public interface CDODataOutput extends ExtendedDataOutput
    * @since 3.0
    */
   public void writeCDOBranchPoint(CDOBranchPoint branchPoint) throws IOException;
+
+  /**
+   * @since 3.0
+   */
+  public void writeCDOBranchVersion(CDOBranchVersion branchVersion) throws IOException;
 
   // /////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -10,8 +10,8 @@
  */
 package org.eclipse.emf.cdo.common.revision.cache;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.internal.common.revision.cache.mem.MEMRevisionCache;
@@ -45,12 +45,12 @@ public interface CDORevisionCache extends INotifier, CDORevisionCacheAdder
   /**
    * @since 3.0
    */
-  public CDORevision getRevisionByVersion(CDOID id, CDOBranch branch, int version);
+  public CDORevision getRevisionByVersion(CDOID id, CDOBranchVersion branchVersion);
 
   /**
    * @since 3.0
    */
-  public CDORevision removeRevision(CDOID id, CDOBranch branch, int version);
+  public CDORevision removeRevision(CDOID id, CDOBranchVersion branchVersion);
 
   /**
    * Returns a list of {@link CDORevision revisions} that are current.

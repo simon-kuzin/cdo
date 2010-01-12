@@ -18,6 +18,7 @@ package org.eclipse.emf.internal.cdo.session;
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
@@ -710,7 +711,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       {
         CDOID id = dirtyOID.getID();
         int version = dirtyOID.getVersion();
-        revisionManager.reviseVersion(id, branch, version, timeStamp);
+        revisionManager.reviseVersion(id, branch.getVersion(version), timeStamp);
       }
     }
 
@@ -1408,14 +1409,14 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       }
     }
 
-    public InternalCDORevision loadRevisionByVersion(CDOID id, CDOBranch branch, int version, int referenceChunk)
+    public InternalCDORevision loadRevisionByVersion(CDOID id, CDOBranchVersion branchVersion, int referenceChunk)
     {
       int attempt = 0;
       for (;;)
       {
         try
         {
-          return delegate.loadRevisionByVersion(id, branch, version, referenceChunk);
+          return delegate.loadRevisionByVersion(id, branchVersion, referenceChunk);
         }
         catch (Exception ex)
         {

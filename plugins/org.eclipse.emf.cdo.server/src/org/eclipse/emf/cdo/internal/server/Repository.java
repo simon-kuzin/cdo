@@ -15,8 +15,8 @@
 package org.eclipse.emf.cdo.internal.server;
 
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
@@ -246,21 +246,22 @@ public class Repository extends Container<Object> implements InternalRepository
     return accessor.readRevision(id, branchPoint, referenceChunk, revisionManager.getCache());
   }
 
-  public InternalCDORevision loadRevisionByVersion(CDOID id, CDOBranch branch, int version, int referenceChunk)
+  public InternalCDORevision loadRevisionByVersion(CDOID id, CDOBranchVersion branchVersion, int referenceChunk)
   {
     IStoreAccessor accessor = StoreThreadLocal.getAccessor();
     if (isSupportingAudits())
     {
-      return accessor.readRevisionByVersion(id, branch, version, referenceChunk, revisionManager.getCache());
+      return accessor.readRevisionByVersion(id, branchVersion, referenceChunk, revisionManager.getCache());
     }
 
-    InternalCDORevision revision = loadRevision(id, branch.getHead(), referenceChunk, CDORevision.DEPTH_NONE);
-    if (revision.getVersion() == version)
+    InternalCDORevision revision = loadRevision(id, branchVersion.getBranch().getHead(), referenceChunk,
+        CDORevision.DEPTH_NONE);
+    if (revision.getVersion() == branchVersion.getVersion())
     {
       return revision;
     }
 
-    throw new IllegalStateException("Cannot access object with id " + id + " and version " + version); //$NON-NLS-1$ //$NON-NLS-2$
+    throw new IllegalStateException("Cannot load revision " + id + " from " + branchVersion); //$NON-NLS-1$ //$NON-NLS-2$
   }
 
   protected void ensureChunks(InternalCDORevision revision, int referenceChunk, IStoreAccessor accessor)
