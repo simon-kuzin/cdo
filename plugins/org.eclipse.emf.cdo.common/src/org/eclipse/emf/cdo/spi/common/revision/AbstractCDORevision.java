@@ -603,7 +603,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
       return getEClass().getName() + "@" + id + "v" + version;
     }
 
-    return getEClass().getName() + "@" + id + "b" + branchID + "v" + version;
+    return getEClass().getName() + "@" + id + ":" + branchID + "v" + version;
   }
 
   public Object getValue(EStructuralFeature feature)

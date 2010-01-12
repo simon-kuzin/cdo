@@ -432,7 +432,6 @@ public class InitialTest extends AbstractCDOTest
     msg("Setting name");
     supplier.setName("Eike");
 
-    sleep(100);
     msg("Committing");
     long commitTime2 = transaction.commit().getTimeStamp();
     assertTrue(commitTime1 < commitTime2);

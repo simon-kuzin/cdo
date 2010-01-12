@@ -20,6 +20,7 @@ import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionData;
+import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.common.revision.delta.CDOClearFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDeltaVisitor;
@@ -58,7 +59,11 @@ public class CDORevisionDeltaImpl implements InternalCDORevisionDelta
     eClass = revision.getEClass();
     id = revision.getID();
     branch = revision.getBranch();
-    version = revision.getVersion();
+    version = CDORevisionUtil.getOriginalVersion(revision);
+    if (version != revision.getVersion() - 1)
+    {
+      throw new RuntimeException();
+    }
   }
 
   public CDORevisionDeltaImpl(CDORevisionDelta revisionDelta)
@@ -164,7 +169,7 @@ public class CDORevisionDeltaImpl implements InternalCDORevisionDelta
   public void apply(CDORevision revision)
   {
     ((InternalCDORevision)revision).setBranchPoint(branch.getPoint(revision.getTimeStamp()));
-    ((InternalCDORevision)revision).setVersion(version);
+    ((InternalCDORevision)revision).setVersion(version + 1);
     for (CDOFeatureDelta featureDelta : featureDeltas.values())
     {
       ((CDOFeatureDeltaImpl)featureDelta).apply(revision);
@@ -309,6 +314,6 @@ public class CDORevisionDeltaImpl implements InternalCDORevisionDelta
   @Override
   public String toString()
   {
-    return MessageFormat.format("CDORevisionDelta[{0}@{1}b{2}v{3}]", eClass.getName(), id, branch, version);
+    return MessageFormat.format("CDORevisionDelta[{0}@{1}:{2}v{3}]", eClass.getName(), id, branch.getID(), version);
   }
 }

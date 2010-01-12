@@ -420,6 +420,7 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
       reset();
       id = d.getID();
       oldVersion = d.getVersion();
+      int newVersion = oldVersion + 1;
       created = c;
       accessor = a;
 
@@ -429,12 +430,12 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
       // update attributes
       if (updateContainer)
       {
-        updateAttributes(accessor, id, oldVersion + 1, created, newContainerID, newContainingFeatureID, newResourceID,
+        updateAttributes(accessor, id, newVersion, created, newContainerID, newContainingFeatureID, newResourceID,
             attributeChanges);
       }
       else
       {
-        updateAttributes(accessor, id, oldVersion + 1, created, attributeChanges);
+        updateAttributes(accessor, id, newVersion, created, attributeChanges);
       }
     }
 
