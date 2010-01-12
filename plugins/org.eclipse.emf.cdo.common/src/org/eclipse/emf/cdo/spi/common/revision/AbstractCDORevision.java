@@ -597,7 +597,13 @@ public abstract class AbstractCDORevision implements InternalCDORevision
   @Override
   public String toString()
   {
-    return getEClass().getName() + "@" + id + "v" + version;
+    int branchID = branchPoint == null ? 0 : branchPoint.getBranch().getID();
+    if (branchID == CDOBranch.MAIN_BRANCH_ID)
+    {
+      return getEClass().getName() + "@" + id + "v" + version;
+    }
+
+    return getEClass().getName() + "@" + id + "b" + branchID + "v" + version;
   }
 
   public Object getValue(EStructuralFeature feature)

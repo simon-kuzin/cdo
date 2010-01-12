@@ -775,7 +775,7 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
         // This branch only gets taken if the object that is being re-attached,
         // was already DIRTY when it was first detached. In this case, the revision
         // is already transactional; we clear it before repopulating it.
-        //
+
         revision = formerRevision;
         for (int i = 0; i < eClass.getFeatureCount(); i++)
         {

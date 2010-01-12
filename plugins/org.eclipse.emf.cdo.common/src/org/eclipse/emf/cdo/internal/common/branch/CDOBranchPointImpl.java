@@ -76,6 +76,6 @@ public class CDOBranchPointImpl implements CDOBranchPoint
   @Override
   public String toString()
   {
-    return MessageFormat.format("BranchPoint[branch={0}, timeStamp={1,date} {1,time}]", branch, timeStamp);
+    return MessageFormat.format("BranchPoint[{0}, {1,date} {1,time}]", branch, timeStamp);
   }
 }
