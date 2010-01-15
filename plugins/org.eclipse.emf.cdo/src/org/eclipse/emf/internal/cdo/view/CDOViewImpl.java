@@ -317,7 +317,8 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     long creationTimeStamp = getSession().getRepositoryInfo().getCreationTime();
     if (timeStamp != UNSPECIFIED_DATE && timeStamp < creationTimeStamp)
     {
-      throw new IllegalArgumentException("timeStamp < repository creation time: " + creationTimeStamp); //$NON-NLS-1$
+      throw new IllegalArgumentException(MessageFormat.format(
+          "timeStamp ({0,date} {0,time}) < repository creation time ({1,date} {1,time})", timeStamp, creationTimeStamp)); //$NON-NLS-1$
     }
 
     if (branchPoint.equals(this.branchPoint))

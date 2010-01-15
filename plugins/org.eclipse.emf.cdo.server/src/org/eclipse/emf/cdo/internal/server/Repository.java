@@ -610,13 +610,15 @@ public class Repository extends Container<Object> implements InternalRepository
     long creationTimeStamp = getCreationTime();
     if (timeStamp < creationTimeStamp)
     {
-      throw new IllegalArgumentException("timeStamp < repository creation time: " + creationTimeStamp); //$NON-NLS-1$
+      throw new IllegalArgumentException(MessageFormat.format(
+          "timeStamp ({0,date} {0,time}) < repository creation time ({1,date} {1,time})", timeStamp, creationTimeStamp)); //$NON-NLS-1$
     }
 
     long currentTimeStamp = System.currentTimeMillis();
     if (timeStamp > currentTimeStamp)
     {
-      throw new IllegalArgumentException("timeStamp > current time: " + currentTimeStamp); //$NON-NLS-1$
+      throw new IllegalArgumentException(MessageFormat.format(
+          "timeStamp ({0,date} {0,time}) > current time ({1,date} {1,time})", timeStamp, currentTimeStamp)); //$NON-NLS-1$
     }
   }
 

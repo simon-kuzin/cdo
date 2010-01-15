@@ -116,7 +116,10 @@ public class View implements InternalView
 
   protected void validateTimeStamp(long timeStamp) throws IllegalArgumentException
   {
-    repository.validateTimeStamp(timeStamp);
+    if (timeStamp != UNSPECIFIED_DATE)
+    {
+      repository.validateTimeStamp(timeStamp);
+    }
   }
 
   /**

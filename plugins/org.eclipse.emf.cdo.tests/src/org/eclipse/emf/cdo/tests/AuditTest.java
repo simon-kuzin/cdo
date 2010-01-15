@@ -471,9 +471,9 @@ public class AuditTest extends AbstractCDOTest
       session = openSession2();
       CDOView audit = session.openView(commitTime1);
       audit.setTimeStamp(timeStampPriorToRepoCreation);
-      fail("SignalRemoteException expected");
+      fail("Exception expected");
     }
-    catch (RemoteException expected)
+    catch (Exception expected)
     {
       // Success
     }
