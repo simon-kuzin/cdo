@@ -72,7 +72,13 @@ public class CDOSingleTransactionStrategyImpl implements CDOTransactionStrategy
       TRACER.format("CDOCommitContext.postCommit"); //$NON-NLS-1$
     }
 
+    // Needed even for non-dirty transactions to release locks
     commitContext.postCommit(result);
+
+    if (result == null)
+    {
+      return null;
+    }
 
     return new CDOCommitImpl(transaction.getBranch(), result.getTimeStamp(), null, null);
   }
