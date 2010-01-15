@@ -513,7 +513,7 @@ public class Repository extends Container<Object> implements InternalRepository
    */
   public long createCommitTimeStamp()
   {
-    long now = System.currentTimeMillis();
+    long now = getTimeStamp();
     synchronized (lastCommitTimeStampLock)
     {
       if (lastCommitTimeStamp != 0)
@@ -521,7 +521,7 @@ public class Repository extends Container<Object> implements InternalRepository
         while (lastCommitTimeStamp == now)
         {
           ConcurrencyUtil.sleep(1);
-          now = System.currentTimeMillis();
+          now = getTimeStamp();
         }
       }
 
@@ -614,12 +614,17 @@ public class Repository extends Container<Object> implements InternalRepository
           "timeStamp ({0,date} {0,time}) < repository creation time ({1,date} {1,time})", timeStamp, creationTimeStamp)); //$NON-NLS-1$
     }
 
-    long currentTimeStamp = System.currentTimeMillis();
+    long currentTimeStamp = getTimeStamp();
     if (timeStamp > currentTimeStamp)
     {
       throw new IllegalArgumentException(MessageFormat.format(
           "timeStamp ({0,date} {0,time}) > current time ({1,date} {1,time})", timeStamp, currentTimeStamp)); //$NON-NLS-1$
     }
+  }
+
+  public long getTimeStamp()
+  {
+    return System.currentTimeMillis();
   }
 
   /**
@@ -759,6 +764,7 @@ public class Repository extends Container<Object> implements InternalRepository
     packageRegistry.setReplacingDescriptors(true);
     packageRegistry.setPackageLoader(this);
     branchManager.setBranchLoader(this);
+    branchManager.setTimeProvider(this);
     revisionManager.setRevisionLoader(this);
     sessionManager.setRepository(this);
     queryManager.setRepository(this);

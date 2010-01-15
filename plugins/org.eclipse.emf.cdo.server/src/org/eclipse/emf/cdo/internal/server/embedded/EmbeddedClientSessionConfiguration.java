@@ -116,12 +116,12 @@ public class EmbeddedClientSessionConfiguration extends CDOSessionConfigurationI
       return repository.getCreationTime();
     }
 
-    public long getCurrentTime()
+    public long getTimeStamp()
     {
-      return getCurrentTime(false);
+      return getTimeStamp(false);
     }
 
-    public long getCurrentTime(boolean forceRefresh)
+    public long getTimeStamp(boolean forceRefresh)
     {
       return System.currentTimeMillis();
     }

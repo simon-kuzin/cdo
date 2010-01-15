@@ -176,6 +176,7 @@ public class CDONet4jSessionConfigurationImpl extends CDOSessionConfigurationImp
 
     branchManager = new CDOBranchManagerImpl();
     branchManager.setBranchLoader(session.getSessionProtocol());
+    branchManager.setTimeProvider(session.getRepositoryInfo());
     branchManager.initMainBranch(session.getRepositoryInfo().getCreationTime());
     branchManager.activate();
 
@@ -250,12 +251,12 @@ public class CDONet4jSessionConfigurationImpl extends CDOSessionConfigurationImp
       return creationTime;
     }
 
-    public long getCurrentTime()
+    public long getTimeStamp()
     {
-      return getCurrentTime(false);
+      return getTimeStamp(false);
     }
 
-    public long getCurrentTime(boolean forceRefresh)
+    public long getTimeStamp(boolean forceRefresh)
     {
       if (timeResult == null || forceRefresh)
       {

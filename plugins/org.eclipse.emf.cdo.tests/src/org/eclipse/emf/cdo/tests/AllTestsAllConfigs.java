@@ -10,7 +10,6 @@
  */
 package org.eclipse.emf.cdo.tests;
 
-import org.eclipse.emf.cdo.tests.AuditTest.LocalAuditTest;
 import org.eclipse.emf.cdo.tests.bugzilla.Bugzilla_241464_Test;
 import org.eclipse.emf.cdo.tests.bugzilla.Bugzilla_243310_Test;
 import org.eclipse.emf.cdo.tests.bugzilla.Bugzilla_246442_Test;
@@ -92,7 +91,7 @@ public abstract class AllTestsAllConfigs extends ConfigTestSuite
     testClasses.add(TransactionTest.class);
     testClasses.add(PushTransactionTest.class);
     testClasses.add(AuditTest.class);
-    testClasses.add(LocalAuditTest.class);
+    testClasses.add(AuditTest.SameSession.class);
     testClasses.add(ResourceTest.class);
     testClasses.add(ContainmentTest.class);
     testClasses.add(InvalidationTest.class);
@@ -181,7 +180,7 @@ public abstract class AllTestsAllConfigs extends ConfigTestSuite
     testClasses.add(Bugzilla_294859_Test.class);
     testClasses.add(Bugzilla_292372_Test.class);
     testClasses.add(Bugzilla_299190_Test.class);
-    
+
     // TODO testClasses.add(NonCDOResourceTest.class);
     // TODO testClasses.add(GeneratedEcoreTest.class);
   }

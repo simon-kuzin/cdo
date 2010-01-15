@@ -10,6 +10,7 @@
  */
 package org.eclipse.emf.cdo.spi.common.branch;
 
+import org.eclipse.emf.cdo.common.CDOTimeProvider;
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchManager;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
@@ -28,6 +29,10 @@ public interface InternalCDOBranchManager extends CDOBranchManager, ILifecycle
   public BranchLoader getBranchLoader();
 
   public void setBranchLoader(BranchLoader branchLoader);
+
+  public CDOTimeProvider getTimeProvider();
+
+  public void setTimeProvider(CDOTimeProvider timeProvider);
 
   public void initMainBranch(long timestamp);
 

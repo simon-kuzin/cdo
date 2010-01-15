@@ -10,6 +10,7 @@
  */
 package org.eclipse.emf.cdo.server;
 
+import org.eclipse.emf.cdo.common.CDOTimeProvider;
 import org.eclipse.emf.cdo.common.branch.CDOBranchManager;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
@@ -27,7 +28,7 @@ import java.util.Map;
  * @author Eike Stepper
  * @noimplement This interface is not intended to be implemented by clients.
  */
-public interface IRepository extends IContainer<Object>, IQueryHandlerProvider
+public interface IRepository extends IContainer<Object>, IQueryHandlerProvider, CDOTimeProvider
 {
   public String getName();
 

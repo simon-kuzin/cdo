@@ -95,6 +95,11 @@ public class CDOBranchImpl implements CDOBranch
     return getBranchManager().createBranch(name, this, timeStamp);
   }
 
+  public CDOBranch createBranch(String name)
+  {
+    return getBranchManager().createBranch(name, this, CDOBranchPoint.UNSPECIFIED_DATE);
+  }
+
   @Override
   public int hashCode()
   {

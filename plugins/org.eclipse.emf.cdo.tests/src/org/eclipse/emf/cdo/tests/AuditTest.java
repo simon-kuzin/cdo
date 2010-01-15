@@ -543,7 +543,7 @@ public class AuditTest extends AbstractCDOTest
   /**
    * @author Eike Stepper
    */
-  public static class LocalAuditTest extends AuditTest
+  public static class SameSession extends AuditTest
   {
     public void testRepositoryCreationTime() throws Exception
     {
@@ -556,7 +556,7 @@ public class AuditTest extends AbstractCDOTest
     public void testRepositoryTime() throws Exception
     {
       CDOSession session = openSession();
-      long repositoryTime = session.getRepositoryInfo().getCurrentTime();
+      long repositoryTime = session.getRepositoryInfo().getTimeStamp();
       assertEquals(true, Math.abs(System.currentTimeMillis() - repositoryTime) < 500);
     }
 

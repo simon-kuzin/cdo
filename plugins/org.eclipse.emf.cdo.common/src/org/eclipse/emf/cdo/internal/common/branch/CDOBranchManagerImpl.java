@@ -10,6 +10,7 @@
  */
 package org.eclipse.emf.cdo.internal.common.branch;
 
+import org.eclipse.emf.cdo.common.CDOTimeProvider;
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchCreatedEvent;
 import org.eclipse.emf.cdo.common.branch.CDOBranchManager;
@@ -31,6 +32,8 @@ public class CDOBranchManagerImpl extends Lifecycle implements InternalCDOBranch
 {
   private BranchLoader branchLoader;
 
+  private CDOTimeProvider timeProvider;
+
   private CDOBranch mainBranch;
 
   private Map<Integer, CDOBranch> branches = createMap();
@@ -48,6 +51,16 @@ public class CDOBranchManagerImpl extends Lifecycle implements InternalCDOBranch
   {
     checkInactive();
     this.branchLoader = branchLoader;
+  }
+
+  public CDOTimeProvider getTimeProvider()
+  {
+    return timeProvider;
+  }
+
+  public void setTimeProvider(CDOTimeProvider timeProvider)
+  {
+    this.timeProvider = timeProvider;
   }
 
   public void initMainBranch(long repositoryCreationTime)
@@ -92,6 +105,12 @@ public class CDOBranchManagerImpl extends Lifecycle implements InternalCDOBranch
   public CDOBranch createBranch(String name, CDOBranch baseBranch, long baseTimeStamp)
   {
     checkActive();
+
+    if (baseTimeStamp == CDOBranchPoint.UNSPECIFIED_DATE)
+    {
+      baseTimeStamp = timeProvider.getTimeStamp();
+    }
+
     int branchID = branchLoader.createBranch(new BranchInfo(name, baseBranch.getID(), baseTimeStamp));
     CDOBranchPoint base = new CDOBranchPointImpl(baseBranch, baseTimeStamp);
     CDOBranch branch = new CDOBranchImpl(branchID, name, base);
@@ -129,6 +148,7 @@ public class CDOBranchManagerImpl extends Lifecycle implements InternalCDOBranch
   {
     super.doBeforeActivate();
     checkNull(branchLoader, "branchLoader");
+    checkNull(timeProvider, "timeProvider");
     checkNull(mainBranch, "mainBranch");
   }
 
