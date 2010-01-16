@@ -48,6 +48,11 @@ public interface IRepository extends IContainer<Object>, IQueryHandlerProvider, 
 
   public boolean isSupportingAudits();
 
+  /**
+   * @since 3.0
+   */
+  public boolean isSupportingBranches();
+
   public boolean isVerifyingRevisions();
 
   /**

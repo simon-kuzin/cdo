@@ -62,4 +62,11 @@ public interface CDORepositoryInfo extends CDOTimeProvider
    * @see IRepository#isSupportingAudits()
    */
   public boolean isSupportingAudits();
+
+  /**
+   * Returns <code>true</code> if this repository supports auditing, <code>false</code> otherwise.
+   * 
+   * @see IRepository#isSupportingAudits()
+   */
+  public boolean isSupportingBranches();
 }

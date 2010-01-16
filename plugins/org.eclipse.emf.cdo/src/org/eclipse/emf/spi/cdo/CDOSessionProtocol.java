@@ -149,19 +149,22 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, BranchLo
 
     private boolean repositorySupportingAudits;
 
+    private boolean repositorySupportingBranches;
+
     private List<InternalCDOPackageUnit> packageUnits = new ArrayList<InternalCDOPackageUnit>();
 
     /**
      * @since 3.0
      */
     public OpenSessionResult(int sessionID, String repositoryUUID, long repositoryCreationTime, long lastUpdateTime,
-        boolean repositorySupportingAudits)
+        boolean repositorySupportingAudits, boolean repositorySupportingBranches)
     {
       this.sessionID = sessionID;
       this.repositoryUUID = repositoryUUID;
       this.repositoryCreationTime = repositoryCreationTime;
       this.lastUpdateTime = lastUpdateTime;
       this.repositorySupportingAudits = repositorySupportingAudits;
+      this.repositorySupportingBranches = repositorySupportingBranches;
     }
 
     public int getSessionID()
@@ -182,6 +185,14 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, BranchLo
     public boolean isRepositorySupportingAudits()
     {
       return repositorySupportingAudits;
+    }
+
+    /**
+     * @since 3.0
+     */
+    public boolean isRepositorySupportingBranches()
+    {
+      return repositorySupportingBranches;
     }
 
     public RepositoryTimeResult getRepositoryTimeResult()

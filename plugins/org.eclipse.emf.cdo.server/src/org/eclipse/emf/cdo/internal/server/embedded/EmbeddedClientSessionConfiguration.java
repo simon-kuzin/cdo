@@ -140,5 +140,10 @@ public class EmbeddedClientSessionConfiguration extends CDOSessionConfigurationI
     {
       return repository.isSupportingAudits();
     }
+
+    public boolean isSupportingBranches()
+    {
+      return repository.isSupportingBranches();
+    }
   }
 }

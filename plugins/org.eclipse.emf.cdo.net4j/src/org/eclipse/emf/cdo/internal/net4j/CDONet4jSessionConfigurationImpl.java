@@ -16,11 +16,11 @@ import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevisionManager;
 import org.eclipse.emf.cdo.eresource.EresourcePackage;
-import org.eclipse.emf.cdo.internal.common.branch.CDOBranchManagerImpl;
 import org.eclipse.emf.cdo.internal.common.model.CDOPackageRegistryImpl;
 import org.eclipse.emf.cdo.internal.common.revision.CDORevisionManagerImpl;
 import org.eclipse.emf.cdo.internal.net4j.protocol.CDOClientProtocol;
 import org.eclipse.emf.cdo.session.CDORepositoryInfo;
+import org.eclipse.emf.cdo.spi.common.branch.CDOBranchUtil;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
@@ -174,7 +174,7 @@ public class CDONet4jSessionConfigurationImpl extends CDOSessionConfigurationImp
     revisionManager.setRevisionLocker(session);
     revisionManager.activate();
 
-    branchManager = new CDOBranchManagerImpl();
+    branchManager = CDOBranchUtil.createBranchManager();
     branchManager.setBranchLoader(session.getSessionProtocol());
     branchManager.setTimeProvider(session.getRepositoryInfo());
     branchManager.initMainBranch(session.getRepositoryInfo().getCreationTime());
@@ -224,6 +224,8 @@ public class CDONet4jSessionConfigurationImpl extends CDOSessionConfigurationImp
 
     private boolean supportingAudits;
 
+    private boolean supportingBranches;
+
     public RepositoryInfo(String name, OpenSessionResult result)
     {
       this.name = name;
@@ -231,6 +233,7 @@ public class CDONet4jSessionConfigurationImpl extends CDOSessionConfigurationImp
       creationTime = result.getRepositoryCreationTime();
       timeResult = result.getRepositoryTimeResult();
       supportingAudits = result.isRepositorySupportingAudits();
+      supportingBranches = result.isRepositorySupportingBranches();
     }
 
     public String getName()
@@ -269,6 +272,11 @@ public class CDONet4jSessionConfigurationImpl extends CDOSessionConfigurationImp
     public boolean isSupportingAudits()
     {
       return supportingAudits;
+    }
+
+    public boolean isSupportingBranches()
+    {
+      return supportingBranches;
     }
 
     private RepositoryTimeResult refreshTime()

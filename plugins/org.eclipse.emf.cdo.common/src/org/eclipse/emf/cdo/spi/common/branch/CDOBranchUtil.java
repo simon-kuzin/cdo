@@ -12,6 +12,7 @@ package org.eclipse.emf.cdo.spi.common.branch;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.internal.common.branch.CDOBranchManagerImpl;
 import org.eclipse.emf.cdo.internal.common.branch.CDOBranchPointImpl;
 
 /**
@@ -22,6 +23,11 @@ public final class CDOBranchUtil
 {
   private CDOBranchUtil()
   {
+  }
+
+  public static InternalCDOBranchManager createBranchManager()
+  {
+    return new CDOBranchManagerImpl();
   }
 
   public static CDOBranchPoint createBranchPoint(CDOBranch branch, long timeStamp)

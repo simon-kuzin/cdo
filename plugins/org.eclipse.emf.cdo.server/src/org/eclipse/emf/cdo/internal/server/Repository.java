@@ -25,7 +25,6 @@ import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.eresource.EresourcePackage;
-import org.eclipse.emf.cdo.internal.common.branch.CDOBranchManagerImpl;
 import org.eclipse.emf.cdo.internal.common.model.CDOPackageRegistryImpl;
 import org.eclipse.emf.cdo.internal.common.revision.CDORevisionManagerImpl;
 import org.eclipse.emf.cdo.server.IQueryHandler;
@@ -37,6 +36,7 @@ import org.eclipse.emf.cdo.server.ITransaction;
 import org.eclipse.emf.cdo.server.InternalNotificationManager;
 import org.eclipse.emf.cdo.server.StoreThreadLocal;
 import org.eclipse.emf.cdo.server.IStoreChunkReader.Chunk;
+import org.eclipse.emf.cdo.spi.common.branch.CDOBranchUtil;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
@@ -194,6 +194,11 @@ public class Repository extends Container<Object> implements InternalRepository
   public boolean isSupportingAudits()
   {
     return supportingAudits;
+  }
+
+  public boolean isSupportingBranches()
+  {
+    return supportingBranches;
   }
 
   public boolean isVerifyingRevisions()
@@ -982,7 +987,7 @@ public class Repository extends Container<Object> implements InternalRepository
 
     protected InternalCDOBranchManager createBranchManager()
     {
-      return new CDOBranchManagerImpl();
+      return CDOBranchUtil.createBranchManager();
     }
 
     protected InternalCDORevisionManager createRevisionManager()

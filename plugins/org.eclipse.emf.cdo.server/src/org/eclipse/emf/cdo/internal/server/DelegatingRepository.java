@@ -181,6 +181,11 @@ public abstract class DelegatingRepository implements InternalRepository
     return getDelegate().isSupportingAudits();
   }
 
+  public boolean isSupportingBranches()
+  {
+    return getDelegate().isSupportingBranches();
+  }
+
   public boolean isSupportingRevisionDeltas()
   {
     return getDelegate().isSupportingRevisionDeltas();
