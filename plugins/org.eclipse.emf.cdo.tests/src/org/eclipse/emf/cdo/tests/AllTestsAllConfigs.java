@@ -77,6 +77,8 @@ public abstract class AllTestsAllConfigs extends ConfigTestSuite
   protected void initTestClasses(List<Class<? extends ConfigTest>> testClasses)
   {
     // General
+    testClasses.add(BranchingTest.class);
+    testClasses.add(BranchingTest.SameSession.class);
     testClasses.add(InitialTest.class);
     testClasses.add(CDOIDTest.class);
     testClasses.add(ComplexTest.class);

@@ -10,7 +10,6 @@
  */
 package org.eclipse.emf.cdo.common.branch;
 
-
 /**
  * @author Eike Stepper
  * @since 3.0
@@ -19,7 +18,7 @@ public interface CDOBranch
 {
   public static final int MAIN_BRANCH_ID = 0;
 
-  public static final String MAIN_BRANCH_NAME = "";
+  public static final String MAIN_BRANCH_NAME = "MAIN";
 
   public static final String PATH_SEPARATOR = "/";
 

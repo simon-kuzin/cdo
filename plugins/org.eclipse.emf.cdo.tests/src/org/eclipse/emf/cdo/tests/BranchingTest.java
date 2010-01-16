@@ -151,13 +151,22 @@ public class BranchingTest extends AbstractCDOTest
     CDOSession session = openSession1();
     CDOBranchManager branchManager = session.getBranchManager();
     CDOBranch mainBranch = branchManager.getMainBranch();
-    mainBranch.createBranch("testing1").createBranch("subsub");
-    mainBranch.createBranch("testing2");
+    CDOBranch testing1 = mainBranch.createBranch("testing1");
+    CDOBranch testing2 = mainBranch.createBranch("testing2");
+    CDOBranch subsub = testing1.createBranch("subsub");
     closeSession1();
 
     session = openSession2();
+    branchManager = session.getBranchManager();
     mainBranch = branchManager.getMainBranch();
-    assertEquals(mainBranch, branchManager.getBranch("/"));
+    assertEquals(mainBranch, branchManager.getBranch("MAIN"));
+    assertEquals(testing1, branchManager.getBranch("MAIN/testing1"));
+    assertEquals(testing2, branchManager.getBranch("MAIN/testing2"));
+    assertEquals(subsub, branchManager.getBranch("MAIN/testing1/subsub"));
+    assertEquals(testing1, mainBranch.getBranch("testing1"));
+    assertEquals(testing2, mainBranch.getBranch("testing2"));
+    assertEquals(subsub, mainBranch.getBranch("testing1/subsub"));
+    assertEquals(subsub, testing1.getBranch("subsub"));
     session.close();
   }
 

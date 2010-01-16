@@ -130,7 +130,7 @@ public class CDOBranchImpl implements InternalCDOBranch
 
   public InternalCDOBranch getBranch(String path)
   {
-    if (path.endsWith(PATH_SEPARATOR))
+    while (path.endsWith(PATH_SEPARATOR))
     {
       path = path.substring(0, path.length() - PATH_SEPARATOR.length());
     }
