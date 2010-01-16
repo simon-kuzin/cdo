@@ -99,12 +99,17 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
     throw new ImplementationError("Should not be called");
   }
 
+  public int createBranch(BranchInfo branchInfo)
+  {
+    throw new ImplementationError("Should not be called");
+  }
+
   public BranchInfo loadBranch(int branchID)
   {
     throw new ImplementationError("Should not be called");
   }
 
-  public int createBranch(BranchInfo branchInfo)
+  public SubBranchInfo[] loadSubBranches(int branchID)
   {
     throw new ImplementationError("Should not be called");
   }

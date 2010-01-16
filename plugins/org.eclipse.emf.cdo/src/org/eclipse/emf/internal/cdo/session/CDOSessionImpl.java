@@ -1344,6 +1344,22 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       }
     }
 
+    public int createBranch(BranchInfo branchInfo)
+    {
+      int attempt = 0;
+      for (;;)
+      {
+        try
+        {
+          return delegate.createBranch(branchInfo);
+        }
+        catch (Exception ex)
+        {
+          handleException(++attempt, ex);
+        }
+      }
+    }
+
     public BranchInfo loadBranch(int branchID)
     {
       int attempt = 0;
@@ -1360,14 +1376,14 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       }
     }
 
-    public int createBranch(BranchInfo branchInfo)
+    public SubBranchInfo[] loadSubBranches(int branchID)
     {
       int attempt = 0;
       for (;;)
       {
         try
         {
-          return delegate.createBranch(branchInfo);
+          return delegate.loadSubBranches(branchID);
         }
         catch (Exception ex)
         {

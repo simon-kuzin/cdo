@@ -39,6 +39,8 @@ public interface InternalCDOBranchManager extends CDOBranchManager, ILifecycle
 
   public InternalCDOBranch getBranch(int branchID);
 
+  public InternalCDOBranch getBranch(int id, String name, long baseTimeStamp, InternalCDOBranch base);
+
   public InternalCDOBranch getBranch(String path);
 
   public InternalCDOBranch createBranch(String name, InternalCDOBranch baseBranch, long baseTimeStamp);
@@ -55,33 +57,25 @@ public interface InternalCDOBranchManager extends CDOBranchManager, ILifecycle
 
     public BranchInfo loadBranch(int branchID);
 
+    public SubBranchInfo[] loadSubBranches(int branchID);
+
     /**
      * @author Eike Stepper
      * @since 3.0
      */
     public static final class BranchInfo
     {
-      public static final int[] NO_CHILDREN = {};
-
       private String name;
 
       private int baseBranchID;
 
       private long baseTimeStamp;
 
-      private int[] childIDs;
-
-      public BranchInfo(String name, int baseBranchID, long baseTimeStamp, int[] childIDs)
+      public BranchInfo(String name, int baseBranchID, long baseTimeStamp)
       {
         this.name = name;
         this.baseBranchID = baseBranchID;
         this.baseTimeStamp = baseTimeStamp;
-        this.childIDs = childIDs;
-      }
-
-      public BranchInfo(String name, int baseBranchID, long baseTimeStamp)
-      {
-        this(name, baseBranchID, baseTimeStamp, NO_CHILDREN);
       }
 
       public BranchInfo(CDODataInput in) throws IOException
@@ -89,13 +83,6 @@ public interface InternalCDOBranchManager extends CDOBranchManager, ILifecycle
         name = in.readString();
         baseBranchID = in.readInt();
         baseTimeStamp = in.readLong();
-
-        int size = in.readInt();
-        childIDs = new int[size];
-        for (int i = 0; i < childIDs.length; i++)
-        {
-          childIDs[i] = in.readInt();
-        }
       }
 
       public void write(CDODataOutput out) throws IOException
@@ -103,12 +90,6 @@ public interface InternalCDOBranchManager extends CDOBranchManager, ILifecycle
         out.writeString(name);
         out.writeInt(baseBranchID);
         out.writeLong(baseTimeStamp);
-
-        out.writeInt(childIDs.length);
-        for (int id : childIDs)
-        {
-          out.writeInt(id);
-        }
       }
 
       public String getName()
@@ -125,10 +106,54 @@ public interface InternalCDOBranchManager extends CDOBranchManager, ILifecycle
       {
         return baseTimeStamp;
       }
+    }
 
-      public int[] getChildIDs()
+    /**
+     * @author Eike Stepper
+     * @since 3.0
+     */
+    public static final class SubBranchInfo
+    {
+      private int id;
+
+      private String name;
+
+      private long baseTimeStamp;
+
+      public SubBranchInfo(int id, String name, long baseTimeStamp)
       {
-        return childIDs;
+        this.id = id;
+        this.name = name;
+        this.baseTimeStamp = baseTimeStamp;
+      }
+
+      public SubBranchInfo(CDODataInput in) throws IOException
+      {
+        id = in.readInt();
+        name = in.readString();
+        baseTimeStamp = in.readLong();
+      }
+
+      public void write(CDODataOutput out) throws IOException
+      {
+        out.writeInt(id);
+        out.writeString(name);
+        out.writeLong(baseTimeStamp);
+      }
+
+      public int getID()
+      {
+        return id;
+      }
+
+      public String getName()
+      {
+        return name;
+      }
+
+      public long getBaseTimeStamp()
+      {
+        return baseTimeStamp;
       }
     }
   }

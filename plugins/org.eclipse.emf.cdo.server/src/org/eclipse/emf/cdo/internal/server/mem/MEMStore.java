@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * @author Simon McDuff
@@ -75,16 +76,32 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
     this(UNLIMITED);
   }
 
-  public synchronized BranchInfo loadBranch(int branchID)
-  {
-    return branchInfos.get(branchID);
-  }
-
   public synchronized int createBranch(BranchInfo branchInfo)
   {
     int id = branchInfos.size() + 1;
     branchInfos.put(id, branchInfo);
     return id;
+  }
+
+  public synchronized BranchInfo loadBranch(int branchID)
+  {
+    return branchInfos.get(branchID);
+  }
+
+  public SubBranchInfo[] loadSubBranches(int branchID)
+  {
+    List<SubBranchInfo> result = new ArrayList<SubBranchInfo>();
+    for (Entry<Integer, BranchInfo> entry : branchInfos.entrySet())
+    {
+      BranchInfo branchInfo = entry.getValue();
+      if (branchInfo.getBaseBranchID() == branchID)
+      {
+        int id = entry.getKey();
+        result.add(new SubBranchInfo(id, branchInfo.getName(), branchInfo.getBaseTimeStamp()));
+      }
+    }
+
+    return result.toArray(new SubBranchInfo[result.size()]);
   }
 
   /**

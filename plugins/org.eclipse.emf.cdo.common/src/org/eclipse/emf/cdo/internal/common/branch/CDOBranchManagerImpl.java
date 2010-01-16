@@ -103,6 +103,25 @@ public class CDOBranchManagerImpl extends Lifecycle implements InternalCDOBranch
     return branch;
   }
 
+  public InternalCDOBranch getBranch(int id, String name, long baseTimeStamp, InternalCDOBranch base)
+  {
+    synchronized (branches)
+    {
+      InternalCDOBranch branch = branches.get(id);
+      if (branch == null)
+      {
+        branch = new CDOBranchImpl(id, name, new CDOBranchPointImpl(base, baseTimeStamp));
+        putBranch(branch);
+      }
+      else if (branch.isProxy())
+      {
+        branch.setBranchInfo(name, base, baseTimeStamp);
+      }
+
+      return branch;
+    }
+  }
+
   public InternalCDOBranch getBranch(String path)
   {
     return mainBranch.getBranch(path);

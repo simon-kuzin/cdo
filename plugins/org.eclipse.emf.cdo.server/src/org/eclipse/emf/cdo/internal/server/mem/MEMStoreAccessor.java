@@ -145,14 +145,19 @@ public class MEMStoreAccessor extends LongIDStoreAccessor
     throw new UnsupportedOperationException();
   }
 
+  public int createBranch(BranchInfo branchInfo)
+  {
+    return getStore().createBranch(branchInfo);
+  }
+
   public BranchInfo loadBranch(int branchID)
   {
     return getStore().loadBranch(branchID);
   }
 
-  public int createBranch(BranchInfo branchInfo)
+  public SubBranchInfo[] loadSubBranches(int branchID)
   {
-    return getStore().createBranch(branchInfo);
+    return getStore().loadSubBranches(branchID);
   }
 
   public InternalCDORevision readRevision(CDOID id, CDOBranchPoint branchPoint, int listChunk,
@@ -161,7 +166,8 @@ public class MEMStoreAccessor extends LongIDStoreAccessor
     return getStore().getRevision(id, branchPoint);
   }
 
-  public InternalCDORevision readRevisionByVersion(CDOID id, CDOBranchVersion branchVersion, int listChunk, CDORevisionCacheAdder cache)
+  public InternalCDORevision readRevisionByVersion(CDOID id, CDOBranchVersion branchVersion, int listChunk,
+      CDORevisionCacheAdder cache)
   {
     return getStore().getRevisionByVersion(id, branchVersion);
   }

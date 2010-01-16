@@ -206,14 +206,19 @@ public abstract class DelegatingRepository implements InternalRepository
     getDelegate().setBranchManager(branchManager);
   }
 
+  public int createBranch(BranchInfo branchInfo)
+  {
+    return getDelegate().createBranch(branchInfo);
+  }
+
   public BranchInfo loadBranch(int branchID)
   {
     return getDelegate().loadBranch(branchID);
   }
 
-  public int createBranch(BranchInfo branchInfo)
+  public SubBranchInfo[] loadSubBranches(int branchID)
   {
-    return getDelegate().createBranch(branchInfo);
+    return getDelegate().loadSubBranches(branchID);
   }
 
   public List<InternalCDORevision> loadRevisions(Collection<CDOID> ids, CDOBranchPoint branchPoint, int referenceChunk,

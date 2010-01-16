@@ -121,14 +121,14 @@ public class CDODBSchema extends DBSchema
   public static final IDBIndex INDEX_BRANCHES_ID = //
   BRANCHES.addIndex(IDBIndex.Type.PRIMARY_KEY, BRANCHES_ID);
 
+  public static final String SQL_CREATE_BRANCH = "INSERT INTO " + BRANCHES + " (" + BRANCHES_ID + ", " + BRANCHES_NAME
+  + ", " + BRANCHES_BASE_BRANCH_ID + ", " + BRANCHES_BASE_TIMESTAMP + ") VALUES (?, ?, ?, ?)";
+
   public static final String SQL_LOAD_BRANCH = "SELECT " + BRANCHES_NAME + ", " + BRANCHES_BASE_BRANCH_ID + ", "
       + BRANCHES_BASE_TIMESTAMP + " FROM " + BRANCHES + " WHERE " + BRANCHES_ID + "=?";
 
-  public static final String SQL_LOAD_SUB_BRANCHES = "SELECT " + BRANCHES_ID + " FROM " + BRANCHES + " WHERE "
-      + BRANCHES_BASE_BRANCH_ID + "=?";
-
-  public static final String SQL_CREATE_BRANCH = "INSERT INTO " + BRANCHES + " (" + BRANCHES_ID + ", " + BRANCHES_NAME
-      + ", " + BRANCHES_BASE_BRANCH_ID + ", " + BRANCHES_BASE_TIMESTAMP + ") VALUES (?, ?, ?, ?)";
+  public static final String SQL_LOAD_SUB_BRANCHES = "SELECT " + BRANCHES_ID + ", " + BRANCHES_NAME + ", "
+      + BRANCHES_BASE_TIMESTAMP + ", " + " FROM " + BRANCHES + " WHERE " + BRANCHES_BASE_BRANCH_ID + "=?";
 
   /**
    * DBTable cdo_external_refs

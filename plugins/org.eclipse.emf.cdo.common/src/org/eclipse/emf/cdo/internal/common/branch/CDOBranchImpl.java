@@ -16,6 +16,7 @@ import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranch;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager.BranchLoader.BranchInfo;
+import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager.BranchLoader.SubBranchInfo;
 
 import java.text.MessageFormat;
 
@@ -34,7 +35,7 @@ public class CDOBranchImpl implements InternalCDOBranch
 
   private CDOBranchPoint head;
 
-  private int[] childIDs;
+  private InternalCDOBranch[] branches;
 
   public CDOBranchImpl(int id, String name, CDOBranchPoint base)
   {
@@ -72,6 +73,11 @@ public class CDOBranchImpl implements InternalCDOBranch
     return name;
   }
 
+  public boolean isProxy()
+  {
+    return name == null;
+  }
+
   public CDOBranchPoint getBase()
   {
     loadIfNeeded();
@@ -103,16 +109,22 @@ public class CDOBranchImpl implements InternalCDOBranch
     return getBranchManager().createBranch(name, this, CDOBranchPoint.UNSPECIFIED_DATE);
   }
 
-  public InternalCDOBranch[] getBranches()
+  public synchronized InternalCDOBranch[] getBranches()
   {
-    InternalCDOBranchManager branchManager = getBranchManager();
-    InternalCDOBranch[] result = new InternalCDOBranch[childIDs.length];
-    for (int i = 0; i < childIDs.length; i++)
+    loadIfNeeded();
+    if (branches == null)
     {
-      result[i] = branchManager.getBranch(childIDs[i]);
+      InternalCDOBranchManager branchManager = getBranchManager();
+      SubBranchInfo[] infos = branchManager.getBranchLoader().loadSubBranches(id);
+      branches = new InternalCDOBranch[infos.length];
+      for (int i = 0; i < infos.length; i++)
+      {
+        SubBranchInfo info = infos[i];
+        branches[i] = branchManager.getBranch(info.getID(), info.getName(), info.getBaseTimeStamp(), this);
+      }
     }
 
-    return result;
+    return branches;
   }
 
   public InternalCDOBranch getBranch(String path)
@@ -138,29 +150,28 @@ public class CDOBranchImpl implements InternalCDOBranch
 
   private InternalCDOBranch getChild(String name)
   {
-    InternalCDOBranchManager branchManager = getBranchManager();
-    for (int j = 0; j < childIDs.length; j++)
+    InternalCDOBranch[] branches = getBranches();
+    for (InternalCDOBranch branch : branches)
     {
-      int childID = childIDs[j];
-      InternalCDOBranch child = branchManager.getBranch(childID);
-      if (name.equals(child.getName()))
+      if (name.equals(branch.getName()))
       {
-        return child;
+        return branch;
       }
     }
 
     return null;
   }
 
-  public int[] getChildIDs()
-  {
-    return childIDs;
-  }
-
   public BranchInfo getBranchInfo()
   {
     CDOBranchPoint base = getBase();
-    return new BranchInfo(name, base.getBranch().getID(), base.getTimeStamp(), childIDs);
+    return new BranchInfo(getName(), base.getBranch().getID(), base.getTimeStamp());
+  }
+
+  public void setBranchInfo(String name, InternalCDOBranch baseBranch, long baseTimeStamp)
+  {
+    this.name = name;
+    baseOrBranchManager = new CDOBranchPointImpl(baseBranch, baseTimeStamp);
   }
 
   @Override
@@ -197,21 +208,16 @@ public class CDOBranchImpl implements InternalCDOBranch
     return MessageFormat.format("Branch[id={0}, name={1}]", id, name);
   }
 
-  private boolean isProxy()
-  {
-    return name == null;
-  }
-
-  private void loadIfNeeded()
+  private synchronized void loadIfNeeded()
   {
     if (isProxy())
     {
       InternalCDOBranchManager branchManager = (InternalCDOBranchManager)baseOrBranchManager;
       BranchInfo branchInfo = branchManager.getBranchLoader().loadBranch(id);
+
       CDOBranch baseBranch = branchManager.getBranch(branchInfo.getBaseBranchID());
       name = branchInfo.getName();
       baseOrBranchManager = new CDOBranchPointImpl(baseBranch, branchInfo.getBaseTimeStamp());
-      childIDs = branchInfo.getChildIDs();
     }
   }
 

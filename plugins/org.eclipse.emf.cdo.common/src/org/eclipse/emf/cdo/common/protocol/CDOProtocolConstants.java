@@ -49,72 +49,77 @@ public interface CDOProtocolConstants
   /**
    * @since 3.0
    */
-  public static final short SIGNAL_LOAD_REVISIONS = 8;
+  public static final short SIGNAL_LOAD_REVISIONS = 7;
 
-  public static final short SIGNAL_LOAD_REVISION_BY_VERSION = 9;
+  public static final short SIGNAL_LOAD_REVISION_BY_VERSION = 8;
 
-  public static final short SIGNAL_LOAD_CHUNK = 10;
+  public static final short SIGNAL_LOAD_CHUNK = 9;
 
-  public static final short SIGNAL_COMMIT_TRANSACTION = 12;
+  public static final short SIGNAL_COMMIT_TRANSACTION = 10;
 
-  public static final short SIGNAL_COMMIT_TRANSACTION_PHASE1 = 13;
+  public static final short SIGNAL_COMMIT_TRANSACTION_PHASE1 = 11;
 
-  public static final short SIGNAL_COMMIT_TRANSACTION_PHASE2 = 14;
+  public static final short SIGNAL_COMMIT_TRANSACTION_PHASE2 = 12;
 
-  public static final short SIGNAL_COMMIT_TRANSACTION_PHASE3 = 15;
+  public static final short SIGNAL_COMMIT_TRANSACTION_PHASE3 = 13;
 
-  public static final short SIGNAL_COMMIT_TRANSACTION_CANCEL = 16;
+  public static final short SIGNAL_COMMIT_TRANSACTION_CANCEL = 14;
 
-  public static final short SIGNAL_COMMIT_NOTIFICATION = 17;
+  public static final short SIGNAL_COMMIT_NOTIFICATION = 15;
 
-  public static final short SIGNAL_QUERY = 18;
+  public static final short SIGNAL_QUERY = 16;
 
-  public static final short SIGNAL_QUERY_CANCEL = 19;
+  public static final short SIGNAL_QUERY_CANCEL = 17;
 
-  public static final short SIGNAL_SYNC_REVISIONS = 20;
+  public static final short SIGNAL_SYNC_REVISIONS = 18;
 
-  public static final short SIGNAL_PASSIVE_UPDATE = 21;
+  public static final short SIGNAL_PASSIVE_UPDATE = 19;
 
-  public static final short SIGNAL_CHANGE_SUBSCRIPTION = 22;
+  public static final short SIGNAL_CHANGE_SUBSCRIPTION = 20;
 
-  public static final short SIGNAL_REPOSITORY_TIME = 23;
+  public static final short SIGNAL_REPOSITORY_TIME = 21;
 
-  public static final short SIGNAL_LOCK_OBJECTS = 24;
+  public static final short SIGNAL_LOCK_OBJECTS = 22;
 
-  public static final short SIGNAL_UNLOCK_OBJECTS = 25;
+  public static final short SIGNAL_UNLOCK_OBJECTS = 23;
 
-  public static final short SIGNAL_OBJECT_LOCKED = 26;
+  public static final short SIGNAL_OBJECT_LOCKED = 24;
 
-  public static final short SIGNAL_GET_REMOTE_SESSIONS = 27;
-
-  /**
-   * @since 3.0
-   */
-  public static final short SIGNAL_REMOTE_MESSAGE = 28;
+  public static final short SIGNAL_GET_REMOTE_SESSIONS = 25;
 
   /**
    * @since 3.0
    */
-  public static final short SIGNAL_REMOTE_MESSAGE_NOTIFICATION = 30;
-
-  public static final short SIGNAL_UNSUBSCRIBE_REMOTE_SESSIONS = 31;
-
-  public static final short SIGNAL_REMOTE_SESSION_NOTIFICATION = 32;
+  public static final short SIGNAL_REMOTE_MESSAGE = 26;
 
   /**
    * @since 3.0
    */
-  public static final short SIGNAL_LOAD_BRANCH = 33;
+  public static final short SIGNAL_REMOTE_MESSAGE_NOTIFICATION = 27;
+
+  public static final short SIGNAL_UNSUBSCRIBE_REMOTE_SESSIONS = 28;
+
+  public static final short SIGNAL_REMOTE_SESSION_NOTIFICATION = 29;
 
   /**
    * @since 3.0
    */
-  public static final short SIGNAL_CREATE_BRANCH = 34;
+  public static final short SIGNAL_CREATE_BRANCH = 30;
 
   /**
    * @since 3.0
    */
-  public static final short SIGNAL_BRANCH_NOTIFICATION = 35;
+  public static final short SIGNAL_LOAD_BRANCH = 31;
+
+  /**
+   * @since 3.0
+   */
+  public static final short SIGNAL_LOAD_SUB_BRANCHES = 32;
+
+  /**
+   * @since 3.0
+   */
+  public static final short SIGNAL_BRANCH_NOTIFICATION = 33;
 
   // //////////////////////////////////////////////////////////////////////
   // Session Management

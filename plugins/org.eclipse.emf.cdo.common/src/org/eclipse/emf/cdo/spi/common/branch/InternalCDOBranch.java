@@ -19,6 +19,8 @@ import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager.BranchLoad
  */
 public interface InternalCDOBranch extends CDOBranch
 {
+  public boolean isProxy();
+
   public InternalCDOBranchManager getBranchManager();
 
   public InternalCDOBranch[] getBranches();
@@ -29,7 +31,7 @@ public interface InternalCDOBranch extends CDOBranch
 
   public InternalCDOBranch createBranch(String name);
 
-  public int[] getChildIDs();
-
   public BranchInfo getBranchInfo();
+
+  public void setBranchInfo(String name, InternalCDOBranch baseBranch, long baseTimeStamp);
 }

@@ -207,12 +207,6 @@ public class Repository extends Container<Object> implements InternalRepository
     return accessor.loadPackageUnit((InternalCDOPackageUnit)packageUnit);
   }
 
-  public BranchInfo loadBranch(int branchID)
-  {
-    IStoreAccessor accessor = StoreThreadLocal.getAccessor();
-    return accessor.loadBranch(branchID);
-  }
-
   public int createBranch(BranchInfo branchInfo)
   {
     synchronized (createBranchLock)
@@ -220,6 +214,18 @@ public class Repository extends Container<Object> implements InternalRepository
       IStoreAccessor accessor = StoreThreadLocal.getAccessor();
       return accessor.createBranch(branchInfo);
     }
+  }
+
+  public BranchInfo loadBranch(int branchID)
+  {
+    IStoreAccessor accessor = StoreThreadLocal.getAccessor();
+    return accessor.loadBranch(branchID);
+  }
+
+  public SubBranchInfo[] loadSubBranches(int branchID)
+  {
+    IStoreAccessor accessor = StoreThreadLocal.getAccessor();
+    return accessor.loadSubBranches(branchID);
   }
 
   public List<InternalCDORevision> loadRevisions(Collection<CDOID> ids, CDOBranchPoint branchPoint, int referenceChunk,

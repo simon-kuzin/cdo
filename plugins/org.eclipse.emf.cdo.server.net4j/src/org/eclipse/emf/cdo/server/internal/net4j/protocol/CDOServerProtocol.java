@@ -187,11 +187,14 @@ public class CDOServerProtocol extends SignalProtocol<InternalSession> implement
     case CDOProtocolConstants.SIGNAL_LOAD_PACKAGES:
       return new LoadPackagesIndication(this);
 
+    case CDOProtocolConstants.SIGNAL_CREATE_BRANCH:
+      return new CreateBranchIndication(this);
+
     case CDOProtocolConstants.SIGNAL_LOAD_BRANCH:
       return new LoadBranchIndication(this);
 
-    case CDOProtocolConstants.SIGNAL_CREATE_BRANCH:
-      return new CreateBranchIndication(this);
+    case CDOProtocolConstants.SIGNAL_LOAD_SUB_BRANCHES:
+      return new LoadSubBranchesIndication(this);
 
     case CDOProtocolConstants.SIGNAL_LOAD_REVISIONS:
       return new LoadRevisionsIndication(this);

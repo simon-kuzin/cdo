@@ -335,22 +335,29 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
     return revision;
   }
 
-  public BranchInfo loadBranch(int branchID)
-  {
-    // TODO: implement HibernateStoreAccessor.loadBranch(branchID)
-    throw new UnsupportedOperationException();
-  }
-
   public int createBranch(BranchInfo branchInfo)
   {
     // TODO: implement HibernateStoreAccessor.createBranch(branchInfo)
     throw new UnsupportedOperationException();
   }
 
+  public BranchInfo loadBranch(int branchID)
+  {
+    // TODO: implement HibernateStoreAccessor.loadBranch(branchID)
+    throw new UnsupportedOperationException();
+  }
+
+  public SubBranchInfo[] loadSubBranches(int branchID)
+  {
+    // TODO: implement HibernateStoreAccessor.loadSubBranches(branchID)
+    throw new UnsupportedOperationException();
+  }
+
   /**
    * Not supported by the Hibernate Store, auditing is not supported
    */
-  public InternalCDORevision readRevisionByVersion(CDOID id, CDOBranchVersion branchVersion, int listChunk, CDORevisionCacheAdder cache)
+  public InternalCDORevision readRevisionByVersion(CDOID id, CDOBranchVersion branchVersion, int listChunk,
+      CDORevisionCacheAdder cache)
   {
     throw new UnsupportedOperationException();
   }

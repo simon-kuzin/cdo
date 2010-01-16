@@ -490,75 +490,6 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     }
   }
 
-  public BranchInfo loadBranch(int branchID)
-  {
-    PreparedStatement pstmt = null;
-    ResultSet resultSet = null;
-
-    try
-    {
-      pstmt = statementCache.getPreparedStatement(CDODBSchema.SQL_LOAD_BRANCH, ReuseProbability.HIGH);
-      pstmt.setInt(1, branchID);
-
-      resultSet = pstmt.executeQuery();
-      if (!resultSet.next())
-      {
-        throw new DBException("Branch with ID " + branchID + " does not exist");
-      }
-
-      String name = resultSet.getString(1);
-      int baseBranchID = resultSet.getInt(2);
-      long baseTimeStamp = resultSet.getLong(3);
-      int[] loadSubBranches = loadSubBranches(branchID);
-      return new BranchInfo(name, baseBranchID, baseTimeStamp, loadSubBranches);
-    }
-    catch (SQLException ex)
-    {
-      throw new DBException(ex);
-    }
-    finally
-    {
-      DBUtil.close(resultSet);
-      statementCache.releasePreparedStatement(pstmt);
-    }
-  }
-
-  private int[] loadSubBranches(int baseID)
-  {
-    PreparedStatement pstmt = null;
-    ResultSet resultSet = null;
-
-    try
-    {
-      pstmt = statementCache.getPreparedStatement(CDODBSchema.SQL_LOAD_SUB_BRANCHES, ReuseProbability.HIGH);
-      pstmt.setInt(1, baseID);
-
-      resultSet = pstmt.executeQuery();
-      List<Integer> result = new ArrayList<Integer>();
-      while (resultSet.next())
-      {
-        result.add(resultSet.getInt(1));
-      }
-
-      int[] array = new int[result.size()];
-      for (int i = 0; i < array.length; i++)
-      {
-        array[i] = result.get(i);
-      }
-
-      return array;
-    }
-    catch (SQLException ex)
-    {
-      throw new DBException(ex);
-    }
-    finally
-    {
-      DBUtil.close(resultSet);
-      statementCache.releasePreparedStatement(pstmt);
-    }
-  }
-
   public int createBranch(BranchInfo branchInfo)
   {
     int id = getStore().getNextBranchID();
@@ -592,6 +523,71 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     }
     finally
     {
+      statementCache.releasePreparedStatement(pstmt);
+    }
+  }
+
+  public BranchInfo loadBranch(int branchID)
+  {
+    PreparedStatement pstmt = null;
+    ResultSet resultSet = null;
+
+    try
+    {
+      pstmt = statementCache.getPreparedStatement(CDODBSchema.SQL_LOAD_BRANCH, ReuseProbability.HIGH);
+      pstmt.setInt(1, branchID);
+
+      resultSet = pstmt.executeQuery();
+      if (!resultSet.next())
+      {
+        throw new DBException("Branch with ID " + branchID + " does not exist");
+      }
+
+      String name = resultSet.getString(1);
+      int baseBranchID = resultSet.getInt(2);
+      long baseTimeStamp = resultSet.getLong(3);
+      return new BranchInfo(name, baseBranchID, baseTimeStamp);
+    }
+    catch (SQLException ex)
+    {
+      throw new DBException(ex);
+    }
+    finally
+    {
+      DBUtil.close(resultSet);
+      statementCache.releasePreparedStatement(pstmt);
+    }
+  }
+
+  public SubBranchInfo[] loadSubBranches(int baseID)
+  {
+    PreparedStatement pstmt = null;
+    ResultSet resultSet = null;
+
+    try
+    {
+      pstmt = statementCache.getPreparedStatement(CDODBSchema.SQL_LOAD_SUB_BRANCHES, ReuseProbability.HIGH);
+      pstmt.setInt(1, baseID);
+
+      resultSet = pstmt.executeQuery();
+      List<SubBranchInfo> result = new ArrayList<SubBranchInfo>();
+      while (resultSet.next())
+      {
+        int id = resultSet.getInt(1);
+        String name = resultSet.getString(2);
+        long baseTimeStamp = resultSet.getLong(3);
+        result.add(new SubBranchInfo(id, name, baseTimeStamp));
+      }
+
+      return result.toArray(new SubBranchInfo[result.size()]);
+    }
+    catch (SQLException ex)
+    {
+      throw new DBException(ex);
+    }
+    finally
+    {
+      DBUtil.close(resultSet);
       statementCache.releasePreparedStatement(pstmt);
     }
   }
