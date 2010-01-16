@@ -19,4 +19,33 @@ import org.eclipse.emf.cdo.common.revision.CDORevision;
 public interface CDORevisionCacheFactory
 {
   public CDORevisionCache createRevisionCache(CDORevision revision);
+
+  /**
+   * @author Eike Stepper
+   * @since 3.0
+   */
+  public static class PrototypeInstantiator implements CDORevisionCacheFactory
+  {
+    private CDORevisionCache prototype;
+
+    public PrototypeInstantiator(CDORevisionCache prototype)
+    {
+      this.prototype = prototype;
+    }
+
+    public CDORevisionCache getPrototype()
+    {
+      return prototype;
+    }
+
+    public CDORevisionCache createRevisionCache(CDORevision revision)
+    {
+      if (revision.getBranch().isMainBranch())
+      {
+        return prototype;
+      }
+
+      return prototype.instantiate(revision);
+    }
+  }
 }

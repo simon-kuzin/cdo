@@ -4,12 +4,13 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Eike Stepper - initial API and implementation
  */
 package org.eclipse.emf.cdo.common.revision.cache;
 
+import org.eclipse.emf.cdo.internal.common.revision.cache.branch.CDOBranchDispatcher;
 import org.eclipse.emf.cdo.internal.common.revision.cache.lru.LRURevisionCache;
 import org.eclipse.emf.cdo.internal.common.revision.cache.mem.MEMRevisionCache;
 import org.eclipse.emf.cdo.internal.common.revision.cache.two.TwoLevelRevisionCache;
@@ -56,6 +57,30 @@ public final class CDORevisionCacheUtil
     TwoLevelRevisionCache cache = new TwoLevelRevisionCache();
     cache.setLevel1(level1);
     cache.setLevel2(level2);
+    return cache;
+  }
+
+  /**
+   * Creates and returns a new branch dispatcher cache.
+   * 
+   * @since 3.0
+   */
+  public static CDORevisionCache createBranchDispatcher(CDORevisionCacheFactory factory)
+  {
+    CDOBranchDispatcher cache = new CDOBranchDispatcher();
+    cache.setFactory(factory);
+    return cache;
+  }
+
+  /**
+   * Creates and returns a new branch dispatcher cache.
+   * 
+   * @since 3.0
+   */
+  public static CDORevisionCache createBranchDispatcher(CDORevisionCache protoType)
+  {
+    CDOBranchDispatcher cache = new CDOBranchDispatcher();
+    cache.setFactory(new CDORevisionCacheFactory.PrototypeInstantiator(protoType));
     return cache;
   }
 

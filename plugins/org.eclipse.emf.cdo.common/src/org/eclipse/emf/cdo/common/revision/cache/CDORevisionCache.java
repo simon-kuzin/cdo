@@ -35,6 +35,16 @@ public interface CDORevisionCache extends INotifier, CDORevisionCacheAdder
    */
   public static final CDORevisionCache NOOP = NOOPRevisionCache.INSTANCE;
 
+  /**
+   * @since 3.0
+   */
+  public CDORevisionCache instantiate(CDORevision revision);
+
+  /**
+   * @since 3.0
+   */
+  public boolean isSupportingBranches();
+
   public EClass getObjectType(CDOID id);
 
   /**

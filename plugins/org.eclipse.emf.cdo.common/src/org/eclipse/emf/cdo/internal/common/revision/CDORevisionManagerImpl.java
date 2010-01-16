@@ -44,6 +44,8 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_REVISION, CDORevisionManagerImpl.class);
 
+  private boolean supportingBranches;
+
   private RevisionLoader revisionLoader;
 
   private RevisionLocker revisionLocker;
@@ -62,6 +64,17 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
   {
   }
 
+  public boolean isSupportingBranches()
+  {
+    return supportingBranches;
+  }
+
+  public void setSupportingBranches(boolean supportingBranches)
+  {
+    checkInactive();
+    this.supportingBranches = supportingBranches;
+  }
+
   public RevisionLoader getRevisionLoader()
   {
     return revisionLoader;
@@ -69,6 +82,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
 
   public void setRevisionLoader(RevisionLoader revisionLoader)
   {
+    checkInactive();
     this.revisionLoader = revisionLoader;
   }
 
@@ -79,6 +93,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
 
   public void setRevisionLocker(RevisionLocker revisionLocker)
   {
+    checkInactive();
     this.revisionLocker = revisionLocker;
   }
 
@@ -89,6 +104,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
 
   public void setFactory(CDORevisionFactory factory)
   {
+    checkInactive();
     this.factory = factory;
   }
 
@@ -99,6 +115,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
 
   public void setCache(CDORevisionCache cache)
   {
+    checkInactive();
     this.cache = cache;
   }
 
@@ -298,6 +315,12 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
   protected void doActivate() throws Exception
   {
     super.doActivate();
+
+    if (supportingBranches && !cache.isSupportingBranches())
+    {
+      cache = CDORevisionCacheUtil.createDefaultCache();
+    }
+
     LifecycleUtil.activate(cache);
   }
 
