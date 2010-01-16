@@ -12,6 +12,7 @@
  */
 package org.eclipse.emf.cdo.server.internal.db.mapping.horizontal;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
@@ -272,7 +273,7 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
             stmt.setBoolean(isSetCol++, true);
           }
         }
-        
+
         mapping.setValueFromRevision(stmt, col++, revision);
       }
 
@@ -299,8 +300,9 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
   }
 
   public PreparedStatement createResourceQueryStatement(IDBStoreAccessor accessor, CDOID folderId, String name,
-      boolean exactMatch, long timeStamp)
+      boolean exactMatch, CDOBranchPoint branchPoint)
   {
+    long timeStamp = branchPoint.getTimeStamp();
     if (timeStamp != CDORevision.UNSPECIFIED_DATE)
     {
       throw new IllegalArgumentException("Non-audit store does not support explicit timeStamp in resource query"); //$NON-NLS-1$
@@ -608,7 +610,7 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
         typeMapping.setValue(stmt, col++, change.getElement2());
       }
     }
-    
+
     return col;
   }
 
@@ -662,8 +664,8 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
       {
         builder.append(", "); //$NON-NLS-1$
         builder.append(getUnsettableFields().get(typeMapping.getFeature()));
-      builder.append(" =? "); //$NON-NLS-1$
-    }
+        builder.append(" =? "); //$NON-NLS-1$
+      }
     }
 
     builder.append(sqlUpdateAffix);

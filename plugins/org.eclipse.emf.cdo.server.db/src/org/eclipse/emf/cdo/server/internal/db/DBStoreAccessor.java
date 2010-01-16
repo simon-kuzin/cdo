@@ -20,6 +20,7 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCacheAdder;
+import org.eclipse.emf.cdo.internal.common.branch.CDOBranchPointImpl;
 import org.eclipse.emf.cdo.server.IQueryHandler;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.ISession;
@@ -31,6 +32,7 @@ import org.eclipse.emf.cdo.server.db.IPreparedStatementCache;
 import org.eclipse.emf.cdo.server.db.IPreparedStatementCache.ReuseProbability;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMappingAuditSupport;
+import org.eclipse.emf.cdo.server.db.mapping.IClassMappingBranchingSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMappingDeltaSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
@@ -187,9 +189,10 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
 
     EClass eClass = getObjectType(id);
     InternalCDORevision revision = getStore().createRevision(eClass, id);
+    revision.setBranchPoint(branchPoint);
 
     IClassMappingAuditSupport mapping = (IClassMappingAuditSupport)mappingStrategy.getClassMapping(eClass);
-    if (mapping.readRevision(this, revision, branchPoint, listChunk))
+    if (mapping.readRevision(this, revision, listChunk))
     {
       return revision;
     }
@@ -206,6 +209,8 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     EClass eClass = getObjectType(id);
     InternalCDORevision revision = getStore().createRevision(eClass, id);
     IClassMapping mapping = mappingStrategy.getClassMapping(eClass);
+    revision.setVersion(branchVersion.getVersion());
+    revision.setBranchPoint(new CDOBranchPointImpl(branchVersion.getBranch(), CDOBranchPoint.UNSPECIFIED_DATE));
 
     boolean success = false;
 
@@ -217,7 +222,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
       }
 
       // if audit support is present, just use the audit method
-      success = ((IClassMappingAuditSupport)mapping).readRevisionByVersion(this, revision, branchVersion, listChunk);
+      success = ((IClassMappingAuditSupport)mapping).readRevisionByVersion(this, revision, listChunk);
     }
     else
     {
@@ -240,7 +245,6 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
             + " - version requested was " + branchVersion + "."); //$NON-NLS-1$ //$NON-NLS-2$
       }
     }
-
     return success ? revision : null;
   }
 
@@ -349,10 +353,24 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
   {
     try
     {
-      monitor.begin(detachedObjects.length);
-      for (CDOID id : detachedObjects)
+      if (branch.getID() != CDOBranch.MAIN_BRANCH_ID)
       {
-        detachObject(id, revised, monitor.fork());
+        if (getStore().getMappingStrategy().hasBranchingSupport())
+        {
+          monitor.begin(detachedObjects.length);
+          for (CDOID id : detachedObjects)
+          {
+            detachObject(id, revised, branch, monitor.fork());
+          }
+        }
+      }
+      else
+      {
+        monitor.begin(detachedObjects.length);
+        for (CDOID id : detachedObjects)
+        {
+          detachObject(id, revised, monitor.fork());
+        }
       }
     }
     finally
@@ -372,8 +390,29 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     }
 
     EClass eClass = getObjectType(id);
-    IClassMapping mapping = getStore().getMappingStrategy().getClassMapping(eClass);
+    IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
+    IClassMapping mapping = mappingStrategy.getClassMapping(eClass);
+
     mapping.detachObject(this, id, revised, monitor);
+  }
+
+  /**
+   * Detach Object in branching mode
+   * 
+   * @since 3.0
+   */
+  protected void detachObject(CDOID id, long revised, CDOBranch branch, OMMonitor monitor)
+  {
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("Detaching object: {0} in branch {1}", id, branch); //$NON-NLS-1$
+    }
+
+    EClass eClass = getObjectType(id);
+    IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
+    IClassMappingBranchingSupport mapping = (IClassMappingBranchingSupport)mappingStrategy.getClassMapping(eClass);
+
+    mapping.detachObject(this, id, revised, branch, monitor);
   }
 
   public Connection getConnection()
@@ -492,6 +531,11 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
 
   public int createBranch(BranchInfo branchInfo)
   {
+    if (!getStore().getMappingStrategy().hasBranchingSupport())
+    {
+      throw new UnsupportedOperationException("Mapping strategy does not support revision deltas."); //$NON-NLS-1$
+    }
+
     int id = getStore().getNextBranchID();
     PreparedStatement pstmt = null;
 
@@ -503,18 +547,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
       pstmt.setInt(3, branchInfo.getBaseBranchID());
       pstmt.setLong(4, branchInfo.getBaseTimeStamp());
 
-      int updatedRows = pstmt.executeUpdate();
-      if (updatedRows < 1)
-      {
-        throw new DBException("Branch with name " + branchInfo.getName() + " was not inserted");
-      }
-
-      if (updatedRows > 1)
-      {
-        // Should not happen
-        throw new DBException("Branch with name " + branchInfo.getName() + " was inserted multiple times");
-      }
-
+      CDODBUtil.sqlUpdate(pstmt, true);
       return id;
     }
     catch (SQLException ex)
@@ -561,6 +594,11 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
 
   public SubBranchInfo[] loadSubBranches(int baseID)
   {
+    if (!getStore().getMappingStrategy().hasBranchingSupport())
+    {
+      throw new UnsupportedOperationException("Mapping strategy does not support revision deltas."); //$NON-NLS-1$
+    }
+
     PreparedStatement pstmt = null;
     ResultSet resultSet = null;
 

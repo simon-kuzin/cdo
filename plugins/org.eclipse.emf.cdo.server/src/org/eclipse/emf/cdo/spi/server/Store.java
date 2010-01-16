@@ -11,6 +11,7 @@
 package org.eclipse.emf.cdo.spi.server;
 
 import org.eclipse.emf.cdo.common.CDOCommonView;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
@@ -371,8 +372,11 @@ public abstract class Store extends Lifecycle implements IStore
    */
   protected abstract IStoreAccessor createWriter(ITransaction transaction);
 
+  /**
+   * @since 3.0
+   */
   public static IStoreAccessor.QueryResourcesContext.ExactMatch createExactMatchContext(final CDOID folderID,
-      final String name, final long timeStamp)
+      final String name, final CDOBranchPoint branchPoint)
   {
     return new IStoreAccessor.QueryResourcesContext.ExactMatch()
     {
@@ -383,9 +387,9 @@ public abstract class Store extends Lifecycle implements IStore
         return resourceID;
       }
 
-      public long getTimeStamp()
+      public CDOBranchPoint getBranchPoint()
       {
-        return timeStamp;
+        return branchPoint;
       }
 
       public CDOID getFolderID()

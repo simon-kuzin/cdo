@@ -19,6 +19,7 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOModelConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.internal.common.branch.CDOBranchPointImpl;
 import org.eclipse.emf.cdo.server.IMEMStore;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
@@ -230,7 +231,9 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
       String revisionName = (String)revision.data().get(feature, 0);
 
       IStoreAccessor accessor = StoreThreadLocal.getAccessor();
-      CDOID resourceID = accessor.readResourceID(revisionFolder, revisionName, revision.getTimeStamp());
+
+      CDOBranchPoint branchPoint = new CDOBranchPointImpl(revision.getBranch(), revision.getTimeStamp());
+      CDOID resourceID = accessor.readResourceID(revisionFolder, revisionName, branchPoint);
       if (!CDOIDUtil.isNull(resourceID))
       {
         throw new IllegalStateException("Duplicate resource: " + revisionName + " (folderID=" + revisionFolder + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -301,7 +304,7 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
         InternalCDORevision revision = list.get(0);
         if (revision.isResourceNode())
         {
-          revision = getRevision(list, context.getTimeStamp());
+          revision = getRevision(list, context.getBranchPoint().getTimeStamp());
           if (revision != null)
           {
             CDOID revisionFolder = (CDOID)revision.data().getContainerID();

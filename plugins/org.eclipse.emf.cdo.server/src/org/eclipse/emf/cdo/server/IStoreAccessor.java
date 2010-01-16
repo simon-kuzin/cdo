@@ -106,9 +106,9 @@ public interface IStoreAccessor extends IQueryHandlerProvider, BranchLoader
    * Returns the <code>CDOID</code> of the resource node with the given folderID and name if a resource with this
    * folderID and name exists in the store, <code>null</code> otherwise.
    * 
-   * @since 2.0
+   * @since 3.0
    */
-  public CDOID readResourceID(CDOID folderID, String name, long timeStamp);
+  public CDOID readResourceID(CDOID folderID, String name, CDOBranchPoint branchPoint);
 
   /**
    * @since 2.0
@@ -264,10 +264,12 @@ public interface IStoreAccessor extends IQueryHandlerProvider, BranchLoader
   public interface QueryResourcesContext
   {
     /**
-     * The timeStamp of the view ({@link CDOCommonView#UNSPECIFIED_DATE} if the view is an
+     * The branchPoint of the view ({@link CDOCommonView#UNSPECIFIED_DATE} if the view is an
      * {@link CDOCommonView.Type#AUDIT audit} view.
+     * 
+     * @since 3.0
      */
-    public long getTimeStamp();
+    public CDOBranchPoint getBranchPoint();
 
     public CDOID getFolderID();
 

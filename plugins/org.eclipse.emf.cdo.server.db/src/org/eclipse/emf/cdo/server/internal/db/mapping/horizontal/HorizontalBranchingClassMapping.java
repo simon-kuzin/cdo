@@ -9,9 +9,11 @@
  *    Eike Stepper - initial API and implementation
  *    Stefan Winkler - major refactoring
  *    Stefan Winkler - 249610: [DB] Support external references (Implementation)
+ *    Stefan Winkler - derived branch mapping from audit mapping
  */
 package org.eclipse.emf.cdo.server.internal.db.mapping.horizontal;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
@@ -21,7 +23,8 @@ import org.eclipse.emf.cdo.server.db.CDODBUtil;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IPreparedStatementCache.ReuseProbability;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
-import org.eclipse.emf.cdo.server.db.mapping.IClassMappingAuditSupport;
+import org.eclipse.emf.cdo.server.db.mapping.IClassMappingBranchingSupport;
+import org.eclipse.emf.cdo.server.db.mapping.IListMapping;
 import org.eclipse.emf.cdo.server.db.mapping.ITypeMapping;
 import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
@@ -29,6 +32,8 @@ import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.util.ImplementationError;
+import org.eclipse.net4j.util.om.monitor.OMMonitor;
+import org.eclipse.net4j.util.om.monitor.OMMonitor.Async;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.emf.ecore.EClass;
@@ -40,12 +45,13 @@ import java.util.Map;
 
 /**
  * @author Eike Stepper
- * @since 2.0
+ * @author Stefan Winkler
+ * @since 3.0
  */
-public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping implements IClassMapping,
-    IClassMappingAuditSupport
+public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapping implements IClassMapping,
+    IClassMappingBranchingSupport
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, HorizontalAuditClassMapping.class);
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, HorizontalBranchingClassMapping.class);
 
   private String sqlInsertAttributes;
 
@@ -59,7 +65,7 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
 
   private String sqlReviseAttributes;
 
-  public HorizontalAuditClassMapping(AbstractHorizontalMappingStrategy mappingStrategy, EClass eClass)
+  public HorizontalBranchingClassMapping(AbstractHorizontalMappingStrategy mappingStrategy, EClass eClass)
   {
     super(mappingStrategy, eClass);
 
@@ -105,6 +111,8 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
     builder.append(getTable().getName());
     builder.append(" WHERE "); //$NON-NLS-1$
     builder.append(CDODBSchema.ATTRIBUTES_ID);
+    builder.append("= ? AND ");
+    builder.append(CDODBSchema.ATTRIBUTES_BRANCH);
     builder.append("= ? AND ("); //$NON-NLS-1$
     String sqlSelectAttributesPrefix = builder.toString();
 
@@ -140,6 +148,8 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
     builder.append(CDODBSchema.ATTRIBUTES_ID);
     builder.append(", "); //$NON-NLS-1$
     builder.append(CDODBSchema.ATTRIBUTES_VERSION);
+    builder.append(", "); //$NON-NLS-1$
+    builder.append(CDODBSchema.ATTRIBUTES_BRANCH);
     builder.append(", "); //$NON-NLS-1$
     builder.append(CDODBSchema.ATTRIBUTES_CLASS);
     builder.append(", "); //$NON-NLS-1$
@@ -213,14 +223,17 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
       int listChunk)
   {
     long timeStamp = branchPoint.getTimeStamp();
+    int branchId = branchPoint.getBranch().getID();
+
     PreparedStatement pstmt = null;
 
     try
     {
       pstmt = accessor.getStatementCache().getPreparedStatement(sqlSelectAttributesByTime, ReuseProbability.MEDIUM);
       pstmt.setLong(1, CDOIDUtil.getLong(revision.getID()));
-      pstmt.setLong(2, timeStamp);
+      pstmt.setLong(2, branchId);
       pstmt.setLong(3, timeStamp);
+      pstmt.setLong(4, timeStamp);
 
       // Read singleval-attribute table always (even without modeled attributes!)
       boolean success = readValuesFromStatement(pstmt, revision, accessor);
@@ -250,7 +263,8 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
     {
       pstmt = accessor.getStatementCache().getPreparedStatement(sqlSelectAttributesByVersion, ReuseProbability.HIGH);
       pstmt.setLong(1, CDOIDUtil.getLong(revision.getID()));
-      pstmt.setInt(2, revision.getVersion());
+      pstmt.setInt(2, revision.getBranch().getID());
+      pstmt.setInt(3, revision.getVersion());
 
       // Read singleval-attribute table always (even without modeled attributes!)
       boolean success = readValuesFromStatement(pstmt, revision, accessor);
@@ -277,7 +291,6 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
       boolean exactMatch, CDOBranchPoint branchPoint)
   {
     EStructuralFeature nameFeature = EresourcePackage.eINSTANCE.getCDOResourceNode_Name();
-    long timeStamp = branchPoint.getTimeStamp();
 
     ITypeMapping nameValueMapping = getValueMapping(nameFeature);
     if (nameValueMapping == null)
@@ -285,12 +298,17 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
       throw new ImplementationError(nameFeature + " not found in ClassMapping " + this); //$NON-NLS-1$
     }
 
+    int branchId = branchPoint.getBranch().getID();
+    long timeStamp = branchPoint.getTimeStamp();
+
     StringBuilder builder = new StringBuilder();
     builder.append("SELECT "); //$NON-NLS-1$
     builder.append(CDODBSchema.ATTRIBUTES_ID);
     builder.append(" FROM "); //$NON-NLS-1$
     builder.append(getTable().getName());
     builder.append(" WHERE "); //$NON-NLS-1$
+    builder.append(CDODBSchema.ATTRIBUTES_BRANCH);
+    builder.append("= ? AND "); //$NON-NLS-1$
     builder.append(CDODBSchema.ATTRIBUTES_CONTAINER);
     builder.append("= ? AND "); //$NON-NLS-1$
     builder.append(nameValueMapping.getField().getName());
@@ -326,6 +344,7 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
       int idx = 1;
 
       pstmt = accessor.getStatementCache().getPreparedStatement(builder.toString(), ReuseProbability.MEDIUM);
+      pstmt.setInt(idx++, branchId);
       pstmt.setLong(idx++, CDOIDUtil.getLong(folderId));
 
       if (name != null)
@@ -371,6 +390,7 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
     {
       pstmt = accessor.getStatementCache().getPreparedStatement(sqlSelectCurrentAttributes, ReuseProbability.HIGH);
       pstmt.setLong(1, CDOIDUtil.getLong(revision.getID()));
+      pstmt.setInt(2, revision.getBranch().getID());
 
       // Read singleval-attribute table always (even without modeled attributes!)
       boolean success = readValuesFromStatement(pstmt, revision, accessor);
@@ -406,6 +426,7 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
 
       stmt.setLong(col++, CDOIDUtil.getLong(revision.getID()));
       stmt.setInt(col++, revision.getVersion());
+      stmt.setInt(col++, revision.getBranch().getID());
       stmt.setLong(col++, accessor.getStore().getMetaDataManager().getMetaID(revision.getEClass()));
       stmt.setLong(col++, revision.getTimeStamp());
       stmt.setLong(col++, revision.getRevised());
@@ -451,8 +472,29 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
     }
   }
 
-  @Override
-  protected void reviseObject(IDBStoreAccessor accessor, CDOID id, long revised)
+  public final void detachObject(IDBStoreAccessor accessor, CDOID id, long revised, CDOBranch branch, OMMonitor monitor)
+  {
+    Async async = null;
+    try
+    {
+      monitor.begin(getListMappings().size() + 1);
+      async = monitor.forkAsync();
+      reviseObject(accessor, id, branch.getID(), revised);
+      async.stop();
+      async = monitor.forkAsync(getListMappings().size());
+      for (IListMapping mapping : getListMappings())
+      {
+        mapping.objectRevised(accessor, id, revised);
+      }
+    }
+    finally
+    {
+      async.stop();
+      monitor.done();
+    }
+  }
+
+  protected void reviseObject(IDBStoreAccessor accessor, CDOID id, int branchId, long revised)
   {
     PreparedStatement stmt = null;
 
@@ -462,6 +504,7 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
 
       stmt.setLong(1, revised);
       stmt.setLong(2, CDOIDUtil.getLong(id));
+      stmt.setInt(3, branchId);
 
       CDODBUtil.sqlUpdate(stmt, true);
     }
@@ -472,6 +515,66 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
     finally
     {
       accessor.getStatementCache().releasePreparedStatement(stmt);
+    }
+  }
+
+  @Override
+  protected void reviseObject(IDBStoreAccessor accessor, CDOID id, long revised)
+  {
+    reviseObject(accessor, id, CDOBranch.MAIN_BRANCH_ID, revised);
+  }
+
+  @Override
+  public void writeRevision(IDBStoreAccessor accessor, InternalCDORevision revision, OMMonitor monitor)
+  {
+    Async async = null;
+    try
+    {
+      monitor.begin(10);
+      async = monitor.forkAsync();
+
+      CDOID id = revision.getID();
+      if (revision.getVersion() == 1)
+      {
+        ((HorizontalBranchingMappingStrategy)getMappingStrategy()).putObjectType(accessor, id, getEClass());
+      }
+      else
+      {
+        long revised = revision.getTimeStamp() - 1;
+        reviseObject(accessor, id, revision.getBranch().getID(), revised);
+        for (IListMapping mapping : getListMappings())
+        {
+          mapping.objectRevised(accessor, id, revised);
+        }
+      }
+
+      async.stop();
+      async = monitor.forkAsync();
+
+      if (revision.isResourceFolder() || revision.isResource())
+      {
+        checkDuplicateResources(accessor, revision);
+      }
+
+      async.stop();
+      async = monitor.forkAsync();
+
+      // Write attribute table always (even without modeled attributes!)
+      writeValues(accessor, revision);
+
+      async.stop();
+      async = monitor.forkAsync(7);
+
+      // Write list tables only if they exist
+      if (getListMappings() != null)
+      {
+        writeLists(accessor, revision);
+      }
+    }
+    finally
+    {
+      async.stop();
+      monitor.done();
     }
   }
 }

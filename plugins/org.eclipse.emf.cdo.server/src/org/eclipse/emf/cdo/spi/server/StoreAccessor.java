@@ -13,6 +13,7 @@
 package org.eclipse.emf.cdo.spi.server;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
@@ -96,10 +97,10 @@ public abstract class StoreAccessor extends Lifecycle implements IStoreAccessor
     return null;
   }
 
-  public CDOID readResourceID(CDOID folderID, String name, long timeStamp)
+  public CDOID readResourceID(CDOID folderID, String name, CDOBranchPoint branchPoint)
   {
     IStoreAccessor.QueryResourcesContext.ExactMatch context = //
-    Store.createExactMatchContext(folderID, name, timeStamp);
+    Store.createExactMatchContext(folderID, name, branchPoint);
 
     queryResources(context);
     return context.getResourceID();

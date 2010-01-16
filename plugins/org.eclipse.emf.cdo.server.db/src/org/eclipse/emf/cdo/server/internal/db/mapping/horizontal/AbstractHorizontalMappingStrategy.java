@@ -11,6 +11,7 @@
  */
 package org.eclipse.emf.cdo.server.internal.db.mapping.horizontal;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
@@ -111,7 +112,7 @@ public abstract class AbstractHorizontalMappingStrategy extends AbstractMappingS
   public void queryResources(IDBStoreAccessor dbStoreAccessor, QueryResourcesContext context)
   {
     // only support timestamp in audit mode
-    if (context.getTimeStamp() != CDORevision.UNSPECIFIED_DATE && !hasAuditSupport())
+    if (context.getBranchPoint().getTimeStamp() != CDORevision.UNSPECIFIED_DATE && !hasAuditSupport())
     {
       throw new UnsupportedOperationException("Mapping Strategy does not support audits."); //$NON-NLS-1$
     }
@@ -150,11 +151,12 @@ public abstract class AbstractHorizontalMappingStrategy extends AbstractMappingS
     CDOID folderID = context.getFolderID();
     String name = context.getName();
     boolean exactMatch = context.exactMatch();
-    long timeStamp = context.getTimeStamp();
+
+    CDOBranchPoint branchPoint = context.getBranchPoint();
 
     try
     {
-      stmt = classMapping.createResourceQueryStatement(accessor, folderID, name, exactMatch, timeStamp);
+      stmt = classMapping.createResourceQueryStatement(accessor, folderID, name, exactMatch, branchPoint);
       rset = stmt.executeQuery();
 
       while (rset.next())

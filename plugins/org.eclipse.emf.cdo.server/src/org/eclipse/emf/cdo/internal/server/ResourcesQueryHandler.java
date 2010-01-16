@@ -11,8 +11,10 @@
 package org.eclipse.emf.cdo.internal.server;
 
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
+import org.eclipse.emf.cdo.internal.common.branch.CDOBranchPointImpl;
 import org.eclipse.emf.cdo.server.IQueryContext;
 import org.eclipse.emf.cdo.server.IQueryHandler;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
@@ -37,9 +39,9 @@ public class ResourcesQueryHandler implements IQueryHandler
     IStoreAccessor accessor = StoreThreadLocal.getAccessor();
     accessor.queryResources(new IStoreAccessor.QueryResourcesContext()
     {
-      public long getTimeStamp()
+      public CDOBranchPoint getBranchPoint()
       {
-        return context.getTimeStamp();
+        return new CDOBranchPointImpl(context.getBranch(), context.getTimeStamp());
       }
 
       public CDOID getFolderID()
@@ -79,6 +81,7 @@ public class ResourcesQueryHandler implements IQueryHandler
       super(CDOProtocolConstants.QUERY_LANGUAGE_RESOURCES);
     }
 
+    @Override
     public IQueryHandler create(String description) throws ProductCreationException
     {
       return new ResourcesQueryHandler();

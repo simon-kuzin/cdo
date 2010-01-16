@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
  *    Eike Stepper - initial API and implementation
  *    Stefan Winkler - major refactoring
@@ -21,40 +21,40 @@ import org.eclipse.emf.ecore.EStructuralFeature;
  * @author Eike Stepper
  * @since 2.0
  */
-public class HorizontalNonAuditMappingStrategy extends AbstractHorizontalMappingStrategy
+public class HorizontalBranchingMappingStrategy extends AbstractHorizontalMappingStrategy
 {
   @Override
-  protected IClassMapping doCreateClassMapping(EClass eClass)
+  public IClassMapping doCreateClassMapping(EClass eClass)
   {
-    return new HorizontalNonAuditClassMapping(this, eClass);
+    return new HorizontalBranchingClassMapping(this, eClass);
   }
 
   @Override
   public IListMapping doCreateListMapping(EClass containingClass, EStructuralFeature feature)
   {
-    return new NonAuditListTableMapping(this, containingClass, feature);
+    return new BranchingListTableMapping(this, containingClass, feature);
   }
 
   @Override
   public IListMapping doCreateFeatureMapMapping(EClass containingClass, EStructuralFeature feature)
   {
-    return new NonAuditFeatureMapTableMapping(this, containingClass, feature);
+    return new BranchingFeatureMapTableMapping(this, containingClass, feature);
   }
 
   @Override
   public boolean hasAuditSupport()
   {
-    return false;
+    return true;
   }
 
   @Override
   public boolean hasDeltaSupport()
   {
-    return true;
+    return false;
   }
 
   public boolean hasBranchingSupport()
   {
-    return false;
+    return true;
   }
 }

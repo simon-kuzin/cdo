@@ -1,5 +1,6 @@
 /**
- * Copyright (c) 2004 - 2009 Eike Stepper (Berlin, Germany) and others.
+builder.append(CDODBSchema.ATTRIBUTES_ID);
+    builder.append("= ?  * Copyright (c) 2004 - 2009 Eike Stepper (Berlin, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,8 +12,6 @@
  */
 package org.eclipse.emf.cdo.server.db.mapping;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
-import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
@@ -47,8 +46,7 @@ public interface IClassMappingAuditSupport
    *         could not be found. In this case, the content of <code>revision</code> is undefined.
    * @since 3.0
    */
-  public boolean readRevisionByVersion(IDBStoreAccessor storeAccessor, InternalCDORevision revision,
-      CDOBranchVersion branchVersion, int listChunk);
+  public boolean readRevisionByVersion(IDBStoreAccessor storeAccessor, InternalCDORevision revision, int listChunk);
 
   /**
    * Read a specific past version of a revision. If this method returns <code>true</code> it is guaranteed that
@@ -68,6 +66,5 @@ public interface IClassMappingAuditSupport
    *         could not be found. In this case, the content of <code>revision</code> is undefined.
    * @since 3.0
    */
-  public boolean readRevision(IDBStoreAccessor storeAccessor, InternalCDORevision revision, CDOBranchPoint branchPoint,
-      int listChunk);
+  public boolean readRevision(IDBStoreAccessor storeAccessor, InternalCDORevision revision, int listChunk);
 }
