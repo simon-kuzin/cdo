@@ -282,7 +282,7 @@ public class DBStore extends LongIDStore implements IDBStore
 
   protected void firstStart(Connection connection)
   {
-    creationTime = getStartupTime();
+    creationTime = getRepository().getTimeStamp();
     firstTime = true;
 
     DBUtil.insertRow(connection, dbAdapter, CDODBSchema.REPOSITORY, creationTime, 1, creationTime, 0, CRASHED_OID,
@@ -320,7 +320,7 @@ public class DBStore extends LongIDStore implements IDBStore
     builder.append("+1, "); //$NON-NLS-1$
     builder.append(CDODBSchema.REPOSITORY_STARTED);
     builder.append("="); //$NON-NLS-1$
-    builder.append(getStartupTime());
+    builder.append(getRepository().getTimeStamp());
     builder.append(", "); //$NON-NLS-1$
     builder.append(CDODBSchema.REPOSITORY_STOPPED);
     builder.append("=0, "); //$NON-NLS-1$
@@ -367,7 +367,7 @@ public class DBStore extends LongIDStore implements IDBStore
       builder.append(" SET "); //$NON-NLS-1$
       builder.append(CDODBSchema.REPOSITORY_STOPPED);
       builder.append("="); //$NON-NLS-1$
-      builder.append(getShutdownTime());
+      builder.append(getRepository().getTimeStamp());
       builder.append(", "); //$NON-NLS-1$
       builder.append(CDODBSchema.REPOSITORY_LAST_CDOID);
       builder.append("="); //$NON-NLS-1$
@@ -409,15 +409,5 @@ public class DBStore extends LongIDStore implements IDBStore
   {
     String name = getRepository().getName();
     return new DBSchema(name);
-  }
-
-  protected long getStartupTime()
-  {
-    return System.currentTimeMillis();
-  }
-
-  protected long getShutdownTime()
-  {
-    return System.currentTimeMillis();
   }
 }

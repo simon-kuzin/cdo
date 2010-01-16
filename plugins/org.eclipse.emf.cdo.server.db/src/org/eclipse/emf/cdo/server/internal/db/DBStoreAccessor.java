@@ -422,12 +422,6 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
 
     if (TRACER.isEnabled())
     {
-      CDODBUtil.sqlDump(getConnection(), "SELECT * FROM CDOResource");
-
-      CDODBUtil.sqlDump(getConnection(), "SELECT * FROM CDOResource_contents_list ORDER BY "
-          + CDODBSchema.LIST_REVISION_ID + "," + CDODBSchema.LIST_REVISION_BRANCH + ","
-          + CDODBSchema.LIST_REVISION_VERSION + "," + CDODBSchema.LIST_IDX);
-
       TRACER.format("--- DB COMMIT ---"); //$NON-NLS-1$
     }
 
