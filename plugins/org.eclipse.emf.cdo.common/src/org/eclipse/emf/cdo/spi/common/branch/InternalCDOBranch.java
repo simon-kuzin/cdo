@@ -34,4 +34,6 @@ public interface InternalCDOBranch extends CDOBranch
   public BranchInfo getBranchInfo();
 
   public void setBranchInfo(String name, InternalCDOBranch baseBranch, long baseTimeStamp);
+
+  public void addChild(InternalCDOBranch branch);
 }

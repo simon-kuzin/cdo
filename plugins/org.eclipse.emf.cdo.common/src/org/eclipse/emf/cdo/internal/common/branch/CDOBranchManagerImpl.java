@@ -73,6 +73,10 @@ public class CDOBranchManagerImpl extends Lifecycle implements InternalCDOBranch
 
   public void handleBranchCreated(InternalCDOBranch branch)
   {
+    CDOBranchPoint base = branch.getBase();
+    InternalCDOBranch baseBranch = (InternalCDOBranch)base.getBranch();
+    baseBranch.addChild(branch);
+
     fireEvent(new BranchCreatedEvent(branch));
   }
 

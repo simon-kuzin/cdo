@@ -175,6 +175,21 @@ public class CDOBranchImpl implements InternalCDOBranch
     baseOrBranchManager = CDOBranchUtil.createBranchPoint(baseBranch, baseTimeStamp);
   }
 
+  public synchronized void addChild(InternalCDOBranch branch)
+  {
+    if (branches == null)
+    {
+      branches = new InternalCDOBranch[] { branch };
+    }
+    else
+    {
+      InternalCDOBranch[] newBranches = new InternalCDOBranch[branches.length + 1];
+      System.arraycopy(branches, 0, newBranches, 0, branches.length);
+      newBranches[branches.length] = branch;
+      branches = newBranches;
+    }
+  }
+
   @Override
   public int hashCode()
   {
