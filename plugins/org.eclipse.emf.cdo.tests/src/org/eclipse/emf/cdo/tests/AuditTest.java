@@ -543,7 +543,7 @@ public class AuditTest extends AbstractCDOTest
   /**
    * @author Eike Stepper
    */
-  public static class LocalAuditTest extends AuditTest
+  public static class SameSession extends AuditTest
   {
     public void testRepositoryCreationTime() throws Exception
     {
