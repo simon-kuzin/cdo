@@ -23,6 +23,7 @@ import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCacheUtil;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
+import org.eclipse.emf.cdo.spi.common.revision.StubCDORevision;
 
 import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
@@ -43,6 +44,8 @@ import java.util.List;
 public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevisionManager
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_REVISION, CDORevisionManagerImpl.class);
+
+  private static final InternalCDORevision DOES_NOT_EXIST_IN_BRANCH = new StubCDORevision();
 
   private boolean supportingBranches;
 
