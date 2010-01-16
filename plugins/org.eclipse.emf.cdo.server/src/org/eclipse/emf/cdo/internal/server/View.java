@@ -15,7 +15,7 @@ import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
-import org.eclipse.emf.cdo.internal.common.branch.CDOBranchPointImpl;
+import org.eclipse.emf.cdo.spi.common.branch.CDOBranchUtil;
 import org.eclipse.emf.cdo.spi.server.InternalRepository;
 import org.eclipse.emf.cdo.spi.server.InternalSession;
 import org.eclipse.emf.cdo.spi.server.InternalView;
@@ -109,7 +109,7 @@ public class View implements InternalView
   private void setBranchPoint(CDOBranchPoint branchPoint)
   {
     long timeStamp = branchPoint.getTimeStamp();
-    branchPoint = new CDOBranchPointImpl(branchPoint.getBranch(), timeStamp);
+    branchPoint = CDOBranchUtil.createBranchPoint(branchPoint.getBranch(), timeStamp);
     validateTimeStamp(timeStamp);
     this.branchPoint = branchPoint;
   }

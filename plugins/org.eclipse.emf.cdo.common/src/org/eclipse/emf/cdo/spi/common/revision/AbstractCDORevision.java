@@ -32,9 +32,9 @@ import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionData;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDeltaUtil;
-import org.eclipse.emf.cdo.internal.common.branch.CDOBranchPointImpl;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.internal.common.messages.Messages;
+import org.eclipse.emf.cdo.spi.common.branch.CDOBranchUtil;
 
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 import org.eclipse.net4j.util.om.trace.PerfTracer;
@@ -303,7 +303,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
    */
   public void setBranchPoint(CDOBranchPoint branchPoint)
   {
-    branchPoint = new CDOBranchPointImpl(branchPoint.getBranch(), branchPoint.getTimeStamp());
+    branchPoint = CDOBranchUtil.createBranchPoint(branchPoint);
     if (TRACER.isEnabled())
     {
       TRACER.format("Setting branchPoint {0}: {1}", this, branchPoint);

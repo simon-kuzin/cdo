@@ -32,7 +32,7 @@ import org.eclipse.emf.cdo.eresource.CDOResourceFolder;
 import org.eclipse.emf.cdo.eresource.CDOResourceNode;
 import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.eresource.impl.CDOResourceImpl;
-import org.eclipse.emf.cdo.internal.common.branch.CDOBranchPointImpl;
+import org.eclipse.emf.cdo.spi.common.branch.CDOBranchUtil;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.transaction.CDOCommitContext;
@@ -169,7 +169,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
    */
   public CDOViewImpl(CDOBranch branch, long timeStamp)
   {
-    branchPoint = new CDOBranchPointImpl(branch, timeStamp);
+    branchPoint = CDOBranchUtil.createBranchPoint(branch, timeStamp);
     options = createOptions();
   }
 
@@ -308,7 +308,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
   public boolean setBranchPoint(CDOBranch branch, long timeStamp)
   {
     checkActive();
-    return setBranchPoint(new CDOBranchPointImpl(branch, timeStamp));
+    return setBranchPoint(CDOBranchUtil.createBranchPoint(branch, timeStamp));
   }
 
   protected boolean setBranchPoint(CDOBranchPoint branchPoint)

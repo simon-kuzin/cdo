@@ -23,12 +23,12 @@ import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionData;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
-import org.eclipse.emf.cdo.internal.common.branch.CDOBranchPointImpl;
 import org.eclipse.emf.cdo.internal.common.revision.cache.lru.DLRevisionHolder;
 import org.eclipse.emf.cdo.internal.common.revision.cache.lru.LRURevisionCache;
 import org.eclipse.emf.cdo.internal.common.revision.cache.lru.LRURevisionHolder;
 import org.eclipse.emf.cdo.internal.common.revision.cache.lru.LRURevisionList;
 import org.eclipse.emf.cdo.internal.common.revision.cache.lru.RevisionHolder;
+import org.eclipse.emf.cdo.spi.common.branch.CDOBranchUtil;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDOList;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
@@ -269,7 +269,7 @@ public class RevisionHolderTest extends AbstractCDOTest
     public TestRevision(long id, int version, long created, long revised)
     {
       this.id = CDOIDUtil.createLong(id);
-      branchPoint = new CDOBranchPointImpl(null, created);
+      branchPoint = CDOBranchUtil.createBranchPoint(null, created);
       this.version = version;
       this.revised = revised;
     }
@@ -321,7 +321,7 @@ public class RevisionHolderTest extends AbstractCDOTest
 
     public void setBranchPoint(CDOBranchPoint branchPoint)
     {
-      this.branchPoint = new CDOBranchPointImpl(branchPoint.getBranch(), branchPoint.getTimeStamp());
+      this.branchPoint = CDOBranchUtil.createBranchPoint(branchPoint);
     }
 
     public int getVersion()

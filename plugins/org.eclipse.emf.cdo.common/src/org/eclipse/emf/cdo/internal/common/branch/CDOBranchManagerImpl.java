@@ -15,6 +15,7 @@ import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchCreatedEvent;
 import org.eclipse.emf.cdo.common.branch.CDOBranchManager;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.spi.common.branch.CDOBranchUtil;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranch;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager.BranchLoader.BranchInfo;
@@ -110,7 +111,7 @@ public class CDOBranchManagerImpl extends Lifecycle implements InternalCDOBranch
       InternalCDOBranch branch = branches.get(id);
       if (branch == null)
       {
-        branch = new CDOBranchImpl(id, name, new CDOBranchPointImpl(base, baseTimeStamp));
+        branch = new CDOBranchImpl(id, name, CDOBranchUtil.createBranchPoint(base, baseTimeStamp));
         putBranch(branch);
       }
       else if (branch.isProxy())
@@ -137,7 +138,7 @@ public class CDOBranchManagerImpl extends Lifecycle implements InternalCDOBranch
     }
 
     int branchID = branchLoader.createBranch(new BranchInfo(name, baseBranch.getID(), baseTimeStamp));
-    CDOBranchPoint base = new CDOBranchPointImpl(baseBranch, baseTimeStamp);
+    CDOBranchPoint base = CDOBranchUtil.createBranchPoint(baseBranch, baseTimeStamp);
     InternalCDOBranch branch = new CDOBranchImpl(branchID, name, base);
     synchronized (branches)
     {

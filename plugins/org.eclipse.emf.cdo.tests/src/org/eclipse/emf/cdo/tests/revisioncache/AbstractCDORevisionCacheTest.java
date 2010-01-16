@@ -20,10 +20,10 @@ import org.eclipse.emf.cdo.common.internal.db.cache.DBRevisionCache;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
 import org.eclipse.emf.cdo.eresource.CDOResource;
-import org.eclipse.emf.cdo.internal.common.branch.CDOBranchPointImpl;
 import org.eclipse.emf.cdo.internal.common.revision.cache.lru.LRURevisionCache;
 import org.eclipse.emf.cdo.internal.common.revision.cache.mem.MEMRevisionCache;
 import org.eclipse.emf.cdo.session.CDOSession;
+import org.eclipse.emf.cdo.spi.common.branch.CDOBranchUtil;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.tests.model1.Company;
 import org.eclipse.emf.cdo.tests.model1.Model1Factory;
@@ -60,7 +60,7 @@ public abstract class AbstractCDORevisionCacheTest extends AbstractOMTest
 
   private static final CDOBranch BRANCH = null;
 
-  private static final CDOBranchPoint BRANCH_POINT = new CDOBranchPointImpl(BRANCH, CDOBranchPoint.UNSPECIFIED_DATE);
+  private static final CDOBranchPoint BRANCH_POINT = CDOBranchUtil.createBranchPoint(BRANCH);
 
   private CDOResource resource;
 

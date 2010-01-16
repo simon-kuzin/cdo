@@ -30,11 +30,6 @@ public class CDOBranchPointImpl implements CDOBranchPoint
     this.timeStamp = timeStamp;
   }
 
-  public CDOBranchPointImpl(CDOBranch branch)
-  {
-    this(branch, UNSPECIFIED_DATE);
-  }
-
   public CDOBranch getBranch()
   {
     return branch;
