@@ -91,6 +91,9 @@ public abstract class AbstractHorizontalClassMapping implements IClassMapping
 
     IDBField idField = table.addField(CDODBSchema.ATTRIBUTES_ID, DBType.BIGINT, true);
     IDBField versionField = table.addField(CDODBSchema.ATTRIBUTES_VERSION, DBType.INTEGER, true);
+
+    addBranchingField(table);
+
     table.addField(CDODBSchema.ATTRIBUTES_CLASS, DBType.BIGINT, true);
     table.addField(CDODBSchema.ATTRIBUTES_CREATED, DBType.BIGINT, true);
     IDBField revisedField = table.addField(CDODBSchema.ATTRIBUTES_REVISED, DBType.BIGINT, true);
@@ -100,6 +103,10 @@ public abstract class AbstractHorizontalClassMapping implements IClassMapping
 
     table.addIndex(IDBIndex.Type.UNIQUE, idField, versionField);
     table.addIndex(IDBIndex.Type.NON_UNIQUE, idField, revisedField);
+  }
+
+  protected void addBranchingField(IDBTable table)
+  {
   }
 
   private void initFeatures()

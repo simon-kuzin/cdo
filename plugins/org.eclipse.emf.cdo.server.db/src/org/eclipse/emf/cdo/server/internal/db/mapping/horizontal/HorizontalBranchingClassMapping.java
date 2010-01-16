@@ -31,6 +31,10 @@ import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.db.DBException;
+import org.eclipse.net4j.db.DBType;
+import org.eclipse.net4j.db.ddl.IDBField;
+import org.eclipse.net4j.db.ddl.IDBTable;
+import org.eclipse.net4j.db.ddl.IDBIndex.Type;
 import org.eclipse.net4j.util.ImplementationError;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.monitor.OMMonitor.Async;
@@ -70,6 +74,13 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
     super(mappingStrategy, eClass);
 
     initSqlStrings();
+  }
+
+  @Override
+  protected void addBranchingField(IDBTable table)
+  {
+    IDBField branch = table.addField(CDODBSchema.ATTRIBUTES_BRANCH, DBType.INTEGER, true);
+    table.addIndex(Type.NON_UNIQUE, branch);
   }
 
   private void initSqlStrings()
@@ -178,7 +189,7 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
       }
     }
 
-    builder.append(") VALUES (?, ?, ?, ?, ?, ?, ?, ?"); //$NON-NLS-1$
+    builder.append(") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?"); //$NON-NLS-1$
 
     for (int i = 0; i < getValueMappings().size(); i++)
     {
@@ -203,6 +214,8 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
     builder.append(CDODBSchema.ATTRIBUTES_REVISED);
     builder.append(" = ? WHERE "); //$NON-NLS-1$
     builder.append(CDODBSchema.ATTRIBUTES_ID);
+    builder.append(" = ? AND "); //$NON-NLS-1$
+    builder.append(CDODBSchema.ATTRIBUTES_BRANCH);
     builder.append(" = ? AND "); //$NON-NLS-1$
     builder.append(CDODBSchema.ATTRIBUTES_REVISED);
     builder.append(" = 0"); //$NON-NLS-1$

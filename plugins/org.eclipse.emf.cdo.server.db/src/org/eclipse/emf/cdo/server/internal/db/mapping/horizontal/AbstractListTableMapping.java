@@ -269,10 +269,10 @@ public abstract class AbstractListTableMapping implements IListMapping
 
       setKeyFields(pstmt, revision);
 
-      // if (TRACER.isEnabled())
-      // {
-      // TRACER.trace(pstmt.toString());
-      // }
+      if (TRACER.isEnabled())
+      {
+        TRACER.trace(pstmt.toString());
+      }
 
       if (listChunk != CDORevision.UNCHUNKED)
       {
@@ -339,10 +339,10 @@ public abstract class AbstractListTableMapping implements IListMapping
 
       setKeyFields(pstmt, revision);
 
-      // if (TRACER.isEnabled())
-      // {
-      // TRACER.trace(pstmt.toString());
-      // }
+      if (TRACER.isEnabled())
+      {
+        TRACER.trace(pstmt.toString());
+      }
 
       resultSet = pstmt.executeQuery();
 
