@@ -76,6 +76,17 @@ public class DBRevisionCache extends Lifecycle implements CDORevisionCache
   {
   }
 
+  public CDORevisionCache instantiate(CDORevision revision)
+  {
+    // TODO: Support branches directly
+    throw new UnsupportedOperationException();
+  }
+
+  public boolean isSupportingBranches()
+  {
+    return false;
+  }
+
   public CDOIDProvider getIdProvider()
   {
     return idProvider;

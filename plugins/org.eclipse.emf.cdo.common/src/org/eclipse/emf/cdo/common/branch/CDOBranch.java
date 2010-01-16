@@ -22,6 +22,8 @@ public interface CDOBranch
 
   public static final String PATH_SEPARATOR = "/";
 
+  public boolean isMainBranch();
+
   public int getID();
 
   public String getName();

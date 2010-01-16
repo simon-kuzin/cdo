@@ -819,6 +819,8 @@ public class Repository extends Container<Object> implements InternalRepository
       String value = getProperties().get(Props.VERIFYING_REVISIONS);
       verifyingRevisions = value == null ? false : Boolean.valueOf(value);
     }
+
+    revisionManager.setSupportingBranches(supportingBranches);
   }
 
   @Override

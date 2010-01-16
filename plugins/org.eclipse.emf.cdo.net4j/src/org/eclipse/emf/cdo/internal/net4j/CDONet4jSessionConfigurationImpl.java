@@ -170,6 +170,7 @@ public class CDONet4jSessionConfigurationImpl extends CDOSessionConfigurationImp
     packageRegistry.activate();
 
     revisionManager = new CDORevisionManagerImpl();
+    revisionManager.setSupportingBranches(session.getRepositoryInfo().isSupportingBranches());
     revisionManager.setRevisionLoader(session.getSessionProtocol());
     revisionManager.setRevisionLocker(session);
     revisionManager.activate();

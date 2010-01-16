@@ -38,6 +38,16 @@ public class NOOPRevisionCache extends Lifecycle implements CDORevisionCache
   {
   }
 
+  public CDORevisionCache instantiate(CDORevision revision)
+  {
+    return this;
+  }
+
+  public boolean isSupportingBranches()
+  {
+    return true;
+  }
+
   public EClass getObjectType(CDOID id)
   {
     return null;

@@ -69,6 +69,18 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
     this(ReferenceType.SOFT);
   }
 
+  public CDORevisionCache instantiate(CDORevision revision)
+  {
+    MEMRevisionCache cache = new MEMRevisionCache();
+    cache.setReferenceType(referenceType);
+    return cache;
+  }
+
+  public boolean isSupportingBranches()
+  {
+    return false;
+  }
+
   public ReferenceType getReferenceType()
   {
     return referenceType;

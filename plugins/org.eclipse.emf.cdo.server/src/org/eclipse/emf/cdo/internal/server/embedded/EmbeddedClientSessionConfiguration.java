@@ -88,6 +88,7 @@ public class EmbeddedClientSessionConfiguration extends CDOSessionConfigurationI
     session.setRepositoryInfo(new RepositoryInfo());
 
     revisionManager = new CDORevisionManagerImpl();
+    revisionManager.setSupportingBranches(session.getRepositoryInfo().isSupportingBranches());
     revisionManager.setCache(CDORevisionCache.NOOP);
     revisionManager.setRevisionLoader(session.getSessionProtocol());
     revisionManager.setRevisionLocker(session);

@@ -52,6 +52,11 @@ public class CDOBranchImpl implements InternalCDOBranch
     baseOrBranchManager = branchManager;
   }
 
+  public boolean isMainBranch()
+  {
+    return false;
+  }
+
   public InternalCDOBranchManager getBranchManager()
   {
     if (isProxy())
@@ -248,6 +253,12 @@ public class CDOBranchImpl implements InternalCDOBranch
     {
       super(MAIN_BRANCH_ID, MAIN_BRANCH_NAME, CDOBranchUtil.createBranchPoint(null, timeStamp));
       this.branchManager = branchManager;
+    }
+
+    @Override
+    public boolean isMainBranch()
+    {
+      return true;
     }
 
     @Override

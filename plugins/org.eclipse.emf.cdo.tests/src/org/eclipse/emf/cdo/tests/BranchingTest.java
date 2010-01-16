@@ -26,9 +26,6 @@ import org.eclipse.emf.cdo.view.CDOView;
 import org.eclipse.net4j.util.event.IEvent;
 import org.eclipse.net4j.util.event.IListener;
 
-import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.ecore.EObject;
-
 import java.util.Map;
 
 /**
@@ -214,8 +211,7 @@ public class BranchingTest extends AbstractCDOTest
     assertEquals(CDOBranchPoint.UNSPECIFIED_DATE, transaction.getTimeStamp());
 
     resource = transaction.getResource("/res");
-    EList<EObject> contents = resource.getContents();
-    orderDetail = (OrderDetail)contents.get(1);
+    orderDetail = (OrderDetail)resource.getContents().get(1);
     assertEquals(5, orderDetail.getPrice());
     product = orderDetail.getProduct();
     assertEquals("CDO", product.getName());

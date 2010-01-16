@@ -47,6 +47,19 @@ public class TwoLevelRevisionCache extends Lifecycle implements CDORevisionCache
   {
   }
 
+  public CDORevisionCache instantiate(CDORevision revision)
+  {
+    TwoLevelRevisionCache cache = new TwoLevelRevisionCache();
+    cache.setLevel1(level1.instantiate(revision));
+    cache.setLevel2(level2.instantiate(revision));
+    return cache;
+  }
+
+  public boolean isSupportingBranches()
+  {
+    return false;
+  }
+
   public CDORevisionCache getLevel1()
   {
     return level1;

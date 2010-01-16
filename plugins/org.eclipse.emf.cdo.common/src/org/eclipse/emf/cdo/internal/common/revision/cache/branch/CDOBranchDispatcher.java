@@ -19,6 +19,7 @@ import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCacheFactory;
 
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
+import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 
 import org.eclipse.emf.ecore.EClass;
 
@@ -38,6 +39,16 @@ public class CDOBranchDispatcher extends Lifecycle implements CDORevisionCache
 
   public CDOBranchDispatcher()
   {
+  }
+
+  public CDORevisionCache instantiate(CDORevision revision)
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  public boolean isSupportingBranches()
+  {
+    return true;
   }
 
   public CDORevisionCacheFactory getFactory()
@@ -108,6 +119,7 @@ public class CDOBranchDispatcher extends Lifecycle implements CDORevisionCache
       if (cache == null)
       {
         cache = factory.createRevisionCache(revision);
+        LifecycleUtil.activate(cache);
         caches.put(branch, cache);
       }
     }
@@ -139,6 +151,17 @@ public class CDOBranchDispatcher extends Lifecycle implements CDORevisionCache
   {
     super.doBeforeActivate();
     checkState(factory, "factory");
+  }
+
+  @Override
+  protected void doDeactivate() throws Exception
+  {
+    for (CDORevisionCache cache : getCaches())
+    {
+      LifecycleUtil.deactivate(cache);
+    }
+
+    super.doDeactivate();
   }
 
   private CDORevisionCache getCache(CDOBranch branch)

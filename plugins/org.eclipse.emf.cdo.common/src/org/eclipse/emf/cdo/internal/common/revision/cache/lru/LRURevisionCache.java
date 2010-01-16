@@ -55,6 +55,19 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
   {
   }
 
+  public CDORevisionCache instantiate(CDORevision revision)
+  {
+    LRURevisionCache cache = new LRURevisionCache();
+    cache.setCapacityCurrent(capacityCurrent);
+    cache.setCapacityRevised(capacityRevised);
+    return cache;
+  }
+
+  public boolean isSupportingBranches()
+  {
+    return false;
+  }
+
   public int getCapacityCurrent()
   {
     return capacityCurrent;

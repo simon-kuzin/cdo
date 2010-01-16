@@ -29,6 +29,10 @@ import java.util.List;
  */
 public interface InternalCDORevisionManager extends CDORevisionManager, ILifecycle
 {
+  public boolean isSupportingBranches();
+
+  public void setSupportingBranches(boolean on);
+
   public RevisionLoader getRevisionLoader();
 
   public void setRevisionLoader(RevisionLoader revisionLoader);

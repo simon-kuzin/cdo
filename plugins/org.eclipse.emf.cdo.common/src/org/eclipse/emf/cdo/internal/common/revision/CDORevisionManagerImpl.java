@@ -69,10 +69,10 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     return supportingBranches;
   }
 
-  public void setSupportingBranches(boolean supportingBranches)
+  public void setSupportingBranches(boolean on)
   {
     checkInactive();
-    this.supportingBranches = supportingBranches;
+    supportingBranches = on;
   }
 
   public RevisionLoader getRevisionLoader()
@@ -318,7 +318,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
 
     if (supportingBranches && !cache.isSupportingBranches())
     {
-      cache = CDORevisionCacheUtil.createDefaultCache();
+      cache = CDORevisionCacheUtil.createBranchDispatcher(cache);
     }
 
     LifecycleUtil.activate(cache);
