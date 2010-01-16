@@ -10,7 +10,6 @@
  */
 package org.eclipse.emf.cdo.server;
 
-import org.eclipse.emf.cdo.common.CDOCommonView;
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
@@ -261,16 +260,8 @@ public interface IStoreAccessor extends IQueryHandlerProvider, BranchLoader
    * @since 2.0
    * @noimplement This interface is not intended to be implemented by clients.
    */
-  public interface QueryResourcesContext
+  public interface QueryResourcesContext extends CDOBranchPoint
   {
-    /**
-     * The branchPoint of the view ({@link CDOCommonView#UNSPECIFIED_DATE} if the view is an
-     * {@link CDOCommonView.Type#AUDIT audit} view.
-     * 
-     * @since 3.0
-     */
-    public CDOBranchPoint getBranchPoint();
-
     public CDOID getFolderID();
 
     public String getName();

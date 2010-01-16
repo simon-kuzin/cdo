@@ -11,7 +11,6 @@
  */
 package org.eclipse.emf.cdo.server.internal.db.mapping.horizontal;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
@@ -26,7 +25,6 @@ import org.eclipse.emf.cdo.common.revision.delta.CDOMoveFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDORemoveFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOSetFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOUnsetFeatureDelta;
-import org.eclipse.emf.cdo.internal.common.branch.CDOBranchPointImpl;
 import org.eclipse.emf.cdo.server.db.CDODBUtil;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IPreparedStatementCache.ReuseProbability;
@@ -202,9 +200,7 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
   public void processDelta(final IDBStoreAccessor accessor, final CDOID id, int oldVersion, final int newVersion,
       long created, CDOListFeatureDelta delta)
   {
-    // TODO: Utility method createBranchPoint(branch, timestamp) ?
-    CDOBranchPoint main = new CDOBranchPointImpl(accessor.getStore().getRepository().getBranchManager().getBranch(
-        CDOBranch.MAIN_BRANCH_ID), CDOBranchPoint.UNSPECIFIED_DATE);
+    CDOBranchPoint main = accessor.getStore().getRepository().getBranchManager().getMainBranch().getHead();
 
     InternalCDORevision originalRevision = (InternalCDORevision)accessor.getStore().getRepository()
         .getRevisionManager().getRevision(id, main, CDORevision.UNCHUNKED, CDORevision.DEPTH_NONE, true);

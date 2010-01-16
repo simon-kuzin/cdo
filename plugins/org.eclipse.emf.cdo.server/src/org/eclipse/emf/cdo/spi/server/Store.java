@@ -11,6 +11,7 @@
 package org.eclipse.emf.cdo.spi.server;
 
 import org.eclipse.emf.cdo.common.CDOCommonView;
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
@@ -387,9 +388,19 @@ public abstract class Store extends Lifecycle implements IStore
         return resourceID;
       }
 
-      public CDOBranchPoint getBranchPoint()
+      public CDOBranch getBranch()
       {
-        return branchPoint;
+        return branchPoint.getBranch();
+      }
+
+      public long getTimeStamp()
+      {
+        return branchPoint.getTimeStamp();
+      }
+
+      public boolean isHistorical()
+      {
+        return branchPoint.isHistorical();
       }
 
       public CDOID getFolderID()

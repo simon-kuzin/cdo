@@ -9,17 +9,15 @@
  *    Eike Stepper - initial API and implementation
  *    Stefan Winkler - 271444: [DB] Multiple refactorings bug 271444
  *    Stefan Winkler - 249610: [DB] Support external references (Implementation)
- *    
+ *
  */
 package org.eclipse.emf.cdo.server.internal.db.mapping.horizontal;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.eresource.EresourcePackage;
-import org.eclipse.emf.cdo.internal.common.branch.CDOBranchPointImpl;
 import org.eclipse.emf.cdo.server.db.CDODBUtil;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IExternalReferenceManager;
@@ -30,6 +28,7 @@ import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.db.mapping.ITypeMapping;
 import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
+import org.eclipse.emf.cdo.spi.common.branch.CDOBranchUtil;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.db.DBException;
@@ -211,8 +210,7 @@ public abstract class AbstractHorizontalClassMapping implements IClassMapping
 
       long timeStamp = resultSet.getLong(CDODBSchema.ATTRIBUTES_CREATED);
 
-      // TODO: Utility method createBranchPoint(branch, timestamp) ?
-      CDOBranchPoint branchPoint = new CDOBranchPointImpl(revision.getBranch(), timeStamp);
+      CDOBranchPoint branchPoint = CDOBranchUtil.createBranchPoint(revision.getBranch(), timeStamp);
 
       revision.setBranchPoint(branchPoint);
       revision.setRevised(resultSet.getLong(CDODBSchema.ATTRIBUTES_REVISED));
@@ -360,19 +358,11 @@ public abstract class AbstractHorizontalClassMapping implements IClassMapping
     return tables;
   }
 
-  private CDOBranch getBranch(int branchId)
-  {
-    return getMappingStrategy().getStore().getRepository().getBranchManager().getBranch(branchId);
-  }
-
   protected void checkDuplicateResources(IDBStoreAccessor accessor, CDORevision revision) throws IllegalStateException
   {
     CDOID folderID = (CDOID)revision.data().getContainerID();
     String name = (String)revision.data().get(EresourcePackage.eINSTANCE.getCDOResourceNode_Name(), 0);
-
-    CDOBranchPoint branchPoint = new CDOBranchPointImpl(revision.getBranch(), CDORevision.UNSPECIFIED_DATE);
-
-    CDOID existingID = accessor.readResourceID(folderID, name, branchPoint);
+    CDOID existingID = accessor.readResourceID(folderID, name, revision.getBranch().getHead());
     if (existingID != null && !existingID.equals(revision.getID()))
     {
       throw new IllegalStateException("Duplicate resource or folder: " + name + " in folder " + folderID); //$NON-NLS-1$ //$NON-NLS-2$

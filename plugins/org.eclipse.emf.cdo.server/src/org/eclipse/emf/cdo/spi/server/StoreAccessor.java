@@ -97,6 +97,9 @@ public abstract class StoreAccessor extends Lifecycle implements IStoreAccessor
     return null;
   }
 
+  /**
+   * @since 3.0
+   */
   public CDOID readResourceID(CDOID folderID, String name, CDOBranchPoint branchPoint)
   {
     IStoreAccessor.QueryResourcesContext.ExactMatch context = //

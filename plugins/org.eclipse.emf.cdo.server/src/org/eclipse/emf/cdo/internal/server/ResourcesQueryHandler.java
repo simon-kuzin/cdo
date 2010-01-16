@@ -4,17 +4,16 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Eike Stepper - initial API and implementation
  */
 package org.eclipse.emf.cdo.internal.server;
 
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
-import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
-import org.eclipse.emf.cdo.internal.common.branch.CDOBranchPointImpl;
 import org.eclipse.emf.cdo.server.IQueryContext;
 import org.eclipse.emf.cdo.server.IQueryHandler;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
@@ -39,9 +38,19 @@ public class ResourcesQueryHandler implements IQueryHandler
     IStoreAccessor accessor = StoreThreadLocal.getAccessor();
     accessor.queryResources(new IStoreAccessor.QueryResourcesContext()
     {
-      public CDOBranchPoint getBranchPoint()
+      public CDOBranch getBranch()
       {
-        return new CDOBranchPointImpl(context.getBranch(), context.getTimeStamp());
+        return context.getBranch();
+      }
+
+      public long getTimeStamp()
+      {
+        return context.getTimeStamp();
+      }
+
+      public boolean isHistorical()
+      {
+        return context.isHistorical();
       }
 
       public CDOID getFolderID()

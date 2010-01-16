@@ -43,7 +43,7 @@ public class CDOBranchImpl implements InternalCDOBranch
     this.id = id;
     this.name = name;
     baseOrBranchManager = base;
-    head = CDOBranchUtil.createBranchPoint(this);
+    head = CDOBranchUtil.createBranchPoint(this, CDOBranchPoint.UNSPECIFIED_DATE);
   }
 
   public CDOBranchImpl(int id, InternalCDOBranchManager branchManager)

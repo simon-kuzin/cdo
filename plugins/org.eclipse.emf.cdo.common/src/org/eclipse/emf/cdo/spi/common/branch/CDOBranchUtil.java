@@ -29,11 +29,6 @@ public final class CDOBranchUtil
     return new CDOBranchPointImpl(branch, timeStamp);
   }
 
-  public static CDOBranchPoint createBranchPoint(CDOBranch branch)
-  {
-    return createBranchPoint(branch, CDOBranchPoint.UNSPECIFIED_DATE);
-  }
-
   public static CDOBranchPoint createBranchPoint(CDOBranchPoint source)
   {
     return createBranchPoint(source.getBranch(), source.getTimeStamp());

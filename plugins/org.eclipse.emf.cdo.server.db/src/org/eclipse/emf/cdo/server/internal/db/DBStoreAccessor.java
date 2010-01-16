@@ -20,7 +20,6 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCacheAdder;
-import org.eclipse.emf.cdo.internal.common.branch.CDOBranchPointImpl;
 import org.eclipse.emf.cdo.server.IQueryHandler;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.ISession;
@@ -210,7 +209,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     InternalCDORevision revision = getStore().createRevision(eClass, id);
     IClassMapping mapping = mappingStrategy.getClassMapping(eClass);
     revision.setVersion(branchVersion.getVersion());
-    revision.setBranchPoint(new CDOBranchPointImpl(branchVersion.getBranch(), CDOBranchPoint.UNSPECIFIED_DATE));
+    revision.setBranchPoint(branchVersion.getBranch().getHead());
 
     boolean success = false;
 
