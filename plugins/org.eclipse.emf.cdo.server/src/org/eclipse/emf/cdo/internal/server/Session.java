@@ -14,7 +14,6 @@
  */
 package org.eclipse.emf.cdo.internal.server;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
@@ -26,6 +25,7 @@ import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.server.IView;
 import org.eclipse.emf.cdo.server.SessionCreationException;
+import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranch;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
 import org.eclipse.emf.cdo.spi.server.ISessionProtocol;
@@ -257,7 +257,7 @@ public class Session extends Container<IView> implements InternalSession
     }
   }
 
-  public void handleBranchNotification(CDOBranch branch)
+  public void handleBranchNotification(InternalCDOBranch branch)
   {
     protocol.sendBranchNotification(branch);
   }

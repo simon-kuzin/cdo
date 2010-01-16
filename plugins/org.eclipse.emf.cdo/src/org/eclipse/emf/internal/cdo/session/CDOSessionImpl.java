@@ -33,6 +33,7 @@ import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.session.CDOSessionInvalidationEvent;
 import org.eclipse.emf.cdo.session.remote.CDORemoteSession;
 import org.eclipse.emf.cdo.session.remote.CDORemoteSessionMessage;
+import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranch;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
 import org.eclipse.emf.cdo.transaction.CDORefreshContext;
@@ -565,7 +566,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     handleCommitNotification(branchPoint, newPackageUnits, dirtyOIDs, detachedObjects, null, null, true, false);
   }
 
-  public void handleBranchNotification(CDOBranch branch)
+  public void handleBranchNotification(InternalCDOBranch branch)
   {
     getBranchManager().handleBranchCreated(branch);
   }

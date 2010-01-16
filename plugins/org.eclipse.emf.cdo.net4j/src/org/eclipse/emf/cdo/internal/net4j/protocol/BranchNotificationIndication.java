@@ -14,6 +14,7 @@ package org.eclipse.emf.cdo.internal.net4j.protocol;
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
+import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranch;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager;
 
 import java.io.IOException;
@@ -34,6 +35,6 @@ public class BranchNotificationIndication extends CDOClientIndication
     CDOBranch branch = in.readCDOBranch();
 
     InternalCDOBranchManager branchManager = getSession().getBranchManager();
-    branchManager.handleBranchCreated(branch);
+    branchManager.handleBranchCreated((InternalCDOBranch)branch);
   }
 }

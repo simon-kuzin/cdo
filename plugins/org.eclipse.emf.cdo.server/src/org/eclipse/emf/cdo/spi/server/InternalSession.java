@@ -11,7 +11,6 @@
 package org.eclipse.emf.cdo.spi.server;
 
 import org.eclipse.emf.cdo.common.CDOCommonSession;
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
@@ -20,6 +19,7 @@ import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.server.ISession;
+import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranch;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import java.util.List;
@@ -45,7 +45,7 @@ public interface InternalSession extends ISession, CDOIDProvider, CDOCommonSessi
 
   public void setSubscribed(boolean subscribed);
 
-  public void handleBranchNotification(CDOBranch branch);
+  public void handleBranchNotification(InternalCDOBranch branch);
 
   public void handleCommitNotification(CDOBranchPoint branchPoint, CDOPackageUnit[] packageUnits,
       List<CDOIDAndVersion> dirtyIDs, List<CDOID> detachedObjects, List<CDORevisionDelta> deltas);

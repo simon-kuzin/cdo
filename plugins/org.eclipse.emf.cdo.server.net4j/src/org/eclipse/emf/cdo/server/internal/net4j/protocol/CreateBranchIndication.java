@@ -10,10 +10,10 @@
  */
 package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
+import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranch;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager.BranchLoader.BranchInfo;
 import org.eclipse.emf.cdo.spi.server.InternalSessionManager;
@@ -42,8 +42,9 @@ public class CreateBranchIndication extends CDOReadIndication
   protected void responding(CDODataOutput out) throws IOException
   {
     InternalCDOBranchManager branchManager = getRepository().getBranchManager();
-    CDOBranch baseBranch = branchManager.getBranch(branchInfo.getBaseBranchID());
-    CDOBranch branch = branchManager.createBranch(branchInfo.getName(), baseBranch, branchInfo.getBaseTimeStamp());
+    InternalCDOBranch baseBranch = branchManager.getBranch(branchInfo.getBaseBranchID());
+    InternalCDOBranch branch = branchManager.createBranch(branchInfo.getName(), baseBranch, branchInfo
+        .getBaseTimeStamp());
     out.writeInt(branch.getID());
 
     InternalSessionManager sessionManager = getRepository().getSessionManager();

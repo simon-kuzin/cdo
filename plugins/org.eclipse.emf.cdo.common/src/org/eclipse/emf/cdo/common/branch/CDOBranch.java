@@ -18,7 +18,9 @@ public interface CDOBranch
 {
   public static final int MAIN_BRANCH_ID = 0;
 
-  public static final String MAIN_BRANCH_NAME = "MAIN";
+  public static final String MAIN_BRANCH_NAME = "";
+
+  public static final String PATH_SEPARATOR = "/";
 
   public int getID();
 
@@ -33,6 +35,10 @@ public interface CDOBranch
   public CDOBranchVersion getVersion(int version);
 
   public CDOBranchManager getBranchManager();
+
+  public CDOBranch[] getBranches();
+
+  public CDOBranch getBranch(String path);
 
   public CDOBranch createBranch(String name, long timeStamp);
 

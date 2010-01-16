@@ -11,7 +11,6 @@
 package org.eclipse.emf.cdo.spi.common.branch;
 
 import org.eclipse.emf.cdo.common.CDOTimeProvider;
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchManager;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
@@ -36,9 +35,15 @@ public interface InternalCDOBranchManager extends CDOBranchManager, ILifecycle
 
   public void initMainBranch(long timestamp);
 
-  public CDOBranch createBranch(String name, CDOBranch baseBranch, long baseTimeStamp);
+  public InternalCDOBranch getMainBranch();
 
-  public void handleBranchCreated(CDOBranch branch);
+  public InternalCDOBranch getBranch(int branchID);
+
+  public InternalCDOBranch getBranch(String path);
+
+  public InternalCDOBranch createBranch(String name, InternalCDOBranch baseBranch, long baseTimeStamp);
+
+  public void handleBranchCreated(InternalCDOBranch branch);
 
   /**
    * @author Eike Stepper
@@ -46,9 +51,9 @@ public interface InternalCDOBranchManager extends CDOBranchManager, ILifecycle
    */
   public interface BranchLoader
   {
-    public BranchInfo loadBranch(int branchID);
-
     public int createBranch(BranchInfo branchInfo);
+
+    public BranchInfo loadBranch(int branchID);
 
     /**
      * @author Eike Stepper
@@ -56,17 +61,27 @@ public interface InternalCDOBranchManager extends CDOBranchManager, ILifecycle
      */
     public static final class BranchInfo
     {
+      public static final int[] NO_CHILDREN = {};
+
       private String name;
 
       private int baseBranchID;
 
       private long baseTimeStamp;
 
-      public BranchInfo(String name, int baseBranchID, long baseTimeStamp)
+      private int[] childIDs;
+
+      public BranchInfo(String name, int baseBranchID, long baseTimeStamp, int[] childIDs)
       {
         this.name = name;
         this.baseBranchID = baseBranchID;
         this.baseTimeStamp = baseTimeStamp;
+        this.childIDs = childIDs;
+      }
+
+      public BranchInfo(String name, int baseBranchID, long baseTimeStamp)
+      {
+        this(name, baseBranchID, baseTimeStamp, NO_CHILDREN);
       }
 
       public BranchInfo(CDODataInput in) throws IOException
@@ -74,6 +89,13 @@ public interface InternalCDOBranchManager extends CDOBranchManager, ILifecycle
         name = in.readString();
         baseBranchID = in.readInt();
         baseTimeStamp = in.readLong();
+
+        int size = in.readInt();
+        childIDs = new int[size];
+        for (int i = 0; i < childIDs.length; i++)
+        {
+          childIDs[i] = in.readInt();
+        }
       }
 
       public void write(CDODataOutput out) throws IOException
@@ -81,6 +103,12 @@ public interface InternalCDOBranchManager extends CDOBranchManager, ILifecycle
         out.writeString(name);
         out.writeInt(baseBranchID);
         out.writeLong(baseTimeStamp);
+
+        out.writeInt(childIDs.length);
+        for (int id : childIDs)
+        {
+          out.writeInt(id);
+        }
       }
 
       public String getName()
@@ -96,6 +124,11 @@ public interface InternalCDOBranchManager extends CDOBranchManager, ILifecycle
       public long getBaseTimeStamp()
       {
         return baseTimeStamp;
+      }
+
+      public int[] getChildIDs()
+      {
+        return childIDs;
       }
     }
   }

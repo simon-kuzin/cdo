@@ -59,7 +59,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -507,7 +509,44 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
       String name = resultSet.getString(1);
       int baseBranchID = resultSet.getInt(2);
       long baseTimeStamp = resultSet.getLong(3);
-      return new BranchInfo(name, baseBranchID, baseTimeStamp);
+      int[] loadSubBranches = loadSubBranches(branchID);
+      return new BranchInfo(name, baseBranchID, baseTimeStamp, loadSubBranches);
+    }
+    catch (SQLException ex)
+    {
+      throw new DBException(ex);
+    }
+    finally
+    {
+      DBUtil.close(resultSet);
+      statementCache.releasePreparedStatement(pstmt);
+    }
+  }
+
+  private int[] loadSubBranches(int baseID)
+  {
+    PreparedStatement pstmt = null;
+    ResultSet resultSet = null;
+
+    try
+    {
+      pstmt = statementCache.getPreparedStatement(CDODBSchema.SQL_LOAD_SUB_BRANCHES, ReuseProbability.HIGH);
+      pstmt.setInt(1, baseID);
+
+      resultSet = pstmt.executeQuery();
+      List<Integer> result = new ArrayList<Integer>();
+      while (resultSet.next())
+      {
+        result.add(resultSet.getInt(1));
+      }
+
+      int[] array = new int[result.size()];
+      for (int i = 0; i < array.length; i++)
+      {
+        array[i] = result.get(i);
+      }
+
+      return array;
     }
     catch (SQLException ex)
     {

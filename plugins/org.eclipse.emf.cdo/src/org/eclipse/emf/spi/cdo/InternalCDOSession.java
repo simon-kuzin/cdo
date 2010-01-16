@@ -10,7 +10,6 @@
  */
 package org.eclipse.emf.spi.cdo;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
@@ -19,6 +18,7 @@ import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.session.CDORepositoryInfo;
 import org.eclipse.emf.cdo.session.CDOSession;
+import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranch;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry.PackageLoader;
@@ -113,7 +113,7 @@ public interface InternalCDOSession extends CDOSession, PackageProcessor, Packag
   /**
    * @since 3.0
    */
-  public void handleBranchNotification(CDOBranch branch);
+  public void handleBranchNotification(InternalCDOBranch branch);
 
   /**
    * @since 3.0
@@ -133,6 +133,6 @@ public interface InternalCDOSession extends CDOSession, PackageProcessor, Packag
    * 
    * @since 3.0
    */
-  public void reviseRevisions(CDOBranchPoint branchPoint, Set<CDOIDAndVersion> dirtyOIDs, Collection<CDOID> detachedObjects,
-      InternalCDOView excludedView);
+  public void reviseRevisions(CDOBranchPoint branchPoint, Set<CDOIDAndVersion> dirtyOIDs,
+      Collection<CDOID> detachedObjects, InternalCDOView excludedView);
 }

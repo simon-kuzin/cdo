@@ -48,11 +48,46 @@ public class BranchingTest extends AbstractCDOTest
     return openModel1Session();
   }
 
+  public void testMainBranch() throws Exception
+  {
+    CDOSession session = openSession1();
+    CDOBranch mainBranch = session.getBranchManager().getMainBranch();
+    assertEquals(CDOBranch.MAIN_BRANCH_ID, mainBranch.getID());
+    assertEquals(CDOBranch.MAIN_BRANCH_NAME, mainBranch.getName());
+    assertEquals(null, mainBranch.getBase().getBranch());
+    closeSession1();
+
+    session = openSession2();
+    mainBranch = session.getBranchManager().getBranch(CDOBranch.MAIN_BRANCH_ID);
+    assertEquals(CDOBranch.MAIN_BRANCH_ID, mainBranch.getID());
+    assertEquals(CDOBranch.MAIN_BRANCH_NAME, mainBranch.getName());
+    assertEquals(null, mainBranch.getBase().getBranch());
+    session.close();
+  }
+
   public void testCreateBranch() throws Exception
   {
     CDOSession session = openSession1();
     CDOBranch mainBranch = session.getBranchManager().getMainBranch();
     CDOBranch branch = mainBranch.createBranch("testing");
+    assertEquals(CDOBranch.MAIN_BRANCH_ID + 1, branch.getID());
+    assertEquals("testing", branch.getName());
+    assertEquals(CDOBranch.MAIN_BRANCH_ID, branch.getBase().getBranch().getID());
+    session.close();
+  }
+
+  public void testGetBranch() throws Exception
+  {
+    CDOSession session = openSession1();
+    CDOBranch mainBranch = session.getBranchManager().getMainBranch();
+    CDOBranch branch = mainBranch.createBranch("testing");
+    closeSession1();
+
+    session = openSession2();
+    branch = session.getBranchManager().getBranch(CDOBranch.MAIN_BRANCH_ID + 1);
+    assertEquals(CDOBranch.MAIN_BRANCH_ID + 1, branch.getID());
+    assertEquals("testing", branch.getName());
+    assertEquals(CDOBranch.MAIN_BRANCH_ID, branch.getBase().getBranch().getID());
     session.close();
   }
 
@@ -61,21 +96,6 @@ public class BranchingTest extends AbstractCDOTest
    */
   public static class SameSession extends BranchingTest
   {
-    public void testRepositoryCreationTime() throws Exception
-    {
-      CDOSession session = openSession();
-      long repositoryCreationTime = session.getRepositoryInfo().getCreationTime();
-      assertEquals(getRepository().getCreationTime(), repositoryCreationTime);
-      assertEquals(getRepository().getStore().getCreationTime(), repositoryCreationTime);
-    }
-
-    public void testRepositoryTime() throws Exception
-    {
-      CDOSession session = openSession();
-      long repositoryTime = session.getRepositoryInfo().getTimeStamp();
-      assertEquals(true, Math.abs(System.currentTimeMillis() - repositoryTime) < 500);
-    }
-
     @Override
     protected void closeSession1()
     {

@@ -14,7 +14,6 @@
  */
 package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
@@ -26,6 +25,7 @@ import org.eclipse.emf.cdo.server.IRepositoryProvider;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.internal.net4j.bundle.OM;
 import org.eclipse.emf.cdo.session.remote.CDORemoteSessionMessage;
+import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranch;
 import org.eclipse.emf.cdo.spi.server.ISessionProtocol;
 import org.eclipse.emf.cdo.spi.server.InternalSession;
 
@@ -86,7 +86,7 @@ public class CDOServerProtocol extends SignalProtocol<InternalSession> implement
     return new AuthenticationRequest(this, randomToken).send(negotiationTimeout);
   }
 
-  public void sendBranchNotification(CDOBranch branch)
+  public void sendBranchNotification(InternalCDOBranch branch)
   {
     try
     {

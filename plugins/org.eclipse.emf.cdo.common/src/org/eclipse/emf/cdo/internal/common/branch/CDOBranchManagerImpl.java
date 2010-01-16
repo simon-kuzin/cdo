@@ -15,6 +15,7 @@ import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchCreatedEvent;
 import org.eclipse.emf.cdo.common.branch.CDOBranchManager;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranch;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager.BranchLoader.BranchInfo;
 
@@ -34,9 +35,9 @@ public class CDOBranchManagerImpl extends Lifecycle implements InternalCDOBranch
 
   private CDOTimeProvider timeProvider;
 
-  private CDOBranch mainBranch;
+  private InternalCDOBranch mainBranch;
 
-  private Map<Integer, CDOBranch> branches = createMap();
+  private Map<Integer, InternalCDOBranch> branches = createMap();
 
   public CDOBranchManagerImpl()
   {
@@ -69,18 +70,18 @@ public class CDOBranchManagerImpl extends Lifecycle implements InternalCDOBranch
     mainBranch = new CDOBranchImpl.Main(this, repositoryCreationTime);
   }
 
-  public void handleBranchCreated(CDOBranch branch)
+  public void handleBranchCreated(InternalCDOBranch branch)
   {
     fireEvent(new BranchCreatedEvent(branch));
   }
 
-  public CDOBranch getMainBranch()
+  public InternalCDOBranch getMainBranch()
   {
     checkActive();
     return mainBranch;
   }
 
-  public CDOBranch getBranch(int branchID)
+  public InternalCDOBranch getBranch(int branchID)
   {
     checkActive();
     if (branchID == CDOBranch.MAIN_BRANCH_ID)
@@ -88,7 +89,7 @@ public class CDOBranchManagerImpl extends Lifecycle implements InternalCDOBranch
       return mainBranch;
     }
 
-    CDOBranch branch;
+    InternalCDOBranch branch;
     synchronized (branches)
     {
       branch = branches.get(branchID);
@@ -102,7 +103,12 @@ public class CDOBranchManagerImpl extends Lifecycle implements InternalCDOBranch
     return branch;
   }
 
-  public CDOBranch createBranch(String name, CDOBranch baseBranch, long baseTimeStamp)
+  public InternalCDOBranch getBranch(String path)
+  {
+    return mainBranch.getBranch(path);
+  }
+
+  public InternalCDOBranch createBranch(String name, InternalCDOBranch baseBranch, long baseTimeStamp)
   {
     checkActive();
 
@@ -113,7 +119,7 @@ public class CDOBranchManagerImpl extends Lifecycle implements InternalCDOBranch
 
     int branchID = branchLoader.createBranch(new BranchInfo(name, baseBranch.getID(), baseTimeStamp));
     CDOBranchPoint base = new CDOBranchPointImpl(baseBranch, baseTimeStamp);
-    CDOBranch branch = new CDOBranchImpl(branchID, name, base);
+    InternalCDOBranch branch = new CDOBranchImpl(branchID, name, base);
     synchronized (branches)
     {
       putBranch(branch);
@@ -126,7 +132,7 @@ public class CDOBranchManagerImpl extends Lifecycle implements InternalCDOBranch
   /**
    * {@link #branches} must be synchronized by caller!
    */
-  private boolean putBranch(CDOBranch branch)
+  private boolean putBranch(InternalCDOBranch branch)
   {
     int id = branch.getID();
     if (branches.containsKey(id))
@@ -138,9 +144,9 @@ public class CDOBranchManagerImpl extends Lifecycle implements InternalCDOBranch
     return true;
   }
 
-  protected Soft<Integer, CDOBranch> createMap()
+  protected Soft<Integer, InternalCDOBranch> createMap()
   {
-    return new ReferenceValueMap.Soft<Integer, CDOBranch>();
+    return new ReferenceValueMap.Soft<Integer, InternalCDOBranch>();
   }
 
   @Override

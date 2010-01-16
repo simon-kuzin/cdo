@@ -10,11 +10,10 @@
  */
 package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
-import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
+import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranch;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager.BranchLoader.BranchInfo;
 
@@ -42,9 +41,8 @@ public class LoadBranchIndication extends CDOReadIndication
   protected void responding(CDODataOutput out) throws IOException
   {
     InternalCDOBranchManager branchManager = getRepository().getBranchManager();
-    CDOBranch branch = branchManager.getBranch(branchID);
-    CDOBranchPoint base = branch.getBase();
-    BranchInfo branchInfo = new BranchInfo(branch.getName(), base.getBranch().getID(), base.getTimeStamp());
+    InternalCDOBranch branch = branchManager.getBranch(branchID);
+    BranchInfo branchInfo = branch.getBranchInfo();
     branchInfo.write(out);
   }
 }
