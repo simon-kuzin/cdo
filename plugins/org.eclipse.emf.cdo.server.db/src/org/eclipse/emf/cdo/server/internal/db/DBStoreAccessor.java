@@ -175,22 +175,18 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
   public InternalCDORevision readRevision(CDOID id, CDOBranchPoint branchPoint, int listChunk,
       CDORevisionCacheAdder cache)
   {
-    IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
-    if (!mappingStrategy.hasAuditSupport())
-    {
-      throw new UnsupportedOperationException("Mapping strategy does not support audits."); //$NON-NLS-1$
-    }
-
     if (TRACER.isEnabled())
     {
       TRACER.format("Selecting revision {0} from {1}", id, branchPoint); //$NON-NLS-1$
     }
 
+    IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
+
     EClass eClass = getObjectType(id);
     InternalCDORevision revision = getStore().createRevision(eClass, id);
     revision.setBranchPoint(branchPoint);
 
-    IClassMappingAuditSupport mapping = (IClassMappingAuditSupport)mappingStrategy.getClassMapping(eClass);
+    IClassMapping mapping = mappingStrategy.getClassMapping(eClass);
     if (mapping.readRevision(this, revision, listChunk))
     {
       return revision;
@@ -426,6 +422,12 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
 
     if (TRACER.isEnabled())
     {
+      CDODBUtil.sqlDump(getConnection(), "SELECT * FROM CDOResource");
+
+      CDODBUtil.sqlDump(getConnection(), "SELECT * FROM CDOResource_contents_list ORDER BY "
+          + CDODBSchema.LIST_REVISION_ID + "," + CDODBSchema.LIST_REVISION_BRANCH + ","
+          + CDODBSchema.LIST_REVISION_VERSION + "," + CDODBSchema.LIST_IDX);
+
       TRACER.format("--- DB COMMIT ---"); //$NON-NLS-1$
     }
 

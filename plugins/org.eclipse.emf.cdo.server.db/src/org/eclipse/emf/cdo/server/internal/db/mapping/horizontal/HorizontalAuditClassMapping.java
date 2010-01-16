@@ -209,18 +209,24 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
     sqlSelectAllObjectIds = builder.toString();
   }
 
-  public boolean readRevision(IDBStoreAccessor accessor, InternalCDORevision revision, CDOBranchPoint branchPoint,
-      int listChunk)
+  public boolean readRevision(IDBStoreAccessor accessor, InternalCDORevision revision, int listChunk)
   {
-    long timeStamp = branchPoint.getTimeStamp();
     PreparedStatement pstmt = null;
-
     try
     {
-      pstmt = accessor.getStatementCache().getPreparedStatement(sqlSelectAttributesByTime, ReuseProbability.MEDIUM);
-      pstmt.setLong(1, CDOIDUtil.getLong(revision.getID()));
-      pstmt.setLong(2, timeStamp);
-      pstmt.setLong(3, timeStamp);
+      long timeStamp = revision.getTimeStamp();
+      if (timeStamp != CDOBranchPoint.UNSPECIFIED_DATE)
+      {
+        pstmt = accessor.getStatementCache().getPreparedStatement(sqlSelectAttributesByTime, ReuseProbability.MEDIUM);
+        pstmt.setLong(1, CDOIDUtil.getLong(revision.getID()));
+        pstmt.setLong(2, timeStamp);
+        pstmt.setLong(3, timeStamp);
+      }
+      else
+      {
+        pstmt = accessor.getStatementCache().getPreparedStatement(sqlSelectCurrentAttributes, ReuseProbability.HIGH);
+        pstmt.setLong(1, CDOIDUtil.getLong(revision.getID()));
+      }
 
       // Read singleval-attribute table always (even without modeled attributes!)
       boolean success = readValuesFromStatement(pstmt, revision, accessor);
@@ -362,35 +368,6 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
     }
 
     return accessor.getStatementCache().getPreparedStatement(sqlSelectAllObjectIds, ReuseProbability.HIGH);
-  }
-
-  public boolean readRevision(IDBStoreAccessor accessor, InternalCDORevision revision, int listChunk)
-  {
-    PreparedStatement pstmt = null;
-    try
-    {
-      pstmt = accessor.getStatementCache().getPreparedStatement(sqlSelectCurrentAttributes, ReuseProbability.HIGH);
-      pstmt.setLong(1, CDOIDUtil.getLong(revision.getID()));
-
-      // Read singleval-attribute table always (even without modeled attributes!)
-      boolean success = readValuesFromStatement(pstmt, revision, accessor);
-
-      // Read multival tables only if revision exists
-      if (success)
-      {
-        readLists(accessor, revision, listChunk);
-      }
-
-      return success;
-    }
-    catch (SQLException ex)
-    {
-      throw new DBException(ex);
-    }
-    finally
-    {
-      accessor.getStatementCache().releasePreparedStatement(pstmt);
-    }
   }
 
   @Override

@@ -104,7 +104,7 @@ public class CDODBSchema extends DBSchema
   /**
    * DBTable cdo_branches
    */
-  public static final IDBTable BRANCHES = INSTANCE.addTable("cdo_ecdo_branchesxternal_refs"); //$NON-NLS-1$
+  public static final IDBTable BRANCHES = INSTANCE.addTable("cdo_branches"); //$NON-NLS-1$
 
   public static final IDBField BRANCHES_ID = //
   BRANCHES.addField("id", DBType.INTEGER); //$NON-NLS-1$
@@ -116,19 +116,19 @@ public class CDODBSchema extends DBSchema
   BRANCHES.addField("base_id", DBType.INTEGER); //$NON-NLS-1$
 
   public static final IDBField BRANCHES_BASE_TIMESTAMP = //
-  BRANCHES.addField("name_time", DBType.BIGINT); //$NON-NLS-1$
+  BRANCHES.addField("base_time", DBType.BIGINT); //$NON-NLS-1$
 
   public static final IDBIndex INDEX_BRANCHES_ID = //
   BRANCHES.addIndex(IDBIndex.Type.PRIMARY_KEY, BRANCHES_ID);
 
   public static final String SQL_CREATE_BRANCH = "INSERT INTO " + BRANCHES + " (" + BRANCHES_ID + ", " + BRANCHES_NAME
-  + ", " + BRANCHES_BASE_BRANCH_ID + ", " + BRANCHES_BASE_TIMESTAMP + ") VALUES (?, ?, ?, ?)";
+      + ", " + BRANCHES_BASE_BRANCH_ID + ", " + BRANCHES_BASE_TIMESTAMP + ") VALUES (?, ?, ?, ?)";
 
   public static final String SQL_LOAD_BRANCH = "SELECT " + BRANCHES_NAME + ", " + BRANCHES_BASE_BRANCH_ID + ", "
       + BRANCHES_BASE_TIMESTAMP + " FROM " + BRANCHES + " WHERE " + BRANCHES_ID + "=?";
 
   public static final String SQL_LOAD_SUB_BRANCHES = "SELECT " + BRANCHES_ID + ", " + BRANCHES_NAME + ", "
-      + BRANCHES_BASE_TIMESTAMP + ", " + " FROM " + BRANCHES + " WHERE " + BRANCHES_BASE_BRANCH_ID + "=?";
+      + BRANCHES_BASE_TIMESTAMP + " FROM " + BRANCHES + " WHERE " + BRANCHES_BASE_BRANCH_ID + "=?";
 
   /**
    * DBTable cdo_external_refs

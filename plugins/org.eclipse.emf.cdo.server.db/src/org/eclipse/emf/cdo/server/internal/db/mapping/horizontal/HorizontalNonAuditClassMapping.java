@@ -364,11 +364,17 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
 
   public boolean readRevision(IDBStoreAccessor accessor, InternalCDORevision revision, int listChunk)
   {
+
+    long timeStamp = revision.getTimeStamp();
+    if (timeStamp != CDOBranchPoint.UNSPECIFIED_DATE)
+    {
+      throw new UnsupportedOperationException("Mapping strategy does not support audits."); //$NON-NLS-1$
+    }
+
     PreparedStatement pstmt = null;
 
     try
     {
-      // TODO add caching
       pstmt = accessor.getStatementCache().getPreparedStatement(sqlSelectCurrentAttributes, ReuseProbability.HIGH);
       pstmt.setLong(1, CDOIDUtil.getLong(revision.getID()));
 

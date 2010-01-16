@@ -54,7 +54,9 @@ public interface IClassMapping
   public IListMapping getListMapping(EStructuralFeature feature);
 
   /**
-   * Read the current version of a revision.
+   * Read a revision. The branch and timestamp to be read are derived from the branchPoint which is set to the Revision.
+   * Note that non-audit stores only support {@link CDOBranchPoint#UNSPECIFIED_DATE} and non-branching stores only
+   * support the main branch.
    * 
    * @param dbStoreAccessor
    *          the accessor to use.

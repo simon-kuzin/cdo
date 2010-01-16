@@ -420,10 +420,4 @@ public class DBStore extends LongIDStore implements IDBStore
   {
     return System.currentTimeMillis();
   }
-
-  @Override
-  public int getNextBranchID()
-  {
-    return 0;
-  }
 }

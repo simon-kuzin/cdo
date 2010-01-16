@@ -47,24 +47,4 @@ public interface IClassMappingAuditSupport
    * @since 3.0
    */
   public boolean readRevisionByVersion(IDBStoreAccessor storeAccessor, InternalCDORevision revision, int listChunk);
-
-  /**
-   * Read a specific past version of a revision. If this method returns <code>true</code> it is guaranteed that
-   * <code>revision.getCreated() <= timeStamp && (getRevised() == 0 || getRevised() >= timeStamp))</code>
-   * 
-   * @param storeAccessor
-   *          the accessor to use.
-   * @param revision
-   *          the revision object into which the data should be read. The revision has to be have its ID set to the
-   *          requested object's ID. The version is ignored, as the version parameter is used to determine the version
-   *          to be read.
-   * @param timeStamp
-   *          the timeStamp which should be used to determine the revision's version.
-   * @param listChunk
-   *          the chunk size to read attribute lists.
-   * @return <code>true</code>, if the revision has been found and read correctly. <code>false</code> if the revision
-   *         could not be found. In this case, the content of <code>revision</code> is undefined.
-   * @since 3.0
-   */
-  public boolean readRevision(IDBStoreAccessor storeAccessor, InternalCDORevision revision, int listChunk);
 }
