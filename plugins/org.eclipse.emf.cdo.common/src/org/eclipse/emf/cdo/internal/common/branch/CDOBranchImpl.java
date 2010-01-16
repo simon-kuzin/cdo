@@ -117,12 +117,38 @@ public class CDOBranchImpl implements InternalCDOBranch
 
   public InternalCDOBranch getBranch(String path)
   {
-    String[] segments = path.split(PATH_SEPARATOR);
-    return getBranch(segments, 0);
+    if (path.endsWith(PATH_SEPARATOR))
+    {
+      path = path.substring(0, path.length() - PATH_SEPARATOR.length());
+    }
+
+    int sep = path.indexOf(PATH_SEPARATOR);
+    if (sep == -1)
+    {
+      return getChild(path);
+    }
+
+    String name = path.substring(0, sep);
+    InternalCDOBranch child = getChild(name);
+
+    // Recurse
+    String rest = path.substring(sep + 1);
+    return child.getBranch(rest);
   }
 
-  private InternalCDOBranch getBranch(String[] segments, int i)
+  private InternalCDOBranch getChild(String name)
   {
+    InternalCDOBranchManager branchManager = getBranchManager();
+    for (int j = 0; j < childIDs.length; j++)
+    {
+      int childID = childIDs[j];
+      InternalCDOBranch child = branchManager.getBranch(childID);
+      if (name.equals(child.getName()))
+      {
+        return child;
+      }
+    }
+
     return null;
   }
 
