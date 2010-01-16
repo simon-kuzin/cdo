@@ -85,8 +85,9 @@ public abstract class AbstractSyncRevisionsIndication extends CDOReadIndication
   {
     try
     {
-      InternalCDORevision revision = (InternalCDORevision)getRepository().getRevisionManager().getRevision(id,
-          CDORevision.UNSPECIFIED_DATE, referenceChunk, CDORevision.DEPTH_NONE, true);
+      // XXX Fix for branching!!
+      InternalCDORevision revision = (InternalCDORevision)getRepository().getRevisionManager().getRevision(id, null,
+          referenceChunk, CDORevision.DEPTH_NONE, true);
       if (revision == null)
       {
         detachedObjects.add(new Pair<CDOID, Long>(id, getTimestamp(id, version)));
@@ -109,7 +110,8 @@ public abstract class AbstractSyncRevisionsIndication extends CDOReadIndication
 
   protected long getTimestamp(CDOID id, int version)
   {
-    CDORevision revision = getRepository().getRevisionManager().getRevisionByVersion(id, version, CDORevision.DEPTH_NONE,
+    // XXX Fix for branching!!
+    CDORevision revision = getRepository().getRevisionManager().getRevisionByVersion(id, null, CDORevision.DEPTH_NONE,
         false);
     if (revision != null)
     {

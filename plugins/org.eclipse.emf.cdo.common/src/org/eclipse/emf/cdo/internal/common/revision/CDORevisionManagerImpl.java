@@ -131,10 +131,10 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
   {
     if (supportingBranches)
     {
-      return cache.getRevision(id, branchPoint) != null;
+      return getRevision(id, branchPoint, CDORevision.UNCHUNKED, CDORevision.DEPTH_NONE, false) != null;
     }
 
-    return getRevision(id, branchPoint, CDORevision.UNCHUNKED, CDORevision.DEPTH_NONE, false) != null;
+    return cache.getRevision(id, branchPoint) != null;
   }
 
   public boolean containsRevisionByVersion(CDOID id, CDOBranchVersion branchVersion)
