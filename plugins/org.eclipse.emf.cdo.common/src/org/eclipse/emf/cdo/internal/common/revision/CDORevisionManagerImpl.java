@@ -185,6 +185,47 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     }
   }
 
+  public InternalCDORevision getRevision(CDOID id, CDOBranchPoint branchPoint, int referenceChunk, int prefetchDepth,
+      boolean loadOnDemand)
+  {
+    acquireAtomicRequestLock(loadAndAddLock);
+  
+    try
+    {
+      boolean prefetch = prefetchDepth != CDORevision.DEPTH_NONE;
+      InternalCDORevision revision = prefetch ? null : (InternalCDORevision)getCachedRevision(id, branchPoint);
+      if (revision == null || prefetchDepth != CDORevision.DEPTH_NONE)
+      {
+        if (loadOnDemand)
+        {
+          if (TRACER.isEnabled())
+          {
+            TRACER.format("Loading revision {0} from {1}", id, branchPoint); //$NON-NLS-1$
+          }
+  
+          revision = revisionLoader
+              .loadRevisions(Collections.singleton(id), branchPoint, referenceChunk, prefetchDepth).get(0);
+          addCachedRevisionIfNotNull(revision);
+        }
+      }
+      else
+      {
+        InternalCDORevision verified = verifyRevision(revision, referenceChunk);
+        if (revision != verified)
+        {
+          addCachedRevisionIfNotNull(verified);
+          revision = verified;
+        }
+      }
+  
+      return revision;
+    }
+    finally
+    {
+      releaseAtomicRequestLock(loadAndAddLock);
+    }
+  }
+
   public List<CDORevision> getRevisions(Collection<CDOID> ids, CDOBranchPoint branchPoint, int referenceChunk,
       int prefetchDepth, boolean loadOnDemand)
   {
@@ -217,47 +258,6 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     }
 
     return revisions;
-  }
-
-  public InternalCDORevision getRevision(CDOID id, CDOBranchPoint branchPoint, int referenceChunk, int prefetchDepth,
-      boolean loadOnDemand)
-  {
-    acquireAtomicRequestLock(loadAndAddLock);
-
-    try
-    {
-      boolean prefetch = prefetchDepth != CDORevision.DEPTH_NONE;
-      InternalCDORevision revision = prefetch ? null : (InternalCDORevision)getCachedRevision(id, branchPoint);
-      if (revision == null || prefetchDepth != CDORevision.DEPTH_NONE)
-      {
-        if (loadOnDemand)
-        {
-          if (TRACER.isEnabled())
-          {
-            TRACER.format("Loading revision {0} from {1}", id, branchPoint); //$NON-NLS-1$
-          }
-
-          revision = revisionLoader
-              .loadRevisions(Collections.singleton(id), branchPoint, referenceChunk, prefetchDepth).get(0);
-          addCachedRevisionIfNotNull(revision);
-        }
-      }
-      else
-      {
-        InternalCDORevision verified = verifyRevision(revision, referenceChunk);
-        if (revision != verified)
-        {
-          addCachedRevisionIfNotNull(verified);
-          revision = verified;
-        }
-      }
-
-      return revision;
-    }
-    finally
-    {
-      releaseAtomicRequestLock(loadAndAddLock);
-    }
   }
 
   public InternalCDORevision getRevisionByVersion(CDOID id, CDOBranchVersion branchVersion, int referenceChunk,
