@@ -24,6 +24,7 @@ import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
 import org.eclipse.net4j.util.lifecycle.ILifecycle;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.List;
 
@@ -170,7 +171,7 @@ public interface InternalCDORevisionManager extends CDORevisionManager, ILifecyc
         @Override
         public String toString()
         {
-          return id.toString();
+          return MessageFormat.format("Missing[{0}]", id);
         }
 
         public static MissingRevisionInfo read(CDODataInput in) throws IOException
@@ -234,6 +235,12 @@ public interface InternalCDORevisionManager extends CDORevisionManager, ILifecyc
 
           return super.readResult(in);
         }
+
+        @Override
+        public String toString()
+        {
+          return MessageFormat.format("PossiblyAvailable[{0}, {1}]", getID(), available);
+        }
       }
 
       /**
@@ -267,6 +274,12 @@ public interface InternalCDORevisionManager extends CDORevisionManager, ILifecyc
         {
           super.write(out);
           out.writeCDOBranchVersion(branchVersion);
+        }
+
+        @Override
+        public String toString()
+        {
+          return MessageFormat.format("PossiblyAvailable[{0}, {1}]", getID(), branchVersion);
         }
       }
     }

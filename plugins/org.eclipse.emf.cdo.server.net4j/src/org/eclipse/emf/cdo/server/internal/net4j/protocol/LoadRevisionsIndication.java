@@ -80,12 +80,15 @@ public class LoadRevisionsIndication extends CDOReadIndication
     {
       size = -size;
       prefetchDepth = in.readInt();
+      if (TRACER.isEnabled())
+      {
+        TRACER.format("Read prefetchDepth: {0}", prefetchDepth); //$NON-NLS-1$
+      }
     }
 
     if (TRACER.isEnabled())
     {
-      TRACER.format("Reading {0} IDs", size); //$NON-NLS-1$
-      TRACER.format("Read prefetchDepth: {0}", prefetchDepth); //$NON-NLS-1$
+      TRACER.format("Reading {0} infos", size); //$NON-NLS-1$
     }
 
     infos = new MissingRevisionInfo[size];
