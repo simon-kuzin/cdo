@@ -195,7 +195,22 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
       int prefetchDepth, boolean loadOnDemand)
   {
     List<CDORevision> revisions = new ArrayList<CDORevision>(ids.size());
-    List<CDOID> missingIDs = getMissingIDs(ids, branchPoint, loadOnDemand, revisions);
+    List<CDOID> missingIDs = null;
+    for (CDOID id : ids)
+    {
+      InternalCDORevision revision = getCachedRevision(id, branchPoint);
+      revisions.add(revision);
+      if (revision == null && loadOnDemand)
+      {
+        if (missingIDs == null)
+        {
+          missingIDs = new ArrayList<CDOID>(1);
+        }
+
+        missingIDs.add(id);
+      }
+    }
+
     if (missingIDs != null)
     {
       acquireAtomicRequestLock(loadAndAddLock);
@@ -224,28 +239,6 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     }
 
     return revisions;
-  }
-
-  private List<CDOID> getMissingIDs(Collection<CDOID> ids, CDOBranchPoint branchPoint, boolean loadOnDemand,
-      List<CDORevision> revisions)
-  {
-    List<CDOID> missingIDs = null;
-    for (CDOID id : ids)
-    {
-      InternalCDORevision revision = getCachedRevision(id, branchPoint);
-      revisions.add(revision);
-      if (revision == null && loadOnDemand)
-      {
-        if (missingIDs == null)
-        {
-          missingIDs = new ArrayList<CDOID>(1);
-        }
-
-        missingIDs.add(id);
-      }
-    }
-
-    return missingIDs;
   }
 
   public InternalCDORevision getRevisionByVersion(CDOID id, CDOBranchVersion branchVersion, int referenceChunk,

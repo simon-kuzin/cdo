@@ -23,6 +23,6 @@ public class DefaultRevisionCacheTest extends AbstractCDORevisionCacheTest
   @Override
   protected CDORevisionCache createRevisionCache(CDOSession session) throws Exception
   {
-    return CDORevisionCacheUtil.createDefaultCache();
+    return CDORevisionCacheUtil.createDefaultCache(false);
   }
 }
