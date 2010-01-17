@@ -46,7 +46,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_REVISION, CDORevisionManagerImpl.class);
 
-  private static final InternalCDORevision DOES_NOT_EXIST_IN_BRANCH = new StubCDORevision();
+  private static final InternalCDORevision NOT_IN_BRANCH = new StubCDORevision();
 
   private boolean supportingBranches;
 
@@ -230,7 +230,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
       {
         if (missingIDs == null)
         {
-          missingIDs = new ArrayList<CDOID>();
+          missingIDs = new ArrayList<CDOID>(1);
         }
 
         missingIDs.add(id);
@@ -338,7 +338,12 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
 
   private InternalCDORevision getCachedRevision(CDOID id, CDOBranchPoint branchPoint)
   {
-    return (InternalCDORevision)cache.getRevision(id, branchPoint);
+    InternalCDORevision revision = (InternalCDORevision)cache.getRevision(id, branchPoint);
+    if (supportingBranches)
+    {
+    }
+
+    return revision;
   }
 
   private InternalCDORevision getCachedRevision(CDOID id, CDOBranchVersion branchVersion)
