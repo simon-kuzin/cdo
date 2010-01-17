@@ -176,20 +176,14 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
     InternalCDORevision revision = removeRevision(id, CDOBranchUtil.createBranchVersion(branch, version));
     if (revision == null)
     {
-      IListener[] listeners = getListeners();
-      if (listeners != null)
-      {
-        fireEvent(new EvictionEventImpl(this, key), listeners);
-      }
+      // Use revision in eviction event
+      key = revision;
     }
-    else
+
+    IListener[] listeners = getListeners();
+    if (listeners != null)
     {
-      // Should not happen with garbage collector triggered eviction
-      IListener[] listeners = getListeners();
-      if (listeners != null)
-      {
-        fireEvent(new EvictionEventImpl(this, revision), listeners);
-      }
+      fireEvent(new EvictionEventImpl(this, key), listeners);
     }
   }
 
