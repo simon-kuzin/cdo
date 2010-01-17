@@ -19,6 +19,7 @@ import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.internal.net4j.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager.RevisionLoader.MissingRevisionInfo;
 import org.eclipse.emf.cdo.view.CDOFetchRuleManager;
 
 import org.eclipse.net4j.util.om.trace.ContextTracer;
@@ -36,7 +37,7 @@ public class LoadRevisionsRequest extends CDOClientRequest<List<InternalCDORevis
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, LoadRevisionsRequest.class);
 
-  private Collection<CDOID> ids;
+  private Collection<MissingRevisionInfo> infos;
 
   private CDOBranchPoint branchPoint;
 
@@ -44,11 +45,11 @@ public class LoadRevisionsRequest extends CDOClientRequest<List<InternalCDORevis
 
   private int prefetchDepth;
 
-  public LoadRevisionsRequest(CDOClientProtocol protocol, Collection<CDOID> ids, CDOBranchPoint branchPoint,
-      int referenceChunk, int prefetchDepth)
+  public LoadRevisionsRequest(CDOClientProtocol protocol, Collection<MissingRevisionInfo> infos,
+      CDOBranchPoint branchPoint, int referenceChunk, int prefetchDepth)
   {
     super(protocol, CDOProtocolConstants.SIGNAL_LOAD_REVISIONS);
-    this.ids = ids;
+    this.infos = infos;
     this.branchPoint = branchPoint;
     this.referenceChunk = referenceChunk;
     this.prefetchDepth = prefetchDepth;
@@ -63,18 +64,19 @@ public class LoadRevisionsRequest extends CDOClientRequest<List<InternalCDORevis
     }
 
     out.writeInt(referenceChunk);
+    int size = infos.size();
     if (TRACER.isEnabled())
     {
-      TRACER.format("Writing {0} IDs", ids.size()); //$NON-NLS-1$
+      TRACER.format("Writing {0} infos", size); //$NON-NLS-1$
     }
 
     if (prefetchDepth == 0)
     {
-      out.writeInt(ids.size());
+      out.writeInt(size);
     }
     else
     {
-      out.writeInt(-ids.size());
+      out.writeInt(-size);
       if (TRACER.isEnabled())
       {
         TRACER.format("Writing prefetchDepth: {0}", prefetchDepth); //$NON-NLS-1$
@@ -83,14 +85,16 @@ public class LoadRevisionsRequest extends CDOClientRequest<List<InternalCDORevis
       out.writeInt(prefetchDepth);
     }
 
-    for (CDOID id : ids)
+    Collection<CDOID> ids = new ArrayList<CDOID>(size);
+    for (MissingRevisionInfo info : infos)
     {
       if (TRACER.isEnabled())
       {
-        TRACER.format("Writing ID: {0}", id); //$NON-NLS-1$
+        TRACER.format("Writing info: {0}", info); //$NON-NLS-1$
       }
 
-      out.writeCDOID(id);
+      info.write(out);
+      ids.add(info.getID());
     }
 
     out.writeCDOBranchPoint(branchPoint);
@@ -121,16 +125,16 @@ public class LoadRevisionsRequest extends CDOClientRequest<List<InternalCDORevis
   @Override
   protected List<InternalCDORevision> confirming(CDODataInput in) throws IOException
   {
-    int idSize = ids.size();
-    ArrayList<InternalCDORevision> revisions = new ArrayList<InternalCDORevision>(idSize);
+    int size = infos.size();
+    ArrayList<InternalCDORevision> revisions = new ArrayList<InternalCDORevision>(size);
     if (TRACER.isEnabled())
     {
-      TRACER.format("Reading {0} revisions", idSize); //$NON-NLS-1$
+      TRACER.format("Reading {0} revisions", size); //$NON-NLS-1$
     }
 
-    for (int i = 0; i < idSize; i++)
+    for (MissingRevisionInfo info : infos)
     {
-      InternalCDORevision revision = (InternalCDORevision)in.readCDORevision();
+      InternalCDORevision revision = info.readResult(in);
       revisions.add(revision);
     }
 
@@ -160,7 +164,7 @@ public class LoadRevisionsRequest extends CDOClientRequest<List<InternalCDORevis
   public String toString()
   {
     return MessageFormat.format(
-        "LoadRevisionsRequest(ids={0}, branchPoint={1}, referenceChunk={2}, prefetchDepth={3})", ids, branchPoint,
+        "LoadRevisionsRequest(infos={0}, branchPoint={1}, referenceChunk={2}, prefetchDepth={3})", infos, branchPoint,
         referenceChunk, prefetchDepth);
   }
 }
