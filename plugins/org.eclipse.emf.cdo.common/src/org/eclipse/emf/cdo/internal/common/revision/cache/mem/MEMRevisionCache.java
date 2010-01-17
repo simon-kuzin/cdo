@@ -12,6 +12,7 @@
  */
 package org.eclipse.emf.cdo.internal.common.revision.cache.mem;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
@@ -143,7 +144,7 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
     return currentRevisions;
   }
 
-  public boolean addRevision(CDORevision revision)
+  public boolean addRevision(CDOBranch branch, CDORevision revision)
   {
     CheckUtil.checkArg(revision, "revision");
     CDOID id = revision.getID();

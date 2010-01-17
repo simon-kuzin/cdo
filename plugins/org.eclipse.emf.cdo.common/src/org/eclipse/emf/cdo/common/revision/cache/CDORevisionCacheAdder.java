@@ -10,6 +10,7 @@
  */
 package org.eclipse.emf.cdo.common.revision.cache;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 
 /**
@@ -18,5 +19,5 @@ import org.eclipse.emf.cdo.common.revision.CDORevision;
  */
 public interface CDORevisionCacheAdder
 {
-  public boolean addRevision(CDORevision revision);
+  public boolean addRevision(CDOBranch branch, CDORevision revision);
 }

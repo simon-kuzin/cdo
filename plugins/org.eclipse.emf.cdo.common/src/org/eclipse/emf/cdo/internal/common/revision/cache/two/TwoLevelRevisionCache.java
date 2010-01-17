@@ -12,6 +12,7 @@
  */
 package org.eclipse.emf.cdo.internal.common.revision.cache.two;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
@@ -121,10 +122,10 @@ public class TwoLevelRevisionCache extends Lifecycle implements CDORevisionCache
     return revisions;
   }
 
-  public boolean addRevision(CDORevision revision)
+  public boolean addRevision(CDOBranch branch, CDORevision revision)
   {
     CheckUtil.checkArg(revision, "revision");
-    boolean added = level1.addRevision(revision);
+    boolean added = level1.addRevision(branch, revision);
 
     // Bugzilla 292372: If a new current revision was added to level1, we must check whether
     // level2 contains a stale current revision, and revise that revision if possible
@@ -185,7 +186,7 @@ public class TwoLevelRevisionCache extends Lifecycle implements CDORevisionCache
 
   protected void evictedFromLevel1(CDORevision revision)
   {
-    level2.addRevision(revision);
+    level2.addRevision(revision.getBranch(), revision);
     if (TRACER.isEnabled())
     {
       TRACER.format("Recached revision {0}", revision); //$NON-NLS-1$

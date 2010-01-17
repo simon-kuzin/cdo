@@ -37,16 +37,16 @@ public class RevisionHolderTest extends AbstractCDOTest
     cache.activate();
 
     TestRevision r1v1 = new TestRevision(1, 1, 1);
-    cache.addRevision(r1v1);
+    cache.addRevision(r1v1.getBranch(), r1v1);
     assertEquals(CDORevision.UNSPECIFIED_DATE, r1v1.getRevised());
 
     TestRevision r1v2 = new TestRevision(1, 2, 6);
-    cache.addRevision(r1v2);
+    cache.addRevision(r1v2.getBranch(), r1v2);
     assertEquals(CDORevision.UNSPECIFIED_DATE, r1v2.getRevised());
     assertEquals(r1v2.getTimeStamp() - 1, r1v1.getRevised());
 
     TestRevision r1v3 = new TestRevision(1, 3, 11);
-    cache.addRevision(r1v3);
+    cache.addRevision(r1v3.getBranch(), r1v3);
     assertEquals(CDORevision.UNSPECIFIED_DATE, r1v3.getRevised());
     assertEquals(r1v3.getTimeStamp() - 1, r1v2.getRevised());
     assertEquals(r1v2.getTimeStamp() - 1, r1v1.getRevised());
@@ -193,11 +193,11 @@ public class RevisionHolderTest extends AbstractCDOTest
     cache.activate();
 
     TestRevision r1v1 = new TestRevision(1, 1, 1);
-    cache.addRevision(r1v1);
+    cache.addRevision(r1v1.getBranch(), r1v1);
     assertEquals(CDORevision.UNSPECIFIED_DATE, r1v1.getRevised());
 
     TestRevision r1v3 = new TestRevision(1, 3, 11);
-    cache.addRevision(r1v3);
+    cache.addRevision(r1v3.getBranch(), r1v3);
     assertEquals(CDORevision.UNSPECIFIED_DATE, r1v3.getRevised());
     assertNotSame(r1v3.getTimeStamp() - 1, r1v1.getRevised());
 

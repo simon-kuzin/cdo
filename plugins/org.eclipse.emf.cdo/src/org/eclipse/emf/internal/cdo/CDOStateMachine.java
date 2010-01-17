@@ -12,6 +12,7 @@
 package org.eclipse.emf.internal.cdo;
 
 import org.eclipse.emf.cdo.CDOState;
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
@@ -846,6 +847,8 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
     public void execute(InternalCDOObject object, CDOState state, CDOEvent event, CommitTransactionResult data)
     {
       InternalCDOView view = object.cdoView();
+      CDOBranch branch = view.getBranch();
+
       InternalCDORevision revision = object.cdoRevision();
       Map<CDOIDTemp, CDOID> idMappings = data.getIDMappings();
 
@@ -863,7 +866,7 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
       // Adjust revision
       revision.setID(id);
       revision.setTransactional(false);
-      revision.setBranchPoint(view.getBranch().getPoint(data.getTimeStamp()));
+      revision.setBranchPoint(branch.getPoint(data.getTimeStamp()));
 
       // if (useDeltas)
       // {
@@ -879,7 +882,7 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
       }
 
       InternalCDORevisionManager revisionManager = view.getSession().getRevisionManager();
-      revisionManager.getCache().addRevision(revision);
+      revisionManager.getCache().addRevision(branch, revision);
       changeState(object, CDOState.CLEAN);
     }
   }

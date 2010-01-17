@@ -30,24 +30,24 @@ public class Bugzilla_292372_Test extends AbstractCDOTest
     TestRevision r2v4 = new TestRevision(1, 4, 40);
 
     // First we add the revision that will cause the problem later
-    twoLevelCache.addRevision(r1v1);
+    twoLevelCache.addRevision(r1v1.getBranch(), r1v1);
 
     // Then we push other revisions to force r1v1 into the level-2 cache
-    twoLevelCache.addRevision(r2v1);
+    twoLevelCache.addRevision(r2v1.getBranch(), r2v1);
     assertTrue(r2v1.isCurrent());
-    twoLevelCache.addRevision(r2v2);
+    twoLevelCache.addRevision(r2v2.getBranch(), r2v2);
     assertFalse(r2v1.isCurrent());
     assertTrue(r2v2.isCurrent());
-    twoLevelCache.addRevision(r2v3);
+    twoLevelCache.addRevision(r2v3.getBranch(), r2v3);
     assertFalse(r2v2.isCurrent());
     assertTrue(r2v3.isCurrent());
-    twoLevelCache.addRevision(r2v4);
+    twoLevelCache.addRevision(r2v4.getBranch(), r2v4);
     assertFalse(r2v3.isCurrent());
     assertTrue(r2v4.isCurrent());
 
     // Now we add a revision r1v2 that SHOULD cause r1v1.revised to get set
     TestRevision r1v2 = new TestRevision(9, 2, 20);
-    twoLevelCache.addRevision(r1v2); // Into L1 cache
+    twoLevelCache.addRevision(r1v2.getBranch(), r1v2); // Into L1 cache
     CDORevision r1v = twoLevelCache.getRevisionByVersion(r1v1.getID(), r1v1.getBranch().getVersion(1)); // From L2 cache
 
     // But it doesn't, cause twoLevelCache forgot to delegate to the L2,

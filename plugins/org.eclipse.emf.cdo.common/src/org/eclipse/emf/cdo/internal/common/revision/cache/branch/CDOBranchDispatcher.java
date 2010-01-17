@@ -109,9 +109,8 @@ public class CDOBranchDispatcher extends Lifecycle implements CDORevisionCache
     return cache.removeRevision(id, branchVersion);
   }
 
-  public boolean addRevision(CDORevision revision)
+  public boolean addRevision(CDOBranch branch, CDORevision revision)
   {
-    CDOBranch branch = revision.getBranch();
     CDORevisionCache cache;
     synchronized (caches)
     {
@@ -124,7 +123,7 @@ public class CDOBranchDispatcher extends Lifecycle implements CDORevisionCache
       }
     }
 
-    return cache.addRevision(revision);
+    return cache.addRevision(branch, revision);
   }
 
   public List<CDORevision> getRevisions()

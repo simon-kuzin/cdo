@@ -12,6 +12,7 @@
 package org.eclipse.emf.cdo.server.internal.hibernate;
 
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.IQueryContext;
@@ -56,6 +57,8 @@ public class HibernateQueryHandler implements IQueryHandler
     // get a transaction, the hibernateStoreAccessor is placed in a threadlocal
     // so all db access uses the same session.
     final Session session = hibernateStoreAccessor.getHibernateSession();
+    CDOBranch branch = context.getBranch();
+
     try
     {
       // create the query
@@ -92,7 +95,7 @@ public class HibernateQueryHandler implements IQueryHandler
             final Serializable idValue = HibernateUtil.getInstance().getIdValue(cdoID);
             final CDORevision revision = (CDORevision)session.get(entityName, idValue);
             query.setEntity(key, revision);
-            hibernateStoreAccessor.addToRevisionCache(revision);
+            hibernateStoreAccessor.addToRevisionCache(branch, revision);
           }
           else
           {
@@ -118,7 +121,7 @@ public class HibernateQueryHandler implements IQueryHandler
       for (Object o : query.list())
       {
         final boolean addOneMore = context.addResult(o);
-        hibernateStoreAccessor.addToRevisionCache(o);
+        hibernateStoreAccessor.addToRevisionCache(branch, o);
         if (!addOneMore)
         {
           return;

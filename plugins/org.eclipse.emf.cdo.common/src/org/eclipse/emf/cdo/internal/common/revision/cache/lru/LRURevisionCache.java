@@ -173,7 +173,7 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
     return null;
   }
 
-  public synchronized boolean addRevision(CDORevision revision)
+  public synchronized boolean addRevision(CDOBranch branch, CDORevision revision)
   {
     CheckUtil.checkArg(revision, "revision");
     if (TRACER.isEnabled())
@@ -427,7 +427,7 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
       {
         if (this == currentLRU && revised)
         {
-          addRevision(revision);
+          addRevision(revision.getBranch(), revision);
         }
         else
         {

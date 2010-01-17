@@ -73,11 +73,11 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
 
   private boolean errorOccured = false;
 
-  public void addToRevisionCache(Object object)
+  public void addToRevisionCache(CDOBranch branch, Object object)
   {
     if (object instanceof CDORevision)
     {
-      getStore().getRepository().getRevisionManager().getCache().addRevision((CDORevision)object);
+      getStore().getRepository().getRevisionManager().getCache().addRevision(branch, (CDORevision)object);
     }
     else if (object instanceof Object[])
     {
@@ -85,7 +85,7 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
       final Object[] objects = (Object[])object;
       for (Object o : objects)
       {
-        addToRevisionCache(o);
+        addToRevisionCache(branch, o);
       }
     }
 
@@ -326,13 +326,7 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
       return null;
     }
 
-    final InternalCDORevision revision = HibernateUtil.getInstance().getCDORevision(id);
-    if (revision != null)
-    {
-      cache.addRevision(revision);
-    }
-
-    return revision;
+    return HibernateUtil.getInstance().getCDORevision(id);
   }
 
   public int createBranch(BranchInfo branchInfo)
