@@ -22,28 +22,23 @@ import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
-import org.eclipse.emf.cdo.internal.common.messages.Messages;
 import org.eclipse.emf.cdo.internal.common.revision.cache.EvictionEventImpl;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.util.CheckUtil;
 import org.eclipse.net4j.util.event.IListener;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
-import org.eclipse.net4j.util.ref.KeyedPhantomReference;
 import org.eclipse.net4j.util.ref.KeyedReference;
 import org.eclipse.net4j.util.ref.KeyedSoftReference;
-import org.eclipse.net4j.util.ref.KeyedStrongReference;
-import org.eclipse.net4j.util.ref.KeyedWeakReference;
 import org.eclipse.net4j.util.ref.ReferenceQueueWorker;
-import org.eclipse.net4j.util.ref.ReferenceType;
 
 import org.eclipse.emf.ecore.EClass;
 
 import java.lang.ref.Reference;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -56,23 +51,15 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_REVISION, BranchRevisionCache.class);
 
-  private Map<CDOIDAndBranch, CacheList> cacheLists = new HashMap<CDOIDAndBranch, CacheList>();
-
-  private ReferenceType referenceType;
-
-  public BranchRevisionCache(ReferenceType referenceType)
-  {
-    setReferenceType(referenceType);
-  }
+  private Map<CDOIDAndBranch, RevisionList> revisionLists = new HashMap<CDOIDAndBranch, RevisionList>();
 
   public BranchRevisionCache()
   {
-    this(ReferenceType.SOFT);
   }
 
   public CDORevisionCache instantiate(CDORevision revision)
   {
-    return new BranchRevisionCache(referenceType);
+    return new BranchRevisionCache();
   }
 
   public boolean isSupportingBranches()
@@ -80,27 +67,17 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
     return true;
   }
 
-  public ReferenceType getReferenceType()
-  {
-    return referenceType;
-  }
-
-  public void setReferenceType(ReferenceType referenceType)
-  {
-    checkInactive();
-    this.referenceType = referenceType;
-  }
-
   public EClass getObjectType(CDOID id)
   {
-    return null;
+    // TODO: implement BranchRevisionCache.getObjectType(id)
+    throw new UnsupportedOperationException();
   }
 
   public InternalCDORevision getRevision(CDOID id, CDOBranchPoint branchPoint)
   {
-    synchronized (cacheLists)
+    synchronized (revisionLists)
     {
-      CacheList list = cacheLists.get(id);
+      RevisionList list = revisionLists.get(id);
       if (list != null)
       {
         return list.getRevision(branchPoint.getTimeStamp());
@@ -112,9 +89,9 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
 
   public InternalCDORevision getRevisionByVersion(CDOID id, CDOBranchVersion branchVersion)
   {
-    synchronized (cacheLists)
+    synchronized (revisionLists)
     {
-      CacheList list = cacheLists.get(id);
+      RevisionList list = revisionLists.get(id);
       if (list != null)
       {
         int version = branchVersion.getVersion();
@@ -128,11 +105,11 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
   public List<CDORevision> getRevisions()
   {
     ArrayList<CDORevision> currentRevisions = new ArrayList<CDORevision>();
-    synchronized (cacheLists)
+    synchronized (revisionLists)
     {
-      for (Entry<CDOIDAndBranch, CacheList> entry : cacheLists.entrySet())
+      for (Entry<CDOIDAndBranch, RevisionList> entry : revisionLists.entrySet())
       {
-        CacheList list = entry.getValue();
+        RevisionList list = entry.getValue();
         InternalCDORevision revision = list.getRevision(CDORevision.UNSPECIFIED_DATE);
         if (revision != null)
         {
@@ -148,13 +125,13 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
   {
     CheckUtil.checkArg(revision, "revision");
     CDOIDAndBranch key = CDOIDUtil.createIDAndBranch(revision.getID(), branch);
-    synchronized (cacheLists)
+    synchronized (revisionLists)
     {
-      CacheList list = cacheLists.get(key);
+      RevisionList list = revisionLists.get(key);
       if (list == null)
       {
-        list = new CacheList();
-        cacheLists.put(key, list);
+        list = new RevisionList();
+        revisionLists.put(key, list);
       }
 
       return list.addRevision((InternalCDORevision)revision);
@@ -164,15 +141,15 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
   public InternalCDORevision removeRevision(CDOID id, CDOBranchVersion branchVersion)
   {
     CDOIDAndBranch key = CDOIDUtil.createIDAndBranch(id, branchVersion.getBranch());
-    synchronized (cacheLists)
+    synchronized (revisionLists)
     {
-      CacheList list = cacheLists.get(key);
+      RevisionList list = revisionLists.get(key);
       if (list != null)
       {
-        list.removeRevision(branchVersion);
+        list.removeRevision(branchVersion.getVersion());
         if (list.isEmpty())
         {
-          cacheLists.remove(key);
+          revisionLists.remove(key);
           if (TRACER.isEnabled())
           {
             TRACER.format("Removed cache list of {0}", key); //$NON-NLS-1$
@@ -186,9 +163,9 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
 
   public void clear()
   {
-    synchronized (cacheLists)
+    synchronized (revisionLists)
     {
-      cacheLists.clear();
+      revisionLists.clear();
     }
   }
 
@@ -223,36 +200,18 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
 
   protected KeyedReference<CDOIDAndVersion, InternalCDORevision> createReference(InternalCDORevision revision)
   {
-    if (referenceType != null)
-    {
-      CDOIDAndVersion key = CDOIDUtil.createIDAndVersion(revision.getID(), revision.getVersion());
-      switch (referenceType)
-      {
-      case STRONG:
-        return new KeyedStrongReference<CDOIDAndVersion, InternalCDORevision>(key, revision);
-
-      case SOFT:
-        return new KeyedSoftReference<CDOIDAndVersion, InternalCDORevision>(key, revision, getQueue());
-
-      case WEAK:
-        return new KeyedWeakReference<CDOIDAndVersion, InternalCDORevision>(key, revision, getQueue());
-
-      case PHANTOM:
-        return new KeyedPhantomReference<CDOIDAndVersion, InternalCDORevision>(key, revision, getQueue());
-      }
-    }
-
-    throw new IllegalStateException(MessageFormat.format(Messages.getString("MEMRevisionCache.1"), referenceType)); //$NON-NLS-1$
+    CDOIDAndVersion key = CDOIDUtil.createIDAndVersion(revision.getID(), revision.getVersion());
+    return new KeyedSoftReference<CDOIDAndVersion, InternalCDORevision>(key, revision, getQueue());
   }
 
   /**
    * @author Eike Stepper
    */
-  public class CacheList extends ArrayList<KeyedReference<CDOIDAndVersion, InternalCDORevision>>
+  public class RevisionList extends LinkedList<KeyedReference<CDOIDAndVersion, InternalCDORevision>>
   {
     private static final long serialVersionUID = 1L;
 
-    public CacheList()
+    public RevisionList()
     {
     }
 
@@ -336,30 +295,6 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
       return null;
     }
 
-    public void removeRevision(CDOBranchVersion branchVersion)
-    {
-      for (Iterator<KeyedReference<CDOIDAndVersion, InternalCDORevision>> it = iterator(); it.hasNext();)
-      {
-        KeyedReference<CDOIDAndVersion, InternalCDORevision> ref = it.next();
-        CDOIDAndVersion key = ref.getKey();
-        int v = key.getVersion();
-        if (v == version)
-        {
-          it.remove();
-          if (TRACER.isEnabled())
-          {
-            TRACER.format("Removed version {0} from cache list of {1}", version, key.getID()); //$NON-NLS-1$
-          }
-
-          break;
-        }
-        else if (v < version)
-        {
-          break;
-        }
-      }
-    }
-
     public boolean addRevision(InternalCDORevision revision)
     {
       KeyedReference<CDOIDAndVersion, InternalCDORevision> reference = createReference(revision);
@@ -391,6 +326,30 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
 
       addLast(reference);
       return true;
+    }
+
+    public void removeRevision(int version)
+    {
+      for (Iterator<KeyedReference<CDOIDAndVersion, InternalCDORevision>> it = iterator(); it.hasNext();)
+      {
+        KeyedReference<CDOIDAndVersion, InternalCDORevision> ref = it.next();
+        CDOIDAndVersion key = ref.getKey();
+        int v = key.getVersion();
+        if (v == version)
+        {
+          it.remove();
+          if (TRACER.isEnabled())
+          {
+            TRACER.format("Removed version {0} from cache list of {1}", version, key.getID()); //$NON-NLS-1$
+          }
+
+          break;
+        }
+        else if (v < version)
+        {
+          break;
+        }
+      }
     }
   }
 }
