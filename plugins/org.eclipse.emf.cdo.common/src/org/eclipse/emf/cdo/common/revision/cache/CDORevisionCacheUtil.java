@@ -10,7 +10,7 @@
  */
 package org.eclipse.emf.cdo.common.revision.cache;
 
-import org.eclipse.emf.cdo.internal.common.revision.cache.branch.CDOBranchDispatcher;
+import org.eclipse.emf.cdo.internal.common.revision.cache.branch.BranchDispatcher;
 import org.eclipse.emf.cdo.internal.common.revision.cache.lru.LRURevisionCache;
 import org.eclipse.emf.cdo.internal.common.revision.cache.mem.MEMRevisionCache;
 import org.eclipse.emf.cdo.internal.common.revision.cache.two.TwoLevelRevisionCache;
@@ -67,7 +67,7 @@ public final class CDORevisionCacheUtil
    */
   public static CDORevisionCache createBranchDispatcher(CDORevisionCacheFactory factory)
   {
-    CDOBranchDispatcher cache = new CDOBranchDispatcher();
+    BranchDispatcher cache = new BranchDispatcher();
     cache.setFactory(factory);
     return cache;
   }
@@ -79,7 +79,7 @@ public final class CDORevisionCacheUtil
    */
   public static CDORevisionCache createBranchDispatcher(CDORevisionCache protoType)
   {
-    CDOBranchDispatcher cache = new CDOBranchDispatcher();
+    BranchDispatcher cache = new BranchDispatcher();
     cache.setFactory(new CDORevisionCacheFactory.PrototypeInstantiator(protoType));
     return cache;
   }

@@ -31,13 +31,13 @@ import java.util.Map;
 /**
  * @author Eike Stepper
  */
-public class CDOBranchDispatcher extends Lifecycle implements CDORevisionCache
+public class BranchDispatcher extends Lifecycle implements CDORevisionCache
 {
   private Map<CDOBranch, CDORevisionCache> caches = new HashMap<CDOBranch, CDORevisionCache>();
 
   private CDORevisionCacheFactory factory;
 
-  public CDOBranchDispatcher()
+  public BranchDispatcher()
   {
   }
 
