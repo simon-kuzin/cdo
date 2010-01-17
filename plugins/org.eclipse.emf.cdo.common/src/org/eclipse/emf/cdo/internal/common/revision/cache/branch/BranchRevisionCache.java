@@ -43,6 +43,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * @author Eike Stepper
@@ -69,8 +70,23 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
 
   public EClass getObjectType(CDOID id)
   {
-    // TODO: implement BranchRevisionCache.getObjectType(id)
-    throw new UnsupportedOperationException();
+    synchronized (revisionLists)
+    {
+      for (Entry<CDOIDAndBranch, RevisionList> entry : revisionLists.entrySet())
+      {
+        if (id.equals(entry.getKey().getID()))
+        {
+          RevisionList revisionList = entry.getValue();
+          EClass type = revisionList.getObjectType();
+          if (type != null)
+          {
+            return type;
+          }
+        }
+      }
+    }
+
+    return null;
   }
 
   public InternalCDORevision getRevision(CDOID id, CDOBranchPoint branchPoint)
@@ -243,6 +259,23 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
 
     public RevisionList()
     {
+    }
+
+    public synchronized EClass getObjectType()
+    {
+      for (Iterator<KeyedReference<CDORevisionKey, InternalCDORevision>> it = iterator(); it.hasNext();)
+      {
+        KeyedReference<CDORevisionKey, InternalCDORevision> ref = it.next();
+        InternalCDORevision revision = ref.get();
+        if (revision != null)
+        {
+          return revision.getEClass();
+        }
+
+        it.remove();
+      }
+
+      return null;
     }
 
     public synchronized InternalCDORevision getRevision(long timeStamp)
