@@ -12,7 +12,6 @@
  */
 package org.eclipse.emf.cdo.internal.common.revision.cache.branch;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
@@ -121,10 +120,10 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
     return currentRevisions;
   }
 
-  public boolean addRevision(CDOBranch branch, CDORevision revision)
+  public boolean addRevision(CDORevision revision)
   {
     CheckUtil.checkArg(revision, "revision");
-    CDOIDAndBranch key = CDOIDUtil.createIDAndBranch(revision.getID(), branch);
+    CDOIDAndBranch key = CDOIDUtil.createIDAndBranch(revision.getID(), revision.getBranch());
     synchronized (revisionLists)
     {
       RevisionList list = revisionLists.get(key);

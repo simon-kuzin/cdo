@@ -11,7 +11,6 @@
  **************************************************************************/
 package org.eclipse.emf.cdo.common.internal.db.cache;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchManager;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
@@ -417,7 +416,7 @@ public class DBRevisionCache extends Lifecycle implements CDORevisionCache
    *          the revision to add to this cache
    * @return true, if successful
    */
-  public boolean addRevision(CDOBranch branch, CDORevision revision)
+  public boolean addRevision(CDORevision revision)
   {
     CheckUtil.checkArg(revision, "revision");
     Connection connection = null;

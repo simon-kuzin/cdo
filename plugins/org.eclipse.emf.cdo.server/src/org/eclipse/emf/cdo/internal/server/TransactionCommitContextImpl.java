@@ -11,7 +11,6 @@
  */
 package org.eclipse.emf.cdo.internal.server;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
@@ -626,12 +625,11 @@ public class TransactionCommitContextImpl implements InternalCommitContext
       monitor.begin(revisions.length);
       InternalCDORevisionManager revisionManager = transaction.getRepository().getRevisionManager();
       CDORevisionCache cache = revisionManager.getCache();
-      CDOBranch branch = transaction.getBranch();
       for (CDORevision revision : revisions)
       {
         if (revision != null)
         {
-          cache.addRevision(branch, revision);
+          cache.addRevision(revision);
         }
 
         monitor.worked();

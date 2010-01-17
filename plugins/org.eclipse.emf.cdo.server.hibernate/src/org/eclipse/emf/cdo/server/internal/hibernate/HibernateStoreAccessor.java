@@ -73,11 +73,11 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
 
   private boolean errorOccured = false;
 
-  public void addToRevisionCache(CDOBranch branch, Object object)
+  public void addToRevisionCache(Object object)
   {
     if (object instanceof CDORevision)
     {
-      getStore().getRepository().getRevisionManager().getCache().addRevision(branch, (CDORevision)object);
+      getStore().getRepository().getRevisionManager().getCache().addRevision((CDORevision)object);
     }
     else if (object instanceof Object[])
     {
@@ -85,7 +85,7 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
       final Object[] objects = (Object[])object;
       for (Object o : objects)
       {
-        addToRevisionCache(branch, o);
+        addToRevisionCache(o);
       }
     }
 

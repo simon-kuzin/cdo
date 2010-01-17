@@ -101,7 +101,7 @@ public abstract class AbstractCDORevisionCacheTest extends AbstractOMTest
 
   private void addRevision(CDORevision revision)
   {
-    revisionCache.addRevision(revision.getBranch(), revision);
+    revisionCache.addRevision(revision);
   }
 
   public void testGetRevisionReturnsLatestVersion()
