@@ -289,7 +289,12 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
 
     if (cache == null)
     {
-      cache = CDORevisionCacheUtil.createDefaultCache();
+      cache = CDORevisionCacheUtil.createDefaultCache(supportingBranches);
+    }
+
+    if (supportingBranches && !cache.isSupportingBranches())
+    {
+      throw new IllegalStateException("Revision cache does not support branches");
     }
   }
 
@@ -297,12 +302,6 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
   protected void doActivate() throws Exception
   {
     super.doActivate();
-
-    if (supportingBranches && !cache.isSupportingBranches())
-    {
-      cache = CDORevisionCacheUtil.createBranchDispatcher(cache);
-    }
-
     LifecycleUtil.activate(cache);
   }
 
