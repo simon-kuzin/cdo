@@ -233,13 +233,13 @@ public class Repository extends Container<Object> implements InternalRepository
     return accessor.loadSubBranches(branchID);
   }
 
-  public List<InternalCDORevision> loadRevisions(Collection<CDOID> ids, CDOBranchPoint branchPoint, int referenceChunk,
-      int prefetchDepth)
+  public List<InternalCDORevision> loadRevisions(Collection<MissingRevisionInfo> infos, CDOBranchPoint branchPoint,
+      int referenceChunk, int prefetchDepth)
   {
     List<InternalCDORevision> revisions = new ArrayList<InternalCDORevision>();
-    for (CDOID id : ids)
+    for (MissingRevisionInfo info : infos)
     {
-      InternalCDORevision revision = loadRevision(id, branchPoint, referenceChunk, prefetchDepth);
+      InternalCDORevision revision = loadRevision(info.getID(), branchPoint, referenceChunk, prefetchDepth);
       revisions.add(revision);
     }
 

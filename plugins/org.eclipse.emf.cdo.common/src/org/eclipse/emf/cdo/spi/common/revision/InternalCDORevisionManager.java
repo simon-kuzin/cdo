@@ -78,8 +78,6 @@ public interface InternalCDORevisionManager extends CDORevisionManager, ILifecyc
 
       public CDOID getID();
 
-      public CDOBranchVersion getBranchVersion();
-
       public void write(CDODataOutput out) throws IOException;
 
       public InternalCDORevision execute(CDORevisionManager revisionManager, CDOBranchPoint branchPoint,
@@ -144,11 +142,6 @@ public interface InternalCDORevisionManager extends CDORevisionManager, ILifecyc
         public CDOID getID()
         {
           return id;
-        }
-
-        public CDOBranchVersion getBranchVersion()
-        {
-          return null;
         }
 
         public void write(CDODataOutput out) throws IOException
@@ -224,12 +217,6 @@ public interface InternalCDORevisionManager extends CDORevisionManager, ILifecyc
         }
 
         @Override
-        public CDOBranchVersion getBranchVersion()
-        {
-          return available;
-        }
-
-        @Override
         public void write(CDODataOutput out) throws IOException
         {
           super.write(out);
@@ -273,12 +260,6 @@ public interface InternalCDORevisionManager extends CDORevisionManager, ILifecyc
         public Type getType()
         {
           return Type.EXACTLY_KNOWN;
-        }
-
-        @Override
-        public CDOBranchVersion getBranchVersion()
-        {
-          return branchVersion;
         }
 
         @Override

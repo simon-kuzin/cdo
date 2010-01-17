@@ -1410,7 +1410,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       }
     }
 
-    public List<InternalCDORevision> loadRevisions(Collection<CDOID> ids, CDOBranchPoint branchPoint,
+    public List<InternalCDORevision> loadRevisions(Collection<MissingRevisionInfo> infos, CDOBranchPoint branchPoint,
         int referenceChunk, int prefetchDepth)
     {
       int attempt = 0;
@@ -1418,7 +1418,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       {
         try
         {
-          return delegate.loadRevisions(ids, branchPoint, referenceChunk, prefetchDepth);
+          return delegate.loadRevisions(infos, branchPoint, referenceChunk, prefetchDepth);
         }
         catch (Exception ex)
         {

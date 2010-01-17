@@ -155,13 +155,20 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
     }
   }
 
-  public List<InternalCDORevision> loadRevisions(Collection<CDOID> ids, CDOBranchPoint branchPoint, int referenceChunk,
-      int prefetchDepth)
+  public List<InternalCDORevision> loadRevisions(Collection<MissingRevisionInfo> infos, CDOBranchPoint branchPoint,
+      int referenceChunk, int prefetchDepth)
   {
     try
     {
       InternalSession session = serverSessionProtocol.getSession();
       StoreThreadLocal.setSession(session);
+
+      Collection<CDOID> ids = new ArrayList<CDOID>(infos.size());
+      for (MissingRevisionInfo info : infos)
+      {
+        ids.add(info.getID());
+      }
+
       @SuppressWarnings("unchecked")
       List<InternalCDORevision> revisions = (List<InternalCDORevision>)(List<?>)repository.getRevisionManager()
           .getRevisions(ids, branchPoint, referenceChunk, prefetchDepth, true);
