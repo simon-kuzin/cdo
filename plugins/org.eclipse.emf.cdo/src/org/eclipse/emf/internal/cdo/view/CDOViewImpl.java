@@ -290,11 +290,6 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     return branchPoint.getTimeStamp();
   }
 
-  public boolean isHistorical()
-  {
-    return branchPoint.isHistorical();
-  }
-
   public boolean setBranch(CDOBranch branch)
   {
     return setBranchPoint(branch, getTimeStamp());

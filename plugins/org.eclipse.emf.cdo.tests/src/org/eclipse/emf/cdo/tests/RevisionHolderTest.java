@@ -296,12 +296,6 @@ public class RevisionHolderTest extends AbstractCDOTest
     }
 
     @Override
-    public boolean isHistorical()
-    {
-      return branchPoint.isHistorical();
-    }
-
-    @Override
     public void setBranchPoint(CDOBranchPoint branchPoint)
     {
       this.branchPoint = CDOBranchUtil.createBranchPoint(branchPoint);
@@ -329,12 +323,6 @@ public class RevisionHolderTest extends AbstractCDOTest
     public void setRevised(long revised)
     {
       this.revised = revised;
-    }
-
-    @Override
-    public boolean isCurrent()
-    {
-      return revised == UNSPECIFIED_DATE;
     }
 
     @Override

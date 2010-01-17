@@ -110,11 +110,6 @@ public abstract class DelegatingCDORevision implements InternalCDORevision
     return getDelegate().getRevised();
   }
 
-  public boolean isCurrent()
-  {
-    return getDelegate().isCurrent();
-  }
-
   public boolean isEmpty(EStructuralFeature feature)
   {
     return getDelegate().isEmpty(feature);

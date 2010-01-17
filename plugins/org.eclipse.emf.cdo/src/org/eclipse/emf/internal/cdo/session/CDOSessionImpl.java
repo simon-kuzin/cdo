@@ -788,8 +788,9 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
   {
     if (TRACER.isEnabled())
     {
-      TRACER.format("Initializing new {0} view", view.isReadOnly() ? (view.isHistorical() ? "historical" : "read-only")
-          : "transactional");
+      TRACER.format("Initializing new {0} view",
+          view.isReadOnly() ? (view.getTimeStamp() != CDOView.UNSPECIFIED_DATE ? "historical" : "read-only")
+              : "transactional");
     }
 
     InternalCDOViewSet viewSet = SessionUtil.prepareResourceSet(resourceSet);

@@ -118,9 +118,10 @@ public class CDOEditorInputImpl extends PlatformObject implements CDOEditorInput
       builder.append(" readonly"); //$NON-NLS-1$
     }
 
-    if (view.isHistorical())
+    long timeStamp = view.getTimeStamp();
+    if (timeStamp != CDOView.UNSPECIFIED_DATE)
     {
-      builder.append(MessageFormat.format(" {0,date} {0,time}", view.getTimeStamp())); //$NON-NLS-1$
+      builder.append(MessageFormat.format(" {0,date} {0,time}", timeStamp)); //$NON-NLS-1$
     }
 
     return builder.toString();

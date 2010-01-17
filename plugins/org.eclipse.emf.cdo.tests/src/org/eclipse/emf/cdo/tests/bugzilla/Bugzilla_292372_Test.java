@@ -34,16 +34,16 @@ public class Bugzilla_292372_Test extends AbstractCDOTest
 
     // Then we push other revisions to force r1v1 into the level-2 cache
     twoLevelCache.addRevision(r2v1);
-    assertTrue(r2v1.isCurrent());
+    assertEquals(false, r2v1.isHistorical());
     twoLevelCache.addRevision(r2v2);
-    assertFalse(r2v1.isCurrent());
-    assertTrue(r2v2.isCurrent());
+    assertEquals(true, r2v1.isHistorical());
+    assertEquals(false, r2v2.isHistorical());
     twoLevelCache.addRevision(r2v3);
-    assertFalse(r2v2.isCurrent());
-    assertTrue(r2v3.isCurrent());
+    assertEquals(true, r2v2.isHistorical());
+    assertEquals(false, r2v3.isHistorical());
     twoLevelCache.addRevision(r2v4);
-    assertFalse(r2v3.isCurrent());
-    assertTrue(r2v4.isCurrent());
+    assertEquals(true, r2v3.isHistorical());
+    assertEquals(false, r2v4.isHistorical());
 
     // Now we add a revision r1v2 that SHOULD cause r1v1.revised to get set
     TestRevision r1v2 = new TestRevision(9, 2, 20);
@@ -52,6 +52,6 @@ public class Bugzilla_292372_Test extends AbstractCDOTest
 
     // But it doesn't, cause twoLevelCache forgot to delegate to the L2,
     // so this will fail:
-    assertFalse(r1v.isCurrent());
+    assertEquals(true, r1v.isHistorical());
   }
 }

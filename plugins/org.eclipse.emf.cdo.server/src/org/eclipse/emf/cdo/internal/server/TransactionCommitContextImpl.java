@@ -496,7 +496,7 @@ public class TransactionCommitContextImpl implements InternalCommitContext
         }
       }
 
-      if (!originObject.isCurrent())
+      if (originObject.isHistorical())
       {
         throw new ConcurrentModificationException("Trying to update object " + dirtyObjectDelta.getID() //$NON-NLS-1$
             + " that was already modified"); //$NON-NLS-1$

@@ -21,10 +21,4 @@ public interface CDOBranchPoint
   public CDOBranch getBranch();
 
   public long getTimeStamp();
-
-  /**
-   * Returns <code>true</code> exactly if {@link #getTimeStamp()} does not return {@link #UNSPECIFIED_DATE},
-   * <code>false</code> otherwise.
-   */
-  public boolean isHistorical();
 }

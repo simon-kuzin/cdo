@@ -221,11 +221,6 @@ public class QueryManager extends Lifecycle implements InternalQueryManager
       return branchPoint.getTimeStamp();
     }
 
-    public boolean isHistorical()
-    {
-      return branchPoint.isHistorical();
-    }
-
     public Future<?> getFuture()
     {
       return future;

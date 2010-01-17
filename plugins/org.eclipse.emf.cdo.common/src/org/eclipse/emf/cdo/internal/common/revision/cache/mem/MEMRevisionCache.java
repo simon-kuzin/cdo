@@ -285,7 +285,7 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
           InternalCDORevision revision = ref.get();
           if (revision != null)
           {
-            if (revision.isCurrent())
+            if (!revision.isHistorical())
             {
               return revision;
             }

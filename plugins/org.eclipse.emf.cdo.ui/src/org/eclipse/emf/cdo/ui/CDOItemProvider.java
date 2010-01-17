@@ -166,9 +166,10 @@ public class CDOItemProvider extends ContainerItemProvider<IContainer<Object>>
           Messages.getString("CDOItemProvider.3"), transaction.isDirty() ? "*" : "", transaction.getViewID()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
-    if (view.isHistorical())
+    long timeStamp = view.getTimeStamp();
+    if (timeStamp != CDOView.UNSPECIFIED_DATE)
     {
-      return MessageFormat.format(Messages.getString("CDOItemProvider.6"), view.getTimeStamp()); //$NON-NLS-1$
+      return MessageFormat.format(Messages.getString("CDOItemProvider.6"), timeStamp); //$NON-NLS-1$
     }
 
     return MessageFormat.format(Messages.getString("CDOItemProvider.7"), view.getViewID()); //$NON-NLS-1$
@@ -312,7 +313,7 @@ public class CDOItemProvider extends ContainerItemProvider<IContainer<Object>>
   {
     if (view.isReadOnly())
     {
-      if (view.isHistorical())
+      if (view.getTimeStamp() != CDOView.UNSPECIFIED_DATE)
       {
         return SharedIcons.getDescriptor(SharedIcons.OBJ_EDITOR_HISTORICAL);
       }
@@ -330,7 +331,7 @@ public class CDOItemProvider extends ContainerItemProvider<IContainer<Object>>
   {
     if (view.isReadOnly())
     {
-      if (view.isHistorical())
+      if (view.getTimeStamp() != CDOView.UNSPECIFIED_DATE)
       {
         return SharedIcons.getImage(SharedIcons.OBJ_EDITOR_HISTORICAL);
       }

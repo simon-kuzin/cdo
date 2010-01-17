@@ -77,11 +77,6 @@ public class View implements InternalView
     return true;
   }
 
-  public boolean isHistorical()
-  {
-    return branchPoint.isHistorical();
-  }
-
   /**
    * @since 2.0
    */

@@ -40,11 +40,6 @@ public class CDOBranchPointImpl implements CDOBranchPoint
     return timeStamp;
   }
 
-  public boolean isHistorical()
-  {
-    return timeStamp != UNSPECIFIED_DATE;
-  }
-
   @Override
   public int hashCode()
   {

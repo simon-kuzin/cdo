@@ -500,11 +500,6 @@ public class CDOPushTransaction extends Notifier implements CDOTransaction
     return delegate.isReadOnly();
   }
 
-  public boolean isHistorical()
-  {
-    return delegate.isHistorical();
-  }
-
   public CDOBranch getBranch()
   {
     return delegate.getBranch();

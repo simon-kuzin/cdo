@@ -23,7 +23,6 @@ import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionData;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 
-import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.io.IOException;
@@ -32,7 +31,7 @@ import java.io.IOException;
  * @author Eike Stepper
  * @since 3.0
  */
-public class StubCDORevision implements InternalCDORevision
+public class StubCDORevision extends AbstractCDORevision
 {
   public StubCDORevision()
   {
@@ -153,27 +152,12 @@ public class StubCDORevision implements InternalCDORevision
     throw new UnsupportedOperationException();
   }
 
-  public EClass getEClass()
-  {
-    throw new UnsupportedOperationException();
-  }
-
   public int getVersion()
   {
     throw new UnsupportedOperationException();
   }
 
   public long getRevised()
-  {
-    throw new UnsupportedOperationException();
-  }
-
-  public boolean isCurrent()
-  {
-    throw new UnsupportedOperationException();
-  }
-
-  public boolean isValid(long timeStamp)
   {
     throw new UnsupportedOperationException();
   }
@@ -229,11 +213,6 @@ public class StubCDORevision implements InternalCDORevision
   }
 
   public long getTimeStamp()
-  {
-    throw new UnsupportedOperationException();
-  }
-
-  public boolean isHistorical()
   {
     throw new UnsupportedOperationException();
   }

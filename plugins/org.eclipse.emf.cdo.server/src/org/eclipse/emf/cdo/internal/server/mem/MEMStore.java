@@ -417,7 +417,7 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
     {
       if (timeStamp == CDORevision.UNSPECIFIED_DATE)
       {
-        if (revision.isCurrent())
+        if (!revision.isHistorical())
         {
           return revision;
         }

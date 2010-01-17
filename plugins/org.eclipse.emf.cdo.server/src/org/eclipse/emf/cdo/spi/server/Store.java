@@ -398,11 +398,6 @@ public abstract class Store extends Lifecycle implements IStore
         return branchPoint.getTimeStamp();
       }
 
-      public boolean isHistorical()
-      {
-        return branchPoint.isHistorical();
-      }
-
       public CDOID getFolderID()
       {
         return folderID;

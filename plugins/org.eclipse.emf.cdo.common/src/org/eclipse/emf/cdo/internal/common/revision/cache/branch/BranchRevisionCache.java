@@ -269,7 +269,11 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
         InternalCDORevision revision = ref.get();
         if (revision != null)
         {
-          return revision.getEClass();
+          EClass type = revision.getEClass();
+          if (type != null)
+          {
+            return type;
+          }
         }
 
         it.remove();
@@ -288,7 +292,7 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
           InternalCDORevision revision = ref.get();
           if (revision != null)
           {
-            if (revision.isCurrent())
+            if (!revision.isHistorical())
             {
               return revision;
             }

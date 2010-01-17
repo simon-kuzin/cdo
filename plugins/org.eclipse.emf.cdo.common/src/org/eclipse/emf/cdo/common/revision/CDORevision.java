@@ -48,7 +48,13 @@ public interface CDORevision extends CDORevisionKey, CDOBranchPoint
 
   public long getRevised();
 
-  public boolean isCurrent();
+  /**
+   * Returns <code>true</code> exactly if {@link #getTimeStamp()} does not return {@link #UNSPECIFIED_DATE},
+   * <code>false</code> otherwise.
+   * 
+   * @since 3.0
+   */
+  public boolean isHistorical();
 
   public boolean isValid(long timeStamp);
 

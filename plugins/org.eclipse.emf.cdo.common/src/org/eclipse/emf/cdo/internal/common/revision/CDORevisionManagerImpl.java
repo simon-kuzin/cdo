@@ -16,13 +16,16 @@ import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.model.CDOClassInfo;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionFactory;
+import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCacheUtil;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
+import org.eclipse.emf.cdo.spi.common.revision.StubCDORevision;
 
 import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
@@ -341,6 +344,81 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     if (revision != null)
     {
       cache.addRevision(revision);
+    }
+  }
+
+  /**
+   * @author Eike Stepper
+   */
+  private static final class RevisionPointer extends StubCDORevision
+  {
+    private CDOBranch branch;
+
+    private CDORevisionKey target;
+
+    public RevisionPointer(CDOBranch branch, CDORevisionKey target)
+    {
+      this.branch = branch;
+      this.target = target;
+    }
+
+    public CDORevisionKey getTarget()
+    {
+      return target;
+    }
+
+    @Override
+    public CDOClassInfo getClassInfo()
+    {
+      return null;
+    }
+
+    @Override
+    public CDOID getID()
+    {
+      return target.getID();
+    }
+
+    @Override
+    public CDOBranch getBranch()
+    {
+      return branch;
+    }
+
+    @Override
+    public int getVersion()
+    {
+      return 1;
+    }
+
+    @Override
+    public long getTimeStamp()
+    {
+      return branch.getBase().getTimeStamp();
+    }
+
+    @Override
+    public long getRevised()
+    {
+      return UNSPECIFIED_DATE;
+    }
+
+    @Override
+    public boolean isTransactional()
+    {
+      return false;
+    }
+
+    @Override
+    public boolean isHistorical()
+    {
+      return false;
+    }
+
+    @Override
+    public boolean isValid(long timeStamp)
+    {
+      return timeStamp >= getTimeStamp();
     }
   }
 }

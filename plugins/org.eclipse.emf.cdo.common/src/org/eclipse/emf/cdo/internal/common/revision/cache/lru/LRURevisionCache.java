@@ -110,7 +110,7 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
     for (RevisionHolder holder : revisions.values())
     {
       InternalCDORevision revision = holder.getRevision();
-      if (revision != null && revision.isCurrent())
+      if (revision != null && !revision.isHistorical())
       {
         currentRevisions.add(revision);
       }
@@ -135,7 +135,7 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
   {
     RevisionHolder holder = getHolder(id);
     InternalCDORevision revision = holder == null ? null : holder.getRevision();
-    if (revision == null || !revision.isCurrent())
+    if (revision == null || revision.isHistorical())
     {
       return null;
     }
@@ -178,8 +178,8 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
     CheckUtil.checkArg(revision, "revision");
     if (TRACER.isEnabled())
     {
-      TRACER.format("Adding revision: {0}, timeStamp={1,date} {1,time}, revised={2,date} {2,time}, current={3}", //$NON-NLS-1$
-          revision, revision.getTimeStamp(), revision.getRevised(), revision.isCurrent());
+      TRACER.format("Adding revision: {0}, timeStamp={1,date} {1,time}, revised={2,date} {2,time}, historical={3}", //$NON-NLS-1$
+          revision, revision.getTimeStamp(), revision.getRevised(), revision.isHistorical());
     }
 
     int version = revision.getVersion();
@@ -205,7 +205,7 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
 
     // Create holder only if require
     RevisionHolder newHolder = createHolder((InternalCDORevision)revision);
-    LRU list = revision.isCurrent() ? currentLRU : revisedLRU;
+    LRU list = revision.isHistorical() ? revisedLRU : currentLRU;
     list.add((DLRevisionHolder)newHolder);
 
     adjustHolder((InternalCDORevision)revision, newHolder, lastHolder, holder);
@@ -229,7 +229,7 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
         if (holderVersion == version)
         {
           revision = holder.getRevision();
-          LRU list = revision.isCurrent() ? currentLRU : revisedLRU;
+          LRU list = revision.isHistorical() ? revisedLRU : currentLRU;
           list.remove((DLRevisionHolder)holder);
           removeHolder(holder);
         }

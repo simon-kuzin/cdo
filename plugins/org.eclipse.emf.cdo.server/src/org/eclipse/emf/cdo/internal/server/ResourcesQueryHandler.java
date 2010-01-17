@@ -48,11 +48,6 @@ public class ResourcesQueryHandler implements IQueryHandler
         return context.getTimeStamp();
       }
 
-      public boolean isHistorical()
-      {
-        return context.isHistorical();
-      }
-
       public CDOID getFolderID()
       {
         return (CDOID)info.getParameters().get(CDOProtocolConstants.QUERY_LANGUAGE_RESOURCES_FOLDER_ID);
