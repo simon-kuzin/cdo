@@ -102,7 +102,7 @@ public class CDOBranchImpl implements InternalCDOBranch
 
   public CDOBranchVersion getVersion(int version)
   {
-    return new CDOBranchVersionImpl(this, version);
+    return CDOBranchUtil.createBranchVersion(this, version);
   }
 
   public InternalCDOBranch createBranch(String name, long timeStamp)

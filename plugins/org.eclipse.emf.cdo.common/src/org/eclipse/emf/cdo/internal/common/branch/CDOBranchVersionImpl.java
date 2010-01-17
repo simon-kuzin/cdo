@@ -30,11 +30,6 @@ public class CDOBranchVersionImpl implements CDOBranchVersion
     this.version = version;
   }
 
-  public CDOBranchVersionImpl(CDOBranch branch)
-  {
-    this(branch, FIRST_VERSION);
-  }
-
   public CDOBranch getBranch()
   {
     return branch;

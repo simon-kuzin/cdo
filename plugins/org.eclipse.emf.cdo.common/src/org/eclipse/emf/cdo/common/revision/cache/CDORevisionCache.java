@@ -14,6 +14,7 @@ import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
 import org.eclipse.emf.cdo.internal.common.revision.cache.mem.MEMRevisionCache;
 import org.eclipse.emf.cdo.internal.common.revision.cache.noop.NOOPRevisionCache;
 
@@ -74,16 +75,12 @@ public interface CDORevisionCache extends INotifier, CDORevisionCacheAdder
   /**
    * @author Eike Stepper
    */
-  public interface EvictionEvent extends IEvent
+  public interface EvictionEvent extends IEvent, CDORevisionKey
   {
     /**
      * @since 3.0
      */
     public CDORevisionCache getSource();
-
-    public CDOID getID();
-
-    public int getVersion();
 
     /**
      * May be <code>null</code> for certain cache implementations, e.g. {@link MEMRevisionCache}.

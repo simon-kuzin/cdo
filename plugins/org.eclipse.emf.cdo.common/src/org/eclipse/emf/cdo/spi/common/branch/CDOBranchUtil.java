@@ -12,8 +12,10 @@ package org.eclipse.emf.cdo.spi.common.branch;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.internal.common.branch.CDOBranchManagerImpl;
 import org.eclipse.emf.cdo.internal.common.branch.CDOBranchPointImpl;
+import org.eclipse.emf.cdo.internal.common.branch.CDOBranchVersionImpl;
 
 /**
  * @author Eike Stepper
@@ -38,5 +40,15 @@ public final class CDOBranchUtil
   public static CDOBranchPoint createBranchPoint(CDOBranchPoint source)
   {
     return createBranchPoint(source.getBranch(), source.getTimeStamp());
+  }
+
+  public static CDOBranchVersion createBranchVersion(CDOBranch branch, int version)
+  {
+    return new CDOBranchVersionImpl(branch, version);
+  }
+
+  public static CDOBranchVersion createBranchVersion(CDOBranchVersion source)
+  {
+    return createBranchVersion(source.getBranch(), source.getVersion());
   }
 }

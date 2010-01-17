@@ -12,16 +12,19 @@
  */
 package org.eclipse.emf.cdo.internal.common.revision.cache.mem;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.internal.common.messages.Messages;
 import org.eclipse.emf.cdo.internal.common.revision.cache.EvictionEventImpl;
+import org.eclipse.emf.cdo.spi.common.branch.CDOBranchUtil;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.util.CheckUtil;
@@ -197,16 +200,33 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
   {
     KeyedReference<CDOIDAndVersion, InternalCDORevision> keyedRef = (KeyedReference<CDOIDAndVersion, InternalCDORevision>)reference;
     CDOIDAndVersion key = keyedRef.getKey();
-    CDOID id = key.getID();
-    int version = key.getVersion();
+    final CDOID id = key.getID();
+    final CDOBranch branch = null;
+    final int version = key.getVersion();
 
-    InternalCDORevision revision = removeRevision(id, null);
+    InternalCDORevision revision = removeRevision(id, CDOBranchUtil.createBranchVersion(branch, version));
     if (revision == null)
     {
       IListener[] listeners = getListeners();
       if (listeners != null)
       {
-        fireEvent(new EvictionEventImpl(this, id, version), listeners);
+        fireEvent(new EvictionEventImpl(this, new CDORevisionKey()
+        {
+          public CDOID getID()
+          {
+            return id;
+          }
+
+          public CDOBranch getBranch()
+          {
+            return branch;
+          }
+
+          public int getVersion()
+          {
+            return version;
+          }
+        }), listeners);
       }
     }
     else

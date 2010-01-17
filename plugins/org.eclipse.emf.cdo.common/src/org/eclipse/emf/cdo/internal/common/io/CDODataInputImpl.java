@@ -36,7 +36,6 @@ import org.eclipse.emf.cdo.common.revision.CDORevisionFactory;
 import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
-import org.eclipse.emf.cdo.internal.common.branch.CDOBranchVersionImpl;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.internal.common.id.CDOIDAndBranchImpl;
 import org.eclipse.emf.cdo.internal.common.id.CDOIDAndVersionAndBranchImpl;
@@ -174,7 +173,7 @@ public abstract class CDODataInputImpl extends ExtendedDataInput.Delegating impl
   {
     CDOBranch branch = readCDOBranch();
     int version = readInt();
-    return new CDOBranchVersionImpl(branch, version);
+    return CDOBranchUtil.createBranchVersion(branch, version);
   }
 
   public CDOID readCDOID() throws IOException

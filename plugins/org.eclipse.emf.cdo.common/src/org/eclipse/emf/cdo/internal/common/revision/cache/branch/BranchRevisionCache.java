@@ -17,12 +17,13 @@ import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndBranch;
-import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.internal.common.revision.cache.EvictionEventImpl;
+import org.eclipse.emf.cdo.spi.common.branch.CDOBranchUtil;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.util.CheckUtil;
@@ -42,7 +43,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * @author Eike Stepper
@@ -97,13 +97,12 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
 
   public List<CDORevision> getCurrentRevisions()
   {
-    ArrayList<CDORevision> currentRevisions = new ArrayList<CDORevision>();
+    List<CDORevision> currentRevisions = new ArrayList<CDORevision>();
     synchronized (revisionLists)
     {
-      for (Entry<CDOIDAndBranch, RevisionList> entry : revisionLists.entrySet())
+      for (RevisionList revisionList : revisionLists.values())
       {
-        RevisionList list = entry.getValue();
-        InternalCDORevision revision = list.getRevision(CDORevision.UNSPECIFIED_DATE);
+        InternalCDORevision revision = revisionList.getRevision(CDORevision.UNSPECIFIED_DATE);
         if (revision != null)
         {
           currentRevisions.add(revision);
@@ -128,7 +127,7 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
       }
 
       InternalCDORevision rev = (InternalCDORevision)revision;
-      return list.addRevision(rev, createReference(rev));
+      return list.addRevision(rev, createReference(key, rev));
     }
   }
 
@@ -164,21 +163,23 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   protected void work(Reference<? extends InternalCDORevision> reference)
   {
-    KeyedReference<CDOIDAndVersion, InternalCDORevision> keyedRef = (KeyedReference<CDOIDAndVersion, InternalCDORevision>)reference;
-    CDOIDAndVersion key = keyedRef.getKey();
+    @SuppressWarnings("unchecked")
+    KeyedReference<CDORevisionKey, InternalCDORevision> keyedRef = (KeyedReference<CDORevisionKey, InternalCDORevision>)reference;
+    CDORevisionKey key = keyedRef.getKey();
+
     CDOID id = key.getID();
+    CDOBranch branch = key.getBranch();
     int version = key.getVersion();
 
-    InternalCDORevision revision = removeRevision(id, null);
+    InternalCDORevision revision = removeRevision(id, CDOBranchUtil.createBranchVersion(branch, version));
     if (revision == null)
     {
       IListener[] listeners = getListeners();
       if (listeners != null)
       {
-        fireEvent(new EvictionEventImpl(this, id, version), listeners);
+        fireEvent(new EvictionEventImpl(this, key), listeners);
       }
     }
     else
@@ -192,10 +193,11 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
     }
   }
 
-  protected KeyedReference<CDOIDAndVersion, InternalCDORevision> createReference(InternalCDORevision revision)
+  private KeyedReference<CDORevisionKey, InternalCDORevision> createReference(CDOIDAndBranch idAndBranch,
+      InternalCDORevision revision)
   {
-    CDOIDAndVersion key = CDOIDUtil.createIDAndVersion(revision.getID(), revision.getVersion());
-    return new KeyedSoftReference<CDOIDAndVersion, InternalCDORevision>(key, revision, getQueue());
+    CDORevisionKey key = new RevisionKey(idAndBranch, revision.getVersion());
+    return new KeyedSoftReference<CDORevisionKey, InternalCDORevision>(key, revision, getQueue());
   }
 
   private RevisionList getRevisionList(CDOID id, CDOBranch branch)
@@ -210,7 +212,38 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
   /**
    * @author Eike Stepper
    */
-  private static final class RevisionList extends LinkedList<KeyedReference<CDOIDAndVersion, InternalCDORevision>>
+  private static final class RevisionKey implements CDORevisionKey
+  {
+    private CDOIDAndBranch idAndBranch;
+
+    private int version;
+
+    public RevisionKey(CDOIDAndBranch idAndBranch, int version)
+    {
+      this.idAndBranch = idAndBranch;
+      this.version = version;
+    }
+
+    public CDOID getID()
+    {
+      return idAndBranch.getID();
+    }
+
+    public CDOBranch getBranch()
+    {
+      return idAndBranch.getBranch();
+    }
+
+    public int getVersion()
+    {
+      return version;
+    }
+  }
+
+  /**
+   * @author Eike Stepper
+   */
+  private static final class RevisionList extends LinkedList<KeyedReference<CDORevisionKey, InternalCDORevision>>
   {
     private static final long serialVersionUID = 1L;
 
@@ -222,7 +255,7 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
     {
       if (timeStamp == CDORevision.UNSPECIFIED_DATE)
       {
-        KeyedReference<CDOIDAndVersion, InternalCDORevision> ref = isEmpty() ? null : getFirst();
+        KeyedReference<CDORevisionKey, InternalCDORevision> ref = isEmpty() ? null : getFirst();
         if (ref != null)
         {
           InternalCDORevision revision = ref.get();
@@ -242,9 +275,9 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
         return null;
       }
 
-      for (Iterator<KeyedReference<CDOIDAndVersion, InternalCDORevision>> it = iterator(); it.hasNext();)
+      for (Iterator<KeyedReference<CDORevisionKey, InternalCDORevision>> it = iterator(); it.hasNext();)
       {
-        KeyedReference<CDOIDAndVersion, InternalCDORevision> ref = it.next();
+        KeyedReference<CDORevisionKey, InternalCDORevision> ref = it.next();
         InternalCDORevision revision = ref.get();
         if (revision != null)
         {
@@ -273,9 +306,9 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
 
     public synchronized InternalCDORevision getRevisionByVersion(int version)
     {
-      for (Iterator<KeyedReference<CDOIDAndVersion, InternalCDORevision>> it = iterator(); it.hasNext();)
+      for (Iterator<KeyedReference<CDORevisionKey, InternalCDORevision>> it = iterator(); it.hasNext();)
       {
-        KeyedReference<CDOIDAndVersion, InternalCDORevision> ref = it.next();
+        KeyedReference<CDORevisionKey, InternalCDORevision> ref = it.next();
         InternalCDORevision revision = ref.get();
         if (revision != null)
         {
@@ -299,15 +332,15 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
     }
 
     public synchronized boolean addRevision(InternalCDORevision revision,
-        KeyedReference<CDOIDAndVersion, InternalCDORevision> reference)
+        KeyedReference<CDORevisionKey, InternalCDORevision> reference)
     {
       int version = revision.getVersion();
-      for (ListIterator<KeyedReference<CDOIDAndVersion, InternalCDORevision>> it = listIterator(); it.hasNext();)
+      for (ListIterator<KeyedReference<CDORevisionKey, InternalCDORevision>> it = listIterator(); it.hasNext();)
       {
-        KeyedReference<CDOIDAndVersion, InternalCDORevision> ref = it.next();
+        KeyedReference<CDORevisionKey, InternalCDORevision> ref = it.next();
         if (ref.get() != null)
         {
-          CDOIDAndVersion key = ref.getKey();
+          CDORevisionKey key = ref.getKey();
           int v = key.getVersion();
           if (v == version)
           {
@@ -333,10 +366,10 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
 
     public synchronized void removeRevision(int version)
     {
-      for (Iterator<KeyedReference<CDOIDAndVersion, InternalCDORevision>> it = iterator(); it.hasNext();)
+      for (Iterator<KeyedReference<CDORevisionKey, InternalCDORevision>> it = iterator(); it.hasNext();)
       {
-        KeyedReference<CDOIDAndVersion, InternalCDORevision> ref = it.next();
-        CDOIDAndVersion key = ref.getKey();
+        KeyedReference<CDORevisionKey, InternalCDORevision> ref = it.next();
+        CDORevisionKey key = ref.getKey();
         int v = key.getVersion();
         if (v == version)
         {
