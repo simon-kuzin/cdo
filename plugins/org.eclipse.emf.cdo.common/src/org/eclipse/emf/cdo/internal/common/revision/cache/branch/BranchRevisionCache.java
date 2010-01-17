@@ -10,7 +10,7 @@
  *    Simon McDuff - bug 201266
  *    Simon McDuff - bug 230832
  */
-package org.eclipse.emf.cdo.internal.common.revision.cache.mem;
+package org.eclipse.emf.cdo.internal.common.revision.cache.branch;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
@@ -51,32 +51,32 @@ import java.util.Map.Entry;
 /**
  * @author Eike Stepper
  */
-public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> implements CDORevisionCache
+public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevision> implements CDORevisionCache
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_REVISION, MEMRevisionCache.class);
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_REVISION, BranchRevisionCache.class);
 
   private Map<CDOID, CacheList> cacheLists = new HashMap<CDOID, CacheList>();
 
   private ReferenceType referenceType;
 
-  public MEMRevisionCache(ReferenceType referenceType)
+  public BranchRevisionCache(ReferenceType referenceType)
   {
     setReferenceType(referenceType);
   }
 
-  public MEMRevisionCache()
+  public BranchRevisionCache()
   {
     this(ReferenceType.SOFT);
   }
 
   public CDORevisionCache instantiate(CDORevision revision)
   {
-    return new MEMRevisionCache(referenceType);
+    return new BranchRevisionCache(referenceType);
   }
 
   public boolean isSupportingBranches()
   {
-    return false;
+    return true;
   }
 
   public ReferenceType getReferenceType()
