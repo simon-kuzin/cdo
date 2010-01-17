@@ -12,6 +12,7 @@
  */
 package org.eclipse.emf.cdo.internal.common.revision.cache.branch;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
@@ -242,6 +243,50 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
     }
 
     throw new IllegalStateException(MessageFormat.format(Messages.getString("MEMRevisionCache.1"), referenceType)); //$NON-NLS-1$
+  }
+
+  /**
+   * @author Eike Stepper
+   */
+  public class CacheKey
+  {
+    private CDOID id;
+
+    private CDOBranch branch;
+
+    public CacheKey(CDOID id, CDOBranch branch)
+    {
+      this.id = id;
+      this.branch = branch;
+    }
+
+    public CDOID getId()
+    {
+      return id;
+    }
+
+    public CDOBranch getBranch()
+    {
+      return branch;
+    }
+
+    @Override
+    public int hashCode()
+    {
+      return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+      return super.equals(obj);
+    }
+
+    @Override
+    public String toString()
+    {
+      return super.toString();
+    }
   }
 
   /**

@@ -15,6 +15,7 @@ import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.id.CDOIDAndBranch;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersionAndBranch;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
@@ -83,6 +84,11 @@ public interface CDODataInput extends ExtendedDataInput
   public CDOID readCDOID() throws IOException;
 
   public CDOIDAndVersion readCDOIDAndVersion() throws IOException;
+
+  /**
+   * @since 3.0
+   */
+  public CDOIDAndBranch readCDOIDAndBranch() throws IOException;
 
   /**
    * @since 3.0

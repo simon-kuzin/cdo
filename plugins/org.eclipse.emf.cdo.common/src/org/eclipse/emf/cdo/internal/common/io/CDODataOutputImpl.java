@@ -14,6 +14,7 @@ import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.id.CDOIDAndBranch;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersionAndBranch;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
@@ -30,6 +31,7 @@ import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
+import org.eclipse.emf.cdo.internal.common.id.CDOIDAndBranchImpl;
 import org.eclipse.emf.cdo.internal.common.id.CDOIDAndVersionAndBranchImpl;
 import org.eclipse.emf.cdo.internal.common.id.CDOIDAndVersionImpl;
 import org.eclipse.emf.cdo.internal.common.messages.Messages;
@@ -175,6 +177,11 @@ public abstract class CDODataOutputImpl extends ExtendedDataOutput.Delegating im
   public void writeCDOIDAndVersion(CDOIDAndVersion idAndVersion) throws IOException
   {
     ((CDOIDAndVersionImpl)idAndVersion).write(this);
+  }
+
+  public void writeCDOIDAndBranch(CDOIDAndBranch idAndBranch) throws IOException
+  {
+    ((CDOIDAndBranchImpl)idAndBranch).write(this);
   }
 
   public void writeCDOIDAndVersionAndBranch(CDOIDAndVersionAndBranch idAndVersionAndBranch) throws IOException
