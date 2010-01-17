@@ -104,7 +104,7 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
     }
   }
 
-  public synchronized List<CDORevision> getRevisions()
+  public synchronized List<CDORevision> getCurrentRevisions()
   {
     List<CDORevision> currentRevisions = new ArrayList<CDORevision>();
     for (RevisionHolder holder : revisions.values())

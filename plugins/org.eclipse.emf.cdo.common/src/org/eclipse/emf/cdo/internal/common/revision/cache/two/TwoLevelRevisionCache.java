@@ -113,11 +113,11 @@ public class TwoLevelRevisionCache extends Lifecycle implements CDORevisionCache
     return revision;
   }
 
-  public List<CDORevision> getRevisions()
+  public List<CDORevision> getCurrentRevisions()
   {
     List<CDORevision> revisions = new ArrayList<CDORevision>();
-    revisions.addAll(level1.getRevisions());
-    revisions.addAll(level2.getRevisions());
+    revisions.addAll(level1.getCurrentRevisions());
+    revisions.addAll(level2.getCurrentRevisions());
     return revisions;
   }
 

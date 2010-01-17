@@ -872,7 +872,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     }
 
     // Need to add Revision from revisionManager since we do not have all objects in view.
-    for (CDORevision revision : getRevisionManager().getCache().getRevisions())
+    for (CDORevision revision : getRevisionManager().getCache().getCurrentRevisions())
     {
       if (!uniqueObjects.containsKey(revision.getID()))
       {

@@ -127,12 +127,12 @@ public class BranchDispatcher extends Lifecycle implements CDORevisionCache
     return cache.addRevision(revision);
   }
 
-  public List<CDORevision> getRevisions()
+  public List<CDORevision> getCurrentRevisions()
   {
     List<CDORevision> result = new ArrayList<CDORevision>();
     for (CDORevisionCache cache : getCaches())
     {
-      result.addAll(cache.getRevisions());
+      result.addAll(cache.getCurrentRevisions());
     }
 
     return result;

@@ -64,8 +64,10 @@ public interface CDORevisionCache extends INotifier, CDORevisionCacheAdder
 
   /**
    * Returns a list of {@link CDORevision revisions} that are current.
+   * 
+   * @since 3.0
    */
-  public List<CDORevision> getRevisions();
+  public List<CDORevision> getCurrentRevisions();
 
   public void clear();
 

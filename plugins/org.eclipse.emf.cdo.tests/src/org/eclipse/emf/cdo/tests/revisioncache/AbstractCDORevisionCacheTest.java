@@ -216,7 +216,7 @@ public abstract class AbstractCDORevisionCacheTest extends AbstractOMTest
     ((CDOTransaction)company.cdoView()).commit();
     addRevision(address.cdoRevision());
 
-    List<CDORevision> revisionList = revisionCache.getRevisions();
+    List<CDORevision> revisionList = revisionCache.getCurrentRevisions();
     assertEquals(2, revisionList.size());
   }
 
@@ -354,7 +354,7 @@ public abstract class AbstractCDORevisionCacheTest extends AbstractOMTest
         {
           public void run()
           {
-            revisionCache.getRevisions();
+            revisionCache.getCurrentRevisions();
           }
         } //
 

@@ -349,7 +349,7 @@ public class DBRevisionCache extends Lifecycle implements CDORevisionCache
    * 
    * @return the revisions
    */
-  public List<CDORevision> getRevisions()
+  public List<CDORevision> getCurrentRevisions()
   {
     Connection connection = null;
 

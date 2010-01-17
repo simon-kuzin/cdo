@@ -124,7 +124,7 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
     return null;
   }
 
-  public List<CDORevision> getRevisions()
+  public List<CDORevision> getCurrentRevisions()
   {
     ArrayList<CDORevision> currentRevisions = new ArrayList<CDORevision>();
     synchronized (cacheLists)
