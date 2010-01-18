@@ -238,6 +238,22 @@ public interface InternalCDORevisionManager extends CDORevisionManager, ILifecyc
         }
 
         @Override
+        public void writeResult(CDODataOutput out, CDORevision revision, int referenceChunk) throws IOException
+        {
+          boolean useAvailable = revision.getBranch().equals(available.getBranch())
+              && revision.getVersion() == available.getVersion();
+          if (useAvailable)
+          {
+            out.writeBoolean(true);
+          }
+          else
+          {
+            out.writeBoolean(false);
+            super.writeResult(out, revision, referenceChunk);
+          }
+        }
+
+        @Override
         public InternalCDORevision readResult(CDODataInput in) throws IOException
         {
           boolean useAvailable = in.readBoolean();

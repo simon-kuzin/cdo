@@ -274,7 +274,7 @@ public class Repository extends Container<Object> implements InternalRepository
     if (revision == null && supportingBranches)
     {
       CDOBranch branch = branchPoint.getBranch();
-      while (branch != null)
+      while (!branch.isMainBranch())
       {
         branchPoint = branch.getBase();
         revision = accessor.readRevision(id, branchPoint, referenceChunk, revisionManager.getCache());
