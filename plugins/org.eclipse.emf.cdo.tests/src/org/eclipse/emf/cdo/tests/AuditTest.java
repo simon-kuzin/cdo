@@ -377,6 +377,7 @@ public class AuditTest extends AbstractCDOTest
 
       for (int i = 0; i < timestamps.size(); i++)
       {
+        msg("Checking timestamp " + i + " of " + timestamps.size() + ": " + timestamps.get(i));
         CDOView audit = session.openView(timestamps.get(i));
         CDOResource res = audit.getResource("/res1");
         GenListOfInt persistentList = (GenListOfInt)res.getContents().get(0);
