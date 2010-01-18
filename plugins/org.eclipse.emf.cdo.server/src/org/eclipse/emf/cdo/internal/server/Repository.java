@@ -15,6 +15,7 @@
 package org.eclipse.emf.cdo.internal.server;
 
 import org.eclipse.emf.cdo.common.CDOQueryInfo;
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
@@ -252,9 +253,10 @@ public class Repository extends Container<Object> implements InternalRepository
     switch (info.getType())
     {
     case MISSING:
+    case POSSIBLY_AVAILABLE: // This one is optimized by the caller
       return loadRevision(info.getID(), branchPoint, referenceChunk, prefetchDepth);
-    case POSSIBLY_AVAILABLE:
     case EXACTLY_KNOWN:
+      return loadRevisionByVersion(info.getID(), info.getBranchVersion(), referenceChunk);
     default:
       throw new RuntimeException(); // Can not happen
     }
@@ -269,6 +271,22 @@ public class Repository extends Container<Object> implements InternalRepository
 
     IStoreAccessor accessor = StoreThreadLocal.getAccessor();
     InternalCDORevision revision = accessor.readRevision(id, branchPoint, referenceChunk, revisionManager.getCache());
+    if (revision == null && supportingBranches)
+    {
+      CDOBranch branch = branchPoint.getBranch();
+      while (branch != null)
+      {
+        branchPoint = branch.getBase();
+        revision = accessor.readRevision(id, branchPoint, referenceChunk, revisionManager.getCache());
+        if (revision != null)
+        {
+          break;
+        }
+
+        branch = branchPoint.getBranch();
+      }
+    }
+
     return revision;
   }
 

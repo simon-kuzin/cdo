@@ -15,6 +15,7 @@ import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.internal.common.branch.CDOBranchImpl;
 import org.eclipse.emf.cdo.internal.common.revision.cache.lru.DLRevisionHolder;
 import org.eclipse.emf.cdo.internal.common.revision.cache.lru.LRURevisionCache;
 import org.eclipse.emf.cdo.internal.common.revision.cache.lru.LRURevisionHolder;
@@ -256,7 +257,7 @@ public class RevisionHolderTest extends AbstractCDOTest
     public TestRevision(long id, int version, long created, long revised)
     {
       this.id = CDOIDUtil.createLong(id);
-      branchPoint = CDOBranchUtil.createBranchPoint(null, created);
+      branchPoint = CDOBranchUtil.createBranchPoint(new CDOBranchImpl(CDOBranch.MAIN_BRANCH_ID, null), created);
       this.version = version;
       this.revised = revised;
     }

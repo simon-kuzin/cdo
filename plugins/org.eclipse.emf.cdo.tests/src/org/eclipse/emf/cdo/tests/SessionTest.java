@@ -36,7 +36,9 @@ public class SessionTest extends AbstractCDOTest
   public void testIsSupportingAudits() throws Exception
   {
     CDOSession session = openSession();
-    assertEquals(getRepository().isSupportingAudits(), session.getRepositoryInfo().isSupportingAudits());
+    boolean serverAudits = getRepository().isSupportingAudits();
+    boolean clientAudits = session.getRepositoryInfo().isSupportingAudits();
+    assertEquals(serverAudits, clientAudits);
     session.close();
   }
 

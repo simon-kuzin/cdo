@@ -212,13 +212,13 @@ public class BranchingTest extends AbstractCDOTest
 
     resource = transaction.getResource("/res");
     orderDetail = (OrderDetail)resource.getContents().get(1);
-    assertEquals(5, orderDetail.getPrice());
+    assertEquals(5.0f, orderDetail.getPrice());
     product = orderDetail.getProduct();
     assertEquals("CDO", product.getName());
 
     orderDetail.setPrice(10);
     commit = transaction.commit();
-    assertEquals(mainBranch, commit.getBranch());
+    assertEquals(subBranch, commit.getBranch());
     long commitTime2 = commit.getTimeStamp();
     transaction.close();
     closeSession1();
