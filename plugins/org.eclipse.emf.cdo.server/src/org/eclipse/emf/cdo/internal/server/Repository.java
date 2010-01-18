@@ -239,11 +239,25 @@ public class Repository extends Container<Object> implements InternalRepository
     List<InternalCDORevision> revisions = new ArrayList<InternalCDORevision>();
     for (MissingRevisionInfo info : infos)
     {
-      InternalCDORevision revision = loadRevision(info.getID(), branchPoint, referenceChunk, prefetchDepth);
+      InternalCDORevision revision = loadRevision(info, branchPoint, referenceChunk, prefetchDepth);
       revisions.add(revision);
     }
 
     return revisions;
+  }
+
+  public InternalCDORevision loadRevision(MissingRevisionInfo info, CDOBranchPoint branchPoint, int referenceChunk,
+      int prefetchDepth)
+  {
+    switch (info.getType())
+    {
+    case MISSING:
+      return loadRevision(info.getID(), branchPoint, referenceChunk, prefetchDepth);
+    case POSSIBLY_AVAILABLE:
+    case EXACTLY_KNOWN:
+    default:
+      throw new RuntimeException(); // Can not happen
+    }
   }
 
   private InternalCDORevision loadRevision(CDOID id, CDOBranchPoint branchPoint, int referenceChunk, int prefetchDepth)
@@ -254,7 +268,8 @@ public class Repository extends Container<Object> implements InternalRepository
     }
 
     IStoreAccessor accessor = StoreThreadLocal.getAccessor();
-    return accessor.readRevision(id, branchPoint, referenceChunk, revisionManager.getCache());
+    InternalCDORevision revision = accessor.readRevision(id, branchPoint, referenceChunk, revisionManager.getCache());
+    return revision;
   }
 
   public InternalCDORevision loadRevisionByVersion(CDOID id, CDOBranchVersion branchVersion, int referenceChunk)
