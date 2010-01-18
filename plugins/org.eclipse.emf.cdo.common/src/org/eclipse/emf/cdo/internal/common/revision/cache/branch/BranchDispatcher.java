@@ -17,6 +17,7 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCacheFactory;
+import org.eclipse.emf.cdo.common.revision.cache.InternalCDORevisionCache;
 
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
@@ -31,9 +32,9 @@ import java.util.Map;
 /**
  * @author Eike Stepper
  */
-public class BranchDispatcher extends Lifecycle implements CDORevisionCache
+public class BranchDispatcher extends Lifecycle implements InternalCDORevisionCache
 {
-  private Map<CDOBranch, CDORevisionCache> caches = new HashMap<CDOBranch, CDORevisionCache>();
+  private Map<CDOBranch, InternalCDORevisionCache> caches = new HashMap<CDOBranch, InternalCDORevisionCache>();
 
   private CDORevisionCacheFactory factory;
 
@@ -41,9 +42,11 @@ public class BranchDispatcher extends Lifecycle implements CDORevisionCache
   {
   }
 
-  public CDORevisionCache instantiate(CDORevision revision)
+  public InternalCDORevisionCache instantiate(CDORevision revision)
   {
-    throw new UnsupportedOperationException();
+    BranchDispatcher cache = new BranchDispatcher();
+    cache.setFactory(factory);
+    return cache;
   }
 
   public boolean isSupportingBranches()
@@ -100,7 +103,7 @@ public class BranchDispatcher extends Lifecycle implements CDORevisionCache
 
   public CDORevision removeRevision(CDOID id, CDOBranchVersion branchVersion)
   {
-    CDORevisionCache cache = getCache(branchVersion.getBranch());
+    InternalCDORevisionCache cache = getCache(branchVersion.getBranch());
     if (cache == null)
     {
       return null;
@@ -109,22 +112,22 @@ public class BranchDispatcher extends Lifecycle implements CDORevisionCache
     return cache.removeRevision(id, branchVersion);
   }
 
-  public boolean addRevision(CDORevision revision)
+  public boolean addRevision(CDORevision revision, ReplaceCallback callback)
   {
-    CDORevisionCache cache;
+    InternalCDORevisionCache cache;
     CDOBranch branch = revision.getBranch();
     synchronized (caches)
     {
       cache = caches.get(branch);
       if (cache == null)
       {
-        cache = factory.createRevisionCache(revision);
+        cache = (InternalCDORevisionCache)factory.createRevisionCache(revision);
         LifecycleUtil.activate(cache);
         caches.put(branch, cache);
       }
     }
 
-    return cache.addRevision(revision);
+    return cache.addRevision(revision, callback);
   }
 
   public List<CDORevision> getCurrentRevisions()
@@ -140,7 +143,7 @@ public class BranchDispatcher extends Lifecycle implements CDORevisionCache
 
   public void clear()
   {
-    for (CDORevisionCache cache : getCaches())
+    for (InternalCDORevisionCache cache : getCaches())
     {
       cache.clear();
     }
@@ -164,7 +167,7 @@ public class BranchDispatcher extends Lifecycle implements CDORevisionCache
     super.doDeactivate();
   }
 
-  private CDORevisionCache getCache(CDOBranch branch)
+  private InternalCDORevisionCache getCache(CDOBranch branch)
   {
     synchronized (caches)
     {
@@ -172,11 +175,11 @@ public class BranchDispatcher extends Lifecycle implements CDORevisionCache
     }
   }
 
-  private CDORevisionCache[] getCaches()
+  private InternalCDORevisionCache[] getCaches()
   {
     synchronized (caches)
     {
-      return caches.values().toArray(new CDORevisionCache[caches.size()]);
+      return caches.values().toArray(new InternalCDORevisionCache[caches.size()]);
     }
   }
 }

@@ -16,7 +16,7 @@ import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
-import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
+import org.eclipse.emf.cdo.common.revision.cache.InternalCDORevisionCache;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.internal.common.revision.cache.EvictionEventImpl;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
@@ -37,7 +37,7 @@ import java.util.Map;
 /**
  * @author Eike Stepper
  */
-public class LRURevisionCache extends Lifecycle implements CDORevisionCache
+public class LRURevisionCache extends Lifecycle implements InternalCDORevisionCache
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_REVISION, LRURevisionCache.class);
 
@@ -55,7 +55,7 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
   {
   }
 
-  public CDORevisionCache instantiate(CDORevision revision)
+  public InternalCDORevisionCache instantiate(CDORevision revision)
   {
     LRURevisionCache cache = new LRURevisionCache();
     cache.setCapacityCurrent(capacityCurrent);
@@ -173,7 +173,7 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
     return null;
   }
 
-  public synchronized boolean addRevision(CDORevision revision)
+  public synchronized boolean addRevision(CDORevision revision, ReplaceCallback callback)
   {
     CheckUtil.checkArg(revision, "revision");
     if (TRACER.isEnabled())
@@ -427,7 +427,7 @@ public class LRURevisionCache extends Lifecycle implements CDORevisionCache
       {
         if (this == currentLRU && revised)
         {
-          addRevision(revision);
+          addRevision(revision, null);
         }
         else
         {

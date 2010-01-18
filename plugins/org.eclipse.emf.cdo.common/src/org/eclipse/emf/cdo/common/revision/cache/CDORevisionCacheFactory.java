@@ -45,7 +45,7 @@ public interface CDORevisionCacheFactory
         return prototype;
       }
 
-      return prototype.instantiate(revision);
+      return ((InternalCDORevisionCache)prototype).instantiate(revision);
     }
   }
 }

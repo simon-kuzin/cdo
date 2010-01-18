@@ -95,7 +95,7 @@ public abstract class AbstractSyncRevisionsRequest extends CDOClientRequest<Coll
       Set<CDOIDAndVersion> dirtyObjects = getRefreshContext(refreshContexts, branchPoint).getDirtyObjects();
       dirtyObjects.add(CDOIDUtil.createIDAndVersion(idAndVersion.getID(), idAndVersion.getVersion()));
 
-      revisionManager.getCache().addRevision(revision);
+      revisionManager.addRevision(revision);
     }
 
     if (TRACER.isEnabled())

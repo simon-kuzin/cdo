@@ -77,7 +77,7 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
   {
     if (object instanceof CDORevision)
     {
-      getStore().getRepository().getRevisionManager().getCache().addRevision((CDORevision)object);
+      getStore().getRepository().getRevisionManager().addRevision((CDORevision)object);
     }
     else if (object instanceof Object[])
     {

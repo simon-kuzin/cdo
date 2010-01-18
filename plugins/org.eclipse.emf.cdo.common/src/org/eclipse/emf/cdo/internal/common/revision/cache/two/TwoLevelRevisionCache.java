@@ -17,6 +17,7 @@ import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
+import org.eclipse.emf.cdo.common.revision.cache.InternalCDORevisionCache;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
@@ -35,19 +36,19 @@ import java.util.List;
 /**
  * @author Eike Stepper
  */
-public class TwoLevelRevisionCache extends Lifecycle implements CDORevisionCache, IListener
+public class TwoLevelRevisionCache extends Lifecycle implements InternalCDORevisionCache, IListener
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_REVISION, TwoLevelRevisionCache.class);
 
-  private CDORevisionCache level1;
+  private InternalCDORevisionCache level1;
 
-  private CDORevisionCache level2;
+  private InternalCDORevisionCache level2;
 
   public TwoLevelRevisionCache()
   {
   }
 
-  public CDORevisionCache instantiate(CDORevision revision)
+  public InternalCDORevisionCache instantiate(CDORevision revision)
   {
     TwoLevelRevisionCache cache = new TwoLevelRevisionCache();
     cache.setLevel1(level1.instantiate(revision));
@@ -60,22 +61,22 @@ public class TwoLevelRevisionCache extends Lifecycle implements CDORevisionCache
     return false;
   }
 
-  public CDORevisionCache getLevel1()
+  public InternalCDORevisionCache getLevel1()
   {
     return level1;
   }
 
-  public void setLevel1(CDORevisionCache level1)
+  public void setLevel1(InternalCDORevisionCache level1)
   {
     this.level1 = level1;
   }
 
-  public CDORevisionCache getLevel2()
+  public InternalCDORevisionCache getLevel2()
   {
     return level2;
   }
 
-  public void setLevel2(CDORevisionCache level2)
+  public void setLevel2(InternalCDORevisionCache level2)
   {
     this.level2 = level2;
   }
@@ -121,10 +122,10 @@ public class TwoLevelRevisionCache extends Lifecycle implements CDORevisionCache
     return revisions;
   }
 
-  public boolean addRevision(CDORevision revision)
+  public boolean addRevision(CDORevision revision, ReplaceCallback callback)
   {
     CheckUtil.checkArg(revision, "revision");
-    boolean added = level1.addRevision(revision);
+    boolean added = level1.addRevision(revision, callback);
 
     // Bugzilla 292372: If a new current revision was added to level1, we must check whether
     // level2 contains a stale current revision, and revise that revision if possible
@@ -185,7 +186,7 @@ public class TwoLevelRevisionCache extends Lifecycle implements CDORevisionCache
 
   protected void evictedFromLevel1(CDORevision revision)
   {
-    level2.addRevision(revision);
+    level2.addRevision(revision, null);
     if (TRACER.isEnabled())
     {
       TRACER.format("Recached revision {0}", revision); //$NON-NLS-1$

@@ -56,8 +56,8 @@ public final class CDORevisionCacheUtil
   public static CDORevisionCache createTwoLevelCache(CDORevisionCache level1, CDORevisionCache level2)
   {
     TwoLevelRevisionCache cache = new TwoLevelRevisionCache();
-    cache.setLevel1(level1);
-    cache.setLevel2(level2);
+    cache.setLevel1((InternalCDORevisionCache)level1);
+    cache.setLevel2((InternalCDORevisionCache)level2);
     return cache;
   }
 

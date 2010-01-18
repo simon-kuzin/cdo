@@ -14,7 +14,7 @@ import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
-import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
+import org.eclipse.emf.cdo.common.revision.cache.InternalCDORevisionCache;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.util.CheckUtil;
@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * @author Eike Stepper
  */
-public class NOOPRevisionCache extends Lifecycle implements CDORevisionCache
+public class NOOPRevisionCache extends Lifecycle implements InternalCDORevisionCache
 {
   public static final NOOPRevisionCache INSTANCE = new NOOPRevisionCache();
 
@@ -38,7 +38,7 @@ public class NOOPRevisionCache extends Lifecycle implements CDORevisionCache
   {
   }
 
-  public CDORevisionCache instantiate(CDORevision revision)
+  public InternalCDORevisionCache instantiate(CDORevision revision)
   {
     return this;
   }
@@ -73,7 +73,7 @@ public class NOOPRevisionCache extends Lifecycle implements CDORevisionCache
     return null;
   }
 
-  public boolean addRevision(CDORevision revision)
+  public boolean addRevision(CDORevision revision, ReplaceCallback callback)
   {
     CheckUtil.checkArg(revision, "revision");
     return false;

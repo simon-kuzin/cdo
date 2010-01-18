@@ -270,14 +270,14 @@ public class Repository extends Container<Object> implements InternalRepository
     }
 
     IStoreAccessor accessor = StoreThreadLocal.getAccessor();
-    InternalCDORevision revision = accessor.readRevision(id, branchPoint, referenceChunk, revisionManager.getCache());
+    InternalCDORevision revision = accessor.readRevision(id, branchPoint, referenceChunk, revisionManager);
     if (revision == null && supportingBranches)
     {
       CDOBranch branch = branchPoint.getBranch();
       while (!branch.isMainBranch())
       {
         branchPoint = branch.getBase();
-        revision = accessor.readRevision(id, branchPoint, referenceChunk, revisionManager.getCache());
+        revision = accessor.readRevision(id, branchPoint, referenceChunk, revisionManager);
         if (revision != null)
         {
           break;
@@ -295,7 +295,7 @@ public class Repository extends Container<Object> implements InternalRepository
     IStoreAccessor accessor = StoreThreadLocal.getAccessor();
     if (isSupportingAudits())
     {
-      return accessor.readRevisionByVersion(id, branchVersion, referenceChunk, revisionManager.getCache());
+      return accessor.readRevisionByVersion(id, branchVersion, referenceChunk, revisionManager);
     }
 
     InternalCDORevision revision = loadRevision(id, branchVersion.getBranch().getHead(), referenceChunk,

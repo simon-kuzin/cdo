@@ -20,7 +20,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
-import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
+import org.eclipse.emf.cdo.common.revision.cache.InternalCDORevisionCache;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.internal.common.messages.Messages;
 import org.eclipse.emf.cdo.internal.common.revision.cache.EvictionEventImpl;
@@ -54,7 +54,7 @@ import java.util.Map.Entry;
 /**
  * @author Eike Stepper
  */
-public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> implements CDORevisionCache
+public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> implements InternalCDORevisionCache
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_REVISION, MEMRevisionCache.class);
 
@@ -72,7 +72,7 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
     this(ReferenceType.SOFT);
   }
 
-  public CDORevisionCache instantiate(CDORevision revision)
+  public InternalCDORevisionCache instantiate(CDORevision revision)
   {
     return new MEMRevisionCache(referenceType);
   }
@@ -146,7 +146,7 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
     return currentRevisions;
   }
 
-  public boolean addRevision(CDORevision revision)
+  public boolean addRevision(CDORevision revision, ReplaceCallback callback)
   {
     CheckUtil.checkArg(revision, "revision");
     CDOID id = revision.getID();
@@ -159,7 +159,7 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
         cacheLists.put(id, list);
       }
 
-      return list.addRevision((InternalCDORevision)revision);
+      return list.addRevision((InternalCDORevision)revision, callback);
     }
   }
 
@@ -379,19 +379,27 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
       }
     }
 
-    public boolean addRevision(InternalCDORevision revision)
+    public boolean addRevision(InternalCDORevision revision, ReplaceCallback callback)
     {
       KeyedReference<CDOIDAndVersion, InternalCDORevision> reference = createReference(revision);
       int version = revision.getVersion();
       for (ListIterator<KeyedReference<CDOIDAndVersion, InternalCDORevision>> it = listIterator(); it.hasNext();)
       {
         KeyedReference<CDOIDAndVersion, InternalCDORevision> ref = it.next();
-        if (ref.get() != null)
+        InternalCDORevision foundRevision = ref.get();
+        if (foundRevision != null)
         {
           CDOIDAndVersion key = ref.getKey();
           int v = key.getVersion();
           if (v == version)
           {
+            if (callback != null && callback.canReplace(foundRevision))
+            {
+              it.remove();
+              it.add(reference);
+              return true;
+            }
+
             return false;
           }
 

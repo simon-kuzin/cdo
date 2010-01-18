@@ -26,6 +26,7 @@ import org.eclipse.emf.cdo.common.revision.CDOListFactory;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionFactory;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
+import org.eclipse.emf.cdo.common.revision.cache.InternalCDORevisionCache;
 import org.eclipse.emf.cdo.internal.common.io.CDODataInputImpl;
 import org.eclipse.emf.cdo.internal.common.io.CDODataOutputImpl;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
@@ -58,7 +59,7 @@ import java.util.List;
  * 
  * @author Andre Dietisheim
  */
-public class DBRevisionCache extends Lifecycle implements CDORevisionCache
+public class DBRevisionCache extends Lifecycle implements InternalCDORevisionCache
 {
   private CDOIDProvider idProvider;
 
@@ -76,7 +77,7 @@ public class DBRevisionCache extends Lifecycle implements CDORevisionCache
   {
   }
 
-  public CDORevisionCache instantiate(CDORevision revision)
+  public InternalCDORevisionCache instantiate(CDORevision revision)
   {
     // TODO: Support branches directly
     throw new UnsupportedOperationException();
@@ -416,7 +417,7 @@ public class DBRevisionCache extends Lifecycle implements CDORevisionCache
    *          the revision to add to this cache
    * @return true, if successful
    */
-  public boolean addRevision(CDORevision revision)
+  public boolean addRevision(CDORevision revision, ReplaceCallback callback)
   {
     CheckUtil.checkArg(revision, "revision");
     Connection connection = null;

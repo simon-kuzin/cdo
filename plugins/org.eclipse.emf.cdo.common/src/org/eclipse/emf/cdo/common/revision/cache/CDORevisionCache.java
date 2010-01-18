@@ -29,17 +29,12 @@ import java.util.List;
  * @author Eike Stepper
  * @since 2.0
  */
-public interface CDORevisionCache extends INotifier, CDORevisionCacheAdder
+public interface CDORevisionCache extends INotifier
 {
   /**
    * @since 3.0
    */
   public static final CDORevisionCache NOOP = NOOPRevisionCache.INSTANCE;
-
-  /**
-   * @since 3.0
-   */
-  public CDORevisionCache instantiate(CDORevision revision);
 
   /**
    * @since 3.0
@@ -59,18 +54,11 @@ public interface CDORevisionCache extends INotifier, CDORevisionCacheAdder
   public CDORevision getRevisionByVersion(CDOID id, CDOBranchVersion branchVersion);
 
   /**
-   * @since 3.0
-   */
-  public CDORevision removeRevision(CDOID id, CDOBranchVersion branchVersion);
-
-  /**
    * Returns a list of {@link CDORevision revisions} that are current.
    * 
    * @since 3.0
    */
   public List<CDORevision> getCurrentRevisions();
-
-  public void clear();
 
   /**
    * @author Eike Stepper

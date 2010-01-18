@@ -17,6 +17,7 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionFactory;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
+import org.eclipse.emf.cdo.common.revision.cache.InternalCDORevisionCache;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
 
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
@@ -35,7 +36,7 @@ public abstract class DelegatingCDORevisionManager extends Lifecycle implements 
   {
   }
 
-  public CDORevisionCache getCache()
+  public InternalCDORevisionCache getCache()
   {
     return getDelegate().getCache();
   }

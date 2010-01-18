@@ -150,10 +150,7 @@ public class LoadRevisionsRequest extends CDOClientRequest<List<InternalCDORevis
       for (int i = 0; i < additionalSize; i++)
       {
         InternalCDORevision revision = (InternalCDORevision)in.readCDORevision();
-        if (revision != null)
-        {
-          revisionManager.getCache().addRevision(revision);
-        }
+        revisionManager.addRevision(revision);
       }
     }
 

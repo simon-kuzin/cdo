@@ -20,7 +20,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDAndBranch;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
-import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
+import org.eclipse.emf.cdo.common.revision.cache.InternalCDORevisionCache;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.internal.common.revision.cache.EvictionEventImpl;
 import org.eclipse.emf.cdo.spi.common.branch.CDOBranchUtil;
@@ -48,7 +48,7 @@ import java.util.Map.Entry;
 /**
  * @author Eike Stepper
  */
-public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevision> implements CDORevisionCache
+public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevision> implements InternalCDORevisionCache
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_REVISION, BranchRevisionCache.class);
 
@@ -58,7 +58,7 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
   {
   }
 
-  public CDORevisionCache instantiate(CDORevision revision)
+  public InternalCDORevisionCache instantiate(CDORevision revision)
   {
     return new BranchRevisionCache();
   }
@@ -129,7 +129,7 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
     return currentRevisions;
   }
 
-  public boolean addRevision(CDORevision revision)
+  public boolean addRevision(CDORevision revision, ReplaceCallback callback)
   {
     CheckUtil.checkArg(revision, "revision");
     CDOIDAndBranch key = CDOIDUtil.createIDAndBranch(revision.getID(), revision.getBranch());
@@ -143,7 +143,7 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
       }
 
       InternalCDORevision rev = (InternalCDORevision)revision;
-      return list.addRevision(rev, createReference(key, rev));
+      return list.addRevision(rev, callback, createReference(key, rev));
     }
   }
 
@@ -362,19 +362,27 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
       return null;
     }
 
-    public synchronized boolean addRevision(InternalCDORevision revision,
+    public synchronized boolean addRevision(InternalCDORevision revision, ReplaceCallback callback,
         KeyedReference<CDORevisionKey, InternalCDORevision> reference)
     {
       int version = revision.getVersion();
       for (ListIterator<KeyedReference<CDORevisionKey, InternalCDORevision>> it = listIterator(); it.hasNext();)
       {
         KeyedReference<CDORevisionKey, InternalCDORevision> ref = it.next();
-        if (ref.get() != null)
+        InternalCDORevision foundRevision = ref.get();
+        if (foundRevision != null)
         {
           CDORevisionKey key = ref.getKey();
           int v = key.getVersion();
           if (v == version)
           {
+            if (callback != null && callback.canReplace(foundRevision))
+            {
+              it.remove();
+              it.add(reference);
+              return true;
+            }
+
             return false;
           }
 

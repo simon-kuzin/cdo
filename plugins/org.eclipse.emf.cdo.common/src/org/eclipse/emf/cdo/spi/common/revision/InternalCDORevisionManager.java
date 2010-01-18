@@ -20,6 +20,8 @@ import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionFactory;
 import org.eclipse.emf.cdo.common.revision.CDORevisionManager;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
+import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCacheAdder;
+import org.eclipse.emf.cdo.common.revision.cache.InternalCDORevisionCache;
 
 import org.eclipse.net4j.util.lifecycle.ILifecycle;
 
@@ -32,7 +34,7 @@ import java.util.List;
  * @author Eike Stepper
  * @since 3.0
  */
-public interface InternalCDORevisionManager extends CDORevisionManager, ILifecycle
+public interface InternalCDORevisionManager extends CDORevisionManager, CDORevisionCacheAdder, ILifecycle
 {
   public boolean isSupportingBranches();
 
@@ -50,7 +52,7 @@ public interface InternalCDORevisionManager extends CDORevisionManager, ILifecyc
 
   public void setFactory(CDORevisionFactory factory);
 
-  public CDORevisionCache getCache();
+  public InternalCDORevisionCache getCache();
 
   public void setCache(CDORevisionCache cache);
 

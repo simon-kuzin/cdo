@@ -19,6 +19,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.internal.db.cache.DBRevisionCache;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
+import org.eclipse.emf.cdo.common.revision.cache.InternalCDORevisionCache;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.internal.common.revision.cache.lru.LRURevisionCache;
 import org.eclipse.emf.cdo.internal.common.revision.cache.mem.MEMRevisionCache;
@@ -63,7 +64,7 @@ public abstract class AbstractCDORevisionCacheTest extends AbstractOMTest
 
   private CDOResource resource;
 
-  private CDORevisionCache revisionCache;
+  private InternalCDORevisionCache revisionCache;
 
   private CDOSession session;
 
@@ -101,7 +102,7 @@ public abstract class AbstractCDORevisionCacheTest extends AbstractOMTest
 
   private void addRevision(CDORevision revision)
   {
-    revisionCache.addRevision(revision);
+    revisionCache.addRevision(revision, null);
   }
 
   public void testGetRevisionReturnsLatestVersion()
@@ -405,5 +406,5 @@ public abstract class AbstractCDORevisionCacheTest extends AbstractOMTest
     return resource;
   }
 
-  protected abstract CDORevisionCache createRevisionCache(CDOSession session) throws Exception;
+  protected abstract InternalCDORevisionCache createRevisionCache(CDOSession session) throws Exception;
 }
