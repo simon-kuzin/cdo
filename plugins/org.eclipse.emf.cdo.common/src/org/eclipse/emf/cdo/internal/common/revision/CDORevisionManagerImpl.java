@@ -20,6 +20,7 @@ import org.eclipse.emf.cdo.common.model.CDOClassInfo;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionFactory;
 import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
+import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCacheUtil;
 import org.eclipse.emf.cdo.common.revision.cache.InternalCDORevisionCache;
@@ -30,6 +31,7 @@ import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
 import org.eclipse.emf.cdo.spi.common.revision.StubCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager.RevisionLoader.MissingRevisionInfo;
 
+import org.eclipse.net4j.util.CheckUtil;
 import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
@@ -244,6 +246,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
       revisions.add(revision);
       if (info != null)
       {
+        CheckUtil.checkState(revision == null, "revision");
         if (infos == null)
         {
           infos = new ArrayList<MissingRevisionInfo>(1);
@@ -262,6 +265,8 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
         List<InternalCDORevision> missingRevisions = //
         revisionLoader.loadRevisions(infos, branchPoint, referenceChunk, prefetchDepth);
 
+        CDOBranch branch = branchPoint.getBranch();
+
         Iterator<InternalCDORevision> it = missingRevisions.iterator();
         for (int i = 0; i < revisions.size(); i++)
         {
@@ -271,6 +276,11 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
             InternalCDORevision missingRevision = it.next();
             revisions.set(i, missingRevision);
             addRevision(missingRevision);
+
+            // if (!branch.equals(missingRevision.getBranch()))
+            // {
+            // addRevision(new RevisionPointer(branch, missingRevision));
+            // }
           }
         }
       }
@@ -410,7 +420,13 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
 
   private InternalCDORevision getCachedRevisionByVersion(CDOID id, CDOBranchVersion branchVersion)
   {
-    return (InternalCDORevision)cache.getRevisionByVersion(id, branchVersion);
+    InternalCDORevision revision = (InternalCDORevision)cache.getRevisionByVersion(id, branchVersion);
+    if (revision != null && revision.getClass() == RevisionPointer.class)
+    {
+      return null;
+    }
+
+    return revision;
   }
 
   /**
@@ -425,7 +441,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     public RevisionPointer(CDOBranch branch, CDORevisionKey target)
     {
       this.branch = branch;
-      this.target = target;
+      this.target = CDORevisionUtil.createRevisionKey(target);
     }
 
     public CDORevisionKey getTarget()

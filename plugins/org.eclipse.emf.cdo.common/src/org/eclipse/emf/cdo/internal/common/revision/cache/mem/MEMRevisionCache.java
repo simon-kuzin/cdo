@@ -19,7 +19,7 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
-import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
+import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.common.revision.cache.InternalCDORevisionCache;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.internal.common.messages.Messages;
@@ -210,23 +210,7 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
       IListener[] listeners = getListeners();
       if (listeners != null)
       {
-        fireEvent(new EvictionEventImpl(this, new CDORevisionKey()
-        {
-          public CDOID getID()
-          {
-            return id;
-          }
-
-          public CDOBranch getBranch()
-          {
-            return branch;
-          }
-
-          public int getVersion()
-          {
-            return version;
-          }
-        }), listeners);
+        fireEvent(new EvictionEventImpl(this, CDORevisionUtil.createRevisionKey(id, branch, version)), listeners);
       }
     }
     else

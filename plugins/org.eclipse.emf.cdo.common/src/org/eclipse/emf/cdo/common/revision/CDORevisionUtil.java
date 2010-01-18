@@ -10,11 +10,13 @@
  */
 package org.eclipse.emf.cdo.common.revision;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.internal.common.messages.Messages;
 import org.eclipse.emf.cdo.internal.common.revision.CDOFeatureMapEntryImpl;
 import org.eclipse.emf.cdo.internal.common.revision.CDORevisionImpl;
+import org.eclipse.emf.cdo.internal.common.revision.CDORevisionKeyImpl;
 import org.eclipse.emf.cdo.spi.common.revision.CDOFeatureMapEntry;
 
 import org.eclipse.emf.ecore.EStructuralFeature;
@@ -31,6 +33,22 @@ public final class CDORevisionUtil
 
   private CDORevisionUtil()
   {
+  }
+
+  /**
+   * @since 3.0
+   */
+  public static CDORevisionKey createRevisionKey(CDOID id, CDOBranch branch, int version)
+  {
+    return new CDORevisionKeyImpl(id, branch, version);
+  }
+
+  /**
+   * @since 3.0
+   */
+  public static CDORevisionKey createRevisionKey(CDORevisionKey source)
+  {
+    return new CDORevisionKeyImpl(source.getID(), source.getBranch(), source.getVersion());
   }
 
   /**
