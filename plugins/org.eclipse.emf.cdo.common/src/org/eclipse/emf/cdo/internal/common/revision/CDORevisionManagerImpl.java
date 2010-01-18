@@ -363,16 +363,26 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
 
   private InternalCDORevision getCachedRevision(CDOID id, CDOBranchPoint branchPoint)
   {
-    InternalCDORevision revision = (InternalCDORevision)cache.getRevision(id, branchPoint);
-    if (supportingBranches)
-    {
-    }
-
-    return revision;
+    return (InternalCDORevision)cache.getRevision(id, branchPoint);
   }
 
   private InternalCDORevision getCachedRevisionRecursively(CDOID id, CDOBranchPoint branchPoint)
   {
+    CDOBranch branch = branchPoint.getBranch();
+    if (branch != null)
+    {
+      CDOBranchPoint base = branch.getBase();
+      InternalCDORevision revision = getCachedRevision(id, base);
+      if (revision != null)
+      {
+        return revision;
+      }
+
+      // Recurse
+      return getCachedRevisionRecursively(id, base);
+    }
+
+    // Reached main branch
     return null;
   }
 
