@@ -37,5 +37,9 @@
             class="org.eclipse.emf.cdo.server.internal.db.mapping.horizontal.HorizontalBranchingMappingStrategy"
             type="horizontalBranching">
       </mappingStrategy>
+      <mappingStrategy
+            class="org.eclipse.emf.cdo.server.internal.db.mapping.horizontal.HorizontalAuditMappingStrategyWithRanges"
+            type="horizontalAuditWithRanges">
+      </mappingStrategy>
    </extension>
 </plugin>
