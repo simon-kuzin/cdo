@@ -185,6 +185,17 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
     return revisionLists.toString();
   }
 
+  public Map<CDOBranch, List<CDORevision>> getAllRevisions()
+  {
+    Map<CDOBranch, List<CDORevision>> result = new HashMap<CDOBranch, List<CDORevision>>();
+    for (RevisionList list : revisionLists.values())
+    {
+      list.getAllRevisions(result);
+    }
+
+    return result;
+  }
+
   @Override
   protected void work(Reference<? extends InternalCDORevision> reference)
   {
@@ -462,6 +473,27 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
 
       buffer.append("}");
       return buffer.toString();
+    }
+
+    public void getAllRevisions(Map<CDOBranch, List<CDORevision>> result)
+    {
+      for (Iterator<KeyedReference<CDORevisionKey, InternalCDORevision>> it = iterator(); it.hasNext();)
+      {
+        KeyedReference<CDORevisionKey, InternalCDORevision> ref = it.next();
+        InternalCDORevision revision = ref.get();
+        if (revision != null)
+        {
+          CDOBranch branch = revision.getBranch();
+          List<CDORevision> resultList = result.get(branch);
+          if (resultList == null)
+          {
+            resultList = new ArrayList<CDORevision>(1);
+            result.put(branch, resultList);
+          }
+
+          resultList.add(revision);
+        }
+      }
     }
   }
 }

@@ -11,6 +11,7 @@
  **************************************************************************/
 package org.eclipse.emf.cdo.common.internal.db.cache;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchManager;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
@@ -53,6 +54,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A JDBC-based {@link CDORevisionCache}.
@@ -635,6 +637,11 @@ public class DBRevisionCache extends Lifecycle implements InternalCDORevisionCac
     {
       DBUtil.close(connection);
     }
+  }
+
+  public Map<CDOBranch, List<CDORevision>> getAllRevisions()
+  {
+    throw new UnsupportedOperationException();
   }
 
   @Override

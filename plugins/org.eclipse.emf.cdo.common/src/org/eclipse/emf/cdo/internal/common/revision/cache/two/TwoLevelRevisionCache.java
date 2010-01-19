@@ -12,6 +12,7 @@
  */
 package org.eclipse.emf.cdo.internal.common.revision.cache.two;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
@@ -32,6 +33,7 @@ import org.eclipse.emf.ecore.EClass;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Eike Stepper
@@ -161,6 +163,11 @@ public class TwoLevelRevisionCache extends Lifecycle implements InternalCDORevis
   {
     level1.clear();
     level2.clear();
+  }
+
+  public Map<CDOBranch, List<CDORevision>> getAllRevisions()
+  {
+    throw new UnsupportedOperationException();
   }
 
   public void notifyEvent(IEvent event)

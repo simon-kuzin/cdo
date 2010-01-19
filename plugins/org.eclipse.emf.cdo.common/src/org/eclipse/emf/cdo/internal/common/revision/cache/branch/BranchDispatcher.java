@@ -149,6 +149,11 @@ public class BranchDispatcher extends Lifecycle implements InternalCDORevisionCa
     }
   }
 
+  public Map<CDOBranch, List<CDORevision>> getAllRevisions()
+  {
+    throw new UnsupportedOperationException();
+  }
+
   @Override
   protected void doBeforeActivate() throws Exception
   {

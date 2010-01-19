@@ -262,6 +262,11 @@ public class LRURevisionCache extends Lifecycle implements InternalCDORevisionCa
     revisedLRU = new LRU(capacityRevised);
   }
 
+  public Map<CDOBranch, List<CDORevision>> getAllRevisions()
+  {
+    throw new UnsupportedOperationException();
+  }
+
   private InternalCDORevision getRevision(RevisionHolder holder, long timeStamp)
   {
     while (holder != null)

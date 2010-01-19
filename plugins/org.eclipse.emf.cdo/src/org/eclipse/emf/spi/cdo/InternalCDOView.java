@@ -75,6 +75,9 @@ public interface InternalCDOView extends CDOView, CDOIDProvider, ILifecycle
   public Set<CDOObject> handleInvalidationWithoutNotification(Set<CDOIDAndVersion> dirtyOIDs,
       Collection<CDOID> detachedOIDs, Set<InternalCDOObject> dirtyObjects, Set<InternalCDOObject> detachedObjects);
 
+  /**
+   * @since 3.0
+   */
   public void getCDOIDAndVersionAndBranch(Map<CDOID, CDOIDAndVersionAndBranch> uniqueObjects,
       Collection<? extends CDOObject> cdoObjects);
 
