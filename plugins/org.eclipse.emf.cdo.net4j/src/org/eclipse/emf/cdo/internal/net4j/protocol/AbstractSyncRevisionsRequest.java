@@ -14,7 +14,7 @@ package org.eclipse.emf.cdo.internal.net4j.protocol;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
-import org.eclipse.emf.cdo.common.id.CDOIDUtil;
+import org.eclipse.emf.cdo.common.id.CDOIDAndVersionAndBranch;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
@@ -44,15 +44,15 @@ public abstract class AbstractSyncRevisionsRequest extends CDOClientRequest<Coll
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, AbstractSyncRevisionsRequest.class);
 
-  protected Map<CDOID, CDOIDAndVersion> idAndVersions;
+  protected Map<CDOID, CDOIDAndVersionAndBranch> idAndVersionAndBranches;
 
   protected int referenceChunk;
 
   public AbstractSyncRevisionsRequest(CDOClientProtocol protocol, short signalID,
-      Map<CDOID, CDOIDAndVersion> idAndVersions, int referenceChunk)
+      Map<CDOID, CDOIDAndVersionAndBranch> idAndVersionAndBranches, int referenceChunk)
   {
     super(protocol, signalID);
-    this.idAndVersions = idAndVersions;
+    this.idAndVersionAndBranches = idAndVersionAndBranches;
     this.referenceChunk = referenceChunk;
   }
 
@@ -61,14 +61,14 @@ public abstract class AbstractSyncRevisionsRequest extends CDOClientRequest<Coll
   {
     if (TRACER.isEnabled())
     {
-      TRACER.trace("Synchronization " + idAndVersions.size() + " objects"); //$NON-NLS-1$ //$NON-NLS-2$
+      TRACER.trace("Synchronization " + idAndVersionAndBranches.size() + " objects"); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     out.writeInt(referenceChunk);
-    out.writeInt(idAndVersions.size());
-    for (CDOIDAndVersion idAndVersion : idAndVersions.values())
+    out.writeInt(idAndVersionAndBranches.size());
+    for (CDOIDAndVersionAndBranch idAndVersionAndBranch : idAndVersionAndBranches.values())
     {
-      out.writeCDOIDAndVersion(idAndVersion);
+      out.writeCDOIDAndVersionAndBranch(idAndVersionAndBranch);
     }
   }
 
@@ -85,15 +85,16 @@ public abstract class AbstractSyncRevisionsRequest extends CDOClientRequest<Coll
       long oldRevised = in.readLong();
       CDOBranchPoint branchPoint = CDOBranchUtil.createBranchPoint(revision.getBranch(), oldRevised);
 
-      CDOIDAndVersion idAndVersion = idAndVersions.get(revision.getID());
-      if (idAndVersion == null)
+      CDOIDAndVersionAndBranch idAndVersionAndBranch = idAndVersionAndBranches.get(revision.getID());
+      if (idAndVersionAndBranch == null)
       {
         throw new IllegalStateException(MessageFormat.format(
             Messages.getString("SyncRevisionsRequest.2"), revision.getID())); //$NON-NLS-1$
       }
 
       Set<CDOIDAndVersion> dirtyObjects = getRefreshContext(refreshContexts, branchPoint).getDirtyObjects();
-      dirtyObjects.add(CDOIDUtil.createIDAndVersion(idAndVersion.getID(), idAndVersion.getVersion()));
+      // $$$ (CD)
+      // dirtyObjects.add(CDOIDUtil.createIDAndVersion(idAndVersion.getID(), idAndVersion.getVersion()));
 
       revisionManager.addRevision(revision);
     }

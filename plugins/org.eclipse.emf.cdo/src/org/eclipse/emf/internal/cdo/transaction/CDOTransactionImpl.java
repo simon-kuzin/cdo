@@ -21,6 +21,7 @@ import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.commit.CDOCommit;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
+import org.eclipse.emf.cdo.common.id.CDOIDAndVersionAndBranch;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
@@ -340,7 +341,8 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
   }
 
   @Override
-  public void getCDOIDAndVersion(Map<CDOID, CDOIDAndVersion> uniqueObjects, Collection<? extends CDOObject> cdoObjects)
+  public void getCDOIDAndVersionAndBranch(Map<CDOID, CDOIDAndVersionAndBranch> uniqueObjects,
+      Collection<? extends CDOObject> cdoObjects)
   {
     Map<CDOID, CDORevisionDelta> deltaMap = getRevisionDeltas();
     for (CDOObject cdoObject : cdoObjects)
@@ -359,7 +361,8 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
           }
         }
 
-        uniqueObjects.put(cdoId, CDOIDUtil.createIDAndVersion(cdoId, version));
+        int branchID = cdoRevision.getBranch().getID();
+        uniqueObjects.put(cdoId, CDOIDUtil.createIDAndVersionAndBranch(cdoId, version, branchID));
       }
     }
   }
@@ -1199,7 +1202,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
   /**
    * TODO Simon: Should this method go to CDOSavePointImpl?
    */
-  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @SuppressWarnings( { "rawtypes", "unchecked" })
   private void registerNew(Map map, InternalCDOObject object)
   {
     Object old = map.put(object.cdoID(), object);

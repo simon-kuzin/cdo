@@ -21,6 +21,7 @@ import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
+import org.eclipse.emf.cdo.common.id.CDOIDAndVersionAndBranch;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDOAuthenticator;
@@ -477,7 +478,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     checkActive();
     if (!options().isPassiveUpdateEnabled())
     {
-      Map<CDOID, CDOIDAndVersion> allRevisions = getAllCDOIDAndVersion();
+      Map<CDOID, CDOIDAndVersionAndBranch> allRevisions = getAllCDOIDAndVersionAndBranch();
 
       try
       {
@@ -864,12 +865,12 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     super.doDeactivate();
   }
 
-  private Map<CDOID, CDOIDAndVersion> getAllCDOIDAndVersion()
+  private Map<CDOID, CDOIDAndVersionAndBranch> getAllCDOIDAndVersionAndBranch()
   {
-    Map<CDOID, CDOIDAndVersion> uniqueObjects = new HashMap<CDOID, CDOIDAndVersion>();
+    Map<CDOID, CDOIDAndVersionAndBranch> uniqueObjects = new HashMap<CDOID, CDOIDAndVersionAndBranch>();
     for (InternalCDOView view : getViews())
     {
-      view.getCDOIDAndVersion(uniqueObjects, Arrays.asList(view.getObjectsArray()));
+      view.getCDOIDAndVersionAndBranch(uniqueObjects, Arrays.asList(view.getObjectsArray()));
     }
 
     // Need to add Revision from revisionManager since we do not have all objects in view.
@@ -877,7 +878,9 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     {
       if (!uniqueObjects.containsKey(revision.getID()))
       {
-        uniqueObjects.put(revision.getID(), CDOIDUtil.createIDAndVersion(revision.getID(), revision.getVersion()));
+
+        uniqueObjects.put(revision.getID(), CDOIDUtil.createIDAndVersionAndBranch(revision.getID(), revision
+            .getVersion(), revision.getBranch().getID()));
       }
     }
 
@@ -946,7 +949,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
         this.passiveUpdateEnabled = passiveUpdateEnabled;
 
         // Need to refresh if we change state
-        Map<CDOID, CDOIDAndVersion> allRevisions = getAllCDOIDAndVersion();
+        Map<CDOID, CDOIDAndVersionAndBranch> allRevisions = getAllCDOIDAndVersionAndBranch();
         if (!allRevisions.isEmpty())
         {
           int initialChunkSize = collectionLoadingPolicy.getInitialChunkSize();
@@ -1443,7 +1446,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       }
     }
 
-    public void lockObjects(CDOView view, Map<CDOID, CDOIDAndVersion> objects, long timeout, LockType lockType)
+    public void lockObjects(CDOView view, Map<CDOID, CDOIDAndVersionAndBranch> objects, long timeout, LockType lockType)
         throws InterruptedException
     {
       int attempt = 0;
@@ -1478,7 +1481,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       }
     }
 
-    public void setPassiveUpdate(Map<CDOID, CDOIDAndVersion> idAndVersions, int initialChunkSize,
+    public void setPassiveUpdate(Map<CDOID, CDOIDAndVersionAndBranch> idAndVersionAndBranches, int initialChunkSize,
         boolean passiveUpdateEnabled)
     {
       int attempt = 0;
@@ -1486,7 +1489,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       {
         try
         {
-          delegate.setPassiveUpdate(idAndVersions, initialChunkSize, passiveUpdateEnabled);
+          delegate.setPassiveUpdate(idAndVersionAndBranches, initialChunkSize, passiveUpdateEnabled);
           return;
         }
         catch (Exception ex)
@@ -1496,7 +1499,8 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       }
     }
 
-    public Collection<CDORefreshContext> syncRevisions(Map<CDOID, CDOIDAndVersion> allRevisions, int initialChunkSize)
+    public Collection<CDORefreshContext> syncRevisions(Map<CDOID, CDOIDAndVersionAndBranch> allRevisions,
+        int initialChunkSize)
     {
       int attempt = 0;
       for (;;)

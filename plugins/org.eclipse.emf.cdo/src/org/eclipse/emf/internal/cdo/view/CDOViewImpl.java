@@ -19,6 +19,7 @@ import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
+import org.eclipse.emf.cdo.common.id.CDOIDAndVersionAndBranch;
 import org.eclipse.emf.cdo.common.id.CDOIDMeta;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
@@ -395,15 +396,18 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
       throws InterruptedException
   {
     checkActive();
-    Map<CDOID, CDOIDAndVersion> uniqueObjects = new HashMap<CDOID, CDOIDAndVersion>();
-    getCDOIDAndVersion(uniqueObjects, objects);
+    Map<CDOID, CDOIDAndVersionAndBranch> uniqueObjects = new HashMap<CDOID, CDOIDAndVersionAndBranch>();
+    getCDOIDAndVersionAndBranch(uniqueObjects, objects);
     for (CDOObject object : objects)
     {
-      CDOIDAndVersion idAndVersion = uniqueObjects.get(object.cdoID());
-      if (idAndVersion == null)
+      CDOIDAndVersionAndBranch idAndVersionAndBranch = uniqueObjects.get(object.cdoID());
+      if (idAndVersionAndBranch == null)
       {
-        uniqueObjects
-            .put(object.cdoID(), CDOIDUtil.createIDAndVersion(object.cdoID(), CDORevision.UNSPECIFIED_VERSION));
+        CDOID cdoID = object.cdoID();
+        int branchID = object.cdoRevision().getBranch().getID();
+        int version = CDORevision.UNSPECIFIED_VERSION;
+        CDOIDAndVersionAndBranch ivb = CDOIDUtil.createIDAndVersionAndBranch(cdoID, version, branchID);
+        uniqueObjects.put(object.cdoID(), ivb);
       }
     }
 
@@ -1599,7 +1603,8 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     return getResourceSet();
   }
 
-  public void getCDOIDAndVersion(Map<CDOID, CDOIDAndVersion> uniqueObjects, Collection<? extends CDOObject> cdoObjects)
+  public void getCDOIDAndVersionAndBranch(Map<CDOID, CDOIDAndVersionAndBranch> uniqueObjects,
+      Collection<? extends CDOObject> cdoObjects)
   {
     for (CDOObject internalCDOObject : cdoObjects)
     {
@@ -1608,7 +1613,8 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
       if (cdoRevision != null && !uniqueObjects.containsKey(cdoId))
       {
         int version = cdoRevision.getVersion();
-        uniqueObjects.put(cdoId, CDOIDUtil.createIDAndVersion(cdoId, version));
+        int branchID = cdoRevision.getBranch().getID();
+        uniqueObjects.put(cdoId, CDOIDUtil.createIDAndVersionAndBranch(cdoId, version, branchID));
       }
     }
   }

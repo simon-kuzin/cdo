@@ -14,7 +14,7 @@ import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
+import org.eclipse.emf.cdo.common.id.CDOIDAndVersionAndBranch;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.util.TransportException;
@@ -83,10 +83,10 @@ public class CDOClientProtocol extends SignalProtocol<CDOSession> implements CDO
     return send(new OpenSessionRequest(this, repositoryName, passiveUpdateEnabled));
   }
 
-  public void setPassiveUpdate(Map<CDOID, CDOIDAndVersion> idAndVersions, int initialChunkSize,
+  public void setPassiveUpdate(Map<CDOID, CDOIDAndVersionAndBranch> idAndVersionAndBranches, int initialChunkSize,
       boolean passiveUpdateEnabled)
   {
-    send(new SetPassiveUpdateRequest(this, idAndVersions, initialChunkSize, passiveUpdateEnabled));
+    send(new SetPassiveUpdateRequest(this, idAndVersionAndBranches, initialChunkSize, passiveUpdateEnabled));
   }
 
   public RepositoryTimeResult getRepositoryTime()
@@ -131,9 +131,10 @@ public class CDOClientProtocol extends SignalProtocol<CDOSession> implements CDO
     return send(new LoadRevisionByVersionRequest(this, id, branchVersion, referenceChunk));
   }
 
-  public Collection<CDORefreshContext> syncRevisions(Map<CDOID, CDOIDAndVersion> idAndVersions, int initialChunkSize)
+  public Collection<CDORefreshContext> syncRevisions(Map<CDOID, CDOIDAndVersionAndBranch> idAndVersionAndBranches,
+      int initialChunkSize)
   {
-    return send(new SyncRevisionsRequest(this, idAndVersions, initialChunkSize));
+    return send(new SyncRevisionsRequest(this, idAndVersionAndBranches, initialChunkSize));
   }
 
   public void openView(int viewID, CDOBranchPoint branchPoint, boolean readOnly)
@@ -173,7 +174,7 @@ public class CDOClientProtocol extends SignalProtocol<CDOSession> implements CDO
     }
   }
 
-  public void lockObjects(CDOView view, Map<CDOID, CDOIDAndVersion> objects, long timeout, LockType lockType)
+  public void lockObjects(CDOView view, Map<CDOID, CDOIDAndVersionAndBranch> objects, long timeout, LockType lockType)
       throws InterruptedException
   {
     InterruptedException interruptedException = null;

@@ -12,7 +12,7 @@
 package org.eclipse.emf.cdo.internal.net4j.protocol;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
+import org.eclipse.emf.cdo.common.id.CDOIDAndVersionAndBranch;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
@@ -29,15 +29,16 @@ import java.util.Map;
  */
 public class SyncRevisionsRequest extends AbstractSyncRevisionsRequest
 {
-  public SyncRevisionsRequest(CDOClientProtocol protocol, Map<CDOID, CDOIDAndVersion> idAndVersions, int referenceChunk)
-  {
-    this(protocol, CDOProtocolConstants.SIGNAL_SYNC_REVISIONS, idAndVersions, referenceChunk);
-  }
-
-  public SyncRevisionsRequest(CDOClientProtocol protocol, short signalID, Map<CDOID, CDOIDAndVersion> idAndVersions,
+  public SyncRevisionsRequest(CDOClientProtocol protocol, Map<CDOID, CDOIDAndVersionAndBranch> idAndVersionAndBranches,
       int referenceChunk)
   {
-    super(protocol, signalID, idAndVersions, referenceChunk);
+    this(protocol, CDOProtocolConstants.SIGNAL_SYNC_REVISIONS, idAndVersionAndBranches, referenceChunk);
+  }
+
+  public SyncRevisionsRequest(CDOClientProtocol protocol, short signalID,
+      Map<CDOID, CDOIDAndVersionAndBranch> idAndVersionAndBranches, int referenceChunk)
+  {
+    super(protocol, signalID, idAndVersionAndBranches, referenceChunk);
   }
 
   @Override
