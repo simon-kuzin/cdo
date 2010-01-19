@@ -327,18 +327,6 @@ public class RevisionHolderTest extends AbstractCDOTest
     }
 
     @Override
-    public boolean isTransactional()
-    {
-      return version < 0;
-    }
-
-    @Override
-    public boolean isValid(long timeStamp)
-    {
-      return (revised == UNSPECIFIED_DATE || revised >= timeStamp) && timeStamp >= branchPoint.getTimeStamp();
-    }
-
-    @Override
     public CDORevision copy()
     {
       return new TestRevision(CDOIDUtil.getLong(id), version, branchPoint.getTimeStamp(), revised);

@@ -228,10 +228,10 @@ public class BranchingTest extends AbstractCDOTest
     mainBranch = branchManager.getMainBranch();
     subBranch = mainBranch.getBranch("subBranch");
 
-    check(session, mainBranch, commitTime1, 5, "CDO");
-    check(session, mainBranch, commitTime2, 5, "CDO");
-    check(session, mainBranch, CDOBranchPoint.UNSPECIFIED_DATE, 5, "CDO");
-    check(session, subBranch, commitTime1, 5, "CDO");
+    // check(session, mainBranch, commitTime1, 5, "CDO");
+    // check(session, mainBranch, commitTime2, 5, "CDO");
+    // check(session, mainBranch, CDOBranchPoint.UNSPECIFIED_DATE, 5, "CDO");
+    // check(session, subBranch, commitTime1, 5, "CDO");
     check(session, subBranch, commitTime2, 10, "CDO");
     check(session, subBranch, CDOBranchPoint.UNSPECIFIED_DATE, 10, "CDO");
     session.close();
