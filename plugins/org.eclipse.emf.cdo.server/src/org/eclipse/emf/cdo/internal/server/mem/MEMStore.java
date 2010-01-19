@@ -34,8 +34,11 @@ import org.eclipse.net4j.util.ObjectUtil;
 
 import org.eclipse.emf.ecore.EStructuralFeature;
 
+import java.io.PrintStream;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -355,6 +358,70 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
   public boolean isFirstTime()
   {
     return true;
+  }
+
+  public Map<CDOBranch, List<CDORevision>> getAllRevisions()
+  {
+    Map<CDOBranch, List<CDORevision>> result = new HashMap<CDOBranch, List<CDORevision>>();
+    for (List<InternalCDORevision> list : revisions.values())
+    {
+      for (InternalCDORevision revision : list)
+      {
+        CDOBranch branch = revision.getBranch();
+        List<CDORevision> resultList = result.get(branch);
+        if (resultList == null)
+        {
+          resultList = new ArrayList<CDORevision>(1);
+          result.put(branch, resultList);
+        }
+
+        resultList.add(revision);
+      }
+    }
+
+    return result;
+  }
+
+  public void dumpAllRevisions(PrintStream out)
+  {
+    Map<CDOBranch, List<CDORevision>> map = getAllRevisions();
+    ArrayList<CDOBranch> branches = new ArrayList<CDOBranch>(map.keySet());
+    Collections.sort(branches);
+
+    boolean first = true;
+    for (CDOBranch branch : branches)
+    {
+      if (first)
+      {
+        first = false;
+      }
+      else
+      {
+        out.println();
+      }
+
+      List<CDORevision> revisions = map.get(branch);
+      Collections.sort(revisions, new Comparator<CDORevision>()
+      {
+        public int compare(CDORevision rev1, CDORevision rev2)
+        {
+          int result = rev1.getID().compareTo(rev2.getID());
+          if (result == 0)
+          {
+            int version1 = rev1.getVersion();
+            int version2 = rev2.getVersion();
+            result = version1 < version2 ? -1 : version1 == version2 ? 0 : 1;
+          }
+
+          return result;
+        }
+      });
+
+      for (CDORevision revision : revisions)
+      {
+        out.println(revision);
+      }
+    }
   }
 
   /**

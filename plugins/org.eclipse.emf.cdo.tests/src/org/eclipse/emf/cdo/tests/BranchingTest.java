@@ -16,6 +16,7 @@ import org.eclipse.emf.cdo.common.branch.CDOBranchManager;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.commit.CDOCommit;
 import org.eclipse.emf.cdo.eresource.CDOResource;
+import org.eclipse.emf.cdo.server.IMEMStore;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.tests.model1.OrderDetail;
@@ -232,6 +233,9 @@ public class BranchingTest extends AbstractCDOTest
     // check(session, mainBranch, commitTime2, 5, "CDO");
     // check(session, mainBranch, CDOBranchPoint.UNSPECIFIED_DATE, 5, "CDO");
     // check(session, subBranch, commitTime1, 5, "CDO");
+    IMEMStore store = (IMEMStore)getRepository().getStore();
+    store.dumpAllRevisions(System.out);
+
     check(session, subBranch, commitTime2, 10, "CDO");
     check(session, subBranch, CDOBranchPoint.UNSPECIFIED_DATE, 10, "CDO");
     session.close();

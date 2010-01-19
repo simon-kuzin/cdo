@@ -14,7 +14,7 @@ package org.eclipse.emf.cdo.common.branch;
  * @author Eike Stepper
  * @since 3.0
  */
-public interface CDOBranch
+public interface CDOBranch extends Comparable<CDOBranch>
 {
   public static final int MAIN_BRANCH_ID = 0;
 

@@ -321,6 +321,11 @@ public abstract class BaseCDORevision extends AbstractCDORevision
       TRACER.format("Setting version for {0}: v{1}", this, version);
     }
 
+    if (version == 2)
+    {
+      throw new RuntimeException("XXX");
+    }
+
     this.version = version;
   }
 

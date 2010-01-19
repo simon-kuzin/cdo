@@ -195,6 +195,12 @@ public class CDOBranchImpl implements InternalCDOBranch
     }
   }
 
+  public int compareTo(CDOBranch o)
+  {
+    int otherID = o.getID();
+    return id < otherID ? -1 : id == otherID ? 0 : 1;
+  }
+
   @Override
   public int hashCode()
   {

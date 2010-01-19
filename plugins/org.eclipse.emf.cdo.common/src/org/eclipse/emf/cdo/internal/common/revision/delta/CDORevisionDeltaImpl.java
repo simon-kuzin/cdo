@@ -167,7 +167,7 @@ public class CDORevisionDeltaImpl implements InternalCDORevisionDelta
   public void apply(CDORevision revision)
   {
     ((InternalCDORevision)revision).setBranchPoint(branch.getPoint(revision.getTimeStamp()));
-    ((InternalCDORevision)revision).setVersion(version + 1);
+    ((InternalCDORevision)revision).setVersion(version);
     for (CDOFeatureDelta featureDelta : featureDeltas.values())
     {
       ((CDOFeatureDeltaImpl)featureDelta).apply(revision);
