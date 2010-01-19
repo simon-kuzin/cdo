@@ -502,8 +502,9 @@ public class TransactionCommitContextImpl implements InternalCommitContext
       }
 
       InternalCDORevision dirtyObject = (InternalCDORevision)originObject.copy();
+      dirtyObject.adjustForCommit(transaction.getBranch(), timeStamp);
+
       dirtyObjectDelta.apply(dirtyObject);
-      setCreated(dirtyObject, timeStamp);
       return dirtyObject;
     }
 
@@ -580,11 +581,6 @@ public class TransactionCommitContextImpl implements InternalCommitContext
       }
 
       monitor.worked();
-    }
-    catch (RuntimeException ex)
-    {
-      // TODO Rethink this case
-      OM.LOG.error("FATAL: Memory infrastructure corrupted after successful commit operation of the store"); //$NON-NLS-1$
     }
     finally
     {

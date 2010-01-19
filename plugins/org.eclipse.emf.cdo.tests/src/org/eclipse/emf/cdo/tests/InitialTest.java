@@ -410,36 +410,23 @@ public class InitialTest extends AbstractCDOTest
 
   public void testCommitDirty() throws Exception
   {
-    msg("Opening session");
     CDOSession session = openModel1Session();
-
-    msg("Opening transaction");
     CDOTransaction transaction = session.openTransaction();
-
-    msg("Creating resource");
     CDOResource resource = transaction.createResource("/test1");
 
-    msg("Creating supplier");
     Supplier supplier = getModel1Factory().createSupplier();
-
-    msg("Setting name");
     supplier.setName("Stepper");
 
-    msg("Adding supplier");
     resource.getContents().add(supplier);
 
-    msg("Committing");
     CDOCommit commit = transaction.commit();
     long commitTime1 = commit.getTimeStamp();
     assertCreatedTime(supplier, commitTime1);
 
-    msg("Setting name");
     supplier.setName("Eike");
 
-    msg("Committing");
     long commitTime2 = transaction.commit().getTimeStamp();
     assertTrue(commitTime1 < commitTime2);
-
     assertEquals(CDOState.CLEAN, resource.cdoState());
     assertEquals(CDOState.CLEAN, CDOUtil.getCDOObject(supplier).cdoState());
     assertCreatedTime(supplier, commitTime2);
