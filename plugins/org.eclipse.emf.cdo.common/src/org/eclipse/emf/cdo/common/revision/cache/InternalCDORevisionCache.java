@@ -43,6 +43,6 @@ public interface InternalCDORevisionCache extends CDORevisionCache, ILifecycle
    */
   public interface ReplaceCallback
   {
-    public boolean canReplace(InternalCDORevision foundRevision);
+    public boolean canReplace(InternalCDORevision foundRevision, InternalCDORevision newRevision);
   }
 }

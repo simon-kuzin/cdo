@@ -337,7 +337,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     return false;
   }
 
-  public boolean canReplace(InternalCDORevision foundRevision)
+  public boolean canReplace(InternalCDORevision foundRevision, InternalCDORevision newRevision)
   {
     if (supportingBranches)
     {

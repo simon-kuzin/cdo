@@ -472,13 +472,12 @@ public class TransactionCommitContextImpl implements InternalCommitContext
   private InternalCDORevision computeDirtyObject(InternalCDORevisionDelta dirtyObjectDelta, boolean loadOnDemand)
   {
     CDOID id = dirtyObjectDelta.getID();
-    int version = dirtyObjectDelta.getVersion();
 
     InternalRepository repository = transaction.getRepository();
     InternalCDORevisionManager revisionManager = repository.getRevisionManager();
 
-    CDORevision originObject = revisionManager.getRevisionByVersion(id, transaction.getBranch().getVersion(version),
-        CDORevision.UNCHUNKED, loadOnDemand);
+    CDORevision originObject = revisionManager.getRevisionByVersion(id, dirtyObjectDelta, CDORevision.UNCHUNKED,
+        loadOnDemand);
     if (originObject != null)
     {
       if (loadOnDemand)
@@ -497,8 +496,7 @@ public class TransactionCommitContextImpl implements InternalCommitContext
 
       if (originObject.isHistorical())
       {
-        throw new ConcurrentModificationException("Trying to update object " + dirtyObjectDelta.getID() //$NON-NLS-1$
-            + " that was already modified"); //$NON-NLS-1$
+        throw new ConcurrentModificationException("Trying to update object " + id + " that was already modified"); //$NON-NLS-1$
       }
 
       InternalCDORevision dirtyObject = (InternalCDORevision)originObject.copy();
@@ -508,7 +506,7 @@ public class TransactionCommitContextImpl implements InternalCommitContext
       return dirtyObject;
     }
 
-    return null;
+    throw new IllegalStateException("Origin revision not found for " + dirtyObjectDelta);
   }
 
   private void applyIDMappings(InternalCDORevision[] revisions, OMMonitor monitor)

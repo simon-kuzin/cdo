@@ -382,7 +382,7 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
           int v = key.getVersion();
           if (v == version)
           {
-            if (callback != null && callback.canReplace(foundRevision))
+            if (callback != null && callback.canReplace(foundRevision, revision))
             {
               it.remove();
               it.add(reference);
