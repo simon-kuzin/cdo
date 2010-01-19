@@ -52,11 +52,6 @@ public class StubCDORevision extends AbstractCDORevision
     throw new UnsupportedOperationException();
   }
 
-  public int setTransactional(boolean on)
-  {
-    throw new UnsupportedOperationException();
-  }
-
   public void setBranchPoint(CDOBranchPoint branchPoint)
   {
     throw new UnsupportedOperationException();
@@ -158,11 +153,6 @@ public class StubCDORevision extends AbstractCDORevision
   }
 
   public long getRevised()
-  {
-    throw new UnsupportedOperationException();
-  }
-
-  public boolean isTransactional()
   {
     throw new UnsupportedOperationException();
   }

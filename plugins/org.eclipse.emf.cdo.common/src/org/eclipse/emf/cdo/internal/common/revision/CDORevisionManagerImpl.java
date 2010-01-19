@@ -16,7 +16,6 @@ import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.model.CDOClassInfo;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionFactory;
 import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
@@ -455,12 +454,6 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     }
 
     @Override
-    public CDOClassInfo getClassInfo()
-    {
-      return null;
-    }
-
-    @Override
     public CDOID getID()
     {
       return target.getID();
@@ -491,21 +484,9 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     }
 
     @Override
-    public boolean isTransactional()
-    {
-      return false;
-    }
-
-    @Override
     public boolean isHistorical()
     {
       return false;
-    }
-
-    @Override
-    public boolean isValid(long timeStamp)
-    {
-      return timeStamp >= getTimeStamp();
     }
 
     @Override
