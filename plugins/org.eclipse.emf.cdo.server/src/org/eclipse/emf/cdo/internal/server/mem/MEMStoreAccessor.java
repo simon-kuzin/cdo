@@ -252,7 +252,7 @@ public class MEMStoreAccessor extends LongIDStoreAccessor
 
     InternalCDORevision newRevision = (InternalCDORevision)revision.copy();
     revisionDelta.apply(newRevision);
-    newRevision.setBranchPoint(branch.getPoint(created));
+    newRevision.adjustForCommit(branch, created);
     writeRevision(newRevision);
   }
 

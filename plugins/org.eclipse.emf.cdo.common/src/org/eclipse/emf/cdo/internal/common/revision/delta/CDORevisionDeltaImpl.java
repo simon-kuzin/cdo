@@ -25,7 +25,6 @@ import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDeltaVisitor;
 import org.eclipse.emf.cdo.common.revision.delta.CDOListFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
-import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
 
 import org.eclipse.emf.ecore.EClass;
@@ -166,8 +165,8 @@ public class CDORevisionDeltaImpl implements InternalCDORevisionDelta
 
   public void apply(CDORevision revision)
   {
-    ((InternalCDORevision)revision).setBranchPoint(branch.getPoint(revision.getTimeStamp()));
-    ((InternalCDORevision)revision).setVersion(version);
+    // ((InternalCDORevision)revision).setBranchPoint(branch.getPoint(revision.getTimeStamp()));
+    // ((InternalCDORevision)revision).setVersion(version);
     for (CDOFeatureDelta featureDelta : featureDeltas.values())
     {
       ((CDOFeatureDeltaImpl)featureDelta).apply(revision);
