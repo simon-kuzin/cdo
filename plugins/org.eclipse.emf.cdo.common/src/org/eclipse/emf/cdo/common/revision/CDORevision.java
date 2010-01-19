@@ -58,8 +58,6 @@ public interface CDORevision extends CDORevisionKey, CDOBranchPoint
 
   public boolean isValid(long timeStamp);
 
-  public boolean isTransactional();
-
   /**
    * @since 2.0
    */

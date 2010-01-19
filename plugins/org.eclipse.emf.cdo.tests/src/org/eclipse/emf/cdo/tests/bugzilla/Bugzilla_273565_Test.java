@@ -92,7 +92,9 @@ public class Bugzilla_273565_Test extends AbstractCDOTest
       }
     };
 
-    new Thread(changeObjects).start();
+    Thread thread = new Thread(changeObjects);
+    thread.setDaemon(true);
+    thread.start();
 
     for (int i = 0; i < 50 && exception[0] == null; i++)
     {

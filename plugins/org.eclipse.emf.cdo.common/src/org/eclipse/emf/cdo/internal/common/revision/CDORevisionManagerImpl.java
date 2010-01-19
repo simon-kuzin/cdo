@@ -280,7 +280,9 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
             revisions.set(i, missingRevision);
             addRevision(missingRevision);
 
-            if (info.getType() != MissingRevisionInfo.Type.EXACTLY_KNOWN && !branch.equals(missingRevision.getBranch()))
+            if (supportingBranches && //
+                info.getType() != MissingRevisionInfo.Type.EXACTLY_KNOWN && //
+                !branch.equals(missingRevision.getBranch()))
             {
               addRevision(new RevisionPointer(branch, missingRevision));
             }

@@ -279,6 +279,7 @@ public class InitialTest extends AbstractCDOTest
     assertNew(supplier, transaction);
     assertEquals(transaction, CDOUtil.getCDOObject(supplier).cdoView());
     assertEquals(resource, CDOUtil.getCDOObject(supplier).cdoDirectResource());
+    assertEquals(0, CDOUtil.getCDOObject(supplier).cdoRevision().getVersion());
     assertEquals(resource, supplier.eResource());
     assertEquals(null, supplier.eContainer());
   }
@@ -307,6 +308,7 @@ public class InitialTest extends AbstractCDOTest
     CDOCommit commit = transaction.commit();
     assertEquals(CDOState.CLEAN, resource.cdoState());
     assertEquals(CDOState.CLEAN, CDOUtil.getCDOObject(supplier).cdoState());
+    assertEquals(1, CDOUtil.getCDOObject(supplier).cdoRevision().getVersion());
     assertCreatedTime(resource, commit.getTimeStamp());
     assertCreatedTime(supplier, commit.getTimeStamp());
   }
@@ -337,6 +339,7 @@ public class InitialTest extends AbstractCDOTest
     msg("Getting supplier");
     EList<EObject> contents = resource.getContents();
     Supplier s = (Supplier)contents.get(0);
+    assertEquals(1, CDOUtil.getCDOObject(s).cdoRevision().getVersion());
     assertEquals(supplier, s);
     assertCreatedTime(s, commitTime);
   }
@@ -366,6 +369,7 @@ public class InitialTest extends AbstractCDOTest
 
     msg("Getting supplier");
     Supplier s = (Supplier)resource.getContents().get(0);
+    assertEquals(1, CDOUtil.getCDOObject(s).cdoRevision().getVersion());
 
     msg("Verifying name");
     assertEquals("Stepper", s.getName());

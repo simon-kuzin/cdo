@@ -76,11 +76,6 @@ public class LoadChunkRequest extends CDOClientRequest<Object>
 
     out.writeCDOBranch(branch);
     int version = revision.getVersion();
-    if (revision.isTransactional())
-    {
-      --version;
-    }
-
     if (TRACER.isEnabled())
     {
       TRACER.format("Writing  version: {0}", version); //$NON-NLS-1$

@@ -122,10 +122,7 @@ public abstract class AbstractObjectConflictResolver implements CDOConflictResol
     readObject(object);
 
     InternalCDORevision revision = (InternalCDORevision)object.cdoRevision().copy();
-    int originVersion = revision.getVersion();
-    revision.setTransactional(true);
-
-    ((InternalCDORevisionDelta)revisionDelta).setVersion(originVersion);
+    ((InternalCDORevisionDelta)revisionDelta).setVersion(revision.getVersion());
 
     CDORevisionMerger merger = new CDORevisionMerger();
     merger.merge(revision, revisionDelta);

@@ -20,7 +20,6 @@ import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionData;
-import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.common.revision.delta.CDOClearFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDeltaVisitor;
@@ -59,11 +58,7 @@ public class CDORevisionDeltaImpl implements InternalCDORevisionDelta
     eClass = revision.getEClass();
     id = revision.getID();
     branch = revision.getBranch();
-    version = CDORevisionUtil.getOriginalVersion(revision);
-    if (version != revision.getVersion() - 1)
-    {
-      throw new RuntimeException();
-    }
+    version = revision.getVersion();
   }
 
   public CDORevisionDeltaImpl(CDORevisionDelta revisionDelta)
@@ -81,7 +76,10 @@ public class CDORevisionDeltaImpl implements InternalCDORevisionDelta
 
   public CDORevisionDeltaImpl(CDORevision originRevision, CDORevision dirtyRevision)
   {
-    if (originRevision.getEClass() != dirtyRevision.getEClass())
+    if ( //
+    originRevision.getEClass() //
+    != //
+    dirtyRevision.getEClass())
     {
       throw new IllegalArgumentException();
     }

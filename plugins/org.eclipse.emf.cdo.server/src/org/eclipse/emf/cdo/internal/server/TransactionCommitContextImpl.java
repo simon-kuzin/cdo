@@ -262,7 +262,7 @@ public class TransactionCommitContextImpl implements InternalCommitContext
       timeStamp = createTimeStamp();
       dirtyObjects = new InternalCDORevision[dirtyObjectDeltas.length];
 
-      adjustTimeStamps();
+      adjustForCommit();
       monitor.worked();
 
       InternalRepository repository = transaction.getRepository();
@@ -356,7 +356,7 @@ public class TransactionCommitContextImpl implements InternalCommitContext
     }
   }
 
-  private void adjustTimeStamps()
+  private void adjustForCommit()
   {
     for (InternalCDOPackageUnit newPackageUnit : newPackageUnits)
     {
@@ -365,7 +365,7 @@ public class TransactionCommitContextImpl implements InternalCommitContext
 
     for (InternalCDORevision newObject : newObjects)
     {
-      setCreated(newObject, timeStamp);
+      newObject.adjustForCommit(transaction.getBranch(), timeStamp);
     }
   }
 

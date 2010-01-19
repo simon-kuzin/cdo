@@ -73,20 +73,6 @@ public final class CDORevisionUtil
   }
 
   /**
-   * @since 3.0
-   */
-  public static int getOriginalVersion(CDORevision revision)
-  {
-    int version = revision.getVersion();
-    if (revision.isTransactional())
-    {
-      --version;
-    }
-
-    return version;
-  }
-
-  /**
    * @author Eike Stepper
    */
   private static final class Uninitialized

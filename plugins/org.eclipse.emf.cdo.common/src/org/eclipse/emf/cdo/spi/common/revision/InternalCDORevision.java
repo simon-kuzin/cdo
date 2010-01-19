@@ -11,6 +11,7 @@
  */
 package org.eclipse.emf.cdo.spi.common.revision;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
@@ -44,11 +45,6 @@ public interface InternalCDORevision extends CDORevision, CDORevisionData, CDORe
   /**
    * @since 3.0
    */
-  public int setTransactional(boolean on);
-
-  /**
-   * @since 3.0
-   */
   public void setBranchPoint(CDOBranchPoint branchPoint);
 
   public void setRevised(long revised);
@@ -58,6 +54,11 @@ public interface InternalCDORevision extends CDORevision, CDORevisionData, CDORe
   public void setContainerID(Object containerID);
 
   public void setContainingFeatureID(int containingFeatureID);
+
+  /**
+   * @since 3.0
+   */
+  public void adjustForCommit(CDOBranch branch, long timeStamp);
 
   public void add(EStructuralFeature feature, int index, Object value);
 

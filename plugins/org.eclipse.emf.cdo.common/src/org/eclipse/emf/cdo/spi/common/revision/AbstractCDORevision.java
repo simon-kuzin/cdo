@@ -49,6 +49,26 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     return (revised == UNSPECIFIED_DATE || revised >= timeStamp) && timeStamp >= getTimeStamp();
   }
 
+  /**
+   * @since 3.0
+   */
+  public void adjustForCommit(CDOBranch branch, long timeStamp)
+  {
+    if (branch.equals(getBranch()))
+    {
+      // Same branch, increase version
+      setVersion(getVersion() + 1);
+    }
+    else
+    {
+      // Different branch, start with v1
+      setVersion(1);
+    }
+
+    setBranchPoint(branch.getPoint(timeStamp));
+    setRevised(UNSPECIFIED_DATE);
+  }
+
   @Override
   public String toString()
   {

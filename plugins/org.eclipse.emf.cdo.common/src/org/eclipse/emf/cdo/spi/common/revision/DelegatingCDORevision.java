@@ -125,11 +125,6 @@ public abstract class DelegatingCDORevision implements InternalCDORevision
     return getDelegate().getClassInfo();
   }
 
-  public boolean isTransactional()
-  {
-    return getDelegate().isTransactional();
-  }
-
   public void setID(CDOID id)
   {
     getDelegate().setID(id);
@@ -150,11 +145,6 @@ public abstract class DelegatingCDORevision implements InternalCDORevision
     getDelegate().setVersion(version);
   }
 
-  public int setTransactional(boolean on)
-  {
-    return getDelegate().setTransactional(on);
-  }
-
   public boolean isResourceFolder()
   {
     return getDelegate().isResourceFolder();
@@ -173,6 +163,11 @@ public abstract class DelegatingCDORevision implements InternalCDORevision
   public void setBranchPoint(CDOBranchPoint branchPoint)
   {
     getDelegate().setBranchPoint(branchPoint);
+  }
+
+  public void adjustForCommit(CDOBranch branch, long timeStamp)
+  {
+    getDelegate().adjustForCommit(branch, timeStamp);
   }
 
   public CDORevisionData data()

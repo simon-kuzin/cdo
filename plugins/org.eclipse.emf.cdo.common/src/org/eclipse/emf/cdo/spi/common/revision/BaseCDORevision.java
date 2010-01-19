@@ -311,7 +311,7 @@ public abstract class BaseCDORevision extends AbstractCDORevision
 
   public int getVersion()
   {
-    return version < 0 ? -version : version;
+    return version;
   }
 
   public void setVersion(int version)
@@ -322,33 +322,6 @@ public abstract class BaseCDORevision extends AbstractCDORevision
     }
 
     this.version = version;
-  }
-
-  public boolean isTransactional()
-  {
-    return version < 0;
-  }
-
-  /**
-   * @since 3.0
-   */
-  public int setTransactional(boolean on)
-  {
-    if (on)
-    {
-      version = -(version + 1);
-    }
-    else
-    {
-      version = Math.abs(version);
-    }
-
-    if (TRACER.isEnabled())
-    {
-      TRACER.format("Setting transactional={0} for {1}", on, this);
-    }
-
-    return version;
   }
 
   public long getRevised()

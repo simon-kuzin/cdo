@@ -564,17 +564,6 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
     object.cdoInternalSetState(state);
   }
 
-  private void setTransactional(InternalCDORevision revision, InternalCDOTransaction transaction)
-  {
-    if (!revision.getBranch().equals(transaction.getBranch()))
-    {
-      revision.setBranchPoint(transaction.getBranch().getHead());
-      revision.setVersion(0);
-    }
-
-    revision.setTransactional(true);
-  }
-
   private ReentrantLock lockView(InternalCDOView view)
   {
     if (view == null)
@@ -663,7 +652,6 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
         InternalCDORevision revision = (InternalCDORevision)factory.createRevision(eClass);
         revision.setID(id);
         revision.setBranchPoint(transaction.getBranch().getHead());
-        revision.setVersion(-CDOBranchVersion.FIRST_VERSION);
 
         object.cdoInternalSetRevision(revision);
 
@@ -771,16 +759,15 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
       // Construct a new revision if the old one is not transactional
       InternalCDORevision revision;
       EClass eClass = object.eClass();
-      if (!formerRevision.isTransactional())
-      {
-        CDORevisionFactory factory = revisionManager.getFactory();
-        revision = (InternalCDORevision)factory.createRevision(eClass);
-        revision.setID(id);
-        revision.setBranchPoint(transaction.getBranch().getHead());
-        revision.setVersion(formerRevision.getVersion());
-        revision.setTransactional(true);
-      }
-      else
+      // if (!formerRevision.isTransactional())
+      // {
+      // CDORevisionFactory factory = revisionManager.getFactory();
+      // revision = (InternalCDORevision)factory.createRevision(eClass);
+      // revision.setID(id);
+      // revision.setBranchPoint(transaction.getBranch().getHead());
+      // revision.setVersion(formerRevision.getVersion());
+      // }
+      // else
       {
         // This branch only gets taken if the object that is being re-attached,
         // was already DIRTY when it was first detached. In this case, the revision
@@ -802,7 +789,7 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
       object.cdoInternalPostAttach();
 
       // Compute a revision delta and register it with the tx
-      CDOBranchVersion branchVersion = transaction.getBranch().getVersion(revision.getVersion() - 1);
+      CDOBranchVersion branchVersion = transaction.getBranch().getVersion(revision.getVersion());
       CDORevision originalRevision = revisionManager.getRevisionByVersion(id, branchVersion, -1, true);
       CDORevisionDelta revisionDelta = CDORevisionDeltaUtil.create(originalRevision, revision);
       transaction.registerRevisionDelta(revisionDelta);
@@ -856,7 +843,7 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
 
     public void execute(InternalCDOObject object, CDOState state, CDOEvent event, CommitTransactionResult data)
     {
-      InternalCDOView view = object.cdoView();
+      InternalCDOTransaction transaction = object.cdoView().toTransaction();
       InternalCDORevision revision = object.cdoRevision();
       Map<CDOIDTemp, CDOID> idMappings = data.getIDMappings();
 
@@ -867,14 +854,13 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
       if (newID != null)
       {
         object.cdoInternalSetID(newID);
-        view.remapObject(oldID);
+        transaction.remapObject(oldID);
         id = newID;
       }
 
       // Adjust revision
       revision.setID(id);
-      revision.setTransactional(false);
-      revision.setBranchPoint(view.getBranch().getPoint(data.getTimeStamp()));
+      revision.adjustForCommit(transaction.getBranch(), data.getTimeStamp());
 
       // if (useDeltas)
       // {
@@ -889,9 +875,10 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
         revision.adjustReferences(data.getReferenceAdjuster());
       }
 
-      InternalCDORevisionManager revisionManager = view.getSession().getRevisionManager();
+      InternalCDORevisionManager revisionManager = transaction.getSession().getRevisionManager();
       if (!revisionManager.addRevision(revision))
       {
+        revisionManager.addRevision(revision);
         throw new IllegalStateException("Revision was not registered: " + revision);
       }
 
@@ -922,7 +909,6 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
 
       // Copy revision
       InternalCDORevision revision = (InternalCDORevision)object.cdoRevision().copy();
-      revision.setTransactional(true);
       object.cdoInternalSetRevision(revision);
 
       transaction.registerDirty(object, (CDOFeatureDelta)featureDelta);
