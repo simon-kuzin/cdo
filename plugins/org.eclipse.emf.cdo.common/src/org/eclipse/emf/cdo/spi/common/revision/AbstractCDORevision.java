@@ -13,6 +13,7 @@
  */
 package org.eclipse.emf.cdo.spi.common.revision;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.model.CDOClassInfo;
 
 import org.eclipse.emf.ecore.EClass;
@@ -46,5 +47,17 @@ public abstract class AbstractCDORevision implements InternalCDORevision
   {
     long revised = getRevised();
     return (revised == UNSPECIFIED_DATE || revised >= timeStamp) && timeStamp >= getTimeStamp();
+  }
+
+  @Override
+  public String toString()
+  {
+    CDOBranch branch = getBranch();
+    if (branch == null)
+    {
+      return getEClass().getName() + "@" + getID() + "v" + getVersion();
+    }
+
+    return getEClass().getName() + "@" + getID() + ":" + branch.getID() + "v" + getVersion();
   }
 }

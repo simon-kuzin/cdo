@@ -82,6 +82,6 @@ public class CDOIDAndBranchImpl implements CDOIDAndBranch
   @Override
   public String toString()
   {
-    return MessageFormat.format("{0}:{1}", id, branch); //$NON-NLS-1$
+    return MessageFormat.format("{0}:{1}", id, branch.getID()); //$NON-NLS-1$
   }
 }

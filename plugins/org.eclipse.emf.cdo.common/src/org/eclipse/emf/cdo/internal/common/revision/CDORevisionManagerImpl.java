@@ -39,6 +39,7 @@ import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.emf.ecore.EClass;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -267,20 +268,22 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
 
         CDOBranch branch = branchPoint.getBranch();
 
+        Iterator<MissingRevisionInfo> itInfo = infos.iterator();
         Iterator<InternalCDORevision> it = missingRevisions.iterator();
         for (int i = 0; i < revisions.size(); i++)
         {
           CDORevision revision = revisions.get(i);
           if (revision == null)
           {
+            MissingRevisionInfo info = itInfo.next();
             InternalCDORevision missingRevision = it.next();
             revisions.set(i, missingRevision);
             addRevision(missingRevision);
 
-            // if (!branch.equals(missingRevision.getBranch()))
-            // {
-            // addRevision(new RevisionPointer(branch, missingRevision));
-            // }
+            if (info.getType() != MissingRevisionInfo.Type.EXACTLY_KNOWN && !branch.equals(missingRevision.getBranch()))
+            {
+              addRevision(new RevisionPointer(branch, missingRevision));
+            }
           }
         }
       }
@@ -501,6 +504,12 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     public boolean isValid(long timeStamp)
     {
       return timeStamp >= getTimeStamp();
+    }
+
+    @Override
+    public String toString()
+    {
+      return MessageFormat.format("RevisionPointer[branch={0}, target={1}]", branch.getID(), target);
     }
   }
 }

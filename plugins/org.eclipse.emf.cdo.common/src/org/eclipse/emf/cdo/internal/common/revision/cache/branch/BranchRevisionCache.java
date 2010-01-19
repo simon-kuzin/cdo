@@ -36,6 +36,7 @@ import org.eclipse.net4j.util.ref.ReferenceQueueWorker;
 import org.eclipse.emf.ecore.EClass;
 
 import java.lang.ref.Reference;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -179,6 +180,12 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
   }
 
   @Override
+  public String toString()
+  {
+    return revisionLists.toString();
+  }
+
+  @Override
   protected void work(Reference<? extends InternalCDORevision> reference)
   {
     @SuppressWarnings("unchecked")
@@ -247,6 +254,12 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
     public int getVersion()
     {
       return version;
+    }
+
+    @Override
+    public String toString()
+    {
+      return MessageFormat.format("{0}:{1}v{2}", getID(), getBranch().getID(), getVersion());
     }
   }
 
@@ -425,6 +438,30 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
           break;
         }
       }
+    }
+
+    @Override
+    public String toString()
+    {
+      StringBuffer buffer = new StringBuffer();
+      for (Iterator<KeyedReference<CDORevisionKey, InternalCDORevision>> it = iterator(); it.hasNext();)
+      {
+        KeyedReference<CDORevisionKey, InternalCDORevision> ref = it.next();
+        InternalCDORevision revision = ref.get();
+        if (buffer.length() == 0)
+        {
+          buffer.append("{");
+        }
+        else
+        {
+          buffer.append(", ");
+        }
+
+        buffer.append(revision);
+      }
+
+      buffer.append("}");
+      return buffer.toString();
     }
   }
 }

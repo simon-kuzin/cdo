@@ -564,6 +564,17 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
     object.cdoInternalSetState(state);
   }
 
+  private void setTransactional(InternalCDORevision revision, InternalCDOTransaction transaction)
+  {
+    if (!revision.getBranch().equals(transaction.getBranch()))
+    {
+      revision.setBranchPoint(transaction.getBranch().getHead());
+      revision.setVersion(0);
+    }
+
+    revision.setTransactional(true);
+  }
+
   private ReentrantLock lockView(InternalCDOView view)
   {
     if (view == null)
@@ -879,7 +890,11 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
       }
 
       InternalCDORevisionManager revisionManager = view.getSession().getRevisionManager();
-      revisionManager.addRevision(revision);
+      if (!revisionManager.addRevision(revision))
+      {
+        throw new IllegalStateException("Revision was not registered: " + revision);
+      }
+
       changeState(object, CDOState.CLEAN);
     }
   }
@@ -902,13 +917,14 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
   {
     public void execute(InternalCDOObject object, CDOState state, CDOEvent event, Object featureDelta)
     {
+      InternalCDOView view = object.cdoView();
+      InternalCDOTransaction transaction = view.toTransaction();
+
       // Copy revision
       InternalCDORevision revision = (InternalCDORevision)object.cdoRevision().copy();
       revision.setTransactional(true);
       object.cdoInternalSetRevision(revision);
 
-      InternalCDOView view = object.cdoView();
-      InternalCDOTransaction transaction = view.toTransaction();
       transaction.registerDirty(object, (CDOFeatureDelta)featureDelta);
       changeState(object, CDOState.DIRTY);
     }

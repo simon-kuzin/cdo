@@ -114,7 +114,7 @@ public abstract class BaseCDORevision extends AbstractCDORevision
     id = source.id;
     branchPoint = source.branchPoint;
     version = source.version;
-    revised = source.revised; // == UNSPECIFIED
+    revised = source.revised; // == UNSPECIFIED_DATE
     resourceID = source.resourceID;
     containerID = source.containerID;
     containingFeatureID = source.containingFeatureID;
@@ -274,6 +274,11 @@ public abstract class BaseCDORevision extends AbstractCDORevision
    */
   public CDOBranch getBranch()
   {
+    if (branchPoint == null)
+    {
+      return null;
+    }
+
     return branchPoint.getBranch();
   }
 
@@ -282,6 +287,11 @@ public abstract class BaseCDORevision extends AbstractCDORevision
    */
   public long getTimeStamp()
   {
+    if (branchPoint == null)
+    {
+      return UNSPECIFIED_DATE;
+    }
+
     return branchPoint.getTimeStamp();
   }
 
@@ -574,18 +584,6 @@ public abstract class BaseCDORevision extends AbstractCDORevision
         }
       }
     }
-  }
-
-  @Override
-  public String toString()
-  {
-    int branchID = branchPoint == null ? 0 : branchPoint.getBranch().getID();
-    if (branchID == CDOBranch.MAIN_BRANCH_ID)
-    {
-      return getEClass().getName() + "@" + id + "v" + version;
-    }
-
-    return getEClass().getName() + "@" + id + ":" + branchID + "v" + version;
   }
 
   public Object getValue(EStructuralFeature feature)

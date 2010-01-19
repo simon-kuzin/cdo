@@ -61,6 +61,6 @@ public class CDORevisionKeyImpl extends CDOBranchVersionImpl implements CDORevis
   @Override
   public String toString()
   {
-    return MessageFormat.format("RevisionKey[{0}, {1}, v{2}]", id, getBranch(), getVersion());
+    return MessageFormat.format("{0}:{1}v{2}", id, getBranch().getID(), getVersion());
   }
 }
