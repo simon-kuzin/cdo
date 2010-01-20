@@ -371,11 +371,6 @@ public class TransactionCommitContextImpl implements InternalCommitContext
     }
   }
 
-  private void setCreated(InternalCDORevision revision, long timeStamp)
-  {
-    revision.setBranchPoint(revision.getBranch().getPoint(timeStamp));
-  }
-
   private void adjustMetaRanges()
   {
     for (InternalCDOPackageUnit newPackageUnit : newPackageUnits)

@@ -848,32 +848,18 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
       Map<CDOIDTemp, CDOID> idMappings = data.getIDMappings();
 
       // Adjust object
-      CDOID id, oldID;
-      oldID = id = object.cdoID();
-      CDOID newID = idMappings.get(id);
+      CDOID oldID = object.cdoID();
+      CDOID newID = idMappings.get(oldID);
       if (newID != null)
       {
         object.cdoInternalSetID(newID);
         transaction.remapObject(oldID);
-        id = newID;
+        revision.setID(newID);
       }
 
       // Adjust revision
-      revision.setID(id);
       revision.adjustForCommit(transaction.getBranch(), data.getTimeStamp());
-
-      // if (useDeltas)
-      // {
-      // // Cannot use that yet, since we need to change adjust index for list.
-      // // TODO Simon Implement a way to adjust indexes as fast as possible.
-      // RevisionAdjuster revisionAdjuster = new RevisionAdjuster(data.getReferenceAdjuster());
-      // CDORevisionDelta delta = data.getCommitContext().getRevisionDeltas().get(oldID);
-      // revisionAdjuster.adjustRevision(revision, delta);
-      // }
-      // else
-      {
-        revision.adjustReferences(data.getReferenceAdjuster());
-      }
+      revision.adjustReferences(data.getReferenceAdjuster());
 
       InternalCDORevisionManager revisionManager = transaction.getSession().getRevisionManager();
       if (!revisionManager.addRevision(revision))
