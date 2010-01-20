@@ -19,7 +19,6 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionFactory;
 import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
-import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCacheUtil;
 import org.eclipse.emf.cdo.common.revision.cache.InternalCDORevisionCache;
@@ -27,7 +26,7 @@ import org.eclipse.emf.cdo.common.revision.cache.InternalCDORevisionCache.Replac
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
-import org.eclipse.emf.cdo.spi.common.revision.StubCDORevision;
+import org.eclipse.emf.cdo.spi.common.revision.SyntheticCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager.RevisionLoader.MissingRevisionInfo;
 
 import org.eclipse.net4j.util.CheckUtil;
@@ -38,7 +37,6 @@ import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.emf.ecore.EClass;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -243,9 +241,9 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
             }
           }
         }
-        else if (revision.getClass() == RevisionPointer.class)
+        else if (revision.getClass() == SyntheticCDORevision.CachePointer.class)
         {
-          CDORevisionKey target = ((RevisionPointer)revision).getTarget();
+          CDORevisionKey target = ((SyntheticCDORevision.CachePointer)revision).getTarget();
           revision = getCachedRevisionByVersion(target.getID(), target);
           if (revision == null && loadOnDemand)
           {
@@ -301,7 +299,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
                 info.getType() != MissingRevisionInfo.Type.EXACTLY_KNOWN && //
                 missingRevision.getBranch() != branch)
             {
-              addRevision(new RevisionPointer(branch, missingRevision));
+              addRevision(new SyntheticCDORevision.CachePointer(branch, missingRevision));
             }
           }
         }
@@ -359,7 +357,8 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
   {
     if (supportingBranches)
     {
-      return foundRevision.getClass() == RevisionPointer.class;
+      return foundRevision.getClass() == SyntheticCDORevision.CachePointer.class
+          && newRevision.getClass() == SyntheticCDORevision.DetachMarker.class;
     }
 
     return false;
@@ -443,74 +442,11 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
   private InternalCDORevision getCachedRevisionByVersion(CDOID id, CDOBranchVersion branchVersion)
   {
     InternalCDORevision revision = (InternalCDORevision)cache.getRevisionByVersion(id, branchVersion);
-    if (revision != null && revision.getClass() == RevisionPointer.class)
+    if (revision instanceof SyntheticCDORevision)
     {
       return null;
     }
 
     return revision;
-  }
-
-  /**
-   * @author Eike Stepper
-   */
-  private static final class RevisionPointer extends StubCDORevision
-  {
-    private CDOBranch branch;
-
-    private CDORevisionKey target;
-
-    public RevisionPointer(CDOBranch branch, CDORevisionKey target)
-    {
-      this.branch = branch;
-      this.target = CDORevisionUtil.createRevisionKey(target);
-    }
-
-    public CDORevisionKey getTarget()
-    {
-      return target;
-    }
-
-    @Override
-    public CDOID getID()
-    {
-      return target.getID();
-    }
-
-    @Override
-    public CDOBranch getBranch()
-    {
-      return branch;
-    }
-
-    @Override
-    public int getVersion()
-    {
-      return 1;
-    }
-
-    @Override
-    public long getTimeStamp()
-    {
-      return branch.getBase().getTimeStamp();
-    }
-
-    @Override
-    public long getRevised()
-    {
-      return UNSPECIFIED_DATE;
-    }
-
-    @Override
-    public boolean isHistorical()
-    {
-      return false;
-    }
-
-    @Override
-    public String toString()
-    {
-      return MessageFormat.format("RevisionPointer[branch={0}, target={1}]", branch.getID(), target);
-    }
   }
 }
