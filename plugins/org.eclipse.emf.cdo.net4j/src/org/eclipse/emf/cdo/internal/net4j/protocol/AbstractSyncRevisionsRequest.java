@@ -15,6 +15,7 @@ import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersionAndBranch;
+import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
@@ -32,6 +33,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -76,10 +78,18 @@ public abstract class AbstractSyncRevisionsRequest extends CDOClientRequest<Coll
   protected Collection<CDORefreshContext> confirming(CDODataInput in) throws IOException
   {
     InternalCDORevisionManager revisionManager = getSession().getRevisionManager();
-    Map<CDOBranchPoint, CDORefreshContext> refreshContexts = new TreeMap<CDOBranchPoint, CDORefreshContext>();
+    Comparator<CDOBranchPoint> comparator = new Comparator<CDOBranchPoint>()
+    {
+      public int compare(CDOBranchPoint bp1, CDOBranchPoint bp2)
+      {
+        long diff = bp1.getTimeStamp() - bp2.getTimeStamp();
+        return diff == 0 ? 0 : diff > 0 ? 1 : -1;
+      }
+    };
+    Map<CDOBranchPoint, CDORefreshContext> refreshContexts = new TreeMap<CDOBranchPoint, CDORefreshContext>(comparator);
 
-    int size = in.readInt();
-    for (int i = 0; i < size; i++)
+    int dirtyCount = in.readInt();
+    for (int i = 0; i < dirtyCount; i++)
     {
       CDORevision revision = in.readCDORevision();
       long oldRevised = in.readLong();
@@ -92,20 +102,20 @@ public abstract class AbstractSyncRevisionsRequest extends CDOClientRequest<Coll
             Messages.getString("SyncRevisionsRequest.2"), revision.getID())); //$NON-NLS-1$
       }
 
-      Set<CDOIDAndVersion> dirtyObjects = getRefreshContext(refreshContexts, branchPoint).getDirtyObjects();
-      // $$$ (CD)
-      // dirtyObjects.add(CDOIDUtil.createIDAndVersion(idAndVersion.getID(), idAndVersion.getVersion()));
+      CDORefreshContext refreshContext = getRefreshContext(refreshContexts, branchPoint);
+      Set<CDOIDAndVersion> dirtyObjects = refreshContext.getDirtyObjects();
+      dirtyObjects.add(CDOIDUtil.createIDAndVersion(idAndVersionAndBranch.getID(), idAndVersionAndBranch.getVersion()));
 
       revisionManager.addRevision(revision);
     }
 
     if (TRACER.isEnabled())
     {
-      TRACER.trace("Synchronization received  " + size + " dirty objects"); //$NON-NLS-1$ //$NON-NLS-2$
+      TRACER.trace("Synchronization received  " + dirtyCount + " dirty objects"); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
-    size = in.readInt();
-    for (int i = 0; i < size; i++)
+    int detachedCount = in.readInt();
+    for (int i = 0; i < detachedCount; i++)
     {
       CDOID id = in.readCDOID();
       CDOBranchPoint branchPoint = in.readCDOBranchPoint();
@@ -114,6 +124,12 @@ public abstract class AbstractSyncRevisionsRequest extends CDOClientRequest<Coll
       detachedObjects.add(id);
     }
 
+    if (TRACER.isEnabled())
+    {
+      TRACER.trace("Synchronization received  " + detachedCount + " detached objects"); //$NON-NLS-1$ //$NON-NLS-2$
+    }
+
+    // Replace the collections with unmodifiable ones
     for (CDORefreshContext refreshContext : refreshContexts.values())
     {
       Set<CDOIDAndVersion> dirtyObjects = refreshContext.getDirtyObjects();

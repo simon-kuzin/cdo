@@ -11,11 +11,16 @@
  */
 package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.id.CDOIDAndVersionAndBranch;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.internal.net4j.bundle.OM;
+import org.eclipse.emf.cdo.spi.common.branch.CDOBranchUtil;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.util.collection.Pair;
@@ -34,7 +39,7 @@ public abstract class AbstractSyncRevisionsIndication extends CDOReadIndication
 
   protected List<Pair<InternalCDORevision, Long>> dirtyObjects = new ArrayList<Pair<InternalCDORevision, Long>>();
 
-  protected List<Pair<CDOID, Long>> detachedObjects = new ArrayList<Pair<CDOID, Long>>();
+  protected List<Pair<CDOID, CDOBranchPoint>> detachedObjects = new ArrayList<Pair<CDOID, CDOBranchPoint>>();
 
   protected int referenceChunk = CDORevision.UNCHUNKED;
 
@@ -50,9 +55,7 @@ public abstract class AbstractSyncRevisionsIndication extends CDOReadIndication
     int size = in.readInt();
     for (int i = 0; i < size; i++)
     {
-      CDOID id = in.readCDOID();
-      int version = in.readInt();
-      process(id, version);
+      process(in.readCDOIDAndVersionAndBranch());
     }
   }
 
@@ -72,29 +75,37 @@ public abstract class AbstractSyncRevisionsIndication extends CDOReadIndication
     }
 
     out.writeInt(detachedObjects.size());
-    for (Pair<CDOID, Long> idAndRevised : detachedObjects)
+    for (Pair<CDOID, CDOBranchPoint> idAndRevised : detachedObjects)
     {
       out.writeCDOID(idAndRevised.getElement1());
-      out.writeLong(idAndRevised.getElement2());
+      out.writeCDOBranchPoint(idAndRevised.getElement2());
     }
   }
 
-  protected abstract void process(CDOID id, int version);
+  protected abstract void process(CDOIDAndVersionAndBranch idAndVersionAndBranch);
 
-  protected void udpateObjectList(CDOID id, int version)
+  protected void updateObjectList(CDOIDAndVersionAndBranch idAndVersionAndBranch)
   {
+    CDOID id = idAndVersionAndBranch.getID();
+    int version = idAndVersionAndBranch.getVersion();
+    int branchID = idAndVersionAndBranch.getBranchID();
+    CDOBranch branch = getRepository().getBranchManager().getBranch(branchID);
+    CDOBranchPoint branchPoint = CDOBranchUtil.createBranchPoint(branch, CDORevision.UNSPECIFIED_DATE);
+
     try
     {
-      // XXX Fix for branching!!
-      InternalCDORevision revision = (InternalCDORevision)getRepository().getRevisionManager().getRevision(id, null,
-          referenceChunk, CDORevision.DEPTH_NONE, true);
+      // $$$ Fix for branching!!
+      InternalCDORevision revision = (InternalCDORevision)getRepository().getRevisionManager().getRevision(id,
+          branchPoint, referenceChunk, CDORevision.DEPTH_NONE, true);
       if (revision == null)
       {
-        detachedObjects.add(new Pair<CDOID, Long>(id, getTimestamp(id, version)));
+        long revisedTimestamp = getRevisedTimestamp(id, version, branch);
+        CDOBranchPoint revisedBranchPoint = CDOBranchUtil.createBranchPoint(branch, revisedTimestamp);
+        detachedObjects.add(new Pair<CDOID, CDOBranchPoint>(id, revisedBranchPoint));
       }
       else if (revision.getVersion() > version || version == CDORevision.UNSPECIFIED_VERSION)
       {
-        dirtyObjects.add(new Pair<InternalCDORevision, Long>(revision, getTimestamp(id, version)));
+        dirtyObjects.add(new Pair<InternalCDORevision, Long>(revision, getRevisedTimestamp(id, version, branch)));
       }
       else if (revision.getVersion() < version)
       {
@@ -104,15 +115,19 @@ public abstract class AbstractSyncRevisionsIndication extends CDOReadIndication
     }
     catch (IllegalArgumentException revisionIsNullException)
     {
-      detachedObjects.add(new Pair<CDOID, Long>(id, getTimestamp(id, version)));
+      // $$$ Factor (these 3 lines copied from 102-104)
+      long revisedTimestamp = getRevisedTimestamp(id, version, branch);
+      CDOBranchPoint revisedBranchPoint = CDOBranchUtil.createBranchPoint(branch, revisedTimestamp);
+      detachedObjects.add(new Pair<CDOID, CDOBranchPoint>(id, revisedBranchPoint));
     }
   }
 
-  protected long getTimestamp(CDOID id, int version)
+  protected long getRevisedTimestamp(CDOID id, int version, CDOBranch branch)
   {
-    // XXX Fix for branching!!
-    CDORevision revision = getRepository().getRevisionManager().getRevisionByVersion(id, null, CDORevision.DEPTH_NONE,
-        false);
+    // $$$ Fix for branching!!
+    CDOBranchVersion branchVersion = CDOBranchUtil.createBranchVersion(branch, version);
+    CDORevision revision = getRepository().getRevisionManager().getRevisionByVersion(id, branchVersion,
+        CDORevision.DEPTH_NONE, false);
     if (revision != null)
     {
       return revision.getRevised() + 1;

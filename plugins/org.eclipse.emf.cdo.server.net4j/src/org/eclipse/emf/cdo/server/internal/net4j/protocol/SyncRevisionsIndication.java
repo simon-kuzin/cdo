@@ -11,7 +11,7 @@
  */
 package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
-import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.id.CDOIDAndVersionAndBranch;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
@@ -53,11 +53,11 @@ public class SyncRevisionsIndication extends AbstractSyncRevisionsIndication
   }
 
   @Override
-  protected void process(CDOID id, int version)
+  protected void process(CDOIDAndVersionAndBranch idAndVersionAndBranch)
   {
-    if (version > 0)
+    if (idAndVersionAndBranch.getVersion() > 0) // $$$ What's this check for?
     {
-      udpateObjectList(id, version);
+      updateObjectList(idAndVersionAndBranch);
     }
   }
 }

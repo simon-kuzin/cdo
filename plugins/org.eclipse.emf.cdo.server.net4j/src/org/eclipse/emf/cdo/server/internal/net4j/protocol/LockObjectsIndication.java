@@ -12,8 +12,7 @@
 package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
-import org.eclipse.emf.cdo.common.id.CDOIDUtil;
+import org.eclipse.emf.cdo.common.id.CDOIDAndVersionAndBranch;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
@@ -35,7 +34,7 @@ public class LockObjectsIndication extends AbstractSyncRevisionsIndication
 
   private List<CDOID> ids = new ArrayList<CDOID>();
 
-  private List<CDOIDAndVersion> idAndVersions = new ArrayList<CDOIDAndVersion>();
+  private List<CDOIDAndVersionAndBranch> idAndVersionAndBranches = new ArrayList<CDOIDAndVersionAndBranch>();
 
   private IView view;
 
@@ -67,9 +66,9 @@ public class LockObjectsIndication extends AbstractSyncRevisionsIndication
   @Override
   protected void responding(CDODataOutput out) throws IOException
   {
-    for (CDOIDAndVersion idAndVersion : idAndVersions)
+    for (CDOIDAndVersionAndBranch idAndVersionAndBranch : idAndVersionAndBranches)
     {
-      udpateObjectList(idAndVersion.getID(), idAndVersion.getVersion());
+      updateObjectList(idAndVersionAndBranch);
     }
 
     if (!detachedObjects.isEmpty())
@@ -82,9 +81,9 @@ public class LockObjectsIndication extends AbstractSyncRevisionsIndication
   }
 
   @Override
-  protected void process(CDOID id, int version)
+  protected void process(CDOIDAndVersionAndBranch idAndVersionAndBranch)
   {
-    ids.add(id);
-    idAndVersions.add(CDOIDUtil.createIDAndVersion(id, version));
+    ids.add(idAndVersionAndBranch.getID());
+    idAndVersionAndBranches.add(idAndVersionAndBranch);
   }
 }
