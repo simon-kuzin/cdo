@@ -404,9 +404,8 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
       if (idAndVersionAndBranch == null)
       {
         CDOID cdoID = object.cdoID();
-        int branchID = object.cdoRevision().getBranch().getID();
         int version = CDORevision.UNSPECIFIED_VERSION;
-        CDOIDAndVersionAndBranch ivb = CDOIDUtil.createIDAndVersionAndBranch(cdoID, version, branchID);
+        CDOIDAndVersionAndBranch ivb = CDOIDUtil.createIDAndVersionAndBranch(cdoID, version, getBranch().getID());
         uniqueObjects.put(object.cdoID(), ivb);
       }
     }

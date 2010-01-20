@@ -562,9 +562,10 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
    * @since 2.0
    */
   public void handleSyncResponse(CDOBranchPoint branchPoint, Collection<CDOPackageUnit> newPackageUnits,
-      Set<CDOIDAndVersion> dirtyOIDs, Collection<CDOID> detachedObjects)
+      Set<CDOIDAndVersion> dirtyOIDandVersions, Collection<CDOID> detachedObjects)
   {
-    handleCommitNotification(branchPoint, newPackageUnits, dirtyOIDs, detachedObjects, null, null, true, false);
+    handleCommitNotification(branchPoint, newPackageUnits, dirtyOIDandVersions, detachedObjects, null, null, true,
+        false);
   }
 
   public void handleBranchNotification(InternalCDOBranch branch)
@@ -576,15 +577,15 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
    * @since 2.0
    */
   public void handleCommitNotification(CDOBranchPoint branchPoint, Collection<CDOPackageUnit> newPackageUnits,
-      Set<CDOIDAndVersion> dirtyOIDs, Collection<CDOID> detachedObjects, Collection<CDORevisionDelta> deltas,
+      Set<CDOIDAndVersion> dirtyOIDandVersions, Collection<CDOID> detachedOIDs, Collection<CDORevisionDelta> deltas,
       InternalCDOView excludedView)
   {
-    handleCommitNotification(branchPoint, newPackageUnits, dirtyOIDs, detachedObjects, deltas, excludedView, options()
-        .isPassiveUpdateEnabled(), true);
+    handleCommitNotification(branchPoint, newPackageUnits, dirtyOIDandVersions, detachedOIDs, deltas, excludedView,
+        options().isPassiveUpdateEnabled(), true);
   }
 
   private void handleCommitNotification(CDOBranchPoint branchPoint, final Collection<CDOPackageUnit> newPackageUnits,
-      Set<CDOIDAndVersion> dirtyOIDs, final Collection<CDOID> detachedObjects,
+      Set<CDOIDAndVersion> dirtyOIDandVersions, final Collection<CDOID> detachedOIDs,
       final Collection<CDORevisionDelta> deltas, InternalCDOView excludedView, final boolean passiveUpdate,
       final boolean async)
   {
@@ -597,13 +598,13 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       {
         if (passiveUpdate)
         {
-          reviseRevisions(branchPoint, dirtyOIDs, detachedObjects, excludedView);
+          reviseRevisions(branchPoint, dirtyOIDandVersions, detachedOIDs, excludedView);
         }
 
-        final Set<CDOIDAndVersion> finalDirtyOIDs = Collections.unmodifiableSet(dirtyOIDs);
-        final Collection<CDOID> finalDetachedObjects = Collections.unmodifiableCollection(detachedObjects);
+        final Set<CDOIDAndVersion> finalDirtyOIDandVersions = Collections.unmodifiableSet(dirtyOIDandVersions);
+        final Collection<CDOID> finalDetachedOIDs = Collections.unmodifiableCollection(detachedOIDs);
         final boolean skipChangeSubscription = (deltas == null || deltas.size() <= 0)
-            && (detachedObjects == null || detachedObjects.size() <= 0);
+            && (detachedOIDs == null || detachedOIDs.size() <= 0);
 
         for (final InternalCDOView view : getViews())
         {
@@ -618,12 +619,12 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
                   Set<CDOObject> conflicts = null;
                   if (passiveUpdate)
                   {
-                    conflicts = view.handleInvalidation(timeStamp, finalDirtyOIDs, finalDetachedObjects);
+                    conflicts = view.handleInvalidation(timeStamp, finalDirtyOIDandVersions, finalDetachedOIDs);
                   }
 
                   if (!skipChangeSubscription)
                   {
-                    view.handleChangeSubscription(deltas, detachedObjects);
+                    view.handleChangeSubscription(deltas, detachedOIDs);
                   }
 
                   if (conflicts != null)
@@ -697,7 +698,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     }
 
     setLastUpdateTime(timeStamp);
-    fireInvalidationEvent(branchPoint, newPackageUnits, dirtyOIDs, detachedObjects, excludedView);
+    fireInvalidationEvent(branchPoint, newPackageUnits, dirtyOIDandVersions, detachedOIDs, excludedView);
   }
 
   public void reviseRevisions(CDOBranchPoint branchPoint, Set<CDOIDAndVersion> dirtyOIDs,

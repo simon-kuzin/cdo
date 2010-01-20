@@ -119,20 +119,20 @@ public interface InternalCDOSession extends CDOSession, PackageProcessor, Packag
    * @since 3.0
    */
   public void handleCommitNotification(CDOBranchPoint branchPoint, Collection<CDOPackageUnit> newPackageUnits,
-      Set<CDOIDAndVersion> dirtyOIDs, Collection<CDOID> detachedObjects, Collection<CDORevisionDelta> deltas,
+      Set<CDOIDAndVersion> dirtyOIDandVersions, Collection<CDOID> detachedOIDs, Collection<CDORevisionDelta> deltas,
       InternalCDOView excludedView);
 
   /**
    * @since 3.0
    */
   public void handleSyncResponse(CDOBranchPoint branchPoint, Collection<CDOPackageUnit> newPackageUnits,
-      Set<CDOIDAndVersion> dirtyOIDs, Collection<CDOID> detachedObjects);
+      Set<CDOIDAndVersion> dirtyOIDandVersions, Collection<CDOID> detachedOIDs);
 
   /**
    * In some cases we need to sync without propagating event. Lock is a good example.
    * 
    * @since 3.0
    */
-  public void reviseRevisions(CDOBranchPoint branchPoint, Set<CDOIDAndVersion> dirtyOIDs,
-      Collection<CDOID> detachedObjects, InternalCDOView excludedView);
+  public void reviseRevisions(CDOBranchPoint branchPoint, Set<CDOIDAndVersion> dirtyOIDandVersions,
+      Collection<CDOID> detachedOIDs, InternalCDOView excludedView);
 }
