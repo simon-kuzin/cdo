@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -78,15 +77,13 @@ public abstract class AbstractSyncRevisionsRequest extends CDOClientRequest<Coll
   protected Collection<CDORefreshContext> confirming(CDODataInput in) throws IOException
   {
     InternalCDORevisionManager revisionManager = getSession().getRevisionManager();
-    Comparator<CDOBranchPoint> comparator = new Comparator<CDOBranchPoint>()
-    {
-      public int compare(CDOBranchPoint bp1, CDOBranchPoint bp2)
-      {
-        long diff = bp1.getTimeStamp() - bp2.getTimeStamp();
-        return diff == 0 ? 0 : diff > 0 ? 1 : -1;
-      }
-    };
-    Map<CDOBranchPoint, CDORefreshContext> refreshContexts = new TreeMap<CDOBranchPoint, CDORefreshContext>(comparator);
+    /*
+     * Comparator<CDOBranchPoint> comparator = new Comparator<CDOBranchPoint>() { public int compare(CDOBranchPoint bp1,
+     * CDOBranchPoint bp2) { long diff = bp1.getTimeStamp() - bp2.getTimeStamp(); return diff == 0 ? 0 : diff > 0 ? 1 :
+     * -1; } }; Map<CDOBranchPoint, CDORefreshContext> refreshContexts = new TreeMap<CDOBranchPoint,
+     * CDORefreshContext>(comparator);
+     */
+    Map<Long, CDORefreshContext> refreshContexts = new TreeMap<Long, CDORefreshContext>();
 
     int dirtyCount = in.readInt();
     for (int i = 0; i < dirtyCount; i++)
@@ -120,7 +117,8 @@ public abstract class AbstractSyncRevisionsRequest extends CDOClientRequest<Coll
       CDOID id = in.readCDOID();
       CDOBranchPoint branchPoint = in.readCDOBranchPoint();
 
-      Collection<CDOID> detachedObjects = getRefreshContext(refreshContexts, branchPoint).getDetachedObjects();
+      CDORefreshContext refreshContext = getRefreshContext(refreshContexts, branchPoint);
+      Collection<CDOID> detachedObjects = refreshContext.getDetachedObjects();
       detachedObjects.add(id);
     }
 
@@ -145,14 +143,14 @@ public abstract class AbstractSyncRevisionsRequest extends CDOClientRequest<Coll
     return Collections.unmodifiableCollection(refreshContexts.values());
   }
 
-  private CDORefreshContext getRefreshContext(Map<CDOBranchPoint, CDORefreshContext> refreshContexts,
-      CDOBranchPoint branchPoint)
+  private CDORefreshContext getRefreshContext(Map<Long, CDORefreshContext> refreshContexts, CDOBranchPoint branchPoint)
   {
-    CDORefreshContext result = refreshContexts.get(branchPoint);
+    long timestamp = branchPoint.getTimeStamp();
+    CDORefreshContext result = refreshContexts.get(timestamp);
     if (result == null)
     {
       result = new CDORefreshContextImpl(branchPoint);
-      refreshContexts.put(branchPoint, result);
+      refreshContexts.put(timestamp, result);
     }
 
     return result;

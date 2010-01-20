@@ -11,7 +11,7 @@
  */
 package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
-import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.id.CDOIDAndBranch;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
@@ -47,14 +47,14 @@ public class UnlockObjectsIndication extends CDOReadIndication
     }
     else
     {
-      List<CDOID> ids = new ArrayList<CDOID>(size);
+      List<CDOIDAndBranch> idAndBranches = new ArrayList<CDOIDAndBranch>(size);
       for (int i = 0; i < size; i++)
       {
-        CDOID id = in.readCDOID();
-        ids.add(id);
+        CDOIDAndBranch idAndBranch = in.readCDOIDAndBranch();
+        idAndBranches.add(idAndBranch);
       }
 
-      getRepository().getLockManager().unlock(lockType, view, ids);
+      getRepository().getLockManager().unlock(lockType, view, idAndBranches);
     }
   }
 

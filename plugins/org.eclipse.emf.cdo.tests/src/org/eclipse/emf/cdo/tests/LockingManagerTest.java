@@ -13,6 +13,8 @@ package org.eclipse.emf.cdo.tests;
 
 import org.eclipse.emf.cdo.CDOLock;
 import org.eclipse.emf.cdo.CDOObject;
+import org.eclipse.emf.cdo.common.id.CDOIDAndBranch;
+import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.server.IView;
 import org.eclipse.emf.cdo.session.CDOSession;
@@ -545,7 +547,9 @@ public class LockingManagerTest extends AbstractCDOTest
     CDOObject cdoCompany = CDOUtil.getCDOObject(company);
     cdoCompany.cdoReadLock().lock();
     transaction.close();
-    assertEquals(false, repo.getLockManager().hasLock(LockType.READ, view, cdoCompany.cdoID()));
+
+    CDOIDAndBranch idAndBranch = CDOIDUtil.createIDAndBranch(cdoCompany.cdoID(), transaction.getBranch());
+    assertEquals(false, repo.getLockManager().hasLock(LockType.READ, view, idAndBranch));
   }
 
   public void testSessionClose() throws Exception
@@ -566,7 +570,9 @@ public class LockingManagerTest extends AbstractCDOTest
     session.close();
 
     sleep(100);
-    assertEquals(false, repo.getLockManager().hasLock(LockType.READ, view, cdoCompany.cdoID()));
+
+    CDOIDAndBranch idAndBranch = CDOIDUtil.createIDAndBranch(cdoCompany.cdoID(), transaction.getBranch());
+    assertEquals(false, repo.getLockManager().hasLock(LockType.READ, view, idAndBranch));
   }
 
   public void testBugzilla_270345() throws Exception

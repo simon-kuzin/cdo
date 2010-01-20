@@ -11,8 +11,10 @@
  */
 package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
-import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.id.CDOIDAndBranch;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersionAndBranch;
+import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
@@ -32,7 +34,7 @@ public class LockObjectsIndication extends AbstractSyncRevisionsIndication
 {
   private LockType lockType;
 
-  private List<CDOID> ids = new ArrayList<CDOID>();
+  private List<CDOIDAndBranch> idAndBranches = new ArrayList<CDOIDAndBranch>();
 
   private List<CDOIDAndVersionAndBranch> idAndVersionAndBranches = new ArrayList<CDOIDAndVersionAndBranch>();
 
@@ -55,7 +57,7 @@ public class LockObjectsIndication extends AbstractSyncRevisionsIndication
     try
     {
       view = getSession().getView(viewID);
-      getRepository().getLockManager().lock(lockType, view, ids, timeout);
+      getRepository().getLockManager().lock(lockType, view, idAndBranches, timeout);
     }
     catch (InterruptedException ex)
     {
@@ -73,7 +75,7 @@ public class LockObjectsIndication extends AbstractSyncRevisionsIndication
 
     if (!detachedObjects.isEmpty())
     {
-      getRepository().getLockManager().unlock(lockType, view, ids);
+      getRepository().getLockManager().unlock(lockType, view, idAndBranches);
       throw new IllegalArgumentException(detachedObjects.size() + " objects are not persistent anymore"); //$NON-NLS-1$
     }
 
@@ -83,7 +85,9 @@ public class LockObjectsIndication extends AbstractSyncRevisionsIndication
   @Override
   protected void process(CDOIDAndVersionAndBranch idAndVersionAndBranch)
   {
-    ids.add(idAndVersionAndBranch.getID());
+    CDOBranch branch = getRepository().getBranchManager().getBranch(idAndVersionAndBranch.getBranchID());
+    idAndBranches.add(CDOIDUtil.createIDAndBranch(idAndVersionAndBranch.getID(), branch));
+
     idAndVersionAndBranches.add(idAndVersionAndBranch);
   }
 }

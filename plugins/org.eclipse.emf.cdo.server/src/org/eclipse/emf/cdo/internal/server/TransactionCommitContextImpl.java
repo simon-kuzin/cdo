@@ -11,8 +11,10 @@
  */
 package org.eclipse.emf.cdo.internal.server;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.id.CDOIDAndBranch;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
@@ -78,7 +80,7 @@ public class TransactionCommitContextImpl implements InternalCommitContext
 
   private CDOID[] detachedObjects;
 
-  private List<CDOID> lockedObjects = new ArrayList<CDOID>();
+  private List<CDOIDAndBranch> lockedObjects = new ArrayList<CDOIDAndBranch>();
 
   private List<InternalCDORevision> detachedRevisions = new ArrayList<InternalCDORevision>();;
 
@@ -414,15 +416,17 @@ public class TransactionCommitContextImpl implements InternalCommitContext
 
   private void lockObjects() throws InterruptedException
   {
+    CDOBranch branch = getTransaction().getBranch();
+
     lockedObjects.clear();
     for (int i = 0; i < dirtyObjectDeltas.length; i++)
     {
-      lockedObjects.add(dirtyObjectDeltas[i].getID());
+      lockedObjects.add(CDOIDUtil.createIDAndBranch(dirtyObjectDeltas[i].getID(), branch));
     }
 
     for (int i = 0; i < detachedObjects.length; i++)
     {
-      lockedObjects.add(detachedObjects[i]);
+      lockedObjects.add(CDOIDUtil.createIDAndBranch(detachedObjects[i], branch));
     }
 
     try

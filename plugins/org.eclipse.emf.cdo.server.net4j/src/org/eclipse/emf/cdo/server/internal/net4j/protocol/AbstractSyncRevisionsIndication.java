@@ -94,7 +94,6 @@ public abstract class AbstractSyncRevisionsIndication extends CDOReadIndication
 
     try
     {
-      // $$$ Fix for branching!!
       InternalCDORevision revision = (InternalCDORevision)getRepository().getRevisionManager().getRevision(id,
           branchPoint, referenceChunk, CDORevision.DEPTH_NONE, true);
       if (revision == null)
@@ -124,7 +123,6 @@ public abstract class AbstractSyncRevisionsIndication extends CDOReadIndication
 
   protected long getRevisedTimestamp(CDOID id, int version, CDOBranch branch)
   {
-    // $$$ Fix for branching!!
     CDOBranchVersion branchVersion = CDOBranchUtil.createBranchVersion(branch, version);
     CDORevision revision = getRepository().getRevisionManager().getRevisionByVersion(id, branchVersion,
         CDORevision.DEPTH_NONE, false);
