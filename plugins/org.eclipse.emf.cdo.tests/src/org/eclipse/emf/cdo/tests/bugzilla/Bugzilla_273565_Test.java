@@ -216,7 +216,7 @@ public class Bugzilla_273565_Test extends AbstractCDOTest
     session.close();
   }
 
-  public void _testBugzilla_273565_Lock() throws Exception
+  public void testBugzilla_273565_Lock() throws Exception
   {
     // TODO Clarify why this test sometimes enters infinite loop with this trace:
     // TCPSelector [TCPSelector] Writing java.nio.channels.SocketChannel[connected local=/127.0.0.1:2036
@@ -230,6 +230,7 @@ public class Bugzilla_273565_Test extends AbstractCDOTest
     done[0] = false;
     orderDetail.setPrice(2);
     CDOSession session = openModel1Session();
+    // session.options().setPassiveUpdateEnabled(false); // $$$ Remove this
     CDOTransaction transaction = session.openTransaction();
     CDOResource resource = transaction.createResource("/test1");
     resource.getContents().add(orderDetail);
@@ -242,6 +243,7 @@ public class Bugzilla_273565_Test extends AbstractCDOTest
         try
         {
           CDOSession session = openModel1Session();
+          // session.options().setPassiveUpdateEnabled(false); // $$$ Remove this
           CDOTransaction transaction = session.openTransaction();
           OrderDetail orderDetail2 = (OrderDetail)transaction.getObject(CDOUtil.getCDOObject(orderDetail).cdoID());
 

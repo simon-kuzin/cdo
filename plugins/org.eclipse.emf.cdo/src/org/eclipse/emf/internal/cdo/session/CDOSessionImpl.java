@@ -91,6 +91,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -710,16 +711,23 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
 
     if (excludedView == null || timeStamp == CDORevision.UNSPECIFIED_DATE)
     {
+      List<CDOIDAndVersion> notRevised = new LinkedList<CDOIDAndVersion>();
       for (CDOIDAndVersion dirtyOID : dirtyOIDs)
       {
         CDOID id = dirtyOID.getID();
         int version = dirtyOID.getVersion();
-        boolean revised = revisionManager.reviseVersion(id, branch.getVersion(version), timeStamp);
-        if (!revised)
-        {
-          dirtyOIDs.remove(id);
-        }
+        revisionManager.reviseVersion(id, branch.getVersion(version), timeStamp);
+        // $$$ Why doesn't the following work?
+        // boolean revised = revisionManager.reviseVersion(id, branch.getVersion(version), timeStamp);
+        // if (!revised)
+        // {
+        // notRevised.add(dirtyOID);
+        // }
       }
+
+      // notRevised holds revisions that we thought had to be revised,
+      // but actually didn't need revising
+      dirtyOIDs.removeAll(notRevised);
     }
 
     for (CDOID id : detachedObjects)

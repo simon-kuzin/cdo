@@ -1294,12 +1294,12 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
    * @param timeStamp
    *          The time stamp of the server transaction if this event was sent as a result of a successfully committed
    *          transaction or <code>LOCAL_ROLLBACK</code> if this event was sent due to a local rollback.
-   * @param dirtyOIDs
+   * @param dirtyOIDandVersions
    *          A set of the object IDs to be invalidated. <b>Implementation note:</b> This implementation expects the
    *          dirtyOIDs set to be unmodifiable. It does not wrap the set (again).
    * @since 2.0
    */
-  public Set<CDOObject> handleInvalidation(long timeStamp, Set<CDOIDAndVersion> dirtyOIDs,
+  public Set<CDOObject> handleInvalidation(long timeStamp, Set<CDOIDAndVersion> dirtyOIDandVersions,
       Collection<CDOID> detachedOIDs)
   {
     Set<CDOObject> conflicts = null;
@@ -1309,7 +1309,8 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
 
     try
     {
-      conflicts = handleInvalidationWithoutNotification(dirtyOIDs, detachedOIDs, dirtyObjects, detachedObjects);
+      conflicts = handleInvalidationWithoutNotification(dirtyOIDandVersions, detachedOIDs, dirtyObjects,
+          detachedObjects);
     }
     finally
     {

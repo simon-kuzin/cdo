@@ -77,12 +77,6 @@ public abstract class AbstractSyncRevisionsRequest extends CDOClientRequest<Coll
   protected Collection<CDORefreshContext> confirming(CDODataInput in) throws IOException
   {
     InternalCDORevisionManager revisionManager = getSession().getRevisionManager();
-    /*
-     * Comparator<CDOBranchPoint> comparator = new Comparator<CDOBranchPoint>() { public int compare(CDOBranchPoint bp1,
-     * CDOBranchPoint bp2) { long diff = bp1.getTimeStamp() - bp2.getTimeStamp(); return diff == 0 ? 0 : diff > 0 ? 1 :
-     * -1; } }; Map<CDOBranchPoint, CDORefreshContext> refreshContexts = new TreeMap<CDOBranchPoint,
-     * CDORefreshContext>(comparator);
-     */
     Map<Long, CDORefreshContext> refreshContexts = new TreeMap<Long, CDORefreshContext>();
 
     int dirtyCount = in.readInt();
@@ -125,19 +119,6 @@ public abstract class AbstractSyncRevisionsRequest extends CDOClientRequest<Coll
     if (TRACER.isEnabled())
     {
       TRACER.trace("Synchronization received  " + detachedCount + " detached objects"); //$NON-NLS-1$ //$NON-NLS-2$
-    }
-
-    // Replace the collections with unmodifiable ones
-    for (CDORefreshContext refreshContext : refreshContexts.values())
-    {
-      Set<CDOIDAndVersion> dirtyObjects = refreshContext.getDirtyObjects();
-      Collection<CDOID> detachedObjects = refreshContext.getDetachedObjects();
-
-      dirtyObjects = Collections.unmodifiableSet(dirtyObjects);
-      detachedObjects = Collections.unmodifiableCollection(detachedObjects);
-
-      ((CDORefreshContextImpl)refreshContext).setDirtyObjects(dirtyObjects);
-      ((CDORefreshContextImpl)refreshContext).setDetachedObjects(detachedObjects);
     }
 
     return Collections.unmodifiableCollection(refreshContexts.values());
