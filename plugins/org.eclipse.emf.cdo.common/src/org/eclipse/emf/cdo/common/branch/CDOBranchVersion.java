@@ -20,8 +20,6 @@ public interface CDOBranchVersion
 
   public static final int FIRST_VERSION = 1;
 
-  public static final int SYNTHETIC_VERSION = FIRST_VERSION - 1;
-
   public CDOBranch getBranch();
 
   public int getVersion();
