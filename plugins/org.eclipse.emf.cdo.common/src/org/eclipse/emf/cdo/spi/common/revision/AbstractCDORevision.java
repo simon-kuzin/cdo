@@ -62,7 +62,7 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     else
     {
       // Different branch, start with v1
-      setVersion(1);
+      setVersion(FIRST_VERSION);
     }
 
     setBranchPoint(branch.getPoint(timeStamp));

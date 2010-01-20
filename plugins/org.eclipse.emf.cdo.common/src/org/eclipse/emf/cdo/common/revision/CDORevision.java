@@ -27,6 +27,11 @@ public interface CDORevision extends CDORevisionKey, CDOBranchPoint
    */
   public static final int MAIN_BRANCH_ID = CDOBranch.MAIN_BRANCH_ID;
 
+  /**
+   * @since 3.0
+   */
+  public static final int FIRST_VERSION = 1;
+
   public static final int UNCHUNKED = -1;
 
   /**

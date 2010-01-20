@@ -525,8 +525,9 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
       async = monitor.forkAsync();
 
       CDOID id = revision.getID();
-      if (revision.getVersion() == 1)
+      if (revision.getVersion() == CDORevision.FIRST_VERSION)
       {
+        // XXX Assumption no longer valid with branches!
         ((HorizontalBranchingMappingStrategy)getMappingStrategy()).putObjectType(accessor, id, getEClass());
       }
       else

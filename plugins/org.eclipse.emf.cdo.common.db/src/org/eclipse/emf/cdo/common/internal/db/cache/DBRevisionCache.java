@@ -430,7 +430,7 @@ public class DBRevisionCache extends Lifecycle implements InternalCDORevisionCac
       AbstractUpdateStatement update = createAddRevisionStatement((InternalCDORevision)revision);
       update.update(connection);
 
-      if (revision.getVersion() > 1)
+      if (revision.getVersion() > CDORevision.FIRST_VERSION)
       {
         // Update former latest revision
         update = createUpdateRevisedStatement((InternalCDORevision)revision);
