@@ -1202,7 +1202,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
   /**
    * TODO Simon: Should this method go to CDOSavePointImpl?
    */
-  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @SuppressWarnings( { "rawtypes", "unchecked" })
   private void registerNew(Map map, InternalCDOObject object)
   {
     Object old = map.put(object.cdoID(), object);
@@ -1742,15 +1742,15 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
           }
 
           Map<CDOID, CDOObject> dirtyObjects = getDirtyObjects();
-          Set<CDOIDAndVersion> dirtyIDs = new HashSet<CDOIDAndVersion>();
+          Set<CDOIDAndVersion> dirtyIDandVersions = new HashSet<CDOIDAndVersion>();
           for (CDOObject dirtyObject : dirtyObjects.values())
           {
             CDORevision revision = dirtyObject.cdoRevision();
             CDOIDAndVersion dirtyID = CDOIDUtil.createIDAndVersion(revision.getID(), revision.getVersion() - 1);
-            dirtyIDs.add(dirtyID);
+            dirtyIDandVersions.add(dirtyID);
           }
 
-          if (!dirtyIDs.isEmpty() || !getDetachedObjects().isEmpty())
+          if (!dirtyIDandVersions.isEmpty() || !getDetachedObjects().isEmpty())
           {
             Set<CDOID> detachedIDs = new HashSet<CDOID>(getDetachedObjects().keySet());
             Collection<CDORevisionDelta> deltasCopy = new ArrayList<CDORevisionDelta>(deltas);
@@ -1762,8 +1762,8 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
               ((InternalCDORevisionDelta)dirtyObjectDelta).adjustReferences(result.getReferenceAdjuster());
             }
 
-            session.handleCommitNotification(getBranch().getPoint(result.getTimeStamp()), newPackageUnits, dirtyIDs,
-                detachedIDs, deltasCopy, getTransaction());
+            session.handleCommitNotification(getBranch().getPoint(result.getTimeStamp()), newPackageUnits,
+                dirtyIDandVersions, detachedIDs, deltasCopy, getTransaction());
           }
           else
           {

@@ -64,16 +64,16 @@ public class CommitNotificationIndication extends CDOClientIndication
     }
 
     InternalCDOSession session = getSession();
-    Set<CDOIDAndVersion> dirtyOIDs = new HashSet<CDOIDAndVersion>();
+    Set<CDOIDAndVersion> dirtyOIDandVersions = new HashSet<CDOIDAndVersion>();
     for (int i = 0; i < size; i++)
     {
-      CDOIDAndVersion dirtyOID = in.readCDOIDAndVersion();
+      CDOIDAndVersion dirtyOIDandVersion = in.readCDOIDAndVersion();
       if (TRACER.isEnabled())
       {
-        TRACER.format("Read dirty ID: {0}", dirtyOID); //$NON-NLS-1$
+        TRACER.format("Read dirty ID: {0}", dirtyOIDandVersion); //$NON-NLS-1$
       }
 
-      dirtyOIDs.add(dirtyOID);
+      dirtyOIDandVersions.add(dirtyOIDandVersion);
     }
 
     size = in.readInt();
@@ -101,7 +101,7 @@ public class CommitNotificationIndication extends CDOClientIndication
       detachedObjects.add(in.readCDOID());
     }
 
-    session
-        .handleCommitNotification(branchPoint, Arrays.asList(packageUnits), dirtyOIDs, detachedObjects, deltas, null);
+    session.handleCommitNotification(branchPoint, Arrays.asList(packageUnits), dirtyOIDandVersions, detachedObjects,
+        deltas, null);
   }
 }

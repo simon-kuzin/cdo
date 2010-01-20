@@ -216,7 +216,7 @@ public class Bugzilla_273565_Test extends AbstractCDOTest
     session.close();
   }
 
-  public void testBugzilla_273565_Lock() throws Exception
+  public void _testBugzilla_273565_Lock() throws Exception
   {
     // TODO Clarify why this test sometimes enters infinite loop with this trace:
     // TCPSelector [TCPSelector] Writing java.nio.channels.SocketChannel[connected local=/127.0.0.1:2036

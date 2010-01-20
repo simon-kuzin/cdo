@@ -714,7 +714,11 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       {
         CDOID id = dirtyOID.getID();
         int version = dirtyOID.getVersion();
-        revisionManager.reviseVersion(id, branch.getVersion(version), timeStamp);
+        boolean revised = revisionManager.reviseVersion(id, branch.getVersion(version), timeStamp);
+        if (!revised)
+        {
+          dirtyOIDs.remove(id);
+        }
       }
     }
 

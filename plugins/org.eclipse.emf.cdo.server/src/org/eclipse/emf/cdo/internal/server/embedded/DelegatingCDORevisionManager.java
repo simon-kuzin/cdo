@@ -114,9 +114,9 @@ public abstract class DelegatingCDORevisionManager extends Lifecycle implements 
     getDelegate().reviseLatest(id, branch);
   }
 
-  public void reviseVersion(CDOID id, CDOBranchVersion branchVersion, long timeStamp)
+  public boolean reviseVersion(CDOID id, CDOBranchVersion branchVersion, long timeStamp)
   {
-    getDelegate().reviseVersion(id, branchVersion, timeStamp);
+    return getDelegate().reviseVersion(id, branchVersion, timeStamp);
   }
 
   protected abstract InternalCDORevisionManager getDelegate();
