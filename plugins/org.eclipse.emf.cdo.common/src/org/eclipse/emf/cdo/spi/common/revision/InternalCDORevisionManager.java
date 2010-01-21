@@ -90,6 +90,8 @@ public interface InternalCDORevisionManager extends CDORevisionManager, CDORevis
 
       public CDOBranchVersion getBranchVersion();
 
+      public long getRevised();
+
       public void write(CDODataOutput out) throws IOException;
 
       public InternalCDORevision execute(CDORevisionManager revisionManager, CDOBranchPoint branchPoint,
@@ -144,6 +146,8 @@ public interface InternalCDORevisionManager extends CDORevisionManager, CDORevis
 
         private CDOID id;
 
+        private long revised;
+
         public Missing(CDOID id)
         {
           this.id = id;
@@ -169,6 +173,16 @@ public interface InternalCDORevisionManager extends CDORevisionManager, CDORevis
           return null;
         }
 
+        public long getRevised()
+        {
+          return revised;
+        }
+
+        public void setRevised(long revised)
+        {
+          this.revised = revised;
+        }
+
         public void write(CDODataOutput out) throws IOException
         {
           out.writeByte(getType().ordinal());
@@ -188,6 +202,7 @@ public interface InternalCDORevisionManager extends CDORevisionManager, CDORevis
           {
             out.writeByte(POINTER_REVISION);
             out.writeLong(revision.getRevised());
+            out.writeCDORevision(revision, referenceChunk);
           }
           else if (revision instanceof DetachedCDORevision)
           {
