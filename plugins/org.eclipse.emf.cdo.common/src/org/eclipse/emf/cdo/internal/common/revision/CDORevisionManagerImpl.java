@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Eike Stepper
@@ -134,7 +135,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
   {
     if (supportingBranches)
     {
-      return getRevision(id, branchPoint, CDORevision.UNCHUNKED, CDORevision.DEPTH_NONE, false) != null;
+      return getRevision(id, branchPoint, CDORevision.UNCHUNKED, CDORevision.DEPTH_NONE, false, null) != null;
     }
 
     return getCachedRevision(id, branchPoint) != null;
@@ -188,16 +189,29 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     }
   }
 
-  public InternalCDORevision getRevision(CDOID id, CDOBranchPoint branchPoint, int referenceChunk, int prefetchDepth,
+  public CDORevision getRevision(CDOID id, CDOBranchPoint branchPoint, int referenceChunk, int prefetchDepth,
       boolean loadOnDemand)
   {
+    return getRevision(id, branchPoint, referenceChunk, prefetchDepth, loadOnDemand, null);
+  }
+
+  public InternalCDORevision getRevision(CDOID id, CDOBranchPoint branchPoint, int referenceChunk, int prefetchDepth,
+      boolean loadOnDemand, Map<CDORevision, Long> revisedPointers)
+  {
     List<CDOID> ids = Collections.singletonList(id);
-    List<CDORevision> revisions = getRevisions(ids, branchPoint, referenceChunk, prefetchDepth, loadOnDemand);
+    List<CDORevision> revisions = getRevisions(ids, branchPoint, referenceChunk, prefetchDepth, loadOnDemand,
+        revisedPointers);
     return (InternalCDORevision)revisions.get(0);
   }
 
   public List<CDORevision> getRevisions(List<CDOID> ids, CDOBranchPoint branchPoint, int referenceChunk,
       int prefetchDepth, boolean loadOnDemand)
+  {
+    return getRevisions(ids, branchPoint, referenceChunk, prefetchDepth, loadOnDemand, null);
+  }
+
+  public List<CDORevision> getRevisions(List<CDOID> ids, CDOBranchPoint branchPoint, int referenceChunk,
+      int prefetchDepth, boolean loadOnDemand, Map<CDORevision, Long> revisedPointers)
   {
     List<CDORevision> revisions = new ArrayList<CDORevision>(ids.size());
     List<MissingRevisionInfo> infos = null;

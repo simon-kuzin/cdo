@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Eike Stepper
@@ -59,6 +60,12 @@ public interface InternalCDORevisionManager extends CDORevisionManager, CDORevis
   public void reviseLatest(CDOID id, CDOBranch branch);
 
   public void reviseVersion(CDOID id, CDOBranchVersion branchVersion, long timeStamp);
+
+  public CDORevision getRevision(CDOID id, CDOBranchPoint branchPoint, int referenceChunk, int prefetchDepth,
+      boolean loadOnDemand, Map<CDORevision, Long> revisedPointers);
+
+  public List<CDORevision> getRevisions(List<CDOID> ids, CDOBranchPoint branchPoint, int referenceChunk,
+      int prefetchDepth, boolean loadOnDemand, Map<CDORevision, Long> revisedPointers);
 
   /**
    * @author Eike Stepper

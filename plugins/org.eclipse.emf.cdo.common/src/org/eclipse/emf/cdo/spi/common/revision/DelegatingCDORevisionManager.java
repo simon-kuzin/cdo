@@ -24,6 +24,7 @@ import org.eclipse.net4j.util.lifecycle.Lifecycle;
 import org.eclipse.emf.ecore.EClass;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Eike Stepper
@@ -117,10 +118,22 @@ public abstract class DelegatingCDORevisionManager extends Lifecycle implements 
     return getDelegate().getRevision(id, branchPoint, referenceChunk, prefetchDepth, loadOnDemand);
   }
 
+  public CDORevision getRevision(CDOID id, CDOBranchPoint branchPoint, int referenceChunk, int prefetchDepth,
+      boolean loadOnDemand, Map<CDORevision, Long> revisedPointers)
+  {
+    return getDelegate().getRevision(id, branchPoint, referenceChunk, prefetchDepth, loadOnDemand, revisedPointers);
+  }
+
   public List<CDORevision> getRevisions(List<CDOID> ids, CDOBranchPoint branchPoint, int referenceChunk,
       int prefetchDepth, boolean loadOnDemand)
   {
     return getDelegate().getRevisions(ids, branchPoint, referenceChunk, prefetchDepth, loadOnDemand);
+  }
+
+  public List<CDORevision> getRevisions(List<CDOID> ids, CDOBranchPoint branchPoint, int referenceChunk,
+      int prefetchDepth, boolean loadOnDemand, Map<CDORevision, Long> revisedPointers)
+  {
+    return getDelegate().getRevisions(ids, branchPoint, referenceChunk, prefetchDepth, loadOnDemand, revisedPointers);
   }
 
   public void reviseLatest(CDOID id, CDOBranch branch)
