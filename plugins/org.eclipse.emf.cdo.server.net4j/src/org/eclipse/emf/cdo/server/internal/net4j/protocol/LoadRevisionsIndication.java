@@ -94,7 +94,7 @@ public class LoadRevisionsIndication extends CDOReadIndication
     infos = new MissingRevisionInfo[size];
     for (int i = 0; i < size; i++)
     {
-      MissingRevisionInfo info = MissingRevisionInfo.Missing.read(in);
+      MissingRevisionInfo info = MissingRevisionInfo.read(in);
       if (TRACER.isEnabled())
       {
         TRACER.format("Read info: {0}", info); //$NON-NLS-1$

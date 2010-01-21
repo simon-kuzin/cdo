@@ -83,27 +83,143 @@ public interface InternalCDORevisionManager extends CDORevisionManager, CDORevis
      * @author Eike Stepper
      * @since 3.0
      */
-    public interface MissingRevisionInfo
+    public static class MissingRevisionInfo
     {
-      public Type getType();
+      protected static final byte NO_REVISION = 0;
 
-      public CDOID getID();
+      protected static final byte NORMAL_REVISION = 1;
 
-      public CDOBranchVersion getBranchVersion();
+      protected static final byte POINTER_REVISION = 2;
 
-      public long getRevised();
+      protected static final byte DETACHED_REVISION = 3;
 
-      public void setRevised(long revised);
+      private CDOID id;
 
-      public void write(CDODataOutput out) throws IOException;
+      private long revised = CDORevision.UNSPECIFIED_DATE;
+
+      public MissingRevisionInfo(CDOID id)
+      {
+        this.id = id;
+      }
+
+      MissingRevisionInfo(CDODataInput in) throws IOException
+      {
+        id = in.readCDOID();
+      }
+
+      public Type getType()
+      {
+        return Type.MISSING;
+      }
+
+      public CDOID getID()
+      {
+        return id;
+      }
+
+      public CDOBranchVersion getBranchVersion()
+      {
+        return null;
+      }
+
+      public long getRevised()
+      {
+        return revised;
+      }
+
+      public void setRevised(long revised)
+      {
+        this.revised = revised;
+      }
+
+      public void write(CDODataOutput out) throws IOException
+      {
+        out.writeByte(getType().ordinal());
+        out.writeCDOID(id);
+      }
 
       public InternalCDORevision execute(InternalCDORevisionManager revisionManager, CDOBranchPoint branchPoint,
-          int referenceChunk);
+          int referenceChunk)
+      {
+        Map<CDORevision, Long> revisedPointers = new HashMap<CDORevision, Long>();
+        CDORevision revision = revisionManager.getRevision(id, branchPoint, referenceChunk, CDORevision.DEPTH_NONE,
+            true, revisedPointers);
+        Long revisedPointer = revisedPointers.get(revision);
+        if (revisedPointer != null)
+        {
+          revised = revisedPointer;
+        }
+
+        return (InternalCDORevision)revision;
+      }
 
       public void writeResult(CDODataOutput out, CDOBranch branch, CDORevision revision, int referenceChunk)
-          throws IOException;
+          throws IOException
+      {
+        if (revision.getBranch() != branch)
+        {
+          out.writeByte(POINTER_REVISION);
+          out.writeLong(revised);
+          out.writeCDORevision(revision, referenceChunk);
+        }
+        else if (revision == null)
+        {
+          out.writeByte(DETACHED_REVISION);
+          out.writeLong(revised);
+        }
+        else
+        {
+          out.writeByte(NORMAL_REVISION);
+          out.writeCDORevision(revision, referenceChunk);
+        }
+      }
 
-      public InternalCDORevision readResult(CDODataInput in, CDOBranch branch) throws IOException;
+      public final InternalCDORevision readResult(CDODataInput in, CDOBranch branch) throws IOException
+      {
+        byte resultType = in.readByte();
+        return readResult(in, branch, resultType);
+      }
+
+      protected InternalCDORevision readResult(CDODataInput in, CDOBranch branch, byte resultType) throws IOException
+      {
+        switch (resultType)
+        {
+        case NORMAL_REVISION:
+          return (InternalCDORevision)in.readCDORevision();
+
+        case POINTER_REVISION:
+          revised = in.readLong();
+          return (InternalCDORevision)in.readCDORevision();
+
+        case DETACHED_REVISION:
+          return new DetachedCDORevision(id, branch, in.readLong());
+
+        default:
+          throw new IllegalStateException("Invalid result type: " + resultType);
+        }
+      }
+
+      @Override
+      public String toString()
+      {
+        return MessageFormat.format("Missing[{0}]", id);
+      }
+
+      public static MissingRevisionInfo read(CDODataInput in) throws IOException
+      {
+        byte ordinal = in.readByte();
+        switch (Type.values()[ordinal])
+        {
+        case MISSING:
+          return new MissingRevisionInfo(in);
+        case POSSIBLY_AVAILABLE:
+          return new PossiblyAvailable(in);
+        case EXACTLY_KNOWN:
+          return new ExactlyKnown(in);
+        default:
+          throw new IOException(); // Can not happen
+        }
+      }
 
       /**
        * @author Eike Stepper
@@ -138,150 +254,7 @@ public interface InternalCDORevisionManager extends CDORevisionManager, CDORevis
        * @author Eike Stepper
        * @since 3.0
        */
-      public static class Missing implements MissingRevisionInfo
-      {
-        protected static final byte NO_REVISION = 0;
-
-        protected static final byte NORMAL_REVISION = 1;
-
-        protected static final byte POINTER_REVISION = 2;
-
-        protected static final byte DETACHED_REVISION = 3;
-
-        private CDOID id;
-
-        private long revised = CDORevision.UNSPECIFIED_DATE;
-
-        public Missing(CDOID id)
-        {
-          this.id = id;
-        }
-
-        Missing(CDODataInput in) throws IOException
-        {
-          id = in.readCDOID();
-        }
-
-        public Type getType()
-        {
-          return Type.MISSING;
-        }
-
-        public CDOID getID()
-        {
-          return id;
-        }
-
-        public CDOBranchVersion getBranchVersion()
-        {
-          return null;
-        }
-
-        public long getRevised()
-        {
-          return revised;
-        }
-
-        public void setRevised(long revised)
-        {
-          this.revised = revised;
-        }
-
-        public void write(CDODataOutput out) throws IOException
-        {
-          out.writeByte(getType().ordinal());
-          out.writeCDOID(id);
-        }
-
-        public InternalCDORevision execute(InternalCDORevisionManager revisionManager, CDOBranchPoint branchPoint,
-            int referenceChunk)
-        {
-          Map<CDORevision, Long> revisedPointers = new HashMap<CDORevision, Long>();
-          CDORevision revision = revisionManager.getRevision(id, branchPoint, referenceChunk, CDORevision.DEPTH_NONE,
-              true, revisedPointers);
-          Long revisedPointer = revisedPointers.get(revision);
-          if (revisedPointer != null)
-          {
-            revised = revisedPointer;
-          }
-
-          return (InternalCDORevision)revision;
-        }
-
-        public void writeResult(CDODataOutput out, CDOBranch branch, CDORevision revision, int referenceChunk)
-            throws IOException
-        {
-          if (revision.getBranch() != branch)
-          {
-            out.writeByte(POINTER_REVISION);
-            out.writeLong(revised);
-            out.writeCDORevision(revision, referenceChunk);
-          }
-          else if (revision == null)
-          {
-            out.writeByte(DETACHED_REVISION);
-            out.writeLong(revised);
-          }
-          else
-          {
-            out.writeByte(NORMAL_REVISION);
-            out.writeCDORevision(revision, referenceChunk);
-          }
-        }
-
-        public final InternalCDORevision readResult(CDODataInput in, CDOBranch branch) throws IOException
-        {
-          byte resultType = in.readByte();
-          return readResult(in, branch, resultType);
-        }
-
-        protected InternalCDORevision readResult(CDODataInput in, CDOBranch branch, byte resultType) throws IOException
-        {
-          switch (resultType)
-          {
-          case NORMAL_REVISION:
-            return (InternalCDORevision)in.readCDORevision();
-
-          case POINTER_REVISION:
-            revised = in.readLong();
-            return (InternalCDORevision)in.readCDORevision();
-
-          case DETACHED_REVISION:
-            return new DetachedCDORevision(id, branch, in.readLong());
-
-          default:
-            throw new IllegalStateException("Invalid result type: " + resultType);
-          }
-        }
-
-        @Override
-        public String toString()
-        {
-          return MessageFormat.format("Missing[{0}]", id);
-        }
-
-        public static MissingRevisionInfo read(CDODataInput in) throws IOException
-        {
-          byte ordinal = in.readByte();
-          switch (Type.values()[ordinal])
-          {
-          case MISSING:
-            return new Missing(in);
-          case POSSIBLY_AVAILABLE:
-            return new PossiblyAvailable(in);
-          case EXACTLY_KNOWN:
-            return new ExactlyKnown(in);
-          default:
-            throw new IOException(); // Can not happen
-          }
-        }
-      }
-
-      /**
-       * @author Eike Stepper
-       * @since 3.0
-       */
-      public static class PossiblyAvailable extends Missing
+      public static class PossiblyAvailable extends MissingRevisionInfo
       {
         private CDOBranchVersion available;
 
@@ -354,7 +327,7 @@ public interface InternalCDORevisionManager extends CDORevisionManager, CDORevis
        * @author Eike Stepper
        * @since 3.0
        */
-      public static class ExactlyKnown extends Missing
+      public static class ExactlyKnown extends MissingRevisionInfo
       {
         private CDOBranchVersion branchVersion;
 
