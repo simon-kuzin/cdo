@@ -13,6 +13,7 @@ package org.eclipse.emf.spi.cdo;
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.id.CDOIDAndBranch;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersionAndBranch;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
@@ -51,7 +52,7 @@ import java.util.Set;
  */
 public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, BranchLoader, RevisionLoader
 {
-  public void setPassiveUpdate(Map<CDOID, CDOIDAndVersionAndBranch> idAndVersionAndBranches, int initialChunkSize,
+  public void setPassiveUpdate(Map<CDOIDAndBranch, CDOIDAndVersionAndBranch> revisionData, int initialChunkSize,
       boolean passiveUpdateEnabled);
 
   public RepositoryTimeResult getRepositoryTime();
@@ -71,7 +72,7 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, BranchLo
   public Object loadChunk(InternalCDORevision revision, EStructuralFeature feature, int accessIndex, int fetchIndex,
       int fromIndex, int toIndex);
 
-  public Collection<CDORefreshContext> syncRevisions(Map<CDOID, CDOIDAndVersionAndBranch> allRevisions,
+  public Collection<CDORefreshContext> syncRevisions(Map<CDOIDAndBranch, CDOIDAndVersionAndBranch> revisionData,
       int initialChunkSize);
 
   /**
@@ -98,8 +99,8 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, BranchLo
   /**
    * @since 3.0
    */
-  public void lockObjects(CDOView view, Map<CDOID, CDOIDAndVersionAndBranch> objects, long timeout, LockType lockType)
-      throws InterruptedException;
+  public void lockObjects(CDOView view, Map<CDOIDAndBranch, CDOIDAndVersionAndBranch> revisionData, long timeout,
+      LockType lockType) throws InterruptedException;
 
   /**
    * @since 3.0

@@ -20,6 +20,7 @@ import org.eclipse.emf.cdo.common.branch.CDOBranchManager;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.commit.CDOCommit;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.id.CDOIDAndBranch;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersionAndBranch;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
@@ -341,7 +342,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
   }
 
   @Override
-  public void getCDOIDAndVersionAndBranch(Map<CDOID, CDOIDAndVersionAndBranch> uniqueObjects,
+  public void getCDOIDAndVersionAndBranch(Map<CDOIDAndBranch, CDOIDAndVersionAndBranch> revisionData,
       Collection<? extends CDOObject> cdoObjects)
   {
     Map<CDOID, CDORevisionDelta> deltaMap = getRevisionDeltas();
@@ -349,20 +350,20 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     {
       CDORevision cdoRevision = CDOStateMachine.INSTANCE.readNoLoad((InternalCDOObject)cdoObject);
       CDOID cdoId = cdoObject.cdoID();
-      if (cdoRevision != null && !cdoId.isTemporary() && !uniqueObjects.containsKey(cdoId))
+      CDOIDAndBranch idAndBranch = CDOIDUtil.createIDAndBranch(cdoId, getBranch());
+      if (cdoRevision != null && !cdoId.isTemporary() && !revisionData.containsKey(idAndBranch))
       {
-        int version = cdoRevision.getVersion();
+        int revisionVersion = cdoRevision.getVersion();
         if (deltaMap != null)
         {
           CDORevisionDelta delta = deltaMap.get(cdoId);
           if (delta != null)
           {
-            version = delta.getVersion();
+            revisionVersion = delta.getVersion();
           }
         }
-
-        int branchID = cdoRevision.getBranch().getID();
-        uniqueObjects.put(cdoId, CDOIDUtil.createIDAndVersionAndBranch(cdoId, version, branchID));
+        int revisionBranchID = cdoRevision.getBranch().getID();
+        revisionData.put(idAndBranch, CDOIDUtil.createIDAndVersionAndBranch(cdoId, revisionVersion, revisionBranchID));
       }
     }
   }

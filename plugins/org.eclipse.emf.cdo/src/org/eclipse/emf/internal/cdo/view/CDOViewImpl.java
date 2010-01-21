@@ -18,6 +18,7 @@ import org.eclipse.emf.cdo.CDOState;
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.id.CDOIDAndBranch;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersionAndBranch;
 import org.eclipse.emf.cdo.common.id.CDOIDMeta;
@@ -396,21 +397,24 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
       throws InterruptedException
   {
     checkActive();
-    Map<CDOID, CDOIDAndVersionAndBranch> uniqueObjects = new HashMap<CDOID, CDOIDAndVersionAndBranch>();
-    getCDOIDAndVersionAndBranch(uniqueObjects, objects);
+    Map<CDOIDAndBranch, CDOIDAndVersionAndBranch> revisionData = new HashMap<CDOIDAndBranch, CDOIDAndVersionAndBranch>();
+    getCDOIDAndVersionAndBranch(revisionData, objects);
     for (CDOObject object : objects)
     {
-      CDOIDAndVersionAndBranch idAndVersionAndBranch = uniqueObjects.get(object.cdoID());
+      CDOBranch viewedBranch = getBranch();
+      CDOIDAndBranch idAndBranch = CDOIDUtil.createIDAndBranch(object.cdoID(), viewedBranch);
+
+      CDOIDAndVersionAndBranch idAndVersionAndBranch = revisionData.get(object.cdoID());
       if (idAndVersionAndBranch == null)
       {
         CDOID cdoID = object.cdoID();
         int version = CDORevision.UNSPECIFIED_VERSION;
         CDOIDAndVersionAndBranch ivb = CDOIDUtil.createIDAndVersionAndBranch(cdoID, version, getBranch().getID());
-        uniqueObjects.put(object.cdoID(), ivb);
+        revisionData.put(idAndBranch, ivb);
       }
     }
 
-    session.getSessionProtocol().lockObjects(this, uniqueObjects, timeout, lockType);
+    session.getSessionProtocol().lockObjects(this, revisionData, timeout, lockType);
   }
 
   /**
@@ -1603,18 +1607,22 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     return getResourceSet();
   }
 
-  public void getCDOIDAndVersionAndBranch(Map<CDOID, CDOIDAndVersionAndBranch> uniqueObjects,
+  public void getCDOIDAndVersionAndBranch(Map<CDOIDAndBranch, CDOIDAndVersionAndBranch> revisionData,
       Collection<? extends CDOObject> cdoObjects)
   {
     for (CDOObject internalCDOObject : cdoObjects)
     {
       CDORevision cdoRevision = CDOStateMachine.INSTANCE.readNoLoad((InternalCDOObject)internalCDOObject);
       CDOID cdoId = internalCDOObject.cdoID();
-      if (cdoRevision != null && !uniqueObjects.containsKey(cdoId))
+
+      CDOBranch viewedBranch = getBranch();
+      CDOIDAndBranch idAndBranch = CDOIDUtil.createIDAndBranch(cdoId, viewedBranch);
+
+      if (cdoRevision != null && !revisionData.containsKey(idAndBranch))
       {
-        int version = cdoRevision.getVersion();
-        int branchID = cdoRevision.getBranch().getID();
-        uniqueObjects.put(cdoId, CDOIDUtil.createIDAndVersionAndBranch(cdoId, version, branchID));
+        int revisionVersion = cdoRevision.getVersion();
+        int revisionBranchID = cdoRevision.getBranch().getID();
+        revisionData.put(idAndBranch, CDOIDUtil.createIDAndVersionAndBranch(cdoId, revisionVersion, revisionBranchID));
       }
     }
   }

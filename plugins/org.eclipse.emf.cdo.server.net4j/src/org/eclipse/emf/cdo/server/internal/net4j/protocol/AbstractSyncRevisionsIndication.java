@@ -15,7 +15,8 @@ import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.id.CDOIDAndVersionAndBranch;
+import org.eclipse.emf.cdo.common.id.CDOIDAndBranch;
+import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
@@ -24,6 +25,7 @@ import org.eclipse.emf.cdo.spi.common.branch.CDOBranchUtil;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.util.collection.Pair;
+import org.eclipse.net4j.util.collection.Triplet;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import java.io.IOException;
@@ -37,9 +39,9 @@ public abstract class AbstractSyncRevisionsIndication extends CDOReadIndication
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, SyncRevisionsIndication.class);
 
-  protected List<Pair<InternalCDORevision, Long>> dirtyObjects = new ArrayList<Pair<InternalCDORevision, Long>>();
+  protected List<Triplet<CDOIDAndBranch, InternalCDORevision, Long>> dirtyData = new ArrayList<Triplet<CDOIDAndBranch, InternalCDORevision, Long>>();
 
-  protected List<Pair<CDOID, CDOBranchPoint>> detachedObjects = new ArrayList<Pair<CDOID, CDOBranchPoint>>();
+  protected List<Pair<CDOIDAndBranch, Long>> detachedData = new ArrayList<Pair<CDOIDAndBranch, Long>>();
 
   protected int referenceChunk = CDORevision.UNCHUNKED;
 
@@ -55,7 +57,11 @@ public abstract class AbstractSyncRevisionsIndication extends CDOReadIndication
     int size = in.readInt();
     for (int i = 0; i < size; i++)
     {
-      process(in.readCDOIDAndVersionAndBranch());
+      CDOID id = in.readCDOID();
+      int viewBranchID = in.readInt();
+      int revisionBranchID = in.readInt();
+      int revisionVersion = in.readInt();
+      process(id, viewBranchID, revisionBranchID, revisionVersion);
     }
   }
 
@@ -64,61 +70,100 @@ public abstract class AbstractSyncRevisionsIndication extends CDOReadIndication
   {
     if (TRACER.isEnabled())
     {
-      TRACER.format("Sync found " + dirtyObjects.size() + " dirty objects"); //$NON-NLS-1$ //$NON-NLS-2$
+      TRACER.format("Sync found " + dirtyData.size() + " dirty objects"); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
-    out.writeInt(dirtyObjects.size());
-    for (Pair<InternalCDORevision, Long> revisionAndOldRevised : dirtyObjects)
+    out.writeInt(dirtyData.size());
+    for (Triplet<CDOIDAndBranch, InternalCDORevision, Long> triplet : dirtyData)
     {
-      out.writeCDORevision(revisionAndOldRevised.getElement1(), referenceChunk);
-      out.writeLong(revisionAndOldRevised.getElement2());
+      out.writeCDOIDAndBranch(triplet.getElement1());
+      out.writeCDORevision(triplet.getElement2(), referenceChunk);
+      out.writeLong(triplet.getElement3());
     }
 
-    out.writeInt(detachedObjects.size());
-    for (Pair<CDOID, CDOBranchPoint> idAndRevised : detachedObjects)
+    out.writeInt(detachedData.size());
+    for (Pair<CDOIDAndBranch, Long> pair : detachedData)
     {
-      out.writeCDOID(idAndRevised.getElement1());
-      out.writeCDOBranchPoint(idAndRevised.getElement2());
+      out.writeCDOIDAndBranch(pair.getElement1());
+      out.writeLong(pair.getElement2());
     }
   }
 
-  protected abstract void process(CDOIDAndVersionAndBranch idAndVersionAndBranch);
+  protected abstract void process(CDOID id, int viewBranchID, int revisionBranchID, int revisionVersion);
 
-  protected void updateObjectList(CDOIDAndVersionAndBranch idAndVersionAndBranch)
+  /**
+   * @param id
+   *          Some object's CDOID
+   * @param viewedBranchID
+   *          The ID of the branch that the client is viewing the object in
+   * @param revisionBranchID
+   *          The ID of the branch of the revision that the client is using for this object
+   * @param revisionVersion
+   *          The version of the revision that the client is using for this object
+   */
+  protected void updateObjectList(CDOID id, int viewedBranchID, int revisionBranchID, int revisionVersion)
   {
-    CDOID id = idAndVersionAndBranch.getID();
-    int version = idAndVersionAndBranch.getVersion();
-    int branchID = idAndVersionAndBranch.getBranchID();
-    CDOBranch branch = getRepository().getBranchManager().getBranch(branchID);
-    CDOBranchPoint branchPoint = CDOBranchUtil.createBranchPoint(branch, CDORevision.UNSPECIFIED_DATE);
+    // Construct the branchPoint that expresses what the client is *viewing*
+    CDOBranch viewedBranch = getRepository().getBranchManager().getBranch(viewedBranchID);
+    CDOBranchPoint branchPoint = CDOBranchUtil.createBranchPoint(viewedBranch, CDORevision.UNSPECIFIED_DATE);
+
+    // Get the branch of the revision that the client is *using* to back the object
+    CDOBranch revisionBranch = getRepository().getBranchManager().getBranch(revisionBranchID);
 
     try
     {
-      InternalCDORevision revision = (InternalCDORevision)getRepository().getRevisionManager().getRevision(id,
+      // Obtain the latest revision that can back the object that the client is viewing
+      InternalCDORevision latestServerRev = (InternalCDORevision)getRepository().getRevisionManager().getRevision(id,
           branchPoint, referenceChunk, CDORevision.DEPTH_NONE, true);
-      if (revision == null)
+
+      if (latestServerRev == null)
       {
-        long revisedTimestamp = getRevisedTimestamp(id, version, branch);
-        CDOBranchPoint revisedBranchPoint = CDOBranchUtil.createBranchPoint(branch, revisedTimestamp);
-        detachedObjects.add(new Pair<CDOID, CDOBranchPoint>(id, revisedBranchPoint));
+        addDetachedData(id, viewedBranch, revisionBranch, revisionVersion);
       }
-      else if (revision.getVersion() > version || version == CDORevision.UNSPECIFIED_VERSION)
+      else if (latestServerRev.getBranch().getID() != revisionBranchID
+          || latestServerRev.getVersion() > revisionVersion)
       {
-        dirtyObjects.add(new Pair<InternalCDORevision, Long>(revision, getRevisedTimestamp(id, version, branch)));
+        addDirtyData(id, viewedBranch, latestServerRev, revisionBranch, revisionVersion);
       }
-      else if (revision.getVersion() < version)
+      else if (latestServerRev.getBranch().getID() == revisionBranchID
+          && latestServerRev.getVersion() < revisionVersion)
       {
-        throw new IllegalStateException("The object " + revision.getID() + " has a lower version (" //$NON-NLS-1$ //$NON-NLS-2$
-            + revision.getVersion() + ") in the repository than the version (" + version + ") submitted."); //$NON-NLS-1$ //$NON-NLS-2$
+        // Same branch but server's latest version is older than client's version -- impossible!
+        throw new IllegalStateException("The server's revision (" + latestServerRev + ") is on the same branch " //$NON-NLS-1$ //$NON-NLS-2$
+            + "as the client's (" + revisionVersion + "), yet has a smaller version number."); //$NON-NLS-1$ //$NON-NLS-2$
+      }
+      else
+      {
+        // $$$ Remove this else branch when all seems well
+        // $$$ It's only an assertion to ensure we cover all cases.
+        boolean _assert = latestServerRev.getBranch().getID() == revisionBranchID
+            && latestServerRev.getVersion() == revisionVersion;
+        if (!_assert)
+        {
+          throw new IllegalStateException("Server logic error");
+        }
       }
     }
     catch (IllegalArgumentException revisionIsNullException)
     {
-      // $$$ Factor (these 3 lines copied from 102-104)
-      long revisedTimestamp = getRevisedTimestamp(id, version, branch);
-      CDOBranchPoint revisedBranchPoint = CDOBranchUtil.createBranchPoint(branch, revisedTimestamp);
-      detachedObjects.add(new Pair<CDOID, CDOBranchPoint>(id, revisedBranchPoint));
+      addDetachedData(id, viewedBranch, revisionBranch, revisionVersion);
     }
+  }
+
+  private void addDetachedData(CDOID id, CDOBranch viewedBranch, CDOBranch revisionBranch, int revisionVersion)
+  {
+    CDOIDAndBranch idAndBranch = CDOIDUtil.createIDAndBranch(id, viewedBranch);
+    long revisedTimestamp = getRevisedTimestamp(id, revisionVersion, revisionBranch);
+    detachedData.add(new Pair<CDOIDAndBranch, Long>(idAndBranch, revisedTimestamp));
+  }
+
+  private void addDirtyData(CDOID id, CDOBranch viewedBranch, InternalCDORevision latestServerRev,
+      CDOBranch revisionBranch, int revisionVersion)
+  {
+    CDOIDAndBranch idAndBranch = CDOIDUtil.createIDAndBranch(id, viewedBranch);
+    long revisedTimestamp = getRevisedTimestamp(id, revisionVersion, revisionBranch);
+    dirtyData
+        .add(new Triplet<CDOIDAndBranch, InternalCDORevision, Long>(idAndBranch, latestServerRev, revisedTimestamp));
   }
 
   protected long getRevisedTimestamp(CDOID id, int version, CDOBranch branch)

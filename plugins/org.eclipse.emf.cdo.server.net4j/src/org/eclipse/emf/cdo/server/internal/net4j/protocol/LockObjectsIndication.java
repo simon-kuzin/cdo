@@ -11,10 +11,9 @@
  */
 package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndBranch;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersionAndBranch;
-import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
@@ -70,24 +69,27 @@ public class LockObjectsIndication extends AbstractSyncRevisionsIndication
   {
     for (CDOIDAndVersionAndBranch idAndVersionAndBranch : idAndVersionAndBranches)
     {
-      updateObjectList(idAndVersionAndBranch);
+      // $$$ Fix
+      // updateObjectList(idAndVersionAndBranch);
     }
 
-    if (!detachedObjects.isEmpty())
+    if (!detachedData.isEmpty())
     {
       getRepository().getLockManager().unlock(lockType, view, idAndBranches);
-      throw new IllegalArgumentException(detachedObjects.size() + " objects are not persistent anymore"); //$NON-NLS-1$
+      throw new IllegalArgumentException(detachedData.size() + " objects are not persistent anymore"); //$NON-NLS-1$
     }
 
     super.responding(out);
   }
 
   @Override
-  protected void process(CDOIDAndVersionAndBranch idAndVersionAndBranch)
+  protected void process(CDOID id, int viewBranchID, int revisionBranchID, int revisionVersion)
   {
-    CDOBranch branch = getRepository().getBranchManager().getBranch(idAndVersionAndBranch.getBranchID());
-    idAndBranches.add(CDOIDUtil.createIDAndBranch(idAndVersionAndBranch.getID(), branch));
-
-    idAndVersionAndBranches.add(idAndVersionAndBranch);
+    // $$$ Fix
+    /*
+     * CDOBranch branch = getRepository().getBranchManager().getBranch(idAndVersionAndBranch.getBranchID());
+     * idAndBranches.add(CDOIDUtil.createIDAndBranch(idAndVersionAndBranch.getID(), branch));
+     * idAndVersionAndBranches.add(idAndVersionAndBranch);
+     */
   }
 }

@@ -10,7 +10,7 @@
  **************************************************************************/
 package org.eclipse.emf.cdo.internal.net4j.protocol;
 
-import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.id.CDOIDAndBranch;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersionAndBranch;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
@@ -37,9 +37,9 @@ public class LockObjectsRequest extends SyncRevisionsRequest
   private long timeout;
 
   public LockObjectsRequest(CDOClientProtocol protocol, CDOView view,
-      Map<CDOID, CDOIDAndVersionAndBranch> idAndVersionAndBranches, int referenceChunk, long timeout, LockType lockType)
+      Map<CDOIDAndBranch, CDOIDAndVersionAndBranch> revisionData, int referenceChunk, long timeout, LockType lockType)
   {
-    super(protocol, CDOProtocolConstants.SIGNAL_LOCK_OBJECTS, idAndVersionAndBranches, referenceChunk);
+    super(protocol, CDOProtocolConstants.SIGNAL_LOCK_OBJECTS, revisionData, referenceChunk);
     this.view = view;
 
     this.timeout = timeout;

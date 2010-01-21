@@ -20,6 +20,7 @@ import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.id.CDOIDAndBranch;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersionAndBranch;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
@@ -479,14 +480,14 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     checkActive();
     if (!options().isPassiveUpdateEnabled())
     {
-      Map<CDOID, CDOIDAndVersionAndBranch> allRevisions = getAllCDOIDAndVersionAndBranch();
+      Map<CDOIDAndBranch, CDOIDAndVersionAndBranch> revisionData = getAllRevisionData();
 
       try
       {
-        if (!allRevisions.isEmpty())
+        if (!revisionData.isEmpty())
         {
           int initialChunkSize = options().getCollectionLoadingPolicy().getInitialChunkSize();
-          return getSessionProtocol().syncRevisions(allRevisions, initialChunkSize);
+          return getSessionProtocol().syncRevisions(revisionData, initialChunkSize);
         }
       }
       catch (Exception ex)
@@ -878,26 +879,31 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     super.doDeactivate();
   }
 
-  private Map<CDOID, CDOIDAndVersionAndBranch> getAllCDOIDAndVersionAndBranch()
+  private Map<CDOIDAndBranch, CDOIDAndVersionAndBranch> getAllRevisionData()
   {
-    Map<CDOID, CDOIDAndVersionAndBranch> uniqueObjects = new HashMap<CDOID, CDOIDAndVersionAndBranch>();
+    Map<CDOIDAndBranch, CDOIDAndVersionAndBranch> revisionData = new HashMap<CDOIDAndBranch, CDOIDAndVersionAndBranch>();
+    // Map<CDOID, CDOIDAndVersionAndBranch> uniqueObjects = new HashMap<CDOID, CDOIDAndVersionAndBranch>();
     for (InternalCDOView view : getViews())
     {
-      view.getCDOIDAndVersionAndBranch(uniqueObjects, Arrays.asList(view.getObjectsArray()));
+      view.getCDOIDAndVersionAndBranch(revisionData, Arrays.asList(view.getObjectsArray()));
     }
 
-    // Need to add Revision from revisionManager since we do not have all objects in view.
+    // Need to add current revisions from revisionManager that aren't in view
     for (CDORevision revision : getRevisionManager().getCache().getCurrentRevisions())
     {
-      if (!uniqueObjects.containsKey(revision.getID()))
-      {
+      CDOID id = revision.getID();
+      int revisionBranchID = revision.getBranch().getID();
+      int revisionVersion = revision.getVersion();
+      CDOIDAndVersionAndBranch ivb = CDOIDUtil.createIDAndVersionAndBranch(id, revisionVersion, revisionBranchID);
 
-        uniqueObjects.put(revision.getID(), CDOIDUtil.createIDAndVersionAndBranch(revision.getID(), revision
-            .getVersion(), revision.getBranch().getID()));
+      if (!revisionData.containsValue(ivb))
+      {
+        // $$$ Fix; how do we deal with these "unviewed" current revisions
+        // revisionData.put(???, ivb);
       }
     }
 
-    return uniqueObjects;
+    return revisionData;
   }
 
   public static boolean isInvalidationRunnerActive()
@@ -962,11 +968,11 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
         this.passiveUpdateEnabled = passiveUpdateEnabled;
 
         // Need to refresh if we change state
-        Map<CDOID, CDOIDAndVersionAndBranch> allRevisions = getAllCDOIDAndVersionAndBranch();
-        if (!allRevisions.isEmpty())
+        Map<CDOIDAndBranch, CDOIDAndVersionAndBranch> revisionData = getAllRevisionData();
+        if (!revisionData.isEmpty())
         {
           int initialChunkSize = collectionLoadingPolicy.getInitialChunkSize();
-          getSessionProtocol().setPassiveUpdate(allRevisions, initialChunkSize, passiveUpdateEnabled);
+          getSessionProtocol().setPassiveUpdate(revisionData, initialChunkSize, passiveUpdateEnabled);
         }
 
         IListener[] listeners = getListeners();
@@ -1459,15 +1465,15 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       }
     }
 
-    public void lockObjects(CDOView view, Map<CDOID, CDOIDAndVersionAndBranch> objects, long timeout, LockType lockType)
-        throws InterruptedException
+    public void lockObjects(CDOView view, Map<CDOIDAndBranch, CDOIDAndVersionAndBranch> revisionData, long timeout,
+        LockType lockType) throws InterruptedException
     {
       int attempt = 0;
       for (;;)
       {
         try
         {
-          delegate.lockObjects(view, objects, timeout, lockType);
+          delegate.lockObjects(view, revisionData, timeout, lockType);
           return;
         }
         catch (Exception ex)
@@ -1494,7 +1500,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       }
     }
 
-    public void setPassiveUpdate(Map<CDOID, CDOIDAndVersionAndBranch> idAndVersionAndBranches, int initialChunkSize,
+    public void setPassiveUpdate(Map<CDOIDAndBranch, CDOIDAndVersionAndBranch> revisionData, int initialChunkSize,
         boolean passiveUpdateEnabled)
     {
       int attempt = 0;
@@ -1502,7 +1508,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       {
         try
         {
-          delegate.setPassiveUpdate(idAndVersionAndBranches, initialChunkSize, passiveUpdateEnabled);
+          delegate.setPassiveUpdate(revisionData, initialChunkSize, passiveUpdateEnabled);
           return;
         }
         catch (Exception ex)
@@ -1512,7 +1518,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       }
     }
 
-    public Collection<CDORefreshContext> syncRevisions(Map<CDOID, CDOIDAndVersionAndBranch> allRevisions,
+    public Collection<CDORefreshContext> syncRevisions(Map<CDOIDAndBranch, CDOIDAndVersionAndBranch> revisionData,
         int initialChunkSize)
     {
       int attempt = 0;
@@ -1520,7 +1526,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       {
         try
         {
-          return delegate.syncRevisions(allRevisions, initialChunkSize);
+          return delegate.syncRevisions(revisionData, initialChunkSize);
         }
         catch (Exception ex)
         {

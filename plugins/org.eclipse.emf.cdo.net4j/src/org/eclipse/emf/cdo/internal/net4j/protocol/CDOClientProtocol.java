@@ -14,6 +14,7 @@ import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.id.CDOIDAndBranch;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersionAndBranch;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
@@ -83,10 +84,10 @@ public class CDOClientProtocol extends SignalProtocol<CDOSession> implements CDO
     return send(new OpenSessionRequest(this, repositoryName, passiveUpdateEnabled));
   }
 
-  public void setPassiveUpdate(Map<CDOID, CDOIDAndVersionAndBranch> idAndVersionAndBranches, int initialChunkSize,
+  public void setPassiveUpdate(Map<CDOIDAndBranch, CDOIDAndVersionAndBranch> revisionData, int initialChunkSize,
       boolean passiveUpdateEnabled)
   {
-    send(new SetPassiveUpdateRequest(this, idAndVersionAndBranches, initialChunkSize, passiveUpdateEnabled));
+    send(new SetPassiveUpdateRequest(this, revisionData, initialChunkSize, passiveUpdateEnabled));
   }
 
   public RepositoryTimeResult getRepositoryTime()
@@ -131,10 +132,10 @@ public class CDOClientProtocol extends SignalProtocol<CDOSession> implements CDO
     return send(new LoadRevisionByVersionRequest(this, id, branchVersion, referenceChunk));
   }
 
-  public Collection<CDORefreshContext> syncRevisions(Map<CDOID, CDOIDAndVersionAndBranch> idAndVersionAndBranches,
+  public Collection<CDORefreshContext> syncRevisions(Map<CDOIDAndBranch, CDOIDAndVersionAndBranch> revisionData,
       int initialChunkSize)
   {
-    return send(new SyncRevisionsRequest(this, idAndVersionAndBranches, initialChunkSize));
+    return send(new SyncRevisionsRequest(this, revisionData, initialChunkSize));
   }
 
   public void openView(int viewID, CDOBranchPoint branchPoint, boolean readOnly)
@@ -174,15 +175,15 @@ public class CDOClientProtocol extends SignalProtocol<CDOSession> implements CDO
     }
   }
 
-  public void lockObjects(CDOView view, Map<CDOID, CDOIDAndVersionAndBranch> objects, long timeout, LockType lockType)
-      throws InterruptedException
+  public void lockObjects(CDOView view, Map<CDOIDAndBranch, CDOIDAndVersionAndBranch> revisionData, long timeout,
+      LockType lockType) throws InterruptedException
   {
     InterruptedException interruptedException = null;
     RuntimeException runtimeException = null;
 
     try
     {
-      new LockObjectsRequest(this, view, objects, view.getSession().options().getCollectionLoadingPolicy()
+      new LockObjectsRequest(this, view, revisionData, view.getSession().options().getCollectionLoadingPolicy()
           .getInitialChunkSize(), timeout, lockType).send();
     }
     catch (RemoteException ex)
