@@ -83,13 +83,14 @@ public final class CDORevisionUtil
    */
   public static void dumpAllRevisions(Map<CDOBranch, List<CDORevision>> map, PrintStream out)
   {
+    final int pad = 48;
     ArrayList<CDOBranch> branches = new ArrayList<CDOBranch>(map.keySet());
     Collections.sort(branches);
 
     for (CDOBranch branch : branches)
     {
-      out.println(MessageFormat.format("Branch {0}: {1}   {2,date} {2,time}/*", branch.getID(), branch.getName(),
-          branch.getBase().getTimeStamp()));
+      out.println(padTimeRange(branch.getName() + "[" + branch.getID() + "]", pad, branch.getBase().getTimeStamp(),
+          CDORevision.UNSPECIFIED_DATE));
 
       List<CDORevision> revisions = map.get(branch);
       Collections.sort(revisions, new Comparator<CDORevision>()
@@ -110,18 +111,29 @@ public final class CDORevisionUtil
 
       for (CDORevision revision : revisions)
       {
-        long revised = revision.getRevised();
-        String valid = "*";
-        if (revised != CDORevision.UNSPECIFIED_DATE)
-        {
-          valid = MessageFormat.format("{0,date} {0,time}", revised);
-        }
-
-        out.println(MessageFormat.format("  {0}   {1,date} {1,time}/{2}", revision, revision.getTimeStamp(), valid));
+        out.println(padTimeRange("  " + revision, pad, revision.getTimeStamp(), revision.getRevised()));
       }
 
       out.println();
     }
+  }
+
+  private static String padTimeRange(String s, int pos, long t1, long t2)
+  {
+    StringBuffer buffer = new StringBuffer(s);
+    while (buffer.length() < pos)
+    {
+      buffer.append(' ');
+    }
+
+    String revised = "*";
+    if (t2 != CDORevision.UNSPECIFIED_DATE)
+    {
+      revised = MessageFormat.format("{0,date} {0,time}", t2);
+    }
+
+    buffer.append(MessageFormat.format("{0,date} {0,time}/{1}", t1, revised));
+    return buffer.toString();
   }
 
   /**
