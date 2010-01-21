@@ -36,6 +36,6 @@ public class DetachedCDORevision extends SyntheticCDORevision
   @Override
   public String toString()
   {
-    return MessageFormat.format("DetachMarker[branch={0}, id={1}]", getBranch().getID(), id);
+    return MessageFormat.format("DetachedCDORevision[{0}:{1}v0]", id, getBranch().getID());
   }
 }

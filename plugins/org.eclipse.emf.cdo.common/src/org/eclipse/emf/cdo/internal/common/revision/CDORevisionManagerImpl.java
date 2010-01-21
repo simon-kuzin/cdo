@@ -475,7 +475,8 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     @Override
     public String toString()
     {
-      return MessageFormat.format("CachePointer[branch={0}, target={1}]", getBranch().getID(), target);
+      return MessageFormat.format("CachePointer[{0}:{1}v0 --> {2}v{3}]", target.getID(), getBranch().getID(), target
+          .getBranch().getID(), target.getVersion());
     }
   }
 }

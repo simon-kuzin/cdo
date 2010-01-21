@@ -23,6 +23,7 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.util.FeatureMap;
 
 import java.io.PrintStream;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -85,17 +86,9 @@ public final class CDORevisionUtil
     ArrayList<CDOBranch> branches = new ArrayList<CDOBranch>(map.keySet());
     Collections.sort(branches);
 
-    boolean first = true;
     for (CDOBranch branch : branches)
     {
-      if (first)
-      {
-        first = false;
-      }
-      else
-      {
-        out.println();
-      }
+      out.println(MessageFormat.format("Branch {0}: {1}   {2}", branch.getID(), branch.getName(), branch.getBase()));
 
       List<CDORevision> revisions = map.get(branch);
       Collections.sort(revisions, new Comparator<CDORevision>()
@@ -116,8 +109,17 @@ public final class CDORevisionUtil
 
       for (CDORevision revision : revisions)
       {
-        out.println(revision);
+        long revised = revision.getRevised();
+        String valid = "*";
+        if (revised != CDORevision.UNSPECIFIED_DATE)
+        {
+          valid = MessageFormat.format("{0,date} {0,time}", revised);
+        }
+
+        out.println(MessageFormat.format("  {0}   {1,date} {1,time}/{2}", revision, revision.getTimeStamp(), valid));
       }
+
+      out.println();
     }
   }
 
