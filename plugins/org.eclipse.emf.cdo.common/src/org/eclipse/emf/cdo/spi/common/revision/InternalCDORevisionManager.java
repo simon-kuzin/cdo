@@ -58,7 +58,7 @@ public interface InternalCDORevisionManager extends CDORevisionManager, CDORevis
 
   public void reviseLatest(CDOID id, CDOBranch branch);
 
-  public boolean reviseVersion(CDOID id, CDOBranchVersion branchVersion, long timeStamp);
+  public void reviseVersion(CDOID id, CDOBranchVersion branchVersion, long timeStamp);
 
   /**
    * @author Eike Stepper

@@ -18,9 +18,7 @@ import org.eclipse.emf.cdo.CDOState;
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.id.CDOIDAndBranch;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
-import org.eclipse.emf.cdo.common.id.CDOIDAndVersionAndBranch;
 import org.eclipse.emf.cdo.common.id.CDOIDMeta;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
@@ -397,24 +395,19 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
       throws InterruptedException
   {
     checkActive();
-    Map<CDOIDAndBranch, CDOIDAndVersionAndBranch> revisionData = new HashMap<CDOIDAndBranch, CDOIDAndVersionAndBranch>();
-    getCDOIDAndVersionAndBranch(revisionData, objects);
+    Map<CDOID, CDOIDAndVersion> uniqueObjects = new HashMap<CDOID, CDOIDAndVersion>();
+    getCDOIDAndVersion(uniqueObjects, objects);
     for (CDOObject object : objects)
     {
-      CDOBranch viewedBranch = getBranch();
-      CDOIDAndBranch idAndBranch = CDOIDUtil.createIDAndBranch(object.cdoID(), viewedBranch);
-
-      CDOIDAndVersionAndBranch idAndVersionAndBranch = revisionData.get(object.cdoID());
-      if (idAndVersionAndBranch == null)
+      CDOIDAndVersion idAndVersion = uniqueObjects.get(object.cdoID());
+      if (idAndVersion == null)
       {
-        CDOID cdoID = object.cdoID();
-        int version = CDORevision.UNSPECIFIED_VERSION;
-        CDOIDAndVersionAndBranch ivb = CDOIDUtil.createIDAndVersionAndBranch(cdoID, version, getBranch().getID());
-        revisionData.put(idAndBranch, ivb);
+        uniqueObjects
+            .put(object.cdoID(), CDOIDUtil.createIDAndVersion(object.cdoID(), CDORevision.UNSPECIFIED_VERSION));
       }
     }
 
-    session.getSessionProtocol().lockObjects(this, revisionData, timeout, lockType);
+    session.getSessionProtocol().lockObjects(this, uniqueObjects, timeout, lockType);
   }
 
   /**
@@ -1298,12 +1291,12 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
    * @param timeStamp
    *          The time stamp of the server transaction if this event was sent as a result of a successfully committed
    *          transaction or <code>LOCAL_ROLLBACK</code> if this event was sent due to a local rollback.
-   * @param dirtyOIDandVersions
+   * @param dirtyOIDs
    *          A set of the object IDs to be invalidated. <b>Implementation note:</b> This implementation expects the
    *          dirtyOIDs set to be unmodifiable. It does not wrap the set (again).
    * @since 2.0
    */
-  public Set<CDOObject> handleInvalidation(long timeStamp, Set<CDOIDAndVersion> dirtyOIDandVersions,
+  public Set<CDOObject> handleInvalidation(long timeStamp, Set<CDOIDAndVersion> dirtyOIDs,
       Collection<CDOID> detachedOIDs)
   {
     Set<CDOObject> conflicts = null;
@@ -1313,8 +1306,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
 
     try
     {
-      conflicts = handleInvalidationWithoutNotification(dirtyOIDandVersions, detachedOIDs, dirtyObjects,
-          detachedObjects);
+      conflicts = handleInvalidationWithoutNotification(dirtyOIDs, detachedOIDs, dirtyObjects, detachedObjects);
     }
     finally
     {
@@ -1607,22 +1599,16 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     return getResourceSet();
   }
 
-  public void getCDOIDAndVersionAndBranch(Map<CDOIDAndBranch, CDOIDAndVersionAndBranch> revisionData,
-      Collection<? extends CDOObject> cdoObjects)
+  public void getCDOIDAndVersion(Map<CDOID, CDOIDAndVersion> uniqueObjects, Collection<? extends CDOObject> cdoObjects)
   {
     for (CDOObject internalCDOObject : cdoObjects)
     {
       CDORevision cdoRevision = CDOStateMachine.INSTANCE.readNoLoad((InternalCDOObject)internalCDOObject);
       CDOID cdoId = internalCDOObject.cdoID();
-
-      CDOBranch viewedBranch = getBranch();
-      CDOIDAndBranch idAndBranch = CDOIDUtil.createIDAndBranch(cdoId, viewedBranch);
-
-      if (cdoRevision != null && !revisionData.containsKey(idAndBranch))
+      if (cdoRevision != null && !uniqueObjects.containsKey(cdoId))
       {
-        int revisionVersion = cdoRevision.getVersion();
-        int revisionBranchID = cdoRevision.getBranch().getID();
-        revisionData.put(idAndBranch, CDOIDUtil.createIDAndVersionAndBranch(cdoId, revisionVersion, revisionBranchID));
+        int version = cdoRevision.getVersion();
+        uniqueObjects.put(cdoId, CDOIDUtil.createIDAndVersion(cdoId, version));
       }
     }
   }

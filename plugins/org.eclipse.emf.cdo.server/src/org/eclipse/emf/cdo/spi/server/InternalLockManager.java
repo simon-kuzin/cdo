@@ -10,7 +10,7 @@
  */
 package org.eclipse.emf.cdo.spi.server;
 
-import org.eclipse.emf.cdo.common.id.CDOIDAndBranch;
+import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.server.IView;
 
 import org.eclipse.net4j.util.concurrent.IRWLockManager;
@@ -19,7 +19,7 @@ import org.eclipse.net4j.util.concurrent.IRWLockManager;
  * @author Eike Stepper
  * @since 3.0
  */
-public interface InternalLockManager extends IRWLockManager<CDOIDAndBranch, IView>
+public interface InternalLockManager extends IRWLockManager<CDOID, IView>
 {
   public InternalRepository getRepository();
 

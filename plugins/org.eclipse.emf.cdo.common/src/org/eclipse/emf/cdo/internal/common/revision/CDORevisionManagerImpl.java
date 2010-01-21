@@ -165,7 +165,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     }
   }
 
-  public boolean reviseVersion(CDOID id, CDOBranchVersion branchVersion, long timeStamp)
+  public void reviseVersion(CDOID id, CDOBranchVersion branchVersion, long timeStamp)
   {
     acquireAtomicRequestLock(revisedLock);
 
@@ -176,31 +176,13 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
       {
         if (timeStamp == CDORevision.UNSPECIFIED_DATE)
         {
-          // $$$ Why would this ever get called?
-          // $$$ Used to be: cache.removeRevision(id, branchVersion);
-          throw new RuntimeException("CDORevisionManagerImpl.reviseVersion called with CDORevision.UNSPECIFIED_DATE");
-        }
-
-        long oldTimestamp = revision.getRevised();
-        long newTimestamp = timeStamp - 1;
-        if (oldTimestamp != CDORevision.UNSPECIFIED_DATE)
-        {
-          if (oldTimestamp != newTimestamp)
-          {
-            // $$$ This can't be
-            throw new IllegalStateException("CDORevisionManagerImpl.reviseVersion received conflicting revised values");
-          }
-
-          return false;
+          cache.removeRevision(id, branchVersion);
         }
         else
         {
           revision.setRevised(timeStamp - 1);
-          return true;
         }
       }
-
-      return false;
     }
     finally
     {

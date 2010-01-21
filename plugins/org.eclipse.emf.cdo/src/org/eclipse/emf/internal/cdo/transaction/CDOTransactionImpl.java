@@ -20,9 +20,7 @@ import org.eclipse.emf.cdo.common.branch.CDOBranchManager;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.commit.CDOCommit;
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.id.CDOIDAndBranch;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
-import org.eclipse.emf.cdo.common.id.CDOIDAndVersionAndBranch;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
@@ -342,28 +340,26 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
   }
 
   @Override
-  public void getCDOIDAndVersionAndBranch(Map<CDOIDAndBranch, CDOIDAndVersionAndBranch> revisionData,
-      Collection<? extends CDOObject> cdoObjects)
+  public void getCDOIDAndVersion(Map<CDOID, CDOIDAndVersion> uniqueObjects, Collection<? extends CDOObject> cdoObjects)
   {
     Map<CDOID, CDORevisionDelta> deltaMap = getRevisionDeltas();
     for (CDOObject cdoObject : cdoObjects)
     {
       CDORevision cdoRevision = CDOStateMachine.INSTANCE.readNoLoad((InternalCDOObject)cdoObject);
       CDOID cdoId = cdoObject.cdoID();
-      CDOIDAndBranch idAndBranch = CDOIDUtil.createIDAndBranch(cdoId, getBranch());
-      if (cdoRevision != null && !cdoId.isTemporary() && !revisionData.containsKey(idAndBranch))
+      if (cdoRevision != null && !cdoId.isTemporary() && !uniqueObjects.containsKey(cdoId))
       {
-        int revisionVersion = cdoRevision.getVersion();
+        int version = cdoRevision.getVersion();
         if (deltaMap != null)
         {
           CDORevisionDelta delta = deltaMap.get(cdoId);
           if (delta != null)
           {
-            revisionVersion = delta.getVersion();
+            version = delta.getVersion();
           }
         }
-        int revisionBranchID = cdoRevision.getBranch().getID();
-        revisionData.put(idAndBranch, CDOIDUtil.createIDAndVersionAndBranch(cdoId, revisionVersion, revisionBranchID));
+
+        uniqueObjects.put(cdoId, CDOIDUtil.createIDAndVersion(cdoId, version));
       }
     }
   }
@@ -1203,7 +1199,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
   /**
    * TODO Simon: Should this method go to CDOSavePointImpl?
    */
-  @SuppressWarnings( { "rawtypes", "unchecked" })
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   private void registerNew(Map map, InternalCDOObject object)
   {
     Object old = map.put(object.cdoID(), object);
@@ -1743,15 +1739,15 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
           }
 
           Map<CDOID, CDOObject> dirtyObjects = getDirtyObjects();
-          Set<CDOIDAndVersion> dirtyIDandVersions = new HashSet<CDOIDAndVersion>();
+          Set<CDOIDAndVersion> dirtyIDs = new HashSet<CDOIDAndVersion>();
           for (CDOObject dirtyObject : dirtyObjects.values())
           {
             CDORevision revision = dirtyObject.cdoRevision();
             CDOIDAndVersion dirtyID = CDOIDUtil.createIDAndVersion(revision.getID(), revision.getVersion() - 1);
-            dirtyIDandVersions.add(dirtyID);
+            dirtyIDs.add(dirtyID);
           }
 
-          if (!dirtyIDandVersions.isEmpty() || !getDetachedObjects().isEmpty())
+          if (!dirtyIDs.isEmpty() || !getDetachedObjects().isEmpty())
           {
             Set<CDOID> detachedIDs = new HashSet<CDOID>(getDetachedObjects().keySet());
             Collection<CDORevisionDelta> deltasCopy = new ArrayList<CDORevisionDelta>(deltas);
@@ -1763,8 +1759,8 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
               ((InternalCDORevisionDelta)dirtyObjectDelta).adjustReferences(result.getReferenceAdjuster());
             }
 
-            session.handleCommitNotification(getBranch().getPoint(result.getTimeStamp()), newPackageUnits,
-                dirtyIDandVersions, detachedIDs, deltasCopy, getTransaction());
+            session.handleCommitNotification(getBranch().getPoint(result.getTimeStamp()), newPackageUnits, dirtyIDs,
+                detachedIDs, deltasCopy, getTransaction());
           }
           else
           {

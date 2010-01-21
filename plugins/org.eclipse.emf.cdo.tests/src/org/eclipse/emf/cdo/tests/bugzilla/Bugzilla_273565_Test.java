@@ -230,7 +230,6 @@ public class Bugzilla_273565_Test extends AbstractCDOTest
     done[0] = false;
     orderDetail.setPrice(2);
     CDOSession session = openModel1Session();
-    // session.options().setPassiveUpdateEnabled(false); // $$$ Remove this
     CDOTransaction transaction = session.openTransaction();
     CDOResource resource = transaction.createResource("/test1");
     resource.getContents().add(orderDetail);
@@ -243,7 +242,6 @@ public class Bugzilla_273565_Test extends AbstractCDOTest
         try
         {
           CDOSession session = openModel1Session();
-          // session.options().setPassiveUpdateEnabled(false); // $$$ Remove this
           CDOTransaction transaction = session.openTransaction();
           OrderDetail orderDetail2 = (OrderDetail)transaction.getObject(CDOUtil.getCDOObject(orderDetail).cdoID());
 

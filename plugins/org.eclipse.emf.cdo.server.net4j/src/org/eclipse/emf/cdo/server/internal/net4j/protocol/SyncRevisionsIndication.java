@@ -53,11 +53,11 @@ public class SyncRevisionsIndication extends AbstractSyncRevisionsIndication
   }
 
   @Override
-  protected void process(CDOID id, int viewedBranchID, int revisionBranchID, int revisionVersion)
+  protected void process(CDOID id, int version)
   {
-    if (revisionVersion > 0) // $$$ What's this check for?
+    if (version > 0)
     {
-      updateObjectList(id, viewedBranchID, revisionBranchID, revisionVersion);
+      udpateObjectList(id, version);
     }
   }
 }

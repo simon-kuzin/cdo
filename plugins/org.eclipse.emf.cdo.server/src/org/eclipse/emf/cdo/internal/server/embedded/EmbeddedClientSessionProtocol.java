@@ -14,8 +14,7 @@ import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.id.CDOIDAndBranch;
-import org.eclipse.emf.cdo.common.id.CDOIDAndVersionAndBranch;
+import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDOAuthenticationResult;
@@ -126,7 +125,7 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
     return result;
   }
 
-  public void setPassiveUpdate(Map<CDOIDAndBranch, CDOIDAndVersionAndBranch> revisionData, int initialChunkSize,
+  public void setPassiveUpdate(Map<CDOID, CDOIDAndVersion> idAndVersions, int initialChunkSize,
       boolean passiveUpdateEnabled)
   {
     // serverSessionProtocol.getSession().setPassiveUpdateEnabled(passiveUpdateEnabled);
@@ -181,8 +180,7 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
     }
   }
 
-  public Collection<CDORefreshContext> syncRevisions(Map<CDOIDAndBranch, CDOIDAndVersionAndBranch> revisionData,
-      int initialChunkSize)
+  public Collection<CDORefreshContext> syncRevisions(Map<CDOID, CDOIDAndVersion> allRevisions, int initialChunkSize)
   {
     throw new UnsupportedOperationException();
   }
@@ -273,8 +271,8 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
     throw new UnsupportedOperationException();
   }
 
-  public void lockObjects(CDOView view, Map<CDOIDAndBranch, CDOIDAndVersionAndBranch> revisionData, long timeout,
-      LockType lockType) throws InterruptedException
+  public void lockObjects(CDOView view, Map<CDOID, CDOIDAndVersion> objects, long timeout, LockType lockType)
+      throws InterruptedException
   {
     throw new UnsupportedOperationException();
   }
