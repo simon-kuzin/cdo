@@ -316,6 +316,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
   public InternalCDORevision getRevisionByVersion(CDOID id, CDOBranchVersion branchVersion, int referenceChunk,
       boolean loadOnDemand)
   {
+    checkArg(branchVersion.getVersion() > 0, "Invalid version");
     acquireAtomicRequestLock(loadAndAddLock);
 
     try
@@ -414,6 +415,11 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     }
   }
 
+  private InternalCDORevision getCachedRevisionByVersion(CDOID id, CDOBranchVersion branchVersion)
+  {
+    return (InternalCDORevision)cache.getRevisionByVersion(id, branchVersion);
+  }
+
   private InternalCDORevision getCachedRevision(CDOID id, CDOBranchPoint branchPoint)
   {
     return (InternalCDORevision)cache.getRevision(id, branchPoint);
@@ -437,16 +443,5 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
 
     // Reached main branch
     return null;
-  }
-
-  private InternalCDORevision getCachedRevisionByVersion(CDOID id, CDOBranchVersion branchVersion)
-  {
-    InternalCDORevision revision = (InternalCDORevision)cache.getRevisionByVersion(id, branchVersion);
-    if (revision instanceof SyntheticCDORevision)
-    {
-      return null;
-    }
-
-    return revision;
   }
 }
