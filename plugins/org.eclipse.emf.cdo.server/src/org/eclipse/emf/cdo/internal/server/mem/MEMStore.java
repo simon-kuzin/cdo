@@ -27,7 +27,6 @@ import org.eclipse.emf.cdo.server.IView;
 import org.eclipse.emf.cdo.server.StoreThreadLocal;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager.BranchLoader;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
-import org.eclipse.emf.cdo.spi.common.revision.PointerCDORevision;
 import org.eclipse.emf.cdo.spi.server.LongIDStore;
 import org.eclipse.emf.cdo.spi.server.StoreAccessorPool;
 
@@ -450,24 +449,6 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
         if (revision.isValid(timeStamp))
         {
           return revision;
-        }
-      }
-    }
-
-    CDOBranch branch = branchPoint.getBranch();
-    if (!branch.isMainBranch())
-    {
-      CDOID id = list.get(0).getID();
-      InternalCDORevision revision = getRevisionByVersion(id, branch.getVersion(CDORevision.FIRST_VERSION));
-      if (revision != null)
-      {
-        long revised = revision.getTimeStamp() - 1;
-        if (timeStamp <= revised)
-        {
-          PointerCDORevision pointer = new PointerCDORevision(id, branch);
-          pointer.setRevised(revised);
-          addRevision(pointer);
-          return pointer;
         }
       }
     }

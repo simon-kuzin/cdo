@@ -295,22 +295,6 @@ public class Repository extends Container<Object> implements InternalRepository
     return revision;
   }
 
-  private long loadRevisionRevised(CDOID id, CDOBranch branch, long timeStamp)
-  {
-    InternalCDORevision revision = loadRevisionByVersion(id, branch.getVersion(CDORevision.FIRST_VERSION),
-        CDORevision.UNCHUNKED);
-    if (revision != null)
-    {
-      long revised = revision.getTimeStamp() - 1;
-      if (timeStamp <= revised)
-      {
-        return revised;
-      }
-    }
-
-    return CDORevision.UNSPECIFIED_DATE;
-  }
-
   private InternalCDORevision loadRevsionTarget(CDOID id, CDOBranchPoint branchPoint, int referenceChunk,
       IStoreAccessor accessor)
   {
@@ -328,6 +312,22 @@ public class Repository extends Container<Object> implements InternalRepository
     }
 
     return null;
+  }
+
+  private long loadRevisionRevised(CDOID id, CDOBranch branch, long timeStamp)
+  {
+    InternalCDORevision revision = loadRevisionByVersion(id, branch.getVersion(CDORevision.FIRST_VERSION),
+        CDORevision.UNCHUNKED);
+    if (revision != null)
+    {
+      long revised = revision.getTimeStamp() - 1;
+      if (timeStamp <= revised)
+      {
+        return revised;
+      }
+    }
+  
+    return CDORevision.UNSPECIFIED_DATE;
   }
 
   public InternalCDORevision loadRevisionByVersion(CDOID id, CDOBranchVersion branchVersion, int referenceChunk)
