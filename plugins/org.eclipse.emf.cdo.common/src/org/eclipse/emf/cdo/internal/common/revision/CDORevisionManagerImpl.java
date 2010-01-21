@@ -39,11 +39,9 @@ import org.eclipse.net4j.util.om.trace.ContextTracer;
 import org.eclipse.emf.ecore.EClass;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author Eike Stepper
@@ -193,12 +191,12 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
   public InternalCDORevision getRevision(CDOID id, CDOBranchPoint branchPoint, int referenceChunk, int prefetchDepth,
       boolean loadOnDemand)
   {
-    Set<CDOID> ids = Collections.singleton(id);
+    List<CDOID> ids = Collections.singletonList(id);
     List<CDORevision> revisions = getRevisions(ids, branchPoint, referenceChunk, prefetchDepth, loadOnDemand);
     return (InternalCDORevision)revisions.get(0);
   }
 
-  public List<CDORevision> getRevisions(Collection<CDOID> ids, CDOBranchPoint branchPoint, int referenceChunk,
+  public List<CDORevision> getRevisions(List<CDOID> ids, CDOBranchPoint branchPoint, int referenceChunk,
       int prefetchDepth, boolean loadOnDemand)
   {
     List<CDORevision> revisions = new ArrayList<CDORevision>(ids.size());

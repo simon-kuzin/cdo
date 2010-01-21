@@ -8,7 +8,7 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  */
-package org.eclipse.emf.cdo.internal.server.embedded;
+package org.eclipse.emf.cdo.spi.common.revision;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
@@ -18,17 +18,16 @@ import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionFactory;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
 import org.eclipse.emf.cdo.common.revision.cache.InternalCDORevisionCache;
-import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
 
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
 
 import org.eclipse.emf.ecore.EClass;
 
-import java.util.Collection;
 import java.util.List;
 
 /**
  * @author Eike Stepper
+ * @since 3.0
  */
 public abstract class DelegatingCDORevisionManager extends Lifecycle implements InternalCDORevisionManager
 {
@@ -76,6 +75,21 @@ public abstract class DelegatingCDORevisionManager extends Lifecycle implements 
     getDelegate().setRevisionLocker(revisionLocker);
   }
 
+  public boolean isSupportingBranches()
+  {
+    return getDelegate().isSupportingBranches();
+  }
+
+  public void setSupportingBranches(boolean on)
+  {
+    getDelegate().setSupportingBranches(on);
+  }
+
+  public boolean addRevision(CDORevision revision)
+  {
+    return getDelegate().addRevision(revision);
+  }
+
   public boolean containsRevision(CDOID id, CDOBranchPoint branchPoint)
   {
     return getDelegate().containsRevision(id, branchPoint);
@@ -91,19 +105,19 @@ public abstract class DelegatingCDORevisionManager extends Lifecycle implements 
     return getDelegate().getObjectType(id);
   }
 
-  public CDORevision getRevision(CDOID id, CDOBranchPoint branchPoint, int referenceChunk, int prefetchDepth,
-      boolean loadOnDemand)
-  {
-    return getDelegate().getRevision(id, branchPoint, referenceChunk, prefetchDepth, loadOnDemand);
-  }
-
   public CDORevision getRevisionByVersion(CDOID id, CDOBranchVersion branchVersion, int referenceChunk,
       boolean loadOnDemand)
   {
     return getDelegate().getRevisionByVersion(id, branchVersion, referenceChunk, loadOnDemand);
   }
 
-  public List<CDORevision> getRevisions(Collection<CDOID> ids, CDOBranchPoint branchPoint, int referenceChunk,
+  public CDORevision getRevision(CDOID id, CDOBranchPoint branchPoint, int referenceChunk, int prefetchDepth,
+      boolean loadOnDemand)
+  {
+    return getDelegate().getRevision(id, branchPoint, referenceChunk, prefetchDepth, loadOnDemand);
+  }
+
+  public List<CDORevision> getRevisions(List<CDOID> ids, CDOBranchPoint branchPoint, int referenceChunk,
       int prefetchDepth, boolean loadOnDemand)
   {
     return getDelegate().getRevisions(ids, branchPoint, referenceChunk, prefetchDepth, loadOnDemand);
@@ -117,6 +131,29 @@ public abstract class DelegatingCDORevisionManager extends Lifecycle implements 
   public void reviseVersion(CDOID id, CDOBranchVersion branchVersion, long timeStamp)
   {
     getDelegate().reviseVersion(id, branchVersion, timeStamp);
+  }
+
+  @Override
+  protected void doActivate() throws Exception
+  {
+    if (isDelegatingLifecycle())
+    {
+      getDelegate().activate();
+    }
+  }
+
+  @Override
+  protected void doDeactivate() throws Exception
+  {
+    if (isDelegatingLifecycle())
+    {
+      getDelegate().deactivate();
+    }
+  }
+
+  protected boolean isDelegatingLifecycle()
+  {
+    return true;
   }
 
   protected abstract InternalCDORevisionManager getDelegate();

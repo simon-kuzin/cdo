@@ -20,9 +20,10 @@ import org.eclipse.emf.cdo.view.CDORevisionPrefetchingPolicy;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -38,7 +39,7 @@ public class CDORevisionPrefetchingPolicyImpl implements CDORevisionPrefetchingP
     this.chunkSize = chunkSize;
   }
 
-  public Collection<CDOID> loadAhead(CDORevisionManager revisionManager, CDOBranchPoint branchPoint, EObject eObject,
+  public List<CDOID> loadAhead(CDORevisionManager revisionManager, CDOBranchPoint branchPoint, EObject eObject,
       EStructuralFeature feature, CDOList list, int accessIndex, CDOID accessID)
   {
     if (chunkSize > 1 && !revisionManager.containsRevision(accessID, branchPoint))
@@ -66,9 +67,9 @@ public class CDORevisionPrefetchingPolicyImpl implements CDORevisionPrefetchingP
         }
       }
 
-      return notRegistered;
+      return new ArrayList<CDOID>(notRegistered);
     }
 
-    return Collections.emptySet();
+    return Collections.emptyList();
   }
 }

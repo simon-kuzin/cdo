@@ -248,7 +248,7 @@ public class Repository extends Container<Object> implements InternalRepository
     return revisions;
   }
 
-  public InternalCDORevision loadRevision(MissingRevisionInfo info, CDOBranchPoint branchPoint, int referenceChunk,
+  private InternalCDORevision loadRevision(MissingRevisionInfo info, CDOBranchPoint branchPoint, int referenceChunk,
       int prefetchDepth)
   {
     switch (info.getType())
@@ -326,7 +326,7 @@ public class Repository extends Container<Object> implements InternalRepository
         return revised;
       }
     }
-  
+
     return CDORevision.UNSPECIFIED_DATE;
   }
 

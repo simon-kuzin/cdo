@@ -22,20 +22,20 @@ import java.io.Serializable;
 /**
  * @author Eike Stepper
  */
-public class CDORevisionProxy extends DelegatingCDORevision implements HibernateProxy, Serializable
+public class CDORevisionProxyHibernate extends DelegatingCDORevision implements HibernateProxy, Serializable
 {
   private static final long serialVersionUID = 1L;
 
   private CDORevisionLazyInitializer li;
 
-  CDORevisionProxy(CDORevisionLazyInitializer li)
+  CDORevisionProxyHibernate(CDORevisionLazyInitializer li)
   {
     this.li = li;
   }
 
   public CDORevision copy()
   {
-    return new CDORevisionProxy(li);
+    return new CDORevisionProxyHibernate(li);
   }
 
   @Override

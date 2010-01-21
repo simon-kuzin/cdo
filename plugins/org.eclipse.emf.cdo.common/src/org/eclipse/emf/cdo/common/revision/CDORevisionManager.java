@@ -16,7 +16,6 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 
 import org.eclipse.emf.ecore.EClass;
 
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -35,10 +34,11 @@ public interface CDORevisionManager
   public CDORevision getRevision(CDOID id, CDOBranchPoint branchPoint, int referenceChunk, int prefetchDepth,
       boolean loadOnDemand);
 
-  public List<CDORevision> getRevisions(Collection<CDOID> ids, CDOBranchPoint branchPoint, int referenceChunk,
+  public List<CDORevision> getRevisions(List<CDOID> ids, CDOBranchPoint branchPoint, int referenceChunk,
       int prefetchDepth, boolean loadOnDemand);
 
   public boolean containsRevisionByVersion(CDOID id, CDOBranchVersion branchVersion);
 
-  public CDORevision getRevisionByVersion(CDOID id, CDOBranchVersion branchVersion, int referenceChunk, boolean loadOnDemand);
+  public CDORevision getRevisionByVersion(CDOID id, CDOBranchVersion branchVersion, int referenceChunk,
+      boolean loadOnDemand);
 }

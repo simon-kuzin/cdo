@@ -163,7 +163,7 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
       InternalSession session = serverSessionProtocol.getSession();
       StoreThreadLocal.setSession(session);
 
-      Collection<CDOID> ids = new ArrayList<CDOID>(infos.size());
+      List<CDOID> ids = new ArrayList<CDOID>(infos.size());
       for (MissingRevisionInfo info : infos)
       {
         ids.add(info.getID());

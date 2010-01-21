@@ -55,7 +55,7 @@ import org.eclipse.emf.spi.cdo.InternalCDOObject;
 import org.eclipse.emf.spi.cdo.InternalCDOView;
 
 import java.text.MessageFormat;
-import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -527,7 +527,7 @@ public final class CDOStore implements EStore
           CDOList list = revision.getList(feature);
           CDORevisionPrefetchingPolicy policy = view.options().getRevisionPrefetchingPolicy();
           InternalCDORevisionManager revisionManager = view.getSession().getRevisionManager();
-          Collection<CDOID> listOfIDs = policy.loadAhead(revisionManager, view, eObject, feature, list, index, id);
+          List<CDOID> listOfIDs = policy.loadAhead(revisionManager, view, eObject, feature, list, index, id);
           if (!listOfIDs.isEmpty())
           {
             int initialChunkSize = view.getSession().options().getCollectionLoadingPolicy().getInitialChunkSize();

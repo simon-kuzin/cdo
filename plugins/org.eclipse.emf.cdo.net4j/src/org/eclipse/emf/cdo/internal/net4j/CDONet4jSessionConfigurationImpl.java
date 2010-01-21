@@ -173,6 +173,11 @@ public class CDONet4jSessionConfigurationImpl extends CDOSessionConfigurationImp
     revisionManager.setSupportingBranches(session.getRepositoryInfo().isSupportingBranches());
     revisionManager.setRevisionLoader(session.getSessionProtocol());
     revisionManager.setRevisionLocker(session);
+    // if (result.isRepositorySupportingBranches())
+    // {
+    // revisionManager = new DelegatingCDORevisionManager.SyntheticsConverter(revisionManager);
+    // }
+
     revisionManager.activate();
 
     branchManager = CDOBranchUtil.createBranchManager();
