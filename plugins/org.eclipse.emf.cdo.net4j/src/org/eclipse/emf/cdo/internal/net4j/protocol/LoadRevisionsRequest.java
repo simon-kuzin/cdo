@@ -134,7 +134,7 @@ public class LoadRevisionsRequest extends CDOClientRequest<List<InternalCDORevis
 
     for (MissingRevisionInfo info : infos)
     {
-      InternalCDORevision revision = info.readResult(in);
+      InternalCDORevision revision = info.readResult(in, branchPoint.getBranch());
       revisions.add(revision);
     }
 

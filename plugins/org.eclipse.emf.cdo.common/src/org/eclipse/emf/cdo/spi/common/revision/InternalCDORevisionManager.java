@@ -90,7 +90,7 @@ public interface InternalCDORevisionManager extends CDORevisionManager, CDORevis
 
       public void writeResult(CDODataOutput out, CDORevision revision, int referenceChunk) throws IOException;
 
-      public InternalCDORevision readResult(CDODataInput in) throws IOException;
+      public InternalCDORevision readResult(CDODataInput in, CDOBranch branch) throws IOException;
 
       /**
        * @author Eike Stepper
@@ -127,6 +127,14 @@ public interface InternalCDORevisionManager extends CDORevisionManager, CDORevis
        */
       public static class Missing implements MissingRevisionInfo
       {
+        protected static final byte NO_REVISION = 0;
+
+        protected static final byte NORMAL_REVISION = 1;
+
+        protected static final byte POINTER_REVISION = 2;
+
+        protected static final byte DETACHED_REVISION = 3;
+
         private CDOID id;
 
         public Missing(CDOID id)
@@ -169,12 +177,47 @@ public interface InternalCDORevisionManager extends CDORevisionManager, CDORevis
 
         public void writeResult(CDODataOutput out, CDORevision revision, int referenceChunk) throws IOException
         {
-          out.writeCDORevision(revision, referenceChunk);
+          if (revision instanceof PointerCDORevision)
+          {
+            out.writeByte(POINTER_REVISION);
+            out.writeLong(revision.getRevised());
+          }
+          else if (revision instanceof DetachedCDORevision)
+          {
+            out.writeByte(DETACHED_REVISION);
+            out.writeLong(revision.getRevised());
+          }
+          else
+          {
+            out.writeByte(NORMAL_REVISION);
+            out.writeCDORevision(revision, referenceChunk);
+          }
         }
 
-        public InternalCDORevision readResult(CDODataInput in) throws IOException
+        public final InternalCDORevision readResult(CDODataInput in, CDOBranch branch) throws IOException
         {
-          return (InternalCDORevision)in.readCDORevision();
+          byte resultType = in.readByte();
+          return readResult(in, branch, resultType);
+        }
+
+        protected InternalCDORevision readResult(CDODataInput in, CDOBranch branch, byte resultType) throws IOException
+        {
+          switch (resultType)
+          {
+          case NORMAL_REVISION:
+            return (InternalCDORevision)in.readCDORevision();
+
+          case POINTER_REVISION:
+            PointerCDORevision pointer = new PointerCDORevision(id, branch);
+            pointer.setRevised(in.readLong());
+            return pointer;
+
+          case DETACHED_REVISION:
+            return new DetachedCDORevision(id, branch, in.readLong());
+
+          default:
+            throw new IllegalStateException("Invalid result type: " + resultType);
+          }
         }
 
         @Override
@@ -246,25 +289,23 @@ public interface InternalCDORevisionManager extends CDORevisionManager, CDORevis
               && revision.getVersion() == available.getVersion();
           if (useAvailable)
           {
-            out.writeBoolean(true);
+            out.writeByte(NO_REVISION);
           }
           else
           {
-            out.writeBoolean(false);
             super.writeResult(out, revision, referenceChunk);
           }
         }
 
         @Override
-        public InternalCDORevision readResult(CDODataInput in) throws IOException
+        protected InternalCDORevision readResult(CDODataInput in, CDOBranch branch, byte resultType) throws IOException
         {
-          boolean useAvailable = in.readBoolean();
-          if (useAvailable)
+          if (resultType == NO_REVISION)
           {
             return (InternalCDORevision)available;
           }
 
-          return super.readResult(in);
+          return super.readResult(in, branch, resultType);
         }
 
         @Override
