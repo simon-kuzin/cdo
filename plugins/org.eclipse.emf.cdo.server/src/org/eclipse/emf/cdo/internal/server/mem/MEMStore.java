@@ -191,7 +191,6 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
     }
 
     return null;
-
   }
 
   public synchronized void addRevision(InternalCDORevision revision)
