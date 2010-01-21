@@ -11,6 +11,7 @@
 package org.eclipse.emf.cdo.spi.common.revision;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.id.CDOID;
 
 /**
  * @author Eike Stepper
@@ -18,14 +19,23 @@ import org.eclipse.emf.cdo.common.branch.CDOBranch;
  */
 public abstract class SyntheticCDORevision extends StubCDORevision
 {
+  private CDOID id;
+
   private CDOBranch branch;
 
   private long revised;
 
-  public SyntheticCDORevision(CDOBranch branch, long revised)
+  public SyntheticCDORevision(CDOID id, CDOBranch branch, long revised)
   {
+    this.id = id;
     this.branch = branch;
     this.revised = revised;
+  }
+
+  @Override
+  public CDOID getID()
+  {
+    return id;
   }
 
   @Override

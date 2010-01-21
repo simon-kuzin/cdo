@@ -18,23 +18,14 @@ import java.text.MessageFormat;
  */
 public class DetachedCDORevision extends SyntheticCDORevision
 {
-  private CDOID id;
-
   public DetachedCDORevision(CDOID id, CDOBranch branch, long revised)
   {
-    super(branch, revised);
-    this.id = id;
-  }
-
-  @Override
-  public CDOID getID()
-  {
-    return id;
+    super(id, branch, revised);
   }
 
   @Override
   public String toString()
   {
-    return MessageFormat.format("DetachedCDORevision[{0}:{1}v0]", id, getBranch().getID());
+    return MessageFormat.format("DetachedCDORevision[{0}:{1}v0]", getID(), getBranch().getID());
   }
 }

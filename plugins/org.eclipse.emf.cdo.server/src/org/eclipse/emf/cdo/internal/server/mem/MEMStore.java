@@ -27,6 +27,7 @@ import org.eclipse.emf.cdo.server.IView;
 import org.eclipse.emf.cdo.server.StoreThreadLocal;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager.BranchLoader;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
+import org.eclipse.emf.cdo.spi.common.revision.PointerCDORevision;
 import org.eclipse.emf.cdo.spi.server.LongIDStore;
 import org.eclipse.emf.cdo.spi.server.StoreAccessorPool;
 
@@ -167,11 +168,8 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
    */
   public synchronized InternalCDORevision getRevision(CDOID id, CDOBranchPoint branchPoint)
   {
-    CDOBranch branch = branchPoint.getBranch();
-    long timeStamp = branchPoint.getTimeStamp();
-    Object listKey = getListKey(id, branch);
-
-    if (timeStamp == CDORevision.UNSPECIFIED_DATE)
+    Object listKey = getListKey(id, branchPoint.getBranch());
+    if (branchPoint.getTimeStamp() == CDORevision.UNSPECIFIED_DATE)
     {
       List<InternalCDORevision> list = revisions.get(listKey);
       if (list != null)
@@ -182,18 +180,19 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
       return null;
     }
 
-    if (getRepository().isSupportingAudits())
+    if (!getRepository().isSupportingAudits())
     {
-      List<InternalCDORevision> list = revisions.get(listKey);
-      if (list != null)
-      {
-        return getRevision(list, timeStamp);
-      }
-
-      return null;
+      throw new UnsupportedOperationException("Auditing not supported");
     }
 
-    throw new UnsupportedOperationException();
+    List<InternalCDORevision> list = revisions.get(listKey);
+    if (list != null)
+    {
+      return getRevision(list, branchPoint);
+    }
+
+    return null;
+
   }
 
   public synchronized void addRevision(InternalCDORevision revision)
@@ -216,7 +215,8 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
       throw new IllegalStateException("Concurrent modification of " + rev.getEClass().getName() + "@" + rev.getID()); //$NON-NLS-1$
     }
 
-    rev = getRevisionByVersion(list, version - 1);
+    int oldVersion = version - 1;
+    rev = oldVersion >= CDORevision.UNSPECIFIED_VERSION ? getRevisionByVersion(list, oldVersion) : null;
     if (rev != null)
     {
       rev.setRevised(revision.getTimeStamp() - 1);
@@ -302,7 +302,7 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
         InternalCDORevision revision = list.get(0);
         if (revision.isResourceNode())
         {
-          revision = getRevision(list, context.getTimeStamp());
+          revision = getRevision(list, context);
           if (revision != null)
           {
             CDOID revisionFolder = (CDOID)revision.data().getContainerID();
@@ -433,8 +433,9 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
     return null;
   }
 
-  private InternalCDORevision getRevision(List<InternalCDORevision> list, long timeStamp)
+  private InternalCDORevision getRevision(List<InternalCDORevision> list, CDOBranchPoint branchPoint)
   {
+    long timeStamp = branchPoint.getTimeStamp();
     for (InternalCDORevision revision : list)
     {
       if (timeStamp == CDORevision.UNSPECIFIED_DATE)
@@ -449,6 +450,21 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
         if (revision.isValid(timeStamp))
         {
           return revision;
+        }
+      }
+    }
+
+    CDOBranch branch = branchPoint.getBranch();
+    if (!branch.isMainBranch())
+    {
+      CDOID id = list.get(0).getID();
+      InternalCDORevision revision = getRevisionByVersion(id, branch.getVersion(CDORevision.FIRST_VERSION));
+      if (revision != null)
+      {
+        long revised = revision.getTimeStamp() - 1;
+        if (timeStamp <= revised)
+        {
+          return new PointerCDORevision(id, branch, revised);
         }
       }
     }

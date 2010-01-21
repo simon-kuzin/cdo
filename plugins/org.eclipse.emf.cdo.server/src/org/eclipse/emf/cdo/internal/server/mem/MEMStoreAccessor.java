@@ -242,8 +242,8 @@ public class MEMStoreAccessor extends LongIDStoreAccessor
   protected void writeRevisionDelta(InternalCDORevisionDelta revisionDelta, CDOBranch branch, long created)
   {
     CDOID id = revisionDelta.getID();
-    CDOBranchPoint head = revisionDelta.getBranch().getHead();
-    InternalCDORevision revision = getStore().getRevision(id, head);
+    CDOBranchVersion version = revisionDelta.getBranch().getVersion(revisionDelta.getVersion());
+    InternalCDORevision revision = getStore().getRevisionByVersion(id, version);
     if (revision.getVersion() != revisionDelta.getVersion())
     {
       throw new ConcurrentModificationException("Trying to update object " + id //$NON-NLS-1$

@@ -18,7 +18,6 @@ import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionFactory;
-import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCacheUtil;
 import org.eclipse.emf.cdo.common.revision.cache.InternalCDORevisionCache;
@@ -28,6 +27,7 @@ import org.eclipse.emf.cdo.spi.common.branch.CDOBranchUtil;
 import org.eclipse.emf.cdo.spi.common.revision.DetachedCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
+import org.eclipse.emf.cdo.spi.common.revision.PointerCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager.RevisionLoader.MissingRevisionInfo;
 
 import org.eclipse.net4j.util.CheckUtil;
@@ -244,8 +244,8 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
         }
         else if (revision.getClass() == PointerCDORevision.class)
         {
-          CDORevisionKey target = ((PointerCDORevision)revision).getTarget();
-          revision = getCachedRevisionByVersion(target.getID(), target);
+          CDOBranchVersion target = ((PointerCDORevision)revision).getTarget();
+          revision = getCachedRevisionByVersion(revision.getID(), target);
           if (revision == null && loadOnDemand)
           {
             info = new MissingRevisionInfo.ExactlyKnown(id, target);

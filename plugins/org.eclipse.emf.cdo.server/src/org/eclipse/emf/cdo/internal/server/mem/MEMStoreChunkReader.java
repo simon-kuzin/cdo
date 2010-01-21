@@ -11,7 +11,7 @@
  */
 package org.eclipse.emf.cdo.internal.server.mem;
 
-import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
@@ -38,14 +38,14 @@ public class MEMStoreChunkReader extends StoreChunkReader
   public List<Chunk> executeRead()
   {
     CDOID id = getRevision().getID();
-    CDOBranchPoint branchPoint = getRevision();
+    CDOBranchVersion branchVersion = getRevision();
 
     MEMStore store = getAccessor().getStore();
     List<Chunk> chunks = getChunks();
     for (Chunk chunk : chunks)
     {
       int startIndex = chunk.getStartIndex();
-      InternalCDORevision revision = store.getRevision(id, branchPoint);
+      InternalCDORevision revision = store.getRevisionByVersion(id, branchVersion);
       for (int i = 0; i < chunk.size(); i++)
       {
         Object object = revision.get(getFeature(), startIndex + i);
