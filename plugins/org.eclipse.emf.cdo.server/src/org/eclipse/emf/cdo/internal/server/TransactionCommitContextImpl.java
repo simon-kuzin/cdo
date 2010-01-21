@@ -640,9 +640,10 @@ public class TransactionCommitContextImpl implements InternalCommitContext
     try
     {
       monitor.begin(detachedRevisions.size());
+      long revised = getBranchPoint().getTimeStamp() - 1;
       for (InternalCDORevision revision : detachedRevisions)
       {
-        revision.setRevised(getBranchPoint().getTimeStamp() - 1);
+        revision.setRevised(revised);
         monitor.worked();
       }
     }
