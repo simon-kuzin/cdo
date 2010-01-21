@@ -464,7 +464,10 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
         long revised = revision.getTimeStamp() - 1;
         if (timeStamp <= revised)
         {
-          return new PointerCDORevision(id, branch, revised);
+          PointerCDORevision pointer = new PointerCDORevision(id, branch);
+          pointer.setRevised(revised);
+          addRevision(pointer);
+          return pointer;
         }
       }
     }

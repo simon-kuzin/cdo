@@ -20,7 +20,8 @@ public class DetachedCDORevision extends SyntheticCDORevision
 {
   public DetachedCDORevision(CDOID id, CDOBranch branch, long revised)
   {
-    super(id, branch, revised);
+    super(id, branch);
+    setRevised(revised);
   }
 
   @Override

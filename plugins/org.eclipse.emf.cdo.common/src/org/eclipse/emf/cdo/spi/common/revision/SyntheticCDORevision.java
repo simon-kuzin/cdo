@@ -23,13 +23,12 @@ public abstract class SyntheticCDORevision extends StubCDORevision
 
   private CDOBranch branch;
 
-  private long revised;
+  private long revised = UNSPECIFIED_DATE;
 
-  public SyntheticCDORevision(CDOID id, CDOBranch branch, long revised)
+  public SyntheticCDORevision(CDOID id, CDOBranch branch)
   {
     this.id = id;
     this.branch = branch;
-    this.revised = revised;
   }
 
   @Override

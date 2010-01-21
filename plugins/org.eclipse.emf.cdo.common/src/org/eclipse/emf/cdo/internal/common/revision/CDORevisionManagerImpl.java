@@ -374,8 +374,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
   {
     if (supportingBranches)
     {
-      return foundRevision.getClass() == PointerCDORevision.class
-          && newRevision.getClass() == DetachedCDORevision.class;
+      return foundRevision instanceof PointerCDORevision && newRevision instanceof DetachedCDORevision;
     }
 
     return false;

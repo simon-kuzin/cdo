@@ -15,9 +15,9 @@ public class PointerCDORevision extends SyntheticCDORevision
 {
   private CDOBranchVersion target;
 
-  public PointerCDORevision(CDOID id, CDOBranch branch, long revised)
+  public PointerCDORevision(CDOID id, CDOBranch branch)
   {
-    super(id, branch, revised);
+    super(id, branch);
   }
 
   public CDOBranchVersion getTarget()
