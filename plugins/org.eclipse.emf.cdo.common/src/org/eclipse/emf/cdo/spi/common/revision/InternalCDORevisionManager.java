@@ -93,6 +93,8 @@ public interface InternalCDORevisionManager extends CDORevisionManager, CDORevis
 
       public long getRevised();
 
+      public void setRevised(long revised);
+
       public void write(CDODataOutput out) throws IOException;
 
       public InternalCDORevision execute(InternalCDORevisionManager revisionManager, CDOBranchPoint branchPoint,
@@ -178,6 +180,11 @@ public interface InternalCDORevisionManager extends CDORevisionManager, CDORevis
         public long getRevised()
         {
           return revised;
+        }
+
+        public void setRevised(long revised)
+        {
+          this.revised = revised;
         }
 
         public void write(CDODataOutput out) throws IOException

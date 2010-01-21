@@ -232,7 +232,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
             }
             else
             {
-              info = new MissingRevisionInfo.Missing(id);
+              info = new MissingRevisionInfo(id);
             }
           }
         }
@@ -250,7 +250,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
       {
         if (revision == null && loadOnDemand)
         {
-          info = new MissingRevisionInfo.Missing(id);
+          info = new MissingRevisionInfo(id);
         }
       }
 
