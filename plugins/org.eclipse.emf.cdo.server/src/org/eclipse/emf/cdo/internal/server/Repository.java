@@ -45,7 +45,6 @@ import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDOList;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
-import org.eclipse.emf.cdo.spi.common.revision.PointerCDORevision;
 import org.eclipse.emf.cdo.spi.server.ContainerQueryHandlerProvider;
 import org.eclipse.emf.cdo.spi.server.InternalCommitManager;
 import org.eclipse.emf.cdo.spi.server.InternalLockManager;
@@ -251,48 +250,35 @@ public class Repository extends Container<Object> implements InternalRepository
   private InternalCDORevision loadRevision(MissingRevisionInfo info, CDOBranchPoint branchPoint, int referenceChunk,
       int prefetchDepth)
   {
+    CDOID id = info.getID();
     switch (info.getType())
     {
     case MISSING:
     case POSSIBLY_AVAILABLE: // This one is optimized by the caller
-      return loadRevision(info.getID(), branchPoint, referenceChunk, prefetchDepth);
+      IStoreAccessor accessor = StoreThreadLocal.getAccessor();
+      InternalCDORevision revision = accessor.readRevision(id, branchPoint, referenceChunk, revisionManager);
+      if (revision == null && supportingBranches)
+      {
+        CDOBranch branch = branchPoint.getBranch();
+        if (!branch.isMainBranch())
+        {
+          revision = loadRevsionTarget(id, branchPoint, referenceChunk, accessor);
+          if (revision != null)
+          {
+            long revised = loadRevisionRevised(id, branch, branchPoint.getTimeStamp());
+            info.setRevised(revised);
+          }
+        }
+      }
+
+      return revision;
+
     case EXACTLY_KNOWN:
-      return loadRevisionByVersion(info.getID(), info.getBranchVersion(), referenceChunk);
+      return loadRevisionByVersion(id, info.getBranchVersion(), referenceChunk);
+
     default:
       throw new RuntimeException(); // Can not happen
     }
-  }
-
-  private InternalCDORevision loadRevision(CDOID id, CDOBranchPoint branchPoint, int referenceChunk, int prefetchDepth)
-  {
-    if (branchPoint.getTimeStamp() != CDORevision.UNSPECIFIED_DATE && !isSupportingAudits())
-    {
-      throw new IllegalStateException("No support for auditing mode"); //$NON-NLS-1$
-    }
-
-    IStoreAccessor accessor = StoreThreadLocal.getAccessor();
-    InternalCDORevision revision = accessor.readRevision(id, branchPoint, referenceChunk, revisionManager);
-    if (revision == null && supportingBranches)
-    {
-      CDOBranch branch = branchPoint.getBranch();
-      if (!branch.isMainBranch())
-      {
-        InternalCDORevision target = loadRevsionTarget(id, branchPoint, referenceChunk, accessor);
-        if (target == null)
-        {
-          throw new IllegalStateException("No target revision for " + id);
-        }
-
-        long revised = loadRevisionRevised(id, branch, branchPoint.getTimeStamp());
-
-        PointerCDORevision pointer = new PointerCDORevision(id, branch);
-        pointer.setTarget(target);
-        pointer.setRevised(revised);
-        return pointer;
-      }
-    }
-
-    return revision;
   }
 
   private InternalCDORevision loadRevsionTarget(CDOID id, CDOBranchPoint branchPoint, int referenceChunk,
@@ -333,19 +319,7 @@ public class Repository extends Container<Object> implements InternalRepository
   public InternalCDORevision loadRevisionByVersion(CDOID id, CDOBranchVersion branchVersion, int referenceChunk)
   {
     IStoreAccessor accessor = StoreThreadLocal.getAccessor();
-    if (isSupportingAudits())
-    {
-      return accessor.readRevisionByVersion(id, branchVersion, referenceChunk, revisionManager);
-    }
-
-    InternalCDORevision revision = loadRevision(id, branchVersion.getBranch().getHead(), referenceChunk,
-        CDORevision.DEPTH_NONE);
-    if (revision.getVersion() == branchVersion.getVersion())
-    {
-      return revision;
-    }
-
-    throw new IllegalStateException("Cannot load revision " + id + " from " + branchVersion); //$NON-NLS-1$ //$NON-NLS-2$
+    return accessor.readRevisionByVersion(id, branchVersion, referenceChunk, revisionManager);
   }
 
   protected void ensureChunks(InternalCDORevision revision, int referenceChunk, IStoreAccessor accessor)
