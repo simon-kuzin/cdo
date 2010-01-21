@@ -274,23 +274,22 @@ public class Repository extends Container<Object> implements InternalRepository
     InternalCDORevision revision = accessor.readRevision(id, branchPoint, referenceChunk, revisionManager);
     if (revision == null && supportingBranches)
     {
-      InternalCDORevision target = loadRevsionTarget(id, branchPoint, referenceChunk, accessor);
-      if (target == null)
-      {
-        throw new IllegalStateException("No target revision for " + id);
-      }
-
       CDOBranch branch = branchPoint.getBranch();
-      PointerCDORevision pointer = new PointerCDORevision(id, branch);
-      pointer.setTarget(target);
       if (!branch.isMainBranch())
       {
+        InternalCDORevision target = loadRevsionTarget(id, branchPoint, referenceChunk, accessor);
+        if (target == null)
+        {
+          throw new IllegalStateException("No target revision for " + id);
+        }
+
         long revised = loadRevisionRevised(id, branch, branchPoint.getTimeStamp());
+
+        PointerCDORevision pointer = new PointerCDORevision(id, branch);
+        pointer.setTarget(target);
         pointer.setRevised(revised);
+        return pointer;
       }
-
-      return pointer;
-
     }
 
     return revision;
