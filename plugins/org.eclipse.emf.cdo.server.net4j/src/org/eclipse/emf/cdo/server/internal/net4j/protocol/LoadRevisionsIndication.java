@@ -180,7 +180,7 @@ public class LoadRevisionsIndication extends CDOReadIndication
     for (CDORevision revision : revisions)
     {
       MissingRevisionInfo info = infos[i++];
-      info.writeResult(out, revision, referenceChunk);
+      info.writeResult(out, branchPoint.getBranch(), revision, referenceChunk);
     }
 
     int additionalSize = additionalRevisions.size();
