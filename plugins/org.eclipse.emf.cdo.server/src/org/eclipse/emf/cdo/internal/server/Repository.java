@@ -45,6 +45,7 @@ import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDOList;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
+import org.eclipse.emf.cdo.spi.common.revision.PointerCDORevision;
 import org.eclipse.emf.cdo.spi.server.ContainerQueryHandlerProvider;
 import org.eclipse.emf.cdo.spi.server.InternalCommitManager;
 import org.eclipse.emf.cdo.spi.server.InternalLockManager;
@@ -273,21 +274,61 @@ public class Repository extends Container<Object> implements InternalRepository
     InternalCDORevision revision = accessor.readRevision(id, branchPoint, referenceChunk, revisionManager);
     if (revision == null && supportingBranches)
     {
-      CDOBranch branch = branchPoint.getBranch();
-      while (!branch.isMainBranch())
+      InternalCDORevision target = loadRevsionTarget(id, branchPoint, referenceChunk, accessor);
+      if (target == null)
       {
-        branchPoint = branch.getBase();
-        revision = accessor.readRevision(id, branchPoint, referenceChunk, revisionManager);
-        if (revision != null)
-        {
-          break;
-        }
-
-        branch = branchPoint.getBranch();
+        throw new IllegalStateException("No target revision for " + id);
       }
+
+      CDOBranch branch = branchPoint.getBranch();
+      PointerCDORevision pointer = new PointerCDORevision(id, branch);
+      pointer.setTarget(target);
+      if (!branch.isMainBranch())
+      {
+        long revised = loadRevisionRevised(id, branch, branchPoint.getTimeStamp());
+        pointer.setRevised(revised);
+      }
+
+      return pointer;
+
     }
 
     return revision;
+  }
+
+  private long loadRevisionRevised(CDOID id, CDOBranch branch, long timeStamp)
+  {
+    InternalCDORevision revision = loadRevisionByVersion(id, branch.getVersion(CDORevision.FIRST_VERSION),
+        CDORevision.UNCHUNKED);
+    if (revision != null)
+    {
+      long revised = revision.getTimeStamp() - 1;
+      if (timeStamp <= revised)
+      {
+        return revised;
+      }
+    }
+
+    return CDORevision.UNSPECIFIED_DATE;
+  }
+
+  private InternalCDORevision loadRevsionTarget(CDOID id, CDOBranchPoint branchPoint, int referenceChunk,
+      IStoreAccessor accessor)
+  {
+    CDOBranch branch = branchPoint.getBranch();
+    while (!branch.isMainBranch())
+    {
+      branchPoint = branch.getBase();
+      InternalCDORevision revision = accessor.readRevision(id, branchPoint, referenceChunk, revisionManager);
+      if (revision != null)
+      {
+        return revision;
+      }
+
+      branch = branchPoint.getBranch();
+    }
+
+    return null;
   }
 
   public InternalCDORevision loadRevisionByVersion(CDOID id, CDOBranchVersion branchVersion, int referenceChunk)
