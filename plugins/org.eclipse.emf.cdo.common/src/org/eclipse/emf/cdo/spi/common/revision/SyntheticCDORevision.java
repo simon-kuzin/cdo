@@ -12,7 +12,6 @@ package org.eclipse.emf.cdo.spi.common.revision;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 
-
 /**
  * @author Eike Stepper
  * @since 3.0
@@ -23,10 +22,10 @@ public abstract class SyntheticCDORevision extends StubCDORevision
 
   private long revised;
 
-  public SyntheticCDORevision(CDOBranch branch)
+  public SyntheticCDORevision(CDOBranch branch, long revised)
   {
     this.branch = branch;
-    revised = UNSPECIFIED_DATE;
+    this.revised = revised;
   }
 
   @Override

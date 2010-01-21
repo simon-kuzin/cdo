@@ -19,16 +19,15 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionFactory;
 import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
-import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCacheUtil;
 import org.eclipse.emf.cdo.common.revision.cache.InternalCDORevisionCache;
 import org.eclipse.emf.cdo.common.revision.cache.InternalCDORevisionCache.ReplaceCallback;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
+import org.eclipse.emf.cdo.spi.common.branch.CDOBranchUtil;
 import org.eclipse.emf.cdo.spi.common.revision.DetachedCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
-import org.eclipse.emf.cdo.spi.common.revision.SyntheticCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager.RevisionLoader.MissingRevisionInfo;
 
 import org.eclipse.net4j.util.CheckUtil;
@@ -39,7 +38,6 @@ import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.emf.ecore.EClass;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -244,9 +242,9 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
             }
           }
         }
-        else if (revision.getClass() == CachePointer.class)
+        else if (revision.getClass() == PointerCDORevision.class)
         {
-          CDORevisionKey target = ((CachePointer)revision).getTarget();
+          CDORevisionKey target = ((PointerCDORevision)revision).getTarget();
           revision = getCachedRevisionByVersion(target.getID(), target);
           if (revision == null && loadOnDemand)
           {
@@ -298,12 +296,12 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
             revisions.set(i, missingRevision);
             addRevision(missingRevision);
 
-            if (supportingBranches && //
-                info.getType() != MissingRevisionInfo.Type.EXACTLY_KNOWN && //
-                missingRevision.getBranch() != branch)
-            {
-              addRevision(new CachePointer(branch, missingRevision));
-            }
+            // if (supportingBranches && //
+            // info.getType() != MissingRevisionInfo.Type.EXACTLY_KNOWN && //
+            // missingRevision.getBranch() != branch)
+            // {
+            // addRevision(new PointerCDORevision(branch, missingRevision));
+            // }
           }
         }
       }
@@ -351,7 +349,22 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
   {
     if (revision != null)
     {
-      return cache.addRevision(revision, this);
+      boolean added = cache.addRevision(revision, this);
+      if (added)
+      {
+        int oldVersion = revision.getVersion() - 1;
+        if (oldVersion >= CDORevision.UNSPECIFIED_VERSION)
+        {
+          CDOBranchVersion old = CDOBranchUtil.createBranchVersion(revision.getBranch(), oldVersion);
+          InternalCDORevision oldRevision = getCachedRevisionByVersion(revision.getID(), old);
+          if (oldRevision != null)
+          {
+            oldRevision.setRevised(revision.getTimeStamp() - 1);
+          }
+
+          return true;
+        }
+      }
     }
 
     return false;
@@ -361,7 +374,8 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
   {
     if (supportingBranches)
     {
-      return foundRevision.getClass() == CachePointer.class && newRevision.getClass() == DetachedCDORevision.class;
+      return foundRevision.getClass() == PointerCDORevision.class
+          && newRevision.getClass() == DetachedCDORevision.class;
     }
 
     return false;
@@ -445,38 +459,5 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
 
     // Reached main branch
     return null;
-  }
-
-  /**
-   * @author Eike Stepper
-   * @since 3.0
-   */
-  private static final class CachePointer extends SyntheticCDORevision
-  {
-    private CDORevisionKey target;
-
-    public CachePointer(CDOBranch branch, CDORevisionKey target)
-    {
-      super(branch);
-      this.target = CDORevisionUtil.createRevisionKey(target);
-    }
-
-    public CDORevisionKey getTarget()
-    {
-      return target;
-    }
-
-    @Override
-    public CDOID getID()
-    {
-      return target.getID();
-    }
-
-    @Override
-    public String toString()
-    {
-      return MessageFormat.format("CachePointer[{0}:{1}v0 --> {2}v{3}]", target.getID(), getBranch().getID(), target
-          .getBranch().getID(), target.getVersion());
-    }
   }
 }
