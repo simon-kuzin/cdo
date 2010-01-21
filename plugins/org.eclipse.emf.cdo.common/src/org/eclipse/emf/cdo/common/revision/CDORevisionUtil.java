@@ -88,7 +88,8 @@ public final class CDORevisionUtil
 
     for (CDOBranch branch : branches)
     {
-      out.println(MessageFormat.format("Branch {0}: {1}   {2}", branch.getID(), branch.getName(), branch.getBase()));
+      out.println(MessageFormat.format("Branch {0}: {1}   {2,date} {2,time}/*", branch.getID(), branch.getName(),
+          branch.getBase().getTimeStamp()));
 
       List<CDORevision> revisions = map.get(branch);
       Collections.sort(revisions, new Comparator<CDORevision>()
