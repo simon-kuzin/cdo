@@ -156,16 +156,17 @@ public interface InternalCDORevisionManager extends CDORevisionManager, CDORevis
       public void writeResult(CDODataOutput out, CDOBranch branch, CDORevision revision, int referenceChunk)
           throws IOException
       {
-        if (revision.getBranch() != branch)
+        if (revision == null)
+        {
+          out.writeByte(DETACHED_REVISION);
+          out.writeLong(revised);
+          throw new RuntimeException();
+        }
+        else if (revision.getBranch() != branch)
         {
           out.writeByte(POINTER_REVISION);
           out.writeLong(revised);
           out.writeCDORevision(revision, referenceChunk);
-        }
-        else if (revision == null)
-        {
-          out.writeByte(DETACHED_REVISION);
-          out.writeLong(revised);
         }
         else
         {
@@ -212,10 +213,13 @@ public interface InternalCDORevisionManager extends CDORevisionManager, CDORevis
         {
         case MISSING:
           return new MissingRevisionInfo(in);
+
         case POSSIBLY_AVAILABLE:
           return new PossiblyAvailable(in);
+
         case EXACTLY_KNOWN:
           return new ExactlyKnown(in);
+
         default:
           throw new IOException(); // Can not happen
         }
@@ -293,11 +297,12 @@ public interface InternalCDORevisionManager extends CDORevisionManager, CDORevis
         public void writeResult(CDODataOutput out, CDOBranch branch, CDORevision revision, int referenceChunk)
             throws IOException
         {
-          boolean useAvailable = revision.getBranch().equals(available.getBranch())
+          boolean useAvailable = revision.getBranch() == available.getBranch()
               && revision.getVersion() == available.getVersion();
           if (useAvailable)
           {
             out.writeByte(NO_REVISION);
+            out.writeLong(getRevised());
           }
           else
           {
@@ -310,6 +315,7 @@ public interface InternalCDORevisionManager extends CDORevisionManager, CDORevis
         {
           if (resultType == NO_REVISION)
           {
+            setRevised(in.readLong());
             return (InternalCDORevision)available;
           }
 

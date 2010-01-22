@@ -239,11 +239,17 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
         else if (revision.getClass() == PointerCDORevision.class)
         {
           CDOBranchVersion target = ((PointerCDORevision)revision).getTarget();
-          revision = getCachedRevisionByVersion(revision.getID(), target);
-          if (revision == null && loadOnDemand)
+          InternalCDORevision targetRevision = getCachedRevisionByVersion(revision.getID(), target);
+          if (targetRevision == null && loadOnDemand)
           {
             info = new MissingRevisionInfo.ExactlyKnown(id, target);
+            if (revisedPointers != null && target instanceof CDORevision)
+            {
+              revisedPointers.put((CDORevision)target, revision.getRevised());
+            }
           }
+
+          revision = targetRevision;
         }
       }
       else
@@ -290,9 +296,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
             revisions.set(i, missingRevision);
             addRevision(missingRevision);
 
-            if (supportingBranches && //
-                info.getType() != MissingRevisionInfo.Type.EXACTLY_KNOWN && //
-                missingRevision.getBranch() != branch)
+            if (missingRevision.getBranch() != branch && info.getType() == MissingRevisionInfo.Type.EXACTLY_KNOWN)
             {
               long revised = info.getRevised();
               if (revisedPointers != null)

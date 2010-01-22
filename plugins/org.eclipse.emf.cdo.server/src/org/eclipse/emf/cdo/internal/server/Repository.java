@@ -251,21 +251,22 @@ public class Repository extends Container<Object> implements InternalRepository
       int prefetchDepth)
   {
     CDOID id = info.getID();
+    CDOBranch branch = branchPoint.getBranch();
+
     switch (info.getType())
     {
     case MISSING:
-    case POSSIBLY_AVAILABLE: // This one is optimized by the caller
+    case POSSIBLY_AVAILABLE:
       IStoreAccessor accessor = StoreThreadLocal.getAccessor();
       InternalCDORevision revision = accessor.readRevision(id, branchPoint, referenceChunk, revisionManager);
       if (revision == null && supportingBranches)
       {
-        CDOBranch branch = branchPoint.getBranch();
         if (!branch.isMainBranch())
         {
           revision = loadRevsionTarget(id, branchPoint, referenceChunk, accessor);
           if (revision != null)
           {
-            long revised = loadRevisionRevised(id, branch, branchPoint.getTimeStamp());
+            long revised = loadRevisionRevised(id, branch);
             info.setRevised(revised);
           }
         }
@@ -300,17 +301,13 @@ public class Repository extends Container<Object> implements InternalRepository
     return null;
   }
 
-  private long loadRevisionRevised(CDOID id, CDOBranch branch, long timeStamp)
+  private long loadRevisionRevised(CDOID id, CDOBranch branch)
   {
     InternalCDORevision revision = loadRevisionByVersion(id, branch.getVersion(CDORevision.FIRST_VERSION),
         CDORevision.UNCHUNKED);
     if (revision != null)
     {
-      long revised = revision.getTimeStamp() - 1;
-      if (timeStamp <= revised)
-      {
-        return revised;
-      }
+      return revision.getTimeStamp() - 1;
     }
 
     return CDORevision.UNSPECIFIED_DATE;

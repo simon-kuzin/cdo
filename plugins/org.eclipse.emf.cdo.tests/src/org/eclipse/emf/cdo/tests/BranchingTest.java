@@ -18,7 +18,6 @@ import org.eclipse.emf.cdo.common.commit.CDOCommit;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.eresource.CDOResource;
-import org.eclipse.emf.cdo.server.IMEMStore;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.tests.model1.OrderDetail;
@@ -59,6 +58,7 @@ public class BranchingTest extends AbstractCDOTest
   protected void closeSession1()
   {
     session1.close();
+    session1 = null;
   }
 
   protected CDOSession openSession2()
@@ -223,8 +223,10 @@ public class BranchingTest extends AbstractCDOTest
     assertEquals("CDO", product.getName());
 
     orderDetail.setPrice(10);
+
     commit = transaction.commit();
     assertEquals(subBranch, commit.getBranch());
+
     long commitTime2 = commit.getTimeStamp();
     transaction.close();
     closeSession1();
@@ -238,11 +240,6 @@ public class BranchingTest extends AbstractCDOTest
     check(session, mainBranch, commitTime2, 5, "CDO");
     check(session, mainBranch, CDOBranchPoint.UNSPECIFIED_DATE, 5, "CDO");
     check(session, subBranch, commitTime1, 5, "CDO");
-
-    IMEMStore store = (IMEMStore)getRepository().getStore();
-    dump("MEMStore", store.getAllRevisions());
-    dump("ServerCache", getRepository().getRevisionManager().getCache().getAllRevisions());
-
     check(session, subBranch, commitTime2, 10, "CDO");
     check(session, subBranch, CDOBranchPoint.UNSPECIFIED_DATE, 10, "CDO");
     session.close();
@@ -253,12 +250,14 @@ public class BranchingTest extends AbstractCDOTest
     CDOView view = session.openView(branch, timeStamp);
     CDOResource resource = view.getResource("/res");
 
+    dump("ClientCache", ((InternalCDOSession)session).getRevisionManager().getCache().getAllRevisions());
     OrderDetail orderDetail = (OrderDetail)resource.getContents().get(1);
-    dump("ServerCache", getRepository().getRevisionManager().getCache().getAllRevisions());
+
     dump("ClientCache", ((InternalCDOSession)session).getRevisionManager().getCache().getAllRevisions());
     assertEquals(price, orderDetail.getPrice());
 
     Product1 product = orderDetail.getProduct();
+    dump("ClientCache", ((InternalCDOSession)session).getRevisionManager().getCache().getAllRevisions());
     assertEquals(name, product.getName());
 
     view.close();
