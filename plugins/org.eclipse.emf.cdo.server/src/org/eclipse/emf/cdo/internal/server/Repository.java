@@ -259,16 +259,13 @@ public class Repository extends Container<Object> implements InternalRepository
     case POSSIBLY_AVAILABLE:
       IStoreAccessor accessor = StoreThreadLocal.getAccessor();
       InternalCDORevision revision = accessor.readRevision(id, branchPoint, referenceChunk, revisionManager);
-      if (revision == null && supportingBranches)
+      if (revision == null && !branch.isMainBranch())
       {
-        if (!branch.isMainBranch())
+        revision = loadRevisionTarget(id, branchPoint, referenceChunk, accessor);
+        if (revision != null)
         {
-          revision = loadRevsionTarget(id, branchPoint, referenceChunk, accessor);
-          if (revision != null)
-          {
-            long revised = loadRevisionRevised(id, branch);
-            info.setRevised(revised);
-          }
+          long revised = loadRevisionRevised(id, branch);
+          info.setRevised(revised);
         }
       }
 
@@ -282,20 +279,20 @@ public class Repository extends Container<Object> implements InternalRepository
     }
   }
 
-  private InternalCDORevision loadRevsionTarget(CDOID id, CDOBranchPoint branchPoint, int referenceChunk,
+  private InternalCDORevision loadRevisionTarget(CDOID id, CDOBranchPoint branchPoint, int referenceChunk,
       IStoreAccessor accessor)
   {
     CDOBranch branch = branchPoint.getBranch();
     while (!branch.isMainBranch())
     {
       branchPoint = branch.getBase();
+      branch = branchPoint.getBranch();
+
       InternalCDORevision revision = accessor.readRevision(id, branchPoint, referenceChunk, revisionManager);
       if (revision != null)
       {
         return revision;
       }
-
-      branch = branchPoint.getBranch();
     }
 
     return null;

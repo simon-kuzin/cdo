@@ -31,6 +31,7 @@ import org.eclipse.emf.cdo.spi.server.LongIDStore;
 import org.eclipse.emf.cdo.spi.server.StoreAccessorPool;
 
 import org.eclipse.net4j.util.ObjectUtil;
+import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
 
 import org.eclipse.emf.ecore.EStructuralFeature;
 
@@ -56,6 +57,9 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
   private Map<Object, List<InternalCDORevision>> revisions = new HashMap<Object, List<InternalCDORevision>>();
 
   private int listLimit;
+
+  @ExcludeFromDump
+  private transient EStructuralFeature resourceNameFeature;
 
   /**
    * @param listLimit
@@ -222,10 +226,14 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
 
     if (revision.isResource())
     {
-      EStructuralFeature feature = revision.getEClass().getEStructuralFeature(
-          CDOModelConstants.RESOURCE_NODE_NAME_ATTRIBUTE);
+      if (resourceNameFeature == null)
+      {
+        resourceNameFeature = revision.getEClass()
+            .getEStructuralFeature(CDOModelConstants.RESOURCE_NODE_NAME_ATTRIBUTE);
+      }
+
       CDOID revisionFolder = (CDOID)revision.data().getContainerID();
-      String revisionName = (String)revision.data().get(feature, 0);
+      String revisionName = (String)revision.data().get(resourceNameFeature, 0);
 
       IStoreAccessor accessor = StoreThreadLocal.getAccessor();
 
@@ -293,35 +301,48 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
     CDOID folderID = context.getFolderID();
     String name = context.getName();
     boolean exactMatch = context.exactMatch();
-    for (List<InternalCDORevision> list : revisions.values())
+    for (Entry<Object, List<InternalCDORevision>> entry : revisions.entrySet())
     {
-      if (!list.isEmpty())
+      CDOBranch branch = getBranch(entry.getKey());
+      if (branch != context.getBranch())
       {
-        InternalCDORevision revision = list.get(0);
-        if (revision.isResourceNode())
-        {
-          revision = getRevision(list, context);
-          if (revision != null)
-          {
-            CDOID revisionFolder = (CDOID)revision.data().getContainerID();
-            if (CDOIDUtil.equals(revisionFolder, folderID))
-            {
-              EStructuralFeature feature = revision.getEClass().getEStructuralFeature(
-                  CDOModelConstants.RESOURCE_NODE_NAME_ATTRIBUTE);
-              String revisionName = (String)revision.data().get(feature, 0);
-              boolean match = exactMatch || revisionName == null || name == null ? ObjectUtil
-                  .equals(revisionName, name) : revisionName.startsWith(name);
+        continue;
+      }
 
-              if (match)
-              {
-                if (!context.addResource(revision.getID()))
-                {
-                  // No more results allowed
-                  break;
-                }
-              }
-            }
-          }
+      List<InternalCDORevision> list = entry.getValue();
+      if (list.isEmpty())
+      {
+        continue;
+      }
+
+      InternalCDORevision revision = list.get(0);
+      if (!revision.isResourceNode())
+      {
+        continue;
+      }
+
+      revision = getRevision(list, context);
+      if (revision == null)
+      {
+        continue;
+      }
+
+      CDOID revisionFolder = (CDOID)revision.data().getContainerID();
+      if (!CDOIDUtil.equals(revisionFolder, folderID))
+      {
+        continue;
+      }
+
+      String revisionName = (String)revision.data().get(resourceNameFeature, 0);
+      boolean useEquals = exactMatch || revisionName == null || name == null;
+      boolean match = useEquals ? ObjectUtil.equals(revisionName, name) : revisionName.startsWith(name);
+
+      if (match)
+      {
+        if (!context.addResource(revision.getID()))
+        {
+          // No more results allowed
+          break;
         }
       }
     }
@@ -416,6 +437,16 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
     }
 
     return new ListKey(id, branch);
+  }
+
+  private CDOBranch getBranch(Object key)
+  {
+    if (key instanceof ListKey)
+    {
+      return ((ListKey)key).getBranch();
+    }
+
+    return getRepository().getBranchManager().getMainBranch();
   }
 
   private InternalCDORevision getRevisionByVersion(List<InternalCDORevision> list, int version)

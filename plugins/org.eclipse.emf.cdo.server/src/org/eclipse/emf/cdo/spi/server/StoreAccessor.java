@@ -102,9 +102,7 @@ public abstract class StoreAccessor extends Lifecycle implements IStoreAccessor
    */
   public CDOID readResourceID(CDOID folderID, String name, CDOBranchPoint branchPoint)
   {
-    IStoreAccessor.QueryResourcesContext.ExactMatch context = //
-    Store.createExactMatchContext(folderID, name, branchPoint);
-
+    QueryResourcesContext.ExactMatch context = Store.createExactMatchContext(folderID, name, branchPoint);
     queryResources(context);
     return context.getResourceID();
   }
@@ -184,7 +182,7 @@ public abstract class StoreAccessor extends Lifecycle implements IStoreAccessor
     }
   }
 
-  protected abstract void rollback(IStoreAccessor.CommitContext commitContext);
+  protected abstract void rollback(CommitContext commitContext);
 
   public final void release()
   {

@@ -159,10 +159,9 @@ public abstract class AbstractHorizontalMappingStrategy extends AbstractMappingS
       while (rset.next())
       {
         long longID = rset.getLong(1);
-
         if (TRACER.isEnabled())
         {
-          TRACER.format("Resource Query returned ID {0}", longID); //$NON-NLS-1$
+          TRACER.trace("Resource query returned ID " + longID); //$NON-NLS-1$
         }
 
         CDOID id = CDOIDUtil.createLong(longID);

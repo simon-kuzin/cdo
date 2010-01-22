@@ -23,10 +23,12 @@ import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.tests.model1.OrderDetail;
 import org.eclipse.emf.cdo.tests.model1.Product1;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
+import org.eclipse.emf.cdo.util.DanglingReferenceException;
 import org.eclipse.emf.cdo.view.CDOView;
 
 import org.eclipse.net4j.util.event.IEvent;
 import org.eclipse.net4j.util.event.IListener;
+import org.eclipse.net4j.util.transaction.TransactionException;
 
 import org.eclipse.emf.spi.cdo.InternalCDOSession;
 
@@ -222,12 +224,12 @@ public class BranchingTest extends AbstractCDOTest
     product = orderDetail.getProduct();
     assertEquals("CDO", product.getName());
 
+    // Modify
     orderDetail.setPrice(10);
-
     commit = transaction.commit();
     assertEquals(subBranch, commit.getBranch());
-
     long commitTime2 = commit.getTimeStamp();
+
     transaction.close();
     closeSession1();
 
@@ -239,9 +241,141 @@ public class BranchingTest extends AbstractCDOTest
     check(session, mainBranch, commitTime1, 5, "CDO");
     check(session, mainBranch, commitTime2, 5, "CDO");
     check(session, mainBranch, CDOBranchPoint.UNSPECIFIED_DATE, 5, "CDO");
+
     check(session, subBranch, commitTime1, 5, "CDO");
     check(session, subBranch, commitTime2, 10, "CDO");
     check(session, subBranch, CDOBranchPoint.UNSPECIFIED_DATE, 10, "CDO");
+
+    session.close();
+  }
+
+  public void testDetach() throws Exception
+  {
+    CDOSession session = openSession1();
+    CDOBranchManager branchManager = session.getBranchManager();
+
+    // Commit to main branch
+    CDOBranch mainBranch = branchManager.getMainBranch();
+    CDOTransaction transaction = session.openTransaction(mainBranch);
+    assertEquals(mainBranch, transaction.getBranch());
+    assertEquals(CDOBranchPoint.UNSPECIFIED_DATE, transaction.getTimeStamp());
+
+    Product1 product = getModel1Factory().createProduct1();
+    product.setName("CDO");
+
+    OrderDetail orderDetail = getModel1Factory().createOrderDetail();
+    orderDetail.setProduct(product);
+    orderDetail.setPrice(5);
+
+    CDOResource resource = transaction.createResource("/res");
+    resource.getContents().add(product);
+    resource.getContents().add(orderDetail);
+
+    CDOCommit commit = transaction.commit();
+    assertEquals(mainBranch, commit.getBranch());
+    long commitTime1 = commit.getTimeStamp();
+    transaction.close();
+
+    // Commit to sub branch
+    CDOBranch subBranch = mainBranch.createBranch("subBranch", commitTime1);
+    transaction = session.openTransaction(subBranch);
+    assertEquals(subBranch, transaction.getBranch());
+    assertEquals(CDOBranchPoint.UNSPECIFIED_DATE, transaction.getTimeStamp());
+
+    resource = transaction.getResource("/res");
+    orderDetail = (OrderDetail)resource.getContents().get(1);
+    assertEquals(5.0f, orderDetail.getPrice());
+    product = orderDetail.getProduct();
+    assertEquals("CDO", product.getName());
+
+    // Modify
+    orderDetail.setPrice(10);
+    commit = transaction.commit();
+    assertEquals(subBranch, commit.getBranch());
+    long commitTime2 = commit.getTimeStamp();
+
+    // Detach
+    resource.getContents().remove(1);
+
+    try
+    {
+      // product.getOrderDetails() contains pointer to detached orderDetail
+      commit = transaction.commit();
+      fail("TransactionException expected");
+    }
+    catch (TransactionException expected)
+    {
+      assertInstanceOf(DanglingReferenceException.class, expected.getCause());
+    }
+
+    orderDetail.setProduct(null);
+
+    commit = transaction.commit();
+    assertEquals(subBranch, commit.getBranch());
+    long commitTime3 = commit.getTimeStamp();
+
+    orderDetail = getModel1Factory().createOrderDetail();
+    orderDetail.setPrice(777);
+
+    try
+    {
+      product.getOrderDetails().set(0, orderDetail);
+      fail("IndexOutOfBoundsException expected");
+    }
+    catch (IndexOutOfBoundsException expected)
+    {
+      // Success
+    }
+
+    product.getOrderDetails().add(orderDetail);
+
+    try
+    {
+      // New orderDetail is not attached
+      commit = transaction.commit();
+      fail("TransactionException expected");
+    }
+    catch (TransactionException expected)
+    {
+      assertInstanceOf(DanglingReferenceException.class, expected.getCause());
+    }
+
+    resource.getContents().add(orderDetail);
+
+    commit = transaction.commit();
+    assertEquals(subBranch, commit.getBranch());
+    long commitTime4 = commit.getTimeStamp();
+
+    transaction.close();
+    closeSession1();
+
+    session = openSession2();
+    branchManager = session.getBranchManager();
+    mainBranch = branchManager.getMainBranch();
+    subBranch = mainBranch.getBranch("subBranch");
+
+    check(session, mainBranch, commitTime1, 5, "CDO");
+    check(session, mainBranch, commitTime2, 5, "CDO");
+    check(session, mainBranch, commitTime3, 5, "CDO");
+    check(session, mainBranch, commitTime4, 5, "CDO");
+    check(session, mainBranch, CDOBranchPoint.UNSPECIFIED_DATE, 5, "CDO");
+
+    check(session, subBranch, commitTime1, 5, "CDO");
+    check(session, subBranch, commitTime2, 10, "CDO");
+
+    try
+    {
+      check(session, subBranch, commitTime3, 0, "CDO");
+      fail("IndexOutOfBoundsException expected");
+    }
+    catch (IndexOutOfBoundsException expected)
+    {
+      // Success
+    }
+
+    check(session, subBranch, commitTime4, 777, "CDO");
+    check(session, subBranch, CDOBranchPoint.UNSPECIFIED_DATE, 777, "CDO");
+
     session.close();
   }
 
