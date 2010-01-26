@@ -419,7 +419,7 @@ public class DBRevisionCache extends Lifecycle implements InternalCDORevisionCac
    *          the revision to add to this cache
    * @return true, if successful
    */
-  public boolean addRevision(CDORevision revision, ReplaceCallback callback)
+  public boolean addRevision(CDORevision revision)
   {
     CheckUtil.checkArg(revision, "revision");
     Connection connection = null;

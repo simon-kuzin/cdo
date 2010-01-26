@@ -14,7 +14,6 @@ import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
-import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.util.lifecycle.ILifecycle;
 
@@ -29,20 +28,11 @@ public interface InternalCDORevisionCache extends CDORevisionCache, ILifecycle
 {
   public InternalCDORevisionCache instantiate(CDORevision revision);
 
-  public boolean addRevision(CDORevision revision, ReplaceCallback callback);
+  public boolean addRevision(CDORevision revision);
 
   public CDORevision removeRevision(CDOID id, CDOBranchVersion branchVersion);
 
   public void clear();
 
   public Map<CDOBranch, List<CDORevision>> getAllRevisions();
-
-  /**
-   * @author Eike Stepper
-   * @since 3.0
-   */
-  public interface ReplaceCallback
-  {
-    public boolean canReplace(InternalCDORevision foundRevision, InternalCDORevision newRevision);
-  }
 }

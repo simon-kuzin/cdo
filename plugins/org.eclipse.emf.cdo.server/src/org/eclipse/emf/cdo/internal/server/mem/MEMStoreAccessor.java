@@ -262,16 +262,16 @@ public class MEMStoreAccessor extends LongIDStoreAccessor
   {
     for (CDOID id : detachedObjects)
     {
-      detachObject(id, branch);
+      detachObject(id, branch, revised);
     }
   }
 
   /**
-   * @since 2.0
+   * @since 3.0
    */
-  protected void detachObject(CDOID id, CDOBranch branch)
+  protected void detachObject(CDOID id, CDOBranch branch, long revised)
   {
-    getStore().detachObject(id, branch);
+    getStore().detachObject(id, branch, revised);
   }
 
   /**

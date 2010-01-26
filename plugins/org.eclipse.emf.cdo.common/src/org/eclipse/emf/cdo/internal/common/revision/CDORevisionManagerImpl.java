@@ -21,16 +21,15 @@ import org.eclipse.emf.cdo.common.revision.CDORevisionFactory;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCache;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCacheUtil;
 import org.eclipse.emf.cdo.common.revision.cache.InternalCDORevisionCache;
-import org.eclipse.emf.cdo.common.revision.cache.InternalCDORevisionCache.ReplaceCallback;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.branch.CDOBranchUtil;
 import org.eclipse.emf.cdo.spi.common.revision.DetachedCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
 import org.eclipse.emf.cdo.spi.common.revision.PointerCDORevision;
-import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager.RevisionLoader.MissingRevisionInfo;
+import org.eclipse.emf.cdo.spi.common.revision.RevisionInfo;
+import org.eclipse.emf.cdo.spi.common.revision.RevisionResult;
 
-import org.eclipse.net4j.util.CheckUtil;
 import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
@@ -42,12 +41,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Eike Stepper
  */
-public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevisionManager, ReplaceCallback
+public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevisionManager
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_REVISION, CDORevisionManagerImpl.class);
 
@@ -189,139 +187,6 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     }
   }
 
-  public CDORevision getRevision(CDOID id, CDOBranchPoint branchPoint, int referenceChunk, int prefetchDepth,
-      boolean loadOnDemand)
-  {
-    return getRevision(id, branchPoint, referenceChunk, prefetchDepth, loadOnDemand, null);
-  }
-
-  public InternalCDORevision getRevision(CDOID id, CDOBranchPoint branchPoint, int referenceChunk, int prefetchDepth,
-      boolean loadOnDemand, Map<CDORevision, Long> revisedPointers)
-  {
-    List<CDOID> ids = Collections.singletonList(id);
-    List<CDORevision> revisions = getRevisions(ids, branchPoint, referenceChunk, prefetchDepth, loadOnDemand,
-        revisedPointers);
-    return (InternalCDORevision)revisions.get(0);
-  }
-
-  public List<CDORevision> getRevisions(List<CDOID> ids, CDOBranchPoint branchPoint, int referenceChunk,
-      int prefetchDepth, boolean loadOnDemand)
-  {
-    return getRevisions(ids, branchPoint, referenceChunk, prefetchDepth, loadOnDemand, null);
-  }
-
-  public List<CDORevision> getRevisions(List<CDOID> ids, CDOBranchPoint branchPoint, int referenceChunk,
-      int prefetchDepth, boolean loadOnDemand, Map<CDORevision, Long> revisedPointers)
-  {
-    List<CDORevision> revisions = new ArrayList<CDORevision>(ids.size());
-    List<MissingRevisionInfo> infos = null;
-    for (CDOID id : ids)
-    {
-      MissingRevisionInfo info = null;
-      InternalCDORevision revision = getCachedRevision(id, branchPoint);
-      if (supportingBranches)
-      {
-        if (revision == null)
-        {
-          if (loadOnDemand)
-          {
-            InternalCDORevision available = getCachedRevisionRecursively(id, branchPoint);
-            if (available != null)
-            {
-              info = new MissingRevisionInfo.PossiblyAvailable(id, available);
-            }
-            else
-            {
-              info = new MissingRevisionInfo(id);
-            }
-          }
-        }
-        else if (revision.getClass() == PointerCDORevision.class)
-        {
-          CDOBranchVersion target = ((PointerCDORevision)revision).getTarget();
-          InternalCDORevision targetRevision = getCachedRevisionByVersion(revision.getID(), target);
-          if (targetRevision == null && loadOnDemand)
-          {
-            info = new MissingRevisionInfo.ExactlyKnown(id, target);
-            if (revisedPointers != null && target instanceof CDORevision)
-            {
-              revisedPointers.put((CDORevision)target, revision.getRevised());
-            }
-          }
-
-          revision = targetRevision;
-        }
-      }
-      else
-      {
-        if (revision == null && loadOnDemand)
-        {
-          info = new MissingRevisionInfo(id);
-        }
-      }
-
-      revisions.add(revision);
-      if (info != null)
-      {
-        CheckUtil.checkState(revision == null, "revision");
-        if (infos == null)
-        {
-          infos = new ArrayList<MissingRevisionInfo>(1);
-        }
-
-        infos.add(info);
-      }
-    }
-
-    if (infos != null)
-    {
-      acquireAtomicRequestLock(loadAndAddLock);
-
-      try
-      {
-        List<InternalCDORevision> missingRevisions = //
-        revisionLoader.loadRevisions(infos, branchPoint, referenceChunk, prefetchDepth);
-
-        CDOBranch branch = branchPoint.getBranch();
-
-        Iterator<MissingRevisionInfo> itInfo = infos.iterator();
-        Iterator<InternalCDORevision> it = missingRevisions.iterator();
-        for (int i = 0; i < revisions.size(); i++)
-        {
-          CDORevision revision = revisions.get(i);
-          if (revision == null)
-          {
-            MissingRevisionInfo info = itInfo.next();
-            InternalCDORevision missingRevision = it.next();
-            revisions.set(i, missingRevision);
-            addRevision(missingRevision);
-
-            if (missingRevision.getBranch() != branch //
-                && info.getType() == MissingRevisionInfo.Type.EXACTLY_KNOWN)
-            {
-              long revised = info.getRevised();
-              if (revisedPointers != null)
-              {
-                revisedPointers.put(missingRevision, revised);
-              }
-
-              PointerCDORevision pointer = new PointerCDORevision(info.getID(), branch);
-              pointer.setTarget(missingRevision);
-              pointer.setRevised(revised);
-              addRevision(pointer);
-            }
-          }
-        }
-      }
-      finally
-      {
-        releaseAtomicRequestLock(loadAndAddLock);
-      }
-    }
-
-    return revisions;
-  }
-
   public InternalCDORevision getRevisionByVersion(CDOID id, CDOBranchVersion branchVersion, int referenceChunk,
       boolean loadOnDemand)
   {
@@ -353,11 +218,186 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     }
   }
 
+  public CDORevision getRevision(CDOID id, CDOBranchPoint branchPoint, int referenceChunk, int prefetchDepth,
+      boolean loadOnDemand)
+  {
+    return getRevision(id, branchPoint, referenceChunk, prefetchDepth, loadOnDemand, null);
+  }
+
+  public InternalCDORevision getRevision(CDOID id, CDOBranchPoint branchPoint, int referenceChunk, int prefetchDepth,
+      boolean loadOnDemand, RevisionResult[] result)
+  {
+    List<CDOID> ids = Collections.singletonList(id);
+    List<CDORevision> revisions = getRevisions(ids, branchPoint, referenceChunk, prefetchDepth, loadOnDemand, result);
+    return (InternalCDORevision)revisions.get(0);
+  }
+
+  public List<CDORevision> getRevisions(List<CDOID> ids, CDOBranchPoint branchPoint, int referenceChunk,
+      int prefetchDepth, boolean loadOnDemand)
+  {
+    return getRevisions(ids, branchPoint, referenceChunk, prefetchDepth, loadOnDemand, null);
+  }
+
+  public List<CDORevision> getRevisions(List<CDOID> ids, CDOBranchPoint branchPoint, int referenceChunk,
+      int prefetchDepth, boolean loadOnDemand, RevisionResult[] results)
+  {
+    RevisionInfo[] infos = new RevisionInfo[ids.size()];
+    List<RevisionInfo> infosToLoad = createRevisionInfos(ids, branchPoint, loadOnDemand, infos);
+    if (infosToLoad != null)
+    {
+      loadRevisions(infosToLoad, branchPoint, referenceChunk, prefetchDepth);
+    }
+
+    return getRevisionAndResults(infos, results);
+  }
+
+  private List<RevisionInfo> createRevisionInfos(List<CDOID> ids, CDOBranchPoint branchPoint, boolean loadOnDemand,
+      RevisionInfo[] infos)
+  {
+    List<RevisionInfo> infosToLoad = null;
+    Iterator<CDOID> idIterator = ids.iterator();
+    for (int i = 0; i < infos.length; i++)
+    {
+      CDOID id = idIterator.next();
+      RevisionInfo info = createRevisionInfo(id, branchPoint);
+      infos[i] = info;
+
+      if (info.isLoadNeeded() && loadOnDemand)
+      {
+        if (infosToLoad == null)
+        {
+          infosToLoad = new ArrayList<RevisionInfo>(1);
+        }
+
+        infosToLoad.add(info);
+      }
+    }
+
+    return infosToLoad;
+  }
+
+  private RevisionInfo createRevisionInfo(CDOID id, CDOBranchPoint branchPoint)
+  {
+    InternalCDORevision revision = getCachedRevision(id, branchPoint);
+    if (revision != null)
+    {
+      return createRevisionInfoAvailable(revision, branchPoint);
+    }
+
+    if (supportingBranches)
+    {
+      revision = getCachedRevisionRecursively(id, branchPoint);
+      if (revision != null)
+      {
+        return createRevisionInfoAvailable(revision, branchPoint);
+      }
+    }
+
+    return createRevisionInfoMissing(id, branchPoint);
+  }
+
+  private RevisionInfo.Available createRevisionInfoAvailable(InternalCDORevision revision,
+      CDOBranchPoint requestedBranchPoint)
+  {
+    if (revision instanceof PointerCDORevision)
+    {
+      PointerCDORevision pointer = (PointerCDORevision)revision;
+      InternalCDORevision target = getCachedRevisionByVersion(pointer.getID(), pointer.getTarget());
+      return new RevisionInfo.Available.Pointer(pointer.getID(), requestedBranchPoint, pointer, target);
+    }
+
+    if (revision instanceof DetachedCDORevision)
+    {
+      DetachedCDORevision detached = (DetachedCDORevision)revision;
+      return new RevisionInfo.Available.Detached(detached.getID(), requestedBranchPoint, detached);
+    }
+
+    return new RevisionInfo.Available.Normal(revision.getID(), requestedBranchPoint, revision);
+  }
+
+  private RevisionInfo.Missing createRevisionInfoMissing(CDOID id, CDOBranchPoint requestedBranchPoint)
+  {
+    if (requestedBranchPoint.getBranch().isMainBranch())
+    {
+      return new RevisionInfo.Missing.MainBranch(id, requestedBranchPoint);
+    }
+
+    return new RevisionInfo.Missing.SubBranch(id, requestedBranchPoint);
+  }
+
+  private void loadRevisions(List<RevisionInfo> infosToLoad, CDOBranchPoint branchPoint, int referenceChunk,
+      int prefetchDepth)
+  {
+    acquireAtomicRequestLock(loadAndAddLock);
+
+    try
+    {
+      revisionLoader.loadRevisions(infosToLoad, branchPoint, referenceChunk, prefetchDepth);
+      //
+      // CDOBranch branch = branchPoint.getBranch();
+      //
+      // Iterator<MissingRevisionInfo> itInfo = missingInfos.iterator();
+      // Iterator<InternalCDORevision> it = missingRevisions.iterator();
+      // for (int i = 0; i < revisions.size(); i++)
+      // {
+      // InternalCDORevision revision = (InternalCDORevision)revisions.get(i);
+      // if (revision == null)
+      // {
+      // MissingRevisionInfo info = itInfo.next();
+      // revision = it.next();
+      //
+      // revisions.set(i, revision);
+      // addRevision(revision);
+      //
+      // long revised = info.getRevised();
+      // if (revisedPointers != null)
+      // {
+      // revisedPointers.put(revision, revised);
+      // }
+      //
+      // if (revision.getBranch() != branch && info.getType() == MissingRevisionInfo.Type.EXACTLY_KNOWN)
+      // {
+      // PointerCDORevision pointer = new PointerCDORevision(info.getID(), branch);
+      // pointer.setTarget(revision);
+      // pointer.setRevised(revised);
+      // addRevision(pointer);
+      // }
+      // }
+      //
+      // if (revision instanceof PointerCDORevision)
+      // {
+      // revisions.set(i, null);
+      // }
+      // }
+    }
+    finally
+    {
+      releaseAtomicRequestLock(loadAndAddLock);
+    }
+  }
+
+  private List<CDORevision> getRevisionAndResults(RevisionInfo[] infos, RevisionResult[] results)
+  {
+    List<CDORevision> revisions = new ArrayList<CDORevision>(infos.length);
+    for (int i = 0; i < infos.length; i++)
+    {
+      RevisionInfo info = infos[i];
+      revisions.add(info.getRevision());
+
+      if (results != null)
+      {
+        results[i] = info.getResult();
+      }
+    }
+
+    return revisions;
+  }
+
   public boolean addRevision(CDORevision revision)
   {
     if (revision != null)
     {
-      boolean added = cache.addRevision(revision, this);
+      boolean added = cache.addRevision(revision);
       if (added)
       {
         int oldVersion = revision.getVersion() - 1;
@@ -373,16 +413,6 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
           return true;
         }
       }
-    }
-
-    return false;
-  }
-
-  public boolean canReplace(InternalCDORevision foundRevision, InternalCDORevision newRevision)
-  {
-    if (supportingBranches)
-    {
-      return foundRevision instanceof PointerCDORevision && newRevision instanceof DetachedCDORevision;
     }
 
     return false;

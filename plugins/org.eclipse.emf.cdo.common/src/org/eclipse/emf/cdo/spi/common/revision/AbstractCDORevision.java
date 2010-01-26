@@ -15,6 +15,8 @@ package org.eclipse.emf.cdo.spi.common.revision;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.model.CDOClassInfo;
+import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.common.revision.CDORevisionData;
 
 import org.eclipse.emf.ecore.EClass;
 
@@ -33,6 +35,31 @@ public abstract class AbstractCDORevision implements InternalCDORevision
     }
 
     return null;
+  }
+
+  public boolean isResourceNode()
+  {
+    return getClassInfo().isResourceNode();
+  }
+
+  public boolean isResourceFolder()
+  {
+    return getClassInfo().isResourceFolder();
+  }
+
+  public boolean isResource()
+  {
+    return getClassInfo().isResource();
+  }
+
+  public CDORevisionData data()
+  {
+    return this;
+  }
+
+  public CDORevision revision()
+  {
+    return this;
   }
 
   /**

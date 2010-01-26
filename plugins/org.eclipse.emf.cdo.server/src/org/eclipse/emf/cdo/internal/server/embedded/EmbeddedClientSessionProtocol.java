@@ -28,6 +28,7 @@ import org.eclipse.emf.cdo.session.remote.CDORemoteSessionMessage;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
+import org.eclipse.emf.cdo.spi.common.revision.RevisionInfo;
 import org.eclipse.emf.cdo.spi.server.InternalCommitContext;
 import org.eclipse.emf.cdo.spi.server.InternalQueryManager;
 import org.eclipse.emf.cdo.spi.server.InternalQueryResult;
@@ -155,8 +156,7 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
     }
   }
 
-  public List<InternalCDORevision> loadRevisions(Collection<MissingRevisionInfo> infos, CDOBranchPoint branchPoint,
-      int referenceChunk, int prefetchDepth)
+  public void loadRevisions(List<RevisionInfo> infos, CDOBranchPoint branchPoint, int referenceChunk, int prefetchDepth)
   {
     try
     {
@@ -164,15 +164,17 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
       StoreThreadLocal.setSession(session);
 
       List<CDOID> ids = new ArrayList<CDOID>(infos.size());
-      for (MissingRevisionInfo info : infos)
+      for (RevisionInfo info : infos)
       {
         ids.add(info.getID());
       }
 
-      @SuppressWarnings("unchecked")
-      List<InternalCDORevision> revisions = (List<InternalCDORevision>)(List<?>)repository.getRevisionManager()
-          .getRevisions(ids, branchPoint, referenceChunk, prefetchDepth, true);
-      return revisions;
+      // @SuppressWarnings("unchecked")
+      // List<InternalCDORevision> revisions = (List<InternalCDORevision>)(List<?>)repository.getRevisionManager()
+      // .getRevisions(ids, branchPoint, referenceChunk, prefetchDepth, true);
+
+      // TODO: implement EmbeddedClientSessionProtocol.loadRevisions(infos, branchPoint, referenceChunk, prefetchDepth)
+      throw new UnsupportedOperationException();
     }
     finally
     {

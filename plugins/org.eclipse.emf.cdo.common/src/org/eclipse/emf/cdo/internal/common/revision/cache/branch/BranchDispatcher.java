@@ -112,7 +112,7 @@ public class BranchDispatcher extends Lifecycle implements InternalCDORevisionCa
     return cache.removeRevision(id, branchVersion);
   }
 
-  public boolean addRevision(CDORevision revision, ReplaceCallback callback)
+  public boolean addRevision(CDORevision revision)
   {
     InternalCDORevisionCache cache;
     CDOBranch branch = revision.getBranch();
@@ -127,7 +127,7 @@ public class BranchDispatcher extends Lifecycle implements InternalCDORevisionCa
       }
     }
 
-    return cache.addRevision(revision, callback);
+    return cache.addRevision(revision);
   }
 
   public List<CDORevision> getCurrentRevisions()

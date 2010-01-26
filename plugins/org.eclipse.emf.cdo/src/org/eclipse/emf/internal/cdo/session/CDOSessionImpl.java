@@ -36,6 +36,7 @@ import org.eclipse.emf.cdo.session.remote.CDORemoteSessionMessage;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranch;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
+import org.eclipse.emf.cdo.spi.common.revision.RevisionInfo;
 import org.eclipse.emf.cdo.transaction.CDORefreshContext;
 import org.eclipse.emf.cdo.util.CDOUtil;
 import org.eclipse.emf.cdo.view.CDOFetchRuleManager;
@@ -1410,15 +1411,16 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       }
     }
 
-    public List<InternalCDORevision> loadRevisions(Collection<MissingRevisionInfo> infos, CDOBranchPoint branchPoint,
-        int referenceChunk, int prefetchDepth)
+    public void loadRevisions(List<RevisionInfo> infos, CDOBranchPoint branchPoint, int referenceChunk,
+        int prefetchDepth)
     {
       int attempt = 0;
       for (;;)
       {
         try
         {
-          return delegate.loadRevisions(infos, branchPoint, referenceChunk, prefetchDepth);
+          delegate.loadRevisions(infos, branchPoint, referenceChunk, prefetchDepth);
+          return;
         }
         catch (Exception ex)
         {

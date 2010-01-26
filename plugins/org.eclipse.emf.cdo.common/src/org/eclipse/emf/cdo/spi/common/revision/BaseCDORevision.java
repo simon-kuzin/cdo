@@ -345,36 +345,6 @@ public abstract class BaseCDORevision extends AbstractCDORevision
     this.revised = revised;
   }
 
-  public boolean isCurrent()
-  {
-    return revised == UNSPECIFIED_DATE;
-  }
-
-  public boolean isResourceNode()
-  {
-    return classInfo.isResourceNode();
-  }
-
-  public boolean isResourceFolder()
-  {
-    return classInfo.isResourceFolder();
-  }
-
-  public boolean isResource()
-  {
-    return classInfo.isResource();
-  }
-
-  public CDORevisionData data()
-  {
-    return this;
-  }
-
-  public CDORevision revision()
-  {
-    return this;
-  }
-
   public InternalCDORevisionDelta compare(CDORevision origin)
   {
     return (InternalCDORevisionDelta)CDORevisionDeltaUtil.create(origin, this);

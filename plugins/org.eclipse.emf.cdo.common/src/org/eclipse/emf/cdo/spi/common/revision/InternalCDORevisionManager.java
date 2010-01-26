@@ -27,7 +27,6 @@ import org.eclipse.net4j.util.lifecycle.ILifecycle;
 
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,10 +62,10 @@ public interface InternalCDORevisionManager extends CDORevisionManager, CDORevis
   public void reviseVersion(CDOID id, CDOBranchVersion branchVersion, long timeStamp);
 
   public CDORevision getRevision(CDOID id, CDOBranchPoint branchPoint, int referenceChunk, int prefetchDepth,
-      boolean loadOnDemand, Map<CDORevision, Long> revisedPointers);
+      boolean loadOnDemand, RevisionResult[] result);
 
   public List<CDORevision> getRevisions(List<CDOID> ids, CDOBranchPoint branchPoint, int referenceChunk,
-      int prefetchDepth, boolean loadOnDemand, Map<CDORevision, Long> revisedPointers);
+      int prefetchDepth, boolean loadOnDemand, RevisionResult[] results);
 
   /**
    * @author Eike Stepper
@@ -74,8 +73,8 @@ public interface InternalCDORevisionManager extends CDORevisionManager, CDORevis
    */
   public interface RevisionLoader
   {
-    public List<InternalCDORevision> loadRevisions(Collection<MissingRevisionInfo> infos, CDOBranchPoint branchPoint,
-        int referenceChunk, int prefetchDepth);
+    public void loadRevisions(List<RevisionInfo> infos, CDOBranchPoint branchPoint, int referenceChunk,
+        int prefetchDepth);
 
     public InternalCDORevision loadRevisionByVersion(CDOID id, CDOBranchVersion branchVersion, int referenceChunk);
 
@@ -85,13 +84,13 @@ public interface InternalCDORevisionManager extends CDORevisionManager, CDORevis
      */
     public static class MissingRevisionInfo
     {
-      protected static final byte NO_REVISION = 0;
+      private static final byte NO_REVISION = 0;
 
-      protected static final byte NORMAL_REVISION = 1;
+      private static final byte AVAILABLE_REVISION = 1;
 
-      protected static final byte POINTER_REVISION = 2;
+      private static final byte SYNTHETIC_REVISION = 2;
 
-      protected static final byte DETACHED_REVISION = 3;
+      private static final byte NORMAL_REVISION = 3;
 
       private CDOID id;
 
@@ -142,8 +141,9 @@ public interface InternalCDORevisionManager extends CDORevisionManager, CDORevis
           int referenceChunk)
       {
         Map<CDORevision, Long> revisedPointers = new HashMap<CDORevision, Long>();
+        RevisionResult[] results = new RevisionResult[1];
         CDORevision revision = revisionManager.getRevision(id, branchPoint, referenceChunk, CDORevision.DEPTH_NONE,
-            true, revisedPointers);
+            true, results);
         Long revisedPointer = revisedPointers.get(revision);
         if (revisedPointer != null)
         {
@@ -158,13 +158,12 @@ public interface InternalCDORevisionManager extends CDORevisionManager, CDORevis
       {
         if (revision == null)
         {
-          out.writeByte(DETACHED_REVISION);
+          out.writeByte(NO_REVISION);
           out.writeLong(revised);
-          throw new RuntimeException();
         }
         else if (revision.getBranch() != branch)
         {
-          out.writeByte(POINTER_REVISION);
+          out.writeByte(SYNTHETIC_REVISION);
           out.writeLong(revised);
           out.writeCDORevision(revision, referenceChunk);
         }
@@ -188,12 +187,15 @@ public interface InternalCDORevisionManager extends CDORevisionManager, CDORevis
         case NORMAL_REVISION:
           return (InternalCDORevision)in.readCDORevision();
 
-        case POINTER_REVISION:
+        case SYNTHETIC_REVISION:
           revised = in.readLong();
           return (InternalCDORevision)in.readCDORevision();
 
-        case DETACHED_REVISION:
-          return new DetachedCDORevision(id, branch, in.readLong());
+        case NO_REVISION:
+          revised = in.readLong();
+          PointerCDORevision synthetic = new PointerCDORevision(id, branch);
+          synthetic.setRevised(revised);
+          return synthetic;
 
         default:
           throw new IllegalStateException("Invalid result type: " + resultType);
@@ -297,23 +299,25 @@ public interface InternalCDORevisionManager extends CDORevisionManager, CDORevis
         public void writeResult(CDODataOutput out, CDOBranch branch, CDORevision revision, int referenceChunk)
             throws IOException
         {
-          boolean useAvailable = revision.getBranch() == available.getBranch()
-              && revision.getVersion() == available.getVersion();
-          if (useAvailable)
+          if (revision != null)
           {
-            out.writeByte(NO_REVISION);
-            out.writeLong(getRevised());
+            boolean useAvailable = revision.getBranch() == available.getBranch()
+                && revision.getVersion() == available.getVersion();
+            if (useAvailable)
+            {
+              out.writeByte(AVAILABLE_REVISION);
+              out.writeLong(getRevised());
+              return;
+            }
           }
-          else
-          {
-            super.writeResult(out, branch, revision, referenceChunk);
-          }
+
+          super.writeResult(out, branch, revision, referenceChunk);
         }
 
         @Override
         protected InternalCDORevision readResult(CDODataInput in, CDOBranch branch, byte resultType) throws IOException
         {
-          if (resultType == NO_REVISION)
+          if (resultType == AVAILABLE_REVISION)
           {
             setRevised(in.readLong());
             return (InternalCDORevision)available;

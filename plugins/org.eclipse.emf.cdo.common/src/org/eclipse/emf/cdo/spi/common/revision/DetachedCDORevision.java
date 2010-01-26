@@ -2,31 +2,47 @@ package org.eclipse.emf.cdo.spi.common.revision;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.revision.CDORevisionManager;
 
 import java.text.MessageFormat;
 
 /**
- * A {@link SyntheticCDORevision synthetic} marker that indicates that an object is detached at the beginning of a
- * {@link CDOBranch branch}. It always has {@link #getVersion() version} zero and can only appear in branches below the
- * {@link CDOBranch#isMainBranch() main} branch. Instances of this marker revision are not supposed to be exposed
- * outside of a revision {@link CDORevisionManager manager}. They are mainly used in the communication between a
- * revision manager and its associated revision {@link InternalCDORevisionManager.RevisionLoader loader}.
- * 
  * @author Eike Stepper
  * @since 3.0
  */
 public class DetachedCDORevision extends SyntheticCDORevision
 {
-  public DetachedCDORevision(CDOID id, CDOBranch branch, long revised)
+  private int version;
+
+  private long timeStamp;
+
+  public DetachedCDORevision(CDOID id, CDOBranch branch, int version, long timeStamp)
   {
     super(id, branch);
-    setRevised(revised);
+    this.version = version;
+    this.timeStamp = timeStamp;
+  }
+
+  @Override
+  public final int getVersion()
+  {
+    return version;
+  }
+
+  @Override
+  public long getTimeStamp()
+  {
+    return timeStamp;
+  }
+
+  @Override
+  public long getRevised()
+  {
+    return UNSPECIFIED_DATE;
   }
 
   @Override
   public String toString()
   {
-    return MessageFormat.format("DetachedCDORevision[{0}:{1}v0]", getID(), getBranch().getID());
+    return MessageFormat.format("DetachedCDORevision[{0}:{1}v{2}]", getID(), getBranch().getID(), version);
   }
 }

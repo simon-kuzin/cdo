@@ -26,7 +26,9 @@ import org.eclipse.emf.cdo.server.ITransaction;
 import org.eclipse.emf.cdo.server.IView;
 import org.eclipse.emf.cdo.server.StoreThreadLocal;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager.BranchLoader;
+import org.eclipse.emf.cdo.spi.common.revision.DetachedCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
+import org.eclipse.emf.cdo.spi.common.revision.SyntheticCDORevision;
 import org.eclipse.emf.cdo.spi.server.LongIDStore;
 import org.eclipse.emf.cdo.spi.server.StoreAccessorPool;
 
@@ -199,11 +201,7 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
 
   public synchronized void addRevision(InternalCDORevision revision)
   {
-    CDOID id = revision.getID();
-    CDOBranch branch = revision.getBranch();
-    int version = revision.getVersion();
-
-    Object listKey = getListKey(id, branch);
+    Object listKey = getListKey(revision.getID(), revision.getBranch());
     List<InternalCDORevision> list = revisions.get(listKey);
     if (list == null)
     {
@@ -211,44 +209,7 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
       revisions.put(listKey, list);
     }
 
-    InternalCDORevision rev = getRevisionByVersion(list, version);
-    if (rev != null)
-    {
-      throw new IllegalStateException("Concurrent modification of " + rev.getEClass().getName() + "@" + rev.getID()); //$NON-NLS-1$
-    }
-
-    int oldVersion = version - 1;
-    rev = oldVersion >= CDORevision.UNSPECIFIED_VERSION ? getRevisionByVersion(list, oldVersion) : null;
-    if (rev != null)
-    {
-      rev.setRevised(revision.getTimeStamp() - 1);
-    }
-
-    if (revision.isResource())
-    {
-      if (resourceNameFeature == null)
-      {
-        resourceNameFeature = revision.getEClass()
-            .getEStructuralFeature(CDOModelConstants.RESOURCE_NODE_NAME_ATTRIBUTE);
-      }
-
-      CDOID revisionFolder = (CDOID)revision.data().getContainerID();
-      String revisionName = (String)revision.data().get(resourceNameFeature, 0);
-
-      IStoreAccessor accessor = StoreThreadLocal.getAccessor();
-
-      CDOID resourceID = accessor.readResourceID(revisionFolder, revisionName, revision);
-      if (!CDOIDUtil.isNull(resourceID))
-      {
-        throw new IllegalStateException("Duplicate resource: " + revisionName + " (folderID=" + revisionFolder + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-      }
-    }
-
-    list.add(revision);
-    if (listLimit != UNLIMITED)
-    {
-      enforceListLimit(list);
-    }
+    addRevision(list, revision);
   }
 
   /**
@@ -285,12 +246,39 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
   }
 
   /**
-   * @since 2.0
+   * @since 3.0
    */
-  public synchronized void detachObject(CDOID id, CDOBranch branch)
+  public synchronized void detachObject(CDOID id, CDOBranch branch, long revised)
   {
     Object listKey = getListKey(id, branch);
-    revisions.remove(listKey);
+    List<InternalCDORevision> list = revisions.get(listKey);
+    if (list != null)
+    {
+      InternalCDORevision revision = getRevision(list, branch.getHead());
+      if (revision != null)
+      {
+        revision.setRevised(revised);
+        return;
+      }
+    }
+
+    if (!branch.isMainBranch())
+    {
+      int version;
+      if (list == null)
+      {
+        list = new ArrayList<InternalCDORevision>();
+        revisions.put(listKey, list);
+        version = CDOBranchVersion.FIRST_VERSION;
+      }
+      else
+      {
+        version = getHighestVersion(list) + 1;
+      }
+
+      DetachedCDORevision detached = new DetachedCDORevision(id, branch, version, revised);
+      addRevision(list, detached);
+    }
   }
 
   /**
@@ -316,6 +304,11 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
       }
 
       InternalCDORevision revision = list.get(0);
+      if (revision instanceof SyntheticCDORevision)
+      {
+        continue;
+      }
+
       if (!revision.isResourceNode())
       {
         continue;
@@ -449,6 +442,20 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
     return getRepository().getBranchManager().getMainBranch();
   }
 
+  private int getHighestVersion(List<InternalCDORevision> list)
+  {
+    int version = CDOBranchVersion.UNSPECIFIED_VERSION;
+    for (InternalCDORevision revision : list)
+    {
+      if (revision.getVersion() > version)
+      {
+        version = revision.getVersion();
+      }
+    }
+
+    return version;
+  }
+
   private InternalCDORevision getRevisionByVersion(List<InternalCDORevision> list, int version)
   {
     for (InternalCDORevision revision : list)
@@ -484,6 +491,60 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
     }
 
     return null;
+  }
+
+  private void addRevision(List<InternalCDORevision> list, InternalCDORevision revision)
+  {
+    // Check version conflict
+    int version = revision.getVersion();
+    InternalCDORevision rev = getRevisionByVersion(list, version);
+    if (rev != null)
+    {
+      throw new IllegalStateException("Concurrent modification of " + rev.getEClass().getName() + "@" + rev.getID()); //$NON-NLS-1$
+    }
+
+    // Revise old revision
+    int oldVersion = version - 1;
+    if (oldVersion >= CDORevision.UNSPECIFIED_VERSION)
+    {
+      InternalCDORevision oldRevision = getRevisionByVersion(list, oldVersion);
+      if (oldRevision != null)
+      {
+        oldRevision.setRevised(revision.getTimeStamp() - 1);
+      }
+    }
+
+    // Check duplicate resource
+    if (!(revision instanceof SyntheticCDORevision) && revision.isResource())
+    {
+      checkDuplicateResource(revision);
+    }
+
+    // Adjust the list
+    list.add(revision);
+    if (listLimit != UNLIMITED)
+    {
+      enforceListLimit(list);
+    }
+  }
+
+  private void checkDuplicateResource(InternalCDORevision revision)
+  {
+    if (resourceNameFeature == null)
+    {
+      resourceNameFeature = revision.getEClass().getEStructuralFeature(CDOModelConstants.RESOURCE_NODE_NAME_ATTRIBUTE);
+    }
+
+    CDOID revisionFolder = (CDOID)revision.data().getContainerID();
+    String revisionName = (String)revision.data().get(resourceNameFeature, 0);
+
+    IStoreAccessor accessor = StoreThreadLocal.getAccessor();
+
+    CDOID resourceID = accessor.readResourceID(revisionFolder, revisionName, revision);
+    if (!CDOIDUtil.isNull(resourceID))
+    {
+      throw new IllegalStateException("Duplicate resource: " + revisionName + " (folderID=" + revisionFolder + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    }
   }
 
   private void enforceListLimit(List<InternalCDORevision> list)

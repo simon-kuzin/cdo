@@ -131,18 +131,6 @@ public class LRURevisionCache extends Lifecycle implements InternalCDORevisionCa
     return revision.getEClass();
   }
 
-  public synchronized InternalCDORevision getRevision(CDOID id)
-  {
-    RevisionHolder holder = getHolder(id);
-    InternalCDORevision revision = holder == null ? null : holder.getRevision();
-    if (revision == null || revision.isHistorical())
-    {
-      return null;
-    }
-
-    return revision;
-  }
-
   public synchronized InternalCDORevision getRevision(CDOID id, CDOBranchPoint branchPoint)
   {
     RevisionHolder holder = getHolder(id);
@@ -173,7 +161,7 @@ public class LRURevisionCache extends Lifecycle implements InternalCDORevisionCa
     return null;
   }
 
-  public synchronized boolean addRevision(CDORevision revision, ReplaceCallback callback)
+  public synchronized boolean addRevision(CDORevision revision)
   {
     CheckUtil.checkArg(revision, "revision");
     if (TRACER.isEnabled())
@@ -432,7 +420,7 @@ public class LRURevisionCache extends Lifecycle implements InternalCDORevisionCa
       {
         if (this == currentLRU && revised)
         {
-          addRevision(revision, null);
+          addRevision(revision);
         }
         else
         {

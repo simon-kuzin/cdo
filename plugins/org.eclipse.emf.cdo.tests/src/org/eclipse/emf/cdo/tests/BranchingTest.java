@@ -249,7 +249,7 @@ public class BranchingTest extends AbstractCDOTest
     session.close();
   }
 
-  public void testDetach() throws Exception
+  public void testDetachExisting() throws Exception
   {
     CDOSession session = openSession1();
     CDOBranchManager branchManager = session.getBranchManager();
@@ -294,7 +294,7 @@ public class BranchingTest extends AbstractCDOTest
     assertEquals(subBranch, commit.getBranch());
     long commitTime2 = commit.getTimeStamp();
 
-    // Detach
+    // Detach an object that already has revision in subBranch
     resource.getContents().remove(1);
 
     try
@@ -383,15 +383,85 @@ public class BranchingTest extends AbstractCDOTest
   {
     CDOView view = session.openView(branch, timeStamp);
     CDOResource resource = view.getResource("/res");
-
+  
     dump("ClientCache", ((InternalCDOSession)session).getRevisionManager().getCache().getAllRevisions());
     OrderDetail orderDetail = (OrderDetail)resource.getContents().get(1);
-
+  
     dump("ClientCache", ((InternalCDOSession)session).getRevisionManager().getCache().getAllRevisions());
     assertEquals(price, orderDetail.getPrice());
-
+  
     Product1 product = orderDetail.getProduct();
     dump("ClientCache", ((InternalCDOSession)session).getRevisionManager().getCache().getAllRevisions());
+    assertEquals(name, product.getName());
+  
+    view.close();
+  }
+
+  public void testDetachWithoutRevision() throws Exception
+  {
+    CDOSession session = openSession1();
+    CDOBranchManager branchManager = session.getBranchManager();
+
+    // Commit to main branch
+    CDOBranch mainBranch = branchManager.getMainBranch();
+    CDOTransaction transaction = session.openTransaction(mainBranch);
+    assertEquals(mainBranch, transaction.getBranch());
+    assertEquals(CDOBranchPoint.UNSPECIFIED_DATE, transaction.getTimeStamp());
+
+    Product1 product = getModel1Factory().createProduct1();
+    product.setName("CDO");
+
+    CDOResource resource = transaction.createResource("/res");
+    resource.getContents().add(product);
+
+    CDOCommit commit = transaction.commit();
+    assertEquals(mainBranch, commit.getBranch());
+    long commitTime1 = commit.getTimeStamp();
+    transaction.close();
+
+    // Commit to sub branch
+    CDOBranch subBranch = mainBranch.createBranch("subBranch", commitTime1);
+    transaction = session.openTransaction(subBranch);
+    assertEquals(subBranch, transaction.getBranch());
+    assertEquals(CDOBranchPoint.UNSPECIFIED_DATE, transaction.getTimeStamp());
+
+    resource = transaction.getResource("/res");
+    product = (Product1)resource.getContents().get(0);
+    assertEquals("CDO", product.getName());
+
+    // Detach an object that has no revision in subBranch
+    resource.getContents().remove(0);
+
+    commit = transaction.commit();
+    assertEquals(subBranch, commit.getBranch());
+    long commitTime2 = commit.getTimeStamp();
+
+    transaction.close();
+    closeSession1();
+
+    session = openSession2();
+    branchManager = session.getBranchManager();
+    mainBranch = branchManager.getMainBranch();
+    subBranch = mainBranch.getBranch("subBranch");
+
+    // check(session, mainBranch, commitTime1, "CDO");
+    // check(session, mainBranch, commitTime2, "CDO");
+    // check(session, mainBranch, CDOBranchPoint.UNSPECIFIED_DATE, "CDO");
+
+    check(session, subBranch, commitTime1, "CDO");
+    check(session, subBranch, commitTime2, "CDO");
+    check(session, subBranch, CDOBranchPoint.UNSPECIFIED_DATE, "CDO");
+
+    session.close();
+  }
+
+  private void check(CDOSession session, CDOBranch branch, long timeStamp, String name)
+  {
+    CDOView view = session.openView(branch, timeStamp);
+    CDOResource resource = view.getResource("/res");
+
+    dump("ClientCache", ((InternalCDOSession)session).getRevisionManager().getCache().getAllRevisions());
+    Product1 product = (Product1)resource.getContents().get(0);
     assertEquals(name, product.getName());
 
     view.close();

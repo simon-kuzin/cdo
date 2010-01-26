@@ -124,10 +124,10 @@ public class TwoLevelRevisionCache extends Lifecycle implements InternalCDORevis
     return revisions;
   }
 
-  public boolean addRevision(CDORevision revision, ReplaceCallback callback)
+  public boolean addRevision(CDORevision revision)
   {
     CheckUtil.checkArg(revision, "revision");
-    boolean added = level1.addRevision(revision, callback);
+    boolean added = level1.addRevision(revision);
 
     // Bugzilla 292372: If a new current revision was added to level1, we must check whether
     // level2 contains a stale current revision, and revise that revision if possible
@@ -193,7 +193,7 @@ public class TwoLevelRevisionCache extends Lifecycle implements InternalCDORevis
 
   protected void evictedFromLevel1(CDORevision revision)
   {
-    level2.addRevision(revision, null);
+    level2.addRevision(revision);
     if (TRACER.isEnabled())
     {
       TRACER.format("Recached revision {0}", revision); //$NON-NLS-1$

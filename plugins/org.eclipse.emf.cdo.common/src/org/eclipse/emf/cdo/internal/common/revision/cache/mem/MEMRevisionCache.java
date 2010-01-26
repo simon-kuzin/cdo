@@ -146,7 +146,7 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
     return currentRevisions;
   }
 
-  public boolean addRevision(CDORevision revision, ReplaceCallback callback)
+  public boolean addRevision(CDORevision revision)
   {
     CheckUtil.checkArg(revision, "revision");
     CDOID id = revision.getID();
@@ -159,7 +159,7 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
         cacheLists.put(id, list);
       }
 
-      return list.addRevision((InternalCDORevision)revision, callback);
+      return list.addRevision((InternalCDORevision)revision);
     }
   }
 
@@ -368,7 +368,7 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
       }
     }
 
-    public boolean addRevision(InternalCDORevision revision, ReplaceCallback callback)
+    public boolean addRevision(InternalCDORevision revision)
     {
       KeyedReference<CDOIDAndVersion, InternalCDORevision> reference = createReference(revision);
       int version = revision.getVersion();
@@ -382,13 +382,6 @@ public class MEMRevisionCache extends ReferenceQueueWorker<InternalCDORevision> 
           int v = key.getVersion();
           if (v == version)
           {
-            if (callback != null && callback.canReplace(foundRevision, revision))
-            {
-              it.remove();
-              it.add(reference);
-              return true;
-            }
-
             return false;
           }
 

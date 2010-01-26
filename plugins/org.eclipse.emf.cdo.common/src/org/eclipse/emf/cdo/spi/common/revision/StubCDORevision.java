@@ -20,7 +20,6 @@ import org.eclipse.emf.cdo.common.model.CDOClassInfo;
 import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
-import org.eclipse.emf.cdo.common.revision.CDORevisionData;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 
 import org.eclipse.emf.ecore.EStructuralFeature;
@@ -157,26 +156,6 @@ public class StubCDORevision extends AbstractCDORevision
     throw new UnsupportedOperationException();
   }
 
-  public boolean isResourceNode()
-  {
-    throw new UnsupportedOperationException();
-  }
-
-  public boolean isResourceFolder()
-  {
-    throw new UnsupportedOperationException();
-  }
-
-  public boolean isResource()
-  {
-    throw new UnsupportedOperationException();
-  }
-
-  public CDORevisionData data()
-  {
-    throw new UnsupportedOperationException();
-  }
-
   public CDORevisionDelta compare(CDORevision origin)
   {
     throw new UnsupportedOperationException();
@@ -203,11 +182,6 @@ public class StubCDORevision extends AbstractCDORevision
   }
 
   public long getTimeStamp()
-  {
-    throw new UnsupportedOperationException();
-  }
-
-  public CDORevision revision()
   {
     throw new UnsupportedOperationException();
   }

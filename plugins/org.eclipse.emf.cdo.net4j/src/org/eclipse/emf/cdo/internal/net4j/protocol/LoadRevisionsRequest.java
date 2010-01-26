@@ -19,7 +19,7 @@ import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.internal.net4j.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
-import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager.RevisionLoader.MissingRevisionInfo;
+import org.eclipse.emf.cdo.spi.common.revision.RevisionInfo;
 import org.eclipse.emf.cdo.view.CDOFetchRuleManager;
 
 import org.eclipse.net4j.util.om.trace.ContextTracer;
@@ -37,7 +37,7 @@ public class LoadRevisionsRequest extends CDOClientRequest<List<InternalCDORevis
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, LoadRevisionsRequest.class);
 
-  private Collection<MissingRevisionInfo> infos;
+  private List<RevisionInfo> infos;
 
   private CDOBranchPoint branchPoint;
 
@@ -45,8 +45,8 @@ public class LoadRevisionsRequest extends CDOClientRequest<List<InternalCDORevis
 
   private int prefetchDepth;
 
-  public LoadRevisionsRequest(CDOClientProtocol protocol, Collection<MissingRevisionInfo> infos,
-      CDOBranchPoint branchPoint, int referenceChunk, int prefetchDepth)
+  public LoadRevisionsRequest(CDOClientProtocol protocol, List<RevisionInfo> infos, CDOBranchPoint branchPoint,
+      int referenceChunk, int prefetchDepth)
   {
     super(protocol, CDOProtocolConstants.SIGNAL_LOAD_REVISIONS);
     this.infos = infos;
@@ -86,7 +86,7 @@ public class LoadRevisionsRequest extends CDOClientRequest<List<InternalCDORevis
     }
 
     Collection<CDOID> ids = new ArrayList<CDOID>(size);
-    for (MissingRevisionInfo info : infos)
+    for (RevisionInfo info : infos)
     {
       if (TRACER.isEnabled())
       {
@@ -132,10 +132,10 @@ public class LoadRevisionsRequest extends CDOClientRequest<List<InternalCDORevis
       TRACER.format("Reading {0} revisions", size); //$NON-NLS-1$
     }
 
-    for (MissingRevisionInfo info : infos)
+    for (RevisionInfo info : infos)
     {
-      InternalCDORevision revision = info.readResult(in, branchPoint.getBranch());
-      revisions.add(revision);
+      info.readResult(in);
+      revisions.add(info.getRevision());
     }
 
     int additionalSize = in.readInt();

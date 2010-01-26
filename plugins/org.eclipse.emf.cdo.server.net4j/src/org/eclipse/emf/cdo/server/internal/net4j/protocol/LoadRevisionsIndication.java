@@ -22,7 +22,7 @@ import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.internal.net4j.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
-import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager.RevisionLoader.MissingRevisionInfo;
+import org.eclipse.emf.cdo.spi.common.revision.RevisionInfo;
 
 import org.eclipse.net4j.util.collection.MoveableList;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
@@ -47,7 +47,7 @@ public class LoadRevisionsIndication extends CDOReadIndication
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, LoadRevisionsIndication.class);
 
-  private MissingRevisionInfo[] infos;
+  private RevisionInfo[] infos;
 
   private CDOBranchPoint branchPoint;
 
@@ -91,10 +91,10 @@ public class LoadRevisionsIndication extends CDOReadIndication
       TRACER.format("Reading {0} infos", size); //$NON-NLS-1$
     }
 
-    infos = new MissingRevisionInfo[size];
+    infos = new RevisionInfo[size];
     for (int i = 0; i < size; i++)
     {
-      MissingRevisionInfo info = MissingRevisionInfo.read(in);
+      RevisionInfo info = RevisionInfo.read(in, branchPoint);
       if (TRACER.isEnabled())
       {
         TRACER.format("Read info: {0}", info); //$NON-NLS-1$
@@ -139,7 +139,7 @@ public class LoadRevisionsIndication extends CDOReadIndication
       TRACER.format("Writing {0} results", size); //$NON-NLS-1$
     }
 
-    for (MissingRevisionInfo info : infos)
+    for (RevisionInfo info : infos)
     {
       revisionIDs.add(info.getID());
     }
@@ -158,15 +158,15 @@ public class LoadRevisionsIndication extends CDOReadIndication
     }
 
     InternalCDORevisionManager revisionManager = getRepository().getRevisionManager();
-    CDORevision[] revisions = new CDORevision[size];
+    InternalCDORevision[] revisions = new InternalCDORevision[size];
     for (int i = 0; i < size; i++)
     {
-      MissingRevisionInfo info = infos[i];
-      InternalCDORevision revision = info.execute(revisionManager, branchPoint, referenceChunk);
-      revisions[i] = revision;
+      RevisionInfo info = infos[i];
+      info.execute(revisionManager, referenceChunk);
+      revisions[i] = info.getRevision();
       if (loadRevisionCollectionChunkSize > 0)
       {
-        collectRevisions(revision, revisionIDs, additionalRevisions, visitedFetchRules);
+        collectRevisions(revisions[i], revisionIDs, additionalRevisions, visitedFetchRules);
       }
     }
 
@@ -176,11 +176,10 @@ public class LoadRevisionsIndication extends CDOReadIndication
     }
 
     getRepository().notifyReadAccessHandlers(getSession(), revisions, additionalRevisions);
-    int i = 0;
-    for (CDORevision revision : revisions)
+    for (int i = 0; i < size; i++)
     {
-      MissingRevisionInfo info = infos[i++];
-      info.writeResult(out, branchPoint.getBranch(), revision, referenceChunk);
+      RevisionInfo info = infos[i];
+      info.writeResult(out, referenceChunk);
     }
 
     int additionalSize = additionalRevisions.size();

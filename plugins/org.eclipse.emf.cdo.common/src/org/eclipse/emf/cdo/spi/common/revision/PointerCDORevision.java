@@ -8,16 +8,47 @@ import org.eclipse.emf.cdo.spi.common.branch.CDOBranchUtil;
 import java.text.MessageFormat;
 
 /**
+ * A {@link SyntheticCDORevision synthetic} revision that represents the initial period of an object in a
+ * {@link CDOBranch branch} when the object is still associated with a revision from one of the baseline branches. It
+ * always has {@link #getVersion() version} {@link CDOBranchVersion#UNSPECIFIED_VERSION zero} and can only appear in
+ * branches below the {@link CDOBranch#isMainBranch() main} branch.
+ * 
  * @author Eike Stepper
  * @since 3.0
  */
 public class PointerCDORevision extends SyntheticCDORevision
 {
+  private long revised = UNSPECIFIED_DATE;
+
   private CDOBranchVersion target;
 
   public PointerCDORevision(CDOID id, CDOBranch branch)
   {
     super(id, branch);
+  }
+
+  @Override
+  public final int getVersion()
+  {
+    return UNSPECIFIED_VERSION;
+  }
+
+  @Override
+  public long getTimeStamp()
+  {
+    return getBranch().getBase().getTimeStamp();
+  }
+
+  @Override
+  public long getRevised()
+  {
+    return revised;
+  }
+
+  @Override
+  public void setRevised(long revised)
+  {
+    this.revised = revised;
   }
 
   public CDOBranchVersion getTarget()
@@ -27,7 +58,7 @@ public class PointerCDORevision extends SyntheticCDORevision
 
   public void setTarget(CDOBranchVersion target)
   {
-    this.target = CDOBranchUtil.createBranchVersion(target);
+    this.target = target == null ? null : CDOBranchUtil.createBranchVersion(target);
   }
 
   @Override
