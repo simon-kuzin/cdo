@@ -135,7 +135,7 @@ public class LoadRevisionsRequest extends CDOClientRequest<List<InternalCDORevis
     for (RevisionInfo info : infos)
     {
       info.readResult(in);
-      revisions.add(info.getRevision());
+      revisions.add(info.getResult());
     }
 
     int additionalSize = in.readInt();

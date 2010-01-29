@@ -163,7 +163,7 @@ public class LoadRevisionsIndication extends CDOReadIndication
     {
       RevisionInfo info = infos[i];
       info.execute(revisionManager, referenceChunk);
-      revisions[i] = info.getRevision();
+      revisions[i] = info.getResult();
       if (loadRevisionCollectionChunkSize > 0)
       {
         collectRevisions(revisions[i], revisionIDs, additionalRevisions, visitedFetchRules);

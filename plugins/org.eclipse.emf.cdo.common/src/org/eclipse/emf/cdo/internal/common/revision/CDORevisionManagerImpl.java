@@ -28,7 +28,7 @@ import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
 import org.eclipse.emf.cdo.spi.common.revision.PointerCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.RevisionInfo;
-import org.eclipse.emf.cdo.spi.common.revision.RevisionResult;
+import org.eclipse.emf.cdo.spi.common.revision.SyntheticCDORevision;
 
 import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
@@ -225,10 +225,11 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
   }
 
   public InternalCDORevision getRevision(CDOID id, CDOBranchPoint branchPoint, int referenceChunk, int prefetchDepth,
-      boolean loadOnDemand, RevisionResult[] result)
+      boolean loadOnDemand, SyntheticCDORevision[] synthetics)
   {
     List<CDOID> ids = Collections.singletonList(id);
-    List<CDORevision> revisions = getRevisions(ids, branchPoint, referenceChunk, prefetchDepth, loadOnDemand, result);
+    List<CDORevision> revisions = getRevisions(ids, branchPoint, referenceChunk, prefetchDepth, loadOnDemand,
+        synthetics);
     return (InternalCDORevision)revisions.get(0);
   }
 
@@ -239,7 +240,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
   }
 
   public List<CDORevision> getRevisions(List<CDOID> ids, CDOBranchPoint branchPoint, int referenceChunk,
-      int prefetchDepth, boolean loadOnDemand, RevisionResult[] results)
+      int prefetchDepth, boolean loadOnDemand, SyntheticCDORevision[] synthetics)
   {
     RevisionInfo[] infos = new RevisionInfo[ids.size()];
     List<RevisionInfo> infosToLoad = createRevisionInfos(ids, branchPoint, loadOnDemand, infos);
@@ -248,7 +249,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
       loadRevisions(infosToLoad, branchPoint, referenceChunk, prefetchDepth);
     }
 
-    return getRevisionAndResults(infos, results);
+    return getRevisionAndResults(infos, synthetics);
   }
 
   private List<RevisionInfo> createRevisionInfos(List<CDOID> ids, CDOBranchPoint branchPoint, boolean loadOnDemand,
@@ -333,7 +334,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     try
     {
       revisionLoader.loadRevisions(infosToLoad, branchPoint, referenceChunk, prefetchDepth);
-      //
+
       // CDOBranch branch = branchPoint.getBranch();
       //
       // Iterator<MissingRevisionInfo> itInfo = missingInfos.iterator();
@@ -376,17 +377,17 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     }
   }
 
-  private List<CDORevision> getRevisionAndResults(RevisionInfo[] infos, RevisionResult[] results)
+  private List<CDORevision> getRevisionAndResults(RevisionInfo[] infos, SyntheticCDORevision[] synthetics)
   {
     List<CDORevision> revisions = new ArrayList<CDORevision>(infos.length);
     for (int i = 0; i < infos.length; i++)
     {
       RevisionInfo info = infos[i];
-      revisions.add(info.getRevision());
+      revisions.add(info.getResult());
 
-      if (results != null)
+      if (synthetics != null)
       {
-        results[i] = info.getResult();
+        synthetics[i] = info.getSynthetic();
       }
     }
 

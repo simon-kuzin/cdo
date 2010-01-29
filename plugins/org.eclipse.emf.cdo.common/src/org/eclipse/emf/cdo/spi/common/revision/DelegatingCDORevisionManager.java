@@ -118,9 +118,9 @@ public abstract class DelegatingCDORevisionManager extends Lifecycle implements 
   }
 
   public CDORevision getRevision(CDOID id, CDOBranchPoint branchPoint, int referenceChunk, int prefetchDepth,
-      boolean loadOnDemand, RevisionResult[] result)
+      boolean loadOnDemand, SyntheticCDORevision[] synthetics)
   {
-    return getDelegate().getRevision(id, branchPoint, referenceChunk, prefetchDepth, loadOnDemand, result);
+    return getDelegate().getRevision(id, branchPoint, referenceChunk, prefetchDepth, loadOnDemand, synthetics);
   }
 
   public List<CDORevision> getRevisions(List<CDOID> ids, CDOBranchPoint branchPoint, int referenceChunk,
@@ -130,9 +130,9 @@ public abstract class DelegatingCDORevisionManager extends Lifecycle implements 
   }
 
   public List<CDORevision> getRevisions(List<CDOID> ids, CDOBranchPoint branchPoint, int referenceChunk,
-      int prefetchDepth, boolean loadOnDemand, RevisionResult[] results)
+      int prefetchDepth, boolean loadOnDemand, SyntheticCDORevision[] synthetics)
   {
-    return getDelegate().getRevisions(ids, branchPoint, referenceChunk, prefetchDepth, loadOnDemand, results);
+    return getDelegate().getRevisions(ids, branchPoint, referenceChunk, prefetchDepth, loadOnDemand, synthetics);
   }
 
   public void reviseLatest(CDOID id, CDOBranch branch)

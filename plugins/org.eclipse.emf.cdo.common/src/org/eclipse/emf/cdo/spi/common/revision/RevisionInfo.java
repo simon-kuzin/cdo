@@ -29,7 +29,9 @@ public abstract class RevisionInfo
 
   private CDOBranchPoint requestedBranchPoint;
 
-  private RevisionResult result;
+  private InternalCDORevision result;
+
+  private SyntheticCDORevision synthetic;
 
   protected RevisionInfo(CDOID id, CDOBranchPoint requestedBranchPoint)
   {
@@ -53,6 +55,26 @@ public abstract class RevisionInfo
   public final CDOBranchPoint getRequestedBranchPoint()
   {
     return requestedBranchPoint;
+  }
+
+  public InternalCDORevision getResult()
+  {
+    return result;
+  }
+
+  public void setResult(InternalCDORevision result)
+  {
+    this.result = result;
+  }
+
+  public SyntheticCDORevision getSynthetic()
+  {
+    return synthetic;
+  }
+
+  public void setSynthetic(SyntheticCDORevision synthetic)
+  {
+    this.synthetic = synthetic;
   }
 
   public abstract boolean isLoadNeeded();
@@ -91,42 +113,20 @@ public abstract class RevisionInfo
 
   public void execute(InternalCDORevisionManager revisionManager, int referenceChunk)
   {
-    RevisionResult[] results = new RevisionResult[1];
-    CDORevision revision = revisionManager.getRevision(getID(), requestedBranchPoint, referenceChunk,
-        CDORevision.DEPTH_NONE, true, results);
-
-    result = results[0];
-    result.setRevision((InternalCDORevision)revision);
+    SyntheticCDORevision[] synthetics = new SyntheticCDORevision[1];
+    result = (InternalCDORevision)revisionManager.getRevision(getID(), requestedBranchPoint, referenceChunk,
+        CDORevision.DEPTH_NONE, true, synthetics);
+    synthetic = synthetics[0];
   }
 
   public final void writeResult(CDODataOutput out, int referenceChunk) throws IOException
   {
-    result.write(out, referenceChunk);
+    // result.write(out, referenceChunk);
   }
 
   public final void readResult(CDODataInput in) throws IOException
   {
-    result = RevisionResult.read(in);
-  }
-
-  public InternalCDORevision getRevision()
-  {
-    if (result == null)
-    {
-      return null;
-    }
-
-    return result.getRevision();
-  }
-
-  public final RevisionResult getResult()
-  {
-    return result;
-  }
-
-  public final void setResult(RevisionResult result)
-  {
-    this.result = result;
+    // result = RevisionResult.read(in);
   }
 
   /**
@@ -204,14 +204,14 @@ public abstract class RevisionInfo
       }
 
       @Override
-      public InternalCDORevision getRevision()
+      public InternalCDORevision getResult()
       {
         if (isDirect())
         {
           return (InternalCDORevision)getAvailableBranchVersion();
         }
 
-        return super.getRevision();
+        return super.getResult();
       }
     }
 
