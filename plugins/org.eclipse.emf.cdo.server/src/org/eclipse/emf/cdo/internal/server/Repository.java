@@ -42,6 +42,7 @@ import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
+import org.eclipse.emf.cdo.spi.common.revision.DetachedCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDOList;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
@@ -293,35 +294,37 @@ public class Repository extends Container<Object> implements InternalRepository
         throw new IllegalStateException("Invalid revision info type: " + type);
       }
 
-      InternalCDORevision revision = loadRevision(id, branchPoint, referenceChunk);
-
-    }
-  }
-
-  private InternalCDORevision loadRevision(CDOID id, CDOBranchPoint branchPoint, int referenceChunk)
-  {
-    IStoreAccessor accessor = StoreThreadLocal.getAccessor();
-    InternalCDORevision revision = accessor.readRevision(id, branchPoint, referenceChunk, revisionManager);
-    if (revision == null)
-    {
-      // Case "Pointer"
-      CDOBranch branch = branchPoint.getBranch();
-      PointerCDORevision pointer = new PointerCDORevision(id, branch);
-
-      if (!branch.isMainBranch())
+      IStoreAccessor accessor = StoreThreadLocal.getAccessor();
+      InternalCDORevision revision = accessor.readRevision(id, branchPoint, referenceChunk, revisionManager);
+      if (revision == null)
       {
-        InternalCDORevision target = loadRevisionTarget(id, branchPoint, referenceChunk, accessor);
-        pointer.setTarget(target); // Target can be null
+        // Case "Pointer"
+        CDOBranch branch = branchPoint.getBranch();
+        PointerCDORevision pointer = new PointerCDORevision(id, branch);
+
+        InternalCDORevision target = null;
+        if (!branch.isMainBranch())
+        {
+          target = loadRevisionTarget(id, branchPoint, referenceChunk, accessor);
+          pointer.setTarget(target); // Target can be null
+        }
+
+        long revised = loadRevisionRevised(id, branch);
+        pointer.setRevised(revised);
+
+        info.setResult(target);
+        info.setSynthetic(pointer);
       }
-
-      long revised = loadRevisionRevised(id, branch);
-      pointer.setRevised(revised);
-      return pointer;
+      else if (revision instanceof DetachedCDORevision)
+      {
+        DetachedCDORevision detached = (DetachedCDORevision)revision;
+        info.setSynthetic(detached);
+      }
+      else
+      {
+        info.setResult(revision);
+      }
     }
-
-    // Case "Detached"
-    // Case "Normal"
-    return revision;
   }
 
   private InternalCDORevision loadRevisionTarget(CDOID id, CDOBranchPoint branchPoint, int referenceChunk,
