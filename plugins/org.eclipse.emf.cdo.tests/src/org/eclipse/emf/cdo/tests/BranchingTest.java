@@ -18,7 +18,9 @@ import org.eclipse.emf.cdo.common.commit.CDOCommit;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.eresource.CDOResource;
+import org.eclipse.emf.cdo.internal.server.mem.MEMStore;
 import org.eclipse.emf.cdo.server.IRepository;
+import org.eclipse.emf.cdo.server.IStore;
 import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.tests.model1.OrderDetail;
 import org.eclipse.emf.cdo.tests.model1.Product1;
@@ -208,6 +210,7 @@ public class BranchingTest extends AbstractCDOTest
     resource.getContents().add(orderDetail);
 
     CDOCommit commit = transaction.commit();
+    dumpAll(session);
     assertEquals(mainBranch, commit.getBranch());
     long commitTime1 = commit.getTimeStamp();
     transaction.close();
@@ -227,6 +230,7 @@ public class BranchingTest extends AbstractCDOTest
     // Modify
     orderDetail.setPrice(10);
     commit = transaction.commit();
+    dumpAll(session);
     assertEquals(subBranch, commit.getBranch());
     long commitTime2 = commit.getTimeStamp();
 
@@ -383,17 +387,17 @@ public class BranchingTest extends AbstractCDOTest
   {
     CDOView view = session.openView(branch, timeStamp);
     CDOResource resource = view.getResource("/res");
-  
+
     dump("ClientCache", ((InternalCDOSession)session).getRevisionManager().getCache().getAllRevisions());
     OrderDetail orderDetail = (OrderDetail)resource.getContents().get(1);
-  
+
     dump("ClientCache", ((InternalCDOSession)session).getRevisionManager().getCache().getAllRevisions());
     assertEquals(price, orderDetail.getPrice());
-  
+
     Product1 product = orderDetail.getProduct();
     dump("ClientCache", ((InternalCDOSession)session).getRevisionManager().getCache().getAllRevisions());
     assertEquals(name, product.getName());
-  
+
     view.close();
   }
 
@@ -465,6 +469,19 @@ public class BranchingTest extends AbstractCDOTest
     assertEquals(name, product.getName());
 
     view.close();
+  }
+
+  private void dumpAll(CDOSession session)
+  {
+    IStore store = getRepository().getStore();
+    if (store instanceof MEMStore)
+    {
+      MEMStore memStore = (MEMStore)store;
+      dump("MEMStore", memStore.getAllRevisions());
+    }
+
+    dump("ServerCache", getRepository().getRevisionManager().getCache().getAllRevisions());
+    dump("ClientCache", ((InternalCDOSession)session).getRevisionManager().getCache().getAllRevisions());
   }
 
   private static void dump(String label, Map<CDOBranch, List<CDORevision>> revisions)
