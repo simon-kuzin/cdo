@@ -183,10 +183,10 @@ public abstract class RevisionInfo
   public void processResult(InternalCDORevisionManager revisionManager, List<CDORevision> results,
       SyntheticCDORevision[] synthetics, int i)
   {
+    results.add(result);
     if (result != null)
     {
       revisionManager.addRevision(result);
-      results.add(result);
     }
 
     if (synthetic != null)

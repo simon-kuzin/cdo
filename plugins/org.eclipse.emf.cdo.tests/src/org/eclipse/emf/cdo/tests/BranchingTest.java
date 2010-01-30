@@ -388,14 +388,14 @@ public class BranchingTest extends AbstractCDOTest
     CDOView view = session.openView(branch, timeStamp);
     CDOResource resource = view.getResource("/res");
 
-    dump("ClientCache", ((InternalCDOSession)session).getRevisionManager().getCache().getAllRevisions());
+    dumpAll(session);
     OrderDetail orderDetail = (OrderDetail)resource.getContents().get(1);
 
-    dump("ClientCache", ((InternalCDOSession)session).getRevisionManager().getCache().getAllRevisions());
+    dumpAll(session);
     assertEquals(price, orderDetail.getPrice());
 
     Product1 product = orderDetail.getProduct();
-    dump("ClientCache", ((InternalCDOSession)session).getRevisionManager().getCache().getAllRevisions());
+    dumpAll(session);
     assertEquals(name, product.getName());
 
     view.close();
@@ -464,7 +464,7 @@ public class BranchingTest extends AbstractCDOTest
     CDOView view = session.openView(branch, timeStamp);
     CDOResource resource = view.getResource("/res");
 
-    dump("ClientCache", ((InternalCDOSession)session).getRevisionManager().getCache().getAllRevisions());
+    dumpAll(session);
     Product1 product = (Product1)resource.getContents().get(0);
     assertEquals(name, product.getName());
 
