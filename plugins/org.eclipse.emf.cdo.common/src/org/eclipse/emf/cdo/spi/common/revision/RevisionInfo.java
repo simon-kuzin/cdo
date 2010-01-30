@@ -161,6 +161,16 @@ public abstract class RevisionInfo
     if (synthetic != null)
     {
       revisionManager.addRevision(synthetic);
+      if (synthetic instanceof PointerCDORevision)
+      {
+        PointerCDORevision pointer = (PointerCDORevision)synthetic;
+        CDOBranchVersion target = pointer.getTarget();
+        if (target != result && target instanceof InternalCDORevision)
+        {
+          revisionManager.addRevision((CDORevision)target);
+        }
+      }
+
       if (synthetics != null)
       {
         synthetics[i] = synthetic;

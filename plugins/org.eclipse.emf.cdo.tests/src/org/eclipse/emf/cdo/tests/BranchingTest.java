@@ -18,6 +18,7 @@ import org.eclipse.emf.cdo.common.commit.CDOCommit;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.eresource.CDOResource;
+import org.eclipse.emf.cdo.internal.common.revision.cache.branch.BranchRevisionCache;
 import org.eclipse.emf.cdo.internal.server.mem.MEMStore;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.IStore;
@@ -28,12 +29,14 @@ import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.cdo.util.DanglingReferenceException;
 import org.eclipse.emf.cdo.view.CDOView;
 
+import org.eclipse.net4j.util.ReflectUtil;
 import org.eclipse.net4j.util.event.IEvent;
 import org.eclipse.net4j.util.event.IListener;
 import org.eclipse.net4j.util.transaction.TransactionException;
 
 import org.eclipse.emf.spi.cdo.InternalCDOSession;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
@@ -51,6 +54,22 @@ public class BranchingTest extends AbstractCDOTest
     testProperties.put(IRepository.Props.SUPPORTING_AUDITS, "true");
     testProperties.put(IRepository.Props.SUPPORTING_BRANCHES, "true");
     return testProperties;
+  }
+
+  @Override
+  protected void doSetUp() throws Exception
+  {
+    super.doSetUp();
+    Field disableGC = ReflectUtil.getField(BranchRevisionCache.class, "disableGC");
+    ReflectUtil.setValue(disableGC, null, true);
+  }
+
+  @Override
+  protected void doTearDown() throws Exception
+  {
+    Field disableGC = ReflectUtil.getField(BranchRevisionCache.class, "disableGC");
+    ReflectUtil.setValue(disableGC, null, false);
+    super.doTearDown();
   }
 
   protected CDOSession openSession1()
