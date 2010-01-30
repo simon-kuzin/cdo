@@ -31,6 +31,7 @@ import org.eclipse.net4j.util.event.IListener;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 import org.eclipse.net4j.util.ref.KeyedReference;
 import org.eclipse.net4j.util.ref.KeyedSoftReference;
+import org.eclipse.net4j.util.ref.KeyedStrongReference;
 import org.eclipse.net4j.util.ref.ReferenceQueueWorker;
 
 import org.eclipse.emf.ecore.EClass;
@@ -52,6 +53,8 @@ import java.util.Map.Entry;
 public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevision> implements InternalCDORevisionCache
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_REVISION, BranchRevisionCache.class);
+
+  private static boolean disableGC = false;
 
   private Map<CDOIDAndBranch, RevisionList> revisionLists = new HashMap<CDOIDAndBranch, RevisionList>();
 
@@ -225,6 +228,11 @@ public class BranchRevisionCache extends ReferenceQueueWorker<InternalCDORevisio
       InternalCDORevision revision)
   {
     CDORevisionKey key = new RevisionKey(idAndBranch, revision.getVersion());
+    if (disableGC)
+    {
+      return new KeyedStrongReference<CDORevisionKey, InternalCDORevision>(key, revision);
+    }
+
     return new KeyedSoftReference<CDORevisionKey, InternalCDORevision>(key, revision, getQueue());
   }
 

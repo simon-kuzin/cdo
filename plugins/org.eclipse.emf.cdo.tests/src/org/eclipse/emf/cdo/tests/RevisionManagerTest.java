@@ -15,8 +15,10 @@ import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.internal.common.revision.CDORevisionImpl;
 import org.eclipse.emf.cdo.internal.common.revision.CDORevisionManagerImpl;
+import org.eclipse.emf.cdo.internal.common.revision.cache.branch.BranchRevisionCache;
 import org.eclipse.emf.cdo.internal.server.mem.MEMStore;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.StoreThreadLocal;
@@ -26,10 +28,13 @@ import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
 import org.eclipse.emf.cdo.spi.server.InternalRepository;
 import org.eclipse.emf.cdo.spi.server.InternalSession;
 
+import org.eclipse.net4j.util.ReflectUtil;
+
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.spi.cdo.InternalCDOSession;
 
+import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -38,13 +43,38 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class RevisionManagerTest extends AbstractCDOTest
 {
+  /**
+   * @author Eike Stepper
+   */
+  public static class ClientSide extends RevisionManagerTest
+  {
+    @Override
+    protected InternalCDORevisionManager getRevisionManager(InternalRepository repository, InternalCDOSession session)
+    {
+      return session.getRevisionManager();
+    }
+
+    @Override
+    protected String getLocation()
+    {
+      return "Client";
+    }
+
+    @Override
+    protected void dumpCache(CDOBranchPoint branchPoint)
+    {
+      BranchingTest.dump("ServerCache", repository.getRevisionManager().getCache().getAllRevisions());
+      super.dumpCache(branchPoint);
+    }
+  }
+
   private static final CDOID ID = CDOIDUtil.createLong(1);
 
   private static final EClass CLASS = EcorePackage.Literals.EANNOTATION;
 
   private static final int DETACH = -1;
 
-  private InternalRepository repository;
+  protected InternalRepository repository;
 
   private MEMStore store;
 
@@ -70,33 +100,11 @@ public class RevisionManagerTest extends AbstractCDOTest
 
   private InternalCDORevision[] revisions1;
 
-  private InternalCDORevision[] revisions2;
-
-  private InternalCDORevision[] revisions3;
-
   private InternalCDORevision[] revisions4;
 
   private CDORevisionManagerImpl revisionManager;
 
   private static AtomicInteger loadCounter;
-
-  /**
-   * @author Eike Stepper
-   */
-  public static class ClientSide extends RevisionManagerTest
-  {
-    @Override
-    protected InternalCDORevisionManager getRevisionManager(InternalRepository repository, InternalCDOSession session)
-    {
-      return session.getRevisionManager();
-    }
-
-    @Override
-    protected String getLocation()
-    {
-      return "Client";
-    }
-  }
 
   @Override
   public Map<String, Object> getTestProperties()
@@ -112,6 +120,9 @@ public class RevisionManagerTest extends AbstractCDOTest
   {
     skipUnlessConfig(MEM);
     super.doSetUp();
+
+    Field disableGC = ReflectUtil.getField(BranchRevisionCache.class, "disableGC");
+    ReflectUtil.setValue(disableGC, null, true);
 
     repository = getRepository();
     store = (MEMStore)repository.getStore();
@@ -129,10 +140,8 @@ public class RevisionManagerTest extends AbstractCDOTest
     revisions1 = createBranch(revisions0[1], 5, 10, 20, 10, DETACH);
     branch1 = revisions1[0].getBranch();
 
-    revisions2 = new InternalCDORevision[0];
     branch2 = createBranch(revisions1[3]);
 
-    revisions3 = new InternalCDORevision[0];
     branch3 = createBranch(revisions1[1]);
 
     revisions4 = createBranch(branch3, branch3.getBase().getTimeStamp() + 10, 30, DETACH);
@@ -150,6 +159,10 @@ public class RevisionManagerTest extends AbstractCDOTest
   {
     StoreThreadLocal.release();
     session.close();
+
+    Field disableGC = ReflectUtil.getField(BranchRevisionCache.class, "disableGC");
+    ReflectUtil.setValue(disableGC, null, false);
+
     super.doTearDown();
   }
 
@@ -161,6 +174,11 @@ public class RevisionManagerTest extends AbstractCDOTest
   protected String getLocation()
   {
     return "Server";
+  }
+
+  protected void dumpCache(CDOBranchPoint branchPoint)
+  {
+    BranchingTest.dump(getLocation() + "Cache: Getting " + branchPoint, revisionManager.getCache().getAllRevisions());
   }
 
   private InternalCDORevision[] fillBranch(CDOBranch branch, long offset, long... durations)
@@ -232,21 +250,29 @@ public class RevisionManagerTest extends AbstractCDOTest
         CDORevision.DEPTH_NONE, true);
   }
 
-  private void prefetchBaseline(CDOBranch branch)
+  private void prefetchBaseline(CDOBranch branch, int levelsUp)
   {
-    getRevision(branch.getBase().getBranch(), branch.getBase().getTimeStamp());
-    assertLoads(1);
-  }
+    long timeStamp = 0;
+    while (--levelsUp >= 0)
+    {
+      timeStamp = branch.getBase().getTimeStamp();
+      branch = branch.getBase().getBranch();
+    }
 
-  private void dumpCache(CDOBranchPoint branchPoint)
-  {
-    BranchingTest.dump("Getting " + branchPoint + " from " + getLocation() + "Cache", revisionManager.getCache()
-        .getAllRevisions());
+    getRevision(branch, timeStamp);
+    assertLoads(1);
   }
 
   private static void assertRevision(InternalCDORevision expected, InternalCDORevision actual)
   {
-    assertEquals(expected, actual);
+    if (expected == null)
+    {
+      assertEquals(null, actual);
+    }
+    else
+    {
+      assertEquals(CDORevisionUtil.createRevisionKey(expected), CDORevisionUtil.createRevisionKey(actual));
+    }
   }
 
   private static void assertLoads(int expected)
@@ -494,13 +520,13 @@ public class RevisionManagerTest extends AbstractCDOTest
     assertLoads(0);
   }
 
-  public void testAvailable_Branch1_Initial() throws Exception
+  public void testAvailableUp1_Branch1_Initial() throws Exception
   {
     CDOBranch branch = branch1;
     long timeStamp = revisions1[0].getTimeStamp() - 1;
     InternalCDORevision expected = revisions0[1];
 
-    prefetchBaseline(branch);
+    prefetchBaseline(branch, 1);
 
     InternalCDORevision revision = getRevision(branch, timeStamp);
     assertRevision(expected, revision);
@@ -511,11 +537,11 @@ public class RevisionManagerTest extends AbstractCDOTest
     assertLoads(0);
   }
 
-  public void testAvailable_Branch1_Normal() throws Exception
+  public void testAvailableUp1_Branch1_Normal() throws Exception
   {
     CDOBranch branch = branch1;
 
-    prefetchBaseline(branch);
+    prefetchBaseline(branch, 1);
 
     for (int i = 0; i < revisions1.length - 1; i++)
     {
@@ -532,13 +558,13 @@ public class RevisionManagerTest extends AbstractCDOTest
     }
   }
 
-  public void testAvailable_Branch1_Detached() throws Exception
+  public void testAvailableUp1_Branch1_Detached() throws Exception
   {
     CDOBranch branch = branch1;
     long timeStamp = revisions1[3].getTimeStamp() + 1;
     InternalCDORevision expected = null;
 
-    prefetchBaseline(branch);
+    prefetchBaseline(branch, 1);
 
     InternalCDORevision revision = getRevision(branch, timeStamp);
     assertRevision(expected, revision);
@@ -549,13 +575,13 @@ public class RevisionManagerTest extends AbstractCDOTest
     assertLoads(0);
   }
 
-  public void testAvailable_Branch1_Head() throws Exception
+  public void testAvailableUp1_Branch1_Head() throws Exception
   {
     CDOBranch branch = branch1;
     long timeStamp = CDOBranchPoint.UNSPECIFIED_DATE;
     InternalCDORevision expected = null;
 
-    prefetchBaseline(branch);
+    prefetchBaseline(branch, 1);
 
     InternalCDORevision revision = getRevision(branch, timeStamp);
     assertRevision(expected, revision);
@@ -566,13 +592,13 @@ public class RevisionManagerTest extends AbstractCDOTest
     assertLoads(0);
   }
 
-  public void testAvailable_Branch2_Initial() throws Exception
+  public void testAvailableUp1_Branch2_Initial() throws Exception
   {
     CDOBranch branch = branch2;
     long timeStamp = branch2.getBase().getTimeStamp() + 2;
     InternalCDORevision expected = null;
 
-    prefetchBaseline(branch);
+    prefetchBaseline(branch, 1);
 
     InternalCDORevision revision = getRevision(branch, timeStamp);
     assertRevision(expected, revision);
@@ -583,13 +609,13 @@ public class RevisionManagerTest extends AbstractCDOTest
     assertLoads(0);
   }
 
-  public void testAvailable_Branch2_Head() throws Exception
+  public void testAvailableUp1_Branch2_Head() throws Exception
   {
     CDOBranch branch = branch2;
     long timeStamp = CDOBranchPoint.UNSPECIFIED_DATE;
     InternalCDORevision expected = null;
 
-    prefetchBaseline(branch);
+    prefetchBaseline(branch, 1);
 
     InternalCDORevision revision = getRevision(branch, timeStamp);
     assertRevision(expected, revision);
@@ -600,13 +626,13 @@ public class RevisionManagerTest extends AbstractCDOTest
     assertLoads(0);
   }
 
-  public void testAvailable_Branch3_Initial() throws Exception
+  public void testAvailableUp1_Branch3_Initial() throws Exception
   {
     CDOBranch branch = branch3;
     long timeStamp = branch3.getBase().getTimeStamp() + 2;
     InternalCDORevision expected = revisions1[1];
 
-    prefetchBaseline(branch);
+    prefetchBaseline(branch, 1);
 
     InternalCDORevision revision = getRevision(branch, timeStamp);
     assertRevision(expected, revision);
@@ -617,13 +643,13 @@ public class RevisionManagerTest extends AbstractCDOTest
     assertLoads(0);
   }
 
-  public void testAvailable_Branch3_Head() throws Exception
+  public void testAvailableUp1_Branch3_Head() throws Exception
   {
     CDOBranch branch = branch3;
     long timeStamp = CDOBranchPoint.UNSPECIFIED_DATE;
     InternalCDORevision expected = revisions1[1];
 
-    prefetchBaseline(branch);
+    prefetchBaseline(branch, 1);
 
     InternalCDORevision revision = getRevision(branch, timeStamp);
     assertRevision(expected, revision);
@@ -634,13 +660,13 @@ public class RevisionManagerTest extends AbstractCDOTest
     assertLoads(0);
   }
 
-  public void testAvailable_Branch4_Initial() throws Exception
+  public void testAvailableUp1_Branch4_Initial() throws Exception
   {
     CDOBranch branch = branch4;
     long timeStamp = revisions4[0].getTimeStamp() - 1;
     InternalCDORevision expected = revisions1[1];
 
-    prefetchBaseline(branch);
+    prefetchBaseline(branch, 1);
 
     InternalCDORevision revision = getRevision(branch, timeStamp);
     assertRevision(expected, revision);
@@ -651,13 +677,13 @@ public class RevisionManagerTest extends AbstractCDOTest
     assertLoads(0);
   }
 
-  public void testAvailable_Branch4_Detached() throws Exception
+  public void testAvailableUp1_Branch4_Detached() throws Exception
   {
     CDOBranch branch = branch4;
     long timeStamp = revisions4[0].getTimeStamp() + 1;
     InternalCDORevision expected = null;
 
-    prefetchBaseline(branch);
+    prefetchBaseline(branch, 1);
 
     InternalCDORevision revision = getRevision(branch, timeStamp);
     assertRevision(expected, revision);
@@ -668,13 +694,183 @@ public class RevisionManagerTest extends AbstractCDOTest
     assertLoads(0);
   }
 
-  public void testAvailable_Branch4_Head() throws Exception
+  public void testAvailableUp1_Branch4_Head() throws Exception
   {
     CDOBranch branch = branch4;
     long timeStamp = CDOBranchPoint.UNSPECIFIED_DATE;
     InternalCDORevision expected = null;
 
-    prefetchBaseline(branch);
+    prefetchBaseline(branch, 1);
+
+    InternalCDORevision revision = getRevision(branch, timeStamp);
+    assertRevision(expected, revision);
+    assertLoads(1);
+
+    revision = getRevision(branch, timeStamp);
+    assertRevision(expected, revision);
+    assertLoads(0);
+  }
+
+  public void testAvailableUp2_Branch2_Initial() throws Exception
+  {
+    CDOBranch branch = branch2;
+    long timeStamp = branch2.getBase().getTimeStamp() + 2;
+    InternalCDORevision expected = null;
+
+    prefetchBaseline(branch, 2);
+
+    InternalCDORevision revision = getRevision(branch, timeStamp);
+    assertRevision(expected, revision);
+    assertLoads(1);
+
+    revision = getRevision(branch, timeStamp);
+    assertRevision(expected, revision);
+    assertLoads(0);
+  }
+
+  public void testAvailableUp2_Branch2_Head() throws Exception
+  {
+    CDOBranch branch = branch2;
+    long timeStamp = CDOBranchPoint.UNSPECIFIED_DATE;
+    InternalCDORevision expected = null;
+
+    prefetchBaseline(branch, 2);
+
+    InternalCDORevision revision = getRevision(branch, timeStamp);
+    assertRevision(expected, revision);
+    assertLoads(1);
+
+    revision = getRevision(branch, timeStamp);
+    assertRevision(expected, revision);
+    assertLoads(0);
+  }
+
+  public void testAvailableUp2_Branch3_Initial() throws Exception
+  {
+    CDOBranch branch = branch3;
+    long timeStamp = branch3.getBase().getTimeStamp() + 2;
+    InternalCDORevision expected = revisions1[1];
+
+    prefetchBaseline(branch, 2);
+
+    InternalCDORevision revision = getRevision(branch, timeStamp);
+    assertRevision(expected, revision);
+    assertLoads(1);
+
+    revision = getRevision(branch, timeStamp);
+    assertRevision(expected, revision);
+    assertLoads(0);
+  }
+
+  public void testAvailableUp2_Branch3_Head() throws Exception
+  {
+    CDOBranch branch = branch3;
+    long timeStamp = CDOBranchPoint.UNSPECIFIED_DATE;
+    InternalCDORevision expected = revisions1[1];
+
+    prefetchBaseline(branch, 2);
+
+    InternalCDORevision revision = getRevision(branch, timeStamp);
+    assertRevision(expected, revision);
+    assertLoads(1);
+
+    revision = getRevision(branch, timeStamp);
+    assertRevision(expected, revision);
+    assertLoads(0);
+  }
+
+  public void testAvailableUp2_Branch4_Initial() throws Exception
+  {
+    CDOBranch branch = branch4;
+    long timeStamp = revisions4[0].getTimeStamp() - 1;
+    InternalCDORevision expected = revisions1[1];
+
+    prefetchBaseline(branch, 2);
+
+    InternalCDORevision revision = getRevision(branch, timeStamp);
+    assertRevision(expected, revision);
+    assertLoads(1);
+
+    revision = getRevision(branch, timeStamp);
+    assertRevision(expected, revision);
+    assertLoads(0);
+  }
+
+  public void testAvailableUp2_Branch4_Detached() throws Exception
+  {
+    CDOBranch branch = branch4;
+    long timeStamp = revisions4[0].getTimeStamp() + 1;
+    InternalCDORevision expected = null;
+
+    prefetchBaseline(branch, 2);
+
+    InternalCDORevision revision = getRevision(branch, timeStamp);
+    assertRevision(expected, revision);
+    assertLoads(1);
+
+    revision = getRevision(branch, timeStamp);
+    assertRevision(expected, revision);
+    assertLoads(0);
+  }
+
+  public void testAvailableUp2_Branch4_Head() throws Exception
+  {
+    CDOBranch branch = branch4;
+    long timeStamp = CDOBranchPoint.UNSPECIFIED_DATE;
+    InternalCDORevision expected = null;
+
+    prefetchBaseline(branch, 2);
+
+    InternalCDORevision revision = getRevision(branch, timeStamp);
+    assertRevision(expected, revision);
+    assertLoads(1);
+
+    revision = getRevision(branch, timeStamp);
+    assertRevision(expected, revision);
+    assertLoads(0);
+  }
+
+  public void testAvailableUp3_Branch4_Initial() throws Exception
+  {
+    CDOBranch branch = branch4;
+    long timeStamp = revisions4[0].getTimeStamp() - 1;
+    InternalCDORevision expected = revisions1[1];
+
+    prefetchBaseline(branch, 3);
+
+    InternalCDORevision revision = getRevision(branch, timeStamp);
+    assertRevision(expected, revision);
+    assertLoads(1);
+
+    revision = getRevision(branch, timeStamp);
+    assertRevision(expected, revision);
+    assertLoads(0);
+  }
+
+  public void testAvailableUp3_Branch4_Detached() throws Exception
+  {
+    CDOBranch branch = branch4;
+    long timeStamp = revisions4[0].getTimeStamp() + 1;
+    InternalCDORevision expected = null;
+
+    prefetchBaseline(branch, 3);
+
+    InternalCDORevision revision = getRevision(branch, timeStamp);
+    assertRevision(expected, revision);
+    assertLoads(1);
+
+    revision = getRevision(branch, timeStamp);
+    assertRevision(expected, revision);
+    assertLoads(0);
+  }
+
+  public void testAvailableUp3_Branch4_Head() throws Exception
+  {
+    CDOBranch branch = branch4;
+    long timeStamp = CDOBranchPoint.UNSPECIFIED_DATE;
+    InternalCDORevision expected = null;
+
+    prefetchBaseline(branch, 3);
 
     InternalCDORevision revision = getRevision(branch, timeStamp);
     assertRevision(expected, revision);

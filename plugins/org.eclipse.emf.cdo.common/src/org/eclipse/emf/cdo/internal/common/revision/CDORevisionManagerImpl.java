@@ -309,7 +309,12 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
       PointerCDORevision pointer = (PointerCDORevision)revision;
       CDOBranchVersion target = pointer.getTarget();
       InternalCDORevision targetRevision = target == null ? null : getCachedRevisionByVersion(pointer.getID(), target);
-      return new RevisionInfo.Available.Pointer(pointer.getID(), requestedBranchPoint, pointer, targetRevision);
+      if (targetRevision != null)
+      {
+        target = targetRevision;
+      }
+
+      return new RevisionInfo.Available.Pointer(pointer.getID(), requestedBranchPoint, pointer, target);
     }
 
     if (revision instanceof DetachedCDORevision)
@@ -407,6 +412,17 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
   {
     if (revision != null)
     {
+      if (revision instanceof PointerCDORevision)
+      {
+        PointerCDORevision pointer = (PointerCDORevision)revision;
+        CDOBranchVersion target = pointer.getTarget();
+        if (target instanceof InternalCDORevision)
+        {
+          revision = new PointerCDORevision(pointer.getID(), pointer.getBranch(), pointer.getRevised(), //
+              CDOBranchUtil.createBranchVersion(target));
+        }
+      }
+
       boolean added = cache.addRevision(revision);
       if (added)
       {

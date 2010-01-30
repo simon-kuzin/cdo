@@ -3,7 +3,6 @@ package org.eclipse.emf.cdo.spi.common.revision;
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.spi.common.branch.CDOBranchUtil;
 
 import java.text.MessageFormat;
 
@@ -26,7 +25,7 @@ public class PointerCDORevision extends SyntheticCDORevision
   {
     super(id, branch);
     this.revised = revised;
-    this.target = target == null ? null : CDOBranchUtil.createBranchVersion(target);
+    this.target = target;
   }
 
   @Override

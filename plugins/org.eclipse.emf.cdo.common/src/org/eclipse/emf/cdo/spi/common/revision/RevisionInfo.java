@@ -28,11 +28,13 @@ import java.util.List;
  */
 public abstract class RevisionInfo
 {
-  private static final int NO_SYNTHETIC = 0;
+  private static final int NO_RESULT = 0;
 
-  private static final int POINTER_SYNTHETIC = 1;
+  private static final int POINTER_RESULT = 1;
 
-  private static final int DETACHED_SYNTHETIC = 2;
+  private static final int DETACHED_RESULT = 2;
+
+  private static final int NORMAL_RESULT = 3;
 
   private CDOID id;
 
@@ -130,51 +132,13 @@ public abstract class RevisionInfo
   public void writeResult(CDODataOutput out, int referenceChunk) throws IOException
   {
     writeRevision(out, referenceChunk);
-    if (synthetic == null)
-    {
-      out.writeByte(NO_SYNTHETIC);
-    }
-    else if (synthetic instanceof PointerCDORevision)
-    {
-      out.writeByte(POINTER_SYNTHETIC);
-      out.writeLong(((PointerCDORevision)synthetic).getRevised());
-    }
-    else
-    {
-      out.writeByte(DETACHED_SYNTHETIC);
-      out.writeLong(((DetachedCDORevision)synthetic).getTimeStamp());
-      out.writeInt(((DetachedCDORevision)synthetic).getVersion());
-    }
+    doWriteResult(out, synthetic, referenceChunk);
   }
 
   public void readResult(CDODataInput in) throws IOException
   {
     readRevision(in);
-
-    byte type = in.readByte();
-    switch (type)
-    {
-    case NO_SYNTHETIC:
-      break;
-
-    case POINTER_SYNTHETIC:
-    {
-      long revised = in.readLong();
-      synthetic = new PointerCDORevision(id, requestedBranchPoint.getBranch(), revised, result);
-      break;
-    }
-
-    case DETACHED_SYNTHETIC:
-    {
-      long timeStamp = in.readLong();
-      int version = in.readInt();
-      synthetic = new DetachedCDORevision(id, requestedBranchPoint.getBranch(), version, timeStamp);
-      break;
-    }
-
-    default:
-      throw new IllegalStateException("Invalid synthetic type: " + type);
-    }
+    synthetic = (SyntheticCDORevision)doReadResult(in);
   }
 
   public void processResult(InternalCDORevisionManager revisionManager, List<CDORevision> results,
@@ -212,6 +176,72 @@ public abstract class RevisionInfo
   protected void readRevision(CDODataInput in) throws IOException
   {
     result = (InternalCDORevision)in.readCDORevision();
+  }
+
+  protected void doWriteResult(CDODataOutput out, InternalCDORevision revision, int referenceChunk) throws IOException
+  {
+    if (revision == null)
+    {
+      out.writeByte(NO_RESULT);
+    }
+    else if (revision instanceof PointerCDORevision)
+    {
+      PointerCDORevision pointer = (PointerCDORevision)revision;
+      out.writeByte(POINTER_RESULT);
+      out.writeLong(pointer.getRevised());
+
+      CDOBranchVersion target = pointer.getTarget();
+      if (target instanceof InternalCDORevision)
+      {
+        doWriteResult(out, (InternalCDORevision)target, referenceChunk);
+      }
+      else
+      {
+        out.writeByte(NO_RESULT);
+      }
+    }
+    else if (revision instanceof DetachedCDORevision)
+    {
+      DetachedCDORevision detached = (DetachedCDORevision)revision;
+      out.writeByte(DETACHED_RESULT);
+      out.writeLong(detached.getTimeStamp());
+      out.writeInt(detached.getVersion());
+    }
+    else
+    {
+      out.writeByte(NORMAL_RESULT);
+      out.writeCDORevision(revision, referenceChunk);
+    }
+  }
+
+  protected InternalCDORevision doReadResult(CDODataInput in) throws IOException
+  {
+    byte type = in.readByte();
+    switch (type)
+    {
+    case NO_RESULT:
+      return null;
+
+    case POINTER_RESULT:
+    {
+      long revised = in.readLong();
+      InternalCDORevision target = doReadResult(in);
+      return new PointerCDORevision(id, requestedBranchPoint.getBranch(), revised, target);
+    }
+
+    case DETACHED_RESULT:
+    {
+      long timeStamp = in.readLong();
+      int version = in.readInt();
+      return new DetachedCDORevision(id, requestedBranchPoint.getBranch(), version, timeStamp);
+    }
+
+    case NORMAL_RESULT:
+      return (InternalCDORevision)in.readCDORevision();
+
+    default:
+      throw new IllegalStateException("Invalid synthetic type: " + type);
+    }
   }
 
   /**
@@ -269,7 +299,8 @@ public abstract class RevisionInfo
     @Override
     protected void writeRevision(CDODataOutput out, int referenceChunk) throws IOException
     {
-      if (getResult().getBranch() == availableBranchVersion.getBranch())
+      InternalCDORevision result = getResult();
+      if (result != null && result.getBranch() == availableBranchVersion.getBranch())
       {
         // Use available
         out.writeBoolean(true);
@@ -414,7 +445,12 @@ public abstract class RevisionInfo
       {
         if (!isLoadNeeded())
         {
-          setResult((InternalCDORevision)getTargetBranchVersion());
+          CDOBranchVersion target = getTargetBranchVersion();
+          if (target instanceof InternalCDORevision)
+          {
+            setResult((InternalCDORevision)target);
+          }
+
           setSynthetic((PointerCDORevision)getAvailableBranchVersion());
         }
 
