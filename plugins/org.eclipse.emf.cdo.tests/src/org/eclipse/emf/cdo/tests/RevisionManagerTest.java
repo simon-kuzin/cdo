@@ -277,16 +277,8 @@ public class RevisionManagerTest extends AbstractCDOTest
 
   private static void assertLoads(int expected)
   {
-    assertLoads(expected, true);
-  }
-
-  private static void assertLoads(int expected, boolean reset)
-  {
     assertEquals(expected, loadCounter.get());
-    if (reset)
-    {
-      loadCounter.set(0);
-    }
+    loadCounter.set(0);
   }
 
   public void testBranch0_Initial() throws Exception

@@ -380,20 +380,23 @@ public abstract class RevisionInfo
     {
       private CDOBranchVersion targetBranchVersion;
 
+      private boolean hasTarget;
+
       public Pointer(CDOID id, CDOBranchPoint requestedBranchPoint, CDOBranchVersion availableBranchVersion,
           CDOBranchVersion targetBranchVersion)
       {
         super(id, requestedBranchPoint, availableBranchVersion);
         this.targetBranchVersion = targetBranchVersion;
+        hasTarget = targetBranchVersion instanceof InternalCDORevision;
       }
 
       private Pointer(CDODataInput in, CDOBranchPoint requestedBranchPoint) throws IOException
       {
         super(in, requestedBranchPoint);
-        boolean hasTarget = in.readBoolean();
-        if (!hasTarget)
+        if (in.readBoolean())
         {
           targetBranchVersion = in.readCDOBranchVersion();
+          hasTarget = in.readBoolean();
         }
       }
 
@@ -410,7 +413,7 @@ public abstract class RevisionInfo
 
       public boolean hasTarget()
       {
-        return targetBranchVersion != null;
+        return hasTarget;
       }
 
       @Override
@@ -432,6 +435,7 @@ public abstract class RevisionInfo
         {
           out.writeBoolean(true);
           out.writeCDOBranchVersion(targetBranchVersion);
+          out.writeBoolean(hasTarget);
         }
         else
         {
