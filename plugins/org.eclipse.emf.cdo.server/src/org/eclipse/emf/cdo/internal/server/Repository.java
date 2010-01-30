@@ -295,14 +295,9 @@ public class Repository extends Container<Object> implements InternalRepository
       if (revision == null)
       {
         // Case "Pointer"
+        InternalCDORevision target = loadRevisionTarget(id, branchPoint, referenceChunk, accessor);
+
         CDOBranch branch = branchPoint.getBranch();
-
-        InternalCDORevision target = null;
-        if (!branch.isMainBranch())
-        {
-          target = loadRevisionTarget(id, branchPoint, referenceChunk, accessor);
-        }
-
         long revised = loadRevisionRevised(id, branch);
         PointerCDORevision pointer = new PointerCDORevision(id, branch, revised, target);
 

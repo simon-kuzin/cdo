@@ -248,7 +248,6 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
   }
 
   /**
-   * @return
    * @since 3.0
    */
   public synchronized DetachedCDORevision detachObject(CDOID id, CDOBranch branch, long revised)
@@ -261,7 +260,6 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
       if (revision != null)
       {
         revision.setRevised(revised);
-        return null;
       }
     }
 
