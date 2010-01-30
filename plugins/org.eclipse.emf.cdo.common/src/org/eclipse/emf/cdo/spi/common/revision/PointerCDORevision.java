@@ -22,9 +22,11 @@ public class PointerCDORevision extends SyntheticCDORevision
 
   private CDOBranchVersion target;
 
-  public PointerCDORevision(CDOID id, CDOBranch branch)
+  public PointerCDORevision(CDOID id, CDOBranch branch, long revised, CDOBranchVersion target)
   {
     super(id, branch);
+    this.revised = revised;
+    this.target = target == null ? null : CDOBranchUtil.createBranchVersion(target);
   }
 
   @Override
@@ -45,20 +47,9 @@ public class PointerCDORevision extends SyntheticCDORevision
     return revised;
   }
 
-  @Override
-  public void setRevised(long revised)
-  {
-    this.revised = revised;
-  }
-
   public CDOBranchVersion getTarget()
   {
     return target;
-  }
-
-  public void setTarget(CDOBranchVersion target)
-  {
-    this.target = target == null ? null : CDOBranchUtil.createBranchVersion(target);
   }
 
   @Override

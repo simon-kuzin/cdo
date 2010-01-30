@@ -159,12 +159,7 @@ public abstract class RevisionInfo
     case POINTER_SYNTHETIC:
     {
       long revised = in.readLong();
-
-      PointerCDORevision pointer = new PointerCDORevision(id, requestedBranchPoint.getBranch());
-      pointer.setTarget(result);
-      pointer.setRevised(revised);
-
-      synthetic = pointer;
+      synthetic = new PointerCDORevision(id, requestedBranchPoint.getBranch(), revised, result);
       break;
     }
 
@@ -172,15 +167,12 @@ public abstract class RevisionInfo
     {
       long timeStamp = in.readLong();
       int version = in.readInt();
-
-      DetachedCDORevision detached = new DetachedCDORevision(id, requestedBranchPoint.getBranch(), version, timeStamp);
-
-      synthetic = detached;
+      synthetic = new DetachedCDORevision(id, requestedBranchPoint.getBranch(), version, timeStamp);
       break;
     }
 
     default:
-      break;
+      throw new IllegalStateException("Invalid synthetic type: " + type);
     }
   }
 
