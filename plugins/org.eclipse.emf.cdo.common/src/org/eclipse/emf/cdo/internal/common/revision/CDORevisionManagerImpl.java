@@ -333,7 +333,13 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
 
     try
     {
+      List<InternalCDORevision> additionalRevisions = //
       revisionLoader.loadRevisions(infosToLoad, branchPoint, referenceChunk, prefetchDepth);
+
+      for (InternalCDORevision revision : additionalRevisions)
+      {
+        addRevision(revision);
+      }
 
       // CDOBranch branch = branchPoint.getBranch();
       //
@@ -383,12 +389,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     for (int i = 0; i < infos.length; i++)
     {
       RevisionInfo info = infos[i];
-      results.add(info.getResult());
-
-      if (synthetics != null)
-      {
-        synthetics[i] = info.getSynthetic();
-      }
+      info.processResult(this, results, synthetics, i);
     }
 
     return results;
