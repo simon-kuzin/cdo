@@ -25,6 +25,8 @@ import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.ITransaction;
 import org.eclipse.emf.cdo.server.IView;
 import org.eclipse.emf.cdo.server.StoreThreadLocal;
+import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranch;
+import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager.BranchLoader;
 import org.eclipse.emf.cdo.spi.common.revision.DetachedCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
@@ -376,18 +378,21 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
   public Map<CDOBranch, List<CDORevision>> getAllRevisions()
   {
     Map<CDOBranch, List<CDORevision>> result = new HashMap<CDOBranch, List<CDORevision>>();
+    InternalCDOBranchManager branchManager = getRepository().getBranchManager();
+    result.put(branchManager.getMainBranch(), new ArrayList<CDORevision>());
+
+    for (Integer branchID : branchInfos.keySet())
+    {
+      InternalCDOBranch branch = branchManager.getBranch(branchID);
+      result.put(branch, new ArrayList<CDORevision>());
+    }
+
     for (List<InternalCDORevision> list : revisions.values())
     {
       for (InternalCDORevision revision : list)
       {
         CDOBranch branch = revision.getBranch();
         List<CDORevision> resultList = result.get(branch);
-        if (resultList == null)
-        {
-          resultList = new ArrayList<CDORevision>(1);
-          result.put(branch, resultList);
-        }
-
         resultList.add(revision);
       }
     }

@@ -121,7 +121,7 @@ public class CDOEditorInputImpl extends PlatformObject implements CDOEditorInput
     long timeStamp = view.getTimeStamp();
     if (timeStamp != CDOView.UNSPECIFIED_DATE)
     {
-      builder.append(MessageFormat.format(" {0,date} {0,time}", timeStamp)); //$NON-NLS-1$
+      builder.append(MessageFormat.format(" {0,date} {0,time,HH:mm:ss:SSS}", timeStamp)); //$NON-NLS-1$
     }
 
     return builder.toString();

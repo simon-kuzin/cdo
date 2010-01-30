@@ -96,13 +96,13 @@ public class OpenSessionRequest extends CDOTimeRequest<OpenSessionResult>
     long repositoryCreationTime = in.readLong();
     if (TRACER.isEnabled())
     {
-      TRACER.format("Read repositoryCreationTime: {0,date} {0,time}", repositoryCreationTime); //$NON-NLS-1$
+      TRACER.format("Read repositoryCreationTime: {0,date} {0,time,HH:mm:ss:SSS}", repositoryCreationTime); //$NON-NLS-1$
     }
 
     long lastUpdateTime = in.readLong();
     if (TRACER.isEnabled())
     {
-      TRACER.format("Read lastUpdateTime: {0,date} {0,time}", lastUpdateTime); //$NON-NLS-1$
+      TRACER.format("Read lastUpdateTime: {0,date} {0,time,HH:mm:ss:SSS}", lastUpdateTime); //$NON-NLS-1$
     }
 
     boolean repositorySupportingAudits = in.readBoolean();

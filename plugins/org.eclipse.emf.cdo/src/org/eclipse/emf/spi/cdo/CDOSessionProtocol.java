@@ -294,7 +294,7 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, BranchLo
     {
       return MessageFormat
           .format(
-              "RepositoryTime[requested={0,date} {0,time}, indicated={1,date} {1,time}, responded={2,date} {2,time}, confirmed={3,date} {3,time}]",
+              "RepositoryTime[requested={0,date} {0,time,HH:mm:ss:SSS}, indicated={1,date} {1,time,HH:mm:ss:SSS}, responded={2,date} {2,time,HH:mm:ss:SSS}, confirmed={3,date} {3,time,HH:mm:ss:SSS}]",
               requested, indicated, responded, confirmed);
     }
   }

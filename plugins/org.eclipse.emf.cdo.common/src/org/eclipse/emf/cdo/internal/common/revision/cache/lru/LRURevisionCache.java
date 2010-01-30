@@ -166,8 +166,10 @@ public class LRURevisionCache extends Lifecycle implements InternalCDORevisionCa
     CheckUtil.checkArg(revision, "revision");
     if (TRACER.isEnabled())
     {
-      TRACER.format("Adding revision: {0}, timeStamp={1,date} {1,time}, revised={2,date} {2,time}, historical={3}", //$NON-NLS-1$
-          revision, revision.getTimeStamp(), revision.getRevised(), revision.isHistorical());
+      TRACER
+          .format(
+              "Adding revision: {0}, timeStamp={1,date} {1,time,HH:mm:ss:SSS}, revised={2,date} {2,time,HH:mm:ss:SSS}, historical={3}", //$NON-NLS-1$
+              revision, revision.getTimeStamp(), revision.getRevised(), revision.isHistorical());
     }
 
     int version = revision.getVersion();

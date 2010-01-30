@@ -339,7 +339,7 @@ public abstract class BaseCDORevision extends AbstractCDORevision
 
     if (TRACER.isEnabled())
     {
-      TRACER.format("Setting revised {0}: {1,date} {1,time}", this, revised);
+      TRACER.format("Setting revised {0}: {1,date} {1,time,HH:mm:ss:SSS}", this, revised);
     }
 
     this.revised = revised;
