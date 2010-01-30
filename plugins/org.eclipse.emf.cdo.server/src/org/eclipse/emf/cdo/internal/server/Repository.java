@@ -281,8 +281,7 @@ public class Repository extends Container<Object> implements InternalRepository
         break;
       }
 
-      case MISSING_MAINBRANCH:
-      case MISSING_SUBBRANCH:
+      case MISSING:
       {
         break;
       }

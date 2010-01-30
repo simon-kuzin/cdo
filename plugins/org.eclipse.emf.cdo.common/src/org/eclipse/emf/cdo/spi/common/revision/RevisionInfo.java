@@ -111,11 +111,8 @@ public abstract class RevisionInfo
     case AVAILABLE_DETACHED:
       return new Available.Detached(in, requestedBranchPoint);
 
-    case MISSING_MAINBRANCH:
-      return new Missing.MainBranch(in, requestedBranchPoint);
-
-    case MISSING_SUBBRANCH:
-      return new Missing.SubBranch(in, requestedBranchPoint);
+    case MISSING:
+      return new Missing(in, requestedBranchPoint);
 
     default:
       throw new IOException("Invalid revision info type: " + type);
@@ -215,7 +212,7 @@ public abstract class RevisionInfo
    */
   public static enum Type
   {
-    AVAILABLE_NORMAL, AVAILABLE_POINTER, AVAILABLE_DETACHED, MISSING_MAINBRANCH, MISSING_SUBBRANCH
+    AVAILABLE_NORMAL, AVAILABLE_POINTER, AVAILABLE_DETACHED, MISSING
   }
 
   /**
@@ -386,74 +383,28 @@ public abstract class RevisionInfo
    * @author Eike Stepper
    * @since 3.0
    */
-  public static abstract class Missing extends RevisionInfo
+  public static class Missing extends RevisionInfo
   {
-    protected Missing(CDOID id, CDOBranchPoint requestedBranchPoint)
+    public Missing(CDOID id, CDOBranchPoint requestedBranchPoint)
     {
       super(id, requestedBranchPoint);
     }
 
-    protected Missing(CDODataInput in, CDOBranchPoint requestedBranchPoint) throws IOException
+    private Missing(CDODataInput in, CDOBranchPoint requestedBranchPoint) throws IOException
     {
       super(in, requestedBranchPoint);
     }
 
-    /**
-     * @author Eike Stepper
-     * @since 3.0
-     */
-    public static class MainBranch extends Missing
+    @Override
+    public Type getType()
     {
-      public MainBranch(CDOID id, CDOBranchPoint requestedBranchPoint)
-      {
-        super(id, requestedBranchPoint);
-      }
-
-      private MainBranch(CDODataInput in, CDOBranchPoint requestedBranchPoint) throws IOException
-      {
-        super(in, requestedBranchPoint);
-      }
-
-      @Override
-      public Type getType()
-      {
-        return Type.MISSING_MAINBRANCH;
-      }
-
-      @Override
-      public boolean isLoadNeeded()
-      {
-        return false;
-      }
+      return Type.MISSING;
     }
 
-    /**
-     * @author Eike Stepper
-     * @since 3.0
-     */
-    public static class SubBranch extends Missing
+    @Override
+    public boolean isLoadNeeded()
     {
-      public SubBranch(CDOID id, CDOBranchPoint requestedBranchPoint)
-      {
-        super(id, requestedBranchPoint);
-      }
-
-      private SubBranch(CDODataInput in, CDOBranchPoint requestedBranchPoint) throws IOException
-      {
-        super(in, requestedBranchPoint);
-      }
-
-      @Override
-      public Type getType()
-      {
-        return Type.MISSING_SUBBRANCH;
-      }
-
-      @Override
-      public boolean isLoadNeeded()
-      {
-        return true;
-      }
+      return true;
     }
   }
 }

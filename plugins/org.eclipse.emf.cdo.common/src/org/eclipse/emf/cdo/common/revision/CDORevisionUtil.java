@@ -129,10 +129,10 @@ public final class CDORevisionUtil
     String revised = "*";
     if (t2 != CDORevision.UNSPECIFIED_DATE)
     {
-      revised = MessageFormat.format("{0,date} {0,time}", t2);
+      revised = MessageFormat.format("{0,date} {0,time,HH:mm:ss:SSS}", t2);
     }
 
-    buffer.append(MessageFormat.format("{0,date} {0,time}/{1}", t1, revised));
+    buffer.append(MessageFormat.format("{0,date} {0,time,HH:mm:ss:SSS}/{1}", t1, revised));
     return buffer.toString();
   }
 

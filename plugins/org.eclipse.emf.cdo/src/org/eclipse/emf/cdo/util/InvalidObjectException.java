@@ -47,6 +47,6 @@ public class InvalidObjectException extends CDOException
       return "HEAD";
     }
 
-    return MessageFormat.format("{0,date} {0,time}", timeStamp);
+    return MessageFormat.format("{0,date} {0,time,HH:mm:ss:SSS}", timeStamp);
   }
 }

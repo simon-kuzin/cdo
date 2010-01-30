@@ -318,12 +318,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
 
   private RevisionInfo.Missing createRevisionInfoMissing(CDOID id, CDOBranchPoint requestedBranchPoint)
   {
-    if (requestedBranchPoint.getBranch().isMainBranch())
-    {
-      return new RevisionInfo.Missing.MainBranch(id, requestedBranchPoint);
-    }
-
-    return new RevisionInfo.Missing.SubBranch(id, requestedBranchPoint);
+    return new RevisionInfo.Missing(id, requestedBranchPoint);
   }
 
   private void loadRevisions(List<RevisionInfo> infosToLoad, CDOBranchPoint branchPoint, int referenceChunk,
