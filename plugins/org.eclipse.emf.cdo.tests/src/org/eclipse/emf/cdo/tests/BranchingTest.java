@@ -467,13 +467,103 @@ public class BranchingTest extends AbstractCDOTest
     mainBranch = branchManager.getMainBranch();
     subBranch = mainBranch.getBranch("subBranch");
 
-    // check(session, mainBranch, commitTime1, "CDO");
-    // check(session, mainBranch, commitTime2, "CDO");
-    // check(session, mainBranch, CDOBranchPoint.UNSPECIFIED_DATE, "CDO");
+    check(session, subBranch, commitTime1, "CDO");
+
+    try
+    {
+      check(session, subBranch, commitTime2, "CDO");
+      fail("IndexOutOfBoundsException expected");
+    }
+    catch (IndexOutOfBoundsException expected)
+    {
+      // Success
+    }
+
+    try
+    {
+      check(session, subBranch, CDOBranchPoint.UNSPECIFIED_DATE, "CDO");
+      fail("IndexOutOfBoundsException expected");
+    }
+    catch (IndexOutOfBoundsException expected)
+    {
+      // Success
+    }
+
+    session.close();
+  }
+
+  public void testDetachWithoutRevision_CheckMainBranch() throws Exception
+  {
+    CDOSession session = openSession1();
+    CDOBranchManager branchManager = session.getBranchManager();
+
+    // Commit to main branch
+    CDOBranch mainBranch = branchManager.getMainBranch();
+    CDOTransaction transaction = session.openTransaction(mainBranch);
+    assertEquals(mainBranch, transaction.getBranch());
+    assertEquals(CDOBranchPoint.UNSPECIFIED_DATE, transaction.getTimeStamp());
+
+    Product1 product = getModel1Factory().createProduct1();
+    product.setName("CDO");
+
+    CDOResource resource = transaction.createResource("/res");
+    resource.getContents().add(product);
+
+    CDOCommit commit = transaction.commit();
+    assertEquals(mainBranch, commit.getBranch());
+    long commitTime1 = commit.getTimeStamp();
+    transaction.close();
+
+    // Commit to sub branch
+    CDOBranch subBranch = mainBranch.createBranch("subBranch", commitTime1);
+    transaction = session.openTransaction(subBranch);
+    assertEquals(subBranch, transaction.getBranch());
+    assertEquals(CDOBranchPoint.UNSPECIFIED_DATE, transaction.getTimeStamp());
+
+    resource = transaction.getResource("/res");
+    product = (Product1)resource.getContents().get(0);
+    assertEquals("CDO", product.getName());
+
+    // Detach an object that has no revision in subBranch
+    resource.getContents().remove(0);
+
+    commit = transaction.commit();
+    assertEquals(subBranch, commit.getBranch());
+    long commitTime2 = commit.getTimeStamp();
+
+    transaction.close();
+    closeSession1();
+
+    session = openSession2();
+    branchManager = session.getBranchManager();
+    mainBranch = branchManager.getMainBranch();
+    subBranch = mainBranch.getBranch("subBranch");
+
+    check(session, mainBranch, commitTime1, "CDO");
+    check(session, mainBranch, commitTime2, "CDO");
+    check(session, mainBranch, CDOBranchPoint.UNSPECIFIED_DATE, "CDO");
 
     check(session, subBranch, commitTime1, "CDO");
-    check(session, subBranch, commitTime2, "CDO");
-    check(session, subBranch, CDOBranchPoint.UNSPECIFIED_DATE, "CDO");
+
+    try
+    {
+      check(session, subBranch, commitTime2, "CDO");
+      fail("IndexOutOfBoundsException expected");
+    }
+    catch (IndexOutOfBoundsException expected)
+    {
+      // Success
+    }
+
+    try
+    {
+      check(session, subBranch, CDOBranchPoint.UNSPECIFIED_DATE, "CDO");
+      fail("IndexOutOfBoundsException expected");
+    }
+    catch (IndexOutOfBoundsException expected)
+    {
+      // Success
+    }
 
     session.close();
   }
