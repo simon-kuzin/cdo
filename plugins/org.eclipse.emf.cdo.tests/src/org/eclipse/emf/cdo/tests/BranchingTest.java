@@ -484,7 +484,7 @@ public class BranchingTest extends AbstractCDOTest
     dump("ClientCache", ((InternalCDOSession)session).getRevisionManager().getCache().getAllRevisions());
   }
 
-  private static void dump(String label, Map<CDOBranch, List<CDORevision>> revisions)
+  public static void dump(String label, Map<CDOBranch, List<CDORevision>> revisions)
   {
     System.out.println();
     System.out.println();

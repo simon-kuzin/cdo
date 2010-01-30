@@ -99,12 +99,15 @@ public abstract class AbstractCDORevision implements InternalCDORevision
   @Override
   public String toString()
   {
+    EClass eClass = getEClass();
+    String name = eClass == null ? "Revision" : eClass.getName();
+
     CDOBranch branch = getBranch();
     if (branch == null)
     {
-      return getEClass().getName() + "@" + getID() + "v" + getVersion();
+      return name + "@" + getID() + "v" + getVersion();
     }
 
-    return getEClass().getName() + "@" + getID() + ":" + branch.getID() + "v" + getVersion();
+    return name + "@" + getID() + ":" + branch.getID() + "v" + getVersion();
   }
 }
