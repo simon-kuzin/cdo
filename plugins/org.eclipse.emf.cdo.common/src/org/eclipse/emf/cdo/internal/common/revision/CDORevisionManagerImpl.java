@@ -249,7 +249,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
       loadRevisions(infosToLoad, branchPoint, referenceChunk, prefetchDepth);
     }
 
-    return getRevisionAndResults(infos, synthetics);
+    return getResultsAndSynthetics(infos, synthetics);
   }
 
   private List<RevisionInfo> createRevisionInfos(List<CDOID> ids, CDOBranchPoint branchPoint, boolean loadOnDemand,
@@ -377,13 +377,13 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     }
   }
 
-  private List<CDORevision> getRevisionAndResults(RevisionInfo[] infos, SyntheticCDORevision[] synthetics)
+  private List<CDORevision> getResultsAndSynthetics(RevisionInfo[] infos, SyntheticCDORevision[] synthetics)
   {
-    List<CDORevision> revisions = new ArrayList<CDORevision>(infos.length);
+    List<CDORevision> results = new ArrayList<CDORevision>(infos.length);
     for (int i = 0; i < infos.length; i++)
     {
       RevisionInfo info = infos[i];
-      revisions.add(info.getResult());
+      results.add(info.getResult());
 
       if (synthetics != null)
       {
@@ -391,7 +391,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
       }
     }
 
-    return revisions;
+    return results;
   }
 
   public boolean addRevision(CDORevision revision)

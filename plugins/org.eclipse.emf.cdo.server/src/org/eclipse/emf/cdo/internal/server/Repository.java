@@ -237,7 +237,8 @@ public class Repository extends Container<Object> implements InternalRepository
     return accessor.loadSubBranches(branchID);
   }
 
-  public void loadRevisions(List<RevisionInfo> infos, CDOBranchPoint branchPoint, int referenceChunk, int prefetchDepth)
+  public List<InternalCDORevision> loadRevisions(List<RevisionInfo> infos, CDOBranchPoint branchPoint,
+      int referenceChunk, int prefetchDepth)
   {
     for (RevisionInfo info : infos)
     {
@@ -325,6 +326,8 @@ public class Repository extends Container<Object> implements InternalRepository
         info.setResult(revision);
       }
     }
+
+    return null;
   }
 
   private InternalCDORevision loadRevisionTarget(CDOID id, CDOBranchPoint branchPoint, int referenceChunk,

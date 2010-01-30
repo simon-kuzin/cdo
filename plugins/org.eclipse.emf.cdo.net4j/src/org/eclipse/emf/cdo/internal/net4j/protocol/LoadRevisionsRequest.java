@@ -18,7 +18,6 @@ import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.internal.net4j.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
-import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
 import org.eclipse.emf.cdo.spi.common.revision.RevisionInfo;
 import org.eclipse.emf.cdo.view.CDOFetchRuleManager;
 
@@ -126,7 +125,6 @@ public class LoadRevisionsRequest extends CDOClientRequest<List<InternalCDORevis
   protected List<InternalCDORevision> confirming(CDODataInput in) throws IOException
   {
     int size = infos.size();
-    ArrayList<InternalCDORevision> revisions = new ArrayList<InternalCDORevision>(size);
     if (TRACER.isEnabled())
     {
       TRACER.format("Reading {0} revisions", size); //$NON-NLS-1$
@@ -135,9 +133,9 @@ public class LoadRevisionsRequest extends CDOClientRequest<List<InternalCDORevis
     for (RevisionInfo info : infos)
     {
       info.readResult(in);
-      revisions.add(info.getResult());
     }
 
+    List<InternalCDORevision> additionalRevisions = null;
     int additionalSize = in.readInt();
     if (additionalSize != 0)
     {
@@ -146,15 +144,15 @@ public class LoadRevisionsRequest extends CDOClientRequest<List<InternalCDORevis
         TRACER.format("Reading {0} additional revisions", additionalSize); //$NON-NLS-1$
       }
 
-      InternalCDORevisionManager revisionManager = getSession().getRevisionManager();
+      additionalRevisions = new ArrayList<InternalCDORevision>(additionalSize);
       for (int i = 0; i < additionalSize; i++)
       {
         InternalCDORevision revision = (InternalCDORevision)in.readCDORevision();
-        revisionManager.addRevision(revision);
+        additionalRevisions.add(revision);
       }
     }
 
-    return revisions;
+    return additionalRevisions;
   }
 
   @Override

@@ -226,9 +226,10 @@ public abstract class DelegatingRepository implements InternalRepository
     return getDelegate().loadSubBranches(branchID);
   }
 
-  public void loadRevisions(List<RevisionInfo> infos, CDOBranchPoint branchPoint, int referenceChunk, int prefetchDepth)
+  public List<InternalCDORevision> loadRevisions(List<RevisionInfo> infos, CDOBranchPoint branchPoint,
+      int referenceChunk, int prefetchDepth)
   {
-    getDelegate().loadRevisions(infos, branchPoint, referenceChunk, prefetchDepth);
+    return getDelegate().loadRevisions(infos, branchPoint, referenceChunk, prefetchDepth);
   }
 
   public InternalCDORevision loadRevisionByVersion(CDOID id, CDOBranchVersion branchVersion, int referenceChunk)
