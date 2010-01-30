@@ -19,8 +19,10 @@ import org.eclipse.emf.cdo.internal.common.revision.CDORevisionImpl;
 import org.eclipse.emf.cdo.internal.server.mem.MEMStore;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.session.CDOSession;
-import org.eclipse.emf.cdo.spi.common.revision.DetachedCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
+
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EcorePackage;
 
 import java.util.Map;
 
@@ -29,11 +31,13 @@ import java.util.Map;
  */
 public class RevisionManagerTest extends AbstractCDOTest
 {
-  private static final long COMMIT_OFFSET = 1000;
+  private static final CDOID ID = CDOIDUtil.createLong(1);
 
-  private static final long BRANCH_OFFSET = COMMIT_OFFSET * 2;
+  private static final EClass CLASS = EcorePackage.Literals.EANNOTATION;
 
-  private static final CDOID id = CDOIDUtil.createLong(1);
+  private static final int DETACH = -1;
+
+  private MEMStore store;
 
   private CDOSession session;
 
@@ -49,7 +53,15 @@ public class RevisionManagerTest extends AbstractCDOTest
 
   private CDOBranch branch4;
 
-  private MEMStore store;
+  private InternalCDORevision[] revisions0;
+
+  private InternalCDORevision[] revisions1;
+
+  private InternalCDORevision[] revisions2;
+
+  private InternalCDORevision[] revisions3;
+
+  private InternalCDORevision[] revisions4;
 
   @Override
   public Map<String, Object> getTestProperties()
@@ -71,19 +83,19 @@ public class RevisionManagerTest extends AbstractCDOTest
     branchManager = session.getBranchManager();
 
     branch0 = branchManager.getMainBranch();
-    InternalCDORevision[] revisions = fillBranch(branch0, 10, 10, 20, 50, 20);
+    revisions0 = fillBranch(branch0, 10, 10, 20, 50, 20);
 
-    revisions = createBranch(revisions[1], 5, 10, 20, 10, -1);
-    branch1 = revisions[0].getBranch();
+    revisions1 = createBranch(revisions0[1], 5, 10, 20, 10, DETACH);
+    branch1 = revisions0[0].getBranch();
 
-    revisions = createBranch(revisions[3], 5, 20, 20);
-    branch2 = revisions[0].getBranch();
+    revisions2 = createBranch(revisions1[3], 5, 20, 20);
+    branch2 = revisions2[0].getBranch();
 
-    revisions = createBranch(revisions[1], 0);
-    branch3 = revisions[0].getBranch();
+    revisions3 = new InternalCDORevision[0];
+    branch3 = createBranch(revisions1[1]);
 
-    revisions = createBranch(revisions[1], 30, -1);
-    branch4 = revisions[0].getBranch();
+    revisions4 = createBranch(branch3, 10, 30, DETACH);
+    branch4 = revisions4[0].getBranch();
 
     BranchingTest.dump("MEMStore", store.getAllRevisions());
   }
@@ -97,26 +109,62 @@ public class RevisionManagerTest extends AbstractCDOTest
       long duration = durations[i];
       CDOBranchPoint branchPoint = branch.getPoint(timeStamp);
 
-      if (duration == -1)
+      if (duration != DETACH)
       {
         timeStamp += duration;
 
-        revisions[i] = new CDORevisionImpl(null);
-        revisions[i].setID(id);
+        revisions[i] = new CDORevisionImpl(CLASS);
+        revisions[i].setID(ID);
         revisions[i].setBranchPoint(branchPoint);
         revisions[i].setRevised(timeStamp - 1);
         revisions[i].setVersion(i + 1);
+        store.addRevision(revisions[i]);
       }
       else
       {
-        revisions[i] = new DetachedCDORevision(id, branch, i + 1, timeStamp);
+        revisions[i] = store.detachObject(ID, branch, timeStamp - 1);
       }
     }
 
     return revisions;
   }
 
+  private InternalCDORevision[] createBranch(CDOBranch baseBranch, long baseTimeStamp, long offset, long... durations)
+  {
+    CDOBranch branch = baseBranch.createBranch("branch" + (baseBranch.getID() + 1), baseTimeStamp);
+    return fillBranch(branch, offset, durations);
+  }
+
   private InternalCDORevision[] createBranch(InternalCDORevision revision, long offset, long... durations)
+  {
+    CDOBranch baseBranch = revision.getBranch();
+    long baseTimeStamp = getMiddleOfValidity(revision);
+    return createBranch(baseBranch, baseTimeStamp, offset, durations);
+  }
+
+  private CDOBranch createBranch(InternalCDORevision revision)
+  {
+    CDOBranch baseBranch = revision.getBranch();
+    long baseTimeStamp = getMiddleOfValidity(revision);
+    return baseBranch.createBranch("branch" + (baseBranch.getID() + 1), baseTimeStamp);
+  }
+
+  // private CDOBranch createBranch(CDOBranch parent)
+  // {
+  // long revised = revision.getRevised();
+  // if (revised == CDOBranchPoint.UNSPECIFIED_DATE)
+  // {
+  // revised = revision.getTimeStamp() + 10000;
+  // }
+  //
+  // long timeStamp = revision.getTimeStamp() / 2 + revised / 2;
+  //
+  // CDOBranch parent = revision.getBranch();
+  // CDOBranch branch = parent.createBranch("branch" + (parent.getID() + 1), timeStamp);
+  // return fillBranch(branch, offset, durations);
+  // }
+
+  private long getMiddleOfValidity(InternalCDORevision revision)
   {
     long revised = revision.getRevised();
     if (revised == CDOBranchPoint.UNSPECIFIED_DATE)
@@ -124,11 +172,8 @@ public class RevisionManagerTest extends AbstractCDOTest
       revised = revision.getTimeStamp() + 10000;
     }
 
-    long timeStamp = revision.getTimeStamp() / 2 + revised / 2;
-
-    CDOBranch parent = revision.getBranch();
-    CDOBranch branch = parent.createBranch("branch" + (parent.getID() + 1), timeStamp);
-    return fillBranch(branch, offset, durations);
+    long baseTimeStamp = revision.getTimeStamp() / 2 + revised / 2;
+    return baseTimeStamp;
   }
 
   @Override

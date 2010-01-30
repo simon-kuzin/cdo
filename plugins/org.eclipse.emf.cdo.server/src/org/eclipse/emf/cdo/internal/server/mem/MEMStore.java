@@ -246,9 +246,10 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
   }
 
   /**
+   * @return
    * @since 3.0
    */
-  public synchronized void detachObject(CDOID id, CDOBranch branch, long revised)
+  public synchronized DetachedCDORevision detachObject(CDOID id, CDOBranch branch, long revised)
   {
     Object listKey = getListKey(id, branch);
     List<InternalCDORevision> list = revisions.get(listKey);
@@ -258,7 +259,7 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
       if (revision != null)
       {
         revision.setRevised(revised);
-        return;
+        return null;
       }
     }
 
@@ -278,7 +279,10 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
 
       DetachedCDORevision detached = new DetachedCDORevision(id, branch, version, revised);
       addRevision(list, detached);
+      return detached;
     }
+
+    return null;
   }
 
   /**
