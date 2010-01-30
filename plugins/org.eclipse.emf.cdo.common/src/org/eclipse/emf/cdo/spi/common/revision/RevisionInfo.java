@@ -258,6 +258,54 @@ public abstract class RevisionInfo
       out.writeCDOBranchVersion(availableBranchVersion);
     }
 
+    @Override
+    protected void writeRevision(CDODataOutput out, int referenceChunk) throws IOException
+    {
+      if (getResult().getBranch() == availableBranchVersion.getBranch())
+      {
+        // Use available
+        out.writeBoolean(true);
+      }
+      else
+      {
+        out.writeBoolean(false);
+        super.writeRevision(out, referenceChunk);
+      }
+    }
+
+    @Override
+    protected void readRevision(CDODataInput in) throws IOException
+    {
+      boolean useAvailable = in.readBoolean();
+      if (useAvailable)
+      {
+        setResult((InternalCDORevision)availableBranchVersion);
+      }
+      else
+      {
+        super.readRevision(in);
+      }
+    }
+
+    @Override
+    public void processResult(InternalCDORevisionManager revisionManager, List<CDORevision> results,
+        SyntheticCDORevision[] synthetics, int i)
+    {
+      if (!isLoadNeeded())
+      {
+        if (availableBranchVersion instanceof SyntheticCDORevision)
+        {
+          setSynthetic((SyntheticCDORevision)availableBranchVersion);
+        }
+        else
+        {
+          setResult((InternalCDORevision)availableBranchVersion);
+        }
+      }
+
+      super.processResult(revisionManager, results, synthetics, i);
+    }
+
     /**
      * @author Eike Stepper
      * @since 3.0
@@ -336,6 +384,11 @@ public abstract class RevisionInfo
       @Override
       public boolean isLoadNeeded()
       {
+        if (getRequestedBranchPoint().getBranch().isMainBranch())
+        {
+          return false;
+        }
+
         return !isDirect() || !hasTarget();
       }
 

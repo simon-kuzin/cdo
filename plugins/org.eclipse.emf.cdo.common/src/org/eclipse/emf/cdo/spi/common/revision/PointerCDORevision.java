@@ -61,6 +61,11 @@ public class PointerCDORevision extends SyntheticCDORevision
   @Override
   public String toString()
   {
+    if (target == null)
+    {
+      return MessageFormat.format("PointerCDORevision[{0}:{1}v0 --> null]", getID(), getBranch().getID());
+    }
+
     return MessageFormat.format("PointerCDORevision[{0}:{1}v0 --> {2}v{3}]", getID(), getBranch().getID(), target
         .getBranch().getID(), target.getVersion());
   }

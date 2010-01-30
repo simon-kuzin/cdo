@@ -489,7 +489,8 @@ public class BranchingTest extends AbstractCDOTest
     System.out.println();
     System.out.println();
     System.out.println(label);
-    System.out.println("==============================");
+    System.out
+        .println("===============================================================================================");
     CDORevisionUtil.dumpAllRevisions(revisions, System.out);
     System.out.println();
     System.out.println();

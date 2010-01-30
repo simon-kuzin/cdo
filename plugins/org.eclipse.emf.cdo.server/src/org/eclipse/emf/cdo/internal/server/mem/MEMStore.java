@@ -265,26 +265,21 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
       }
     }
 
-    if (!branch.isMainBranch())
+    int version;
+    if (list == null)
     {
-      int version;
-      if (list == null)
-      {
-        list = new ArrayList<InternalCDORevision>();
-        revisions.put(listKey, list);
-        version = CDOBranchVersion.FIRST_VERSION;
-      }
-      else
-      {
-        version = getHighestVersion(list) + 1;
-      }
-
-      DetachedCDORevision detached = new DetachedCDORevision(id, branch, version, revised);
-      addRevision(list, detached);
-      return detached;
+      list = new ArrayList<InternalCDORevision>();
+      revisions.put(listKey, list);
+      version = CDOBranchVersion.FIRST_VERSION;
+    }
+    else
+    {
+      version = getHighestVersion(list) + 1;
     }
 
-    return null;
+    DetachedCDORevision detached = new DetachedCDORevision(id, branch, version, revised);
+    addRevision(list, detached);
+    return detached;
   }
 
   /**

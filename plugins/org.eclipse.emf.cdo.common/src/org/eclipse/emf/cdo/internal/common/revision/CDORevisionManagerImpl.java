@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Eike Stepper
@@ -60,10 +61,13 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
   private InternalCDORevisionCache cache;
 
   @ExcludeFromDump
-  private Object loadAndAddLock = new Object();
+  private transient Object loadAndAddLock = new Object();
 
   @ExcludeFromDump
-  private Object revisedLock = new Object();
+  private transient Object revisedLock = new Object();
+
+  @ExcludeFromDump
+  public transient AtomicInteger loadCounterForTest;
 
   public CDORevisionManagerImpl()
   {
@@ -303,8 +307,9 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
     if (revision instanceof PointerCDORevision)
     {
       PointerCDORevision pointer = (PointerCDORevision)revision;
-      InternalCDORevision target = getCachedRevisionByVersion(pointer.getID(), pointer.getTarget());
-      return new RevisionInfo.Available.Pointer(pointer.getID(), requestedBranchPoint, pointer, target);
+      CDOBranchVersion target = pointer.getTarget();
+      InternalCDORevision targetRevision = target == null ? null : getCachedRevisionByVersion(pointer.getID(), target);
+      return new RevisionInfo.Available.Pointer(pointer.getID(), requestedBranchPoint, pointer, targetRevision);
     }
 
     if (revision instanceof DetachedCDORevision)
@@ -324,6 +329,11 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
   private void loadRevisions(List<RevisionInfo> infosToLoad, CDOBranchPoint branchPoint, int referenceChunk,
       int prefetchDepth)
   {
+    if (loadCounterForTest != null)
+    {
+      loadCounterForTest.incrementAndGet();
+    }
+
     acquireAtomicRequestLock(loadAndAddLock);
 
     try
