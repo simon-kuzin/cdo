@@ -67,7 +67,7 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
   private transient Object revisedLock = new Object();
 
   @ExcludeFromDump
-  public transient AtomicInteger loadCounterForTest;
+  private transient AtomicInteger loadCounterForTest;
 
   public CDORevisionManagerImpl()
   {
@@ -336,7 +336,10 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
   {
     if (loadCounterForTest != null)
     {
-      loadCounterForTest.incrementAndGet();
+      for (int i = 0; i < infosToLoad.size(); i++)
+      {
+        loadCounterForTest.incrementAndGet();
+      }
     }
 
     acquireAtomicRequestLock(loadAndAddLock);
@@ -353,42 +356,6 @@ public class CDORevisionManagerImpl extends Lifecycle implements InternalCDORevi
           addRevision(revision);
         }
       }
-
-      // CDOBranch branch = branchPoint.getBranch();
-      //
-      // Iterator<MissingRevisionInfo> itInfo = missingInfos.iterator();
-      // Iterator<InternalCDORevision> it = missingRevisions.iterator();
-      // for (int i = 0; i < revisions.size(); i++)
-      // {
-      // InternalCDORevision revision = (InternalCDORevision)revisions.get(i);
-      // if (revision == null)
-      // {
-      // MissingRevisionInfo info = itInfo.next();
-      // revision = it.next();
-      //
-      // revisions.set(i, revision);
-      // addRevision(revision);
-      //
-      // long revised = info.getRevised();
-      // if (revisedPointers != null)
-      // {
-      // revisedPointers.put(revision, revised);
-      // }
-      //
-      // if (revision.getBranch() != branch && info.getType() == MissingRevisionInfo.Type.EXACTLY_KNOWN)
-      // {
-      // PointerCDORevision pointer = new PointerCDORevision(info.getID(), branch);
-      // pointer.setTarget(revision);
-      // pointer.setRevised(revised);
-      // addRevision(pointer);
-      // }
-      // }
-      //
-      // if (revision instanceof PointerCDORevision)
-      // {
-      // revisions.set(i, null);
-      // }
-      // }
     }
     finally
     {

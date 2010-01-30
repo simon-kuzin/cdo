@@ -151,7 +151,8 @@ public class RevisionManagerTest extends AbstractCDOTest
     revisionManager = (CDORevisionManagerImpl)getRevisionManager(repository, session);
 
     loadCounter = new AtomicInteger();
-    revisionManager.loadCounterForTest = loadCounter;
+    Field loadCounterForTest = ReflectUtil.getField(CDORevisionManagerImpl.class, "loadCounterForTest");
+    ReflectUtil.setValue(loadCounterForTest, revisionManager, loadCounter);
   }
 
   @Override
