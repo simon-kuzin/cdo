@@ -314,7 +314,7 @@ public class MEMStore extends LongIDStore implements IMEMStore, BranchLoader
       }
 
       revision = getRevision(list, context);
-      if (revision == null)
+      if (revision == null || revision instanceof DetachedCDORevision)
       {
         continue;
       }

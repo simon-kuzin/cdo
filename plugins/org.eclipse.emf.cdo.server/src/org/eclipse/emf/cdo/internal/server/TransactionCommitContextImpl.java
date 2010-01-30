@@ -660,8 +660,7 @@ public class TransactionCommitContextImpl implements InternalCommitContext
       monitor.begin(detachedObjects.length);
       for (CDOID id : detachedObjects)
       {
-        InternalCDORevision revision = (InternalCDORevision)revisionManager.getRevision(id, transaction,
-            CDORevision.UNCHUNKED, CDORevision.DEPTH_NONE, false);
+        InternalCDORevision revision = (InternalCDORevision)revisionManager.getCache().getRevision(id, transaction);
         if (revision != null)
         {
           detachedRevisions.add(revision);

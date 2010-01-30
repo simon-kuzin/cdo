@@ -113,11 +113,11 @@ public final class CDORevisionCacheUtil
    */
   public static CDORevisionCache createDefaultCache(boolean supportingBranches)
   {
-    if (supportingBranches)
+    // if (supportingBranches)
     {
       return createBranchRevisionCache();
     }
 
-    return createDefaultCache(DEFAULT_CAPACITY_CURRENT, DEFAULT_CAPACITY_REVISED);
+    // return createDefaultCache(DEFAULT_CAPACITY_CURRENT, DEFAULT_CAPACITY_REVISED);
   }
 }
