@@ -69,6 +69,12 @@ public class LoadRevisionsIndication extends CDOReadIndication
   @Override
   protected void indicating(CDODataInput in) throws IOException
   {
+    branchPoint = in.readCDOBranchPoint();
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("Read branchPoint: {0}", branchPoint); //$NON-NLS-1$
+    }
+
     referenceChunk = in.readInt();
     if (TRACER.isEnabled())
     {
@@ -102,8 +108,6 @@ public class LoadRevisionsIndication extends CDOReadIndication
 
       infos[i] = info;
     }
-
-    branchPoint = in.readCDOBranchPoint();
 
     int fetchSize = in.readInt();
     if (fetchSize > 0)

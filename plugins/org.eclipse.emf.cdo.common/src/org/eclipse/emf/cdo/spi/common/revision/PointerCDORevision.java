@@ -47,6 +47,12 @@ public class PointerCDORevision extends SyntheticCDORevision
     return revised;
   }
 
+  @Override
+  public void setRevised(long revised)
+  {
+    this.revised = revised;
+  }
+
   public CDOBranchVersion getTarget()
   {
     return target;

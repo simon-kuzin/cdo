@@ -59,6 +59,12 @@ public class LoadRevisionsRequest extends CDOClientRequest<List<InternalCDORevis
   {
     if (TRACER.isEnabled())
     {
+      TRACER.format("Writing branchPoint: {0}", branchPoint); //$NON-NLS-1$
+    }
+
+    out.writeCDOBranchPoint(branchPoint);
+    if (TRACER.isEnabled())
+    {
       TRACER.format("Writing referenceChunk: {0}", referenceChunk); //$NON-NLS-1$
     }
 
@@ -95,8 +101,6 @@ public class LoadRevisionsRequest extends CDOClientRequest<List<InternalCDORevis
       info.write(out);
       ids.add(info.getID());
     }
-
-    out.writeCDOBranchPoint(branchPoint);
 
     CDOFetchRuleManager ruleManager = getSession().getFetchRuleManager();
     List<CDOFetchRule> fetchRules = ruleManager.getFetchRules(ids);

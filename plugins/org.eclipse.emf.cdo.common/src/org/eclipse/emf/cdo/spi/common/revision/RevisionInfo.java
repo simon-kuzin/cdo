@@ -17,6 +17,8 @@ import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 
+import org.eclipse.net4j.util.CheckUtil;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -42,12 +44,14 @@ public abstract class RevisionInfo
 
   protected RevisionInfo(CDOID id, CDOBranchPoint requestedBranchPoint)
   {
+    CheckUtil.checkArg(requestedBranchPoint, "requestedBranchPoint");
     this.id = id;
     this.requestedBranchPoint = requestedBranchPoint;
   }
 
   protected RevisionInfo(CDODataInput in, CDOBranchPoint requestedBranchPoint) throws IOException
   {
+    CheckUtil.checkArg(requestedBranchPoint, "requestedBranchPoint");
     id = in.readCDOID();
     this.requestedBranchPoint = requestedBranchPoint;
   }
