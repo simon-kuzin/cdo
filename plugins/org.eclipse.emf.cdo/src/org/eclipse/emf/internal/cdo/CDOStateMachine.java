@@ -1047,7 +1047,7 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
 
     public void execute(InternalCDOObject object, CDOState state, CDOEvent event, Object NULL)
     {
-      throw new InvalidObjectException(object.cdoID());
+      throw new InvalidObjectException(object.cdoID(), object.cdoView());
     }
   }
 }
