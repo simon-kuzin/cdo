@@ -129,8 +129,8 @@ public class RevisionManagerTest extends AbstractCDOTest
     revisions1 = createBranch(revisions0[1], 5, 10, 20, 10, DETACH);
     branch1 = revisions1[0].getBranch();
 
-    revisions2 = createBranch(revisions1[3], 5, 20, 20);
-    branch2 = revisions2[0].getBranch();
+    revisions2 = new InternalCDORevision[0];
+    branch2 = createBranch(revisions1[3]);
 
     revisions3 = new InternalCDORevision[0];
     branch3 = createBranch(revisions1[1]);
@@ -318,11 +318,11 @@ public class RevisionManagerTest extends AbstractCDOTest
     long timeStamp = revisions1[0].getTimeStamp() - 1;
 
     InternalCDORevision revision = getRevision(branch1, timeStamp);
-    assertRevision(null, revision);
+    assertRevision(revisions0[1], revision);
     assertLoads(1);
 
     revision = getRevision(branch1, timeStamp);
-    assertRevision(null, revision);
+    assertRevision(revisions0[1], revision);
     assertLoads(0);
   }
 
@@ -365,6 +365,49 @@ public class RevisionManagerTest extends AbstractCDOTest
     assertLoads(1);
 
     revision = getRevision(branch1, timeStamp);
+    assertRevision(null, revision);
+    assertLoads(0);
+  }
+
+  public void testBranch2_Initial() throws Exception
+  {
+    long timeStamp = branch2.getBase().getTimeStamp() + 2;
+
+    InternalCDORevision revision = getRevision(branch2, timeStamp);
+    assertRevision(null, revision);
+    assertLoads(1);
+
+    revision = getRevision(branch2, timeStamp);
+    assertRevision(null, revision);
+    assertLoads(0);
+  }
+
+  public void testBranch2_Normal() throws Exception
+  {
+    for (int i = 0; i < revisions2.length - 1; i++)
+    {
+      InternalCDORevision expected = revisions2[i];
+      long timeStamp = getMiddleOfValidity(expected);
+
+      InternalCDORevision revision = getRevision(branch2, timeStamp);
+      assertRevision(expected, revision);
+      assertLoads(1);
+
+      revision = getRevision(branch2, timeStamp);
+      assertRevision(expected, revision);
+      assertLoads(0);
+    }
+  }
+
+  public void testBranch2_Head() throws Exception
+  {
+    long timeStamp = CDOBranchPoint.UNSPECIFIED_DATE;
+
+    InternalCDORevision revision = getRevision(branch2, timeStamp);
+    assertRevision(null, revision);
+    assertLoads(1);
+
+    revision = getRevision(branch2, timeStamp);
     assertRevision(null, revision);
     assertLoads(0);
   }

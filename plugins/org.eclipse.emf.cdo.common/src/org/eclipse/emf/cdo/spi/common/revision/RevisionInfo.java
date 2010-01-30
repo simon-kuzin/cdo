@@ -180,7 +180,15 @@ public abstract class RevisionInfo
   public void processResult(InternalCDORevisionManager revisionManager, List<CDORevision> results,
       SyntheticCDORevision[] synthetics, int i)
   {
-    results.add(result);
+    if (result instanceof DetachedCDORevision)
+    {
+      results.add(null);
+    }
+    else
+    {
+      results.add(result);
+    }
+
     if (result != null)
     {
       revisionManager.addRevision(result);
@@ -287,25 +295,6 @@ public abstract class RevisionInfo
       }
     }
 
-    @Override
-    public void processResult(InternalCDORevisionManager revisionManager, List<CDORevision> results,
-        SyntheticCDORevision[] synthetics, int i)
-    {
-      if (!isLoadNeeded())
-      {
-        if (availableBranchVersion instanceof SyntheticCDORevision)
-        {
-          setSynthetic((SyntheticCDORevision)availableBranchVersion);
-        }
-        else
-        {
-          setResult((InternalCDORevision)availableBranchVersion);
-        }
-      }
-
-      super.processResult(revisionManager, results, synthetics, i);
-    }
-
     /**
      * @author Eike Stepper
      * @since 3.0
@@ -337,6 +326,18 @@ public abstract class RevisionInfo
         }
 
         return super.getResult();
+      }
+
+      @Override
+      public void processResult(InternalCDORevisionManager revisionManager, List<CDORevision> results,
+          SyntheticCDORevision[] synthetics, int i)
+      {
+        if (!isLoadNeeded())
+        {
+          setResult((InternalCDORevision)getAvailableBranchVersion());
+        }
+
+        super.processResult(revisionManager, results, synthetics, i);
       }
     }
 
@@ -406,6 +407,19 @@ public abstract class RevisionInfo
           out.writeBoolean(false);
         }
       }
+
+      @Override
+      public void processResult(InternalCDORevisionManager revisionManager, List<CDORevision> results,
+          SyntheticCDORevision[] synthetics, int i)
+      {
+        if (!isLoadNeeded())
+        {
+          setResult((InternalCDORevision)getTargetBranchVersion());
+          setSynthetic((PointerCDORevision)getAvailableBranchVersion());
+        }
+
+        super.processResult(revisionManager, results, synthetics, i);
+      }
     }
 
     /**
@@ -428,6 +442,18 @@ public abstract class RevisionInfo
       public Type getType()
       {
         return Type.AVAILABLE_DETACHED;
+      }
+
+      @Override
+      public void processResult(InternalCDORevisionManager revisionManager, List<CDORevision> results,
+          SyntheticCDORevision[] synthetics, int i)
+      {
+        if (!isLoadNeeded())
+        {
+          setSynthetic((DetachedCDORevision)getAvailableBranchVersion());
+        }
+
+        super.processResult(revisionManager, results, synthetics, i);
       }
     }
   }
