@@ -106,7 +106,7 @@ public abstract class AllTestsAllConfigs extends ConfigTestSuite
     testClasses.add(ChunkingWithMEMTest.class);
     testClasses.add(PackageRegistryTest.class);
     testClasses.add(MetaTest.class);
-    testClasses.add(RevisionDeltaTest.WithDeltaSupport.class);
+    testClasses.add(RevisionDeltaTest.class);
     testClasses.add(RevisionDeltaTest.WithoutDeltaSupport.class);
     testClasses.add(RevisionHolderTest.class);
     testClasses.add(IndexReconstructionTest.class);

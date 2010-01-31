@@ -13,12 +13,15 @@ package org.eclipse.emf.cdo.tests;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.common.revision.delta.CDOAddFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOClearFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOSetFeatureDelta;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.internal.common.revision.delta.CDOListFeatureDeltaImpl;
+import org.eclipse.emf.cdo.internal.server.mem.MEMStore;
+import org.eclipse.emf.cdo.server.IStore;
 import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
@@ -29,6 +32,8 @@ import org.eclipse.emf.cdo.tests.model1.SalesOrder;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.cdo.util.CDOUtil;
 import org.eclipse.emf.cdo.view.CDOView;
+
+import org.eclipse.net4j.util.io.IOUtil;
 
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
@@ -42,9 +47,9 @@ import junit.framework.Assert;
  * @see bug 201266
  * @author Simon McDuff
  */
-public abstract class RevisionDeltaTest extends AbstractCDOTest
+public class RevisionDeltaTest extends AbstractCDOTest
 {
-  protected RevisionDeltaTest()
+  public RevisionDeltaTest()
   {
   }
 
@@ -214,6 +219,13 @@ public abstract class RevisionDeltaTest extends AbstractCDOTest
     SalesOrder salesOrder = getModel1Factory().createSalesOrder();
     resource.getContents().add(salesOrder);
     customer.getSalesOrders().add(salesOrder);
+
+    IStore store = getRepository().getStore();
+    if (store instanceof MEMStore)
+    {
+      MEMStore memStore = (MEMStore)store;
+      CDORevisionUtil.dumpAllRevisions(memStore.getAllRevisions(), IOUtil.OUT());
+    }
 
     transaction.commit();
     transaction.close();
@@ -502,14 +514,6 @@ public abstract class RevisionDeltaTest extends AbstractCDOTest
   private static interface ListManipulator
   {
     public void doManipulations(EList<?> list);
-  }
-
-  /**
-   * @see bug 201266
-   * @author Simon McDuff
-   */
-  public static class WithDeltaSupport extends RevisionDeltaTest
-  {
   }
 
   /**
