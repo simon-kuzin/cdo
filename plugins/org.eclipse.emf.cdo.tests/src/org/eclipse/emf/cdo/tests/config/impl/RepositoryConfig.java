@@ -12,7 +12,9 @@
 package org.eclipse.emf.cdo.tests.config.impl;
 
 import org.eclipse.emf.cdo.internal.server.SessionManager;
-import org.eclipse.emf.cdo.internal.server.offline.OfflineRepository;
+import org.eclipse.emf.cdo.internal.server.offline.MasterInterface;
+import org.eclipse.emf.cdo.net4j.CDONet4jUtil;
+import org.eclipse.emf.cdo.net4j.CDOSessionConfiguration;
 import org.eclipse.emf.cdo.server.CDOServerUtil;
 import org.eclipse.emf.cdo.server.IQueryHandlerProvider;
 import org.eclipse.emf.cdo.server.IRepository;
@@ -27,11 +29,10 @@ import org.eclipse.emf.cdo.spi.server.InternalRepository;
 import org.eclipse.emf.cdo.spi.server.InternalSessionManager;
 import org.eclipse.emf.cdo.tests.config.IRepositoryConfig;
 
+import org.eclipse.net4j.connector.IConnector;
+import org.eclipse.net4j.jvm.JVMUtil;
 import org.eclipse.net4j.util.ObjectUtil;
 import org.eclipse.net4j.util.container.IManagedContainer;
-import org.eclipse.net4j.util.lifecycle.ILifecycle;
-import org.eclipse.net4j.util.lifecycle.LifecycleException;
-import org.eclipse.net4j.util.lifecycle.LifecycleState;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 import org.eclipse.net4j.util.security.IUserManager;
 
@@ -54,7 +55,7 @@ public abstract class RepositoryConfig extends Config implements IRepositoryConf
 
   private static final long serialVersionUID = 1L;
 
-  private transient Map<String, InternalRepository> repositories;
+  protected transient Map<String, InternalRepository> repositories;
 
   public RepositoryConfig(String name)
   {
@@ -238,47 +239,35 @@ public abstract class RepositoryConfig extends Config implements IRepositoryConf
     @Override
     protected InternalRepository createRepository(String name)
     {
-      InternalRepository delegate = super.createRepository(name);
-      LifecycleUtil.activate(delegate);
+      Map<String, String> props = getRepositoryProperties();
 
-      String userID = getUserID(getTestProperties());
-      return new TestOfflineRepository(delegate, userID);
+      String masterName = name + "_master";
+      IStore masterStore = createStore(masterName);
+      InternalRepository master = (InternalRepository)CDOServerUtil.createRepository(masterName, masterStore, props);
+
+      repositories.put(masterName, master);
+      LifecycleUtil.activate(master);
+
+      IManagedContainer container = getCurrentTest().getServerContainer();
+      container.getElement("org.eclipse.net4j.acceptors", "jvm", "master");
+      IConnector connector = (IConnector)container.getElement("org.eclipse.net4j.connectors", "jvm", "master");
+
+      CDOSessionConfiguration config = CDONet4jUtil.createSessionConfiguration();
+      config.setConnector(connector);
+      config.setRepositoryName(masterName);
+
+      MasterInterface masterInterface = new MasterInterface();
+      masterInterface.setSessionConfiguration(config);
+
+      IStore store = createStore(name);
+      return (InternalRepository)CDOServerUtil.createClonedRepository(name, store, props, masterInterface);
     }
 
-    protected String getUserID(Map<String, Object> properties)
+    @Override
+    public void setUp() throws Exception
     {
-      return "default";
-    }
-
-    /**
-     * @author Eike Stepper
-     */
-    public static class TestOfflineRepository extends OfflineRepository implements ILifecycle
-    {
-      public TestOfflineRepository(InternalRepository delegate, String userID)
-      {
-        super(delegate, userID);
-      }
-
-      public LifecycleState getLifecycleState()
-      {
-        return LifecycleUtil.getLifecycleState(getDelegate());
-      }
-
-      public boolean isActive()
-      {
-        return LifecycleUtil.isActive(getDelegate());
-      }
-
-      public void activate() throws LifecycleException
-      {
-        LifecycleUtil.activate(getDelegate());
-      }
-
-      public Exception deactivate()
-      {
-        return LifecycleUtil.deactivate(getDelegate());
-      }
+      JVMUtil.prepareContainer(getCurrentTest().getServerContainer());
+      super.setUp();
     }
   }
 }
