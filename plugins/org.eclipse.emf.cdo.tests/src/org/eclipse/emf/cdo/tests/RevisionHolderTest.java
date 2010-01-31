@@ -24,6 +24,8 @@ import org.eclipse.emf.cdo.internal.common.revision.cache.lru.RevisionHolder;
 import org.eclipse.emf.cdo.spi.common.branch.CDOBranchUtil;
 import org.eclipse.emf.cdo.spi.common.revision.StubCDORevision;
 
+import org.eclipse.emf.ecore.EClass;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -270,6 +272,12 @@ public class RevisionHolderTest extends AbstractCDOTest
     public TestRevision(long id)
     {
       this(id, 0, CDORevision.UNSPECIFIED_DATE);
+    }
+
+    @Override
+    public EClass getEClass()
+    {
+      return null;
     }
 
     @Override
