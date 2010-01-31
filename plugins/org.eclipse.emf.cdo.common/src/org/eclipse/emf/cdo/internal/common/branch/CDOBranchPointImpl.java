@@ -40,6 +40,18 @@ public class CDOBranchPointImpl implements CDOBranchPoint
     return timeStamp;
   }
 
+  public int compareTo(CDOBranchPoint o)
+  {
+    int result = branch.compareTo(o.getBranch());
+    if (result == 0)
+    {
+      long timeStamp2 = o.getTimeStamp();
+      result = timeStamp < timeStamp2 ? -1 : timeStamp == timeStamp2 ? 0 : 1;
+    }
+
+    return result;
+  }
+
   @Override
   public int hashCode()
   {

@@ -125,6 +125,11 @@ public class ResourcesQueryHandler implements IQueryHandler
 
       return true;
     }
+
+    public int compareTo(CDOBranchPoint o)
+    {
+      return branchPoint.compareTo(o);
+    }
   }
 
   /**

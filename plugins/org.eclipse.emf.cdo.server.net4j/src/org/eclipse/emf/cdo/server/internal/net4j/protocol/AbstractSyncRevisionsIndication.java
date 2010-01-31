@@ -87,12 +87,6 @@ public abstract class AbstractSyncRevisionsIndication extends CDOReadIndication
   {
     try
     {
-      // XXX Fix for branching!!
-      if (getRepository().isSupportingBranches())
-      {
-        throw new UnsupportedOperationException();
-      }
-
       CDOBranchPoint branchPoint = getRepository().getBranchManager().getMainBranch().getHead();
       InternalCDORevision revision = (InternalCDORevision)getRepository().getRevisionManager().getRevision(id,
           branchPoint, referenceChunk, CDORevision.DEPTH_NONE, true);
@@ -118,12 +112,6 @@ public abstract class AbstractSyncRevisionsIndication extends CDOReadIndication
 
   protected long getTimestamp(CDOID id, int version)
   {
-    // XXX Fix for branching!!
-    if (getRepository().isSupportingBranches())
-    {
-      throw new UnsupportedOperationException();
-    }
-
     CDOBranchVersion branchVersion = getRepository().getBranchManager().getMainBranch().getVersion(version);
     CDORevision revision = getRepository().getRevisionManager().getRevisionByVersion(id, branchVersion,
         CDORevision.DEPTH_NONE, false);

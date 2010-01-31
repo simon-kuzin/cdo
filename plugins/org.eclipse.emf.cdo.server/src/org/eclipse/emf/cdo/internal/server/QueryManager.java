@@ -292,5 +292,10 @@ public class QueryManager extends Lifecycle implements InternalQueryManager
       InternalView view = getQueryResult().getView();
       view.getSession().removeListener(sessionListener);
     }
+
+    public int compareTo(CDOBranchPoint o)
+    {
+      return branchPoint.compareTo(o);
+    }
   }
 }

@@ -40,6 +40,11 @@ public abstract class DelegatingCDORevision implements InternalCDORevision
 
   public abstract InternalCDORevision getDelegate();
 
+  public int compareTo(CDOBranchPoint o)
+  {
+    return getDelegate().compareTo(o);
+  }
+
   public void adjustReferences(CDOReferenceAdjuster revisionAdjuster)
   {
     getDelegate().adjustReferences(revisionAdjuster);

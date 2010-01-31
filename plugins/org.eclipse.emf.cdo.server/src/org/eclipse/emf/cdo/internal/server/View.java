@@ -153,6 +153,11 @@ public class View implements InternalView
     changeSubscriptionIDs.clear();
   }
 
+  public int compareTo(CDOBranchPoint o)
+  {
+    return branchPoint.compareTo(o);
+  }
+
   @Override
   public String toString()
   {

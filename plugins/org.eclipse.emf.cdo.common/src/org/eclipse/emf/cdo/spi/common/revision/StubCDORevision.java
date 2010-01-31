@@ -36,6 +36,11 @@ public class StubCDORevision extends AbstractCDORevision
   {
   }
 
+  public int compareTo(CDOBranchPoint o)
+  {
+    throw new UnsupportedOperationException();
+  }
+
   public CDOClassInfo getClassInfo()
   {
     throw new UnsupportedOperationException();

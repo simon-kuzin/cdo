@@ -20,13 +20,15 @@ import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.internal.net4j.bundle.OM;
 import org.eclipse.emf.cdo.internal.net4j.messages.Messages;
-import org.eclipse.emf.cdo.spi.common.branch.CDOBranchUtil;
+import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranch;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
 import org.eclipse.emf.cdo.transaction.CDORefreshContext;
 
 import org.eclipse.emf.internal.cdo.transaction.CDORefreshContextImpl;
 
 import org.eclipse.net4j.util.om.trace.ContextTracer;
+
+import org.eclipse.emf.spi.cdo.InternalCDOSession;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -59,6 +61,12 @@ public abstract class AbstractSyncRevisionsRequest extends CDOClientRequest<Coll
   @Override
   protected void requesting(CDODataOutput out) throws IOException
   {
+    // XXX Fix for branching!!
+    if (getSession().getRepositoryInfo().isSupportingBranches())
+    {
+      throw new UnsupportedOperationException();
+    }
+
     if (TRACER.isEnabled())
     {
       TRACER.trace("Synchronization " + idAndVersions.size() + " objects"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -75,7 +83,10 @@ public abstract class AbstractSyncRevisionsRequest extends CDOClientRequest<Coll
   @Override
   protected Collection<CDORefreshContext> confirming(CDODataInput in) throws IOException
   {
-    InternalCDORevisionManager revisionManager = getSession().getRevisionManager();
+    InternalCDOSession session = getSession();
+    InternalCDORevisionManager revisionManager = session.getRevisionManager();
+    InternalCDOBranch mainBranch = session.getBranchManager().getMainBranch();
+
     Map<CDOBranchPoint, CDORefreshContext> refreshContexts = new TreeMap<CDOBranchPoint, CDORefreshContext>();
 
     int size = in.readInt();
@@ -83,7 +94,7 @@ public abstract class AbstractSyncRevisionsRequest extends CDOClientRequest<Coll
     {
       CDORevision revision = in.readCDORevision();
       long oldRevised = in.readLong();
-      CDOBranchPoint branchPoint = CDOBranchUtil.createBranchPoint(revision.getBranch(), oldRevised);
+      CDOBranchPoint branchPoint = mainBranch.getPoint(oldRevised);
 
       CDOIDAndVersion idAndVersion = idAndVersions.get(revision.getID());
       if (idAndVersion == null)
@@ -107,7 +118,8 @@ public abstract class AbstractSyncRevisionsRequest extends CDOClientRequest<Coll
     for (int i = 0; i < size; i++)
     {
       CDOID id = in.readCDOID();
-      CDOBranchPoint branchPoint = in.readCDOBranchPoint();
+      long revised = in.readLong();
+      CDOBranchPoint branchPoint = mainBranch.getPoint(revised);
 
       Collection<CDOID> detachedObjects = getRefreshContext(refreshContexts, branchPoint).getDetachedObjects();
       detachedObjects.add(id);

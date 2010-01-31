@@ -1585,6 +1585,11 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     return !isActive();
   }
 
+  public int compareTo(CDOBranchPoint o)
+  {
+    return branchPoint.compareTo(o);
+  }
+
   @Override
   public String toString()
   {

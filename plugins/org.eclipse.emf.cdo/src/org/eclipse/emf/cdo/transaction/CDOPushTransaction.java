@@ -12,6 +12,7 @@ package org.eclipse.emf.cdo.transaction;
 
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.commit.CDOCommit;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
@@ -285,6 +286,11 @@ public class CDOPushTransaction extends Notifier implements CDOTransaction
   {
     delegate.removeTransactionHandler(delegateHandler);
     delegate.close();
+  }
+
+  public int compareTo(CDOBranchPoint o)
+  {
+    return delegate.compareTo(o);
   }
 
   public CDOQuery createQuery(String language, String queryString)

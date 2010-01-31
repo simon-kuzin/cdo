@@ -350,6 +350,11 @@ public abstract class BaseCDORevision extends AbstractCDORevision
     return (InternalCDORevisionDelta)CDORevisionDeltaUtil.create(origin, this);
   }
 
+  public int compareTo(CDOBranchPoint o)
+  {
+    return branchPoint.compareTo(o);
+  }
+
   public void merge(CDORevisionDelta delta)
   {
     CDORevisionMerger applier = new CDORevisionMerger();
