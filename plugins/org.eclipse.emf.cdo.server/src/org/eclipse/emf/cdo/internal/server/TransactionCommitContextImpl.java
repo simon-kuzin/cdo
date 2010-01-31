@@ -476,7 +476,7 @@ public class TransactionCommitContextImpl implements InternalCommitContext
     {
       if (loadOnDemand)
       {
-        // make sure all chunks are loaded
+        // Make sure all chunks are loaded
         for (EStructuralFeature feature : CDOModelUtil.getAllPersistentFeatures(originObject.getEClass()))
         {
           if (feature.isMany())
@@ -530,7 +530,7 @@ public class TransactionCommitContextImpl implements InternalCommitContext
 
   public synchronized void rollback(String message)
   {
-    // Check if we already rolledBack
+    // Check if we already rolled back
     if (rollbackMessage == null)
     {
       rollbackMessage = message;
