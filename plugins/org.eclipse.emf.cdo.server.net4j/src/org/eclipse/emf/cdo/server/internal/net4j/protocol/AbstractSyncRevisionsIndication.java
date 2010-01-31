@@ -11,6 +11,8 @@
  */
 package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
@@ -86,8 +88,14 @@ public abstract class AbstractSyncRevisionsIndication extends CDOReadIndication
     try
     {
       // XXX Fix for branching!!
-      InternalCDORevision revision = (InternalCDORevision)getRepository().getRevisionManager().getRevision(id, null,
-          referenceChunk, CDORevision.DEPTH_NONE, true);
+      if (getRepository().isSupportingBranches())
+      {
+        throw new UnsupportedOperationException();
+      }
+
+      CDOBranchPoint branchPoint = getRepository().getBranchManager().getMainBranch().getHead();
+      InternalCDORevision revision = (InternalCDORevision)getRepository().getRevisionManager().getRevision(id,
+          branchPoint, referenceChunk, CDORevision.DEPTH_NONE, true);
       if (revision == null)
       {
         detachedObjects.add(new Pair<CDOID, Long>(id, getTimestamp(id, version)));
@@ -111,8 +119,14 @@ public abstract class AbstractSyncRevisionsIndication extends CDOReadIndication
   protected long getTimestamp(CDOID id, int version)
   {
     // XXX Fix for branching!!
-    CDORevision revision = getRepository().getRevisionManager().getRevisionByVersion(id, null, CDORevision.DEPTH_NONE,
-        false);
+    if (getRepository().isSupportingBranches())
+    {
+      throw new UnsupportedOperationException();
+    }
+
+    CDOBranchVersion branchVersion = getRepository().getBranchManager().getMainBranch().getVersion(version);
+    CDORevision revision = getRepository().getRevisionManager().getRevisionByVersion(id, branchVersion,
+        CDORevision.DEPTH_NONE, false);
     if (revision != null)
     {
       return revision.getRevised() + 1;
