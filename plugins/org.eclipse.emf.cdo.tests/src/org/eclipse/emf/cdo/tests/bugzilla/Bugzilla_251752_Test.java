@@ -51,7 +51,7 @@ public class Bugzilla_251752_Test extends AbstractCDOTest
       // Success
     }
 
-    assertEquals(0, res.cdoRevision().getVersion());
+    assertEquals(1, res.cdoRevision().getVersion());
   }
 
   public void testBug_251752_XA() throws Exception
@@ -80,6 +80,6 @@ public class Bugzilla_251752_Test extends AbstractCDOTest
       // Success
     }
 
-    assertEquals(0, res.cdoRevision().getVersion());
+    assertEquals(1, res.cdoRevision().getVersion());
   }
 }

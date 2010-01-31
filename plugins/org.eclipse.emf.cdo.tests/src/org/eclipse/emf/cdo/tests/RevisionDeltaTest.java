@@ -105,7 +105,7 @@ public abstract class RevisionDeltaTest extends AbstractCDOTest
 
   /**
    * Sending deltas doesn't adjust CDOIDs
-   *
+   * 
    * @see bug 214374
    */
   public void testBugzilla214374() throws Exception
@@ -139,7 +139,7 @@ public abstract class RevisionDeltaTest extends AbstractCDOTest
 
   /**
    * CDOView.getRevision() does not work for transactions/dirty objects (INVALID)
-   *
+   * 
    * @see bug 214431
    */
   public void testBugzilla214431() throws Exception
@@ -163,7 +163,7 @@ public abstract class RevisionDeltaTest extends AbstractCDOTest
 
   /**
    * CDOView.getRevision() does not work for transactions/dirty objects (INVALID)
-   *
+   * 
    * @see bug 214374
    */
   public void testBugzilla214374_HandleClear() throws Exception
@@ -193,7 +193,7 @@ public abstract class RevisionDeltaTest extends AbstractCDOTest
 
   /**
    * java.lang.IllegalStateException with MEMStore
-   *
+   * 
    * @see bug 243282
    */
   public void testBugzilla243282_Exception() throws Exception
@@ -499,5 +499,21 @@ public abstract class RevisionDeltaTest extends AbstractCDOTest
   private interface ListManipulator
   {
     void doManipulations(EList<?> list);
+  }
+
+  /**
+   * @see bug 201266
+   * @author Simon McDuff
+   */
+  public static class WithDeltaSupport extends RevisionDeltaTest
+  {
+  }
+
+  /**
+   * @see bug 201266
+   * @author Simon McDuff
+   */
+  public static class WithoutDeltaSupport extends RevisionDeltaTest
+  {
   }
 }
