@@ -29,6 +29,7 @@ import org.eclipse.emf.cdo.spi.server.InternalRepository;
 import org.eclipse.emf.cdo.spi.server.InternalSessionManager;
 import org.eclipse.emf.cdo.tests.config.IRepositoryConfig;
 
+import org.eclipse.net4j.acceptor.IAcceptor;
 import org.eclipse.net4j.connector.IConnector;
 import org.eclipse.net4j.jvm.JVMUtil;
 import org.eclipse.net4j.util.ObjectUtil;
@@ -225,9 +226,18 @@ public abstract class RepositoryConfig extends Config implements IRepositoryConf
 
     private static final long serialVersionUID = 1L;
 
+    private IAcceptor masterAcceptor;
+
     public MEMOffline()
     {
       super("MEM_OFFLINE");
+    }
+
+    @Override
+    public void setUp() throws Exception
+    {
+      JVMUtil.prepareContainer(getCurrentTest().getServerContainer());
+      super.setUp();
     }
 
     @Override
@@ -248,8 +258,9 @@ public abstract class RepositoryConfig extends Config implements IRepositoryConf
       repositories.put(masterName, master);
       LifecycleUtil.activate(master);
 
+      startMasterTransport();
+
       IManagedContainer container = getCurrentTest().getServerContainer();
-      container.getElement("org.eclipse.net4j.acceptors", "jvm", "master");
       IConnector connector = (IConnector)container.getElement("org.eclipse.net4j.connectors", "jvm", "master");
 
       CDOSessionConfiguration config = CDONet4jUtil.createSessionConfiguration();
@@ -263,11 +274,22 @@ public abstract class RepositoryConfig extends Config implements IRepositoryConf
       return (InternalRepository)CDOServerUtil.createClonedRepository(name, store, props, masterInterface);
     }
 
-    @Override
-    public void setUp() throws Exception
+    public void startMasterTransport()
     {
-      JVMUtil.prepareContainer(getCurrentTest().getServerContainer());
-      super.setUp();
+      if (masterAcceptor == null)
+      {
+        IManagedContainer container = getCurrentTest().getServerContainer();
+        masterAcceptor = (IAcceptor)container.getElement("org.eclipse.net4j.acceptors", "jvm", "master");
+      }
+    }
+
+    public void stopMasterTransport()
+    {
+      if (masterAcceptor != null)
+      {
+        masterAcceptor.close();
+        masterAcceptor = null;
+      }
     }
   }
 }

@@ -10,10 +10,15 @@
  */
 package org.eclipse.emf.cdo.internal.server.offline;
 
+import org.eclipse.emf.cdo.internal.server.bundle.OM;
 import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.session.CDOSessionConfiguration;
 
+import org.eclipse.net4j.util.concurrent.ConcurrencyUtil;
+import org.eclipse.net4j.util.event.IListener;
+import org.eclipse.net4j.util.lifecycle.ILifecycle;
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
+import org.eclipse.net4j.util.lifecycle.LifecycleEventAdapter;
 
 /**
  * @author Eike Stepper
@@ -24,7 +29,21 @@ public class MasterInterface extends Lifecycle
 
   private CDOSession session;
 
-  // private State state = State.OFFLINE;
+  private IListener sessionListener = new LifecycleEventAdapter()
+  {
+    @Override
+    protected void onDeactivated(ILifecycle lifecycle)
+    {
+      session.removeListener(sessionListener);
+      session = null;
+      connect();
+    }
+  };
+
+  /**
+   * TODO Make configurable
+   */
+  private int retryInterval = 3;
 
   public MasterInterface()
   {
@@ -64,11 +83,47 @@ public class MasterInterface extends Lifecycle
 
   private void connect()
   {
-    session = sessionConfiguration.openSession();
+    while (session == null)
+    {
+      if (!isActive())
+      {
+        return;
+      }
+
+      try
+      {
+        OM.LOG.info("Connecting to master...");
+        session = sessionConfiguration.openSession();
+      }
+      catch (Exception ex)
+      {
+        if (!isActive())
+        {
+          return;
+        }
+
+        OM.LOG.warn("Connection attempt failed. Retrying in " + retryInterval + " seconds...");
+        ConcurrencyUtil.sleep(1000L * retryInterval); // TODO Respect deactivation
+      }
+    }
+
+    OM.LOG.info("Connected to master");
+    session.addListener(sessionListener);
+    sync();
+  }
+
+  private void sync()
+  {
+    OM.LOG.info("Synchronizing with master...");
+
+    OM.LOG.info("Synchronized with master.");
   }
 
   private void disconnect()
   {
+    session.removeListener(sessionListener);
+    session.close();
+    session = null;
   }
 
   /**

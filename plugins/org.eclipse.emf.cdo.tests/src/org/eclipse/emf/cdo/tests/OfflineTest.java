@@ -20,6 +20,13 @@ import org.eclipse.emf.cdo.transaction.CDOTransaction;
  */
 public class OfflineTest extends AbstractCDOTest
 {
+  @Override
+  protected void doSetUp() throws Exception
+  {
+    skipUnlessConfig(MEM_OFFLINE);
+    super.doSetUp();
+  }
+
   public void testNewObjectDeletion() throws Exception
   {
     CDOSession session = openModel1Session();
