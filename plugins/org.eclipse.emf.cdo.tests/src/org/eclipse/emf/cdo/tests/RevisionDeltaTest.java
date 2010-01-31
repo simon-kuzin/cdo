@@ -496,9 +496,12 @@ public abstract class RevisionDeltaTest extends AbstractCDOTest
     }
   }
 
-  private interface ListManipulator
+  /**
+   * @author Simon McDuff
+   */
+  private static interface ListManipulator
   {
-    void doManipulations(EList<?> list);
+    public void doManipulations(EList<?> list);
   }
 
   /**

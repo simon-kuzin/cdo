@@ -483,7 +483,6 @@ public class TransactionCommitContextImpl implements InternalCommitContext
           if (feature.isMany())
           {
             InternalCDORevision internalOriginObject = (InternalCDORevision)originObject;
-            // TODO ensureChunk should get promoted to API because the cast is not really nice here.
             repository.ensureChunk(internalOriginObject, feature, 0, internalOriginObject.getList(feature).size());
           }
         }
