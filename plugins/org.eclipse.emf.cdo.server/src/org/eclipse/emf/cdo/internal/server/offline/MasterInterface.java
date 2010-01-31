@@ -78,7 +78,9 @@ public class MasterInterface extends Lifecycle
   @Override
   protected void doDeactivate() throws Exception
   {
-    disconnect();
+    session.removeListener(sessionListener);
+    session.close();
+    session = null;
     super.doDeactivate();
   }
 
@@ -110,13 +112,6 @@ public class MasterInterface extends Lifecycle
     OM.LOG.info("Synchronizing with master...");
 
     OM.LOG.info("Synchronized with master.");
-  }
-
-  private void disconnect()
-  {
-    session.removeListener(sessionListener);
-    session.close();
-    session = null;
   }
 
   private void exitIfInactive()
