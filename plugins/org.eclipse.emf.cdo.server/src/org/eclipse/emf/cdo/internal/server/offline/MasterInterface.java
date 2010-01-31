@@ -34,6 +34,7 @@ public class MasterInterface extends Lifecycle
     @Override
     protected void onDeactivated(ILifecycle lifecycle)
     {
+      OM.LOG.info("Disconnected from master.");
       session.removeListener(sessionListener);
       session = null;
       connect();
@@ -85,23 +86,15 @@ public class MasterInterface extends Lifecycle
   {
     while (session == null)
     {
-      if (!isActive())
-      {
-        return;
-      }
-
       try
       {
+        exitIfInactive();
         OM.LOG.info("Connecting to master...");
         session = sessionConfiguration.openSession();
       }
       catch (Exception ex)
       {
-        if (!isActive())
-        {
-          return;
-        }
-
+        exitIfInactive();
         OM.LOG.warn("Connection attempt failed. Retrying in " + retryInterval + " seconds...");
         ConcurrencyUtil.sleep(1000L * retryInterval); // TODO Respect deactivation
       }
@@ -124,6 +117,17 @@ public class MasterInterface extends Lifecycle
     session.removeListener(sessionListener);
     session.close();
     session = null;
+  }
+
+  private void exitIfInactive()
+  {
+    switch (getLifecycleState())
+    {
+    case DEACTIVATING:
+      throw new IllegalStateException("Deactivating");
+    case INACTIVE:
+      throw new IllegalStateException("Inactive");
+    }
   }
 
   /**
