@@ -112,12 +112,15 @@ public abstract class AbstractSyncRevisionsIndication extends CDOReadIndication
 
   protected long getTimestamp(CDOID id, int version)
   {
-    CDOBranchVersion branchVersion = getRepository().getBranchManager().getMainBranch().getVersion(version);
-    CDORevision revision = getRepository().getRevisionManager().getRevisionByVersion(id, branchVersion,
-        CDORevision.DEPTH_NONE, false);
-    if (revision != null)
+    if (version > CDOBranchVersion.UNSPECIFIED_VERSION)
     {
-      return revision.getRevised() + 1;
+      CDOBranchVersion branchVersion = getRepository().getBranchManager().getMainBranch().getVersion(version);
+      CDORevision revision = getRepository().getRevisionManager().getRevisionByVersion(id, branchVersion,
+          CDORevision.DEPTH_NONE, false);
+      if (revision != null)
+      {
+        return revision.getRevised() + 1;
+      }
     }
 
     return CDORevision.UNSPECIFIED_DATE;

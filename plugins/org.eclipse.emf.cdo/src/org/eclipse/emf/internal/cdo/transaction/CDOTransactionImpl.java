@@ -656,7 +656,6 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
   public CDOCommit commit(IProgressMonitor progressMonitor) throws TransactionException
   {
     checkActive();
-    // TODO Consider fixing Bug 294700 without this commit lock.
     synchronized (getSession().getCommitLock())
     {
       getLock().lock();
@@ -887,7 +886,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
       }
     }
 
-    dirty = savepoint.isDirty();
+    dirty = savepoint.wasDirty();
   }
 
   /**

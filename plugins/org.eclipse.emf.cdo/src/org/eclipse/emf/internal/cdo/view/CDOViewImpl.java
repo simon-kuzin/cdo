@@ -94,6 +94,7 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.emf.spi.cdo.CDOSessionProtocol;
 import org.eclipse.emf.spi.cdo.InternalCDOObject;
 import org.eclipse.emf.spi.cdo.InternalCDOSession;
 import org.eclipse.emf.spi.cdo.InternalCDOTransaction;
@@ -329,7 +330,8 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     }
 
     List<InternalCDOObject> invalidObjects = getInvalidObjects(timeStamp);
-    boolean[] existanceFlags = getSession().getSessionProtocol().changeView(viewID, branchPoint, invalidObjects);
+    CDOSessionProtocol sessionProtocol = getSession().getSessionProtocol();
+    boolean[] existanceFlags = sessionProtocol.changeView(viewID, branchPoint, invalidObjects);
     this.branchPoint = branchPoint;
     int i = 0;
     for (InternalCDOObject invalidObject : invalidObjects)
@@ -398,6 +400,14 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
   {
     checkActive();
     Map<CDOID, CDOIDAndVersion> uniqueObjects = new HashMap<CDOID, CDOIDAndVersion>();
+
+    // synchronized (session.getCommitLock())
+    // {
+    // getLock().lock();
+    //
+    // try
+    // {
+
     getCDOIDAndVersion(uniqueObjects, objects);
     for (CDOObject object : objects)
     {
@@ -409,7 +419,15 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
       }
     }
 
-    session.getSessionProtocol().lockObjects(this, uniqueObjects, timeout, lockType);
+    CDOSessionProtocol sessionProtocol = session.getSessionProtocol();
+    sessionProtocol.lockObjects(this, uniqueObjects, timeout, lockType);
+
+    // }
+    // finally
+    // {
+    // getLock().unlock();
+    // }
+    // }
   }
 
   /**
@@ -418,7 +436,8 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
   public void unlockObjects(Collection<? extends CDOObject> objects, LockType lockType)
   {
     checkActive();
-    session.getSessionProtocol().unlockObjects(this, objects, lockType);
+    CDOSessionProtocol sessionProtocol = session.getSessionProtocol();
+    sessionProtocol.unlockObjects(this, objects, lockType);
   }
 
   /**
@@ -435,7 +454,8 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
   public boolean isObjectLocked(CDOObject object, LockType lockType, boolean byOthers)
   {
     checkActive();
-    return session.getSessionProtocol().isObjectLocked(this, object, lockType, byOthers);
+    CDOSessionProtocol sessionProtocol = session.getSessionProtocol();
+    return sessionProtocol.isObjectLocked(this, object, lockType, byOthers);
   }
 
   public boolean isDirty()
@@ -1645,7 +1665,8 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
   @Override
   protected void doActivate() throws Exception
   {
-    session.getSessionProtocol().openView(getViewID(), this, isReadOnly());
+    CDOSessionProtocol sessionProtocol = session.getSessionProtocol();
+    sessionProtocol.openView(viewID, this, isReadOnly());
   }
 
   /**
@@ -1656,7 +1677,8 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
   {
     try
     {
-      session.getSessionProtocol().closeView(getViewID());
+      CDOSessionProtocol sessionProtocol = session.getSessionProtocol();
+      sessionProtocol.closeView(viewID);
     }
     catch (Exception ex)
     {
@@ -1904,7 +1926,9 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
 
     protected void request(List<CDOID> ids, boolean clear, boolean subscribeMode)
     {
-      view.session.getSessionProtocol().changeSubscription(view.getViewID(), ids, subscribeMode, clear);
+      CDOSessionProtocol sessionProtocol = view.session.getSessionProtocol();
+      int viewID = view.getViewID();
+      sessionProtocol.changeSubscription(viewID, ids, subscribeMode, clear);
     }
 
     protected int getNumberOfValidAdapter(InternalCDOObject object)
