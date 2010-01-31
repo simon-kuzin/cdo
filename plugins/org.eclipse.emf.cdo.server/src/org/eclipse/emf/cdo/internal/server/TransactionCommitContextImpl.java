@@ -471,8 +471,7 @@ public class TransactionCommitContextImpl implements InternalCommitContext
     InternalRepository repository = transaction.getRepository();
     InternalCDORevisionManager revisionManager = repository.getRevisionManager();
 
-    CDORevision originObject = revisionManager.getRevisionByVersion(id, dirtyObjectDelta, CDORevision.UNCHUNKED,
-        loadOnDemand);
+    CDORevision originObject = revisionManager.getRevisionByVersion(id, dirtyObjectDelta, CDORevision.UNCHUNKED, true);
     if (originObject != null)
     {
       if (loadOnDemand)

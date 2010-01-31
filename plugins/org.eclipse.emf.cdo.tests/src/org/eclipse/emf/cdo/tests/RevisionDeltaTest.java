@@ -515,12 +515,4 @@ public class RevisionDeltaTest extends AbstractCDOTest
   {
     public void doManipulations(EList<?> list);
   }
-
-  /**
-   * @see bug 201266
-   * @author Simon McDuff
-   */
-  public static class WithoutDeltaSupport extends RevisionDeltaTest
-  {
-  }
 }
