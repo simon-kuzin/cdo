@@ -602,7 +602,7 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
   }
 
   @Override
-  protected void detachObjects(CDOID[] detachedObjects, CDOBranch branch, long revised, OMMonitor monitor)
+  protected void detachObjects(CDOID[] detachedObjects, CDOBranch branch, long timeStamp, OMMonitor monitor)
   {
     // handled by the write method
   }

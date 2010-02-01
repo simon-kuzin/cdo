@@ -258,20 +258,20 @@ public class MEMStoreAccessor extends LongIDStoreAccessor
   }
 
   @Override
-  protected void detachObjects(CDOID[] detachedObjects, CDOBranch branch, long revised, OMMonitor monitor)
+  protected void detachObjects(CDOID[] detachedObjects, CDOBranch branch, long timeStamp, OMMonitor monitor)
   {
     for (CDOID id : detachedObjects)
     {
-      detachObject(id, branch, revised);
+      detachObject(id, branch, timeStamp);
     }
   }
 
   /**
    * @since 3.0
    */
-  protected void detachObject(CDOID id, CDOBranch branch, long revised)
+  protected void detachObject(CDOID id, CDOBranch branch, long timeStamp)
   {
-    getStore().detachObject(id, branch, revised);
+    getStore().detachObject(id, branch, timeStamp);
   }
 
   /**

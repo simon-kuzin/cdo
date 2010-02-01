@@ -91,12 +91,12 @@ public interface IClassMapping
    *          the accessor to use.
    * @param id
    *          the ID of the object to remove.
-   * @param revised
+   * @param timeStamp
    *          the timeStamp when this object became detached.
    * @param monitor
    *          the monitor to indicate progress.
    */
-  public void detachObject(IDBStoreAccessor dbStoreAccessor, CDOID id, long revised, OMMonitor monitor);
+  public void detachObject(IDBStoreAccessor dbStoreAccessor, CDOID id, long timeStamp, OMMonitor monitor);
 
   /**
    * Create a prepared statement which returns all IDs of instances of the corresponding class.

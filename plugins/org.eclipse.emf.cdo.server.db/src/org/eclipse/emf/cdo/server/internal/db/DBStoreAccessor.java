@@ -344,7 +344,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
   }
 
   @Override
-  protected void detachObjects(CDOID[] detachedObjects, CDOBranch branch, long revised, OMMonitor monitor)
+  protected void detachObjects(CDOID[] detachedObjects, CDOBranch branch, long timeStamp, OMMonitor monitor)
   {
     try
     {
@@ -355,7 +355,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
           monitor.begin(detachedObjects.length);
           for (CDOID id : detachedObjects)
           {
-            detachObject(id, revised, branch, monitor.fork());
+            detachObject(id, timeStamp, branch, monitor.fork());
           }
         }
       }
@@ -364,7 +364,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
         monitor.begin(detachedObjects.length);
         for (CDOID id : detachedObjects)
         {
-          detachObject(id, revised, monitor.fork());
+          detachObject(id, timeStamp, monitor.fork());
         }
       }
     }
@@ -377,7 +377,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
   /**
    * @since 2.0
    */
-  protected void detachObject(CDOID id, long revised, OMMonitor monitor)
+  protected void detachObject(CDOID id, long timeStamp, OMMonitor monitor)
   {
     if (TRACER.isEnabled())
     {
@@ -388,7 +388,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
     IClassMapping mapping = mappingStrategy.getClassMapping(eClass);
 
-    mapping.detachObject(this, id, revised, monitor);
+    mapping.detachObject(this, id, timeStamp, monitor);
   }
 
   /**

@@ -258,14 +258,8 @@ public class Bugzilla_273565_Test extends AbstractCDOTest
     CDOUtil.getCDOObject(orderDetail).cdoWriteLock().lock();
     orderDetail.setPrice(2);
 
-    try
-    {
-      CDOUtil.getCDOObject(orderDetail2).cdoWriteLock().tryLock(DEFAULT_TIMEOUT_EXPECTED, TimeUnit.MILLISECONDS);
-      fail("IllegalStateException expected");
-    }
-    catch (IllegalStateException expected)
-    {
-      // Success
-    }
+    boolean locked = CDOUtil.getCDOObject(orderDetail2).cdoWriteLock().tryLock(DEFAULT_TIMEOUT_EXPECTED,
+        TimeUnit.MILLISECONDS);
+    assertEquals(false, locked);
   }
 }

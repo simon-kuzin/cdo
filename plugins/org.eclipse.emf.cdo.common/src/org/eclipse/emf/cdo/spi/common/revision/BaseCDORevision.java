@@ -334,7 +334,7 @@ public abstract class BaseCDORevision extends AbstractCDORevision
     long created = branchPoint.getTimeStamp();
     if (revised != UNSPECIFIED_DATE && revised < Math.max(0, created))
     {
-      throw new IllegalArgumentException("created=" + created + ", revised=" + revised);
+      throw new IllegalArgumentException("revision=" + this + ", created=" + created + ", revised=" + revised);
     }
 
     if (TRACER.isEnabled())

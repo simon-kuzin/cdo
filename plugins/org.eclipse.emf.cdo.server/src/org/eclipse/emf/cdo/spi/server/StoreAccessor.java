@@ -143,7 +143,7 @@ public abstract class StoreAccessor extends Lifecycle implements IStoreAccessor
 
       if (detachedObjects.length != 0)
       {
-        detachObjects(detachedObjects, branch, timeStamp - 1, monitor.fork(detachedObjects.length));
+        detachObjects(detachedObjects, branch, timeStamp, monitor.fork(detachedObjects.length));
       }
 
       if (newObjects.length != 0)
@@ -211,7 +211,7 @@ public abstract class StoreAccessor extends Lifecycle implements IStoreAccessor
   /**
    * @since 3.0
    */
-  protected abstract void detachObjects(CDOID[] detachedObjects, CDOBranch branch, long revised, OMMonitor monitor);
+  protected abstract void detachObjects(CDOID[] detachedObjects, CDOBranch branch, long timeStamp, OMMonitor monitor);
 
   @Override
   protected abstract void doActivate() throws Exception;

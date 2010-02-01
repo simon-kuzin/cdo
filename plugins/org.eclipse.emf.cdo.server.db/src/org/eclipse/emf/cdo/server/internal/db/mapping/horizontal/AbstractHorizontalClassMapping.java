@@ -264,19 +264,19 @@ public abstract class AbstractHorizontalClassMapping implements IClassMapping
     }
   }
 
-  public final void detachObject(IDBStoreAccessor accessor, CDOID id, long revised, OMMonitor monitor)
+  public final void detachObject(IDBStoreAccessor accessor, CDOID id, long timeStamp, OMMonitor monitor)
   {
     Async async = null;
     try
     {
       monitor.begin(getListMappings().size() + 1);
       async = monitor.forkAsync();
-      reviseObject(accessor, id, revised);
+      reviseObject(accessor, id, timeStamp);
       async.stop();
       async = monitor.forkAsync(getListMappings().size());
       for (IListMapping mapping : getListMappings())
       {
-        mapping.objectRevised(accessor, id, revised);
+        mapping.objectRevised(accessor, id, timeStamp);
       }
     }
     finally
