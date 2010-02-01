@@ -49,6 +49,10 @@ public class CommitNotificationIndication extends CDOClientIndication
   protected void indicating(CDODataInput in) throws IOException
   {
     CDOBranchPoint branchPoint = in.readCDOBranchPoint();
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("Read branchpoint: {0}", branchPoint); //$NON-NLS-1$
+    }
 
     CDOPackageUnit[] packageUnits = in.readCDOPackageUnits(null);
     InternalCDOPackageRegistry packageRegistry = getSession().getPackageRegistry();

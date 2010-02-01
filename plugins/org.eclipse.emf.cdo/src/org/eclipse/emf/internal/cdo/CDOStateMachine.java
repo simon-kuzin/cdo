@@ -756,33 +756,12 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
       object.cdoInternalSetID(id);
       object.cdoInternalSetView(transaction);
 
-      // Construct a new revision if the old one is not transactional
-      InternalCDORevision revision;
-      EClass eClass = object.eClass();
-      // if (!formerRevision.isTransactional())
-      // {
-      // CDORevisionFactory factory = revisionManager.getFactory();
-      // revision = (InternalCDORevision)factory.createRevision(eClass);
-      // revision.setID(id);
-      // revision.setBranchPoint(transaction.getBranch().getHead());
-      // revision.setVersion(formerRevision.getVersion());
-      // }
-      // else
-      {
-        // This branch only gets taken if the object that is being re-attached,
-        // was already DIRTY when it was first detached. In this case, the revision
-        // is already transactional; we clear it before repopulating it.
-
-        revision = formerRevision;
-        for (int i = 0; i < eClass.getFeatureCount(); i++)
-        {
-          EStructuralFeature eFeature = object.cdoInternalDynamicFeature(i);
-          if (!eFeature.isTransient())
-          {
-            revision.clear(eFeature);
-          }
-        }
-      }
+      // Construct a new revision
+      CDORevisionFactory factory = revisionManager.getFactory();
+      InternalCDORevision revision = (InternalCDORevision)factory.createRevision(object.eClass());
+      revision.setID(id);
+      revision.setBranchPoint(transaction.getBranch().getHead());
+      revision.setVersion(formerRevision.getVersion());
 
       // Populate the revision based on the values in the CDOObject
       object.cdoInternalSetRevision(revision);
