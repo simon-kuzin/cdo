@@ -656,7 +656,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
   public CDOCommit commit(IProgressMonitor progressMonitor) throws TransactionException
   {
     checkActive();
-    synchronized (getSession().getCommitLock())
+    synchronized (getSession().getInvalidationLock())
     {
       getLock().lock();
 
@@ -1586,15 +1586,15 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
    */
   @Override
   public Set<CDOObject> handleInvalidationWithoutNotification(Set<CDOIDAndVersion> dirtyOIDs,
-      Collection<CDOID> detachedOIDs, Set<InternalCDOObject> dirtyObjects, Set<InternalCDOObject> detachedObjects)
+      Collection<CDOID> detachedOIDs, Set<InternalCDOObject> dirtyObjects, Set<InternalCDOObject> detachedObjects,
+      boolean async)
   {
     // Bugzilla 298561: This override removes references to remotely
     // detached objects that are present in any DIRTY or NEW objects
-
     removeCrossReferences(getDirtyObjects().values(), detachedOIDs);
     removeCrossReferences(getNewObjects().values(), detachedOIDs);
 
-    return super.handleInvalidationWithoutNotification(dirtyOIDs, detachedOIDs, dirtyObjects, detachedObjects);
+    return super.handleInvalidationWithoutNotification(dirtyOIDs, detachedOIDs, dirtyObjects, detachedObjects, async);
   }
 
   private void removeCrossReferences(Collection<CDOObject> objects, Collection<CDOID> referencedOIDs)

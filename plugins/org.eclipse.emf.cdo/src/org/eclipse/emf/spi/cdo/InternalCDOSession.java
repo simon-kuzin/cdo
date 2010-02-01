@@ -108,7 +108,7 @@ public interface InternalCDOSession extends CDOSession, PackageProcessor, Packag
   /**
    * @since 3.0
    */
-  public Object getCommitLock();
+  public Object getInvalidationLock();
 
   /**
    * @since 3.0

@@ -401,33 +401,32 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     checkActive();
     Map<CDOID, CDOIDAndVersion> uniqueObjects = new HashMap<CDOID, CDOIDAndVersion>();
 
-    // synchronized (session.getCommitLock())
-    // {
-    // getLock().lock();
-    //
-    // try
-    // {
-
-    getCDOIDAndVersion(uniqueObjects, objects);
-    for (CDOObject object : objects)
+    synchronized (session.getInvalidationLock())
     {
-      CDOIDAndVersion idAndVersion = uniqueObjects.get(object.cdoID());
-      if (idAndVersion == null)
+      getLock().lock();
+
+      try
       {
-        uniqueObjects
-            .put(object.cdoID(), CDOIDUtil.createIDAndVersion(object.cdoID(), CDORevision.UNSPECIFIED_VERSION));
+
+        getCDOIDAndVersion(uniqueObjects, objects);
+        for (CDOObject object : objects)
+        {
+          CDOIDAndVersion idAndVersion = uniqueObjects.get(object.cdoID());
+          if (idAndVersion == null)
+          {
+            uniqueObjects.put(object.cdoID(), CDOIDUtil.createIDAndVersion(object.cdoID(),
+                CDORevision.UNSPECIFIED_VERSION));
+          }
+        }
+
+        CDOSessionProtocol sessionProtocol = session.getSessionProtocol();
+        sessionProtocol.lockObjects(this, uniqueObjects, timeout, lockType);
+      }
+      finally
+      {
+        getLock().unlock();
       }
     }
-
-    CDOSessionProtocol sessionProtocol = session.getSessionProtocol();
-    sessionProtocol.lockObjects(this, uniqueObjects, timeout, lockType);
-
-    // }
-    // finally
-    // {
-    // getLock().unlock();
-    // }
-    // }
   }
 
   /**
@@ -1319,7 +1318,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
    * @since 2.0
    */
   public Set<CDOObject> handleInvalidation(long timeStamp, Set<CDOIDAndVersion> dirtyOIDs,
-      Collection<CDOID> detachedOIDs)
+      Collection<CDOID> detachedOIDs, boolean async)
   {
     Set<CDOObject> conflicts = null;
     Set<InternalCDOObject> dirtyObjects = new HashSet<InternalCDOObject>();
@@ -1328,7 +1327,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
 
     try
     {
-      conflicts = handleInvalidationWithoutNotification(dirtyOIDs, detachedOIDs, dirtyObjects, detachedObjects);
+      conflicts = handleInvalidationWithoutNotification(dirtyOIDs, detachedOIDs, dirtyObjects, detachedObjects, async);
     }
     finally
     {
@@ -1362,7 +1361,8 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
   }
 
   public Set<CDOObject> handleInvalidationWithoutNotification(Set<CDOIDAndVersion> dirtyOIDs,
-      Collection<CDOID> detachedOIDs, Set<InternalCDOObject> dirtyObjects, Set<InternalCDOObject> detachedObjects)
+      Collection<CDOID> detachedOIDs, Set<InternalCDOObject> dirtyObjects, Set<InternalCDOObject> detachedObjects,
+      boolean async)
   {
     Set<CDOObject> conflicts = null;
     for (CDOIDAndVersion dirtyOID : dirtyOIDs)
@@ -1376,16 +1376,19 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
 
       if (dirtyObject != null)
       {
-        CDOStateMachine.INSTANCE.invalidate(dirtyObject, dirtyOID.getVersion());
-        dirtyObjects.add(dirtyObject);
-        if (dirtyObject.cdoConflict())
+        if (!async || !isLocked(dirtyObject))
         {
-          if (conflicts == null)
+          CDOStateMachine.INSTANCE.invalidate(dirtyObject, dirtyOID.getVersion());
+          dirtyObjects.add(dirtyObject);
+          if (dirtyObject.cdoConflict())
           {
-            conflicts = new HashSet<CDOObject>();
-          }
+            if (conflicts == null)
+            {
+              conflicts = new HashSet<CDOObject>();
+            }
 
-          conflicts.add(dirtyObject);
+            conflicts.add(dirtyObject);
+          }
         }
       }
     }
@@ -1395,16 +1398,19 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
       InternalCDOObject detachedObject = removeObject(id);
       if (detachedObject != null)
       {
-        CDOStateMachine.INSTANCE.detachRemote(detachedObject);
-        detachedObjects.add(detachedObject);
-        if (detachedObject.cdoConflict())
+        if (!async || !isLocked(detachedObject))
         {
-          if (conflicts == null)
+          CDOStateMachine.INSTANCE.detachRemote(detachedObject);
+          detachedObjects.add(detachedObject);
+          if (detachedObject.cdoConflict())
           {
-            conflicts = new HashSet<CDOObject>();
-          }
+            if (conflicts == null)
+            {
+              conflicts = new HashSet<CDOObject>();
+            }
 
-          conflicts.add(detachedObject);
+            conflicts.add(detachedObject);
+          }
         }
       }
     }
@@ -1436,7 +1442,8 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
   /**
    * @since 2.0
    */
-  public void handleChangeSubscription(Collection<CDORevisionDelta> deltas, Collection<CDOID> detachedObjects)
+  public void handleChangeSubscription(Collection<CDORevisionDelta> deltas, Collection<CDOID> detachedObjects,
+      boolean async)
   {
     boolean policiesPresent = options().hasChangeSubscriptionPolicies();
     if (!policiesPresent)
@@ -1452,10 +1459,13 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
         InternalCDOObject object = changeSubscriptionManager.getSubcribeObject(delta.getID());
         if (object != null && object.eNotificationRequired())
         {
-          NotificationImpl notification = builder.buildNotification(object, delta);
-          if (notification != null)
+          if (!async || !isLocked(object))
           {
-            notification.dispatch();
+            NotificationImpl notification = builder.buildNotification(object, delta);
+            if (notification != null)
+            {
+              notification.dispatch();
+            }
           }
         }
       }
@@ -1468,14 +1478,32 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
         InternalCDOObject object = changeSubscriptionManager.getSubcribeObject(id);
         if (object != null && object.eNotificationRequired())
         {
-          NotificationImpl notification = new CDODeltaNotificationImpl(object, CDONotification.DETACH_OBJECT,
-              Notification.NO_FEATURE_ID, null, null);
-          notification.dispatch();
+          if (!async || !isLocked(object))
+          {
+            NotificationImpl notification = new CDODeltaNotificationImpl(object, CDONotification.DETACH_OBJECT,
+                Notification.NO_FEATURE_ID, null, null);
+            notification.dispatch();
+          }
         }
       }
 
       getChangeSubscriptionManager().handleDetachedObjects(detachedObjects);
     }
+  }
+
+  private boolean isLocked(InternalCDOObject object)
+  {
+    if (object.cdoWriteLock().isLocked())
+    {
+      return true;
+    }
+
+    if (object.cdoReadLock().isLocked())
+    {
+      return true;
+    }
+
+    return false;
   }
 
   /**

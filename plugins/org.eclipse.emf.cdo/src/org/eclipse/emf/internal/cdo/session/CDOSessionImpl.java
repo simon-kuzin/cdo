@@ -147,10 +147,11 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
   private Set<InternalCDOView> views = new HashSet<InternalCDOView>();
 
   /**
-   * Fixes a threading problem between a committing thread and the Net4j thread that delivers incoming commit
-   * notifications. TODO This is a workaround, see Bug 294700
+   * Fixes threading problems between a committing thread and the Net4j thread that delivers incoming commit
+   * notifications. The same applies to lock requests and invalidations
    */
-  private Object commitLock = new Object();
+  @ExcludeFromDump
+  private Object invalidationLock = new Object();
 
   @ExcludeFromDump
   private QueueRunner invalidationRunner;
@@ -585,7 +586,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
 
   private void handleCommitNotification(CDOBranchPoint branchPoint, final Collection<CDOPackageUnit> newPackageUnits,
       Set<CDOIDAndVersion> dirtyOIDs, final Collection<CDOID> detachedObjects,
-      final Collection<CDORevisionDelta> deltas, InternalCDOView excludedView, final boolean passiveUpdate,
+      final Collection<CDORevisionDelta> deltas, InternalCDOView excludedView, final boolean reviseAndInvalidate,
       final boolean async)
   {
     final CDOBranch branch = branchPoint.getBranch();
@@ -593,9 +594,9 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
 
     try
     {
-      synchronized (commitLock)
+      synchronized (invalidationLock)
       {
-        if (passiveUpdate)
+        if (reviseAndInvalidate)
         {
           reviseRevisions(branchPoint, dirtyOIDs, detachedObjects, excludedView);
         }
@@ -616,14 +617,14 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
                 try
                 {
                   Set<CDOObject> conflicts = null;
-                  if (passiveUpdate)
+                  if (reviseAndInvalidate)
                   {
-                    conflicts = view.handleInvalidation(timeStamp, finalDirtyOIDs, finalDetachedObjects);
+                    conflicts = view.handleInvalidation(timeStamp, finalDirtyOIDs, finalDetachedObjects, async);
                   }
 
                   if (!skipChangeSubscription)
                   {
-                    view.handleChangeSubscription(deltas, detachedObjects);
+                    view.handleChangeSubscription(deltas, detachedObjects, async);
                   }
 
                   if (conflicts != null)
@@ -723,9 +724,9 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     }
   }
 
-  public Object getCommitLock()
+  public Object getInvalidationLock()
   {
-    return commitLock;
+    return invalidationLock;
   }
 
   private QueueRunner getInvalidationRunner()
