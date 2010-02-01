@@ -61,15 +61,9 @@ public abstract class AbstractSyncRevisionsRequest extends CDOClientRequest<Coll
   @Override
   protected void requesting(CDODataOutput out) throws IOException
   {
-    // XXX Fix for branching!!
-    if (getSession().getRepositoryInfo().isSupportingBranches())
-    {
-      throw new UnsupportedOperationException();
-    }
-
     if (TRACER.isEnabled())
     {
-      TRACER.trace("Synchronization " + idAndVersions.size() + " objects"); //$NON-NLS-1$ //$NON-NLS-2$
+      TRACER.trace("Synchronization of " + idAndVersions.size() + " objects"); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     out.writeInt(referenceChunk);

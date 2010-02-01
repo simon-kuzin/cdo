@@ -399,6 +399,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
       throws InterruptedException
   {
     checkActive();
+    checkMainBranch();
     Map<CDOID, CDOIDAndVersion> uniqueObjects = new HashMap<CDOID, CDOIDAndVersion>();
 
     synchronized (session.getInvalidationLock())
@@ -426,6 +427,15 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
       {
         getLock().unlock();
       }
+    }
+  }
+
+  private void checkMainBranch()
+  {
+    if (!getBranch().isMainBranch())
+    {
+      // XXX Fix for branching!!
+      throw new UnsupportedOperationException("Fix for branching");
     }
   }
 

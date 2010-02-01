@@ -477,6 +477,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     // We do not throw an exception since the client could turn
     // that feature on or off without affecting their code.
     checkActive();
+    checkMainBranch();
     if (!options().isPassiveUpdateEnabled())
     {
       Map<CDOID, CDOIDAndVersion> allRevisions = getAllCDOIDAndVersion();
@@ -866,6 +867,18 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     super.doDeactivate();
   }
 
+  private void checkMainBranch()
+  {
+    for (CDOView view : views)
+    {
+      if (!view.getBranch().isMainBranch())
+      {
+        // XXX Fix for branching!!
+        throw new UnsupportedOperationException("Fix for branching");
+      }
+    }
+  }
+
   private Map<CDOID, CDOIDAndVersion> getAllCDOIDAndVersion()
   {
     Map<CDOID, CDOIDAndVersion> uniqueObjects = new HashMap<CDOID, CDOIDAndVersion>();
@@ -943,6 +956,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
 
     public synchronized void setPassiveUpdateEnabled(boolean passiveUpdateEnabled)
     {
+      checkMainBranch();
       if (this.passiveUpdateEnabled != passiveUpdateEnabled)
       {
         this.passiveUpdateEnabled = passiveUpdateEnabled;
