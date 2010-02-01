@@ -14,6 +14,7 @@ package org.eclipse.emf.cdo.server.db.mapping;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
@@ -47,4 +48,20 @@ public interface IClassMappingBranchingSupport extends IClassMappingAuditSupport
    *          the monitor to indicate progress.
    */
   public void detachObject(IDBStoreAccessor dbStoreAccessor, CDOID id, long revised, CDOBranch branch, OMMonitor monitor);
+
+  /**
+   * Write a special placeholder revision which is used to indicate that a revision is detached in a branch.
+   * 
+   * @param accessor
+   *          the accessor to use.
+   * @param revision
+   *          the old revision about to be detached
+   * @param revised
+   *          the timeStamp when this object became detached.
+   * @param monitor
+   *          the monitor to indicate progress.
+   * @since 3.0
+   */
+  public void detachFirstVersion(IDBStoreAccessor accessor, CDORevision revision, long revised, OMMonitor monitor);
+
 }

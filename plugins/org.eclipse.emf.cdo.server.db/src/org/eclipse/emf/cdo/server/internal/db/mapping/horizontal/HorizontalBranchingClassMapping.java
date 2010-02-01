@@ -34,7 +34,6 @@ import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.db.DBType;
 import org.eclipse.net4j.db.ddl.IDBField;
 import org.eclipse.net4j.db.ddl.IDBTable;
-import org.eclipse.net4j.db.ddl.IDBIndex.Type;
 import org.eclipse.net4j.util.ImplementationError;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.monitor.OMMonitor.Async;
@@ -77,10 +76,9 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
   }
 
   @Override
-  protected void addBranchingField(IDBTable table)
+  protected IDBField addBranchingField(IDBTable table)
   {
-    IDBField branch = table.addField(CDODBSchema.ATTRIBUTES_BRANCH, DBType.INTEGER, true);
-    table.addIndex(Type.NON_UNIQUE, branch);
+    return table.addField(CDODBSchema.ATTRIBUTES_BRANCH, DBType.INTEGER, true);
   }
 
   private void initSqlStrings()
@@ -485,6 +483,69 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
     }
   }
 
+  public void detachFirstVersion(IDBStoreAccessor accessor, CDORevision rev, long revised, OMMonitor monitor)
+  {
+    PreparedStatement stmt = null;
+
+    InternalCDORevision revision = (InternalCDORevision)rev;
+
+    try
+    {
+      stmt = accessor.getStatementCache().getPreparedStatement(sqlInsertAttributes, ReuseProbability.HIGH);
+
+      int col = 1;
+
+      stmt.setLong(col++, CDOIDUtil.getLong(revision.getID()));
+      stmt.setInt(col++, -1); // cdo_version
+      stmt.setInt(col++, revision.getBranch().getID());
+      stmt.setLong(col++, accessor.getStore().getMetaDataManager().getMetaID(revision.getEClass()));
+      stmt.setLong(col++, revised); // cdo_created
+      stmt.setLong(col++, 0); // cdo_revised
+      stmt.setLong(col++, CDODBUtil.convertCDOIDToLong(getExternalReferenceManager(), accessor, revision
+          .getResourceID()));
+      stmt.setLong(col++, CDODBUtil.convertCDOIDToLong(getExternalReferenceManager(), accessor, (CDOID)revision
+          .getContainerID()));
+      stmt.setInt(col++, revision.getContainingFeatureID());
+
+      // XXX Eike: what to do with attributes?
+      // the following is currently a copy of writeValues ...
+
+      int isSetCol = col + getValueMappings().size();
+
+      for (ITypeMapping mapping : getValueMappings())
+      {
+        EStructuralFeature feature = mapping.getFeature();
+        if (feature.isUnsettable())
+        {
+          if (revision.getValue(feature) == null)
+          {
+            stmt.setBoolean(isSetCol++, false);
+
+            // also set value column to default value
+            mapping.setDefaultValue(stmt, col++);
+
+            continue;
+          }
+          else
+          {
+            stmt.setBoolean(isSetCol++, true);
+          }
+        }
+        mapping.setValueFromRevision(stmt, col++, revision);
+      }
+
+      CDODBUtil.sqlUpdate(stmt, true);
+    }
+    catch (SQLException e)
+    {
+      throw new DBException(e);
+    }
+    finally
+    {
+      accessor.getStatementCache().releasePreparedStatement(stmt);
+    }
+  }
+
   protected void reviseObject(IDBStoreAccessor accessor, CDOID id, int branchId, long revised)
   {
     PreparedStatement stmt = null;
@@ -525,13 +586,15 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
       async = monitor.forkAsync();
 
       CDOID id = revision.getID();
-      if (revision.getVersion() == CDORevision.FIRST_VERSION)
+
+      if (accessor.isNewObject(id))
       {
-        // XXX Assumption no longer valid with branches!
+        // put new objects into objectTypeCache
         ((HorizontalBranchingMappingStrategy)getMappingStrategy()).putObjectType(accessor, id, getEClass());
       }
-      else
+      else if (revision.getVersion() > 1)
       {
+        // if revision is not the first one, revise the old revision
         long revised = revision.getTimeStamp() - 1;
         reviseObject(accessor, id, revision.getBranch().getID(), revised);
         for (IListMapping mapping : getListMappings())

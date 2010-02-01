@@ -19,6 +19,7 @@ import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
+import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.cache.CDORevisionCacheAdder;
 import org.eclipse.emf.cdo.server.IQueryHandler;
 import org.eclipse.emf.cdo.server.IRepository;
@@ -36,18 +37,16 @@ import org.eclipse.emf.cdo.server.db.mapping.IClassMappingDeltaSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
+import org.eclipse.emf.cdo.spi.common.revision.DetachedCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
 import org.eclipse.emf.cdo.spi.server.LongIDStoreAccessor;
 
 import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.db.DBUtil;
-import org.eclipse.net4j.util.ReflectUtil.ExcludeFromDump;
 import org.eclipse.net4j.util.collection.CloseableIterator;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
-import org.eclipse.net4j.util.om.monitor.ProgressDistributable;
-import org.eclipse.net4j.util.om.monitor.ProgressDistributor;
 import org.eclipse.net4j.util.om.monitor.OMMonitor.Async;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
@@ -62,7 +61,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -79,25 +80,7 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
 
   private Timer connectionKeepAliveTimer = null;
 
-  @ExcludeFromDump
-  @SuppressWarnings("unchecked")
-  private final ProgressDistributable<CommitContext>[] ops = ProgressDistributor.array( //
-      new ProgressDistributable.Default<CommitContext>()
-      {
-        public void runLoop(int index, CommitContext commitContext, OMMonitor monitor) throws Exception
-        {
-          DBStoreAccessor.super.write(commitContext, monitor.fork());
-        }
-      }, //
-
-      new ProgressDistributable.Default<CommitContext>()
-      {
-        public void runLoop(int index, CommitContext commitContext, OMMonitor monitor) throws Exception
-        {
-          // TODO - reenable when reimplementing stmt caching
-          // flush(monitor.fork());
-        }
-      });
+  private Set<CDOID> newObjects = new HashSet<CDOID>();
 
   public DBStoreAccessor(DBStore store, ISession session) throws DBException
   {
@@ -189,6 +172,10 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
     IClassMapping mapping = mappingStrategy.getClassMapping(eClass);
     if (mapping.readRevision(this, revision, listChunk))
     {
+      if (revision.getVersion() == -1)
+      {
+        return new DetachedCDORevision(id, branchPoint.getBranch(), 1, branchPoint.getTimeStamp());
+      }
       return revision;
     }
 
@@ -277,8 +264,14 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
   @Override
   public void write(CommitContext context, OMMonitor monitor)
   {
-    ProgressDistributor distributor = getStore().getAccessorWriteDistributor();
-    distributor.run(ops, context, monitor);
+    // remember CDOIDs of new objects
+    newObjects.clear();
+    for (InternalCDORevision revision : context.getNewObjects())
+    {
+      newObjects.add(revision.getID());
+    }
+
+    super.write(context, monitor);
   }
 
   @Override
@@ -403,11 +396,23 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
       TRACER.format("Detaching object: {0} in branch {1}", id, branch); //$NON-NLS-1$
     }
 
-    EClass eClass = getObjectType(id);
+    InternalCDORevision oldRevision = (InternalCDORevision)getStore().getRepository().getRevisionManager().getRevision(
+        id, branch.getPoint(revised), 0, CDORevision.DEPTH_NONE, true);
+    EClass eClass = oldRevision.getEClass();
+
     IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
     IClassMappingBranchingSupport mapping = (IClassMappingBranchingSupport)mappingStrategy.getClassMapping(eClass);
 
-    mapping.detachObject(this, id, revised, branch, monitor);
+    if (oldRevision.getVersion() == 1)
+    {
+      // version 1 in branch gets deleted -> write placebo revision.
+      mapping.detachFirstVersion(this, oldRevision, revised, monitor);
+    }
+    else
+    {
+      // default detach behavior
+      mapping.detachObject(this, id, revised, branch, monitor);
+    }
   }
 
   public Connection getConnection()
@@ -656,5 +661,10 @@ public class DBStoreAccessor extends LongIDStoreAccessor implements IDBStoreAcce
         DBUtil.close(stmt);
       }
     }
+  }
+
+  public boolean isNewObject(CDOID id)
+  {
+    return newObjects.contains(id);
   }
 }
