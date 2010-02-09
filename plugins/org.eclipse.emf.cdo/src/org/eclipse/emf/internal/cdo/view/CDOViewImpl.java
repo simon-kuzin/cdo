@@ -17,6 +17,7 @@ import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.CDOState;
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.commit.CDOCommitInfo;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDMeta;
@@ -1280,22 +1281,9 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
   /**
    * Turns registered objects into proxies and synchronously delivers invalidation events to registered event listeners.
    * <p>
-   * <b>Implementation note:</b> This implementation guarantees that exceptions from listener code don't propagate up to
-   * the caller of this method. Runtime exceptions from the implementation of the {@link CDOStateMachine} are propagated
-   * to the caller of this method but this should not happen in the absence of implementation errors.
-   * <p>
    * Note that this method can block for an uncertain amount of time on the reentrant view lock!
-   * 
-   * @param timeStamp
-   *          The time stamp of the server transaction if this event was sent as a result of a successfully committed
-   *          transaction or <code>LOCAL_ROLLBACK</code> if this event was sent due to a local rollback.
-   * @param dirtyOIDs
-   *          A set of the object IDs to be invalidated. <b>Implementation note:</b> This implementation expects the
-   *          dirtyOIDs set to be unmodifiable. It does not wrap the set (again).
-   * @since 2.0
    */
-  public Set<CDOObject> handleInvalidation(long timeStamp, Set<CDOIDAndVersion> dirtyOIDs,
-      Collection<CDOID> detachedOIDs, boolean async)
+  public void invalidate(CDOCommitInfo commitInfo)
   {
     Set<CDOObject> conflicts = null;
     Set<InternalCDOObject> dirtyObjects = new HashSet<InternalCDOObject>();
@@ -1304,13 +1292,36 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
 
     try
     {
-      conflicts = handleInvalidationWithoutNotification(dirtyOIDs, detachedOIDs, dirtyObjects, detachedObjects, async);
+      conflicts = invalidateWithoutNotification(commitInfo, dirtyObjects, detachedObjects);
     }
     finally
     {
       lock.unlock();
     }
 
+    notifyAdapters(dirtyObjects, detachedObjects);
+    fireInvalidationEvent(commitInfo.getTimeStamp(), Collections.unmodifiableSet(dirtyObjects), Collections
+        .unmodifiableSet(detachedObjects));
+
+    // boolean skipChangeSubscription = (deltas == null || deltas.size() <= 0)
+    // && (detachedObjects == null || detachedObjects.size() <= 0);
+    //
+    // if (!skipChangeSubscription)
+    // {
+    // handleChangeSubscription(deltas, detachedObjects, true);
+    // }
+
+    if (conflicts != null)
+    {
+      InternalCDOTransaction transaction = (InternalCDOTransaction)this;
+      transaction.handleConflicts(conflicts);
+    }
+
+    fireAdaptersNotifiedEvent(commitInfo.getTimeStamp());
+  }
+
+  private void notifyAdapters(Set<InternalCDOObject> dirtyObjects, Set<InternalCDOObject> detachedObjects)
+  {
     if (options().isInvalidationNotificationEnabled())
     {
       for (InternalCDOObject dirtyObject : dirtyObjects)
@@ -1331,31 +1342,26 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
         }
       }
     }
-
-    fireInvalidationEvent(timeStamp, Collections.unmodifiableSet(dirtyObjects), Collections
-        .unmodifiableSet(detachedObjects));
-    return conflicts;
   }
 
-  public Set<CDOObject> handleInvalidationWithoutNotification(Set<CDOIDAndVersion> dirtyOIDs,
-      Collection<CDOID> detachedOIDs, Set<InternalCDOObject> dirtyObjects, Set<InternalCDOObject> detachedObjects,
-      boolean async)
+  public Set<CDOObject> invalidateWithoutNotification(CDOCommitInfo commitInfo, Set<InternalCDOObject> dirtyObjects,
+      Set<InternalCDOObject> detachedObjects)
   {
     Set<CDOObject> conflicts = null;
-    for (CDOIDAndVersion dirtyOID : dirtyOIDs)
+    for (CDOIDAndVersion key : commitInfo.getChangedObjects())
     {
       InternalCDOObject dirtyObject = null;
       // 258831 - Causes deadlock when introduce thread safe mechanisms in State machine.
       synchronized (objects)
       {
-        dirtyObject = objects.get(dirtyOID.getID());
+        dirtyObject = objects.get(key.getID());
       }
 
       if (dirtyObject != null)
       {
-        if (!async || !isLocked(dirtyObject))
+        if (!isLocked(dirtyObject))
         {
-          CDOStateMachine.INSTANCE.invalidate(dirtyObject, dirtyOID.getVersion());
+          CDOStateMachine.INSTANCE.invalidate(dirtyObject, key.getVersion());
           dirtyObjects.add(dirtyObject);
           if (dirtyObject.cdoConflict())
           {
@@ -1370,12 +1376,12 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
       }
     }
 
-    for (CDOID id : detachedOIDs)
+    for (CDOIDAndVersion key : commitInfo.getDetachedObjects())
     {
-      InternalCDOObject detachedObject = removeObject(id);
+      InternalCDOObject detachedObject = removeObject(key.getID());
       if (detachedObject != null)
       {
-        if (!async || !isLocked(detachedObject))
+        if (!isLocked(detachedObject))
         {
           CDOStateMachine.INSTANCE.detachRemote(detachedObject);
           detachedObjects.add(detachedObject);

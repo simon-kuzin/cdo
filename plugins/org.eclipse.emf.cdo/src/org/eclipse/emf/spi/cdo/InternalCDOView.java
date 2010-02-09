@@ -12,10 +12,10 @@ package org.eclipse.emf.spi.cdo;
 
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.CDOState;
+import org.eclipse.emf.cdo.common.commit.CDOCommitInfo;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
-import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.eresource.impl.CDOResourceImpl;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.view.CDOFeatureAnalyzer;
@@ -31,7 +31,6 @@ import org.eclipse.emf.ecore.EObject;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -65,26 +64,7 @@ public interface InternalCDOView extends CDOView, CDOIDProvider, ILifecycle
    */
   public void handleObjectStateChanged(InternalCDOObject object, CDOState oldState, CDOState newState);
 
-  /**
-   * Returns the conflicting objects.
-   * 
-   * @since 3.0
-   */
-  public Set<CDOObject> handleInvalidation(long timeStamp, Set<CDOIDAndVersion> dirtyOIDs,
-      Collection<CDOID> detachedOIDs, boolean async);
-
-  /**
-   * @since 3.0
-   */
-  public Set<CDOObject> handleInvalidationWithoutNotification(Set<CDOIDAndVersion> dirtyOIDs,
-      Collection<CDOID> detachedOIDs, Set<InternalCDOObject> dirtyObjects, Set<InternalCDOObject> detachedObjects,
-      boolean async);
-
-  /**
-   * @since 3.0
-   */
-  public void handleChangeSubscription(Collection<CDORevisionDelta> deltas, Collection<CDOID> detachedObjects,
-      boolean async);
+  public void invalidate(CDOCommitInfo commitInfo);
 
   public void getCDOIDAndVersion(Map<CDOID, CDOIDAndVersion> uniqueObjects, Collection<? extends CDOObject> objects);
 

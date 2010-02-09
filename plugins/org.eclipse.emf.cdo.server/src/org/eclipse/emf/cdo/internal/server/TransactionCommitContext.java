@@ -11,8 +11,12 @@
  */
 package org.eclipse.emf.cdo.internal.server;
 
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.commit.CDOCommitData;
+import org.eclipse.emf.cdo.common.commit.CDOCommitInfo;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDMetaRange;
 import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
@@ -20,12 +24,15 @@ import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
+import org.eclipse.emf.cdo.internal.common.commit.CDOCommitDataImpl;
 import org.eclipse.emf.cdo.internal.common.model.CDOPackageRegistryImpl;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.StoreThreadLocal;
 import org.eclipse.emf.cdo.spi.common.branch.CDOBranchUtil;
+import org.eclipse.emf.cdo.spi.common.commit.InternalCDOCommitInfoManager;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
@@ -40,6 +47,7 @@ import org.eclipse.emf.cdo.spi.server.InternalSessionManager;
 import org.eclipse.emf.cdo.spi.server.InternalTransaction;
 
 import org.eclipse.net4j.util.StringUtil;
+import org.eclipse.net4j.util.collection.IndexedList;
 import org.eclipse.net4j.util.concurrent.TimeoutRuntimeException;
 import org.eclipse.net4j.util.concurrent.IRWLockManager.LockType;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
@@ -62,8 +70,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class TransactionCommitContext implements InternalCommitContext
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_TRANSACTION,
-      TransactionCommitContext.class);
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_TRANSACTION, TransactionCommitContext.class);
 
   private TransactionPackageRegistry packageRegistry;
 
@@ -338,7 +345,7 @@ public class TransactionCommitContext implements InternalCommitContext
       if (success)
       {
         InternalSessionManager sessionManager = transaction.getRepository().getSessionManager();
-        sessionManager.sendCommitNotification(transaction.getSession(), this);
+        sessionManager.sendCommitNotification(transaction.getSession(), createCommitInfo());
       }
     }
     catch (Exception ex)
@@ -366,6 +373,64 @@ public class TransactionCommitContext implements InternalCommitContext
       dirtyObjectDeltas = null;
       dirtyObjects = null;
     }
+  }
+
+  private CDOCommitInfo createCommitInfo()
+  {
+    InternalCDOCommitInfoManager commitInfoManager = transaction.getRepository().getCommitInfoManager();
+
+    CDOBranch branch = transaction.getBranch();
+    String userID = transaction.getSession().getUserID();
+    CDOCommitData commitData = createCommitData();
+    return commitInfoManager.createCommitInfo(branch, timeStamp, userID, commitComment, commitData);
+  }
+
+  private CDOCommitData createCommitData()
+  {
+    List<CDOPackageUnit> newPackageUnitsCollection = new IndexedList.ArrayBacked<CDOPackageUnit>()
+    {
+      @Override
+      protected CDOPackageUnit[] getArray()
+      {
+        return newPackageUnits;
+      }
+    };
+
+    List<CDOIDAndVersion> newObjectsCollection = new IndexedList.ArrayBacked<CDOIDAndVersion>()
+    {
+      @Override
+      protected CDOIDAndVersion[] getArray()
+      {
+        return newObjects;
+      }
+    };
+
+    List<CDORevisionKey> changedObjectsCollection = new IndexedList.ArrayBacked<CDORevisionKey>()
+    {
+      @Override
+      protected CDORevisionKey[] getArray()
+      {
+        return dirtyObjectDeltas;
+      }
+    };
+
+    List<CDOIDAndVersion> detachedObjectsCollection = new IndexedList<CDOIDAndVersion>()
+    {
+      @Override
+      public CDOIDAndVersion get(int i)
+      {
+        return detachedRevisions.get(i);
+      }
+
+      @Override
+      public int size()
+      {
+        return detachedRevisions.size();
+      }
+    };
+
+    return new CDOCommitDataImpl(newPackageUnitsCollection, newObjectsCollection, changedObjectsCollection,
+        detachedObjectsCollection);
   }
 
   private void adjustForCommit()
