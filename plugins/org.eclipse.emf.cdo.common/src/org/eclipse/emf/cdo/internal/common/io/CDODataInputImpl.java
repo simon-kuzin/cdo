@@ -324,12 +324,16 @@ public abstract class CDODataInputImpl extends ExtendedDataInput.Delegating impl
 
   public CDOIDAndVersion readCDOIDAndVersion() throws IOException
   {
-    return new CDOIDAndVersionImpl(this);
+    CDOID id = readCDOID();
+    int version = readInt();
+    return new CDOIDAndVersionImpl(id, version);
   }
 
   public CDOIDAndBranch readCDOIDAndBranch() throws IOException
   {
-    return new CDOIDAndBranchImpl(this);
+    CDOID id = readCDOID();
+    CDOBranch branch = readCDOBranch();
+    return new CDOIDAndBranchImpl(id, branch);
   }
 
   public CDOIDMetaRange readCDOIDMetaRange() throws IOException
