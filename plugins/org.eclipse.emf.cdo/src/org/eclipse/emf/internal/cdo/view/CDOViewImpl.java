@@ -25,6 +25,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
 import org.eclipse.emf.cdo.common.revision.CDORevisionManager;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.common.util.CDOCommonUtil;
@@ -1303,13 +1304,13 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     fireInvalidationEvent(commitInfo.getTimeStamp(), Collections.unmodifiableSet(dirtyObjects), Collections
         .unmodifiableSet(detachedObjects));
 
-    // boolean skipChangeSubscription = (deltas == null || deltas.size() <= 0)
-    // && (detachedObjects == null || detachedObjects.size() <= 0);
-    //
-    // if (!skipChangeSubscription)
-    // {
-    // handleChangeSubscription(deltas, detachedObjects, true);
-    // }
+    List<CDORevisionKey> deltas = commitInfo.getChangedObjects();
+    boolean skipChangeSubscription = deltas.isEmpty() && detachedObjects.isEmpty();
+
+    if (!skipChangeSubscription)
+    {
+      handleChangeSubscription(deltas, detachedObjects, true);
+    }
 
     if (conflicts != null)
     {
@@ -1425,7 +1426,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
   /**
    * @since 2.0
    */
-  public void handleChangeSubscription(Collection<CDORevisionDelta> deltas, Collection<CDOID> detachedObjects,
+  public void handleChangeSubscription(List<CDORevisionKey> deltas, Set<InternalCDOObject> detachedObjects,
       boolean async)
   {
     boolean policiesPresent = options().hasChangeSubscriptionPolicies();
@@ -1437,14 +1438,14 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     if (deltas != null)
     {
       CDONotificationBuilder builder = new CDONotificationBuilder();
-      for (CDORevisionDelta delta : deltas)
+      for (CDORevisionKey delta : deltas)
       {
         InternalCDOObject object = changeSubscriptionManager.getSubcribeObject(delta.getID());
         if (object != null && object.eNotificationRequired())
         {
           if (!async || !isLocked(object))
           {
-            NotificationImpl notification = builder.buildNotification(object, delta);
+            NotificationImpl notification = builder.buildNotification(object, (CDORevisionDelta)delta);
             if (notification != null)
             {
               notification.dispatch();
