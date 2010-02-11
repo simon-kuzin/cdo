@@ -290,8 +290,7 @@ public class InvalidationTest extends AbstractCDOTest
 
     res1.delete(null);
 
-    final Customer customerB2 = getModel1Factory().createCustomer();
-    res2.getContents().add(customerB2);
+    res2.getContents().add(getModel1Factory().createCustomer());
     assertTrue(res2.isExisting());
 
     trans1.commit();

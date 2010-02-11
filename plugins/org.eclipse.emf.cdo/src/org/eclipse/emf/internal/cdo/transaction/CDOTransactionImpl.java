@@ -1769,7 +1769,12 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
           List<CDOIDAndVersion> detached = new ArrayList<CDOIDAndVersion>();
           for (Entry<CDOID, CDOObject> entry : getDetachedObjects().entrySet())
           {
-            detached.add(entry.getValue().cdoRevision());
+            CDORevision revision = entry.getValue().cdoRevision();
+            if (revision != null)
+            {
+              detached.add(revision);
+            }
+
             removeObject(entry.getKey());
           }
 
