@@ -19,6 +19,7 @@ import org.eclipse.emf.cdo.CDOState;
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchManager;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.commit.CDOCommitData;
 import org.eclipse.emf.cdo.common.commit.CDOCommitInfo;
 import org.eclipse.emf.cdo.common.id.CDOID;
@@ -1767,15 +1768,12 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
           }
 
           List<CDOIDAndVersion> detached = new ArrayList<CDOIDAndVersion>();
-          for (Entry<CDOID, CDOObject> entry : getDetachedObjects().entrySet())
+          for (CDOID id : getDetachedObjects().keySet())
           {
-            CDORevision revision = entry.getValue().cdoRevision();
-            if (revision != null)
-            {
-              detached.add(revision);
-            }
-
-            removeObject(entry.getKey());
+            // Add "version-less" key.
+            // CDOSessionImpl.reviseRevisions() will call reviseLatest() accordingly.
+            detached.add(CDOIDUtil.createIDAndVersion(id, CDOBranchVersion.UNSPECIFIED_VERSION));
+            removeObject(id);
           }
 
           CDOCommitInfo commitInfo = makeCommitInfo(result.getTimeStamp(), revisions, deltas, detached);

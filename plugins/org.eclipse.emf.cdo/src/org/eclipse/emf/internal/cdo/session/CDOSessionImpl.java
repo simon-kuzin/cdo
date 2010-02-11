@@ -738,7 +738,6 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       synchronized (invalidationLock)
       {
         registerPackageUnits(commitInfo);
-        reviseRevisions(commitInfo);
         invalidate(commitInfo, null);
       }
     }
@@ -801,8 +800,17 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     // Revise old revisions
     for (CDOIDAndVersion key : commitInfo.getDetachedObjects())
     {
-      CDOBranchVersion branchVersion = newBranch.getVersion(key.getVersion());
-      revisionManager.reviseVersion(key.getID(), branchVersion, timeStamp);
+      CDOID id = key.getID();
+      int version = key.getVersion();
+      if (version != CDOBranchVersion.UNSPECIFIED_VERSION)
+      {
+        CDOBranchVersion branchVersion = newBranch.getVersion(version);
+        revisionManager.reviseVersion(id, branchVersion, timeStamp);
+      }
+      else
+      {
+        revisionManager.reviseLatest(id, newBranch);
+      }
     }
   }
 
@@ -833,6 +841,8 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
    */
   public void invalidate(final CDOCommitInfo commitInfo, final InternalCDOTransaction sender)
   {
+    reviseRevisions(commitInfo);
+
     for (InternalCDOView view : getViews())
     {
       if (view != sender && view.getBranch() == commitInfo.getBranch())

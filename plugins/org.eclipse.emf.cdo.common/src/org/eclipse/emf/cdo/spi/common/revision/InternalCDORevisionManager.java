@@ -51,7 +51,9 @@ public interface InternalCDORevisionManager extends CDORevisionManager, CDORevis
 
   public void setCache(CDORevisionCache cache);
 
-  @Deprecated
+  /**
+   * Called on client via postCommit when there is no version of detached objects available.
+   */
   public void reviseLatest(CDOID id, CDOBranch branch);
 
   public void reviseVersion(CDOID id, CDOBranchVersion branchVersion, long timeStamp);
