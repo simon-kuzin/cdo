@@ -169,7 +169,7 @@ public abstract class CDODataOutputImpl extends ExtendedDataOutput.Delegating im
     writeInt(changedObjects.size());
     for (CDORevisionKey data : changedObjects)
     {
-      if (data instanceof CDORevision)
+      if (data instanceof CDORevisionDelta)
       {
         writeBoolean(true);
         writeCDORevisionDelta((CDORevisionDelta)data);

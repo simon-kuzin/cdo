@@ -1776,8 +1776,12 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
             removeObject(id);
           }
 
-          CDOCommitInfo commitInfo = makeCommitInfo(result.getTimeStamp(), revisions, deltas, detached);
-          getSession().invalidate(commitInfo, getTransaction());
+          InternalCDOSession session = getSession();
+          CDOTransactionImpl transaction = getTransaction();
+          long timeStamp = result.getTimeStamp();
+
+          CDOCommitInfo commitInfo = makeCommitInfo(timeStamp, revisions, deltas, detached);
+          session.invalidate(commitInfo, transaction);
 
           CDOTransactionHandler[] handlers = getTransactionHandlers();
           if (handlers != null)
@@ -1785,12 +1789,12 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
             for (int i = 0; i < handlers.length; i++)
             {
               CDOTransactionHandler handler = handlers[i];
-              handler.committedTransaction(getTransaction(), this);
+              handler.committedTransaction(transaction, this);
             }
           }
 
-          getChangeSubscriptionManager().committedTransaction(getTransaction(), this);
-          getAdapterManager().committedTransaction(getTransaction(), this);
+          getChangeSubscriptionManager().committedTransaction(transaction, this);
+          getAdapterManager().committedTransaction(transaction, this);
 
           cleanUp();
           Map<CDOID, CDOID> idMappings = result.getIDMappings();

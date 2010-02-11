@@ -156,6 +156,25 @@ public abstract class IndexedList<E> implements List<E>
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  public String toString()
+  {
+    StringBuilder builder = new StringBuilder();
+    builder.append("{"); //$NON-NLS-1$
+    for (int i = 0; i < size(); i++)
+    {
+      if (i != 0)
+      {
+        builder.append(", "); //$NON-NLS-1$
+      }
+
+      builder.append(get(i).toString());
+    }
+
+    builder.append("}"); //$NON-NLS-1$
+    return builder.toString();
+  }
+
   /**
    * @author Eike Stepper
    */
