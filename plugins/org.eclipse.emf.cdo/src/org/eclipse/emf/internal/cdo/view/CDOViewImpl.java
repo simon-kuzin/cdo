@@ -25,7 +25,6 @@ import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
-import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
 import org.eclipse.emf.cdo.common.revision.CDORevisionManager;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.common.util.CDOCommonUtil;
@@ -1287,13 +1286,14 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
   public void invalidate(CDOCommitInfo commitInfo)
   {
     Set<CDOObject> conflicts = null;
+    List<CDORevisionDelta> deltas = new ArrayList<CDORevisionDelta>();
     Set<InternalCDOObject> dirtyObjects = new HashSet<InternalCDOObject>();
-    Set<InternalCDOObject> detachedObjects = new HashSet<InternalCDOObject>();
+    Set<CDOObject> detachedObjects = new HashSet<CDOObject>();
     lock.lock();
 
     try
     {
-      conflicts = invalidateWithoutNotification(commitInfo, dirtyObjects, detachedObjects);
+      conflicts = invalidateWithoutNotification(commitInfo, deltas, dirtyObjects, detachedObjects);
     }
     finally
     {
@@ -1304,12 +1304,11 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     fireInvalidationEvent(commitInfo.getTimeStamp(), Collections.unmodifiableSet(dirtyObjects), Collections
         .unmodifiableSet(detachedObjects));
 
-    List<CDORevisionKey> deltas = commitInfo.getChangedObjects();
     boolean skipChangeSubscription = deltas.isEmpty() && detachedObjects.isEmpty();
 
     if (!skipChangeSubscription)
     {
-      handleChangeSubscription(deltas, detachedObjects, true);
+      handleChangeSubscription(deltas, detachedObjects);
     }
 
     if (conflicts != null)
@@ -1321,7 +1320,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     fireAdaptersNotifiedEvent(commitInfo.getTimeStamp());
   }
 
-  private void notifyAdapters(Set<InternalCDOObject> dirtyObjects, Set<InternalCDOObject> detachedObjects)
+  private void notifyAdapters(Set<InternalCDOObject> dirtyObjects, Set<CDOObject> detachedObjects)
   {
     if (options().isInvalidationNotificationEnabled())
     {
@@ -1334,9 +1333,9 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
         }
       }
 
-      for (InternalCDOObject detachedObject : detachedObjects)
+      for (CDOObject detachedObject : detachedObjects)
       {
-        if (detachedObject.eNotificationRequired())
+        if (((InternalCDOObject)detachedObject).eNotificationRequired())
         {
           CDOInvalidationNotificationImpl notification = new CDOInvalidationNotificationImpl(detachedObject);
           detachedObject.eNotify(notification);
@@ -1345,12 +1344,18 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     }
   }
 
-  public Set<CDOObject> invalidateWithoutNotification(CDOCommitInfo commitInfo, Set<InternalCDOObject> dirtyObjects,
-      Set<InternalCDOObject> detachedObjects)
+  public Set<CDOObject> invalidateWithoutNotification(CDOCommitInfo commitInfo, List<CDORevisionDelta> deltas,
+      Set<InternalCDOObject> dirtyObjects, Set<CDOObject> detachedObjects)
   {
     Set<CDOObject> conflicts = null;
     for (CDOIDAndVersion key : commitInfo.getChangedObjects())
     {
+      if (key instanceof CDORevisionDelta)
+      {
+        CDORevisionDelta delta = (CDORevisionDelta)key;
+        deltas.add(delta);
+      }
+
       InternalCDOObject dirtyObject = null;
       // 258831 - Causes deadlock when introduce thread safe mechanisms in State machine.
       synchronized (objects)
@@ -1363,16 +1368,17 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
         if (!isLocked(dirtyObject))
         {
           CDOStateMachine.INSTANCE.invalidate(dirtyObject, key.getVersion());
-          dirtyObjects.add(dirtyObject);
-          if (dirtyObject.cdoConflict())
-          {
-            if (conflicts == null)
-            {
-              conflicts = new HashSet<CDOObject>();
-            }
+        }
 
-            conflicts.add(dirtyObject);
+        dirtyObjects.add(dirtyObject);
+        if (dirtyObject.cdoConflict())
+        {
+          if (conflicts == null)
+          {
+            conflicts = new HashSet<CDOObject>();
           }
+
+          conflicts.add(dirtyObject);
         }
       }
     }
@@ -1385,16 +1391,17 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
         if (!isLocked(detachedObject))
         {
           CDOStateMachine.INSTANCE.detachRemote(detachedObject);
-          detachedObjects.add(detachedObject);
-          if (detachedObject.cdoConflict())
-          {
-            if (conflicts == null)
-            {
-              conflicts = new HashSet<CDOObject>();
-            }
+        }
 
-            conflicts.add(detachedObject);
+        detachedObjects.add(detachedObject);
+        if (detachedObject.cdoConflict())
+        {
+          if (conflicts == null)
+          {
+            conflicts = new HashSet<CDOObject>();
           }
+
+          conflicts.add(detachedObject);
         }
       }
     }
@@ -1426,11 +1433,9 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
   /**
    * @since 2.0
    */
-  public void handleChangeSubscription(List<CDORevisionKey> deltas, Set<InternalCDOObject> detachedObjects,
-      boolean async)
+  public void handleChangeSubscription(List<CDORevisionDelta> deltas, Set<CDOObject> detachedObjects)
   {
-    boolean policiesPresent = options().hasChangeSubscriptionPolicies();
-    if (!policiesPresent)
+    if (!options().hasChangeSubscriptionPolicies())
     {
       return;
     }
@@ -1438,14 +1443,14 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     if (deltas != null)
     {
       CDONotificationBuilder builder = new CDONotificationBuilder();
-      for (CDORevisionKey delta : deltas)
+      for (CDORevisionDelta delta : deltas)
       {
         InternalCDOObject object = changeSubscriptionManager.getSubcribeObject(delta.getID());
         if (object != null && object.eNotificationRequired())
         {
-          if (!async || !isLocked(object))
+          if (!isLocked(object))
           {
-            NotificationImpl notification = builder.buildNotification(object, (CDORevisionDelta)delta);
+            NotificationImpl notification = builder.buildNotification(object, delta);
             if (notification != null)
             {
               notification.dispatch();
@@ -1457,12 +1462,13 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
 
     if (detachedObjects != null)
     {
-      for (CDOID id : detachedObjects)
+      for (CDOObject detachedObject : detachedObjects)
       {
+        CDOID id = detachedObject.cdoID();
         InternalCDOObject object = changeSubscriptionManager.getSubcribeObject(id);
         if (object != null && object.eNotificationRequired())
         {
-          if (!async || !isLocked(object))
+          if (!isLocked(object))
           {
             NotificationImpl notification = new CDODeltaNotificationImpl(object, CDONotification.DETACH_OBJECT,
                 Notification.NO_FEATURE_ID, null, null);
@@ -1848,7 +1854,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     {
       handleNewObjects(commitContext.getNewResources().values());
       handleNewObjects(commitContext.getNewObjects().values());
-      handleDetachedObjects(commitContext.getDetachedObjects().keySet());
+      handleDetachedObjects(commitContext.getDetachedObjects().values());
     }
 
     public void subscribe(EObject eObject, Adapter adapter)
@@ -1888,12 +1894,13 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
       }
     }
 
-    protected void handleDetachedObjects(Collection<CDOID> detachedObjects)
+    protected void handleDetachedObjects(Collection<CDOObject> detachedObjects)
     {
       synchronized (subscriptions)
       {
-        for (CDOID id : detachedObjects)
+        for (CDOObject detachedObject : detachedObjects)
         {
+          CDOID id = detachedObject.cdoID();
           SubscribeEntry entry = subscriptions.get(id);
           if (entry != null)
           {

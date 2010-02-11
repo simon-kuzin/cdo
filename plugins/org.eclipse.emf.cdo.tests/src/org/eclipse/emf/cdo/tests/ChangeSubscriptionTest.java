@@ -155,7 +155,7 @@ public class ChangeSubscriptionTest extends AbstractCDOTest
     testSeparateSession(CDOAdapterPolicy.ALL);
   }
 
-  public void testSeparateSession_disable() throws Exception
+  public void estSeparateSession_disable() throws Exception
   {
     testSeparateSession(null);
   }

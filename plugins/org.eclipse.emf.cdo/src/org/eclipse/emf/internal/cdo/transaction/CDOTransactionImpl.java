@@ -1595,15 +1595,15 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
    * @since 3.0
    */
   @Override
-  public Set<CDOObject> invalidateWithoutNotification(CDOCommitInfo commitInfo, Set<InternalCDOObject> dirtyObjects,
-      Set<InternalCDOObject> detachedObjects)
+  public Set<CDOObject> invalidateWithoutNotification(CDOCommitInfo commitInfo, List<CDORevisionDelta> deltas,
+      Set<InternalCDOObject> dirtyObjects, Set<CDOObject> detachedObjects)
   {
     // Bugzilla 298561: This override removes references to remotely
     // detached objects that are present in any DIRTY or NEW objects
     removeCrossReferences(getDirtyObjects().values(), commitInfo.getDetachedObjects());
     removeCrossReferences(getNewObjects().values(), commitInfo.getDetachedObjects());
 
-    return super.invalidateWithoutNotification(commitInfo, dirtyObjects, detachedObjects);
+    return super.invalidateWithoutNotification(commitInfo, deltas, dirtyObjects, detachedObjects);
   }
 
   private void removeCrossReferences(Collection<CDOObject> objects, Collection<CDOIDAndVersion> referencedOIDs)
