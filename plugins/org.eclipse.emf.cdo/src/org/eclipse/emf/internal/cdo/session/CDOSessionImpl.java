@@ -480,12 +480,19 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
    */
   public Collection<CDORefreshContext> refresh()
   {
-    // If passive update is turned on we don`t need to refresh.
-    // We do not throw an exception since the client could turn
-    // that feature on or off without affecting their code.
     checkActive();
     if (!options().isPassiveUpdateEnabled())
     {
+      Set<InternalCDORevision> unrevisedRevisions = new HashSet<InternalCDORevision>();
+      Map<CDOBranch, Set<InternalCDORevision>> viewedRevisions = new HashMap<CDOBranch, Set<InternalCDORevision>>();
+
+      for (CDOView view : views)
+      {
+        if (view.getTimeStamp() == CDOView.UNSPECIFIED_DATE)
+        {
+        }
+      }
+
       Map<CDOID, CDOIDAndVersion> allRevisions = getAllCDOIDAndVersion();
 
       try

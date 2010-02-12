@@ -11,6 +11,13 @@
 package org.eclipse.emf.cdo.common.protocol;
 
 import org.eclipse.emf.cdo.common.CDOCommonSession;
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
+
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Eike Stepper
@@ -19,4 +26,20 @@ import org.eclipse.emf.cdo.common.CDOCommonSession;
 public interface CDOProtocol
 {
   public CDOCommonSession getSession();
+
+  /**
+   * @author Eike Stepper
+   */
+  public interface SyncRevisionsContext
+  {
+    public Set<InternalCDORevision> getUnrevisedRevisions();
+
+    public Map<CDOBranch, Set<InternalCDORevision>> getPointerRevisions();
+
+    public void reviseRevision(CDORevisionKey revisionKey, long revised);
+
+    public void addRevision(InternalCDORevision revision);
+
+    public void addRevisionDelta(InternalCDORevisionDelta revisionDelta);
+  }
 }

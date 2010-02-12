@@ -773,6 +773,7 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     {
       range = range.increase();
       CDOID id = range.getUpperBound();
+      checkID(id);
       if (METAID_TRACER.isEnabled())
       {
         METAID_TRACER.format("Registering meta instance: {0} <-> {1}", id, metaInstance); //$NON-NLS-1$
@@ -798,8 +799,17 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
 
     private void map(CDOID metaID, InternalEObject metaInstance)
     {
+      checkID(metaID);
       idToMetaInstanceMap.put(metaID, metaInstance);
       metaInstanceToIDMap.put(metaInstance, metaID);
+    }
+
+    private void checkID(CDOID id)
+    {
+      if (!id.isMeta())
+      {
+        throw new IllegalArgumentException("Not a meta ID: " + id);
+      }
     }
   }
 }
