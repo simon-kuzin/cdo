@@ -274,7 +274,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     {
       if (!options().isGeneratedPackageEmulationEnabled())
       {
-        throw new CDOException(MessageFormat.format(Messages.getString("CDOSessionImpl.0"), packageUnit));
+        throw new CDOException(MessageFormat.format(Messages.getString("CDOSessionImpl.0"), packageUnit)); //$NON-NLS-1$
       }
     }
 
@@ -484,7 +484,6 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     // We do not throw an exception since the client could turn
     // that feature on or off without affecting their code.
     checkActive();
-    checkMainBranch();
     if (!options().isPassiveUpdateEnabled())
     {
       Map<CDOID, CDOIDAndVersion> allRevisions = getAllCDOIDAndVersion();
@@ -649,7 +648,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
                   }
                   else
                   {
-                    OM.LOG.info(Messages.getString("CDOSessionImpl.1"));
+                    OM.LOG.info(Messages.getString("CDOSessionImpl.1")); //$NON-NLS-1$
                   }
                 }
               }
@@ -695,7 +694,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       }
       else
       {
-        OM.LOG.info(Messages.getString("CDOSessionImpl.2"));
+        OM.LOG.info(Messages.getString("CDOSessionImpl.2")); //$NON-NLS-1$
       }
     }
 
@@ -909,8 +908,8 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
   @Override
   public String toString()
   {
-    String name = repositoryInfo == null ? "?" : repositoryInfo.getName();
-    return MessageFormat.format("CDOSession[{0}, {1}]", name, sessionID);
+    String name = repositoryInfo == null ? "?" : repositoryInfo.getName(); //$NON-NLS-1$
+    return MessageFormat.format("CDOSession[{0}, {1}]", name, sessionID); //$NON-NLS-1$
   }
 
   protected ResourceSet createResourceSet()
@@ -925,9 +924,9 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
   {
     if (TRACER.isEnabled())
     {
-      TRACER.format("Initializing new {0} view",
-          view.isReadOnly() ? (view.getTimeStamp() != CDOView.UNSPECIFIED_DATE ? "historical" : "read-only")
-              : "transactional");
+      TRACER.format("Initializing new {0} view", //$NON-NLS-1$
+          view.isReadOnly() ? (view.getTimeStamp() != CDOView.UNSPECIFIED_DATE ? "historical" : "read-only") //$NON-NLS-1$ //$NON-NLS-2$
+              : "transactional"); //$NON-NLS-1$
     }
 
     InternalCDOViewSet viewSet = SessionUtil.prepareResourceSet(resourceSet);
@@ -964,8 +963,8 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
   {
     super.doActivate();
     getConfiguration().activateSession(this);
-    checkState(sessionProtocol, "sessionProtocol");
-    checkState(remoteSessionManager, "remoteSessionManager");
+    checkState(sessionProtocol, "sessionProtocol"); //$NON-NLS-1$
+    checkState(remoteSessionManager, "remoteSessionManager"); //$NON-NLS-1$
     if (exceptionHandler != null)
     {
       sessionProtocol = new DelegatingSessionProtocol(sessionProtocol);
@@ -999,18 +998,6 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     EventUtil.removeListener(sessionProtocol, sessionProtocolListener);
     getConfiguration().deactivateSession(this);
     super.doDeactivate();
-  }
-
-  private void checkMainBranch()
-  {
-    for (CDOView view : views)
-    {
-      if (!view.getBranch().isMainBranch())
-      {
-        // XXX Fix for branching!!
-        throw new UnsupportedOperationException("Fix for branching");
-      }
-    }
   }
 
   private Map<CDOID, CDOIDAndVersion> getAllCDOIDAndVersion()
@@ -1087,7 +1074,6 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
 
     public synchronized void setPassiveUpdateEnabled(boolean passiveUpdateEnabled)
     {
-      checkMainBranch();
       if (this.passiveUpdateEnabled != passiveUpdateEnabled)
       {
         this.passiveUpdateEnabled = passiveUpdateEnabled;
@@ -1296,7 +1282,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     @Override
     public String toString()
     {
-      return "CDOSessionInvalidationEvent[" + commitInfo + "]";
+      return "CDOSessionInvalidationEvent[" + commitInfo + "]"; //$NON-NLS-1$ //$NON-NLS-2$
     }
   }
 
