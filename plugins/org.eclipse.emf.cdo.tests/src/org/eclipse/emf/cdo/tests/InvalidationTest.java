@@ -460,53 +460,35 @@ public class InvalidationTest extends AbstractCDOTest
 
   public void testSeparateSession_PassiveUpdateDisable() throws Exception
   {
-    msg("Creating category1");
-    final Category category1A = getModel1Factory().createCategory();
+    Category category1A = getModel1Factory().createCategory();
     category1A.setName("category1");
 
-    msg("Creating category2");
-    final Category category2A = getModel1Factory().createCategory();
+    Category category2A = getModel1Factory().createCategory();
     category2A.setName("category2");
 
-    msg("Creating category3");
-    final Category category3A = getModel1Factory().createCategory();
+    Category category3A = getModel1Factory().createCategory();
     category3A.setName("category3");
 
-    msg("Creating company");
-    final Company companyA = getModel1Factory().createCompany();
-
-    msg("Adding categories");
+    Company companyA = getModel1Factory().createCompany();
     companyA.getCategories().add(category1A);
+
     category1A.getCategories().add(category2A);
     category2A.getCategories().add(category3A);
 
-    msg("Opening sessionA");
-    final CDOSession sessionA = openModel1Session();
-
-    msg("Attaching transaction");
-    final CDOTransaction transaction = sessionA.openTransaction();
-
-    msg("Creating resource");
-    final CDOResource resourceA = transaction.createResource("/test1");
-
-    msg("Adding company");
+    CDOSession sessionA = openModel1Session();
+    CDOTransaction transaction = sessionA.openTransaction();
+    CDOResource resourceA = transaction.createResource("/test1");
     resourceA.getContents().add(companyA);
 
-    msg("Committing");
     transaction.commit();
-
     URI uriCategory1 = EcoreUtil.getURI(category1A);
 
     // ************************************************************* //
 
-    msg("Opening sessionB");
-    final CDOSession sessionB = openModel1Session();
-
+    CDOSession sessionB = openModel1Session();
     sessionB.options().setPassiveUpdateEnabled(false);
 
-    msg("Attaching viewB");
-    final CDOView viewB = sessionB.openTransaction();
-
+    CDOView viewB = sessionB.openTransaction();
     final Category category1B = (Category)viewB.getResourceSet().getEObject(uriCategory1, true);
 
     // ************************************************************* //
