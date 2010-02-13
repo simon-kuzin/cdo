@@ -500,22 +500,16 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
             {
               public void handleNewPackageUnit(InternalCDOPackageUnit packageUnit)
               {
-                // TODO: implement CDOSessionImpl.refresh(...).new RefreshSessionHandler()
-                // {...}.handleNewPackageUnit(packageUnit)
-                throw new UnsupportedOperationException();
+                getPackageRegistry().putPackageUnit(packageUnit);
               }
 
               public void handleChangedObject(CDOBranchPoint branchPoint, InternalCDORevision revision)
               {
-                // TODO: implement CDOSessionImpl.refresh().new RefreshSessionHandler() {...}.refresh()
-                throw new UnsupportedOperationException();
+                getRevisionManager().addRevision(revision);
               }
 
               public void handleDetachedObject(CDOBranchPoint branchPoint, CDOID id)
               {
-                // TODO: implement CDOSessionImpl.refresh().new RefreshSessionHandler() {...}.handleDetach(branchPoint,
-                // id)
-                throw new UnsupportedOperationException();
               }
             });
       }
