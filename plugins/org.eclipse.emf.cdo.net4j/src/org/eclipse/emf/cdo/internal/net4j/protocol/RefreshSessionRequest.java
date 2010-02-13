@@ -80,7 +80,7 @@ public class RefreshSessionRequest extends CDOClientRequest<Integer>
       if (type == CDOProtocolConstants.REFRESH_CHANGED)
       {
         CDORevision revision = in.readCDORevision();
-        handler.handleChange(branchPoint, revision);
+        handler.handleChangedObject(branchPoint, revision);
       }
       else
       {

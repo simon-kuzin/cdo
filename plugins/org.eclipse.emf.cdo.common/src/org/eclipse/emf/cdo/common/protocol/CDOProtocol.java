@@ -13,6 +13,7 @@ package org.eclipse.emf.cdo.common.protocol;
 import org.eclipse.emf.cdo.common.CDOCommonSession;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 /**
@@ -28,8 +29,10 @@ public interface CDOProtocol
    */
   public interface RefreshSessionHandler
   {
-    public void handleChange(CDOBranchPoint branchPoint, InternalCDORevision revision);
+    public void handleNewPackageUnit(InternalCDOPackageUnit packageUnit);
 
-    public void handleDetach(CDOBranchPoint branchPoint, CDOID id);
+    public void handleChangedObject(CDOBranchPoint branchPoint, InternalCDORevision revision);
+
+    public void handleDetachedObject(CDOBranchPoint branchPoint, CDOID id);
   }
 }

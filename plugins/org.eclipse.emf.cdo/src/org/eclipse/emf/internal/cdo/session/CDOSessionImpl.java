@@ -498,16 +498,23 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
         return getSessionProtocol().refresh(viewedRevisions, initialChunkSize, enablePassiveUpdates,
             new RefreshSessionHandler()
             {
-              public void handleDetach(CDOBranchPoint branchPoint, CDOID id)
+              public void handleNewPackageUnit(InternalCDOPackageUnit packageUnit)
               {
-                // TODO: implement CDOSessionImpl.refresh().new RefreshSessionHandler() {...}.handleDetach(branchPoint,
-                // id)
+                // TODO: implement CDOSessionImpl.refresh(...).new RefreshSessionHandler()
+                // {...}.handleNewPackageUnit(packageUnit)
                 throw new UnsupportedOperationException();
               }
 
-              public void handleChange(CDOBranchPoint branchPoint, InternalCDORevision revision)
+              public void handleChangedObject(CDOBranchPoint branchPoint, InternalCDORevision revision)
               {
                 // TODO: implement CDOSessionImpl.refresh().new RefreshSessionHandler() {...}.refresh()
+                throw new UnsupportedOperationException();
+              }
+
+              public void handleDetachedObject(CDOBranchPoint branchPoint, CDOID id)
+              {
+                // TODO: implement CDOSessionImpl.refresh().new RefreshSessionHandler() {...}.handleDetach(branchPoint,
+                // id)
                 throw new UnsupportedOperationException();
               }
             });
@@ -779,7 +786,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     {
       synchronized (invalidationLock)
       {
-        registerPackageUnits(commitInfo);
+        registerPackageUnits(commitInfo.getNewPackageUnits());
         invalidate(commitInfo, null);
       }
     }
@@ -796,10 +803,10 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     }
   }
 
-  private void registerPackageUnits(final CDOCommitInfo commitInfo)
+  private void registerPackageUnits(List<CDOPackageUnit> packageUnits)
   {
     InternalCDOPackageRegistry packageRegistry = getPackageRegistry();
-    for (CDOPackageUnit newPackageUnit : commitInfo.getNewPackageUnits())
+    for (CDOPackageUnit newPackageUnit : packageUnits)
     {
       packageRegistry.putPackageUnit((InternalCDOPackageUnit)newPackageUnit);
     }
@@ -831,7 +838,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       }
       else
       {
-        // ... Otherwise try to revise old revision if it is in the same branch
+        // ... otherwise try to revise old revision if it is in the same branch
         if (key.getBranch() == newBranch)
         {
           revisionManager.reviseVersion(key.getID(), key, timeStamp);
@@ -844,14 +851,14 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     {
       CDOID id = key.getID();
       int version = key.getVersion();
-      if (version != CDOBranchVersion.UNSPECIFIED_VERSION)
+      if (version == CDOBranchVersion.UNSPECIFIED_VERSION)
       {
-        CDOBranchVersion branchVersion = newBranch.getVersion(version);
-        revisionManager.reviseVersion(id, branchVersion, timeStamp);
+        revisionManager.reviseLatest(id, newBranch);
       }
       else
       {
-        revisionManager.reviseLatest(id, newBranch);
+        CDOBranchVersion branchVersion = newBranch.getVersion(version);
+        revisionManager.reviseVersion(id, branchVersion, timeStamp);
       }
     }
   }
