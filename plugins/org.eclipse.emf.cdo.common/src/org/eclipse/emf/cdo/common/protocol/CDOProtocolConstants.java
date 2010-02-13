@@ -139,6 +139,15 @@ public interface CDOProtocolConstants
   public static final int ERROR_NO_SESSION = -2;
 
   // //////////////////////////////////////////////////////////////////////
+  // Session Refresh
+
+  public static final byte REFRESH_FINISHED = 0;
+
+  public static final byte REFRESH_CHANGED = 1;
+
+  public static final byte REFRESH_DETACHED = 2;
+
+  // //////////////////////////////////////////////////////////////////////
   // Query Support
 
   public static final String QUERY_LANGUAGE_RESOURCES = "resources"; //$NON-NLS-1$

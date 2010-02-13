@@ -13,6 +13,7 @@ package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
@@ -77,9 +78,24 @@ public class RefreshSessionIndication extends CDOReadIndication
       List<CDORevisionKey> keys = entry.getValue();
       for (CDORevisionKey key : keys)
       {
-        InternalCDORevision revision = revisionManager.getRevision(key.getID(), head, initialChunkSize,
+        CDOID id = key.getID();
+        InternalCDORevision revision = revisionManager.getRevision(id, head, CDORevision.UNCHUNKED,
             CDORevision.DEPTH_NONE, true);
+
+        if (revision == null)
+        {
+          out.writeByte(CDOProtocolConstants.REFRESH_DETACHED);
+          out.writeCDOID(id);
+        }
+        else
+        {
+          out.writeByte(CDOProtocolConstants.REFRESH_CHANGED);
+          out.writeCDORevision(revision, initialChunkSize);
+        }
       }
     }
+
+    getSession().setPassiveUpdateEnabled(enablePassiveUpdates);
+    out.writeByte(CDOProtocolConstants.REFRESH_FINISHED);
   }
 }
