@@ -16,7 +16,9 @@ import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
+import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
 
 import java.io.IOException;
@@ -75,7 +77,8 @@ public class RefreshSessionIndication extends CDOReadIndication
       List<CDORevisionKey> keys = entry.getValue();
       for (CDORevisionKey key : keys)
       {
-        revisionManager.getRevision(key.getID(), head, initialChunkSize);
+        InternalCDORevision revision = revisionManager.getRevision(key.getID(), head, initialChunkSize,
+            CDORevision.DEPTH_NONE, true);
       }
     }
   }
