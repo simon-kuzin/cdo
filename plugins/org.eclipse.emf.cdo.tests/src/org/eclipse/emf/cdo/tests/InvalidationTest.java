@@ -452,9 +452,8 @@ public class InvalidationTest extends AbstractCDOTest
 
   public void testRefreshEmptyRepository() throws Exception
   {
-    msg("Opening session");
-    final CDOSession session = openModel1Session();
-    assertEquals(0, session.refresh().size());
+    CDOSession session = openModel1Session();
+    assertEquals(0, session.refresh());
     session.close();
   }
 
@@ -496,8 +495,9 @@ public class InvalidationTest extends AbstractCDOTest
     category1A.setName("CHANGED NAME");
     transaction.commit();
 
-    assertEquals(1, sessionB.refresh().size());
+    assertEquals(1, sessionB.refresh());
 
+    // TODO Why poll? refresh is synchonous...
     new PollingTimeOuter()
     {
       @Override

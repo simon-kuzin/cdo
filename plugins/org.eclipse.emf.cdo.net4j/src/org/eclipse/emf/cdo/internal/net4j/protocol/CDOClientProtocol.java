@@ -20,6 +20,7 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
+import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
 import org.eclipse.emf.cdo.common.util.TransportException;
 import org.eclipse.emf.cdo.internal.net4j.bundle.OM;
 import org.eclipse.emf.cdo.session.CDOSession;
@@ -29,14 +30,11 @@ import org.eclipse.emf.cdo.spi.common.CDOCloningContext;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.RevisionInfo;
-import org.eclipse.emf.cdo.transaction.CDORefreshContext;
 import org.eclipse.emf.cdo.view.CDOView;
 
-import org.eclipse.net4j.signal.RemoteException;
 import org.eclipse.net4j.signal.RequestWithConfirmation;
 import org.eclipse.net4j.signal.SignalProtocol;
 import org.eclipse.net4j.signal.SignalReactor;
-import org.eclipse.net4j.util.WrappedException;
 import org.eclipse.net4j.util.concurrent.IRWLockManager.LockType;
 import org.eclipse.net4j.util.io.StringCompressor;
 import org.eclipse.net4j.util.io.StringIO;
@@ -90,7 +88,10 @@ public class CDOClientProtocol extends SignalProtocol<CDOSession> implements CDO
   public void setPassiveUpdate(Map<CDOID, CDOIDAndVersion> idAndVersions, int initialChunkSize,
       boolean passiveUpdateEnabled)
   {
-    send(new SetPassiveUpdateRequest(this, idAndVersions, initialChunkSize, passiveUpdateEnabled));
+    // TODO: implement CDOClientProtocol.setPassiveUpdate(idAndVersions, initialChunkSize, passiveUpdateEnabled)
+    throw new UnsupportedOperationException();
+
+    // send(new SetPassiveUpdateRequest(this, idAndVersions, initialChunkSize, passiveUpdateEnabled));
   }
 
   public RepositoryTimeResult getRepositoryTime()
@@ -146,9 +147,10 @@ public class CDOClientProtocol extends SignalProtocol<CDOSession> implements CDO
     return send(new LoadRevisionByVersionRequest(this, id, branchVersion, referenceChunk));
   }
 
-  public Collection<CDORefreshContext> syncRevisions(Map<CDOID, CDOIDAndVersion> idAndVersions, int initialChunkSize)
+  public int refresh(Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions, int initialChunkSize,
+      boolean enablePassiveUpdates, RefreshSessionHandler handler)
   {
-    return send(new SyncRevisionsRequest(this, idAndVersions, initialChunkSize));
+    return send(new RefreshSessionRequest(this, viewedRevisions, initialChunkSize, enablePassiveUpdates, handler));
   }
 
   public void openView(int viewID, CDOBranchPoint branchPoint, boolean readOnly)
@@ -191,39 +193,42 @@ public class CDOClientProtocol extends SignalProtocol<CDOSession> implements CDO
   public void lockObjects(CDOView view, Map<CDOID, CDOIDAndVersion> objects, long timeout, LockType lockType)
       throws InterruptedException
   {
-    InterruptedException interruptedException = null;
-    RuntimeException runtimeException = null;
+    // TODO: implement CDOClientProtocol.lockObjects(view, objects, timeout, lockType)
+    throw new UnsupportedOperationException();
 
-    try
-    {
-      new LockObjectsRequest(this, view, objects, view.getSession().options().getCollectionLoadingPolicy()
-          .getInitialChunkSize(), timeout, lockType).send();
-    }
-    catch (RemoteException ex)
-    {
-      if (ex.getCause() instanceof RuntimeException)
-      {
-        runtimeException = (RuntimeException)ex.getCause();
-      }
-      else if (ex.getCause() instanceof InterruptedException)
-      {
-        interruptedException = (InterruptedException)ex.getCause();
-      }
-    }
-    catch (Exception ex)
-    {
-      throw WrappedException.wrap(ex);
-    }
-
-    if (interruptedException != null)
-    {
-      throw interruptedException;
-    }
-
-    if (runtimeException != null)
-    {
-      throw runtimeException;
-    }
+    // InterruptedException interruptedException = null;
+    // RuntimeException runtimeException = null;
+    //
+    // try
+    // {
+    // new LockObjectsRequest(this, view, objects, view.getSession().options().getCollectionLoadingPolicy()
+    // .getInitialChunkSize(), timeout, lockType).send();
+    // }
+    // catch (RemoteException ex)
+    // {
+    // if (ex.getCause() instanceof RuntimeException)
+    // {
+    // runtimeException = (RuntimeException)ex.getCause();
+    // }
+    // else if (ex.getCause() instanceof InterruptedException)
+    // {
+    // interruptedException = (InterruptedException)ex.getCause();
+    // }
+    // }
+    // catch (Exception ex)
+    // {
+    // throw WrappedException.wrap(ex);
+    // }
+    //
+    // if (interruptedException != null)
+    // {
+    // throw interruptedException;
+    // }
+    //
+    // if (runtimeException != null)
+    // {
+    // throw runtimeException;
+    // }
   }
 
   public void unlockObjects(CDOView view, Collection<? extends CDOObject> objects, LockType lockType)

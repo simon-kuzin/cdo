@@ -16,6 +16,7 @@ import org.eclipse.emf.cdo.common.commit.CDOCommitInfo;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
+import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
 import org.eclipse.emf.cdo.eresource.impl.CDOResourceImpl;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.view.CDOFeatureAnalyzer;
@@ -66,13 +67,17 @@ public interface InternalCDOView extends CDOView, CDOIDProvider, ILifecycle
 
   public void invalidate(CDOCommitInfo commitInfo);
 
-  public void getCDOIDAndVersion(Map<CDOID, CDOIDAndVersion> uniqueObjects, Collection<? extends CDOObject> objects);
-
   /**
    * @since 3.0
    */
   public void fireAdaptersNotifiedEvent(long timeStamp);
 
+  public void collectViewedRevisions(Map<CDOID, CDORevisionKey> revisions);
+
+  @Deprecated
+  public void getCDOIDAndVersion(Map<CDOID, CDOIDAndVersion> uniqueObjects, Collection<? extends CDOObject> objects);
+
+  @Deprecated
   public InternalCDOObject[] getObjectsArray();
 
   public void remapObject(CDOID oldID);

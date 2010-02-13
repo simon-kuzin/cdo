@@ -25,6 +25,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
 import org.eclipse.emf.cdo.common.revision.CDORevisionManager;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.common.util.CDOCommonUtil;
@@ -1642,6 +1643,35 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
   public org.eclipse.emf.common.notify.Notifier getTarget()
   {
     return getResourceSet();
+  }
+
+  public void collectViewedRevisions(Map<CDOID, CDORevisionKey> revisions)
+  {
+    synchronized (objects)
+    {
+      for (InternalCDOObject object : objects.values())
+      {
+        CDOID id = object.cdoID();
+        if (revisions.containsKey(id))
+        {
+          continue;
+        }
+
+        CDOState state = object.cdoState();
+        if (state != CDOState.DIRTY && state != CDOState.CONFLICT)
+        {
+          continue;
+        }
+
+        InternalCDORevision revision = CDOStateMachine.INSTANCE.readNoLoad(object);
+        if (revision == null)
+        {
+          continue;
+        }
+
+        revisions.put(id, revision);
+      }
+    }
   }
 
   public void getCDOIDAndVersion(Map<CDOID, CDOIDAndVersion> uniqueObjects, Collection<? extends CDOObject> cdoObjects)

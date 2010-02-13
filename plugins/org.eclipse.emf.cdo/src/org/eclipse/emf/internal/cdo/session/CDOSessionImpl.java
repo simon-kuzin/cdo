@@ -25,9 +25,9 @@ import org.eclipse.emf.cdo.common.commit.CDOCommitInfoHandler;
 import org.eclipse.emf.cdo.common.commit.CDOCommitInfoManager;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
-import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDOAuthenticator;
+import org.eclipse.emf.cdo.common.protocol.CDOProtocol.RefreshSessionHandler;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
@@ -45,7 +45,6 @@ import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
 import org.eclipse.emf.cdo.spi.common.revision.RevisionInfo;
-import org.eclipse.emf.cdo.transaction.CDORefreshContext;
 import org.eclipse.emf.cdo.view.CDOFetchRuleManager;
 import org.eclipse.emf.cdo.view.CDOView;
 
@@ -93,7 +92,6 @@ import org.eclipse.emf.spi.cdo.InternalCDOTransaction.InternalCDOCommitContext;
 import org.eclipse.emf.spi.cdo.InternalCDOXATransaction.InternalCDOXACommitContext;
 
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -478,29 +476,32 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
   /**
    * @since 2.0
    */
-  public Collection<CDORefreshContext> refresh()
+  public int refresh()
   {
     checkActive();
     if (!options().isPassiveUpdateEnabled())
     {
-      Set<InternalCDORevision> unrevisedRevisions = new HashSet<InternalCDORevision>();
-      Map<CDOBranch, Set<InternalCDORevision>> viewedRevisions = new HashMap<CDOBranch, Set<InternalCDORevision>>();
-
-      for (CDOView view : views)
-      {
-        if (view.getTimeStamp() == CDOView.UNSPECIFIED_DATE)
-        {
-        }
-      }
-
-      Map<CDOID, CDOIDAndVersion> allRevisions = getAllCDOIDAndVersion();
-
       try
       {
-        if (!allRevisions.isEmpty())
+        Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions = getAllViewedRevisions();
+        if (!viewedRevisions.isEmpty())
         {
           int initialChunkSize = options().getCollectionLoadingPolicy().getInitialChunkSize();
-          return getSessionProtocol().syncRevisions(allRevisions, initialChunkSize);
+          return getSessionProtocol().refresh(viewedRevisions, initialChunkSize, false, new RefreshSessionHandler()
+          {
+            public void handleDetach(CDOBranchPoint branchPoint, CDOID id)
+            {
+              // TODO: implement CDOSessionImpl.refresh().new RefreshSessionHandler() {...}.handleDetach(branchPoint,
+              // id)
+              throw new UnsupportedOperationException();
+            }
+
+            public void handleChange(CDOBranchPoint branchPoint, InternalCDORevision revision)
+            {
+              // TODO: implement CDOSessionImpl.refresh().new RefreshSessionHandler() {...}.refresh()
+              throw new UnsupportedOperationException();
+            }
+          });
         }
       }
       catch (Exception ex)
@@ -509,7 +510,33 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       }
     }
 
-    return Collections.emptyList();
+    return 0;
+  }
+
+  private Map<CDOBranch, Map<CDOID, CDORevisionKey>> getAllViewedRevisions()
+  {
+    Map<CDOBranch, Map<CDOID, CDORevisionKey>> result = new HashMap<CDOBranch, Map<CDOID, CDORevisionKey>>();
+    for (InternalCDOView view : getViews())
+    {
+      if (view.getTimeStamp() == CDOView.UNSPECIFIED_DATE)
+      {
+        CDOBranch branch = view.getBranch();
+        Map<CDOID, CDORevisionKey> revisions = result.get(branch);
+        boolean needNewMap = revisions == null;
+        if (needNewMap)
+        {
+          revisions = new HashMap<CDOID, CDORevisionKey>();
+        }
+
+        view.collectViewedRevisions(revisions);
+        if (needNewMap && !revisions.isEmpty())
+        {
+          result.put(branch, revisions);
+        }
+      }
+    }
+
+    return result;
   }
 
   public long getLastUpdateTime()
@@ -582,157 +609,158 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     getBranchManager().handleBranchCreated(branch);
   }
 
-  /**
-   * @since 2.0
-   */
-  public void handleSyncResponse(CDOBranchPoint branchPoint, Collection<CDOPackageUnit> newPackageUnits,
-      Set<CDOIDAndVersion> dirtyOIDs, Collection<CDOID> detachedObjects)
-  {
-    handleCommitNotification___OLD(branchPoint, newPackageUnits, dirtyOIDs, detachedObjects, null, null, true, false);
-  }
-
-  @Deprecated
-  private void handleCommitNotification___OLD(CDOBranchPoint branchPoint,
-      final Collection<CDOPackageUnit> newPackageUnits, Set<CDOIDAndVersion> dirtyOIDs,
-      final Collection<CDOID> detachedObjects, final Collection<CDORevisionDelta> deltas, InternalCDOView excludedView,
-      final boolean reviseAndInvalidate, final boolean async)
-  {
-    final CDOBranch branch = branchPoint.getBranch();
-    final long timeStamp = branchPoint.getTimeStamp();
-
-    try
-    {
-      synchronized (invalidationLock)
-      {
-        if (reviseAndInvalidate)
-        {
-          reviseRevisions(branchPoint, dirtyOIDs, detachedObjects, excludedView);
-        }
-
-        final Set<CDOIDAndVersion> finalDirtyOIDs = Collections.unmodifiableSet(dirtyOIDs);
-        final Collection<CDOID> finalDetachedObjects = Collections.unmodifiableCollection(detachedObjects);
-        final boolean skipChangeSubscription = (deltas == null || deltas.size() <= 0)
-            && (detachedObjects == null || detachedObjects.size() <= 0);
-
-        for (final InternalCDOView view : getViews())
-        {
-          if (view != excludedView && view.getBranch().equals(branch))
-          {
-            final Runnable runnable = new Runnable()
-            {
-              public void run()
-              {
-                try
-                {
-                  // Set<CDOObject> conflicts = null;
-                  // if (reviseAndInvalidate)
-                  // {
-                  // conflicts = view.handleInvalidation(timeStamp, finalDirtyOIDs, finalDetachedObjects, async);
-                  // }
-                  //
-                  // if (!skipChangeSubscription)
-                  // {
-                  // view.handleChangeSubscription(deltas, detachedObjects, async);
-                  // }
-                  //
-                  // if (conflicts != null)
-                  // {
-                  // ((InternalCDOTransaction)view).handleConflicts(conflicts);
-                  // }
-                  //
-                  // view.fireAdaptersNotifiedEvent(timeStamp);
-                }
-                catch (RuntimeException ex)
-                {
-                  if (!async)
-                  {
-                    throw ex;
-                  }
-
-                  if (view.isActive())
-                  {
-                    OM.LOG.error(ex);
-                  }
-                  else
-                  {
-                    OM.LOG.info(Messages.getString("CDOSessionImpl.1")); //$NON-NLS-1$
-                  }
-                }
-              }
-            };
-
-            if (async)
-            {
-              QueueRunner runner = getInvalidationRunner();
-              runner.addWork(new Runnable()
-              {
-                public void run()
-                {
-                  try
-                  {
-                    invalidationRunnerActive.set(true);
-                    runnable.run();
-                  }
-                  finally
-                  {
-                    invalidationRunnerActive.set(false);
-                  }
-                }
-              });
-            }
-            else
-            {
-              runnable.run();
-            }
-          }
-        }
-      }
-    }
-    catch (RuntimeException ex)
-    {
-      if (!async)
-      {
-        throw ex;
-      }
-
-      if (isActive())
-      {
-        OM.LOG.error(ex);
-      }
-      else
-      {
-        OM.LOG.info(Messages.getString("CDOSessionImpl.2")); //$NON-NLS-1$
-      }
-    }
-
-    setLastUpdateTime(timeStamp);
-    throw new UnsupportedOperationException();
-    // fireInvalidationEvent(branchPoint, newPackageUnits, dirtyOIDs, detachedObjects, excludedView);
-  }
-
-  @Deprecated
-  private void reviseRevisions(CDOBranchPoint branchPoint, Set<CDOIDAndVersion> dirtyOIDs,
-      Collection<CDOID> detachedObjects, InternalCDOView excludedView)
-  {
-    InternalCDORevisionManager revisionManager = getRevisionManager();
-    CDOBranch branch = branchPoint.getBranch();
-    long timeStamp = branchPoint.getTimeStamp();
-
-    if (excludedView == null || timeStamp == CDORevision.UNSPECIFIED_DATE)
-    {
-      for (CDOIDAndVersion dirtyOID : dirtyOIDs)
-      {
-        CDOID id = dirtyOID.getID();
-        int version = dirtyOID.getVersion();
-        revisionManager.reviseVersion(id, branch.getVersion(version), timeStamp);
-      }
-    }
-
-    for (CDOID id : detachedObjects)
-    {
-      revisionManager.reviseLatest(id, branch);
-    }
-  }
+  // /**
+  // * @since 2.0
+  // */
+  // @Deprecated
+  // public void handleSyncResponse(CDOBranchPoint branchPoint, Collection<CDOPackageUnit> newPackageUnits,
+  // Set<CDOIDAndVersion> dirtyOIDs, Collection<CDOID> detachedObjects)
+  // {
+  // handleCommitNotification___OLD(branchPoint, newPackageUnits, dirtyOIDs, detachedObjects, null, null, true, false);
+  // }
+  //
+  // @Deprecated
+  // private void handleCommitNotification___OLD(CDOBranchPoint branchPoint,
+  // final Collection<CDOPackageUnit> newPackageUnits, Set<CDOIDAndVersion> dirtyOIDs,
+  // final Collection<CDOID> detachedObjects, final Collection<CDORevisionDelta> deltas, InternalCDOView excludedView,
+  // final boolean reviseAndInvalidate, final boolean async)
+  // {
+  // final CDOBranch branch = branchPoint.getBranch();
+  // final long timeStamp = branchPoint.getTimeStamp();
+  //
+  // try
+  // {
+  // synchronized (invalidationLock)
+  // {
+  // if (reviseAndInvalidate)
+  // {
+  // reviseRevisions(branchPoint, dirtyOIDs, detachedObjects, excludedView);
+  // }
+  //
+  // final Set<CDOIDAndVersion> finalDirtyOIDs = Collections.unmodifiableSet(dirtyOIDs);
+  // final Collection<CDOID> finalDetachedObjects = Collections.unmodifiableCollection(detachedObjects);
+  // final boolean skipChangeSubscription = (deltas == null || deltas.size() <= 0)
+  // && (detachedObjects == null || detachedObjects.size() <= 0);
+  //
+  // for (final InternalCDOView view : getViews())
+  // {
+  // if (view != excludedView && view.getBranch().equals(branch))
+  // {
+  // final Runnable runnable = new Runnable()
+  // {
+  // public void run()
+  // {
+  // try
+  // {
+  // // Set<CDOObject> conflicts = null;
+  // // if (reviseAndInvalidate)
+  // // {
+  // // conflicts = view.handleInvalidation(timeStamp, finalDirtyOIDs, finalDetachedObjects, async);
+  // // }
+  // //
+  // // if (!skipChangeSubscription)
+  // // {
+  // // view.handleChangeSubscription(deltas, detachedObjects, async);
+  // // }
+  // //
+  // // if (conflicts != null)
+  // // {
+  // // ((InternalCDOTransaction)view).handleConflicts(conflicts);
+  // // }
+  // //
+  // // view.fireAdaptersNotifiedEvent(timeStamp);
+  // }
+  // catch (RuntimeException ex)
+  // {
+  // if (!async)
+  // {
+  // throw ex;
+  // }
+  //
+  // if (view.isActive())
+  // {
+  // OM.LOG.error(ex);
+  // }
+  // else
+  // {
+  //                    OM.LOG.info(Messages.getString("CDOSessionImpl.1")); //$NON-NLS-1$
+  // }
+  // }
+  // }
+  // };
+  //
+  // if (async)
+  // {
+  // QueueRunner runner = getInvalidationRunner();
+  // runner.addWork(new Runnable()
+  // {
+  // public void run()
+  // {
+  // try
+  // {
+  // invalidationRunnerActive.set(true);
+  // runnable.run();
+  // }
+  // finally
+  // {
+  // invalidationRunnerActive.set(false);
+  // }
+  // }
+  // });
+  // }
+  // else
+  // {
+  // runnable.run();
+  // }
+  // }
+  // }
+  // }
+  // }
+  // catch (RuntimeException ex)
+  // {
+  // if (!async)
+  // {
+  // throw ex;
+  // }
+  //
+  // if (isActive())
+  // {
+  // OM.LOG.error(ex);
+  // }
+  // else
+  // {
+  //        OM.LOG.info(Messages.getString("CDOSessionImpl.2")); //$NON-NLS-1$
+  // }
+  // }
+  //
+  // setLastUpdateTime(timeStamp);
+  // throw new UnsupportedOperationException();
+  // // fireInvalidationEvent(branchPoint, newPackageUnits, dirtyOIDs, detachedObjects, excludedView);
+  // }
+  //
+  // @Deprecated
+  // private void reviseRevisions(CDOBranchPoint branchPoint, Set<CDOIDAndVersion> dirtyOIDs,
+  // Collection<CDOID> detachedObjects, InternalCDOView excludedView)
+  // {
+  // InternalCDORevisionManager revisionManager = getRevisionManager();
+  // CDOBranch branch = branchPoint.getBranch();
+  // long timeStamp = branchPoint.getTimeStamp();
+  //
+  // if (excludedView == null || timeStamp == CDORevision.UNSPECIFIED_DATE)
+  // {
+  // for (CDOIDAndVersion dirtyOID : dirtyOIDs)
+  // {
+  // CDOID id = dirtyOID.getID();
+  // int version = dirtyOID.getVersion();
+  // revisionManager.reviseVersion(id, branch.getVersion(version), timeStamp);
+  // }
+  // }
+  //
+  // for (CDOID id : detachedObjects)
+  // {
+  // revisionManager.reviseLatest(id, branch);
+  // }
+  // }
 
   /**
    * @since 2.0
@@ -1007,25 +1035,25 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     super.doDeactivate();
   }
 
-  private Map<CDOID, CDOIDAndVersion> getAllCDOIDAndVersion()
-  {
-    Map<CDOID, CDOIDAndVersion> uniqueObjects = new HashMap<CDOID, CDOIDAndVersion>();
-    for (InternalCDOView view : getViews())
-    {
-      view.getCDOIDAndVersion(uniqueObjects, Arrays.asList(view.getObjectsArray()));
-    }
-
-    // Need to add Revision from revisionManager since we do not have all objects in view.
-    for (CDORevision revision : getRevisionManager().getCache().getCurrentRevisions())
-    {
-      if (!uniqueObjects.containsKey(revision.getID()))
-      {
-        uniqueObjects.put(revision.getID(), CDOIDUtil.createIDAndVersion(revision.getID(), revision.getVersion()));
-      }
-    }
-
-    return uniqueObjects;
-  }
+  // private Map<CDOID, CDOIDAndVersion> getAllCDOIDAndVersion()
+  // {
+  // Map<CDOID, CDOIDAndVersion> uniqueObjects = new HashMap<CDOID, CDOIDAndVersion>();
+  // for (InternalCDOView view : getViews())
+  // {
+  // view.getCDOIDAndVersion(uniqueObjects, Arrays.asList(view.getObjectsArray()));
+  // }
+  //
+  // // Need to add Revision from revisionManager since we do not have all objects in view.
+  // for (CDORevision revision : getRevisionManager().getCache().getCurrentRevisions())
+  // {
+  // if (!uniqueObjects.containsKey(revision.getID()))
+  // {
+  // uniqueObjects.put(revision.getID(), CDOIDUtil.createIDAndVersion(revision.getID(), revision.getVersion()));
+  // }
+  // }
+  //
+  // return uniqueObjects;
+  // }
 
   public static boolean isInvalidationRunnerActive()
   {
@@ -1081,21 +1109,24 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
 
     public synchronized void setPassiveUpdateEnabled(boolean passiveUpdateEnabled)
     {
-      if (this.passiveUpdateEnabled != passiveUpdateEnabled)
+      // if (this.passiveUpdateEnabled != passiveUpdateEnabled)
+      // {
+      // this.passiveUpdateEnabled = passiveUpdateEnabled;
+      //
+      // // // Need to refresh if we change state
+      // // Map<CDOID, CDOIDAndVersion> allRevisions = getAllCDOIDAndVersion();
+      // // int initialChunkSize = collectionLoadingPolicy.getInitialChunkSize();
+      // // getSessionProtocol().setPassiveUpdate(allRevisions, initialChunkSize, passiveUpdateEnabled);
+
+      IListener[] listeners = getListeners();
+      if (listeners != null)
       {
-        this.passiveUpdateEnabled = passiveUpdateEnabled;
-
-        // Need to refresh if we change state
-        Map<CDOID, CDOIDAndVersion> allRevisions = getAllCDOIDAndVersion();
-        int initialChunkSize = collectionLoadingPolicy.getInitialChunkSize();
-        getSessionProtocol().setPassiveUpdate(allRevisions, initialChunkSize, passiveUpdateEnabled);
-
-        IListener[] listeners = getListeners();
-        if (listeners != null)
-        {
-          fireEvent(new PassiveUpdateEventImpl(), listeners);
-        }
+        fireEvent(new PassiveUpdateEventImpl(), listeners);
       }
+      // }
+
+      // TODO: implement CDOSessionImpl.OptionsImpl.setPassiveUpdateEnabled(passiveUpdateEnabled)
+      throw new UnsupportedOperationException();
     }
 
     public CDOCollectionLoadingPolicy getCollectionLoadingPolicy()
@@ -1721,14 +1752,15 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       }
     }
 
-    public Collection<CDORefreshContext> syncRevisions(Map<CDOID, CDOIDAndVersion> allRevisions, int initialChunkSize)
+    public int refresh(Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions, int initialChunkSize,
+        boolean enablePassiveUpdates, RefreshSessionHandler handler)
     {
       int attempt = 0;
       for (;;)
       {
         try
         {
-          return delegate.syncRevisions(allRevisions, initialChunkSize);
+          return delegate.refresh(viewedRevisions, initialChunkSize, enablePassiveUpdates, handler);
         }
         catch (Exception ex)
         {

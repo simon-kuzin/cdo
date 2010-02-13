@@ -212,8 +212,8 @@ public class CDOServerProtocol extends SignalProtocol<InternalSession> implement
     case CDOProtocolConstants.SIGNAL_QUERY_CANCEL:
       return new QueryCancelIndication(this);
 
-    case CDOProtocolConstants.SIGNAL_SYNC_REVISIONS:
-      return new SyncRevisionsIndication(this);
+    case CDOProtocolConstants.SIGNAL_REFRESH_SESSION:
+      return new RefreshSessionIndication(this);
 
     case CDOProtocolConstants.SIGNAL_PASSIVE_UPDATE:
       return new SetPassiveUpdateIndication(this);

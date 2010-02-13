@@ -71,7 +71,7 @@ public interface CDOProtocolConstants
 
   public static final short SIGNAL_QUERY_CANCEL = 17;
 
-  public static final short SIGNAL_SYNC_REVISIONS = 18;
+  public static final short SIGNAL_REFRESH_SESSION = 18;
 
   public static final short SIGNAL_PASSIVE_UPDATE = 19;
 
