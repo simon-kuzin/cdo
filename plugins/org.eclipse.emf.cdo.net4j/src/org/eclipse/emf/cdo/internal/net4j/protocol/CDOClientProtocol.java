@@ -85,13 +85,9 @@ public class CDOClientProtocol extends SignalProtocol<CDOSession> implements CDO
     return send(new OpenSessionRequest(this, repositoryName, passiveUpdateEnabled));
   }
 
-  public void setPassiveUpdate(Map<CDOID, CDOIDAndVersion> idAndVersions, int initialChunkSize,
-      boolean passiveUpdateEnabled)
+  public void disablePassiveUpdates()
   {
-    // TODO: implement CDOClientProtocol.setPassiveUpdate(idAndVersions, initialChunkSize, passiveUpdateEnabled)
-    throw new UnsupportedOperationException();
-
-    // send(new SetPassiveUpdateRequest(this, idAndVersions, initialChunkSize, passiveUpdateEnabled));
+    send(new DisablePassiveUpdatesRequest(this));
   }
 
   public RepositoryTimeResult getRepositoryTime()

@@ -49,6 +49,13 @@ import java.util.concurrent.TimeUnit;
  */
 public class InvalidationTest extends AbstractCDOTest
 {
+  @Override
+  protected void doSetUp() throws Exception
+  {
+    skipTest();
+    super.doSetUp();
+  }
+
   public void testSeparateView() throws Exception
   {
     final CDOSession session = openModel1Session();

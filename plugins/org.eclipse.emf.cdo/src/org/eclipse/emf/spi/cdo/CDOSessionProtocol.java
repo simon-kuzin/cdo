@@ -56,8 +56,7 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, BranchLo
 {
   public RepositoryTimeResult getRepositoryTime();
 
-  public void setPassiveUpdate(Map<CDOID, CDOIDAndVersion> idAndVersions, int initialChunkSize,
-      boolean passiveUpdateEnabled);
+  public void disablePassiveUpdates();
 
   public int refresh(Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions, int initialChunkSize,
       boolean enablePassiveUpdates, RefreshSessionHandler handler);

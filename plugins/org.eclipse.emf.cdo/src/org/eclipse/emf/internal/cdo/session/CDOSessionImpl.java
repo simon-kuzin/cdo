@@ -481,33 +481,41 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     checkActive();
     if (!options().isPassiveUpdateEnabled())
     {
-      try
-      {
-        Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions = getAllViewedRevisions();
-        if (!viewedRevisions.isEmpty())
-        {
-          int initialChunkSize = options().getCollectionLoadingPolicy().getInitialChunkSize();
-          return getSessionProtocol().refresh(viewedRevisions, initialChunkSize, false, new RefreshSessionHandler()
-          {
-            public void handleDetach(CDOBranchPoint branchPoint, CDOID id)
-            {
-              // TODO: implement CDOSessionImpl.refresh().new RefreshSessionHandler() {...}.handleDetach(branchPoint,
-              // id)
-              throw new UnsupportedOperationException();
-            }
+      return refresh(false);
+    }
 
-            public void handleChange(CDOBranchPoint branchPoint, InternalCDORevision revision)
-            {
-              // TODO: implement CDOSessionImpl.refresh().new RefreshSessionHandler() {...}.refresh()
-              throw new UnsupportedOperationException();
-            }
-          });
-        }
-      }
-      catch (Exception ex)
+    return 0;
+  }
+
+  private int refresh(boolean enablePassiveUpdates)
+  {
+    try
+    {
+      Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions = getAllViewedRevisions();
+      if (!viewedRevisions.isEmpty())
       {
-        throw WrappedException.wrap(ex);
+        int initialChunkSize = options().getCollectionLoadingPolicy().getInitialChunkSize();
+        return getSessionProtocol().refresh(viewedRevisions, initialChunkSize, enablePassiveUpdates,
+            new RefreshSessionHandler()
+            {
+              public void handleDetach(CDOBranchPoint branchPoint, CDOID id)
+              {
+                // TODO: implement CDOSessionImpl.refresh().new RefreshSessionHandler() {...}.handleDetach(branchPoint,
+                // id)
+                throw new UnsupportedOperationException();
+              }
+
+              public void handleChange(CDOBranchPoint branchPoint, InternalCDORevision revision)
+              {
+                // TODO: implement CDOSessionImpl.refresh().new RefreshSessionHandler() {...}.refresh()
+                throw new UnsupportedOperationException();
+              }
+            });
       }
+    }
+    catch (Exception ex)
+    {
+      throw WrappedException.wrap(ex);
     }
 
     return 0;
@@ -1107,26 +1115,29 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       return passiveUpdateEnabled;
     }
 
-    public synchronized void setPassiveUpdateEnabled(boolean passiveUpdateEnabled)
+    public synchronized int setPassiveUpdateEnabled(boolean passiveUpdateEnabled)
     {
-      // if (this.passiveUpdateEnabled != passiveUpdateEnabled)
-      // {
-      // this.passiveUpdateEnabled = passiveUpdateEnabled;
-      //
-      // // // Need to refresh if we change state
-      // // Map<CDOID, CDOIDAndVersion> allRevisions = getAllCDOIDAndVersion();
-      // // int initialChunkSize = collectionLoadingPolicy.getInitialChunkSize();
-      // // getSessionProtocol().setPassiveUpdate(allRevisions, initialChunkSize, passiveUpdateEnabled);
-
-      IListener[] listeners = getListeners();
-      if (listeners != null)
+      int result = 0;
+      if (this.passiveUpdateEnabled != passiveUpdateEnabled)
       {
-        fireEvent(new PassiveUpdateEventImpl(), listeners);
-      }
-      // }
+        this.passiveUpdateEnabled = passiveUpdateEnabled;
+        if (passiveUpdateEnabled)
+        {
+          refresh(true);
+        }
+        else
+        {
+          getSessionProtocol().disablePassiveUpdates();
+        }
 
-      // TODO: implement CDOSessionImpl.OptionsImpl.setPassiveUpdateEnabled(passiveUpdateEnabled)
-      throw new UnsupportedOperationException();
+        IListener[] listeners = getListeners();
+        if (listeners != null)
+        {
+          fireEvent(new PassiveUpdateEventImpl(), listeners);
+        }
+      }
+
+      return result;
     }
 
     public CDOCollectionLoadingPolicy getCollectionLoadingPolicy()
@@ -1734,15 +1745,14 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       }
     }
 
-    public void setPassiveUpdate(Map<CDOID, CDOIDAndVersion> idAndVersions, int initialChunkSize,
-        boolean passiveUpdateEnabled)
+    public void disablePassiveUpdates()
     {
       int attempt = 0;
       for (;;)
       {
         try
         {
-          delegate.setPassiveUpdate(idAndVersions, initialChunkSize, passiveUpdateEnabled);
+          delegate.disablePassiveUpdates();
           return;
         }
         catch (Exception ex)

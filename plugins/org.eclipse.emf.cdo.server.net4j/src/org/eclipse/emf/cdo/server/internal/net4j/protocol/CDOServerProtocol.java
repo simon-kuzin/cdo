@@ -215,8 +215,8 @@ public class CDOServerProtocol extends SignalProtocol<InternalSession> implement
     case CDOProtocolConstants.SIGNAL_REFRESH_SESSION:
       return new RefreshSessionIndication(this);
 
-    case CDOProtocolConstants.SIGNAL_PASSIVE_UPDATE:
-      return new SetPassiveUpdateIndication(this);
+    case CDOProtocolConstants.SIGNAL_DISABLE_PASSIVE_UPDATES:
+      return new DisablePassiveUpdatesIndication(this);
 
     case CDOProtocolConstants.SIGNAL_CHANGE_SUBSCRIPTION:
       return new ChangeSubscriptionIndication(this);

@@ -128,8 +128,7 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
     return result;
   }
 
-  public void setPassiveUpdate(Map<CDOID, CDOIDAndVersion> idAndVersions, int initialChunkSize,
-      boolean passiveUpdateEnabled)
+  public void disablePassiveUpdates()
   {
     // serverSessionProtocol.getSession().setPassiveUpdateEnabled(passiveUpdateEnabled);
     // TODO: implement EmbeddedClientSessionProtocol.setPassiveUpdate(idAndVersions, initialChunkSize,

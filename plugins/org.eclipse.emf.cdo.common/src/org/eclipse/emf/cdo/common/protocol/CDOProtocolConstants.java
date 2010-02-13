@@ -73,7 +73,7 @@ public interface CDOProtocolConstants
 
   public static final short SIGNAL_REFRESH_SESSION = 18;
 
-  public static final short SIGNAL_PASSIVE_UPDATE = 19;
+  public static final short SIGNAL_DISABLE_PASSIVE_UPDATES = 19;
 
   public static final short SIGNAL_CHANGE_SUBSCRIPTION = 20;
 

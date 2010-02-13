@@ -182,10 +182,11 @@ public class Session extends Container<IView> implements InternalSession
   /**
    * @since 2.0
    */
-  public void setPassiveUpdateEnabled(boolean passiveUpdateEnabled)
+  public int setPassiveUpdateEnabled(boolean passiveUpdateEnabled)
   {
     checkActive();
     this.passiveUpdateEnabled = passiveUpdateEnabled;
+    return 0;
   }
 
   public InternalView[] getElements()
