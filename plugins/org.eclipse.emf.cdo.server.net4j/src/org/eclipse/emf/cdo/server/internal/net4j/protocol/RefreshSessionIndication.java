@@ -12,22 +12,26 @@
 package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
-import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * @author Simon McDuff
  */
 public class RefreshSessionIndication extends CDOReadIndication
 {
-  private Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions = new HashMap<CDOBranch, Map<CDOID, CDORevisionKey>>();
+  private Map<CDOBranch, List<CDORevisionKey>> viewedRevisions = new HashMap<CDOBranch, List<CDORevisionKey>>();
 
   private int initialChunkSize;
 
@@ -48,13 +52,13 @@ public class RefreshSessionIndication extends CDOReadIndication
     for (int i = 0; i < branches; i++)
     {
       CDOBranch branch = in.readCDOBranch();
-      Map<CDOID, CDORevisionKey> revisions = new HashMap<CDOID, CDORevisionKey>();
+      List<CDORevisionKey> revisions = new ArrayList<CDORevisionKey>();
       viewedRevisions.put(branch, revisions);
       int size = in.readInt();
       for (int j = 0; j < size; j++)
       {
         CDORevisionKey revision = in.readCDORevisionKey();
-        revisions.put(revision.getID(), revision);
+        revisions.add(revision);
       }
     }
   }
@@ -62,5 +66,17 @@ public class RefreshSessionIndication extends CDOReadIndication
   @Override
   protected void responding(CDODataOutput out) throws IOException
   {
+    InternalCDORevisionManager revisionManager = getRepository().getRevisionManager();
+    for (Entry<CDOBranch, List<CDORevisionKey>> entry : viewedRevisions.entrySet())
+    {
+      CDOBranch branch = entry.getKey();
+      CDOBranchPoint head = branch.getHead();
+
+      List<CDORevisionKey> keys = entry.getValue();
+      for (CDORevisionKey key : keys)
+      {
+        revisionManager.getRevision(key.getID(), head, initialChunkSize);
+      }
+    }
   }
 }
