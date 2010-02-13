@@ -17,6 +17,7 @@ import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocol.RefreshSessionHandler;
+import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
 
 import java.io.IOException;
@@ -72,16 +73,18 @@ public class RefreshSessionRequest extends CDOClientRequest<Integer>
   protected Integer confirming(CDODataInput in) throws IOException
   {
     int count = 0;
-    while (in.readBoolean())
+    byte type;
+    while ((type = in.readByte()) != CDOProtocolConstants.REFRESH_FINISHED)
     {
       ++count;
-      // handler.handleChange();
-    }
-
-    while (in.readBoolean())
-    {
-      ++count;
-      // handler.handleDetach();
+      if (type == CDOProtocolConstants.REFRESH_CHANGED)
+      {
+        CDORevision revision = in.readCDORevision();
+        handler.handleChange(branchPoint, revision);
+      }
+      else
+      {
+      }
     }
 
     return count;

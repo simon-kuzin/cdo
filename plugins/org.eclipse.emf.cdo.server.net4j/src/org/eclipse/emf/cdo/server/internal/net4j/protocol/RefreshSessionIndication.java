@@ -87,7 +87,7 @@ public class RefreshSessionIndication extends CDOReadIndication
           out.writeByte(CDOProtocolConstants.REFRESH_DETACHED);
           out.writeCDOID(id);
         }
-        else
+        else if (hasChanged(key, revision))
         {
           out.writeByte(CDOProtocolConstants.REFRESH_CHANGED);
           out.writeCDORevision(revision, initialChunkSize);
@@ -97,5 +97,10 @@ public class RefreshSessionIndication extends CDOReadIndication
 
     getSession().setPassiveUpdateEnabled(enablePassiveUpdates);
     out.writeByte(CDOProtocolConstants.REFRESH_FINISHED);
+  }
+
+  private static  boolean hasChanged(CDORevisionKey oldKey, CDORevisionKey newKey)
+  {
+    return oldKey.getBranch() != newKey.getBranch() || oldKey.getVersion() != newKey.getVersion();
   }
 }

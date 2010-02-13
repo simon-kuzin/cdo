@@ -881,7 +881,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
   /**
    * @since 2.0
    */
-  public void invalidate(final CDOCommitInfo commitInfo, final InternalCDOTransaction sender)
+  public void invalidate(CDOCommitInfo commitInfo, InternalCDOTransaction sender)
   {
     reviseRevisions(commitInfo);
 
