@@ -1688,14 +1688,6 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     }
   }
 
-  public void refreshChangedObject(InternalCDORevision revision)
-  {
-  }
-
-  public void refreshDetachedObject(CDOID id)
-  {
-  }
-
   /**
    * @since 2.0
    */

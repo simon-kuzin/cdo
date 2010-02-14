@@ -75,10 +75,6 @@ public interface InternalCDOView extends CDOView, CDOIDProvider, ILifecycle
 
   public void collectViewedRevisions(Map<CDOID, CDORevisionKey> revisions);
 
-  public void refreshChangedObject(InternalCDORevision revision);
-
-  public void refreshDetachedObject(CDOID id);
-
   @Deprecated
   public void getCDOIDAndVersion(Map<CDOID, CDOIDAndVersion> uniqueObjects, Collection<? extends CDOObject> objects);
 

@@ -27,7 +27,6 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDOAuthenticator;
-import org.eclipse.emf.cdo.common.protocol.CDOProtocol.RefreshSessionHandler;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
@@ -92,6 +91,7 @@ import org.eclipse.emf.spi.cdo.InternalCDOTransaction.InternalCDOCommitContext;
 import org.eclipse.emf.spi.cdo.InternalCDOXATransaction.InternalCDOXACommitContext;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -491,48 +491,59 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
   {
     try
     {
-      final Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions = getAllViewedRevisions();
+      Map<CDOBranch, List<InternalCDOView>> views = new HashMap<CDOBranch, List<InternalCDOView>>();
+      Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions = new HashMap<CDOBranch, Map<CDOID, CDORevisionKey>>();
+      collectViewedRevisions(views, viewedRevisions);
       if (!viewedRevisions.isEmpty())
       {
+        // RefreshSessionHandler handler = new RefreshSessionHandler()
+        // {
+        // public void handlePackageUnit(InternalCDOPackageUnit packageUnit)
+        // {
+        // getPackageRegistry().putPackageUnit(packageUnit);
+        // }
+        //
+        // public void handleChangedObject(InternalCDORevision revision)
+        // {
+        // getRevisionManager().addRevision(revision);
+        // CDOBranch branch = revision.getBranch();
+        // for (InternalCDOView view : getViews())
+        // {
+        // if (view.getBranch() == branch && view.getTimeStamp() == CDOView.UNSPECIFIED_DATE)
+        // {
+        // view.refreshChangedObject(revision);
+        // }
+        // }
+        // }
+        //
+        // public void handleDetachedObject(CDOID id, CDOBranchVersion branchVersion, long timeStamp)
+        // {
+        // getRevisionManager().reviseVersion(id, branchVersion, timeStamp);
+        // CDOBranch branch = branchVersion.getBranch();
+        // for (InternalCDOView view : getViews())
+        // {
+        // if (view.getBranch() == branch && view.getTimeStamp() == CDOView.UNSPECIFIED_DATE)
+        // {
+        // view.refreshDetachedObject(id);
+        // }
+        // }
+        // }
+        // };
+
         CDOSessionProtocol sessionProtocol = getSessionProtocol();
+        long lastUpdateTime = getLastUpdateTime();
         int initialChunkSize = options().getCollectionLoadingPolicy().getInitialChunkSize();
+        // lastUpdateTime = sessionProtocol.refresh(lastUpdateTime, viewedRevisions, initialChunkSize,
+        // enablePassiveUpdates);
+        //
+        // List<CDORevisionKey> allChangedObjects = null;
+        // List<CDOIDAndVersion> allDetachedObjects = null;
+        // view.invalidate(lastUpdateTime, allChangedObjects, allDetachedObjects);
 
-        RefreshSessionHandler handler = new RefreshSessionHandler()
-        {
-          public void handlePackageUnit(InternalCDOPackageUnit packageUnit)
-          {
-            getPackageRegistry().putPackageUnit(packageUnit);
-          }
+        setLastUpdateTime(lastUpdateTime);
 
-          public void handleChangedObject(InternalCDORevision revision)
-          {
-            getRevisionManager().addRevision(revision);
-            CDOBranch branch = revision.getBranch();
-            for (InternalCDOView view : getViews())
-            {
-              if (view.getBranch() == branch && view.getTimeStamp() == CDOView.UNSPECIFIED_DATE)
-              {
-                view.refreshChangedObject(revision);
-              }
-            }
-          }
-
-          public void handleDetachedObject(CDOID id, CDOBranchVersion branchVersion, long timeStamp)
-          {
-            getRevisionManager().reviseVersion(id, branchVersion, timeStamp);
-            CDOBranch branch = branchVersion.getBranch();
-            for (InternalCDOView view : getViews())
-            {
-              if (view.getBranch() == branch && view.getTimeStamp() == CDOView.UNSPECIFIED_DATE)
-              {
-                view.refreshDetachedObject(id);
-              }
-            }
-          }
-        };
-
-        return sessionProtocol.refresh(getLastUpdateTime(), viewedRevisions, initialChunkSize, enablePassiveUpdates,
-            handler);
+        int count = 0;
+        return count;
       }
     }
     catch (Exception ex)
@@ -543,15 +554,15 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     return 0;
   }
 
-  private Map<CDOBranch, Map<CDOID, CDORevisionKey>> getAllViewedRevisions()
+  private void collectViewedRevisions(Map<CDOBranch, List<InternalCDOView>> views,
+      Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions)
   {
-    Map<CDOBranch, Map<CDOID, CDORevisionKey>> result = new HashMap<CDOBranch, Map<CDOID, CDORevisionKey>>();
     for (InternalCDOView view : getViews())
     {
       if (view.getTimeStamp() == CDOView.UNSPECIFIED_DATE)
       {
         CDOBranch branch = view.getBranch();
-        Map<CDOID, CDORevisionKey> revisions = result.get(branch);
+        Map<CDOID, CDORevisionKey> revisions = viewedRevisions.get(branch);
         boolean needNewMap = revisions == null;
         if (needNewMap)
         {
@@ -559,14 +570,24 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
         }
 
         view.collectViewedRevisions(revisions);
-        if (needNewMap && !revisions.isEmpty())
+        if (!revisions.isEmpty())
         {
-          result.put(branch, revisions);
+          List<InternalCDOView> list = views.get(branch);
+          if (list == null)
+          {
+            list = new ArrayList<InternalCDOView>();
+            views.put(branch, list);
+          }
+
+          list.add(view);
+
+          if (needNewMap)
+          {
+            viewedRevisions.put(branch, revisions);
+          }
         }
       }
     }
-
-    return result;
   }
 
   public long getLastUpdateTime()
