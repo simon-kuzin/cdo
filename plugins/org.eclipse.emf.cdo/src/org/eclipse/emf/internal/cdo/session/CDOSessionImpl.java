@@ -539,16 +539,17 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
         RefreshSessionResult result = sessionProtocol.refresh(lastUpdateTime, viewedRevisions, initialChunkSize,
             enablePassiveUpdates);
         lastUpdateTime = result.getLastUpdateTime();
+        registerPackageUnits(result.getPackageUnits());
 
         for (Entry<CDOBranch, List<InternalCDOView>> entry : views.entrySet())
         {
           CDOBranch branch = entry.getKey();
           Map<CDOID, CDORevisionKey> revisions = viewedRevisions.get(branch);
+          List<CDORevisionKey> allChangedObjects = null;
+          List<CDOIDAndVersion> allDetachedObjects = null;
 
           for (InternalCDOView view : entry.getValue())
           {
-            List<CDORevisionKey> allChangedObjects = null;
-            List<CDOIDAndVersion> allDetachedObjects = null;
             view.invalidate(lastUpdateTime, allChangedObjects, allDetachedObjects);
           }
         }

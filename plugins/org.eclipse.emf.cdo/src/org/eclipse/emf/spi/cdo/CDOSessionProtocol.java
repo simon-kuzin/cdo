@@ -13,7 +13,6 @@ package org.eclipse.emf.spi.cdo;
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
-import org.eclipse.emf.cdo.common.commit.CDOCommitData;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
@@ -45,7 +44,6 @@ import org.eclipse.emf.spi.cdo.InternalCDOXATransaction.InternalCDOXACommitConte
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -231,11 +229,11 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, BranchLo
   /**
    * @author Eike Stepper
    */
-  public static final class RefreshSessionResult implements CDOCommitData
+  public static final class RefreshSessionResult
   {
     private long lastUpdateTime;
 
-    private List<CDOPackageUnit> newPackageUnits = new ArrayList<CDOPackageUnit>();
+    private List<CDOPackageUnit> packageUnits = new ArrayList<CDOPackageUnit>();
 
     private List<CDORevisionKey> changedObjects = new ArrayList<CDORevisionKey>();
 
@@ -251,14 +249,14 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, BranchLo
       return lastUpdateTime;
     }
 
-    public List<CDOPackageUnit> getNewPackageUnits()
+    public List<CDOPackageUnit> getPackageUnits()
     {
-      return newPackageUnits;
+      return packageUnits;
     }
 
-    public List<CDOIDAndVersion> getNewObjects()
+    public void addPackageUnit(CDOPackageUnit packageUnit)
     {
-      return Collections.emptyList();
+      packageUnits.add(packageUnit);
     }
 
     public List<CDORevisionKey> getChangedObjects()
