@@ -494,7 +494,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     try
     {
       Map<CDOBranch, List<InternalCDOView>> views = new HashMap<CDOBranch, List<InternalCDOView>>();
-      Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions = new HashMap<CDOBranch, Map<CDOID, CDORevisionKey>>();
+      Map<CDOBranch, Map<CDOID, InternalCDORevision>> viewedRevisions = new HashMap<CDOBranch, Map<CDOID, InternalCDORevision>>();
       collectViewedRevisions(views, viewedRevisions);
 
       if (!viewedRevisions.isEmpty())
@@ -539,18 +539,31 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
         RefreshSessionResult result = sessionProtocol.refresh(lastUpdateTime, viewedRevisions, initialChunkSize,
             enablePassiveUpdates);
         lastUpdateTime = result.getLastUpdateTime();
+
         registerPackageUnits(result.getPackageUnits());
+        // TODO Revise revisions
 
         for (Entry<CDOBranch, List<InternalCDOView>> entry : views.entrySet())
         {
           CDOBranch branch = entry.getKey();
-          Map<CDOID, CDORevisionKey> revisions = viewedRevisions.get(branch);
-          List<CDORevisionKey> allChangedObjects = null;
-          List<CDOIDAndVersion> allDetachedObjects = null;
+          List<InternalCDOView> branchViews = entry.getValue();
 
-          for (InternalCDOView view : entry.getValue())
+          Map<CDOID, InternalCDORevision> oldRevisions = viewedRevisions.get(branch);
+
+          List<CDORevisionKey> branchChangedObjects = new ArrayList<CDORevisionKey>();
+          List<CDORevision> changedObjects = result.getChangedObjects(branch);
+          for (CDORevision changedObject : changedObjects)
           {
-            view.invalidate(lastUpdateTime, allChangedObjects, allDetachedObjects);
+            CDOID id = changedObject.getID();
+            CDORevisionKey cdoRevisionKey = oldRevisions.get(id);
+          }
+
+          List<CDOIDAndVersion> detachedObjects = result.getDetachedObjects(branch);
+          List<CDOIDAndVersion> branchDetachedObjects = new ArrayList<CDOIDAndVersion>();
+
+          for (InternalCDOView view : branchViews)
+          {
+            view.invalidate(lastUpdateTime, branchChangedObjects, branchDetachedObjects);
           }
         }
 
@@ -567,18 +580,18 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
   }
 
   private void collectViewedRevisions(Map<CDOBranch, List<InternalCDOView>> views,
-      Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions)
+      Map<CDOBranch, Map<CDOID, InternalCDORevision>> viewedRevisions)
   {
     for (InternalCDOView view : getViews())
     {
       if (view.getTimeStamp() == CDOView.UNSPECIFIED_DATE)
       {
         CDOBranch branch = view.getBranch();
-        Map<CDOID, CDORevisionKey> revisions = viewedRevisions.get(branch);
+        Map<CDOID, InternalCDORevision> revisions = viewedRevisions.get(branch);
         boolean needNewMap = revisions == null;
         if (needNewMap)
         {
-          revisions = new HashMap<CDOID, CDORevisionKey>();
+          revisions = new HashMap<CDOID, InternalCDORevision>();
         }
 
         view.collectViewedRevisions(revisions);
@@ -1821,7 +1834,8 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     }
 
     public RefreshSessionResult refresh(long lastUpdateTime,
-        Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions, int initialChunkSize, boolean enablePassiveUpdates)
+        Map<CDOBranch, Map<CDOID, InternalCDORevision>> viewedRevisions, int initialChunkSize,
+        boolean enablePassiveUpdates)
     {
       int attempt = 0;
       for (;;)

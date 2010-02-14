@@ -73,7 +73,7 @@ public interface InternalCDOView extends CDOView, CDOIDProvider, ILifecycle
    */
   public void fireAdaptersNotifiedEvent(long timeStamp);
 
-  public void collectViewedRevisions(Map<CDOID, CDORevisionKey> revisions);
+  public void collectViewedRevisions(Map<CDOID, InternalCDORevision> revisions);
 
   @Deprecated
   public void getCDOIDAndVersion(Map<CDOID, CDOIDAndVersion> uniqueObjects, Collection<? extends CDOObject> objects);

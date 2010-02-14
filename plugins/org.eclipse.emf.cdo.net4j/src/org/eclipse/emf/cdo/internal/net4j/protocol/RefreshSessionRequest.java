@@ -16,7 +16,7 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
-import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.emf.spi.cdo.CDOSessionProtocol.RefreshSessionResult;
 
@@ -32,14 +32,15 @@ public class RefreshSessionRequest extends CDOClientRequest<RefreshSessionResult
 {
   private long lastUpdateTime;
 
-  private Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions;
+  private Map<CDOBranch, Map<CDOID, InternalCDORevision>> viewedRevisions;
 
   private int initialChunkSize;
 
   private boolean enablePassiveUpdates;
 
   public RefreshSessionRequest(CDOClientProtocol protocol, long lastUpdateTime,
-      Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions, int initialChunkSize, boolean enablePassiveUpdates)
+      Map<CDOBranch, Map<CDOID, InternalCDORevision>> viewedRevisions, int initialChunkSize,
+      boolean enablePassiveUpdates)
   {
     super(protocol, CDOProtocolConstants.SIGNAL_REFRESH_SESSION);
     this.lastUpdateTime = lastUpdateTime;
@@ -56,14 +57,14 @@ public class RefreshSessionRequest extends CDOClientRequest<RefreshSessionResult
     out.writeBoolean(enablePassiveUpdates);
 
     out.writeInt(viewedRevisions.size());
-    for (Entry<CDOBranch, Map<CDOID, CDORevisionKey>> entry : viewedRevisions.entrySet())
+    for (Entry<CDOBranch, Map<CDOID, InternalCDORevision>> entry : viewedRevisions.entrySet())
     {
       CDOBranch branch = entry.getKey();
-      Map<CDOID, CDORevisionKey> revisions = entry.getValue();
+      Map<CDOID, InternalCDORevision> revisions = entry.getValue();
 
       out.writeCDOBranch(branch);
       out.writeInt(revisions.size());
-      for (CDORevisionKey revision : revisions.values())
+      for (InternalCDORevision revision : revisions.values())
       {
         out.writeCDORevisionKey(revision);
       }

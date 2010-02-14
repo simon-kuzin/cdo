@@ -1659,7 +1659,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     return getResourceSet();
   }
 
-  public void collectViewedRevisions(Map<CDOID, CDORevisionKey> revisions)
+  public void collectViewedRevisions(Map<CDOID, InternalCDORevision> revisions)
   {
     synchronized (objects)
     {

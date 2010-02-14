@@ -21,7 +21,6 @@ import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDOAuthenticationResult;
 import org.eclipse.emf.cdo.common.protocol.CDOAuthenticator;
-import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.common.util.CDOQueryQueue;
 import org.eclipse.emf.cdo.eresource.CDOResource;
@@ -193,8 +192,9 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
     }
   }
 
-  public RefreshSessionResult refresh(long lastUpdateTime, Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions,
-      int initialChunkSize, boolean enablePassiveUpdates)
+  public RefreshSessionResult refresh(long lastUpdateTime,
+      Map<CDOBranch, Map<CDOID, InternalCDORevision>> viewedRevisions, int initialChunkSize,
+      boolean enablePassiveUpdates)
   {
     throw new UnsupportedOperationException();
   }

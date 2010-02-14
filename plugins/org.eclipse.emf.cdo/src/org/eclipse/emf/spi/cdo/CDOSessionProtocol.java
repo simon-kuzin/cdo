@@ -19,6 +19,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocol;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
+import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
 import org.eclipse.emf.cdo.common.util.CDOCommonUtil;
 import org.eclipse.emf.cdo.session.remote.CDORemoteSession;
@@ -44,6 +45,7 @@ import org.eclipse.emf.spi.cdo.InternalCDOXATransaction.InternalCDOXACommitConte
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +61,7 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, BranchLo
 
   public void disablePassiveUpdates();
 
-  public RefreshSessionResult refresh(long lastUpdateTime, Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions,
+  public RefreshSessionResult refresh(long lastUpdateTime, Map<CDOBranch, Map<CDOID, InternalCDORevision>> viewedRevisions,
       int initialChunkSize, boolean enablePassiveUpdates);
 
   /**
@@ -235,9 +237,9 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, BranchLo
 
     private List<CDOPackageUnit> packageUnits = new ArrayList<CDOPackageUnit>();
 
-    private List<CDORevisionKey> changedObjects = new ArrayList<CDORevisionKey>();
+    private Map<CDOBranch, List<CDORevision>> changedObjects = new HashMap<CDOBranch, List<CDORevision>>();
 
-    private List<CDOIDAndVersion> detachedObjects = new ArrayList<CDOIDAndVersion>();
+    private Map<CDOBranch, List<CDOIDAndVersion>> detachedObjects = new HashMap<CDOBranch, List<CDOIDAndVersion>>();
 
     public RefreshSessionResult(long lastUpdateTime)
     {
@@ -254,19 +256,57 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, BranchLo
       return packageUnits;
     }
 
+    public List<CDORevision> getChangedObjects(CDOBranch branch)
+    {
+      List<CDORevision> list = changedObjects.get(branch);
+      if (list == null)
+      {
+        return Collections.emptyList();
+      }
+
+      return list;
+    }
+
+    public List<CDOIDAndVersion> getDetachedObjects(CDOBranch branch)
+    {
+      List<CDOIDAndVersion> list = detachedObjects.get(branch);
+      if (list == null)
+      {
+        return Collections.emptyList();
+      }
+
+      return list;
+    }
+
     public void addPackageUnit(CDOPackageUnit packageUnit)
     {
       packageUnits.add(packageUnit);
     }
 
-    public List<CDORevisionKey> getChangedObjects()
+    public void addChangedObject(CDORevision revision)
     {
-      return changedObjects;
+      CDOBranch branch = revision.getBranch();
+      List<CDORevision> list = changedObjects.get(branch);
+      if (list == null)
+      {
+        list = new ArrayList<CDORevision>();
+        changedObjects.put(branch, list);
+      }
+
+      list.add(revision);
     }
 
-    public List<CDOIDAndVersion> getDetachedObjects()
+    public void addDetachedObject(CDORevisionKey revision)
     {
-      return detachedObjects;
+      CDOBranch branch = revision.getBranch();
+      List<CDOIDAndVersion> list = detachedObjects.get(branch);
+      if (list == null)
+      {
+        list = new ArrayList<CDOIDAndVersion>();
+        detachedObjects.put(branch, list);
+      }
+
+      list.add(revision);
     }
   }
 

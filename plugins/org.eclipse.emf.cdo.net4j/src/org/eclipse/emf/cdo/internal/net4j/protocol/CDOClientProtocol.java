@@ -20,7 +20,6 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
-import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
 import org.eclipse.emf.cdo.common.util.TransportException;
 import org.eclipse.emf.cdo.internal.net4j.bundle.OM;
 import org.eclipse.emf.cdo.session.CDOSession;
@@ -143,7 +142,7 @@ public class CDOClientProtocol extends SignalProtocol<CDOSession> implements CDO
     return send(new LoadRevisionByVersionRequest(this, id, branchVersion, referenceChunk));
   }
 
-  public RefreshSessionResult refresh(long lastUpdateTime, Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions,
+  public RefreshSessionResult refresh(long lastUpdateTime, Map<CDOBranch, Map<CDOID, InternalCDORevision>> viewedRevisions,
       int initialChunkSize, boolean enablePassiveUpdates)
   {
     return send(new RefreshSessionRequest(this, lastUpdateTime, viewedRevisions, initialChunkSize, enablePassiveUpdates));
