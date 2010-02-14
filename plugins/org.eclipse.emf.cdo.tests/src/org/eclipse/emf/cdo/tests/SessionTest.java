@@ -10,6 +10,8 @@
  */
 package org.eclipse.emf.cdo.tests;
 
+import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
+import org.eclipse.emf.cdo.common.revision.cache.InternalCDORevisionCache;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.session.CDOSession;
@@ -23,6 +25,8 @@ import org.eclipse.net4j.util.concurrent.ConcurrencyUtil;
 import org.eclipse.net4j.util.security.PasswordCredentials;
 import org.eclipse.net4j.util.security.PasswordCredentialsProvider;
 import org.eclipse.net4j.util.security.UserManager;
+
+import org.eclipse.emf.spi.cdo.InternalCDOSession;
 
 /**
  * @author Eike Stepper
@@ -50,20 +54,31 @@ public class SessionTest extends AbstractCDOTest
     session1.options().setPassiveUpdateEnabled(false);
     CDOTransaction transaction = session1.openTransaction();
     CDOResource resource1 = transaction.createResource("ttt");
+    resource1.getContents().add(getModel1Factory().createCategory());
     transaction.commit();
 
     CDOSession session2 = openSession();
     session2.options().setPassiveUpdateEnabled(false);
     CDOView view = session2.openView();
     CDOResource resource2 = view.getResource("ttt");
-    assertEquals(0, resource2.getContents().size());
+    assertEquals(1, resource2.getContents().size());
 
     resource1.getContents().add(getModel1Factory().createCategory());
     transaction.commit();
+    dump(session1);
 
-    assertEquals(0, resource2.getContents().size());
-    session2.refresh();
+    dump(session2);
     assertEquals(1, resource2.getContents().size());
+
+    session2.refresh();
+    dump(session2);
+    assertEquals(2, resource2.getContents().size());
+  }
+
+  private void dump(CDOSession session)
+  {
+    InternalCDORevisionCache cache = ((InternalCDOSession)session).getRevisionManager().getCache();
+    CDORevisionUtil.dumpAllRevisions(cache.getAllRevisions(), System.out);
   }
 
   public void testLastUpdateLocal() throws Exception

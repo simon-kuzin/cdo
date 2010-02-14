@@ -1672,7 +1672,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
         }
 
         CDOState state = object.cdoState();
-        if (state != CDOState.DIRTY && state != CDOState.CONFLICT)
+        if (state != CDOState.CLEAN && state != CDOState.DIRTY && state != CDOState.CONFLICT)
         {
           continue;
         }

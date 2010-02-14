@@ -445,11 +445,6 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     return result.toArray(new InternalCDOPackageUnit[result.size()]);
   }
 
-  public InternalCDOPackageUnit[] getPackageUnits(long startTime)
-  {
-    return getPackageUnits(startTime, CDOBranchPoint.UNSPECIFIED_DATE);
-  }
-
   public synchronized EPackage[] getEPackages()
   {
     LifecycleUtil.checkActive(this);
