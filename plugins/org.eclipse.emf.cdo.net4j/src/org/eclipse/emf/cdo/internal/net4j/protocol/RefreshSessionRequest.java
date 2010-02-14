@@ -17,6 +17,7 @@ import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
+import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.emf.spi.cdo.CDOSessionProtocol.RefreshSessionResult;
@@ -84,55 +85,38 @@ public class RefreshSessionRequest extends CDOClientRequest<RefreshSessionResult
       result.addPackageUnit(packageUnit);
     }
 
-    while (in.readBoolean())
+    for (;;)
     {
-      CDOPackageUnit packageUnit = in.readCDOPackageUnit(null);
-      result.addPackageUnit(packageUnit);
+      byte type = in.readByte();
+      switch (type)
+      {
+      case CDOProtocolConstants.REFRESH_PACKAGE_UNIT:
+      {
+        CDOPackageUnit packageUnit = in.readCDOPackageUnit(null);
+        result.addPackageUnit(packageUnit);
+        break;
+      }
+
+      case CDOProtocolConstants.REFRESH_CHANGED_OBJECT:
+      {
+        InternalCDORevision revision = (InternalCDORevision)in.readCDORevision();
+        result.addChangedObject(revision);
+        break;
+      }
+
+      case CDOProtocolConstants.REFRESH_DETACHED_OBJECT:
+      {
+        CDORevisionKey key = in.readCDORevisionKey();
+        result.addDetachedObject(key);
+        break;
+      }
+
+      case CDOProtocolConstants.REFRESH_FINISHED:
+        return result;
+
+      default:
+        throw new IOException("Invalid refresh type: " + type);
+      }
     }
-
-    while (in.readBoolean())
-    {
-      CDOPackageUnit packageUnit = in.readCDOPackageUnit(null);
-      result.addPackageUnit(packageUnit);
-    }
-
-    return result;
-
-    // for (;;)
-    // {
-    // byte type = in.readByte();
-    // switch (type)
-    // {
-    // case CDOProtocolConstants.REFRESH_PACKAGE_UNIT:
-    // {
-    // InternalCDOPackageUnit packageUnit = (InternalCDOPackageUnit)in.readCDOPackageUnit(null);
-    // handler.handlePackageUnit(packageUnit);
-    // break;
-    // }
-    //
-    // case CDOProtocolConstants.REFRESH_CHANGED_OBJECT:
-    // {
-    // InternalCDORevision revision = (InternalCDORevision)in.readCDORevision();
-    // handler.handleChangedObject(revision);
-    // break;
-    // }
-    //
-    // case CDOProtocolConstants.REFRESH_DETACHED_OBJECT:
-    // {
-    // CDOID id = in.readCDOID();
-    // CDOBranchVersion branchVersion = in.readCDOBranchVersion();
-    // long timeStamp = in.readLong();
-    // handler.handleDetachedObject(id, branchVersion, timeStamp);
-    // break;
-    // }
-    //
-    // case CDOProtocolConstants.REFRESH_FINISHED:
-    // return count;
-    //
-    // default:
-    // throw new IOException("Invalid refresh type: " + type);
-    // }
-    //
-    // }
   }
 }

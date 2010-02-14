@@ -23,7 +23,7 @@ import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
-import org.eclipse.emf.cdo.spi.server.InternalRepository;
+import org.eclipse.emf.cdo.spi.common.revision.SyntheticCDORevision;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -75,16 +75,25 @@ public class RefreshSessionIndication extends CDOReadIndication
   @Override
   protected void responding(CDODataOutput out) throws IOException
   {
-    InternalRepository repository = getRepository();
-    InternalCDOPackageRegistry packageRegistry = repository.getPackageRegistry();
-    InternalCDORevisionManager revisionManager = repository.getRevisionManager();
+    writePackageUnits(out);
 
+    writeRevisions(out);
+    getSession().setPassiveUpdateEnabled(enablePassiveUpdates);
+  }
+
+  private void writePackageUnits(CDODataOutput out) throws IOException
+  {
+    InternalCDOPackageRegistry packageRegistry = getRepository().getPackageRegistry();
     for (InternalCDOPackageUnit packageUnit : packageRegistry.getPackageUnits(lastUpdateTime + 1L))
     {
       out.writeByte(CDOProtocolConstants.REFRESH_PACKAGE_UNIT);
       out.writeCDOPackageUnit(packageUnit, false);
     }
+  }
 
+  private void writeRevisions(CDODataOutput out) throws IOException
+  {
+    InternalCDORevisionManager revisionManager = getRepository().getRevisionManager();
     for (Entry<CDOBranch, List<CDORevisionKey>> entry : viewedRevisions.entrySet())
     {
       CDOBranch branch = entry.getKey();
@@ -93,13 +102,14 @@ public class RefreshSessionIndication extends CDOReadIndication
       for (CDORevisionKey key : entry.getValue())
       {
         CDOID id = key.getID();
+        SyntheticCDORevision[] synthetics = new SyntheticCDORevision[1];
         InternalCDORevision revision = revisionManager.getRevision(id, head, CDORevision.UNCHUNKED,
-            CDORevision.DEPTH_NONE, true);
+            CDORevision.DEPTH_NONE, true, synthetics);
 
         if (revision == null)
         {
           out.writeByte(CDOProtocolConstants.REFRESH_DETACHED_OBJECT);
-          out.writeCDOID(id);
+          out.writeCDORevisionKey(synthetics[0]);
         }
         else if (hasChanged(key, revision))
         {
@@ -109,7 +119,6 @@ public class RefreshSessionIndication extends CDOReadIndication
       }
     }
 
-    getSession().setPassiveUpdateEnabled(enablePassiveUpdates);
     out.writeByte(CDOProtocolConstants.REFRESH_FINISHED);
   }
 
