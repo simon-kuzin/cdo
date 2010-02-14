@@ -12,7 +12,6 @@ package org.eclipse.emf.spi.cdo;
 
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.CDOState;
-import org.eclipse.emf.cdo.common.commit.CDOCommitInfo;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
@@ -31,6 +30,7 @@ import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.ecore.EObject;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -65,7 +65,8 @@ public interface InternalCDOView extends CDOView, CDOIDProvider, ILifecycle
    */
   public void handleObjectStateChanged(InternalCDOObject object, CDOState oldState, CDOState newState);
 
-  public void invalidate(CDOCommitInfo commitInfo);
+  public void invalidate(long lastUpdateTime, List<CDORevisionKey> allChangedObjects,
+      List<CDOIDAndVersion> allDetachedObjects);
 
   /**
    * @since 3.0
@@ -73,6 +74,10 @@ public interface InternalCDOView extends CDOView, CDOIDProvider, ILifecycle
   public void fireAdaptersNotifiedEvent(long timeStamp);
 
   public void collectViewedRevisions(Map<CDOID, CDORevisionKey> revisions);
+
+  public void refreshChangedObject(InternalCDORevision revision);
+
+  public void refreshDetachedObject(CDOID id);
 
   @Deprecated
   public void getCDOIDAndVersion(Map<CDOID, CDOIDAndVersion> uniqueObjects, Collection<? extends CDOObject> objects);

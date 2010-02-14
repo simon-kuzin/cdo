@@ -12,12 +12,12 @@
 package org.eclipse.emf.cdo.internal.net4j.protocol;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
+import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocol.RefreshSessionHandler;
-import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
@@ -95,14 +95,16 @@ public class RefreshSessionRequest extends CDOClientRequest<Integer>
       case CDOProtocolConstants.REFRESH_CHANGED_OBJECT:
       {
         InternalCDORevision revision = (InternalCDORevision)in.readCDORevision();
-        handler.handleChangedObject(branchPoint, revision);
+        handler.handleChangedObject(revision);
         break;
       }
 
       case CDOProtocolConstants.REFRESH_DETACHED_OBJECT:
       {
-        CDORevision revision = in.readCDORevision();
-        handler.handleChangedObject(branchPoint, revision);
+        CDOID id = in.readCDOID();
+        CDOBranchVersion branchVersion = in.readCDOBranchVersion();
+        long timeStamp = in.readLong();
+        handler.handleDetachedObject(id, branchVersion, timeStamp);
         break;
       }
 

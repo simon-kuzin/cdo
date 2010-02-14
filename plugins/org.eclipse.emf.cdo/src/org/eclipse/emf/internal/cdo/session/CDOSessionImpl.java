@@ -491,7 +491,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
   {
     try
     {
-      Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions = getAllViewedRevisions();
+      final Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions = getAllViewedRevisions();
       if (!viewedRevisions.isEmpty())
       {
         CDOSessionProtocol sessionProtocol = getSessionProtocol();
@@ -504,13 +504,30 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
             getPackageRegistry().putPackageUnit(packageUnit);
           }
 
-          public void handleChangedObject(CDOBranchPoint branchPoint, InternalCDORevision revision)
+          public void handleChangedObject(InternalCDORevision revision)
           {
             getRevisionManager().addRevision(revision);
+            CDOBranch branch = revision.getBranch();
+            for (InternalCDOView view : getViews())
+            {
+              if (view.getBranch() == branch && view.getTimeStamp() == CDOView.UNSPECIFIED_DATE)
+              {
+                view.refreshChangedObject(revision);
+              }
+            }
           }
 
-          public void handleDetachedObject(CDOBranchPoint branchPoint, CDOID id)
+          public void handleDetachedObject(CDOID id, CDOBranchVersion branchVersion, long timeStamp)
           {
+            getRevisionManager().reviseVersion(id, branchVersion, timeStamp);
+            CDOBranch branch = branchVersion.getBranch();
+            for (InternalCDOView view : getViews())
+            {
+              if (view.getBranch() == branch && view.getTimeStamp() == CDOView.UNSPECIFIED_DATE)
+              {
+                view.refreshDetachedObject(id);
+              }
+            }
           }
         };
 
@@ -1229,7 +1246,10 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       try
       {
         invalidationRunnerActive.set(true);
-        view.invalidate(commitInfo);
+        long lastUpdateTime = commitInfo.getTimeStamp();
+        List<CDORevisionKey> allChangedObjects = commitInfo.getChangedObjects();
+        List<CDOIDAndVersion> allDetachedObjects = commitInfo.getDetachedObjects();
+        view.invalidate(lastUpdateTime, allChangedObjects, allDetachedObjects);
       }
       catch (RuntimeException ex)
       {
