@@ -12,7 +12,6 @@ package org.eclipse.emf.cdo.internal.net4j.protocol;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.protocol.CDOProtocol.RefreshSessionHandler;
 import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
 
 import java.util.Map;
@@ -23,10 +22,9 @@ import java.util.Map;
 public class LockObjectsRequest extends RefreshSessionRequest
 {
   public LockObjectsRequest(CDOClientProtocol protocol, long lastUpdateTime,
-      Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions, int initialChunkSize, boolean enablePassiveUpdates,
-      RefreshSessionHandler handler)
+      Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions, int initialChunkSize, boolean enablePassiveUpdates)
   {
-    super(protocol, lastUpdateTime, viewedRevisions, initialChunkSize, enablePassiveUpdates, handler);
+    super(protocol, lastUpdateTime, viewedRevisions, initialChunkSize, enablePassiveUpdates);
     throw new UnsupportedOperationException();
   }
 

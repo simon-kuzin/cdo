@@ -12,15 +12,13 @@
 package org.eclipse.emf.cdo.internal.net4j.protocol;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
-import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
-import org.eclipse.emf.cdo.common.protocol.CDOProtocol.RefreshSessionHandler;
 import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
-import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
+
+import org.eclipse.emf.spi.cdo.CDOSessionProtocol.RefreshSessionResult;
 
 import java.io.IOException;
 import java.util.Map;
@@ -30,7 +28,7 @@ import java.util.Map.Entry;
  * @author Simon McDuff
  * @since 2.0
  */
-public class RefreshSessionRequest extends CDOClientRequest<Integer>
+public class RefreshSessionRequest extends CDOClientRequest<RefreshSessionResult>
 {
   private long lastUpdateTime;
 
@@ -40,18 +38,14 @@ public class RefreshSessionRequest extends CDOClientRequest<Integer>
 
   private boolean enablePassiveUpdates;
 
-  private RefreshSessionHandler handler;
-
   public RefreshSessionRequest(CDOClientProtocol protocol, long lastUpdateTime,
-      Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions, int initialChunkSize, boolean enablePassiveUpdates,
-      RefreshSessionHandler handler)
+      Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions, int initialChunkSize, boolean enablePassiveUpdates)
   {
     super(protocol, CDOProtocolConstants.SIGNAL_REFRESH_SESSION);
     this.lastUpdateTime = lastUpdateTime;
     this.viewedRevisions = viewedRevisions;
     this.initialChunkSize = initialChunkSize;
     this.enablePassiveUpdates = enablePassiveUpdates;
-    this.handler = handler;
   }
 
   @Override
@@ -77,45 +71,48 @@ public class RefreshSessionRequest extends CDOClientRequest<Integer>
   }
 
   @Override
-  protected Integer confirming(CDODataInput in) throws IOException
+  protected RefreshSessionResult confirming(CDODataInput in) throws IOException
   {
-    int count = 0;
-    for (;;)
-    {
-      byte type = in.readByte();
-      switch (type)
-      {
-      case CDOProtocolConstants.REFRESH_PACKAGE_UNIT:
-      {
-        InternalCDOPackageUnit packageUnit = (InternalCDOPackageUnit)in.readCDOPackageUnit(null);
-        handler.handlePackageUnit(packageUnit);
-        break;
-      }
+    lastUpdateTime = in.readLong();
+    RefreshSessionResult result = new RefreshSessionResult(lastUpdateTime);
 
-      case CDOProtocolConstants.REFRESH_CHANGED_OBJECT:
-      {
-        InternalCDORevision revision = (InternalCDORevision)in.readCDORevision();
-        handler.handleChangedObject(revision);
-        break;
-      }
+    return result;
 
-      case CDOProtocolConstants.REFRESH_DETACHED_OBJECT:
-      {
-        CDOID id = in.readCDOID();
-        CDOBranchVersion branchVersion = in.readCDOBranchVersion();
-        long timeStamp = in.readLong();
-        handler.handleDetachedObject(id, branchVersion, timeStamp);
-        break;
-      }
-
-      case CDOProtocolConstants.REFRESH_FINISHED:
-        return count;
-
-      default:
-        throw new IOException("Invalid refresh type: " + type);
-      }
-
-      ++count;
-    }
+    // for (;;)
+    // {
+    // byte type = in.readByte();
+    // switch (type)
+    // {
+    // case CDOProtocolConstants.REFRESH_PACKAGE_UNIT:
+    // {
+    // InternalCDOPackageUnit packageUnit = (InternalCDOPackageUnit)in.readCDOPackageUnit(null);
+    // handler.handlePackageUnit(packageUnit);
+    // break;
+    // }
+    //
+    // case CDOProtocolConstants.REFRESH_CHANGED_OBJECT:
+    // {
+    // InternalCDORevision revision = (InternalCDORevision)in.readCDORevision();
+    // handler.handleChangedObject(revision);
+    // break;
+    // }
+    //
+    // case CDOProtocolConstants.REFRESH_DETACHED_OBJECT:
+    // {
+    // CDOID id = in.readCDOID();
+    // CDOBranchVersion branchVersion = in.readCDOBranchVersion();
+    // long timeStamp = in.readLong();
+    // handler.handleDetachedObject(id, branchVersion, timeStamp);
+    // break;
+    // }
+    //
+    // case CDOProtocolConstants.REFRESH_FINISHED:
+    // return count;
+    //
+    // default:
+    // throw new IOException("Invalid refresh type: " + type);
+    // }
+    //
+    // }
   }
 }

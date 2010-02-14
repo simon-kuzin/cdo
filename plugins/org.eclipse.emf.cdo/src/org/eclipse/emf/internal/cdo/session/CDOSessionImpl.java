@@ -87,6 +87,7 @@ import org.eclipse.emf.spi.cdo.InternalCDOSessionConfiguration;
 import org.eclipse.emf.spi.cdo.InternalCDOTransaction;
 import org.eclipse.emf.spi.cdo.InternalCDOView;
 import org.eclipse.emf.spi.cdo.InternalCDOViewSet;
+import org.eclipse.emf.spi.cdo.CDOSessionProtocol.RefreshSessionResult;
 import org.eclipse.emf.spi.cdo.InternalCDOTransaction.InternalCDOCommitContext;
 import org.eclipse.emf.spi.cdo.InternalCDOXATransaction.InternalCDOXACommitContext;
 
@@ -535,7 +536,9 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
         CDOSessionProtocol sessionProtocol = getSessionProtocol();
         long lastUpdateTime = getLastUpdateTime();
         int initialChunkSize = options().getCollectionLoadingPolicy().getInitialChunkSize();
-        sessionProtocol.refresh(lastUpdateTime, viewedRevisions, initialChunkSize, enablePassiveUpdates);
+        RefreshSessionResult result = sessionProtocol.refresh(lastUpdateTime, viewedRevisions, initialChunkSize,
+            enablePassiveUpdates);
+        lastUpdateTime = result.getLastUpdateTime();
 
         for (Entry<CDOBranch, List<InternalCDOView>> entry : views.entrySet())
         {

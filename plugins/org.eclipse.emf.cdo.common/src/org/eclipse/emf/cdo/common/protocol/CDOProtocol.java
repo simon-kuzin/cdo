@@ -11,10 +11,6 @@
 package org.eclipse.emf.cdo.common.protocol;
 
 import org.eclipse.emf.cdo.common.CDOCommonSession;
-import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
-import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
-import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 /**
  * @author Eike Stepper
@@ -23,16 +19,4 @@ import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 public interface CDOProtocol
 {
   public CDOCommonSession getSession();
-
-  /**
-   * @author Eike Stepper
-   */
-  public interface RefreshSessionHandler
-  {
-    public void handlePackageUnit(InternalCDOPackageUnit packageUnit);
-
-    public void handleChangedObject(InternalCDORevision revision);
-
-    public void handleDetachedObject(CDOID id, CDOBranchVersion branchVersion, long timeStamp);
-  }
 }

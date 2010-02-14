@@ -13,9 +13,11 @@ package org.eclipse.emf.spi.cdo;
 import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
+import org.eclipse.emf.cdo.common.commit.CDOCommitData;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocol;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
@@ -43,6 +45,7 @@ import org.eclipse.emf.spi.cdo.InternalCDOXATransaction.InternalCDOXACommitConte
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,8 +61,8 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, BranchLo
 
   public void disablePassiveUpdates();
 
-  public int refresh(long lastUpdateTime, Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions,
-      int initialChunkSize, boolean enablePassiveUpdates, RefreshSessionHandler handler);
+  public RefreshSessionResult refresh(long lastUpdateTime, Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions,
+      int initialChunkSize, boolean enablePassiveUpdates);
 
   /**
    * @param accessIndex
@@ -222,6 +225,50 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, BranchLo
     public List<InternalCDOPackageUnit> getPackageUnits()
     {
       return packageUnits;
+    }
+  }
+
+  /**
+   * @author Eike Stepper
+   */
+  public static final class RefreshSessionResult implements CDOCommitData
+  {
+    private long lastUpdateTime;
+
+    private List<CDOPackageUnit> newPackageUnits = new ArrayList<CDOPackageUnit>();
+
+    private List<CDORevisionKey> changedObjects = new ArrayList<CDORevisionKey>();
+
+    private List<CDOIDAndVersion> detachedObjects = new ArrayList<CDOIDAndVersion>();
+
+    public RefreshSessionResult(long lastUpdateTime)
+    {
+      this.lastUpdateTime = lastUpdateTime;
+    }
+
+    public long getLastUpdateTime()
+    {
+      return lastUpdateTime;
+    }
+
+    public List<CDOPackageUnit> getNewPackageUnits()
+    {
+      return newPackageUnits;
+    }
+
+    public List<CDOIDAndVersion> getNewObjects()
+    {
+      return Collections.emptyList();
+    }
+
+    public List<CDORevisionKey> getChangedObjects()
+    {
+      return changedObjects;
+    }
+
+    public List<CDOIDAndVersion> getDetachedObjects()
+    {
+      return detachedObjects;
     }
   }
 
