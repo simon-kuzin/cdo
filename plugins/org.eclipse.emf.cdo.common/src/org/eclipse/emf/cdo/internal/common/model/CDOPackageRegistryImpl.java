@@ -18,7 +18,6 @@ import org.eclipse.emf.cdo.common.id.CDOIDTempMeta;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
-import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.internal.common.bundle.OM;
@@ -139,9 +138,9 @@ public class CDOPackageRegistryImpl extends EPackageRegistryImpl implements Inte
     result.addAll(keySet());
     if (delegateRegistry != null)
     {
-      if (delegateRegistry instanceof CDOPackageRegistry)
+      if (delegateRegistry instanceof InternalCDOPackageRegistry)
       {
-        result.addAll(((CDOPackageRegistry)delegateRegistry).getAllKeys());
+        result.addAll(((InternalCDOPackageRegistry)delegateRegistry).getAllKeys());
       }
       else
       {
