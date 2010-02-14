@@ -143,9 +143,11 @@ public interface CDOProtocolConstants
 
   public static final byte REFRESH_FINISHED = 0;
 
-  public static final byte REFRESH_CHANGED = 1;
+  public static final byte REFRESH_PACKAGE_UNIT = 1;
 
-  public static final byte REFRESH_DETACHED = 2;
+  public static final byte REFRESH_CHANGED_OBJECT = 2;
+
+  public static final byte REFRESH_DETACHED_OBJECT = 3;
 
   // //////////////////////////////////////////////////////////////////////
   // Query Support

@@ -494,24 +494,28 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions = getAllViewedRevisions();
       if (!viewedRevisions.isEmpty())
       {
+        CDOSessionProtocol sessionProtocol = getSessionProtocol();
         int initialChunkSize = options().getCollectionLoadingPolicy().getInitialChunkSize();
-        return getSessionProtocol().refresh(viewedRevisions, initialChunkSize, enablePassiveUpdates,
-            new RefreshSessionHandler()
-            {
-              public void handleNewPackageUnit(InternalCDOPackageUnit packageUnit)
-              {
-                getPackageRegistry().putPackageUnit(packageUnit);
-              }
 
-              public void handleChangedObject(CDOBranchPoint branchPoint, InternalCDORevision revision)
-              {
-                getRevisionManager().addRevision(revision);
-              }
+        RefreshSessionHandler handler = new RefreshSessionHandler()
+        {
+          public void handlePackageUnit(InternalCDOPackageUnit packageUnit)
+          {
+            getPackageRegistry().putPackageUnit(packageUnit);
+          }
 
-              public void handleDetachedObject(CDOBranchPoint branchPoint, CDOID id)
-              {
-              }
-            });
+          public void handleChangedObject(CDOBranchPoint branchPoint, InternalCDORevision revision)
+          {
+            getRevisionManager().addRevision(revision);
+          }
+
+          public void handleDetachedObject(CDOBranchPoint branchPoint, CDOID id)
+          {
+          }
+        };
+
+        return sessionProtocol.refresh(getLastUpdateTime(), viewedRevisions, initialChunkSize, enablePassiveUpdates,
+            handler);
       }
     }
     catch (Exception ex)
@@ -1763,15 +1767,15 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       }
     }
 
-    public int refresh(Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions, int initialChunkSize,
-        boolean enablePassiveUpdates, RefreshSessionHandler handler)
+    public int refresh(long lastUpdateTime, Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions,
+        int initialChunkSize, boolean enablePassiveUpdates, RefreshSessionHandler handler)
     {
       int attempt = 0;
       for (;;)
       {
         try
         {
-          return delegate.refresh(viewedRevisions, initialChunkSize, enablePassiveUpdates, handler);
+          return delegate.refresh(lastUpdateTime, viewedRevisions, initialChunkSize, enablePassiveUpdates, handler);
         }
         catch (Exception ex)
         {

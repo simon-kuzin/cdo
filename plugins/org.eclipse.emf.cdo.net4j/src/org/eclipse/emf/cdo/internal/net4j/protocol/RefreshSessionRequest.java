@@ -19,6 +19,8 @@ import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocol.RefreshSessionHandler;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import java.io.IOException;
 import java.util.Map;
@@ -30,6 +32,8 @@ import java.util.Map.Entry;
  */
 public class RefreshSessionRequest extends CDOClientRequest<Integer>
 {
+  private long lastUpdateTime;
+
   private Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions;
 
   private int initialChunkSize;
@@ -38,10 +42,12 @@ public class RefreshSessionRequest extends CDOClientRequest<Integer>
 
   private RefreshSessionHandler handler;
 
-  public RefreshSessionRequest(CDOClientProtocol protocol, Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions,
-      int initialChunkSize, boolean enablePassiveUpdates, RefreshSessionHandler handler)
+  public RefreshSessionRequest(CDOClientProtocol protocol, long lastUpdateTime,
+      Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions, int initialChunkSize, boolean enablePassiveUpdates,
+      RefreshSessionHandler handler)
   {
     super(protocol, CDOProtocolConstants.SIGNAL_REFRESH_SESSION);
+    this.lastUpdateTime = lastUpdateTime;
     this.viewedRevisions = viewedRevisions;
     this.initialChunkSize = initialChunkSize;
     this.enablePassiveUpdates = enablePassiveUpdates;
@@ -51,6 +57,7 @@ public class RefreshSessionRequest extends CDOClientRequest<Integer>
   @Override
   protected void requesting(CDODataOutput out) throws IOException
   {
+    out.writeLong(lastUpdateTime);
     out.writeInt(initialChunkSize);
     out.writeBoolean(enablePassiveUpdates);
 
@@ -73,20 +80,40 @@ public class RefreshSessionRequest extends CDOClientRequest<Integer>
   protected Integer confirming(CDODataInput in) throws IOException
   {
     int count = 0;
-    byte type;
-    while ((type = in.readByte()) != CDOProtocolConstants.REFRESH_FINISHED)
+    for (;;)
     {
-      ++count;
-      if (type == CDOProtocolConstants.REFRESH_CHANGED)
+      byte type = in.readByte();
+      switch (type)
+      {
+      case CDOProtocolConstants.REFRESH_PACKAGE_UNIT:
+      {
+        InternalCDOPackageUnit packageUnit = (InternalCDOPackageUnit)in.readCDOPackageUnit(null);
+        handler.handlePackageUnit(packageUnit);
+        break;
+      }
+
+      case CDOProtocolConstants.REFRESH_CHANGED_OBJECT:
+      {
+        InternalCDORevision revision = (InternalCDORevision)in.readCDORevision();
+        handler.handleChangedObject(branchPoint, revision);
+        break;
+      }
+
+      case CDOProtocolConstants.REFRESH_DETACHED_OBJECT:
       {
         CDORevision revision = in.readCDORevision();
         handler.handleChangedObject(branchPoint, revision);
+        break;
       }
-      else
-      {
-      }
-    }
 
-    return count;
+      case CDOProtocolConstants.REFRESH_FINISHED:
+        return count;
+
+      default:
+        throw new IOException("Invalid refresh type: " + type);
+      }
+
+      ++count;
+    }
   }
 }

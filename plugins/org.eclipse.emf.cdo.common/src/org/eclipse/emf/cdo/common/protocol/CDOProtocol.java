@@ -29,7 +29,7 @@ public interface CDOProtocol
    */
   public interface RefreshSessionHandler
   {
-    public void handleNewPackageUnit(InternalCDOPackageUnit packageUnit);
+    public void handlePackageUnit(InternalCDOPackageUnit packageUnit);
 
     public void handleChangedObject(CDOBranchPoint branchPoint, InternalCDORevision revision);
 

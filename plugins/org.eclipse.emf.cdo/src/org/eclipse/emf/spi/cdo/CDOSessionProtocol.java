@@ -58,8 +58,8 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, BranchLo
 
   public void disablePassiveUpdates();
 
-  public int refresh(Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions, int initialChunkSize,
-      boolean enablePassiveUpdates, RefreshSessionHandler handler);
+  public int refresh(long lastUpdateTime, Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions,
+      int initialChunkSize, boolean enablePassiveUpdates, RefreshSessionHandler handler);
 
   /**
    * @param accessIndex

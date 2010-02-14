@@ -22,12 +22,11 @@ import java.util.Map;
  */
 public class LockObjectsRequest extends RefreshSessionRequest
 {
-  public LockObjectsRequest(CDOClientProtocol protocol, Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions,
-      int initialChunkSize, boolean enablePassiveUpdates, RefreshSessionHandler handler)
+  public LockObjectsRequest(CDOClientProtocol protocol, long lastUpdateTime,
+      Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions, int initialChunkSize, boolean enablePassiveUpdates,
+      RefreshSessionHandler handler)
   {
-    super(protocol, viewedRevisions, initialChunkSize, enablePassiveUpdates, handler);
-    // TODO: implement LockObjectsRequest.LockObjectsRequest(protocol, viewedRevisions, initialChunkSize,
-    // enablePassiveUpdates, handler)
+    super(protocol, lastUpdateTime, viewedRevisions, initialChunkSize, enablePassiveUpdates, handler);
     throw new UnsupportedOperationException();
   }
 

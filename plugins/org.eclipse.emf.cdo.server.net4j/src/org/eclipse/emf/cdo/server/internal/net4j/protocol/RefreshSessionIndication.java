@@ -19,8 +19,11 @@ import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
+import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
+import org.eclipse.emf.cdo.spi.server.InternalRepository;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,6 +39,8 @@ public class RefreshSessionIndication extends CDOReadIndication
 {
   private Map<CDOBranch, List<CDORevisionKey>> viewedRevisions = new HashMap<CDOBranch, List<CDORevisionKey>>();
 
+  private long lastUpdateTime;
+
   private int initialChunkSize;
 
   private boolean enablePassiveUpdates;
@@ -48,6 +53,7 @@ public class RefreshSessionIndication extends CDOReadIndication
   @Override
   protected void indicating(CDODataInput in) throws IOException
   {
+    lastUpdateTime = in.readLong();
     initialChunkSize = in.readInt();
     enablePassiveUpdates = in.readBoolean();
 
@@ -69,14 +75,22 @@ public class RefreshSessionIndication extends CDOReadIndication
   @Override
   protected void responding(CDODataOutput out) throws IOException
   {
-    InternalCDORevisionManager revisionManager = getRepository().getRevisionManager();
+    InternalRepository repository = getRepository();
+    InternalCDOPackageRegistry packageRegistry = repository.getPackageRegistry();
+    InternalCDORevisionManager revisionManager = repository.getRevisionManager();
+
+    for (InternalCDOPackageUnit packageUnit : packageRegistry.getPackageUnits(lastUpdateTime + 1L))
+    {
+      out.writeByte(CDOProtocolConstants.REFRESH_PACKAGE_UNIT);
+      out.writeCDOPackageUnit(packageUnit, false);
+    }
+
     for (Entry<CDOBranch, List<CDORevisionKey>> entry : viewedRevisions.entrySet())
     {
       CDOBranch branch = entry.getKey();
       CDOBranchPoint head = branch.getHead();
 
-      List<CDORevisionKey> keys = entry.getValue();
-      for (CDORevisionKey key : keys)
+      for (CDORevisionKey key : entry.getValue())
       {
         CDOID id = key.getID();
         InternalCDORevision revision = revisionManager.getRevision(id, head, CDORevision.UNCHUNKED,
@@ -84,12 +98,12 @@ public class RefreshSessionIndication extends CDOReadIndication
 
         if (revision == null)
         {
-          out.writeByte(CDOProtocolConstants.REFRESH_DETACHED);
+          out.writeByte(CDOProtocolConstants.REFRESH_DETACHED_OBJECT);
           out.writeCDOID(id);
         }
         else if (hasChanged(key, revision))
         {
-          out.writeByte(CDOProtocolConstants.REFRESH_CHANGED);
+          out.writeByte(CDOProtocolConstants.REFRESH_CHANGED_OBJECT);
           out.writeCDORevision(revision, initialChunkSize);
         }
       }
@@ -99,7 +113,7 @@ public class RefreshSessionIndication extends CDOReadIndication
     out.writeByte(CDOProtocolConstants.REFRESH_FINISHED);
   }
 
-  private static  boolean hasChanged(CDORevisionKey oldKey, CDORevisionKey newKey)
+  private static boolean hasChanged(CDORevisionKey oldKey, CDORevisionKey newKey)
   {
     return oldKey.getBranch() != newKey.getBranch() || oldKey.getVersion() != newKey.getVersion();
   }

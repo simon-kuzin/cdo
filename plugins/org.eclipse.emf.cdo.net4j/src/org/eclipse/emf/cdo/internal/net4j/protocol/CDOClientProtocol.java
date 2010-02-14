@@ -143,10 +143,11 @@ public class CDOClientProtocol extends SignalProtocol<CDOSession> implements CDO
     return send(new LoadRevisionByVersionRequest(this, id, branchVersion, referenceChunk));
   }
 
-  public int refresh(Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions, int initialChunkSize,
-      boolean enablePassiveUpdates, RefreshSessionHandler handler)
+  public int refresh(long lastUpdateTime, Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions,
+      int initialChunkSize, boolean enablePassiveUpdates, RefreshSessionHandler handler)
   {
-    return send(new RefreshSessionRequest(this, viewedRevisions, initialChunkSize, enablePassiveUpdates, handler));
+    return send(new RefreshSessionRequest(this, lastUpdateTime, viewedRevisions, initialChunkSize,
+        enablePassiveUpdates, handler));
   }
 
   public void openView(int viewID, CDOBranchPoint branchPoint, boolean readOnly)

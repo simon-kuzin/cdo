@@ -193,8 +193,8 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
     }
   }
 
-  public int refresh(Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions, int initialChunkSize,
-      boolean enablePassiveUpdates, RefreshSessionHandler handler)
+  public int refresh(long lastUpdateTime, Map<CDOBranch, Map<CDOID, CDORevisionKey>> viewedRevisions,
+      int initialChunkSize, boolean enablePassiveUpdates, RefreshSessionHandler handler)
   {
     throw new UnsupportedOperationException();
   }
