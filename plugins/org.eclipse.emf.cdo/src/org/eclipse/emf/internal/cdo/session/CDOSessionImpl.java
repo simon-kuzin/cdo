@@ -492,63 +492,56 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
 
   private long refresh(boolean enablePassiveUpdates)
   {
-    try
+    Map<CDOBranch, List<InternalCDOView>> views = new HashMap<CDOBranch, List<InternalCDOView>>();
+    Map<CDOBranch, Map<CDOID, InternalCDORevision>> viewedRevisions = new HashMap<CDOBranch, Map<CDOID, InternalCDORevision>>();
+    collectViewedRevisions(views, viewedRevisions);
+
+    if (viewedRevisions.isEmpty())
     {
-      Map<CDOBranch, List<InternalCDOView>> views = new HashMap<CDOBranch, List<InternalCDOView>>();
-      Map<CDOBranch, Map<CDOID, InternalCDORevision>> viewedRevisions = new HashMap<CDOBranch, Map<CDOID, InternalCDORevision>>();
-      collectViewedRevisions(views, viewedRevisions);
+      return CDOBranchPoint.UNSPECIFIED_DATE;
+    }
 
-      if (!viewedRevisions.isEmpty())
+    CDOSessionProtocol sessionProtocol = getSessionProtocol();
+    long lastUpdateTime = getLastUpdateTime();
+    int initialChunkSize = options().getCollectionLoadingPolicy().getInitialChunkSize();
+
+    RefreshSessionResult result = sessionProtocol.refresh(lastUpdateTime, viewedRevisions, initialChunkSize,
+        enablePassiveUpdates);
+
+    lastUpdateTime = result.getLastUpdateTime();
+    registerPackageUnits(result.getPackageUnits());
+
+    for (Entry<CDOBranch, List<InternalCDOView>> entry : views.entrySet())
+    {
+      CDOBranch branch = entry.getKey();
+      List<InternalCDOView> branchViews = entry.getValue();
+
+      Map<CDOID, InternalCDORevision> oldRevisions = viewedRevisions.get(branch);
+
+      List<CDORevisionKey> changedObjects = new ArrayList<CDORevisionKey>();
+      for (InternalCDORevision newRevision : result.getChangedObjects(branch))
       {
-        CDOSessionProtocol sessionProtocol = getSessionProtocol();
-        long lastUpdateTime = getLastUpdateTime();
-        int initialChunkSize = options().getCollectionLoadingPolicy().getInitialChunkSize();
+        getRevisionManager().addRevision(newRevision);
 
-        RefreshSessionResult result = sessionProtocol.refresh(lastUpdateTime, viewedRevisions, initialChunkSize,
-            enablePassiveUpdates);
+        InternalCDORevision oldRevision = oldRevisions.get(newRevision.getID());
+        InternalCDORevisionDelta delta = newRevision.compare(oldRevision);
+        changedObjects.add(delta);
+      }
 
-        lastUpdateTime = result.getLastUpdateTime();
-        registerPackageUnits(result.getPackageUnits());
+      List<CDOIDAndVersion> detachedObjects = result.getDetachedObjects(branch);
+      for (CDOIDAndVersion detachedObject : detachedObjects)
+      {
+        getRevisionManager().reviseLatest(detachedObject.getID(), branch);
+      }
 
-        for (Entry<CDOBranch, List<InternalCDOView>> entry : views.entrySet())
-        {
-          CDOBranch branch = entry.getKey();
-          List<InternalCDOView> branchViews = entry.getValue();
-
-          Map<CDOID, InternalCDORevision> oldRevisions = viewedRevisions.get(branch);
-
-          List<CDORevisionKey> changedObjects = new ArrayList<CDORevisionKey>();
-          for (InternalCDORevision newRevision : result.getChangedObjects(branch))
-          {
-            getRevisionManager().addRevision(newRevision);
-
-            InternalCDORevision oldRevision = oldRevisions.get(newRevision.getID());
-            InternalCDORevisionDelta delta = newRevision.compare(oldRevision);
-            changedObjects.add(delta);
-          }
-
-          List<CDOIDAndVersion> detachedObjects = result.getDetachedObjects(branch);
-          for (CDOIDAndVersion detachedObject : detachedObjects)
-          {
-            getRevisionManager().reviseLatest(detachedObject.getID(), branch);
-          }
-
-          for (InternalCDOView view : branchViews)
-          {
-            view.invalidate(lastUpdateTime, changedObjects, detachedObjects);
-          }
-        }
-
-        setLastUpdateTime(lastUpdateTime);
-        return lastUpdateTime;
+      for (InternalCDOView view : branchViews)
+      {
+        view.invalidate(lastUpdateTime, changedObjects, detachedObjects);
       }
     }
-    catch (Exception ex)
-    {
-      throw WrappedException.wrap(ex);
-    }
 
-    return CDOBranchPoint.UNSPECIFIED_DATE;
+    setLastUpdateTime(lastUpdateTime);
+    return lastUpdateTime;
   }
 
   private void collectViewedRevisions(Map<CDOBranch, List<InternalCDOView>> views,

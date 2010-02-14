@@ -15,6 +15,7 @@ import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
+import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
@@ -76,6 +77,24 @@ public class RefreshSessionRequest extends CDOClientRequest<RefreshSessionResult
   {
     lastUpdateTime = in.readLong();
     RefreshSessionResult result = new RefreshSessionResult(lastUpdateTime);
+
+    while (in.readBoolean())
+    {
+      CDOPackageUnit packageUnit = in.readCDOPackageUnit(null);
+      result.addPackageUnit(packageUnit);
+    }
+
+    while (in.readBoolean())
+    {
+      CDOPackageUnit packageUnit = in.readCDOPackageUnit(null);
+      result.addPackageUnit(packageUnit);
+    }
+
+    while (in.readBoolean())
+    {
+      CDOPackageUnit packageUnit = in.readCDOPackageUnit(null);
+      result.addPackageUnit(packageUnit);
+    }
 
     return result;
 
