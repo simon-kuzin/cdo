@@ -75,6 +75,32 @@ public class SessionTest extends AbstractCDOTest
     assertEquals(2, resource2.getContents().size());
   }
 
+  public void testRefreshWithPackages()
+  {
+    CDOSession session1 = openSession();
+    session1.options().setPassiveUpdateEnabled(false);
+    CDOTransaction transaction = session1.openTransaction();
+    CDOResource resource1 = transaction.createResource("ttt");
+    transaction.commit();
+
+    CDOSession session2 = openSession();
+    session2.options().setPassiveUpdateEnabled(false);
+    CDOView view = session2.openView();
+    CDOResource resource2 = view.getResource("ttt");
+    assertEquals(0, resource2.getContents().size());
+
+    resource1.getContents().add(getModel1Factory().createCategory());
+    transaction.commit();
+    dump(session1);
+
+    dump(session2);
+    assertEquals(0, resource2.getContents().size());
+
+    session2.refresh();
+    dump(session2);
+    assertEquals(1, resource2.getContents().size());
+  }
+
   private void dump(CDOSession session)
   {
     InternalCDORevisionCache cache = ((InternalCDOSession)session).getRevisionManager().getCache();

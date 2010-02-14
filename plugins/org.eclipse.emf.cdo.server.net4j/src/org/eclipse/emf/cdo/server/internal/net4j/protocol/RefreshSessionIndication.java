@@ -75,16 +75,20 @@ public class RefreshSessionIndication extends CDOReadIndication
   @Override
   protected void responding(CDODataOutput out) throws IOException
   {
-    writePackageUnits(out);
+    long lastCommitTimeStamp = getRepository().getLastCommitTimeStamp();
+    out.writeLong(lastCommitTimeStamp);
 
+    writePackageUnits(out, lastCommitTimeStamp);
     writeRevisions(out);
+
     getSession().setPassiveUpdateEnabled(enablePassiveUpdates);
   }
 
-  private void writePackageUnits(CDODataOutput out) throws IOException
+  private void writePackageUnits(CDODataOutput out, long lastCommitTimeStamp) throws IOException
   {
     InternalCDOPackageRegistry packageRegistry = getRepository().getPackageRegistry();
-    for (InternalCDOPackageUnit packageUnit : packageRegistry.getPackageUnits(lastUpdateTime + 1L))
+    InternalCDOPackageUnit[] packageUnits = packageRegistry.getPackageUnits(lastUpdateTime + 1L, lastCommitTimeStamp);
+    for (InternalCDOPackageUnit packageUnit : packageUnits)
     {
       out.writeByte(CDOProtocolConstants.REFRESH_PACKAGE_UNIT);
       out.writeCDOPackageUnit(packageUnit, false);

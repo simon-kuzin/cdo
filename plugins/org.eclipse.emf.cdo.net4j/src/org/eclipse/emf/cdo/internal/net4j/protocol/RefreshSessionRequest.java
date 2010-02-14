@@ -79,12 +79,6 @@ public class RefreshSessionRequest extends CDOClientRequest<RefreshSessionResult
     lastUpdateTime = in.readLong();
     RefreshSessionResult result = new RefreshSessionResult(lastUpdateTime);
 
-    while (in.readBoolean())
-    {
-      CDOPackageUnit packageUnit = in.readCDOPackageUnit(null);
-      result.addPackageUnit(packageUnit);
-    }
-
     for (;;)
     {
       byte type = in.readByte();
