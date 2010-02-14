@@ -19,7 +19,6 @@ import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocol;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
-import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
 import org.eclipse.emf.cdo.common.util.CDOCommonUtil;
 import org.eclipse.emf.cdo.session.remote.CDORemoteSession;
@@ -61,8 +60,9 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, BranchLo
 
   public void disablePassiveUpdates();
 
-  public RefreshSessionResult refresh(long lastUpdateTime, Map<CDOBranch, Map<CDOID, InternalCDORevision>> viewedRevisions,
-      int initialChunkSize, boolean enablePassiveUpdates);
+  public RefreshSessionResult refresh(long lastUpdateTime,
+      Map<CDOBranch, Map<CDOID, InternalCDORevision>> viewedRevisions, int initialChunkSize,
+      boolean enablePassiveUpdates);
 
   /**
    * @param accessIndex
@@ -237,7 +237,7 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, BranchLo
 
     private List<CDOPackageUnit> packageUnits = new ArrayList<CDOPackageUnit>();
 
-    private Map<CDOBranch, List<CDORevision>> changedObjects = new HashMap<CDOBranch, List<CDORevision>>();
+    private Map<CDOBranch, List<InternalCDORevision>> changedObjects = new HashMap<CDOBranch, List<InternalCDORevision>>();
 
     private Map<CDOBranch, List<CDOIDAndVersion>> detachedObjects = new HashMap<CDOBranch, List<CDOIDAndVersion>>();
 
@@ -256,9 +256,9 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, BranchLo
       return packageUnits;
     }
 
-    public List<CDORevision> getChangedObjects(CDOBranch branch)
+    public List<InternalCDORevision> getChangedObjects(CDOBranch branch)
     {
-      List<CDORevision> list = changedObjects.get(branch);
+      List<InternalCDORevision> list = changedObjects.get(branch);
       if (list == null)
       {
         return Collections.emptyList();
@@ -283,13 +283,13 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, BranchLo
       packageUnits.add(packageUnit);
     }
 
-    public void addChangedObject(CDORevision revision)
+    public void addChangedObject(InternalCDORevision revision)
     {
       CDOBranch branch = revision.getBranch();
-      List<CDORevision> list = changedObjects.get(branch);
+      List<InternalCDORevision> list = changedObjects.get(branch);
       if (list == null)
       {
-        list = new ArrayList<CDORevision>();
+        list = new ArrayList<InternalCDORevision>();
         changedObjects.put(branch, list);
       }
 

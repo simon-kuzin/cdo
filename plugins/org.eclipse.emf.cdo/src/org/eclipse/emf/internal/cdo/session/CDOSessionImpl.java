@@ -42,6 +42,7 @@ import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranch;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
 import org.eclipse.emf.cdo.spi.common.revision.RevisionInfo;
 import org.eclipse.emf.cdo.view.CDOFetchRuleManager;
@@ -550,20 +551,20 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
 
           Map<CDOID, InternalCDORevision> oldRevisions = viewedRevisions.get(branch);
 
-          List<CDORevisionKey> branchChangedObjects = new ArrayList<CDORevisionKey>();
-          List<CDORevision> changedObjects = result.getChangedObjects(branch);
-          for (CDORevision changedObject : changedObjects)
+          List<CDORevisionKey> changedObjects = new ArrayList<CDORevisionKey>();
+          for (InternalCDORevision newRevision : result.getChangedObjects(branch))
           {
-            CDOID id = changedObject.getID();
-            CDORevisionKey cdoRevisionKey = oldRevisions.get(id);
+            CDOID id = newRevision.getID();
+            InternalCDORevision oldRevision = oldRevisions.get(id);
+            InternalCDORevisionDelta delta = newRevision.compare(oldRevision);
+            changedObjects.add(delta);
           }
 
           List<CDOIDAndVersion> detachedObjects = result.getDetachedObjects(branch);
-          List<CDOIDAndVersion> branchDetachedObjects = new ArrayList<CDOIDAndVersion>();
 
           for (InternalCDOView view : branchViews)
           {
-            view.invalidate(lastUpdateTime, branchChangedObjects, branchDetachedObjects);
+            view.invalidate(lastUpdateTime, changedObjects, detachedObjects);
           }
         }
 

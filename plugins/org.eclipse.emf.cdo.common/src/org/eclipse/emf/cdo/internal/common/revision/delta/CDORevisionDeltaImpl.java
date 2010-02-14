@@ -75,10 +75,7 @@ public class CDORevisionDeltaImpl implements InternalCDORevisionDelta
 
   public CDORevisionDeltaImpl(CDORevision originRevision, CDORevision dirtyRevision)
   {
-    if ( //
-    originRevision.getEClass() //
-    != //
-    dirtyRevision.getEClass())
+    if (originRevision.getEClass() != dirtyRevision.getEClass())
     {
       throw new IllegalArgumentException();
     }

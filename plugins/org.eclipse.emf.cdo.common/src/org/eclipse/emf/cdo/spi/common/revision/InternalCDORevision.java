@@ -102,5 +102,7 @@ public interface InternalCDORevision extends CDORevision, CDORevisionData, CDORe
    */
   public void convertEObjects(CDOIDProvider oidProvider);
 
+  public InternalCDORevisionDelta compare(CDORevision origin);
+
   public InternalCDORevision copy();
 }
