@@ -10,11 +10,13 @@
  */
 package org.eclipse.emf.cdo.tests;
 
+import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.tests.config.impl.RepositoryConfig;
 import org.eclipse.emf.cdo.tests.config.impl.SessionConfig;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
+import org.eclipse.emf.cdo.view.CDOView;
 
 import org.eclipse.net4j.signal.RemoteException;
 import org.eclipse.net4j.util.concurrent.ConcurrencyUtil;
@@ -40,6 +42,28 @@ public class SessionTest extends AbstractCDOTest
     boolean clientAudits = session.getRepositoryInfo().isSupportingAudits();
     assertEquals(serverAudits, clientAudits);
     session.close();
+  }
+
+  public void testRefresh()
+  {
+    CDOSession session1 = openSession();
+    session1.options().setPassiveUpdateEnabled(false);
+    CDOTransaction transaction = session1.openTransaction();
+    CDOResource resource1 = transaction.createResource("ttt");
+    transaction.commit();
+
+    CDOSession session2 = openSession();
+    session2.options().setPassiveUpdateEnabled(false);
+    CDOView view = session2.openView();
+    CDOResource resource2 = view.getResource("ttt");
+    assertEquals(0, resource2.getContents().size());
+
+    resource1.getContents().add(getModel1Factory().createCategory());
+    transaction.commit();
+
+    assertEquals(0, resource2.getContents().size());
+    session2.refresh();
+    assertEquals(1, resource2.getContents().size());
   }
 
   public void testLastUpdateLocal() throws Exception
@@ -94,7 +118,7 @@ public class SessionTest extends AbstractCDOTest
     session.close();
   }
 
-  public void _testWaitForUpdateRemote() throws Exception
+  public void testWaitForUpdateRemote() throws Exception
   {
     final CDOTransaction transaction = openSession().openTransaction();
     transaction.createResource("ttt");
