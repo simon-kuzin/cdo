@@ -197,7 +197,7 @@ public interface CDOSession extends CDOCommonSession, IContainer<CDOView>
   /**
    * Refreshes the object caches of all (non-historical) {@link CDOView views}.
    */
-  public int refresh();
+  public long refresh();
 
   /**
    * Returns the time stamp of the last commit operation. May not be accurate if
