@@ -500,49 +500,15 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
 
       if (!viewedRevisions.isEmpty())
       {
-        // RefreshSessionHandler handler = new RefreshSessionHandler()
-        // {
-        // public void handlePackageUnit(InternalCDOPackageUnit packageUnit)
-        // {
-        // getPackageRegistry().putPackageUnit(packageUnit);
-        // }
-        //
-        // public void handleChangedObject(InternalCDORevision revision)
-        // {
-        // getRevisionManager().addRevision(revision);
-        // CDOBranch branch = revision.getBranch();
-        // for (InternalCDOView view : getViews())
-        // {
-        // if (view.getBranch() == branch && view.getTimeStamp() == CDOView.UNSPECIFIED_DATE)
-        // {
-        // view.refreshChangedObject(revision);
-        // }
-        // }
-        // }
-        //
-        // public void handleDetachedObject(CDOID id, CDOBranchVersion branchVersion, long timeStamp)
-        // {
-        // getRevisionManager().reviseVersion(id, branchVersion, timeStamp);
-        // CDOBranch branch = branchVersion.getBranch();
-        // for (InternalCDOView view : getViews())
-        // {
-        // if (view.getBranch() == branch && view.getTimeStamp() == CDOView.UNSPECIFIED_DATE)
-        // {
-        // view.refreshDetachedObject(id);
-        // }
-        // }
-        // }
-        // };
-
         CDOSessionProtocol sessionProtocol = getSessionProtocol();
         long lastUpdateTime = getLastUpdateTime();
         int initialChunkSize = options().getCollectionLoadingPolicy().getInitialChunkSize();
+
         RefreshSessionResult result = sessionProtocol.refresh(lastUpdateTime, viewedRevisions, initialChunkSize,
             enablePassiveUpdates);
-        lastUpdateTime = result.getLastUpdateTime();
 
+        lastUpdateTime = result.getLastUpdateTime();
         registerPackageUnits(result.getPackageUnits());
-        // TODO Revise revisions
 
         for (Entry<CDOBranch, List<InternalCDOView>> entry : views.entrySet())
         {
@@ -554,13 +520,18 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
           List<CDORevisionKey> changedObjects = new ArrayList<CDORevisionKey>();
           for (InternalCDORevision newRevision : result.getChangedObjects(branch))
           {
-            CDOID id = newRevision.getID();
-            InternalCDORevision oldRevision = oldRevisions.get(id);
+            getRevisionManager().addRevision(newRevision);
+
+            InternalCDORevision oldRevision = oldRevisions.get(newRevision.getID());
             InternalCDORevisionDelta delta = newRevision.compare(oldRevision);
             changedObjects.add(delta);
           }
 
           List<CDOIDAndVersion> detachedObjects = result.getDetachedObjects(branch);
+          for (CDOIDAndVersion detachedObject : detachedObjects)
+          {
+            getRevisionManager().reviseLatest(detachedObject.getID(), branch);
+          }
 
           for (InternalCDOView view : branchViews)
           {
@@ -577,7 +548,7 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       throw WrappedException.wrap(ex);
     }
 
-    return 0;
+    return CDOBranchPoint.UNSPECIFIED_DATE;
   }
 
   private void collectViewedRevisions(Map<CDOBranch, List<InternalCDOView>> views,
