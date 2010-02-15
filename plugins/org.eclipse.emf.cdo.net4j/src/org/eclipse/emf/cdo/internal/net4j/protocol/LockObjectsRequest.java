@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    Simon McDuff - initial API and implementation
+ *    Eike Stepper - initial API and implementation
  **************************************************************************/
 package org.eclipse.emf.cdo.internal.net4j.protocol;
 
@@ -14,6 +14,7 @@ import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
+import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.util.concurrent.IRWLockManager;
@@ -22,7 +23,7 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * @author Simon McDuff
+ * @author Eike Stepper
  */
 public class LockObjectsRequest extends RefreshSessionRequest
 {
@@ -33,10 +34,11 @@ public class LockObjectsRequest extends RefreshSessionRequest
   private long timeout;
 
   public LockObjectsRequest(CDOClientProtocol protocol, long lastUpdateTime,
-      Map<CDOBranch, Map<CDOID, InternalCDORevision>> viewedRevisions, int initialChunkSize, int viewID,
-      IRWLockManager.LockType lockType, long timeout)
+      Map<CDOBranch, Map<CDOID, InternalCDORevision>> viewedRevisions, int viewID, IRWLockManager.LockType lockType,
+      long timeout)
   {
-    super(protocol, CDOProtocolConstants.SIGNAL_LOCK_OBJECTS, lastUpdateTime, viewedRevisions, initialChunkSize, false);
+    super(protocol, CDOProtocolConstants.SIGNAL_LOCK_OBJECTS, lastUpdateTime, viewedRevisions, CDORevision.UNCHUNKED,
+        false);
     this.viewID = viewID;
     this.lockType = lockType;
     this.timeout = timeout;

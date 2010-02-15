@@ -47,7 +47,12 @@ public class RefreshSessionIndication extends CDOReadIndication
 
   public RefreshSessionIndication(CDOServerProtocol protocol)
   {
-    super(protocol, CDOProtocolConstants.SIGNAL_REFRESH_SESSION);
+    this(protocol, CDOProtocolConstants.SIGNAL_REFRESH_SESSION);
+  }
+
+  protected RefreshSessionIndication(CDOServerProtocol protocol, short signalID)
+  {
+    super(protocol, signalID);
   }
 
   @Override
@@ -67,9 +72,15 @@ public class RefreshSessionIndication extends CDOReadIndication
       for (int j = 0; j < size; j++)
       {
         CDORevisionKey revision = in.readCDORevisionKey();
+        revision = handleViewedRevision(branch, revision);
         revisions.add(revision);
       }
     }
+  }
+
+  protected CDORevisionKey handleViewedRevision(CDOBranch branch, CDORevisionKey revision)
+  {
+    return revision;
   }
 
   @Override
@@ -84,14 +95,31 @@ public class RefreshSessionIndication extends CDOReadIndication
     getSession().setPassiveUpdateEnabled(enablePassiveUpdates);
   }
 
+  protected void writPackageUnit(CDODataOutput out, InternalCDOPackageUnit packageUnit) throws IOException
+  {
+    out.writeByte(CDOProtocolConstants.REFRESH_PACKAGE_UNIT);
+    out.writeCDOPackageUnit(packageUnit, false);
+  }
+
+  protected void writeChangedObject(CDODataOutput out, InternalCDORevision revision) throws IOException
+  {
+    out.writeByte(CDOProtocolConstants.REFRESH_CHANGED_OBJECT);
+    out.writeCDORevision(revision, initialChunkSize);
+  }
+
+  protected void writeDetachedObject(CDODataOutput out, CDORevisionKey key) throws IOException
+  {
+    out.writeByte(CDOProtocolConstants.REFRESH_DETACHED_OBJECT);
+    out.writeCDORevisionKey(key);
+  }
+
   private void writePackageUnits(CDODataOutput out, long lastCommitTimeStamp) throws IOException
   {
     InternalCDOPackageRegistry packageRegistry = getRepository().getPackageRegistry();
     InternalCDOPackageUnit[] packageUnits = packageRegistry.getPackageUnits(lastUpdateTime + 1L, lastCommitTimeStamp);
     for (InternalCDOPackageUnit packageUnit : packageUnits)
     {
-      out.writeByte(CDOProtocolConstants.REFRESH_PACKAGE_UNIT);
-      out.writeCDOPackageUnit(packageUnit, false);
+      writPackageUnit(out, packageUnit);
     }
   }
 
@@ -112,13 +140,11 @@ public class RefreshSessionIndication extends CDOReadIndication
 
         if (revision == null)
         {
-          out.writeByte(CDOProtocolConstants.REFRESH_DETACHED_OBJECT);
-          out.writeCDORevisionKey(synthetics[0]);
+          writeDetachedObject(out, synthetics[0]);
         }
         else if (hasChanged(key, revision))
         {
-          out.writeByte(CDOProtocolConstants.REFRESH_CHANGED_OBJECT);
-          out.writeCDORevision(revision, initialChunkSize);
+          writeChangedObject(out, revision);
         }
       }
     }

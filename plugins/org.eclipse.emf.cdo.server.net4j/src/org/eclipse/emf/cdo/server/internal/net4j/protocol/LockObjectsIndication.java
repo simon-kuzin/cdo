@@ -11,12 +11,12 @@
  */
 package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
-import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.io.CDODataInput;
 import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
+import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
 import org.eclipse.emf.cdo.server.IView;
 
 import org.eclipse.net4j.util.WrappedException;
@@ -29,15 +29,13 @@ import java.util.List;
 /**
  * @author Simon McDuff
  */
-public class LockObjectsIndication extends AbstractSyncRevisionsIndication_OLD
+public class LockObjectsIndication extends RefreshSessionIndication
 {
-  private LockType lockType;
-
-  private List<CDOID> ids = new ArrayList<CDOID>();
-
-  private List<CDOIDAndVersion> idAndVersions = new ArrayList<CDOIDAndVersion>();
+  private List<Object> objectsToBeLocked = new ArrayList<Object>();
 
   private IView view;
+
+  private LockType lockType;
 
   public LockObjectsIndication(CDOServerProtocol protocol)
   {
@@ -48,7 +46,6 @@ public class LockObjectsIndication extends AbstractSyncRevisionsIndication_OLD
   protected void indicating(CDODataInput in) throws IOException
   {
     super.indicating(in);
-
     int viewID = in.readInt();
     lockType = in.readCDOLockType();
     long timeout = in.readLong();
@@ -56,7 +53,7 @@ public class LockObjectsIndication extends AbstractSyncRevisionsIndication_OLD
     try
     {
       view = getSession().getView(viewID);
-      getRepository().getLockManager().lock(lockType, view, ids, timeout);
+      getRepository().getLockManager().lock(lockType, view, objectsToBeLocked, timeout);
     }
     catch (InterruptedException ex)
     {
@@ -65,26 +62,24 @@ public class LockObjectsIndication extends AbstractSyncRevisionsIndication_OLD
   }
 
   @Override
-  protected void responding(CDODataOutput out) throws IOException
+  protected CDORevisionKey handleViewedRevision(CDOBranch branch, CDORevisionKey revision)
   {
-    for (CDOIDAndVersion idAndVersion : idAndVersions)
+    if (getRepository().isSupportingBranches())
     {
-      udpateObjectList(idAndVersion.getID(), idAndVersion.getVersion());
+      objectsToBeLocked.add(CDOIDUtil.createIDAndBranch(revision.getID(), branch));
+    }
+    else
+    {
+      objectsToBeLocked.add(revision.getID());
     }
 
-    if (!detachedObjects.isEmpty())
-    {
-      getRepository().getLockManager().unlock(lockType, view, ids);
-      throw new IllegalArgumentException(detachedObjects.size() + " objects are not persistent anymore"); //$NON-NLS-1$
-    }
-
-    super.responding(out);
+    return revision;
   }
 
   @Override
-  protected void process(CDOID id, int version)
+  protected void writeDetachedObject(CDODataOutput out, CDORevisionKey key) throws IOException
   {
-    ids.add(id);
-    idAndVersions.add(CDOIDUtil.createIDAndVersion(id, version));
+    getRepository().getLockManager().unlock(lockType, view, objectsToBeLocked);
+    throw new IllegalArgumentException("Objects has been detached: " + key); //$NON-NLS-1$
   }
 }
