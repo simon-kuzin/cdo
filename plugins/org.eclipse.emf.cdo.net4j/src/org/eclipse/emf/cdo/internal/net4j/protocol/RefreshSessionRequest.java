@@ -44,7 +44,15 @@ public class RefreshSessionRequest extends CDOClientRequest<RefreshSessionResult
       Map<CDOBranch, Map<CDOID, InternalCDORevision>> viewedRevisions, int initialChunkSize,
       boolean enablePassiveUpdates)
   {
-    super(protocol, CDOProtocolConstants.SIGNAL_REFRESH_SESSION);
+    this(protocol, CDOProtocolConstants.SIGNAL_REFRESH_SESSION, lastUpdateTime, viewedRevisions, initialChunkSize,
+        enablePassiveUpdates);
+  }
+
+  protected RefreshSessionRequest(CDOClientProtocol protocol, short signalID, long lastUpdateTime,
+      Map<CDOBranch, Map<CDOID, InternalCDORevision>> viewedRevisions, int initialChunkSize,
+      boolean enablePassiveUpdates)
+  {
+    super(protocol, signalID);
     this.lastUpdateTime = lastUpdateTime;
     this.viewedRevisions = viewedRevisions;
     this.initialChunkSize = initialChunkSize;

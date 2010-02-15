@@ -12,8 +12,13 @@ package org.eclipse.emf.cdo.internal.net4j.protocol;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.io.CDODataOutput;
+import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
+import org.eclipse.net4j.util.concurrent.IRWLockManager;
+
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -21,44 +26,28 @@ import java.util.Map;
  */
 public class LockObjectsRequest extends RefreshSessionRequest
 {
+  private int viewID;
+
+  private IRWLockManager.LockType lockType;
+
+  private long timeout;
+
   public LockObjectsRequest(CDOClientProtocol protocol, long lastUpdateTime,
-      Map<CDOBranch, Map<CDOID, InternalCDORevision>> viewedRevisions, int initialChunkSize,
-      boolean enablePassiveUpdates)
+      Map<CDOBranch, Map<CDOID, InternalCDORevision>> viewedRevisions, int initialChunkSize, int viewID,
+      IRWLockManager.LockType lockType, long timeout)
   {
-    super(protocol, lastUpdateTime, viewedRevisions, initialChunkSize, enablePassiveUpdates);
-    throw new UnsupportedOperationException();
+    super(protocol, CDOProtocolConstants.SIGNAL_LOCK_OBJECTS, lastUpdateTime, viewedRevisions, initialChunkSize, false);
+    this.viewID = viewID;
+    this.lockType = lockType;
+    this.timeout = timeout;
   }
 
-  // private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, LockObjectsRequest.class);
-  //
-  // private CDOView view;
-  //
-  // private LockType lockType;
-  //
-  // private long timeout;
-  //
-  // public LockObjectsRequest(CDOClientProtocol protocol, CDOView view, Map<CDOID, CDOIDAndVersion> idAndVersions,
-  // int referenceChunk, long timeout, LockType lockType)
-  // {
-  // super(protocol, CDOProtocolConstants.SIGNAL_LOCK_OBJECTS, idAndVersions, referenceChunk);
-  // this.view = view;
-  //
-  // this.timeout = timeout;
-  // this.lockType = lockType;
-  // }
-  //
-  // @Override
-  // protected void requesting(CDODataOutput out) throws IOException
-  // {
-  // super.requesting(out);
-  // out.writeInt(view.getViewID());
-  // out.writeCDOLockType(lockType);
-  // out.writeLong(timeout);
-  //
-  // if (TRACER.isEnabled())
-  // {
-  //      TRACER.format("Locking of type {0} requested for view {1} with timeout {2}", //$NON-NLS-1$
-  //          lockType == LockType.READ ? "read" : "write", view.getViewID(), timeout); //$NON-NLS-1$ //$NON-NLS-2$
-  // }
-  // }
+  @Override
+  protected void requesting(CDODataOutput out) throws IOException
+  {
+    super.requesting(out);
+    out.writeInt(viewID);
+    out.writeCDOLockType(lockType);
+    out.writeLong(timeout);
+  }
 }
