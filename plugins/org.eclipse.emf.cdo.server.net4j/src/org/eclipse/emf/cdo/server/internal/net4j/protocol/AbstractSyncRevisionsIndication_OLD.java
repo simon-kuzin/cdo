@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * @author Simon McDuff
  */
-public abstract class AbstractSyncRevisionsIndication extends CDOReadIndication
+public abstract class AbstractSyncRevisionsIndication_OLD extends CDOReadIndication
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL, RefreshSessionIndication.class);
 
@@ -40,7 +40,7 @@ public abstract class AbstractSyncRevisionsIndication extends CDOReadIndication
 
   protected int referenceChunk = CDORevision.UNCHUNKED;
 
-  public AbstractSyncRevisionsIndication(CDOServerProtocol protocol, short signalID)
+  public AbstractSyncRevisionsIndication_OLD(CDOServerProtocol protocol, short signalID)
   {
     super(protocol, signalID);
   }

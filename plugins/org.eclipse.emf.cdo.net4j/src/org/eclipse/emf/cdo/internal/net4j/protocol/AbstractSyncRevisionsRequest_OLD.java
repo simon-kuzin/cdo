@@ -15,9 +15,9 @@ package org.eclipse.emf.cdo.internal.net4j.protocol;
  * @author Simon McDuff
  * @since 2.0
  */
-public abstract class AbstractSyncRevisionsRequest extends CDOClientRequest<Boolean>
+public abstract class AbstractSyncRevisionsRequest_OLD extends CDOClientRequest<Boolean>
 {
-  public AbstractSyncRevisionsRequest(CDOClientProtocol protocol, short signalID)
+  public AbstractSyncRevisionsRequest_OLD(CDOClientProtocol protocol, short signalID)
   {
     super(protocol, signalID);
   }

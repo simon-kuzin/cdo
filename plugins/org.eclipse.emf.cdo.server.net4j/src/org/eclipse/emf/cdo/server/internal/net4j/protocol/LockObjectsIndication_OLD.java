@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * @author Simon McDuff
  */
-public class LockObjectsIndication extends AbstractSyncRevisionsIndication_OLD
+public class LockObjectsIndication_OLD extends AbstractSyncRevisionsIndication_OLD
 {
   private LockType lockType;
 
@@ -39,7 +39,7 @@ public class LockObjectsIndication extends AbstractSyncRevisionsIndication_OLD
 
   private IView view;
 
-  public LockObjectsIndication(CDOServerProtocol protocol)
+  public LockObjectsIndication_OLD(CDOServerProtocol protocol)
   {
     super(protocol, CDOProtocolConstants.SIGNAL_LOCK_OBJECTS);
   }
