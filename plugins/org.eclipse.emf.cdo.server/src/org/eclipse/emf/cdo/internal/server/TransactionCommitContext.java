@@ -505,8 +505,11 @@ public class TransactionCommitContext implements InternalCommitContext
 
     try
     {
-      InternalLockManager lockManager = transaction.getRepository().getLockManager();
-      lockManager.lock(LockType.WRITE, transaction, lockedObjects, 1000);
+      if (!lockedObjects.isEmpty())
+      {
+        InternalLockManager lockManager = transaction.getRepository().getLockManager();
+        lockManager.lock(LockType.WRITE, transaction, lockedObjects, 1000);
+      }
     }
     catch (TimeoutRuntimeException exception)
     {
