@@ -347,31 +347,6 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     conflict -= resolved;
   }
 
-  @Override
-  public void getCDOIDAndVersion(Map<CDOID, CDOIDAndVersion> uniqueObjects, Collection<? extends CDOObject> cdoObjects)
-  {
-    Map<CDOID, CDORevisionDelta> deltaMap = getRevisionDeltas();
-    for (CDOObject cdoObject : cdoObjects)
-    {
-      CDORevision cdoRevision = CDOStateMachine.INSTANCE.readNoLoad((InternalCDOObject)cdoObject);
-      CDOID cdoId = cdoObject.cdoID();
-      if (cdoRevision != null && !cdoId.isTemporary() && !uniqueObjects.containsKey(cdoId))
-      {
-        int version = cdoRevision.getVersion();
-        if (deltaMap != null)
-        {
-          CDORevisionDelta delta = deltaMap.get(cdoId);
-          if (delta != null)
-          {
-            version = delta.getVersion();
-          }
-        }
-
-        uniqueObjects.put(cdoId, CDOIDUtil.createIDAndVersion(cdoId, version));
-      }
-    }
-  }
-
   public CDOIDTemp getNextTemporaryID()
   {
     return CDOIDUtil.createTempObject(lastTemporaryID.incrementAndGet());

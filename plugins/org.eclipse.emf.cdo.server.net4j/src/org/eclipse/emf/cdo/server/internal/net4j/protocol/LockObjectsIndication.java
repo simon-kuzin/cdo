@@ -18,6 +18,7 @@ import org.eclipse.emf.cdo.common.io.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
 import org.eclipse.emf.cdo.server.IView;
+import org.eclipse.emf.cdo.spi.server.InternalLockManager;
 
 import org.eclipse.net4j.util.WrappedException;
 import org.eclipse.net4j.util.concurrent.IRWLockManager.LockType;
@@ -53,7 +54,8 @@ public class LockObjectsIndication extends RefreshSessionIndication
     try
     {
       view = getSession().getView(viewID);
-      getRepository().getLockManager().lock(lockType, view, objectsToBeLocked, timeout);
+      InternalLockManager lockManager = getRepository().getLockManager();
+      lockManager.lock(lockType, view, objectsToBeLocked, timeout);
     }
     catch (InterruptedException ex)
     {

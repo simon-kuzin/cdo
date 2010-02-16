@@ -402,8 +402,7 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
       throws InterruptedException
   {
     checkActive();
-    checkMainBranch();
-    Map<CDOID, CDOIDAndVersion> uniqueObjects = new HashMap<CDOID, CDOIDAndVersion>();
+    checkState(getTimeStamp() == CDOBranchPoint.UNSPECIFIED_DATE, "Locking not supported for historial views");
 
     synchronized (session.getInvalidationLock())
     {
@@ -411,19 +410,27 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
 
       try
       {
-        getCDOIDAndVersion(uniqueObjects, objects);
+        Map<CDOID, InternalCDORevision> revisions = new HashMap<CDOID, InternalCDORevision>();
         for (CDOObject object : objects)
         {
-          CDOIDAndVersion idAndVersion = uniqueObjects.get(object.cdoID());
-          if (idAndVersion == null)
+          if (!FSMUtil.isNew(object))
           {
-            uniqueObjects.put(object.cdoID(), CDOIDUtil.createIDAndVersion(object.cdoID(),
-                CDORevision.UNSPECIFIED_VERSION));
+            InternalCDORevision revision = (InternalCDORevision)object.cdoRevision();
+            if (revision == null)
+            {
+              revision = CDOStateMachine.INSTANCE.read((InternalCDOObject)object);
+            }
+
+            revisions.put(revision.getID(), revision);
           }
         }
 
+        Map<CDOBranch, Map<CDOID, InternalCDORevision>> viewedRevisions = new HashMap<CDOBranch, Map<CDOID, InternalCDORevision>>();
+        viewedRevisions.put(getBranch(), revisions);
+
         CDOSessionProtocol sessionProtocol = session.getSessionProtocol();
-        sessionProtocol.lockObjects(this, uniqueObjects, timeout, lockType);
+        long lastUpdateTime = session.getLastUpdateTime();
+        sessionProtocol.lockObjects(lastUpdateTime, viewedRevisions, viewID, lockType, timeout);
       }
       finally
       {
@@ -458,29 +465,6 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     checkActive();
     CDOSessionProtocol sessionProtocol = session.getSessionProtocol();
     return sessionProtocol.isObjectLocked(this, object, lockType, byOthers);
-  }
-
-  public void getCDOIDAndVersion(Map<CDOID, CDOIDAndVersion> uniqueObjects, Collection<? extends CDOObject> cdoObjects)
-  {
-    for (CDOObject internalCDOObject : cdoObjects)
-    {
-      CDORevision cdoRevision = CDOStateMachine.INSTANCE.readNoLoad((InternalCDOObject)internalCDOObject);
-      CDOID cdoId = internalCDOObject.cdoID();
-      if (cdoRevision != null && !uniqueObjects.containsKey(cdoId))
-      {
-        int version = cdoRevision.getVersion();
-        uniqueObjects.put(cdoId, CDOIDUtil.createIDAndVersion(cdoId, version));
-      }
-    }
-  }
-
-  private void checkMainBranch()
-  {
-    if (!getBranch().isMainBranch())
-    {
-      // XXX Fix for branching!!
-      throw new UnsupportedOperationException("Fix for branching"); //$NON-NLS-1$
-    }
   }
 
   public boolean isDirty()

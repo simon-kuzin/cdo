@@ -17,7 +17,6 @@ import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.commit.CDOCommitData;
 import org.eclipse.emf.cdo.common.commit.CDOCommitInfoHandler;
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.util.TransportException;
@@ -31,9 +30,11 @@ import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.RevisionInfo;
 import org.eclipse.emf.cdo.view.CDOView;
 
+import org.eclipse.net4j.signal.RemoteException;
 import org.eclipse.net4j.signal.RequestWithConfirmation;
 import org.eclipse.net4j.signal.SignalProtocol;
 import org.eclipse.net4j.signal.SignalReactor;
+import org.eclipse.net4j.util.WrappedException;
 import org.eclipse.net4j.util.concurrent.IRWLockManager.LockType;
 import org.eclipse.net4j.util.io.StringCompressor;
 import org.eclipse.net4j.util.io.StringIO;
@@ -142,8 +143,9 @@ public class CDOClientProtocol extends SignalProtocol<CDOSession> implements CDO
     return send(new LoadRevisionByVersionRequest(this, id, branchVersion, referenceChunk));
   }
 
-  public RefreshSessionResult refresh(long lastUpdateTime, Map<CDOBranch, Map<CDOID, InternalCDORevision>> viewedRevisions,
-      int initialChunkSize, boolean enablePassiveUpdates)
+  public RefreshSessionResult refresh(long lastUpdateTime,
+      Map<CDOBranch, Map<CDOID, InternalCDORevision>> viewedRevisions, int initialChunkSize,
+      boolean enablePassiveUpdates)
   {
     return send(new RefreshSessionRequest(this, lastUpdateTime, viewedRevisions, initialChunkSize, enablePassiveUpdates));
   }
@@ -185,45 +187,41 @@ public class CDOClientProtocol extends SignalProtocol<CDOSession> implements CDO
     }
   }
 
-  public void lockObjects(CDOView view, Map<CDOID, CDOIDAndVersion> objects, long timeout, LockType lockType)
-      throws InterruptedException
+  public void lockObjects(long lastUpdateTime, Map<CDOBranch, Map<CDOID, InternalCDORevision>> viewedRevisions,
+      int viewID, LockType lockType, long timeout) throws InterruptedException
   {
-    // TODO: implement CDOClientProtocol.lockObjects(view, objects, timeout, lockType)
-    throw new UnsupportedOperationException();
+    InterruptedException interruptedException = null;
+    RuntimeException runtimeException = null;
 
-    // InterruptedException interruptedException = null;
-    // RuntimeException runtimeException = null;
-    //
-    // try
-    // {
-    // new LockObjectsRequest(this, view, objects, view.getSession().options().getCollectionLoadingPolicy()
-    // .getInitialChunkSize(), timeout, lockType).send();
-    // }
-    // catch (RemoteException ex)
-    // {
-    // if (ex.getCause() instanceof RuntimeException)
-    // {
-    // runtimeException = (RuntimeException)ex.getCause();
-    // }
-    // else if (ex.getCause() instanceof InterruptedException)
-    // {
-    // interruptedException = (InterruptedException)ex.getCause();
-    // }
-    // }
-    // catch (Exception ex)
-    // {
-    // throw WrappedException.wrap(ex);
-    // }
-    //
-    // if (interruptedException != null)
-    // {
-    // throw interruptedException;
-    // }
-    //
-    // if (runtimeException != null)
-    // {
-    // throw runtimeException;
-    // }
+    try
+    {
+      new LockObjectsRequest(this, lastUpdateTime, viewedRevisions, viewID, lockType, timeout).send();
+    }
+    catch (RemoteException ex)
+    {
+      if (ex.getCause() instanceof RuntimeException)
+      {
+        runtimeException = (RuntimeException)ex.getCause();
+      }
+      else if (ex.getCause() instanceof InterruptedException)
+      {
+        interruptedException = (InterruptedException)ex.getCause();
+      }
+    }
+    catch (Exception ex)
+    {
+      throw WrappedException.wrap(ex);
+    }
+
+    if (interruptedException != null)
+    {
+      throw interruptedException;
+    }
+
+    if (runtimeException != null)
+    {
+      throw runtimeException;
+    }
   }
 
   public void unlockObjects(CDOView view, Collection<? extends CDOObject> objects, LockType lockType)

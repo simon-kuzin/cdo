@@ -1746,15 +1746,15 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       }
     }
 
-    public void lockObjects(CDOView view, Map<CDOID, CDOIDAndVersion> objects, long timeout, LockType lockType)
-        throws InterruptedException
+    public void lockObjects(long lastUpdateTime, Map<CDOBranch, Map<CDOID, InternalCDORevision>> viewedRevisions,
+        int viewID, LockType lockType, long timeout) throws InterruptedException
     {
       int attempt = 0;
       for (;;)
       {
         try
         {
-          delegate.lockObjects(view, objects, timeout, lockType);
+          delegate.lockObjects(lastUpdateTime, viewedRevisions, viewID, lockType, timeout);
           return;
         }
         catch (Exception ex)

@@ -88,7 +88,7 @@ public class TransactionCommitContext implements InternalCommitContext
 
   private CDOID[] detachedObjects;
 
-  private List<CDOID> lockedObjects = new ArrayList<CDOID>();
+  private List<Object> lockedObjects = new ArrayList<Object>();
 
   private List<InternalCDORevision> detachedRevisions = new ArrayList<InternalCDORevision>();
 
@@ -487,14 +487,20 @@ public class TransactionCommitContext implements InternalCommitContext
   private void lockObjects() throws InterruptedException
   {
     lockedObjects.clear();
+    boolean supportingBranches = transaction.getRepository().isSupportingBranches();
+
     for (int i = 0; i < dirtyObjectDeltas.length; i++)
     {
-      lockedObjects.add(dirtyObjectDeltas[i].getID());
+      CDOID id = dirtyObjectDeltas[i].getID();
+      Object key = supportingBranches ? CDOIDUtil.createIDAndBranch(id, transaction.getBranch()) : id;
+      lockedObjects.add(key);
     }
 
     for (int i = 0; i < detachedObjects.length; i++)
     {
-      lockedObjects.add(detachedObjects[i]);
+      CDOID id = detachedObjects[i];
+      Object key = supportingBranches ? CDOIDUtil.createIDAndBranch(id, transaction.getBranch()) : id;
+      lockedObjects.add(key);
     }
 
     try

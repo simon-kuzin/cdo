@@ -24,6 +24,7 @@ import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
 import org.eclipse.emf.cdo.spi.common.revision.SyntheticCDORevision;
+import org.eclipse.emf.cdo.spi.server.InternalSession;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -92,7 +93,8 @@ public class RefreshSessionIndication extends CDOReadIndication
     writePackageUnits(out, lastCommitTimeStamp);
     writeRevisions(out);
 
-    getSession().setPassiveUpdateEnabled(enablePassiveUpdates);
+    InternalSession session = getSession();
+    session.setPassiveUpdateEnabled(enablePassiveUpdates);
   }
 
   protected void writPackageUnit(CDODataOutput out, InternalCDOPackageUnit packageUnit) throws IOException

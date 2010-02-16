@@ -29,7 +29,6 @@ import org.eclipse.net4j.util.lifecycle.ILifecycle;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.ecore.EObject;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
@@ -74,12 +73,6 @@ public interface InternalCDOView extends CDOView, CDOIDProvider, ILifecycle
   public void fireAdaptersNotifiedEvent(long timeStamp);
 
   public void collectViewedRevisions(Map<CDOID, InternalCDORevision> revisions);
-
-  @Deprecated
-  public void getCDOIDAndVersion(Map<CDOID, CDOIDAndVersion> uniqueObjects, Collection<? extends CDOObject> objects);
-
-  @Deprecated
-  public InternalCDOObject[] getObjectsArray();
 
   public void remapObject(CDOID oldID);
 
