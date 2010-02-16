@@ -1649,14 +1649,14 @@ public class CDOViewImpl extends Lifecycle implements InternalCDOView
     {
       for (InternalCDOObject object : objects.values())
       {
-        CDOID id = object.cdoID();
-        if (revisions.containsKey(id))
+        CDOState state = object.cdoState();
+        if (state != CDOState.CLEAN && state != CDOState.DIRTY && state != CDOState.CONFLICT)
         {
           continue;
         }
 
-        CDOState state = object.cdoState();
-        if (state != CDOState.CLEAN && state != CDOState.DIRTY && state != CDOState.CONFLICT)
+        CDOID id = object.cdoID();
+        if (revisions.containsKey(id))
         {
           continue;
         }
