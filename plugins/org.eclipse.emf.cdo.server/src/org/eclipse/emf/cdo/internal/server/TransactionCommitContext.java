@@ -550,42 +550,41 @@ public class TransactionCommitContext implements InternalCommitContext
     }
   }
 
-  private InternalCDORevision computeDirtyObject(InternalCDORevisionDelta dirtyObjectDelta, boolean loadOnDemand)
+  private InternalCDORevision computeDirtyObject(InternalCDORevisionDelta delta, boolean loadOnDemand)
   {
-    CDOID id = dirtyObjectDelta.getID();
+    CDOID id = delta.getID();
 
     InternalRepository repository = transaction.getRepository();
     InternalCDORevisionManager revisionManager = repository.getRevisionManager();
 
-    CDORevision originObject = revisionManager.getRevisionByVersion(id, dirtyObjectDelta, CDORevision.UNCHUNKED, true);
-    if (originObject != null)
+    InternalCDORevision oldRevision = revisionManager.getRevisionByVersion(id, delta, CDORevision.UNCHUNKED, true);
+    if (oldRevision == null)
     {
-      if (loadOnDemand)
-      {
-        // Make sure all chunks are loaded
-        for (EStructuralFeature feature : CDOModelUtil.getAllPersistentFeatures(originObject.getEClass()))
-        {
-          if (feature.isMany())
-          {
-            InternalCDORevision internalOriginObject = (InternalCDORevision)originObject;
-            repository.ensureChunk(internalOriginObject, feature, 0, internalOriginObject.getList(feature).size());
-          }
-        }
-      }
-
-      if (originObject.isHistorical())
-      {
-        throw new ConcurrentModificationException("Trying to update object " + id + " that was already modified"); //$NON-NLS-1$
-      }
-
-      InternalCDORevision dirtyObject = (InternalCDORevision)originObject.copy();
-      dirtyObject.adjustForCommit(transaction.getBranch(), timeStamp);
-
-      dirtyObjectDelta.apply(dirtyObject);
-      return dirtyObject;
+      throw new IllegalStateException("Origin revision not found for " + delta);
     }
 
-    throw new IllegalStateException("Origin revision not found for " + dirtyObjectDelta);
+    if (oldRevision.isHistorical())
+    {
+      throw new ConcurrentModificationException("Trying to update object " + id + " that was already modified");
+    }
+
+    if (loadOnDemand)
+    {
+      // Make sure all chunks are loaded
+      for (EStructuralFeature feature : CDOModelUtil.getAllPersistentFeatures(oldRevision.getEClass()))
+      {
+        if (feature.isMany())
+        {
+          repository.ensureChunk(oldRevision, feature, 0, oldRevision.getList(feature).size());
+        }
+      }
+    }
+
+    InternalCDORevision newRevision = oldRevision.copy();
+    newRevision.adjustForCommit(transaction.getBranch(), timeStamp);
+
+    delta.apply(newRevision);
+    return newRevision;
   }
 
   private void applyIDMappings(InternalCDORevision[] revisions, OMMonitor monitor)
