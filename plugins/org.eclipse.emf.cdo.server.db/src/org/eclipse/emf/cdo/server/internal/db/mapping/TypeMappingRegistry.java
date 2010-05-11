@@ -211,6 +211,8 @@ public class TypeMappingRegistry extends Lifecycle implements ITypeMappingRegist
     {
       classifierDefaultMapping.put(eClassifier, dbType);
     }
+
+    defaultFeatureMapDBTypes.add(dbType);
   }
 
   public ITypeMapping createTypeMapping(IMappingStrategy mappingStrategy, EStructuralFeature feature)
@@ -231,7 +233,7 @@ public class TypeMappingRegistry extends Lifecycle implements ITypeMappingRegist
     if (factory == null)
     {
       // try to find suitable mapping by type
-      factory = getMappingByType(classifier, dbType);
+      factory = getMappingByType(feature, dbType);
     }
 
     if (factory == null)
@@ -291,13 +293,21 @@ public class TypeMappingRegistry extends Lifecycle implements ITypeMappingRegist
     return dbAdapter.adaptType(result);
   }
 
-  private ITypeMappingFactory getMappingByType(EClassifier classifier, DBType dbType)
+  private ITypeMappingFactory getMappingByType(EStructuralFeature feature, DBType dbType)
   {
-    String factoryId = typeMappingByClassifier.get(new Pair<EClassifier, DBType>(classifier, dbType));
+    // First try: lookup specific mapping for the immediate type.
+    String factoryId = typeMappingByClassifier.get(new Pair<EClassifier, DBType>(feature.getEType(), dbType));
 
     if (factoryId == null)
     {
-      return null;
+      // Second try: lookup general mapping
+      factoryId = typeMappingByClassifier.get(new Pair<EClassifier, DBType>(getEClassifier(feature), dbType));
+
+      if (factoryId == null)
+      {
+        // Lookup failed. Give up
+        return null;
+      }
     }
 
     return typeMappings.get(factoryId);
