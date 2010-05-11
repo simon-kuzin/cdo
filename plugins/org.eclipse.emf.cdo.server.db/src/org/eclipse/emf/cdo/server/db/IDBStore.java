@@ -63,4 +63,9 @@ public interface IDBStore extends IStore
    * @since 2.0
    */
   public IDBStoreAccessor getWriter(ITransaction transaction);
+
+  /**
+   * @since 3.0
+   */
+  public ITypeMappingRegistry getTypeMappingRegistry();
 }

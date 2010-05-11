@@ -24,17 +24,12 @@ import org.eclipse.emf.cdo.server.db.CDODBUtil;
 import org.eclipse.emf.cdo.server.db.IDBStore;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IExternalReferenceManager;
+import org.eclipse.emf.cdo.server.db.mapping.AbstractTypeMapping;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.db.mapping.ITypeMapping;
-import org.eclipse.emf.cdo.server.internal.db.DBAnnotation;
-import org.eclipse.emf.cdo.server.internal.db.MetaDataManager;
-import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
-import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
+import org.eclipse.emf.cdo.server.db.mapping.ITypeMappingFactory;
 
 import org.eclipse.net4j.db.DBType;
-import org.eclipse.net4j.db.ddl.IDBField;
-import org.eclipse.net4j.db.ddl.IDBTable;
-import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.emf.common.util.Enumerator;
 import org.eclipse.emf.ecore.EEnum;
@@ -47,6 +42,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -55,220 +51,25 @@ import java.util.Date;
  * 
  * @author Eike Stepper
  */
-public abstract class TypeMapping implements ITypeMapping
+public class CoreTypeMappings
 {
-  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, TypeMapping.class);
-
-  private IMappingStrategy mappingStrategy;
-
-  private EStructuralFeature feature;
-
-  private IDBField field;
-
-  private DBType dbType;
-
-  /**
-   * Create a new type mapping
-   * 
-   * @param mappingStrategy
-   *          the associated mapping strategy.
-   * @param feature
-   *          the feature to be mapped.
-   */
-  protected TypeMapping(IMappingStrategy mappingStrategy, EStructuralFeature feature, DBType type)
-  {
-    this.mappingStrategy = mappingStrategy;
-    this.feature = feature;
-    dbType = type;
-  }
-
-  public final IMappingStrategy getMappingStrategy()
-  {
-    return mappingStrategy;
-  }
-
-  public final EStructuralFeature getFeature()
-  {
-    return feature;
-  }
-
-  public final void setValueFromRevision(PreparedStatement stmt, int index, InternalCDORevision revision)
-      throws SQLException
-  {
-    setValue(stmt, index, getRevisionValue(revision));
-  }
-
-  public void setDefaultValue(PreparedStatement stmt, int index) throws SQLException
-  {
-    setValue(stmt, index, getDefaultValue());
-  }
-
-  public final void setValue(PreparedStatement stmt, int index, Object value) throws SQLException
-  {
-    if (value == CDORevisionData.NIL)
-    {
-      if (TRACER.isEnabled())
-      {
-        TRACER.format("TypeMapping for {0}: converting Revision.NIL to DB-null", feature.getName()); //$NON-NLS-1$
-      }
-
-      stmt.setNull(index, getSqlType());
-    }
-    else if (value == null)
-    {
-      if (feature.isMany() || getDefaultValue() == null)
-      {
-        if (TRACER.isEnabled())
-        {
-          TRACER.format("TypeMapping for {0}: writing Revision.null as DB.null", feature.getName()); //$NON-NLS-1$
-        }
-
-        stmt.setNull(index, getSqlType());
-      }
-      else
-      {
-        if (TRACER.isEnabled())
-        {
-          TRACER.format("TypeMapping for {0}: converting Revision.null to default value", feature.getName()); //$NON-NLS-1$
-        }
-
-        setDefaultValue(stmt, index);
-      }
-    }
-    else
-    {
-      doSetValue(stmt, index, value);
-    }
-  }
-
-  public final void createDBField(IDBTable table)
-  {
-    createDBField(table, mappingStrategy.getFieldName(feature));
-  }
-
-  public final void createDBField(IDBTable table, String fieldName)
-  {
-    DBType fieldType = getDBType();
-    int fieldLength = getDBLength(fieldType);
-    field = table.addField(fieldName, fieldType, fieldLength);
-  }
-
-  public final void setDBField(IDBTable table, String fieldName)
-  {
-    field = table.getField(fieldName);
-  }
-
-  public final IDBField getField()
-  {
-    return field;
-  }
-
-  public final void readValueToRevision(ResultSet resultSet, InternalCDORevision revision) throws SQLException
-  {
-    Object value = readValue(resultSet);
-    revision.setValue(getFeature(), value);
-  }
-
-  public final Object readValue(ResultSet resultSet) throws SQLException
-  {
-    Object value = getResultSetValue(resultSet);
-    if (resultSet.wasNull())
-    {
-      if (feature.isMany())
-      {
-        if (TRACER.isEnabled())
-        {
-          TRACER.format("TypeMapping for {0}: read db.null - setting Revision.null", feature.getName()); //$NON-NLS-1$
-        }
-
-        value = null;
-      }
-      else
-      {
-        if (getDefaultValue() == null)
-        {
-          if (TRACER.isEnabled())
-          {
-            TRACER.format(
-                "TypeMapping for {0}: read db.null - setting Revision.null, because of default", feature.getName()); //$NON-NLS-1$
-          }
-
-          value = null;
-        }
-        else
-        {
-          if (TRACER.isEnabled())
-          {
-            TRACER.format("TypeMapping for {0}: read db.null - setting Revision.NIL", feature.getName()); //$NON-NLS-1$
-          }
-
-          value = CDORevisionData.NIL;
-        }
-      }
-    }
-
-    return value;
-  }
-
-  protected Object getDefaultValue()
-  {
-    return feature.getDefaultValue();
-  }
-
-  protected final Object getRevisionValue(InternalCDORevision revision)
-  {
-    return revision.getValue(getFeature());
-  }
-
-  protected void doSetValue(PreparedStatement stmt, int index, Object value) throws SQLException
-  {
-    stmt.setObject(index, value, getSqlType());
-  }
-
-  /**
-   * Returns the SQL type of this TypeMapping. The default implementation considers the type map hold by the meta-data
-   * manager (@see {@link MetaDataManager#getDBType(org.eclipse.emf.ecore.EClassifier)} Subclasses may override.
-   * 
-   * @return The sql type of this TypeMapping.
-   */
-  protected int getSqlType()
-  {
-    return getDBType().getCode();
-  }
-
-  public DBType getDBType()
-  {
-    return dbType;
-  }
-
-  protected int getDBLength(DBType type)
-  {
-    String value = DBAnnotation.COLUMN_LENGTH.getValue(feature);
-    if (value != null)
-    {
-      try
-      {
-        return Integer.parseInt(value);
-      }
-      catch (NumberFormatException e)
-      {
-        OM.LOG.error("Illegal columnLength annotation of feature " + feature.getName());
-      }
-    }
-
-    // TODO: implement DBAdapter.getDBLength
-    // mappingStrategy.getStore().getDBAdapter().getDBLength(type);
-    // which should then return the correct default field length for the db type
-    return type == DBType.VARCHAR ? 32672 : IDBField.DEFAULT;
-  }
-
-  protected abstract Object getResultSetValue(ResultSet resultSet) throws SQLException;
+  public static final String ID_PREFIX = "org.eclipse.emf.cdo.db.CoreTypeMappings.";
 
   /**
    * @author Eike Stepper
    */
-  public static class TMEnum extends TypeMapping
+  public static class TMEnum extends AbstractTypeMapping
   {
+    public static final String ID = ID_PREFIX + "Enum";
+
+    public static class Factory implements ITypeMappingFactory
+    {
+      public ITypeMapping createTypeMapping(IMappingStrategy mappingStrategy, EStructuralFeature feature, DBType dbType)
+      {
+        return new TMEnum(mappingStrategy, feature, dbType);
+      }
+    }
+
     public TMEnum(IMappingStrategy strategy, EStructuralFeature feature, DBType type)
     {
       super(strategy, feature, type);
@@ -304,8 +105,18 @@ public abstract class TypeMapping implements ITypeMapping
   /**
    * @author Eike Stepper
    */
-  public static class TMString extends TypeMapping
+  public static class TMString extends AbstractTypeMapping
   {
+    public static final String ID = ID_PREFIX + "String";
+
+    public static class Factory implements ITypeMappingFactory
+    {
+      public ITypeMapping createTypeMapping(IMappingStrategy mappingStrategy, EStructuralFeature feature, DBType dbType)
+      {
+        return new TMString(mappingStrategy, feature, dbType);
+      }
+    }
+
     public TMString(IMappingStrategy strategy, EStructuralFeature feature, DBType type)
     {
       super(strategy, feature, type);
@@ -316,13 +127,24 @@ public abstract class TypeMapping implements ITypeMapping
     {
       return resultSet.getString(getField().getName());
     }
+
   }
 
   /**
    * @author Eike Stepper
    */
-  public static class TMShort extends TypeMapping
+  public static class TMShort extends AbstractTypeMapping
   {
+    public static final String ID = ID_PREFIX + "Short";
+
+    public static class Factory implements ITypeMappingFactory
+    {
+      public ITypeMapping createTypeMapping(IMappingStrategy mappingStrategy, EStructuralFeature feature, DBType dbType)
+      {
+        return new TMShort(mappingStrategy, feature, dbType);
+      }
+    }
+
     public TMShort(IMappingStrategy strategy, EStructuralFeature feature, DBType type)
     {
       super(strategy, feature, type);
@@ -333,13 +155,24 @@ public abstract class TypeMapping implements ITypeMapping
     {
       return resultSet.getShort(getField().getName());
     }
+
   }
 
   /**
    * @author Eike Stepper <br>
    */
-  public static class TMObject extends TypeMapping
+  public static class TMObject extends AbstractTypeMapping
   {
+    public static final String ID = ID_PREFIX + "Object";
+
+    public static class Factory implements ITypeMappingFactory
+    {
+      public ITypeMapping createTypeMapping(IMappingStrategy mappingStrategy, EStructuralFeature feature, DBType dbType)
+      {
+        return new TMObject(mappingStrategy, feature, dbType);
+      }
+    }
+
     public TMObject(IMappingStrategy strategy, EStructuralFeature feature, DBType type)
     {
       super(strategy, feature, type);
@@ -379,13 +212,24 @@ public abstract class TypeMapping implements ITypeMapping
 
       return (IDBStoreAccessor)accessor;
     }
+
   }
 
   /**
    * @author Eike Stepper
    */
-  public static class TMLong extends TypeMapping
+  public static class TMLong extends AbstractTypeMapping
   {
+    public static final String ID = ID_PREFIX + "Long";
+
+    public static class Factory implements ITypeMappingFactory
+    {
+      public ITypeMapping createTypeMapping(IMappingStrategy mappingStrategy, EStructuralFeature feature, DBType dbType)
+      {
+        return new TMLong(mappingStrategy, feature, dbType);
+      }
+    }
+
     public TMLong(IMappingStrategy strategy, EStructuralFeature feature, DBType type)
     {
       super(strategy, feature, type);
@@ -396,13 +240,24 @@ public abstract class TypeMapping implements ITypeMapping
     {
       return resultSet.getLong(getField().getName());
     }
+
   }
 
   /**
    * @author Eike Stepper
    */
-  public static class TMInteger extends TypeMapping
+  public static class TMInteger extends AbstractTypeMapping
   {
+    public static final String ID = ID_PREFIX + "Integer";
+
+    public static class Factory implements ITypeMappingFactory
+    {
+      public ITypeMapping createTypeMapping(IMappingStrategy mappingStrategy, EStructuralFeature feature, DBType dbType)
+      {
+        return new TMInteger(mappingStrategy, feature, dbType);
+      }
+    }
+
     public TMInteger(IMappingStrategy strategy, EStructuralFeature feature, DBType type)
     {
       super(strategy, feature, type);
@@ -413,13 +268,24 @@ public abstract class TypeMapping implements ITypeMapping
     {
       return resultSet.getInt(getField().getName());
     }
+
   }
 
   /**
    * @author Eike Stepper
    */
-  public static class TMFloat extends TypeMapping
+  public static class TMFloat extends AbstractTypeMapping
   {
+    public static final String ID = ID_PREFIX + "Float";
+
+    public static class Factory implements ITypeMappingFactory
+    {
+      public ITypeMapping createTypeMapping(IMappingStrategy mappingStrategy, EStructuralFeature feature, DBType dbType)
+      {
+        return new TMFloat(mappingStrategy, feature, dbType);
+      }
+    }
+
     public TMFloat(IMappingStrategy strategy, EStructuralFeature feature, DBType type)
     {
       super(strategy, feature, type);
@@ -430,13 +296,24 @@ public abstract class TypeMapping implements ITypeMapping
     {
       return resultSet.getFloat(getField().getName());
     }
+
   }
 
   /**
    * @author Eike Stepper
    */
-  public static class TMDouble extends TypeMapping
+  public static class TMDouble extends AbstractTypeMapping
   {
+    public static final String ID = ID_PREFIX + "Double";
+
+    public static class Factory implements ITypeMappingFactory
+    {
+      public ITypeMapping createTypeMapping(IMappingStrategy mappingStrategy, EStructuralFeature feature, DBType dbType)
+      {
+        return new TMDouble(mappingStrategy, feature, dbType);
+      }
+    }
+
     public TMDouble(IMappingStrategy strategy, EStructuralFeature feature, DBType type)
     {
       super(strategy, feature, type);
@@ -447,14 +324,25 @@ public abstract class TypeMapping implements ITypeMapping
     {
       return resultSet.getDouble(getField().getName());
     }
+
   }
 
   /**
    * @author Eike Stepper
    */
-  public static class TMDate extends TypeMapping
+  public static class TMDate2Timestamp extends AbstractTypeMapping
   {
-    public TMDate(IMappingStrategy strategy, EStructuralFeature feature, DBType type)
+    public static final String ID = ID_PREFIX + "Timestamp";
+
+    public static class Factory implements ITypeMappingFactory
+    {
+      public ITypeMapping createTypeMapping(IMappingStrategy mappingStrategy, EStructuralFeature feature, DBType dbType)
+      {
+        return new TMDate2Timestamp(mappingStrategy, feature, dbType);
+      }
+    }
+
+    public TMDate2Timestamp(IMappingStrategy strategy, EStructuralFeature feature, DBType type)
     {
       super(strategy, feature, type);
     }
@@ -473,10 +361,76 @@ public abstract class TypeMapping implements ITypeMapping
   }
 
   /**
+   * @author Heiko Ahlig
+   */
+  public static class TMDate2Date extends AbstractTypeMapping
+  {
+    public static final String ID = ID_PREFIX + "Date";
+
+    public static class Factory implements ITypeMappingFactory
+    {
+      public ITypeMapping createTypeMapping(IMappingStrategy mappingStrategy, EStructuralFeature feature, DBType dbType)
+      {
+        return new TMDate2Date(mappingStrategy, feature, dbType);
+      }
+    }
+
+    public TMDate2Date(IMappingStrategy strategy, EStructuralFeature feature, DBType type)
+    {
+      super(strategy, feature, type);
+    }
+
+    @Override
+    public Object getResultSetValue(ResultSet resultSet) throws SQLException
+    {
+      return resultSet.getDate(getField().getName(), Calendar.getInstance());
+    }
+
+  }
+
+  /**
+   * @author Heiko Ahlig
+   */
+  public static class TMDate2Time extends AbstractTypeMapping
+  {
+    public static final String ID = ID_PREFIX + "Time";
+
+    public static class Factory implements ITypeMappingFactory
+    {
+      public ITypeMapping createTypeMapping(IMappingStrategy mappingStrategy, EStructuralFeature feature, DBType dbType)
+      {
+        return new TMDate2Time(mappingStrategy, feature, dbType);
+      }
+    }
+
+    public TMDate2Time(IMappingStrategy strategy, EStructuralFeature feature, DBType type)
+    {
+      super(strategy, feature, type);
+    }
+
+    @Override
+    public Object getResultSetValue(ResultSet resultSet) throws SQLException
+    {
+      return resultSet.getTime(getField().getName(), Calendar.getInstance());
+    }
+
+  }
+
+  /**
    * @author Eike Stepper
    */
-  public static class TMCharacter extends TypeMapping
+  public static class TMCharacter extends AbstractTypeMapping
   {
+    public static final String ID = ID_PREFIX + "Character";
+
+    public static class Factory implements ITypeMappingFactory
+    {
+      public ITypeMapping createTypeMapping(IMappingStrategy mappingStrategy, EStructuralFeature feature, DBType dbType)
+      {
+        return new TMCharacter(mappingStrategy, feature, dbType);
+      }
+    }
+
     public TMCharacter(IMappingStrategy strategy, EStructuralFeature feature, DBType type)
     {
       super(strategy, feature, type);
@@ -499,13 +453,24 @@ public abstract class TypeMapping implements ITypeMapping
     {
       stmt.setString(index, ((Character)value).toString());
     }
+
   }
 
   /**
    * @author Eike Stepper
    */
-  public static class TMByte extends TypeMapping
+  public static class TMByte extends AbstractTypeMapping
   {
+    public static final String ID = ID_PREFIX + "Byte";
+
+    public static class Factory implements ITypeMappingFactory
+    {
+      public ITypeMapping createTypeMapping(IMappingStrategy mappingStrategy, EStructuralFeature feature, DBType dbType)
+      {
+        return new TMByte(mappingStrategy, feature, dbType);
+      }
+    }
+
     public TMByte(IMappingStrategy strategy, EStructuralFeature feature, DBType type)
     {
       super(strategy, feature, type);
@@ -516,13 +481,24 @@ public abstract class TypeMapping implements ITypeMapping
     {
       return resultSet.getByte(getField().getName());
     }
+
   }
 
   /**
    * @author Eike Stepper
    */
-  public static class TMBytes extends TypeMapping
+  public static class TMBytes extends AbstractTypeMapping
   {
+    public static final String ID = ID_PREFIX + "ByteArray";
+
+    public static class Factory implements ITypeMappingFactory
+    {
+      public ITypeMapping createTypeMapping(IMappingStrategy mappingStrategy, EStructuralFeature feature, DBType dbType)
+      {
+        return new TMBytes(mappingStrategy, feature, dbType);
+      }
+    }
+
     public TMBytes(IMappingStrategy strategy, EStructuralFeature feature, DBType type)
     {
       super(strategy, feature, type);
@@ -533,13 +509,24 @@ public abstract class TypeMapping implements ITypeMapping
     {
       return resultSet.getBytes(getField().getName());
     }
+
   }
 
   /**
    * @author Eike Stepper
    */
-  public static class TMBoolean extends TypeMapping
+  public static class TMBoolean extends AbstractTypeMapping
   {
+    public static final String ID = ID_PREFIX + "Boolean";
+
+    public static class Factory implements ITypeMappingFactory
+    {
+      public ITypeMapping createTypeMapping(IMappingStrategy mappingStrategy, EStructuralFeature feature, DBType dbType)
+      {
+        return new TMBoolean(mappingStrategy, feature, dbType);
+      }
+    }
+
     public TMBoolean(IMappingStrategy strategy, EStructuralFeature feature, DBType type)
     {
       super(strategy, feature, type);
@@ -550,13 +537,24 @@ public abstract class TypeMapping implements ITypeMapping
     {
       return resultSet.getBoolean(getField().getName());
     }
+
   }
 
   /**
    * @author Stefan Winkler
    */
-  public static class TMBigInteger extends TypeMapping
+  public static class TMBigInteger extends AbstractTypeMapping
   {
+    public static final String ID = ID_PREFIX + "BigInteger";
+
+    public static class Factory implements ITypeMappingFactory
+    {
+      public ITypeMapping createTypeMapping(IMappingStrategy mappingStrategy, EStructuralFeature feature, DBType dbType)
+      {
+        return new TMBigInteger(mappingStrategy, feature, dbType);
+      }
+    }
+
     public TMBigInteger(IMappingStrategy strategy, EStructuralFeature feature, DBType type)
     {
       super(strategy, feature, type);
@@ -580,13 +578,24 @@ public abstract class TypeMapping implements ITypeMapping
     {
       stmt.setString(index, ((BigInteger)value).toString());
     }
+
   }
 
   /**
    * @author Stefan Winkler
    */
-  public static class TMBigDecimal extends TypeMapping
+  public static class TMBigDecimal extends AbstractTypeMapping
   {
+    public static final String ID = ID_PREFIX + "BigDecimal";
+
+    public static class Factory implements ITypeMappingFactory
+    {
+      public ITypeMapping createTypeMapping(IMappingStrategy mappingStrategy, EStructuralFeature feature, DBType dbType)
+      {
+        return new TMBigDecimal(mappingStrategy, feature, dbType);
+      }
+    }
+
     public TMBigDecimal(IMappingStrategy strategy, EStructuralFeature feature, DBType type)
     {
       super(strategy, feature, type);
@@ -610,13 +619,24 @@ public abstract class TypeMapping implements ITypeMapping
     {
       stmt.setString(index, ((BigDecimal)value).toPlainString());
     }
+
   }
 
   /**
    * @author Stefan Winkler
    */
-  public static class TMCustom extends TypeMapping
+  public static class TMCustom extends AbstractTypeMapping
   {
+    public static final String ID = ID_PREFIX + "Custom";
+
+    public static class Factory implements ITypeMappingFactory
+    {
+      public ITypeMapping createTypeMapping(IMappingStrategy mappingStrategy, EStructuralFeature feature, DBType dbType)
+      {
+        return new TMCustom(mappingStrategy, feature, dbType);
+      }
+    }
+
     public TMCustom(IMappingStrategy mappingStrategy, EStructuralFeature feature, DBType type)
     {
       super(mappingStrategy, feature, type);

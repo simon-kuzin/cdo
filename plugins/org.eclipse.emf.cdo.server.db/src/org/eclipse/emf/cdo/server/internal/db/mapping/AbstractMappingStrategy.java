@@ -464,7 +464,7 @@ public abstract class AbstractMappingStrategy extends Lifecycle implements IMapp
 
   public ITypeMapping createValueMapping(EStructuralFeature feature)
   {
-    return TypeMappingFactory.createTypeMapping(this, feature);
+    return getStore().getTypeMappingRegistry().createTypeMapping(this, feature);
   }
 
   public final IListMapping createListMapping(EClass containingClass, EStructuralFeature feature)

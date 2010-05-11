@@ -43,8 +43,6 @@ import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.db.mapping.ITypeMapping;
 import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
-import org.eclipse.emf.cdo.server.internal.db.mapping.TypeMapping;
-import org.eclipse.emf.cdo.server.internal.db.mapping.TypeMappingFactory;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDOList;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
@@ -52,8 +50,8 @@ import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.db.DBType;
 import org.eclipse.net4j.db.DBUtil;
 import org.eclipse.net4j.db.ddl.IDBField;
-import org.eclipse.net4j.db.ddl.IDBTable;
 import org.eclipse.net4j.db.ddl.IDBIndex.Type;
+import org.eclipse.net4j.db.ddl.IDBTable;
 import org.eclipse.net4j.util.ImplementationError;
 import org.eclipse.net4j.util.collection.MoveableList;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
@@ -152,7 +150,8 @@ public class AuditFeatureMapTableMappingWithRanges extends BasicAbstractListTabl
   private void initDBTypes()
   {
     // TODO add annotation processing here ...
-    dbTypes = new ArrayList<DBType>(TypeMappingFactory.getDefaultFeatureMapDBTypes());
+    dbTypes = new ArrayList<DBType>(getMappingStrategy().getStore().getTypeMappingRegistry()
+        .getDefaultFeatureMapDBTypes());
   }
 
   private void initTable()
@@ -487,7 +486,7 @@ public class AuditFeatureMapTableMappingWithRanges extends BasicAbstractListTabl
   {
     EStructuralFeature modelFeature = getFeatureByTag(tag);
 
-    TypeMapping typeMapping = (TypeMapping)getMappingStrategy().createValueMapping(modelFeature);
+    ITypeMapping typeMapping = getMappingStrategy().createValueMapping(modelFeature);
     String column = CDODBSchema.FEATUREMAP_VALUE + "_" + typeMapping.getDBType(); //$NON-NLS-1$
 
     tagMap.put(tag, column);

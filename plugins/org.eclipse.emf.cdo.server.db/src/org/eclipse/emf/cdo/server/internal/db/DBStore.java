@@ -27,8 +27,10 @@ import org.eclipse.emf.cdo.server.db.IDBStore;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IExternalReferenceManager;
 import org.eclipse.emf.cdo.server.db.IMetaDataManager;
+import org.eclipse.emf.cdo.server.db.ITypeMappingRegistry;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
+import org.eclipse.emf.cdo.server.internal.db.mapping.TypeMappingRegistry;
 import org.eclipse.emf.cdo.server.internal.db.messages.Messages;
 import org.eclipse.emf.cdo.spi.server.LongIDStore;
 import org.eclipse.emf.cdo.spi.server.StoreAccessorPool;
@@ -91,6 +93,8 @@ public class DBStore extends LongIDStore implements IDBStore, CDOAllRevisionsPro
 
   private IMappingStrategy mappingStrategy;
 
+  private ITypeMappingRegistry typeMappingRegistry;
+
   private IDBSchema dbSchema;
 
   private IDBAdapter dbAdapter;
@@ -133,6 +137,11 @@ public class DBStore extends LongIDStore implements IDBStore, CDOAllRevisionsPro
   public IMappingStrategy getMappingStrategy()
   {
     return mappingStrategy;
+  }
+
+  public ITypeMappingRegistry getTypeMappingRegistry()
+  {
+    return typeMappingRegistry;
   }
 
   public void setMappingStrategy(IMappingStrategy mappingStrategy)
@@ -436,6 +445,10 @@ public class DBStore extends LongIDStore implements IDBStore, CDOAllRevisionsPro
     Connection connection = getConnection();
     LifecycleUtil.activate(mappingStrategy);
 
+    // XXX Open issue: how to programmatically register typeMappings?
+    typeMappingRegistry = new TypeMappingRegistry();
+    LifecycleUtil.activate(typeMappingRegistry);
+
     try
     {
       Set<IDBTable> createdTables = CDODBSchema.INSTANCE.create(dbAdapter, connection);
@@ -468,6 +481,9 @@ public class DBStore extends LongIDStore implements IDBStore, CDOAllRevisionsPro
 
     LifecycleUtil.deactivate(externalReferenceManager);
     externalReferenceManager = null;
+
+    LifecycleUtil.deactivate(typeMappingRegistry);
+    typeMappingRegistry = null;
 
     LifecycleUtil.deactivate(mappingStrategy);
     mappingStrategy = null;
