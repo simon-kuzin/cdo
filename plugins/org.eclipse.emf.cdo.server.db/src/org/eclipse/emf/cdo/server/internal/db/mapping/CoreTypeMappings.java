@@ -653,5 +653,11 @@ public class CoreTypeMappings
 
       return val;
     }
+
+    @Override
+    public void setDefaultValue(PreparedStatement stmt, int index) throws SQLException
+    {
+      setValue(stmt, index, getFeature().getDefaultValueLiteral());
+    }
   }
 }

@@ -10,6 +10,7 @@
  */
 package org.eclipse.emf.cdo.server.internal.db.mapping;
 
+import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.server.db.ITypeMappingRegistry;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.db.mapping.ITypeMapping;
@@ -211,7 +212,7 @@ public class TypeMappingRegistry extends Lifecycle implements ITypeMappingRegist
     {
       classifierDefaultMapping.put(eClassifier, dbType);
     }
-
+    
     defaultFeatureMapDBTypes.add(dbType);
   }
 
@@ -240,7 +241,7 @@ public class TypeMappingRegistry extends Lifecycle implements ITypeMappingRegist
     {
       // XXX i18n
       throw new IllegalStateException("No typeMapping factory found for feature " + feature + " (type "
-          + classifier.getName() + ", DB type " + dbType.getClass().getSimpleName() + ")");
+          + classifier.getName() + ", DB type " + dbType.getKeyword() + ")");
     }
 
     return factory.createTypeMapping(mappingStrategy, feature, dbType);
@@ -257,6 +258,11 @@ public class TypeMappingRegistry extends Lifecycle implements ITypeMappingRegist
     if (classifier instanceof EClass)
     {
       return EcorePackage.eINSTANCE.getEClass();
+    }
+
+    if (!CDOModelUtil.isCorePackage(classifier.getEPackage()))
+    {
+      return EcorePackage.eINSTANCE.getEDataType();
     }
 
     return classifier;
@@ -295,22 +301,22 @@ public class TypeMappingRegistry extends Lifecycle implements ITypeMappingRegist
 
   private ITypeMappingFactory getMappingByType(EStructuralFeature feature, DBType dbType)
   {
-    // First try: lookup specific mapping for the immediate type.
-    String factoryId = typeMappingByClassifier.get(new Pair<EClassifier, DBType>(feature.getEType(), dbType));
+	  // First try: lookup specific mapping for the immediate type.
+	    String factoryId = typeMappingByClassifier.get(new Pair<EClassifier, DBType>(feature.getEType(), dbType));
 
-    if (factoryId == null)
-    {
-      // Second try: lookup general mapping
-      factoryId = typeMappingByClassifier.get(new Pair<EClassifier, DBType>(getEClassifier(feature), dbType));
+	    if (factoryId == null)
+	    {
+	      // Second try: lookup general mapping
+	      factoryId = typeMappingByClassifier.get(new Pair<EClassifier, DBType>(getEClassifier(feature), dbType));
 
-      if (factoryId == null)
-      {
-        // Lookup failed. Give up
-        return null;
-      }
-    }
+	      if (factoryId == null)
+	      {
+	        // Lookup failed. Give up
+	        return null;
+	      }
+	    }
 
-    return typeMappings.get(factoryId);
+	    return typeMappings.get(factoryId);
   }
 
   public Collection<DBType> getDefaultFeatureMapDBTypes()
