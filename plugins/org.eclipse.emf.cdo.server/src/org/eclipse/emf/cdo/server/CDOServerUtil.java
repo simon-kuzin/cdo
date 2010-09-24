@@ -65,18 +65,18 @@ public final class CDOServerUtil
   /**
    * @since 4.0
    */
-  public static CDOView openView(InternalSession session, CDOBranchPoint branchPoint, boolean legacyModeEnabled,
+  public static CDOView openView(ISession session, CDOBranchPoint branchPoint, boolean legacyModeEnabled,
       CDORevisionProvider revisionProvider)
   {
-    return new ServerCDOView(session, branchPoint, legacyModeEnabled, revisionProvider);
+    return new ServerCDOView((InternalSession)session, branchPoint, legacyModeEnabled, revisionProvider);
   }
 
   /**
    * @since 4.0
    */
-  public static CDOView openView(InternalView view, boolean legacyModeEnabled)
+  public static CDOView openView(IView view, boolean legacyModeEnabled)
   {
-    return new ServerCDOView(view, legacyModeEnabled);
+    return new ServerCDOView((InternalView)view, legacyModeEnabled);
   }
 
   /**

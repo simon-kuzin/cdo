@@ -10,6 +10,7 @@
  */
 package org.eclipse.emf.cdo.tests;
 
+import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.server.CDOServerUtil;
@@ -125,6 +126,65 @@ public class RepositoryTest extends AbstractCDOTest
             }
           }
         }
+      }
+
+      public void handleTransactionAfterCommitted(ITransaction transaction, CommitContext commitContext,
+          OMMonitor monitor)
+      {
+      }
+    });
+
+    resource.getContents().add(createCustomer("Simon"));
+    transaction.commit();
+    resource.getContents().add(createCustomer("Admin"));
+
+    try
+    {
+      transaction.commit();
+      fail("CommitException expected");
+    }
+    catch (CommitException expected)
+    {
+      // Success
+      transaction.rollback();
+    }
+
+    resource.getContents().add(createCustomer("Martin"));
+    transaction.commit();
+    resource.getContents().add(createCustomer("Nick"));
+    transaction.commit();
+    session.close();
+  }
+
+  public void testWriteAccessHandlers_WithServerCDOView() throws Exception
+  {
+    CDOSession session = openSession();
+    CDOTransaction transaction = session.openTransaction();
+    CDOResource resource = transaction.createResource("/res1");
+    resource.getContents().add(createCustomer("Eike"));
+    transaction.commit(); // Ensure that model1 is committed to the repository
+
+    getRepository().addHandler(new IRepository.WriteAccessHandler()
+    {
+      public void handleTransactionBeforeCommitting(ITransaction transaction, CommitContext commitContext,
+          OMMonitor monitor) throws RuntimeException
+      {
+        CDOView view = CDOServerUtil.openView(commitContext, isConfig(LEGACY));
+        for (CDORevision revision : commitContext.getNewObjects())
+        {
+          CDOObject object = view.getObject(revision.getID());
+          if (object instanceof Customer)
+          {
+            Customer customer = (Customer)object;
+            String name = customer.getName();
+            if ("Admin".equals(name))
+            {
+              throw new IllegalStateException("Adding a customer with name 'Admin' is not allowed");
+            }
+          }
+        }
+
+        view.close();
       }
 
       public void handleTransactionAfterCommitted(ITransaction transaction, CommitContext commitContext,
