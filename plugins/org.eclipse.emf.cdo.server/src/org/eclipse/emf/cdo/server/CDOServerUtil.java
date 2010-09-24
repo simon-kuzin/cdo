@@ -11,8 +11,11 @@
 package org.eclipse.emf.cdo.server;
 
 import org.eclipse.emf.cdo.common.CDOCommonRepository;
+import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.common.revision.CDORevisionProvider;
 import org.eclipse.emf.cdo.internal.server.Repository;
+import org.eclipse.emf.cdo.internal.server.ServerCDOView;
 import org.eclipse.emf.cdo.internal.server.SessionManager;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
 import org.eclipse.emf.cdo.internal.server.embedded.EmbeddedClientSessionConfiguration;
@@ -22,8 +25,11 @@ import org.eclipse.emf.cdo.internal.server.syncing.RepositorySynchronizer;
 import org.eclipse.emf.cdo.server.embedded.CDOSessionConfiguration;
 import org.eclipse.emf.cdo.session.CDOSessionConfigurationFactory;
 import org.eclipse.emf.cdo.spi.server.InternalRepositorySynchronizer;
+import org.eclipse.emf.cdo.spi.server.InternalSession;
 import org.eclipse.emf.cdo.spi.server.InternalStore;
+import org.eclipse.emf.cdo.spi.server.InternalView;
 import org.eclipse.emf.cdo.spi.server.RepositoryFactory;
+import org.eclipse.emf.cdo.view.CDOView;
 
 import org.eclipse.net4j.util.ObjectUtil;
 import org.eclipse.net4j.util.container.IManagedContainer;
@@ -54,6 +60,31 @@ public final class CDOServerUtil
 {
   private CDOServerUtil()
   {
+  }
+
+  /**
+   * @since 4.0
+   */
+  public static CDOView openView(InternalSession session, CDOBranchPoint branchPoint, boolean legacyModeEnabled,
+      CDORevisionProvider revisionProvider)
+  {
+    return new ServerCDOView(session, branchPoint, legacyModeEnabled, revisionProvider);
+  }
+
+  /**
+   * @since 4.0
+   */
+  public static CDOView openView(InternalView view, boolean legacyModeEnabled)
+  {
+    return new ServerCDOView(view, legacyModeEnabled);
+  }
+
+  /**
+   * @since 4.0
+   */
+  public static CDOView openView(IStoreAccessor.CommitContext commitContext, boolean legacyModeEnabled)
+  {
+    return new ServerCDOView(commitContext, legacyModeEnabled);
   }
 
   /**
