@@ -10,7 +10,6 @@
  */
 package org.eclipse.emf.cdo.tests;
 
-import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.server.CDOServerUtil;
@@ -23,6 +22,7 @@ import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.spi.server.InternalStore;
 import org.eclipse.emf.cdo.tests.model1.Customer;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
+import org.eclipse.emf.cdo.util.CDOUtil;
 import org.eclipse.emf.cdo.util.CommitException;
 import org.eclipse.emf.cdo.view.CDOView;
 
@@ -172,7 +172,8 @@ public class RepositoryTest extends AbstractCDOTest
         CDOView view = CDOServerUtil.openView(commitContext, isConfig(LEGACY));
         for (CDORevision revision : commitContext.getNewObjects())
         {
-          CDOObject object = view.getObject(revision.getID());
+          EObject object = view.getObject(revision.getID());
+          object = CDOUtil.getEObject(object); // Make legacy mode happy
           if (object instanceof Customer)
           {
             Customer customer = (Customer)object;

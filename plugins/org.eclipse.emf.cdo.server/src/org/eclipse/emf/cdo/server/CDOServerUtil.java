@@ -24,10 +24,10 @@ import org.eclipse.emf.cdo.internal.server.syncing.OfflineClone;
 import org.eclipse.emf.cdo.internal.server.syncing.RepositorySynchronizer;
 import org.eclipse.emf.cdo.server.embedded.CDOSessionConfiguration;
 import org.eclipse.emf.cdo.session.CDOSessionConfigurationFactory;
+import org.eclipse.emf.cdo.spi.common.branch.CDOBranchUtil;
 import org.eclipse.emf.cdo.spi.server.InternalRepositorySynchronizer;
 import org.eclipse.emf.cdo.spi.server.InternalSession;
 import org.eclipse.emf.cdo.spi.server.InternalStore;
-import org.eclipse.emf.cdo.spi.server.InternalView;
 import org.eclipse.emf.cdo.spi.server.RepositoryFactory;
 import org.eclipse.emf.cdo.view.CDOView;
 
@@ -76,7 +76,9 @@ public final class CDOServerUtil
    */
   public static CDOView openView(IView view, boolean legacyModeEnabled)
   {
-    return new ServerCDOView((InternalView)view, legacyModeEnabled);
+    ISession session = view.getSession();
+    CDOBranchPoint branchPoint = CDOBranchUtil.copyBranchPoint(view);
+    return openView(session, branchPoint, legacyModeEnabled, view);
   }
 
   /**
@@ -84,7 +86,9 @@ public final class CDOServerUtil
    */
   public static CDOView openView(IStoreAccessor.CommitContext commitContext, boolean legacyModeEnabled)
   {
-    return new ServerCDOView(commitContext, legacyModeEnabled);
+    ISession session = commitContext.getTransaction().getSession();
+    CDOBranchPoint branchPoint = commitContext.getBranchPoint();
+    return openView(session, branchPoint, legacyModeEnabled, commitContext);
   }
 
   /**

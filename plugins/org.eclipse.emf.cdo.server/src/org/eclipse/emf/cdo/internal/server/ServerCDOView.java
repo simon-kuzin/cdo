@@ -23,7 +23,6 @@ import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
 import org.eclipse.emf.cdo.common.revision.CDORevisionProvider;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.session.CDORepositoryInfo;
-import org.eclipse.emf.cdo.spi.common.branch.CDOBranchUtil;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranch;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager;
 import org.eclipse.emf.cdo.spi.common.commit.InternalCDOCommitInfoManager;
@@ -32,12 +31,12 @@ import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
 import org.eclipse.emf.cdo.spi.server.InternalRepository;
 import org.eclipse.emf.cdo.spi.server.InternalSession;
-import org.eclipse.emf.cdo.spi.server.InternalView;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.cdo.view.CDOFeatureAnalyzer;
 import org.eclipse.emf.cdo.view.CDOFetchRuleManager;
 import org.eclipse.emf.cdo.view.CDOView;
 
+import org.eclipse.emf.internal.cdo.session.SessionUtil;
 import org.eclipse.emf.internal.cdo.view.AbstractCDOView;
 
 import org.eclipse.net4j.util.concurrent.IRWLockManager.LockType;
@@ -51,6 +50,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.spi.cdo.CDOSessionProtocol;
 import org.eclipse.emf.spi.cdo.CDOSessionProtocol.RefreshSessionResult;
 import org.eclipse.emf.spi.cdo.InternalCDOObject;
@@ -80,24 +80,8 @@ public class ServerCDOView extends AbstractCDOView
     super(branchPoint, legacyModeEnabled);
     this.session = new ServerCDOSession(session);
     this.revisionProvider = revisionProvider;
-    setObjects(new ReferenceValueMap.Soft<CDOID, InternalCDOObject>());
-    activate();
-  }
 
-  public ServerCDOView(InternalView view, boolean legacyModeEnabled)
-  {
-    super(CDOBranchUtil.copyBranchPoint(view), legacyModeEnabled);
-    session = new ServerCDOSession(view.getSession());
-    revisionProvider = view;
-    setObjects(new ReferenceValueMap.Soft<CDOID, InternalCDOObject>());
-    activate();
-  }
-
-  public ServerCDOView(IStoreAccessor.CommitContext commitContext, boolean legacyModeEnabled)
-  {
-    super(CDOBranchUtil.copyBranchPoint(commitContext.getTransaction()), legacyModeEnabled);
-    session = new ServerCDOSession((InternalSession)commitContext.getTransaction().getSession());
-    revisionProvider = commitContext;
+    setViewSet(SessionUtil.prepareResourceSet(new ResourceSetImpl()));
     setObjects(new ReferenceValueMap.Soft<CDOID, InternalCDOObject>());
     activate();
   }
