@@ -1238,6 +1238,12 @@ public class Repository extends Container<Object> implements InternalRepository
     return revision;
   }
 
+  public void queryLobs(List<byte[]> ids)
+  {
+    IStoreAccessor accessor = StoreThreadLocal.getAccessor();
+    accessor.queryLobs(ids);
+  }
+
   @Override
   public String toString()
   {

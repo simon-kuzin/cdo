@@ -294,6 +294,7 @@ public class CommitTransactionIndication extends IndicationWithMonitoring
       commitContext.setDetachedObjects(detachedObjects);
       commitContext.setDetachedObjectTypes(detachedObjectTypes);
       commitContext.setCommitComment(commitComment);
+      commitContext.setLobs(in);
     }
     finally
     {

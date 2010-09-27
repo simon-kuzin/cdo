@@ -28,6 +28,9 @@ import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageInfo;
 import org.eclipse.emf.cdo.common.model.CDOPackageRegistry;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
+import org.eclipse.emf.cdo.common.model.lob.CDOBlob;
+import org.eclipse.emf.cdo.common.model.lob.CDOClob;
+import org.eclipse.emf.cdo.common.model.lob.CDOLob;
 import org.eclipse.emf.cdo.common.protocol.CDODataInput;
 import org.eclipse.emf.cdo.common.protocol.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
@@ -48,6 +51,7 @@ import org.eclipse.emf.internal.cdo.revision.CDOListWithElementProxiesImpl;
 import org.eclipse.net4j.signal.RequestWithMonitoring;
 import org.eclipse.net4j.util.io.ExtendedDataInputStream;
 import org.eclipse.net4j.util.io.ExtendedDataOutputStream;
+import org.eclipse.net4j.util.io.IOUtil;
 import org.eclipse.net4j.util.io.StringIO;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
@@ -57,6 +61,8 @@ import org.eclipse.emf.spi.cdo.CDOSessionProtocol.CommitTransactionResult;
 import org.eclipse.emf.spi.cdo.InternalCDOSession;
 
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -76,15 +82,19 @@ public class CommitTransactionRequest extends RequestWithMonitoring<CommitTransa
 
   private CDOCommitData commitData;
 
+  private Collection<CDOLob<?, ?>> lobs;
+
+  private ExtendedDataOutputStream stream;
+
   public CommitTransactionRequest(CDOClientProtocol protocol, int transactionID, String comment, boolean releaseLocks,
-      CDOIDProvider idProvider, CDOCommitData commitData)
+      CDOIDProvider idProvider, CDOCommitData commitData, Collection<CDOLob<?, ?>> lobs)
   {
     this(protocol, CDOProtocolConstants.SIGNAL_COMMIT_TRANSACTION, transactionID, comment, releaseLocks, idProvider,
-        commitData);
+        commitData, lobs);
   }
 
   public CommitTransactionRequest(CDOClientProtocol protocol, short signalID, int transactionID, String comment,
-      boolean releaseLocks, CDOIDProvider idProvider, CDOCommitData commitData)
+      boolean releaseLocks, CDOIDProvider idProvider, CDOCommitData commitData, Collection<CDOLob<?, ?>> lobs)
   {
     super(protocol, signalID);
     this.transactionID = transactionID;
@@ -92,6 +102,7 @@ public class CommitTransactionRequest extends RequestWithMonitoring<CommitTransa
     this.releaseLocks = releaseLocks;
     this.idProvider = idProvider;
     this.commitData = commitData;
+    this.lobs = lobs;
   }
 
   @Override
@@ -113,6 +124,7 @@ public class CommitTransactionRequest extends RequestWithMonitoring<CommitTransa
   @Override
   protected final void requesting(ExtendedDataOutputStream out, OMMonitor monitor) throws Exception
   {
+    stream = out;
     requesting(new CDODataOutputImpl(out)
     {
       @Override
@@ -204,6 +216,29 @@ public class CommitTransactionRequest extends RequestWithMonitoring<CommitTransa
       {
         EClass eClass = getObjectType(id);
         out.writeCDOClassifierRef(eClass);
+      }
+    }
+
+    requestingLobs(out);
+  }
+
+  protected void requestingLobs(CDODataOutput out) throws IOException
+  {
+    out.writeInt(lobs.size());
+    for (CDOLob<?, ?> lob : lobs)
+    {
+      out.writeByteArray(lob.getID());
+      if (lob instanceof CDOBlob)
+      {
+        CDOBlob blob = (CDOBlob)lob;
+        out.writeLong(blob.getSize());
+        IOUtil.copyBinary(blob.getContents(), stream);
+      }
+      else
+      {
+        CDOClob clob = (CDOClob)lob;
+        out.writeLong(-clob.getSize());
+        IOUtil.copyCharacter(clob.getContents(), new OutputStreamWriter(stream));
       }
     }
   }

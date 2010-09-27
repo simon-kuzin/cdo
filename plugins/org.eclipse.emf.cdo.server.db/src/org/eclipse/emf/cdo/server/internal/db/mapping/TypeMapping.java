@@ -17,6 +17,9 @@
 package org.eclipse.emf.cdo.server.internal.db.mapping;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.model.lob.CDOBlob;
+import org.eclipse.emf.cdo.common.model.lob.CDOClob;
+import org.eclipse.emf.cdo.common.model.lob.CDOLobUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevisionData;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.IStoreAccessor.CommitContext;
@@ -36,6 +39,7 @@ import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.net4j.db.DBType;
 import org.eclipse.net4j.db.ddl.IDBField;
 import org.eclipse.net4j.db.ddl.IDBTable;
+import org.eclipse.net4j.util.HexUtil;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.emf.common.util.Enumerator;
@@ -327,6 +331,64 @@ public abstract class TypeMapping implements ITypeMapping
     public Object getResultSetValue(ResultSet resultSet) throws SQLException
     {
       return resultSet.getString(getField().getName());
+    }
+  }
+
+  /**
+   * @author Eike Stepper
+   */
+  public static class TMBlob extends TypeMapping
+  {
+    public TMBlob(IMappingStrategy strategy, EStructuralFeature feature, DBType type)
+    {
+      super(strategy, feature, type);
+    }
+
+    @Override
+    protected void doSetValue(PreparedStatement stmt, int index, Object value) throws SQLException
+    {
+      CDOBlob blob = (CDOBlob)value;
+      stmt.setString(index, HexUtil.bytesToHex(blob.getID()) + "-" + blob.getSize());
+    }
+
+    @Override
+    public Object getResultSetValue(ResultSet resultSet) throws SQLException
+    {
+      String str = resultSet.getString(getField().getName());
+      int pos = str.indexOf('-');
+
+      byte[] id = HexUtil.hexToBytes(str.substring(0, pos));
+      long size = Long.parseLong(str.substring(pos + 1));
+      return CDOLobUtil.createBlob(id, size);
+    }
+  }
+
+  /**
+   * @author Eike Stepper
+   */
+  public static class TMClob extends TypeMapping
+  {
+    public TMClob(IMappingStrategy strategy, EStructuralFeature feature, DBType type)
+    {
+      super(strategy, feature, type);
+    }
+
+    @Override
+    protected void doSetValue(PreparedStatement stmt, int index, Object value) throws SQLException
+    {
+      CDOClob clob = (CDOClob)value;
+      stmt.setString(index, HexUtil.bytesToHex(clob.getID()) + "-" + clob.getSize());
+    }
+
+    @Override
+    public Object getResultSetValue(ResultSet resultSet) throws SQLException
+    {
+      String str = resultSet.getString(getField().getName());
+      int pos = str.indexOf('-');
+
+      byte[] id = HexUtil.hexToBytes(str.substring(0, pos));
+      long size = Long.parseLong(str.substring(pos + 1));
+      return CDOLobUtil.createClob(id, size);
     }
   }
 

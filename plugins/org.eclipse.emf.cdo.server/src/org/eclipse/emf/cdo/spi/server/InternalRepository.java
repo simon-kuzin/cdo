@@ -114,4 +114,9 @@ public interface InternalRepository extends IRepository, PackageLoader, BranchLo
 
   public Set<CDOID> getMergeData(CDORevisionAvailabilityInfo ancestorInfo, CDORevisionAvailabilityInfo targetInfo,
       CDORevisionAvailabilityInfo sourceInfo);
+
+  /**
+   * @since 4.0
+   */
+  public void queryLobs(List<byte[]> ids);
 }

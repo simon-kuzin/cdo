@@ -32,6 +32,7 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
+import org.eclipse.emf.cdo.common.model.lob.CDOLob;
 import org.eclipse.emf.cdo.common.protocol.CDOAuthenticator;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
@@ -1540,15 +1541,32 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
       }
     }
 
-    public CommitTransactionResult commitTransaction(int transactionID, String comment, boolean releaseLocks,
-        CDOIDProvider idProvider, CDOCommitData commitData, OMMonitor monitor)
+    public List<byte[]> queryLobs(Set<byte[]> ids)
     {
       int attempt = 0;
       for (;;)
       {
         try
         {
-          return delegate.commitTransaction(transactionID, comment, releaseLocks, idProvider, commitData, monitor);
+          return delegate.queryLobs(ids);
+        }
+        catch (Exception ex)
+        {
+          handleException(++attempt, ex);
+        }
+      }
+    }
+
+    public CommitTransactionResult commitTransaction(int transactionID, String comment, boolean releaseLocks,
+        CDOIDProvider idProvider, CDOCommitData commitData, Collection<CDOLob<?, ?>> lobs, OMMonitor monitor)
+    {
+      int attempt = 0;
+      for (;;)
+      {
+        try
+        {
+          return delegate
+              .commitTransaction(transactionID, comment, releaseLocks, idProvider, commitData, lobs, monitor);
         }
         catch (Exception ex)
         {
@@ -1558,14 +1576,15 @@ public abstract class CDOSessionImpl extends Container<CDOView> implements Inter
     }
 
     public CommitTransactionResult commitDelegation(CDOBranch branch, String userID, String comment,
-        CDOCommitData commitData, Map<CDOID, EClass> detachedObjectTypes, OMMonitor monitor)
+        CDOCommitData commitData, Map<CDOID, EClass> detachedObjectTypes, Collection<CDOLob<?, ?>> lobs,
+        OMMonitor monitor)
     {
       int attempt = 0;
       for (;;)
       {
         try
         {
-          return delegate.commitDelegation(branch, userID, comment, commitData, detachedObjectTypes, monitor);
+          return delegate.commitDelegation(branch, userID, comment, commitData, detachedObjectTypes, lobs, monitor);
         }
         catch (Exception ex)
         {

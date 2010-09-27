@@ -23,6 +23,7 @@ import org.eclipse.emf.cdo.common.commit.CDOCommitInfoHandler;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
+import org.eclipse.emf.cdo.common.model.lob.CDOLob;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.util.TransportException;
 import org.eclipse.emf.cdo.internal.net4j.bundle.OM;
@@ -253,17 +254,23 @@ public class CDOClientProtocol extends SignalProtocol<CDOSession> implements CDO
     return send(new ObjectLockedRequest(this, view, object, lockType, byOthers));
   }
 
-  public CommitTransactionResult commitTransaction(int transactionID, String comment, boolean releaseLocks,
-      CDOIDProvider idProvider, CDOCommitData commitData, OMMonitor monitor)
+  public List<byte[]> queryLobs(Set<byte[]> ids)
   {
-    return send(new CommitTransactionRequest(this, transactionID, comment, releaseLocks, idProvider, commitData),
+    return send(new QueryLobsRequest(this, ids));
+  }
+
+  public CommitTransactionResult commitTransaction(int transactionID, String comment, boolean releaseLocks,
+      CDOIDProvider idProvider, CDOCommitData commitData, Collection<CDOLob<?, ?>> lobs, OMMonitor monitor)
+  {
+    return send(new CommitTransactionRequest(this, transactionID, comment, releaseLocks, idProvider, commitData, lobs),
         monitor);
   }
 
   public CommitTransactionResult commitDelegation(CDOBranch branch, String userID, String comment,
-      CDOCommitData commitData, Map<CDOID, EClass> detachedObjectTypes, OMMonitor monitor)
+      CDOCommitData commitData, Map<CDOID, EClass> detachedObjectTypes, Collection<CDOLob<?, ?>> lobs, OMMonitor monitor)
   {
-    return send(new CommitDelegationRequest(this, branch, userID, comment, commitData, detachedObjectTypes), monitor);
+    return send(new CommitDelegationRequest(this, branch, userID, comment, commitData, detachedObjectTypes, lobs),
+        monitor);
   }
 
   public CommitTransactionResult commitXATransactionPhase1(InternalCDOXACommitContext xaContext, OMMonitor monitor)

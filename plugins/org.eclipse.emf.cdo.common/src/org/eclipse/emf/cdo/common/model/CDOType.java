@@ -90,6 +90,10 @@ public interface CDOType
    */
   public static final CDOType ENUM_LITERAL = org.eclipse.emf.cdo.internal.common.model.CDOTypeImpl.ENUM_LITERAL;
 
+  public static final CDOType BLOB = org.eclipse.emf.cdo.internal.common.model.CDOTypeImpl.BLOB;
+
+  public static final CDOType CLOB = org.eclipse.emf.cdo.internal.common.model.CDOTypeImpl.CLOB;
+
   public static final CDOType CUSTOM = org.eclipse.emf.cdo.internal.common.model.CDOTypeImpl.CUSTOM;
 
   /**

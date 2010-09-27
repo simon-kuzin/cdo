@@ -11,6 +11,7 @@
 package org.eclipse.emf.cdo.spi.server;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.protocol.CDODataInput;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
@@ -83,6 +84,11 @@ public interface InternalCommitContext extends IStoreAccessor.CommitContext
   public void setAutoReleaseLocksEnabled(boolean on);
 
   public void setCommitComment(String comment);
+
+  /**
+   * @since 4.0
+   */
+  public void setLobs(CDODataInput in);
 
   public void addIDMapping(CDOID oldID, CDOID newID);
 

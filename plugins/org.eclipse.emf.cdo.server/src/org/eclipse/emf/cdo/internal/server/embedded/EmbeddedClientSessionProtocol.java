@@ -24,6 +24,7 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.id.CDOIDProvider;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
+import org.eclipse.emf.cdo.common.model.lob.CDOLob;
 import org.eclipse.emf.cdo.common.protocol.CDOAuthenticationResult;
 import org.eclipse.emf.cdo.common.protocol.CDOAuthenticator;
 import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
@@ -312,8 +313,14 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
     throw new UnsupportedOperationException();
   }
 
+  public List<byte[]> queryLobs(Set<byte[]> ids)
+  {
+    // TODO: implement EmbeddedClientSessionProtocol.queryLobs(ids)
+    throw new UnsupportedOperationException();
+  }
+
   public CommitTransactionResult commitTransaction(int transactionID, String comment, boolean releaseLocks,
-      CDOIDProvider idProvider, CDOCommitData commitData, OMMonitor monitor)
+      CDOIDProvider idProvider, CDOCommitData commitData, Collection<CDOLob<?, ?>> lobs, OMMonitor monitor)
   {
     monitor.begin(2);
     boolean success = false;
@@ -380,7 +387,7 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
   }
 
   public CommitTransactionResult commitDelegation(CDOBranch branch, String userID, String comment,
-      CDOCommitData commitData, Map<CDOID, EClass> detachedObjectTypes, OMMonitor monitor)
+      CDOCommitData commitData, Map<CDOID, EClass> detachedObjectTypes, Collection<CDOLob<?, ?>> lobs, OMMonitor monitor)
   {
     throw new UnsupportedOperationException();
   }

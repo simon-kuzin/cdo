@@ -24,6 +24,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
+import org.eclipse.emf.cdo.common.protocol.CDODataInput;
 import org.eclipse.emf.cdo.common.revision.CDOReferenceAdjuster;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
@@ -137,6 +138,8 @@ public class TransactionCommitContext implements InternalCommitContext
   private boolean ensuringReferentialIntegrity;
 
   private boolean autoReleaseLocksEnabled;
+
+  private CDODataInput lobs;
 
   public TransactionCommitContext(InternalTransaction transaction)
   {
@@ -360,6 +363,16 @@ public class TransactionCommitContext implements InternalCommitContext
   public void setCommitComment(String commitComment)
   {
     this.commitComment = commitComment;
+  }
+
+  public CDODataInput getLobs()
+  {
+    return lobs;
+  }
+
+  public void setLobs(CDODataInput in)
+  {
+    lobs = in;
   }
 
   /**
