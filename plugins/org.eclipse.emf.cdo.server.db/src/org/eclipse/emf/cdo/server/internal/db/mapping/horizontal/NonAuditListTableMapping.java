@@ -195,8 +195,8 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
     }
   }
 
-  public void processDelta(final IDBStoreAccessor accessor, final CDOID id, int oldVersion, final int newVersion,
-      long created, CDOListFeatureDelta delta)
+  public void processDelta(final IDBStoreAccessor accessor, final CDOID id, int branchId, int oldVersion,
+      final int newVersion, long created, CDOListFeatureDelta delta)
   {
     CDOBranchPoint main = accessor.getStore().getRepository().getBranchManager().getMainBranch().getHead();
 

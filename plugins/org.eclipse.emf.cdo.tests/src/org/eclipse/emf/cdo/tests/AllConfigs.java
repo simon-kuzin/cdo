@@ -126,6 +126,7 @@ public abstract class AllConfigs extends ConfigTestSuite
     testClasses.add(RevisionManagerTestClientSide.class);
     testClasses.add(BranchingTest.class);
     testClasses.add(BranchingTestSameSession.class);
+    testClasses.add(BranchingTestWithCacheClear.class);
     testClasses.add(MergingTest.class);
     testClasses.add(ViewTest.class);
     testClasses.add(TransactionTest.class);

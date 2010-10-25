@@ -783,8 +783,8 @@ public class AuditFeatureMapTableMappingWithRanges extends BasicAbstractListTabl
     clearList(accessor, id, revision.getVersion(), FINAL_VERSION);
   }
 
-  public void processDelta(final IDBStoreAccessor accessor, final CDOID id, int oldVersion, final int newVersion,
-      long created, CDOListFeatureDelta delta)
+  public void processDelta(final IDBStoreAccessor accessor, final CDOID id, final int branchId, int oldVersion,
+      final int newVersion, long created, CDOListFeatureDelta delta)
   {
     IRepository repo = accessor.getStore().getRepository();
     InternalCDORevision originalRevision = (InternalCDORevision)repo.getRevisionManager().getRevision(id,

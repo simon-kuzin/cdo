@@ -611,11 +611,14 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
 
     private InternalCDORevision newRevision;
 
+    private int branchId;
+
     public void process(IDBStoreAccessor accessor, InternalCDORevisionDelta delta, long created)
     {
       this.accessor = accessor;
       this.created = created;
       id = delta.getID();
+      branchId = delta.getBranch().getID();
       oldVersion = delta.getVersion();
 
       if (TRACER.isEnabled())
@@ -668,7 +671,7 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping 
     public void visit(CDOListFeatureDelta delta)
     {
       IListMappingDeltaSupport listMapping = (IListMappingDeltaSupport)getListMapping(delta.getFeature());
-      listMapping.processDelta(accessor, id, oldVersion, oldVersion + 1, created, delta);
+      listMapping.processDelta(accessor, id, branchId, oldVersion, oldVersion + 1, created, delta);
     }
 
     public void visit(CDOClearFeatureDelta delta)

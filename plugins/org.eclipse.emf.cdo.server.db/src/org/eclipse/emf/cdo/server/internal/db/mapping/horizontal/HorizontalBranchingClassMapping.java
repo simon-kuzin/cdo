@@ -19,9 +19,19 @@ import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
+import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionHandler;
 import org.eclipse.emf.cdo.common.revision.CDORevisionManager;
+import org.eclipse.emf.cdo.common.revision.delta.CDOAddFeatureDelta;
+import org.eclipse.emf.cdo.common.revision.delta.CDOClearFeatureDelta;
+import org.eclipse.emf.cdo.common.revision.delta.CDOContainerFeatureDelta;
+import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDeltaVisitor;
+import org.eclipse.emf.cdo.common.revision.delta.CDOListFeatureDelta;
+import org.eclipse.emf.cdo.common.revision.delta.CDOMoveFeatureDelta;
+import org.eclipse.emf.cdo.common.revision.delta.CDORemoveFeatureDelta;
+import org.eclipse.emf.cdo.common.revision.delta.CDOSetFeatureDelta;
+import org.eclipse.emf.cdo.common.revision.delta.CDOUnsetFeatureDelta;
 import org.eclipse.emf.cdo.eresource.EresourcePackage;
 import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.IStoreAccessor.QueryXRefsContext;
@@ -30,13 +40,17 @@ import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IPreparedStatementCache;
 import org.eclipse.emf.cdo.server.db.IPreparedStatementCache.ReuseProbability;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMappingAuditSupport;
+import org.eclipse.emf.cdo.server.db.mapping.IClassMappingDeltaSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IListMapping;
+import org.eclipse.emf.cdo.server.db.mapping.IListMappingDeltaSupport;
 import org.eclipse.emf.cdo.server.db.mapping.ITypeMapping;
 import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
 import org.eclipse.emf.cdo.server.internal.db.DBStore;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.commit.CDOChangeSetSegment;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
+import org.eclipse.emf.cdo.spi.server.InternalRepository;
 
 import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.db.DBType;
@@ -64,8 +78,101 @@ import java.util.Set;
  * @since 3.0
  */
 public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapping implements
-    IClassMappingAuditSupport
+    IClassMappingAuditSupport, IClassMappingDeltaSupport
 {
+  /**
+   * @author Stefan Winkler
+   */
+  private class FeatureDeltaWriter implements CDOFeatureDeltaVisitor
+  {
+    private IDBStoreAccessor accessor;
+
+    private long created;
+
+    private CDOID id;
+
+    private CDOBranch targetBranch;
+
+    private int oldVersion;
+
+    private int newVersion;
+
+    private InternalCDORevision newRevision;
+
+    public void process(IDBStoreAccessor accessor, InternalCDORevisionDelta delta, long created)
+    {
+      this.accessor = accessor;
+      this.created = created;
+      id = delta.getID();
+      oldVersion = delta.getVersion();
+
+      if (TRACER.isEnabled())
+      {
+        TRACER.format("FeatureDeltaWriter: old version: {0}, new version: {1}", oldVersion, oldVersion + 1); //$NON-NLS-1$
+      }
+
+      InternalCDORevision originalRevision = (InternalCDORevision)accessor.getStore().getRepository()
+          .getRevisionManager().getRevisionByVersion(id, delta, 0, true);
+
+      newRevision = originalRevision.copy();
+
+      newVersion = oldVersion + 1;
+      targetBranch = accessor.getTransaction().getBranch();
+
+      newRevision.setVersion(newVersion);
+      newRevision.setBranchPoint(targetBranch.getPoint(created));
+
+      // process revision delta tree
+      delta.accept(this);
+
+      long revised = newRevision.getTimeStamp() - 1;
+      reviseOldRevision(accessor, id, delta.getBranch(), revised);
+
+      writeValues(accessor, newRevision);
+    }
+
+    public void visit(CDOMoveFeatureDelta delta)
+    {
+      throw new ImplementationError("Should not be called"); //$NON-NLS-1$
+    }
+
+    public void visit(CDOAddFeatureDelta delta)
+    {
+      throw new ImplementationError("Should not be called"); //$NON-NLS-1$
+    }
+
+    public void visit(CDORemoveFeatureDelta delta)
+    {
+      throw new ImplementationError("Should not be called"); //$NON-NLS-1$
+    }
+
+    public void visit(CDOSetFeatureDelta delta)
+    {
+      delta.apply(newRevision);
+    }
+
+    public void visit(CDOUnsetFeatureDelta delta)
+    {
+      delta.apply(newRevision);
+    }
+
+    public void visit(CDOListFeatureDelta delta)
+    {
+      IListMappingDeltaSupport listMapping = (IListMappingDeltaSupport)getListMapping(delta.getFeature());
+      listMapping.processDelta(accessor, id, targetBranch.getID(), oldVersion, newVersion, created, delta);
+    }
+
+    public void visit(CDOClearFeatureDelta delta)
+    {
+      throw new ImplementationError("Should not be called"); //$NON-NLS-1$
+    }
+
+    public void visit(CDOContainerFeatureDelta delta)
+    {
+      delta.apply(newRevision);
+    }
+  }
+
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, HorizontalBranchingClassMapping.class);
 
   private String sqlInsertAttributes;
@@ -83,6 +190,15 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
   private String sqlSelectForHandle;
 
   private String sqlSelectForChangeSet;
+
+  private ThreadLocal<FeatureDeltaWriter> deltaWriter = new ThreadLocal<FeatureDeltaWriter>()
+  {
+    @Override
+    protected FeatureDeltaWriter initialValue()
+    {
+      return new FeatureDeltaWriter();
+    }
+  };
 
   public HorizontalBranchingClassMapping(AbstractHorizontalMappingStrategy mappingStrategy, EClass eClass)
   {
@@ -593,7 +709,7 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
         {
           // put new objects into objectTypeMapper
           long timeStamp = revision.getTimeStamp();
-          HorizontalBranchingMappingStrategy mappingStrategy = (HorizontalBranchingMappingStrategy)getMappingStrategy();
+          AbstractHorizontalMappingStrategy mappingStrategy = (AbstractHorizontalMappingStrategy)getMappingStrategy();
           mappingStrategy.putObjectType(accessor, timeStamp, id, getEClass());
         }
         else if (revision.getVersion() > CDOBranchVersion.FIRST_VERSION)
@@ -872,5 +988,79 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
     }
 
     return builder.toString();
+  }
+
+  public void writeRevisionDelta(IDBStoreAccessor accessor, InternalCDORevisionDelta delta, long created,
+      OMMonitor monitor)
+  {
+    monitor.begin();
+
+    try
+    {
+      if (accessor.getTransaction().getBranch() == delta.getBranch())
+      {
+        // same branch -> write delta
+        Async async = null;
+
+        try
+        {
+          async = monitor.forkAsync();
+          FeatureDeltaWriter writer = deltaWriter.get();
+          writer.process(accessor, delta, created);
+        }
+        finally
+        {
+          if (async != null)
+          {
+            async.stop();
+          }
+        }
+      }
+      else
+      {
+        // new branch -> copy revision
+        writeNewBranchRevisionDelta(accessor, delta, created, monitor.fork());
+      }
+
+    }
+    finally
+    {
+      monitor.done();
+    }
+  }
+
+  private void writeNewBranchRevisionDelta(IDBStoreAccessor accessor, InternalCDORevisionDelta delta, long created,
+      OMMonitor monitor)
+  {
+    monitor.begin(2);
+    try
+    {
+      InternalRepository repository = (InternalRepository)accessor.getStore().getRepository();
+
+      InternalCDORevision oldRevision = (InternalCDORevision)accessor.getTransaction().getRevision(delta.getID());
+      if (oldRevision == null)
+      {
+        throw new IllegalStateException("Origin revision not found for " + delta);
+      }
+
+      // Make sure all chunks are loaded
+      for (EStructuralFeature feature : CDOModelUtil.getAllPersistentFeatures(oldRevision.getEClass()))
+      {
+        if (feature.isMany())
+        {
+          repository.ensureChunk(oldRevision, feature, 0, oldRevision.getList(feature).size());
+        }
+      }
+
+      InternalCDORevision newRevision = oldRevision.copy();
+      newRevision.adjustForCommit(accessor.getTransaction().getBranch(), created);
+      delta.apply(newRevision);
+      monitor.worked();
+      writeRevision(accessor, newRevision, false, monitor.fork());
+    }
+    finally
+    {
+      monitor.done();
+    }
   }
 }

@@ -472,6 +472,8 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
 
     private CDOID newResourceID;
 
+    private int branchId;
+
     public FeatureDeltaWriter()
     {
       attributeChanges = new ArrayList<Pair<ITypeMapping, Object>>();
@@ -489,6 +491,7 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
 
       reset();
       id = d.getID();
+      branchId = d.getBranch().getID();
       oldVersion = d.getVersion();
       int newVersion = oldVersion + 1;
       created = c;
@@ -541,7 +544,7 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
     public void visit(CDOListFeatureDelta delta)
     {
       IListMappingDeltaSupport listMapping = (IListMappingDeltaSupport)getListMapping(delta.getFeature());
-      listMapping.processDelta(accessor, id, oldVersion, oldVersion + 1, created, delta);
+      listMapping.processDelta(accessor, id, branchId, oldVersion, oldVersion + 1, created, delta);
     }
 
     public void visit(CDOClearFeatureDelta delta)

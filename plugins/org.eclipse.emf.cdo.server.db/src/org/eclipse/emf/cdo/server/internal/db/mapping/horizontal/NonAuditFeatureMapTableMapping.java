@@ -513,8 +513,8 @@ public class NonAuditFeatureMapTableMapping extends AbstractFeatureMapTableMappi
     }
   }
 
-  public void processDelta(final IDBStoreAccessor accessor, final CDOID id, int oldVersion, final int newVersion,
-      long created, CDOListFeatureDelta listDelta)
+  public void processDelta(final IDBStoreAccessor accessor, final CDOID id, final int branchId, int oldVersion,
+      final int newVersion, long created, CDOListFeatureDelta listDelta)
   {
     CDOFeatureDeltaVisitor visitor = new CDOFeatureDeltaVisitor()
     {
