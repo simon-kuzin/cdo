@@ -40,7 +40,6 @@ import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.db.mapping.ITypeMapping;
 import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
-import org.eclipse.emf.cdo.spi.common.revision.InternalCDOList;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.db.DBException;
@@ -111,8 +110,6 @@ public class BranchingListTableMappingWithRanges extends BasicAbstractListTableM
 
   private String sqlGetValue;
 
-  private String sqlGetListLastIndex;
-
   private String sqlClearList;
 
   private String sqlDeleteList;
@@ -177,22 +174,6 @@ public class BranchingListTableMappingWithRanges extends BasicAbstractListTableM
     sqlSelectChunksPrefix = builder.toString();
 
     sqlOrderByIndex = " ORDER BY " + CDODBSchema.LIST_IDX; //$NON-NLS-1$
-
-    // ----------------- count list size --------------------------
-    builder = new StringBuilder("SELECT count(1) FROM "); //$NON-NLS-1$
-    builder.append(tableName);
-    builder.append(" WHERE "); //$NON-NLS-1$
-    builder.append(CDODBSchema.LIST_REVISION_ID);
-    builder.append("=? AND "); //$NON-NLS-1$
-    builder.append(CDODBSchema.LIST_REVISION_BRANCH);
-    builder.append("=? AND "); //$NON-NLS-1$
-    builder.append(CDODBSchema.LIST_REVISION_VERSION_ADDED);
-    builder.append("<=? AND ("); //$NON-NLS-1$
-    builder.append(CDODBSchema.LIST_REVISION_VERSION_REMOVED);
-    builder.append(" IS NULL OR "); //$NON-NLS-1$
-    builder.append(CDODBSchema.LIST_REVISION_VERSION_REMOVED);
-    builder.append(">?)"); //$NON-NLS-1$
-    sqlGetListLastIndex = builder.toString();
 
     // ----------------- insert entry -----------------
     builder = new StringBuilder("INSERT INTO "); //$NON-NLS-1$
@@ -318,19 +299,11 @@ public class BranchingListTableMappingWithRanges extends BasicAbstractListTableM
   public void readValues(IDBStoreAccessor accessor, InternalCDORevision revision, int listChunk)
   {
     MoveableList<Object> list = revision.getList(getFeature());
-    int listSize = -1;
 
-    if (listChunk != CDORevision.UNCHUNKED)
+    if (listChunk == 0 || list.size() == 0)
     {
-      listSize = getListLastIndex(accessor, revision.getID(), revision.getBranch().getID(), revision.getVersion());
-      if (listSize == -1)
-      {
-        // list is empty - take shortcut
-        return;
-      }
-
-      // subtract amount of items we are going to read now
-      listSize -= listChunk;
+      // nothing to read take shortcut
+      return;
     }
 
     if (TRACER.isEnabled())
@@ -358,6 +331,8 @@ public class BranchingListTableMappingWithRanges extends BasicAbstractListTableM
       }
 
       resultSet = pstmt.executeQuery();
+
+      int currentIndex = 0;
       while ((listChunk == CDORevision.UNCHUNKED || --listChunk >= 0) && resultSet.next())
       {
         Object value = typeMapping.readValue(resultSet);
@@ -366,17 +341,7 @@ public class BranchingListTableMappingWithRanges extends BasicAbstractListTableM
           TRACER.format("Read value for index {0} from result set: {1}", list.size(), value); //$NON-NLS-1$
         }
 
-        list.add(value);
-      }
-
-      while (listSize-- >= 0)
-      {
-        if (TRACER.isEnabled())
-        {
-          TRACER.format("Adding UNINITIALIZED for index {0} ", list.size()); //$NON-NLS-1$
-        }
-
-        list.add(InternalCDOList.UNINITIALIZED);
+        list.set(currentIndex++, value);
       }
     }
     catch (SQLException ex)
@@ -393,58 +358,6 @@ public class BranchingListTableMappingWithRanges extends BasicAbstractListTableM
     {
       TRACER.format("Reading {4} list values done for feature {0}.{1} of {2}v{3}", //$NON-NLS-1$
           getContainingClass().getName(), getFeature().getName(), revision.getID(), revision.getVersion(), list.size());
-    }
-  }
-
-  /**
-   * Return the last (maximum) list index. (equals to size-1)
-   * 
-   * @param accessor
-   *          the accessor to use
-   * @param id
-   *          the CDOID of the revision to which the getFeature() list belongs
-   * @param id
-   *          the branch ID of the revision
-   * @param version
-   *          the revision to which the getFeature() list belongs
-   * @return the last index or <code>-1</code> if the list is empty.
-   */
-  private int getListLastIndex(IDBStoreAccessor accessor, CDOID id, int branchId, int version)
-  {
-    IPreparedStatementCache statementCache = accessor.getStatementCache();
-    PreparedStatement pstmt = null;
-    ResultSet resultSet = null;
-
-    try
-    {
-      pstmt = statementCache.getPreparedStatement(sqlGetListLastIndex, ReuseProbability.HIGH);
-      pstmt.setLong(1, CDOIDUtil.getLong(id));
-      pstmt.setInt(2, branchId);
-      pstmt.setInt(3, version);
-      pstmt.setInt(4, version);
-
-      resultSet = pstmt.executeQuery();
-      if (!resultSet.next())
-      {
-        throw new DBException("Count expects exactly one result");
-      }
-
-      int result = resultSet.getInt(1) - 1;
-      if (TRACER.isEnabled())
-      {
-        TRACER.trace("Read list last index = " + result); //$NON-NLS-1$
-      }
-
-      return result;
-    }
-    catch (SQLException ex)
-    {
-      throw new DBException(ex);
-    }
-    finally
-    {
-      DBUtil.close(resultSet);
-      statementCache.releasePreparedStatement(pstmt);
     }
   }
 

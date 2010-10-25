@@ -28,8 +28,10 @@ public class AllTestsDBH2All extends DBConfigs
   protected void initConfigSuites(TestSuite parent)
   {
     addScenario(parent, COMBINED, AllTestsDBH2NonAudit.H2NonAudit.ReusableFolder.INSTANCE, JVM, NATIVE);
+    addScenario(parent, COMBINED, AllTestsDBH2.H2.ReusableFolder.INSTANCE, JVM, NATIVE);
     addScenario(parent, COMBINED, AllTestsDBH2.H2.ReusableFolder.RANGE_INSTANCE, JVM, NATIVE);
     addScenario(parent, COMBINED, AllTestsDBH2Branching.H2Branching.ReusableFolder.INSTANCE, JVM, NATIVE);
+    addScenario(parent, COMBINED, AllTestsDBH2Branching.H2Branching.ReusableFolder.RANGE_INSTANCE, JVM, NATIVE);
   }
 
   @Override

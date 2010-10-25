@@ -20,6 +20,7 @@ import org.eclipse.emf.cdo.common.branch.CDOBranchVersion;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.model.CDOModelUtil;
+import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionHandler;
 import org.eclipse.emf.cdo.common.revision.CDORevisionManager;
@@ -111,8 +112,7 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
         TRACER.format("FeatureDeltaWriter: old version: {0}, new version: {1}", oldVersion, oldVersion + 1); //$NON-NLS-1$
       }
 
-      InternalCDORevision originalRevision = (InternalCDORevision)accessor.getStore().getRepository()
-          .getRevisionManager().getRevisionByVersion(id, delta, 0, true);
+      InternalCDORevision originalRevision = (InternalCDORevision)accessor.getTransaction().getRevision(id);
 
       newRevision = originalRevision.copy();
 
@@ -158,6 +158,7 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
 
     public void visit(CDOListFeatureDelta delta)
     {
+      delta.apply(newRevision);
       IListMappingDeltaSupport listMapping = (IListMappingDeltaSupport)getListMapping(delta.getFeature());
       listMapping.processDelta(accessor, id, targetBranch.getID(), oldVersion, newVersion, created, delta);
     }
@@ -216,6 +217,7 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
   private void initSQLStrings()
   {
     Map<EStructuralFeature, String> unsettableFields = getUnsettableFields();
+    Map<EStructuralFeature, String> listSizeFields = getListSizeFields();
 
     // ----------- Select Revision ---------------------------
     StringBuilder builder = new StringBuilder();
@@ -242,6 +244,15 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
     if (unsettableFields != null)
     {
       for (String fieldName : unsettableFields.values())
+      {
+        builder.append(", "); //$NON-NLS-1$
+        builder.append(fieldName);
+      }
+    }
+
+    if (listSizeFields != null)
+    {
+      for (String fieldName : listSizeFields.values())
       {
         builder.append(", "); //$NON-NLS-1$
         builder.append(fieldName);
@@ -320,6 +331,15 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
       }
     }
 
+    if (listSizeFields != null)
+    {
+      for (String fieldName : listSizeFields.values())
+      {
+        builder.append(", "); //$NON-NLS-1$
+        builder.append(fieldName);
+      }
+    }
+
     builder.append(") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?"); //$NON-NLS-1$
 
     for (int i = 0; i < getValueMappings().size(); i++)
@@ -330,6 +350,14 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
     if (unsettableFields != null)
     {
       for (int i = 0; i < unsettableFields.size(); i++)
+      {
+        builder.append(", ?"); //$NON-NLS-1$
+      }
+    }
+
+    if (listSizeFields != null)
+    {
+      for (int i = 0; i < listSizeFields.size(); i++)
       {
         builder.append(", ?"); //$NON-NLS-1$
       }
@@ -605,6 +633,19 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
         }
 
         mapping.setValueFromRevision(stmt, col++, revision);
+      }
+
+      Map<EStructuralFeature, String> listSizeFields = getListSizeFields();
+      if (listSizeFields != null)
+      {
+        // isSetCol now points to the first listTableSize-column
+        col = isSetCol;
+
+        for (EStructuralFeature feature : listSizeFields.keySet())
+        {
+          CDOList list = revision.getList(feature);
+          stmt.setInt(col++, list.size());
+        }
       }
 
       CDODBUtil.sqlUpdate(stmt, true);

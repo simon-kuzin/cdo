@@ -51,8 +51,8 @@ public class AllTestsDBH2Branching extends DBConfigs
   @Override
   protected void initConfigSuites(TestSuite parent)
   {
-    // addScenario(parent, COMBINED, H2Branching.ReusableFolder.INSTANCE, JVM, NATIVE);
-    addScenario(parent, COMBINED, H2Branching.ReusableFolder.RANGE_INSTANCE, JVM, NATIVE);
+    addScenario(parent, COMBINED, H2Branching.ReusableFolder.INSTANCE, JVM, NATIVE);
+    // addScenario(parent, COMBINED, H2Branching.ReusableFolder.RANGE_INSTANCE, JVM, NATIVE);
   }
 
   @Override
