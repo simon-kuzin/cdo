@@ -55,11 +55,13 @@ import org.eclipse.net4j.util.collection.MoveableList;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -997,6 +999,77 @@ public class AuditListTableMappingWithRanges extends BasicAbstractListTableMappi
   public final boolean queryXRefs(IDBStoreAccessor accessor, String mainTableName, String mainTableWhere,
       QueryXRefsContext context, String idString)
   {
-    throw new UnsupportedOperationException("This mapping strategy does not support cross-reference querying.");
+
+    String tableName = getTable().getName();
+    String listJoin = getMappingStrategy().getListJoin("a_t", "l_t");
+
+    StringBuilder builder = new StringBuilder();
+    builder.append("SELECT l_t."); //$NON-NLS-1$
+    builder.append(CDODBSchema.LIST_REVISION_ID);
+    builder.append(", l_t."); //$NON-NLS-1$
+    builder.append(CDODBSchema.LIST_VALUE);
+    builder.append(", l_t."); //$NON-NLS-1$
+    builder.append(CDODBSchema.LIST_IDX);
+    builder.append(" FROM "); //$NON-NLS-1$
+    builder.append(tableName);
+    builder.append(" AS l_t, ");//$NON-NLS-1$
+    builder.append(mainTableName);
+    builder.append(" AS a_t WHERE ");//$NON-NLS-1$
+    builder.append("a_t." + mainTableWhere);//$NON-NLS-1$
+    builder.append(listJoin);
+    builder.append(" AND "); //$NON-NLS-1$
+    builder.append(CDODBSchema.LIST_VALUE);
+    builder.append(" IN "); //$NON-NLS-1$
+    builder.append(idString);
+    String sql = builder.toString();
+
+    ResultSet resultSet = null;
+    Statement stmt = null;
+
+    try
+    {
+      stmt = accessor.getConnection().createStatement();
+      if (TRACER.isEnabled())
+      {
+        TRACER.format("Query XRefs (list): {0}", sql);
+      }
+
+      resultSet = stmt.executeQuery(sql);
+      while (resultSet.next())
+      {
+        long idLong = resultSet.getLong(1);
+        CDOID srcId = CDOIDUtil.createLong(idLong);
+        idLong = resultSet.getLong(2);
+        CDOID targetId = CDOIDUtil.createLong(idLong);
+        int idx = resultSet.getInt(3);
+
+        boolean more = context.addXRef(targetId, srcId, (EReference)getFeature(), idx);
+        if (TRACER.isEnabled())
+        {
+          TRACER.format("  add XRef to context: src={0}, tgt={1}, idx={2}", srcId, targetId, idx);
+        }
+
+        if (!more)
+        {
+          if (TRACER.isEnabled())
+          {
+            TRACER.format("  result limit reached. Ignoring further results.");
+          }
+
+          return false;
+        }
+      }
+
+      return true;
+    }
+    catch (SQLException ex)
+    {
+      throw new DBException(ex);
+    }
+    finally
+    {
+      DBUtil.close(resultSet);
+      DBUtil.close(stmt);
+    }
   }
 }

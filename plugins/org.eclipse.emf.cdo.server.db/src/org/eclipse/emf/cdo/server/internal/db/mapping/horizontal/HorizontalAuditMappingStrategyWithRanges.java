@@ -13,6 +13,7 @@ package org.eclipse.emf.cdo.server.internal.db.mapping.horizontal;
 
 import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
 import org.eclipse.emf.cdo.server.db.mapping.IListMapping;
+import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EStructuralFeature;
@@ -63,7 +64,12 @@ public class HorizontalAuditMappingStrategyWithRanges extends AbstractHorizontal
   @Override
   public String getListJoin(String attrTable, String listTable)
   {
-    // TODO: implement HorizontalAuditMappingStrategyWithRanges.getListJoin(attrTable, listTable)
-    throw new UnsupportedOperationException();
+    String join = super.getListJoin(attrTable, listTable);
+    join += " AND " + listTable + "." + CDODBSchema.LIST_REVISION_VERSION_ADDED;
+    join += "<=" + attrTable + "." + CDODBSchema.ATTRIBUTES_VERSION;
+    join += " AND (" + listTable + "." + CDODBSchema.LIST_REVISION_VERSION_REMOVED;
+    join += " IS NULL OR " + listTable + "." + CDODBSchema.LIST_REVISION_VERSION_REMOVED;
+    join += ">" + attrTable + "." + CDODBSchema.ATTRIBUTES_VERSION + ")";
+    return join;
   }
 }
