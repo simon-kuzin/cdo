@@ -11,6 +11,7 @@
  */
 package org.eclipse.emf.cdo.tests.db;
 
+import org.eclipse.emf.cdo.server.internal.db.DBBrowserPage;
 import org.eclipse.emf.cdo.tests.AllConfigs;
 import org.eclipse.emf.cdo.tests.AttributeTest;
 import org.eclipse.emf.cdo.tests.AuditTest;
@@ -28,6 +29,8 @@ import org.eclipse.emf.cdo.tests.bugzilla.Bugzilla_259869_Test;
 import org.eclipse.emf.cdo.tests.bugzilla.Bugzilla_303807_Test;
 import org.eclipse.emf.cdo.tests.config.impl.ConfigTest;
 
+import org.eclipse.net4j.util.container.IPluginContainer;
+
 import java.util.List;
 
 /**
@@ -35,6 +38,12 @@ import java.util.List;
  */
 public abstract class DBConfigs extends AllConfigs
 {
+
+  static
+  {
+    IPluginContainer.INSTANCE.registerFactory(new DBBrowserPage.Factory());
+  }
+
   @Override
   protected void initTestClasses(List<Class<? extends ConfigTest>> testClasses)
   {

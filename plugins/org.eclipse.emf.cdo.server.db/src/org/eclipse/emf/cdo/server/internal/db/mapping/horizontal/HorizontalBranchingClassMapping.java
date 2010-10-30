@@ -113,20 +113,19 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
       }
 
       InternalCDORevision originalRevision = (InternalCDORevision)accessor.getTransaction().getRevision(id);
-
       newRevision = originalRevision.copy();
-
-      newVersion = oldVersion + 1;
       targetBranch = accessor.getTransaction().getBranch();
+      newRevision.adjustForCommit(targetBranch, created);
 
-      newRevision.setVersion(newVersion);
-      newRevision.setBranchPoint(targetBranch.getPoint(created));
+      newVersion = newRevision.getVersion();
 
       // process revision delta tree
       delta.accept(this);
 
-      long revised = newRevision.getTimeStamp() - 1;
-      reviseOldRevision(accessor, id, delta.getBranch(), revised);
+      if (newVersion != CDORevision.FIRST_VERSION)
+      {
+        reviseOldRevision(accessor, id, delta.getBranch(), newRevision.getTimeStamp() - 1);
+      }
 
       writeValues(accessor, newRevision);
     }
@@ -1038,31 +1037,31 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
 
     try
     {
-      if (accessor.getTransaction().getBranch() == delta.getBranch())
+      if (accessor.getTransaction().getBranch() != delta.getBranch())
       {
-        // same branch -> write delta
-        Async async = null;
-
-        try
+        // new branch -> decide, if branch should be copied
+        if (((HorizontalBranchingMappingStrategyWithRanges)getMappingStrategy()).shallCopyOnBranch())
         {
-          async = monitor.forkAsync();
-          FeatureDeltaWriter writer = deltaWriter.get();
-          writer.process(accessor, delta, created);
-        }
-        finally
-        {
-          if (async != null)
-          {
-            async.stop();
-          }
+          doCopyOnBranch(accessor, delta, created, monitor.fork());
+          return;
         }
       }
-      else
-      {
-        // new branch -> copy revision
-        writeNewBranchRevisionDelta(accessor, delta, created, monitor.fork());
-      }
 
+      Async async = null;
+
+      try
+      {
+        async = monitor.forkAsync();
+        FeatureDeltaWriter writer = deltaWriter.get();
+        writer.process(accessor, delta, created);
+      }
+      finally
+      {
+        if (async != null)
+        {
+          async.stop();
+        }
+      }
     }
     finally
     {
@@ -1070,8 +1069,7 @@ public class HorizontalBranchingClassMapping extends AbstractHorizontalClassMapp
     }
   }
 
-  private void writeNewBranchRevisionDelta(IDBStoreAccessor accessor, InternalCDORevisionDelta delta, long created,
-      OMMonitor monitor)
+  private void doCopyOnBranch(IDBStoreAccessor accessor, InternalCDORevisionDelta delta, long created, OMMonitor monitor)
   {
     monitor.begin(2);
     try

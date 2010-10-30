@@ -24,6 +24,10 @@ import org.eclipse.emf.ecore.EStructuralFeature;
  */
 public class HorizontalBranchingMappingStrategyWithRanges extends AbstractHorizontalMappingStrategy
 {
+  private static final String PROP_COPY_ON_BRANCH = "copyOnBranch";
+
+  private boolean copyOnBranch;
+
   public HorizontalBranchingMappingStrategyWithRanges()
   {
   }
@@ -41,6 +45,11 @@ public class HorizontalBranchingMappingStrategyWithRanges extends AbstractHorizo
   public boolean hasDeltaSupport()
   {
     return true;
+  }
+
+  public boolean shallCopyOnBranch()
+  {
+    return copyOnBranch;
   }
 
   @Override
@@ -73,5 +82,14 @@ public class HorizontalBranchingMappingStrategyWithRanges extends AbstractHorizo
     join += ") AND " + attrTable + "." + CDODBSchema.ATTRIBUTES_BRANCH;
     join += "=" + listTable + "." + CDODBSchema.LIST_REVISION_BRANCH;
     return join;
+  }
+
+  @Override
+  protected void doAfterActivate() throws Exception
+  {
+    super.doAfterActivate();
+
+    String value = getProperties().get(PROP_COPY_ON_BRANCH);
+    copyOnBranch = value == null ? false : Boolean.valueOf(value);
   }
 }
