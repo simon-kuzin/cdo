@@ -1,7 +1,7 @@
 # Debugging and tracing options
 
-org.eclipse.emf.cdo.net4j/debug = true
-org.eclipse.emf.cdo.net4j/debug.protocol = true
+org.eclipse.emf.cdo.net4j/debug = false
+org.eclipse.emf.cdo.net4j/debug.protocol = false
 
 org.eclipse.emf.cdo.net4j/perf = false
 org.eclipse.emf.cdo.net4j/perf.revision = false

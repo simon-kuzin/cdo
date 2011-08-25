@@ -1,11 +1,11 @@
 # Debugging and tracing options
 
-org.eclipse.emf.cdo.server.net4j/debug = true
-org.eclipse.emf.cdo.server.net4j/debug.protocol = true
-org.eclipse.emf.cdo.server.net4j/debug.repository = true
-org.eclipse.emf.cdo.server.net4j/debug.session = true
-org.eclipse.emf.cdo.server.net4j/debug.transaction = true
-org.eclipse.emf.cdo.server.net4j/debug.revision = true
-org.eclipse.emf.cdo.server.net4j/debug.resource = true
-org.eclipse.emf.cdo.server.net4j/debug.store = true
-org.eclipse.emf.cdo.server.net4j/debug.types = true
+org.eclipse.emf.cdo.server.net4j/debug = false
+org.eclipse.emf.cdo.server.net4j/debug.protocol = false
+org.eclipse.emf.cdo.server.net4j/debug.repository = false
+org.eclipse.emf.cdo.server.net4j/debug.session = false
+org.eclipse.emf.cdo.server.net4j/debug.transaction = false
+org.eclipse.emf.cdo.server.net4j/debug.revision = false
+org.eclipse.emf.cdo.server.net4j/debug.resource = false
+org.eclipse.emf.cdo.server.net4j/debug.store = false
+org.eclipse.emf.cdo.server.net4j/debug.types = false
