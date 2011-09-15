@@ -16,6 +16,7 @@ package org.eclipse.emf.cdo.internal.server;
 
 import org.eclipse.emf.cdo.common.CDOCommonRepository;
 import org.eclipse.emf.cdo.common.CDOCommonSession;
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.commit.CDOCommitInfo;
 import org.eclipse.emf.cdo.common.id.CDOID;
@@ -491,7 +492,9 @@ public class Session extends Container<IView> implements InternalSession
         // only then do we send the lockChangeInfo.
         for (InternalView view : getViews())
         {
-          if (view.options().isLockNotificationEnabled() && view.getBranch().equals(lockChangeInfo.getBranch()))
+          boolean notificationsEnabled = view.options().isLockNotificationEnabled();
+          CDOBranch affectedBranch = lockChangeInfo.getBranch();
+          if (notificationsEnabled && (view.getBranch().equals(affectedBranch) || affectedBranch == null))
           {
             protocol.sendLockNotification(lockChangeInfo);
             break;

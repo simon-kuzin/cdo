@@ -1102,6 +1102,9 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor, 
     where = " WHERE " + CDODBSchema.COMMIT_INFOS_TIMESTAMP + " BETWEEN " + fromCommitTime + " AND " + toCommitTime;
     DBUtil.serializeTable(out, connection, CDODBSchema.COMMIT_INFOS, null, where);
 
+    DBUtil.serializeTable(out, connection, store.getDBSchema().getTable("cdo_lock_areas"), null, null);
+    DBUtil.serializeTable(out, connection, store.getDBSchema().getTable("cdo_locks"), null, null);
+
     IIDHandler idHandler = store.getIDHandler();
     idHandler.rawExport(connection, out, fromCommitTime, toCommitTime);
 
@@ -1132,6 +1135,15 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor, 
     {
       DBUtil.deserializeTable(in, connection, CDODBSchema.BRANCHES, monitor.fork());
       DBUtil.deserializeTable(in, connection, CDODBSchema.COMMIT_INFOS, monitor.fork());
+
+      // Delete all non-empty lock areas
+      String sql = "DELETE FROM cdo_lock_areas WHERE EXISTS (SELECT * FROM cdo_locks WHERE cdo_locks.area_id=cdo_lock_areas.id)";
+      DBUtil.update(connection, sql);
+      DBUtil.deserializeTable(in, connection, store.getDBSchema().getTable("cdo_lock_areas"), monitor.fork());
+
+      DBUtil.clearTable(connection, "cdo_locks");
+      DBUtil.deserializeTable(in, connection, store.getDBSchema().getTable("cdo_locks"), monitor.fork());
+
       store.getIDHandler().rawImport(connection, in, fromCommitTime, toCommitTime, monitor.fork());
       rawImportPackageUnits(in, fromCommitTime, toCommitTime, packageUnits, monitor.fork());
       mappingStrategy.rawImport(this, in, fromCommitTime, toCommitTime, monitor.fork(size));

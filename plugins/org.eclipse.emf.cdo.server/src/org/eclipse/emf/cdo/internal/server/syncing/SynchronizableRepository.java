@@ -24,6 +24,7 @@ import org.eclipse.emf.cdo.common.lock.CDOLockChangeInfo;
 import org.eclipse.emf.cdo.common.lock.CDOLockChangeInfo.Operation;
 import org.eclipse.emf.cdo.common.lock.CDOLockOwner;
 import org.eclipse.emf.cdo.common.lock.CDOLockState;
+import org.eclipse.emf.cdo.common.lock.CDOLockUtil;
 import org.eclipse.emf.cdo.common.lock.IDurableLockingManager.LockArea;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDODataInput;
@@ -317,7 +318,7 @@ public abstract class SynchronizableRepository extends Repository.Default implem
       StoreThreadLocal.setSession(replicatorSession);
       getLockManager().updateLockArea(area);
 
-      // TODO (CD) getSessionManager().sendLockNotification(sender, lockChangeInfo);
+      getSessionManager().sendLockNotification(null, CDOLockUtil.createLockChangeInfo());
       return true;
     }
     finally
@@ -340,6 +341,7 @@ public abstract class SynchronizableRepository extends Repository.Default implem
       accessor.rawImport(in, fromBranchID, toBranchID, fromCommitTime, toCommitTime, monitor);
 
       replicateRawReviseRevisions();
+      replicateRawReloadLocks();
       replicateRawNotifyClients(lastReplicatedCommitTime, toCommitTime);
 
       setLastReplicatedBranchID(toBranchID);
@@ -380,6 +382,11 @@ public abstract class SynchronizableRepository extends Repository.Default implem
     }
   }
 
+  private void replicateRawReloadLocks()
+  {
+    getLockManager().reloadLocks();
+  }
+
   private void replicateRawNotifyClients(long fromCommitTime, long toCommitTime)
   {
     InternalCDOCommitInfoManager manager = getCommitInfoManager();
@@ -408,6 +415,9 @@ public abstract class SynchronizableRepository extends Repository.Default implem
           comment, data);
       sessionManager.sendCommitNotification(replicatorSession, commitInfo);
     }
+
+    CDOLockChangeInfo lockChangeInfo = CDOLockUtil.createLockChangeInfo();
+    sessionManager.sendLockNotification(replicatorSession, lockChangeInfo);
   }
 
   private Map<CDOBranch, TimeRange> replicateRawGetBranches(long fromCommitTime, long toCommitTime)

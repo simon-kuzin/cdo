@@ -31,6 +31,11 @@ import org.eclipse.net4j.util.concurrent.IRWLockManager.LockType;
 public interface CDOLockChangeInfo extends CDOBranchPoint
 {
   /**
+   * 
+   */
+  public boolean isInvalidateAll();
+
+  /**
    * @return The branch at which the lock changes took place, same as <code>getView().getBranch()</code>.
    */
   public CDOBranch getBranch();

@@ -103,6 +103,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 /**
  * @author Eike Stepper
@@ -128,6 +129,8 @@ public class CDOViewImpl extends AbstractCDOView
   private long lastUpdateTime;
 
   private QueueRunner invalidationRunner;
+
+  private Map<InternalCDOObject, CDOLockState> lockStates = new WeakHashMap<InternalCDOObject, CDOLockState>();
 
   @ExcludeFromDump
   private InvalidationRunnerLock invalidationRunnerLock = new InvalidationRunnerLock();
@@ -339,7 +342,7 @@ public class CDOViewImpl extends AbstractCDOView
       InternalCDOObject obj = getObject(id, false);
       if (obj != null)
       {
-        obj.cdoInternalSetLockState(lockState);
+        lockStates.put(obj, lockState);
       }
     }
   }
@@ -365,6 +368,13 @@ public class CDOViewImpl extends AbstractCDOView
   {
     if (!options().isLockNotificationEnabled())
     {
+      return;
+    }
+
+    if (lockChangeInfo.isInvalidateAll())
+    {
+      lockStates.clear();
+      fireLocksChangedEvent(sender, lockChangeInfo);
       return;
     }
 
@@ -552,9 +562,37 @@ public class CDOViewImpl extends AbstractCDOView
 
   public CDOLockState[] getLockStates(Collection<CDOID> ids)
   {
-    CDOSessionProtocol sessionProtocol = session.getSessionProtocol();
-    CDOLockState[] lockStates = sessionProtocol.getLockStates(viewID, ids);
-    return lockStates;
+    List<CDOID> missing = new LinkedList<CDOID>();
+    List<CDOLockState> lockStates = new LinkedList<CDOLockState>();
+    for (CDOID id : ids)
+    {
+      CDOLockState lockState = null;
+      InternalCDOObject obj = getObject(id, false);
+      if (obj != null)
+      {
+        lockState = this.lockStates.get(obj);
+      }
+      if (lockState != null)
+      {
+        lockStates.add(lockState);
+      }
+      else
+      {
+        missing.add(id);
+      }
+    }
+
+    if (missing.size() > 0)
+    {
+      CDOSessionProtocol sessionProtocol = session.getSessionProtocol();
+      CDOLockState[] loadedLockStates = sessionProtocol.getLockStates(viewID, missing);
+      for (CDOLockState loadedLockState : loadedLockStates)
+      {
+        lockStates.add(loadedLockState);
+      }
+    }
+
+    return lockStates.toArray(new CDOLockState[lockStates.size()]);
   }
 
   private CDOBranchPoint getBranchPointForID(CDOID id)
