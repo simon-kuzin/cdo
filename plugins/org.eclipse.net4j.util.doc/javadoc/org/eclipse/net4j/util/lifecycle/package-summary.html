@@ -41,7 +41,6 @@ function windowTitle()
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Package</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <FONT CLASS="NavBarFont1">Class</FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-use.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
@@ -82,13 +81,26 @@ function windowTitle()
 <H2>
 Package org.eclipse.net4j.util.lifecycle
 </H2>
+<A NAME="package_description"><!-- --></A>
 A framework for components with a simple lifecycle.
-<P>
-<B>See:</B>
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<A HREF="#package_description"><B>Description</B></A>
+ Interfaces that describe the behaviour of objects with respect to their lifecycle. 
+ A utility class to interact with such objects and an abstract class that can be
+ used to implement such objects are provided as well.
+
 <P>
 
+<map id="APIVIZ" name="APIVIZ">
+<area shape="rect" id="node1" href="../event/IEvent.html" title="&#171;interface&#187; IEvent (org.eclipse.net4j.util.event)" alt="" coords="6,70,186,125"/>
+<area shape="rect" id="node2" href="ILifecycle.html" title="&#171;interface&#187; ILifecycle" alt="" coords="496,145,581,185"/>
+<area shape="rect" id="node3" href="ILifecycleEvent.html" title="&#171;interface&#187; ILifecycleEvent" alt="" coords="255,77,363,117"/>
+<area shape="rect" id="node4" href="../event/INotifier.html" title="&#171;interface&#187; INotifier (org.eclipse.net4j.util.event)" alt="" coords="219,145,399,199"/>
+<area shape="rect" id="node5" href="LifecycleUtil.html" title="&#171;static&#187; LifecycleUtil" alt="" coords="50,5,142,45"/>
+<area shape="rect" id="node6" href="ILifecycleEvent.Kind.html" title="&#171;enum&#187; ILifecycleEvent.Kind" alt="" coords="469,73,608,113"/>
+<area shape="rect" id="node7" href="LifecycleState.html" title="&#171;enum&#187; LifecycleState" alt="" coords="640,145,744,185"/>
+</map>
+
+<CENTER><IMG SRC="package-summary.png" USEMAP="#APIVIZ" BORDER="0"></CENTER>
+<BR>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
@@ -96,11 +108,12 @@ A framework for components with a simple lifecycle.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/lifecycle/ILifecycle.html" title="interface in org.eclipse.net4j.util.lifecycle">ILifecycle</A></B></TD>
-<TD>&nbsp;</TD>
+<TD>An entity that has a well-defined <A HREF="../../../../../org/eclipse/net4j/util/lifecycle/ILifecycle.html#getLifecycleState()"><CODE>lifecycle</CODE></A> and can be <A HREF="../../../../../org/eclipse/net4j/util/lifecycle/ILifecycle.html#activate()"><CODE>activated</CODE></A> or
+ <A HREF="../../../../../org/eclipse/net4j/util/lifecycle/ILifecycle.html#deactivate()"><CODE>deactivated</CODE></A>.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/lifecycle/ILifecycleEvent.html" title="interface in org.eclipse.net4j.util.lifecycle">ILifecycleEvent</A></B></TD>
-<TD>An <A HREF="../../../../../org/eclipse/net4j/util/event/IEvent.html" title="interface in org.eclipse.net4j.util.event"><CODE>event</CODE></A> fired from an object with a <A HREF="../../../../../org/eclipse/net4j/util/lifecycle/ILifecycle.html" title="interface in org.eclipse.net4j.util.lifecycle"><CODE>lifecycle</CODE></A> when its lifecycle <A HREF="../../../../../org/eclipse/net4j/util/lifecycle/ILifecycleEvent.Kind.html" title="enum in org.eclipse.net4j.util.lifecycle"><CODE>state</CODE></A> has changed.</TD>
+<TD>An <A HREF="../../../../../org/eclipse/net4j/util/event/IEvent.html" title="interface in org.eclipse.net4j.util.event"><CODE>event</CODE></A> fired from an entity with a <A HREF="../../../../../org/eclipse/net4j/util/lifecycle/ILifecycle.html" title="interface in org.eclipse.net4j.util.lifecycle"><CODE>lifecycle</CODE></A> when its lifecycle <A HREF="../../../../../org/eclipse/net4j/util/lifecycle/ILifecycleEvent.Kind.html" title="enum in org.eclipse.net4j.util.lifecycle"><CODE>state</CODE></A> has changed.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -114,23 +127,25 @@ A framework for components with a simple lifecycle.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/lifecycle/Lifecycle.html" title="class in org.eclipse.net4j.util.lifecycle">Lifecycle</A></B></TD>
-<TD>&nbsp;</TD>
+<TD>A default implementation of an entity with a <A HREF="../../../../../org/eclipse/net4j/util/lifecycle/ILifecycle.html" title="interface in org.eclipse.net4j.util.lifecycle"><CODE>lifecycle</CODE></A>.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/lifecycle/LifecycleEvent.html" title="class in org.eclipse.net4j.util.lifecycle">LifecycleEvent</A></B></TD>
-<TD>&nbsp;</TD>
+<TD>A default implementation of a lifecycle <A HREF="../../../../../org/eclipse/net4j/util/lifecycle/ILifecycleEvent.html" title="interface in org.eclipse.net4j.util.lifecycle"><CODE>event</CODE></A>.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/lifecycle/LifecycleEventAdapter.html" title="class in org.eclipse.net4j.util.lifecycle">LifecycleEventAdapter</A></B></TD>
-<TD>&nbsp;</TD>
+<TD>A <A HREF="../../../../../org/eclipse/net4j/util/event/IListener.html" title="interface in org.eclipse.net4j.util.event"><CODE>listener</CODE></A> that dispatches lifecycle <A HREF="../../../../../org/eclipse/net4j/util/lifecycle/ILifecycleEvent.html" title="interface in org.eclipse.net4j.util.lifecycle"><CODE>events</CODE></A> to methods that can be
+ overridden by extenders.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/lifecycle/LifecycleUtil.html" title="class in org.eclipse.net4j.util.lifecycle">LifecycleUtil</A></B></TD>
-<TD>&nbsp;</TD>
+<TD>Various static helper methods for dealing with <A HREF="../../../../../org/eclipse/net4j/util/lifecycle/ILifecycle.html" title="interface in org.eclipse.net4j.util.lifecycle"><CODE>lifecycles</CODE></A>.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/lifecycle/LifecycleUtil.Delegator.html" title="class in org.eclipse.net4j.util.lifecycle">LifecycleUtil.Delegator&lt;T&gt;</A></B></TD>
-<TD>&nbsp;</TD>
+<TD>The <A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/lang/reflect/InvocationHandler.html?is-external=true" title="class or interface in java.lang.reflect"><CODE>invocation handler</CODE></A> of the <A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/lang/reflect/Proxy.html?is-external=true" title="class or interface in java.lang.reflect"><CODE>dynamic proxy</CODE></A> created in
+ <A HREF="../../../../../org/eclipse/net4j/util/lifecycle/LifecycleUtil.html#delegateLifecycle(java.lang.ClassLoader, T, org.eclipse.net4j.util.lifecycle.ILifecycle)"><CODE>LifecycleUtil.delegateLifecycle()</CODE></A>.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -144,11 +159,11 @@ A framework for components with a simple lifecycle.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/lifecycle/ILifecycleEvent.Kind.html" title="enum in org.eclipse.net4j.util.lifecycle">ILifecycleEvent.Kind</A></B></TD>
-<TD>Enumerates the possible <A HREF="../../../../../org/eclipse/net4j/util/lifecycle/ILifecycle.html#getLifecycleState()"><CODE>lifecycle state</CODE></A> changes of an object.</TD>
+<TD>Enumerates the possible <A HREF="../../../../../org/eclipse/net4j/util/lifecycle/ILifecycle.html#getLifecycleState()"><CODE>lifecycle state</CODE></A> changes of an entity.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/lifecycle/LifecycleState.html" title="enum in org.eclipse.net4j.util.lifecycle">LifecycleState</A></B></TD>
-<TD>&nbsp;</TD>
+<TD>Enumerates the possible lifecycle states of an entity with a <A HREF="../../../../../org/eclipse/net4j/util/lifecycle/ILifecycle.html" title="interface in org.eclipse.net4j.util.lifecycle"><CODE>lifecycle</CODE></A>.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -162,7 +177,7 @@ A framework for components with a simple lifecycle.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/lifecycle/LifecycleException.html" title="class in org.eclipse.net4j.util.lifecycle">LifecycleException</A></B></TD>
-<TD>&nbsp;</TD>
+<TD>An unchecked wrapper exception for checked exceptions being thrown from <A HREF="../../../../../org/eclipse/net4j/util/lifecycle/Lifecycle.html#doActivate()"><CODE>Lifecycle.doActivate()</CODE></A>.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -176,46 +191,18 @@ A framework for components with a simple lifecycle.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/lifecycle/LifecycleUtil.Activator.html" title="annotation in org.eclipse.net4j.util.lifecycle">LifecycleUtil.Activator</A></B></TD>
-<TD>&nbsp;</TD>
+<TD>Annotates a method of a POJO class that's supposed to be called to <em>activate</em> a POJO object during
+ <A HREF="../../../../../org/eclipse/net4j/util/lifecycle/LifecycleUtil.html#activate(java.lang.Object)"><CODE>LifecycleUtil.activate(Object)</CODE></A>.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/lifecycle/LifecycleUtil.Deactivator.html" title="annotation in org.eclipse.net4j.util.lifecycle">LifecycleUtil.Deactivator</A></B></TD>
-<TD>&nbsp;</TD>
+<TD>Annotates a method of a POJO class that's supposed to be called to <em>deactivate</em> a POJO object during
+ <A HREF="../../../../../org/eclipse/net4j/util/lifecycle/LifecycleUtil.html#deactivate(java.lang.Object)"><CODE>LifecycleUtil.deactivate(Object)</CODE></A>.</TD>
 </TR>
 </TABLE>
 &nbsp;
 
 <P>
-<A NAME="package_description"><!-- --></A><H2>
-Package org.eclipse.net4j.util.lifecycle Description
-</H2>
-
-<P>
-A framework for components with a simple lifecycle.
-Interfaces that describe the behaviour of objects with respect to their lifecycle. 
-A utility class to interact with such objects and an abstract class that can be
-used to implement such objects are provided as well.
-<p>
-
-<!--
-
-<h2>Package Specification</h2>
-
-##### FILL IN ANY SPECS NEEDED BY JAVA COMPATIBILITY KIT #####
-<ul>
-  <li><a href="">##### REFER TO ANY FRAMEMAKER SPECIFICATION HERE #####</a>
-</ul>
-
-<h2>Related Documentation</h2>
-
-For overviews, tutorials, examples, guides, and tool documentation, please see:
-<ul>
-  <li><a href="">##### REFER TO NON-SPEC DOCUMENTATION HERE #####</a>
-</ul>
-
--->
-
-<!-- Put @see and @since tags down here. -->
 <P>
 
 <P>
@@ -237,7 +224,6 @@ For overviews, tutorials, examples, guides, and tool documentation, please see:
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Package</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <FONT CLASS="NavBarFont1">Class</FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-use.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>

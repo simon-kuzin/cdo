@@ -41,7 +41,6 @@ function windowTitle()
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/CDOView.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
@@ -102,8 +101,31 @@ Interface CDOView</H2>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public interface <B>CDOView</B><DT>extends <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonView.html" title="interface in org.eclipse.emf.cdo.common">CDOCommonView</A>, <A HREF="../../../../../org/eclipse/emf/cdo/util/CDOUpdatable.html" title="interface in org.eclipse.emf.cdo.util">CDOUpdatable</A>, <A HREF="../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/event/INotifier.html?is-external=true" title="class or interface in org.eclipse.net4j.util.event">INotifier</A>, <A HREF="../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/options/IOptionsContainer.html?is-external=true" title="class or interface in org.eclipse.net4j.util.options">IOptionsContainer</A></DL>
-</PRE>
+<DT><PRE>public interface <B>CDOView</B><DT>extends <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonView.html" title="interface in org.eclipse.emf.cdo.common">CDOCommonView</A>, <A HREF="../../../../../org/eclipse/emf/cdo/util/CDOUpdatable.html" title="interface in org.eclipse.emf.cdo.util">CDOUpdatable</A>, <A HREF="../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/event/INotifier.html?is-external=true" title="class or interface in org.eclipse.net4j.util.event">INotifier</A></DL>
+</PRE><map id="APIVIZ" name="APIVIZ">
+<area shape="rect" id="node1" href="../common/CDOCommonView.html" title="&#171;interface&#187; CDOCommonView (org.eclipse.emf.cdo.common)" alt="" coords="15,5,212,59"/>
+<area shape="rect" id="node2" href="../CDOObject.html" title="&#171;interface&#187; CDOObject (org.eclipse.emf.cdo)" alt="" coords="42,78,185,133"/>
+<area shape="rect" id="node3" href="CDOObjectHandler.html" title="&#171;interface&#187; CDOObjectHandler" alt="" coords="671,349,803,389"/>
+<area shape="rect" id="node4" href="CDOQuery.html" title="&#171;interface&#187; CDOQuery" alt="" coords="71,152,156,192"/>
+<area shape="rect" id="node5" href="../session/CDOSession.html" title="&#171;interface&#187; CDOSession (org.eclipse.emf.cdo.session)" alt="" coords="17,211,209,266"/>
+<area shape="rect" id="node6" href="../transaction/CDOTransaction.html" title="&#171;interface&#187; CDOTransaction (org.eclipse.emf.cdo.transaction)" alt="" coords="632,409,843,463"/>
+<area shape="rect" id="node7" href="../util/CDOUpdatable.html" title="&#171;interface&#187; CDOUpdatable (org.eclipse.emf.cdo.util)" alt="" coords="31,285,195,339"/>
+<area shape="rect" id="node8" href="CDOView.html" title="&#171;interface&#187; CDOView" alt="" coords="387,417,472,457"/>
+<area shape="rect" id="node9" href="CDOView.Options.html" title="&#171;interface&#187; CDOView.Options" alt="" coords="674,483,801,523"/>
+<area shape="rect" id="node10" href="CDOViewAdaptersNotifiedEvent.html" title="&#171;interface&#187; CDOViewAdaptersNotifiedEvent" alt="" coords="11,359,216,399"/>
+<area shape="rect" id="node11" href="CDOViewContainer.html" title="&#171;interface&#187; CDOViewContainer" alt="" coords="47,417,180,457"/>
+<area shape="rect" id="node12" href="CDOViewDurabilityChangedEvent.html" title="&#171;interface&#187; CDOViewDurabilityChangedEvent" alt="" coords="6,476,221,516"/>
+<area shape="rect" id="node13" href="CDOViewInvalidationEvent.html" title="&#171;interface&#187; CDOViewInvalidationEvent" alt="" coords="27,535,200,575"/>
+<area shape="rect" id="node14" href="CDOViewLocksChangedEvent.html" title="&#171;interface&#187; CDOViewLocksChangedEvent" alt="" coords="15,593,211,633"/>
+<area shape="rect" id="node15" href="CDOViewSet.html" title="&#171;interface&#187; CDOViewSet" alt="" coords="64,652,163,692"/>
+<area shape="rect" id="node16" href="CDOViewTargetChangedEvent.html" title="&#171;interface&#187; CDOViewTargetChangedEvent" alt="" coords="15,711,212,751"/>
+<area shape="rect" id="node17" title="&#171;interface&#187; INotifier (org.eclipse.net4j.util.event)" alt="" coords="23,770,203,825"/>
+<area shape="rect" id="node18" href="../../spi/cdo/InternalCDOView.html" title="&#171;interface&#187; InternalCDOView (org.eclipse.emf.spi.cdo)" alt="" coords="655,542,819,597"/>
+</map>
+
+<CENTER><IMG SRC="CDOView.png" USEMAP="#APIVIZ" BORDER="0"></CENTER>
+
+
 
 <P>
 A read-only view to the state of the object graph in the repository of the underlying <A HREF="../../../../../org/eclipse/emf/cdo/session/CDOSession.html" title="interface in org.eclipse.emf.cdo.session"><CODE>session</CODE></A> at a
@@ -129,8 +151,6 @@ A read-only view to the state of the object graph in the repository of the under
 <DL>
 <DT><B>Since:</B></DT>
   <DD>2.0</DD>
-<DT><B>Author:</B></DT>
-  <DD>Eike Stepper</DD>
 <DT><B>No Implement</B></DT>
   <DD>This interface is not intended to be implemented by clients.</DD>
 <DT><B>No Extend</B></DT>
@@ -233,7 +253,7 @@ A read-only view to the state of the object graph in the repository of the under
 <TD><CODE><B><A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.html#enableDurableLocking(boolean)">enableDurableLocking</A></B>(boolean&nbsp;enable)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Enables or disables the storage of all information that's needed to <A HREF="../../../../../org/eclipse/emf/cdo/session/CDOSession.html#openView(java.lang.String)"><CODE>reopen</CODE></A> this
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Enables or disables the storage of all information that's needed to <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOViewContainer.html#openView(java.lang.String)"><CODE>reopen</CODE></A> this
  view at a later point in time.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
@@ -259,7 +279,7 @@ A read-only view to the state of the object graph in the repository of the under
 <TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
 <TR ALIGN="right" VALIGN="">
 <TD NOWRAP><FONT SIZE="-1">
-<CODE>&lt;T extends <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EObject.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EObject</A>&gt; 
+<CODE>&lt;T extends <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EObject.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EObject</A>&gt; 
 <BR>
 T</CODE></FONT></TD>
 </TR>
@@ -301,15 +321,15 @@ T</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.html#getResourceNode(java.lang.String)">getResourceNode</A></B>(<A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;path)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the resource node with the given path, or <code>null</code> if no such resource node exists.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the resource node with the given path.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/resource/ResourceSet.html?is-external=true" title="class or interface in org.eclipse.emf.ecore.resource">ResourceSet</A></CODE></FONT></TD>
+<CODE>&nbsp;<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/resource/ResourceSet.html?is-external=true" title="class or interface in org.eclipse.emf.ecore.resource">ResourceSet</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.html#getResourceSet()">getResourceSet</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/resource/ResourceSet.html?is-external=true" title="class or interface in org.eclipse.emf.ecore.resource"><CODE>resource set</CODE></A> this view is associated with.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/resource/ResourceSet.html?is-external=true" title="class or interface in org.eclipse.emf.ecore.resource"><CODE>resource set</CODE></A> this view is associated with.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -329,7 +349,7 @@ T</CODE></FONT></TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/resource/URIHandler.html?is-external=true" title="class or interface in org.eclipse.emf.ecore.resource">URIHandler</A></CODE></FONT></TD>
+<CODE>&nbsp;<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/resource/URIHandler.html?is-external=true" title="class or interface in org.eclipse.emf.ecore.resource">URIHandler</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.html#getURIHandler()">getURIHandler</A></B>()</CODE>
 
 <BR>
@@ -408,7 +428,7 @@ T</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.html#options()">options</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonView.Options.html" title="interface in org.eclipse.emf.cdo.common"><CODE>options</CODE></A> of this view.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -436,7 +456,7 @@ T</CODE></FONT></TD>
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../../../../org/eclipse/emf/cdo/CDOObjectReference.html" title="interface in org.eclipse.emf.cdo">CDOObjectReference</A>&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.html#queryXRefs(org.eclipse.emf.cdo.CDOObject, org.eclipse.emf.ecore.EReference...)">queryXRefs</A></B>(<A HREF="../../../../../org/eclipse/emf/cdo/CDOObject.html" title="interface in org.eclipse.emf.cdo">CDOObject</A>&nbsp;targetObject,
-           <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EReference.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EReference</A>...&nbsp;sourceReferences)</CODE>
+           <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EReference.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EReference</A>...&nbsp;sourceReferences)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a list of <A HREF="../../../../../org/eclipse/emf/cdo/CDOObjectReference.html" title="interface in org.eclipse.emf.cdo"><CODE>object references</CODE></A> that represent the cross references to the specified
@@ -446,7 +466,7 @@ T</CODE></FONT></TD>
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../../../../org/eclipse/emf/cdo/CDOObjectReference.html" title="interface in org.eclipse.emf.cdo">CDOObjectReference</A>&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.html#queryXRefs(java.util.Set, org.eclipse.emf.ecore.EReference...)">queryXRefs</A></B>(<A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../org/eclipse/emf/cdo/CDOObject.html" title="interface in org.eclipse.emf.cdo">CDOObject</A>&gt;&nbsp;targetObjects,
-           <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EReference.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EReference</A>...&nbsp;sourceReferences)</CODE>
+           <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EReference.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EReference</A>...&nbsp;sourceReferences)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a list of <A HREF="../../../../../org/eclipse/emf/cdo/CDOObjectReference.html" title="interface in org.eclipse.emf.cdo"><CODE>object references</CODE></A> that represent the cross references to the specified
@@ -456,7 +476,7 @@ T</CODE></FONT></TD>
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/collection/CloseableIterator.html?is-external=true" title="class or interface in org.eclipse.net4j.util.collection">CloseableIterator</A>&lt;<A HREF="../../../../../org/eclipse/emf/cdo/CDOObjectReference.html" title="interface in org.eclipse.emf.cdo">CDOObjectReference</A>&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.html#queryXRefsAsync(java.util.Set, org.eclipse.emf.ecore.EReference...)">queryXRefsAsync</A></B>(<A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../org/eclipse/emf/cdo/CDOObject.html" title="interface in org.eclipse.emf.cdo">CDOObject</A>&gt;&nbsp;targetObjects,
-                <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EReference.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EReference</A>...&nbsp;sourceReferences)</CODE>
+                <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EReference.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EReference</A>...&nbsp;sourceReferences)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns an iterator over the <A HREF="../../../../../org/eclipse/emf/cdo/CDOObjectReference.html" title="interface in org.eclipse.emf.cdo"><CODE>object references</CODE></A> that represent the cross references to
@@ -611,8 +631,8 @@ getSession</H3>
 
 <DT><B>Returns:</B><DD>The session this view was opened by, or <code>null</code> if this view is closed.<DT><B>See Also:</B><DD><A HREF="../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/collection/Closeable.html?is-external=true#close()" title="class or interface in org.eclipse.net4j.util.collection"><CODE>Closeable.close()</CODE></A>, 
 <A HREF="../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/collection/Closeable.html?is-external=true#isClosed()" title="class or interface in org.eclipse.net4j.util.collection"><CODE>Closeable.isClosed()</CODE></A>, 
-<A HREF="../../../../../org/eclipse/emf/cdo/session/CDOSession.html#openView()"><CODE>CDOSession.openView()</CODE></A>, 
-<A HREF="../../../../../org/eclipse/emf/cdo/session/CDOSession.html#openTransaction()"><CODE>CDOSession.openTransaction()</CODE></A></DL>
+<A HREF="../../../../../org/eclipse/emf/cdo/view/CDOViewContainer.html#openView()"><CODE>CDOViewContainer.openView()</CODE></A>, 
+<A HREF="../../../../../org/eclipse/emf/cdo/transaction/CDOTransactionContainer.html#openTransaction()"><CODE>CDOTransactionContainer.openTransaction()</CODE></A></DL>
 </DD>
 </DL>
 <HR>
@@ -637,9 +657,9 @@ getViewSet</H3>
 <A NAME="getResourceSet()"><!-- --></A><H3>
 getResourceSet</H3>
 <PRE>
-<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/resource/ResourceSet.html?is-external=true" title="class or interface in org.eclipse.emf.ecore.resource">ResourceSet</A> <B>getResourceSet</B>()</PRE>
+<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/resource/ResourceSet.html?is-external=true" title="class or interface in org.eclipse.emf.ecore.resource">ResourceSet</A> <B>getResourceSet</B>()</PRE>
 <DL>
-<DD>Returns the <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/resource/ResourceSet.html?is-external=true" title="class or interface in org.eclipse.emf.ecore.resource"><CODE>resource set</CODE></A> this view is associated with.
+<DD>Returns the <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/resource/ResourceSet.html?is-external=true" title="class or interface in org.eclipse.emf.ecore.resource"><CODE>resource set</CODE></A> this view is associated with.
  <p>
  Same as calling <tt>getViewSet().getResourceSet()</tt>.
 <P>
@@ -655,7 +675,7 @@ getResourceSet</H3>
 <A NAME="getURIHandler()"><!-- --></A><H3>
 getURIHandler</H3>
 <PRE>
-<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/resource/URIHandler.html?is-external=true" title="class or interface in org.eclipse.emf.ecore.resource">URIHandler</A> <B>getURIHandler</B>()</PRE>
+<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/resource/URIHandler.html?is-external=true" title="class or interface in org.eclipse.emf.ecore.resource">URIHandler</A> <B>getURIHandler</B>()</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -837,7 +857,7 @@ getResource</H3>
 </DL>
 </DD>
 <DD><DL>
-<DT><B>See Also:</B><DD><A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/resource/ResourceSet.html?is-external=true#getResource(org.eclipse.emf.common.util.URI, boolean)" title="class or interface in org.eclipse.emf.ecore.resource"><CODE>ResourceSet.getResource(URI, boolean)</CODE></A></DL>
+<DT><B>See Also:</B><DD><A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/resource/ResourceSet.html?is-external=true#getResource(org.eclipse.emf.common.util.URI, boolean)" title="class or interface in org.eclipse.emf.ecore.resource"><CODE>ResourceSet.getResource(URI, boolean)</CODE></A></DL>
 </DD>
 </DL>
 <HR>
@@ -853,7 +873,7 @@ getResource</H3>
 </DL>
 </DD>
 <DD><DL>
-<DT><B>See Also:</B><DD><A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/resource/ResourceSet.html?is-external=true#getResource(org.eclipse.emf.common.util.URI, boolean)" title="class or interface in org.eclipse.emf.ecore.resource"><CODE>ResourceSet.getResource(URI, boolean)</CODE></A></DL>
+<DT><B>See Also:</B><DD><A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/resource/ResourceSet.html?is-external=true#getResource(org.eclipse.emf.common.util.URI, boolean)" title="class or interface in org.eclipse.emf.ecore.resource"><CODE>ResourceSet.getResource(URI, boolean)</CODE></A></DL>
 </DD>
 </DL>
 <HR>
@@ -861,15 +881,19 @@ getResource</H3>
 <A NAME="getResourceNode(java.lang.String)"><!-- --></A><H3>
 getResourceNode</H3>
 <PRE>
-<A HREF="../../../../../org/eclipse/emf/cdo/eresource/CDOResourceNode.html" title="interface in org.eclipse.emf.cdo.eresource">CDOResourceNode</A> <B>getResourceNode</B>(<A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;path)</PRE>
+<A HREF="../../../../../org/eclipse/emf/cdo/eresource/CDOResourceNode.html" title="interface in org.eclipse.emf.cdo.eresource">CDOResourceNode</A> <B>getResourceNode</B>(<A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;path)
+                                throws <A HREF="../../../../../org/eclipse/emf/cdo/common/util/CDOException.html" title="class in org.eclipse.emf.cdo.common.util">CDOException</A></PRE>
 <DL>
-<DD>Returns the resource node with the given path, or <code>null</code> if no such resource node exists.
+<DD>Returns the resource node with the given path.
 <P>
 <DD><DL>
 </DL>
 </DD>
 <DD><DL>
-</DL>
+
+<DT><B>Returns:</B><DD>never <code>null</code>.
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../org/eclipse/emf/cdo/common/util/CDOException.html" title="class in org.eclipse.emf.cdo.common.util">CDOException</A></CODE> - if no such resource node exists.</DL>
 </DD>
 </DL>
 <HR>
@@ -937,7 +961,7 @@ queryResourcesAsync</H3>
 queryXRefs</H3>
 <PRE>
 <A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../../../../org/eclipse/emf/cdo/CDOObjectReference.html" title="interface in org.eclipse.emf.cdo">CDOObjectReference</A>&gt; <B>queryXRefs</B>(<A HREF="../../../../../org/eclipse/emf/cdo/CDOObject.html" title="interface in org.eclipse.emf.cdo">CDOObject</A>&nbsp;targetObject,
-                                    <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EReference.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EReference</A>...&nbsp;sourceReferences)</PRE>
+                                    <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EReference.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EReference</A>...&nbsp;sourceReferences)</PRE>
 <DL>
 <DD>Returns a list of <A HREF="../../../../../org/eclipse/emf/cdo/CDOObjectReference.html" title="interface in org.eclipse.emf.cdo"><CODE>object references</CODE></A> that represent the cross references to the specified
  target object.
@@ -959,7 +983,7 @@ queryXRefs</H3>
 queryXRefs</H3>
 <PRE>
 <A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/util/List.html?is-external=true" title="class or interface in java.util">List</A>&lt;<A HREF="../../../../../org/eclipse/emf/cdo/CDOObjectReference.html" title="interface in org.eclipse.emf.cdo">CDOObjectReference</A>&gt; <B>queryXRefs</B>(<A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../org/eclipse/emf/cdo/CDOObject.html" title="interface in org.eclipse.emf.cdo">CDOObject</A>&gt;&nbsp;targetObjects,
-                                    <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EReference.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EReference</A>...&nbsp;sourceReferences)</PRE>
+                                    <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EReference.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EReference</A>...&nbsp;sourceReferences)</PRE>
 <DL>
 <DD>Returns a list of <A HREF="../../../../../org/eclipse/emf/cdo/CDOObjectReference.html" title="interface in org.eclipse.emf.cdo"><CODE>object references</CODE></A> that represent the cross references to the specified
  target objects.
@@ -981,7 +1005,7 @@ queryXRefs</H3>
 queryXRefsAsync</H3>
 <PRE>
 <A HREF="../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/collection/CloseableIterator.html?is-external=true" title="class or interface in org.eclipse.net4j.util.collection">CloseableIterator</A>&lt;<A HREF="../../../../../org/eclipse/emf/cdo/CDOObjectReference.html" title="interface in org.eclipse.emf.cdo">CDOObjectReference</A>&gt; <B>queryXRefsAsync</B>(<A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;<A HREF="../../../../../org/eclipse/emf/cdo/CDOObject.html" title="interface in org.eclipse.emf.cdo">CDOObject</A>&gt;&nbsp;targetObjects,
-                                                      <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EReference.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EReference</A>...&nbsp;sourceReferences)</PRE>
+                                                      <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EReference.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EReference</A>...&nbsp;sourceReferences)</PRE>
 <DL>
 <DD>Returns an iterator over the <A HREF="../../../../../org/eclipse/emf/cdo/CDOObjectReference.html" title="interface in org.eclipse.emf.cdo"><CODE>object references</CODE></A> that represent the cross references to
  the specified target objects. The underlying query will be executed asynchronously.
@@ -1039,7 +1063,7 @@ getObject</H3>
 <A NAME="getObject(org.eclipse.emf.ecore.EObject)"><!-- --></A><A NAME="getObject(T)"><!-- --></A><H3>
 getObject</H3>
 <PRE>
-&lt;T extends <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EObject.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EObject</A>&gt; T <B>getObject</B>(T&nbsp;objectFromDifferentView)</PRE>
+&lt;T extends <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EObject.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EObject</A>&gt; T <B>getObject</B>(T&nbsp;objectFromDifferentView)</PRE>
 <DL>
 <DD>Takes an object from a (possibly) different view and <em>contextifies</em> it for the usage with this view.
  <ul>
@@ -1155,7 +1179,7 @@ enableDurableLocking</H3>
 <PRE>
 <A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>enableDurableLocking</B>(boolean&nbsp;enable)</PRE>
 <DL>
-<DD>Enables or disables the storage of all information that's needed to <A HREF="../../../../../org/eclipse/emf/cdo/session/CDOSession.html#openView(java.lang.String)"><CODE>reopen</CODE></A> this
+<DD>Enables or disables the storage of all information that's needed to <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOViewContainer.html#openView(java.lang.String)"><CODE>reopen</CODE></A> this
  view at a later point in time. This information includes the <A HREF="../../../../../org/eclipse/emf/cdo/common/branch/CDOBranchPoint.html" title="interface in org.eclipse.emf.cdo.common.branch"><CODE>branch point</CODE></A>, the user ID of
  the <A HREF="../../../../../org/eclipse/emf/cdo/session/CDOSession.html" title="interface in org.eclipse.emf.cdo.session"><CODE>session</CODE></A>, whether it's a read-only view or a <A HREF="../../../../../org/eclipse/emf/cdo/transaction/CDOTransaction.html" title="interface in org.eclipse.emf.cdo.transaction"><CODE>transaction</CODE></A> and all the
  locks that are acquired or will be acquired while durable locking is enabled.
@@ -1166,10 +1190,10 @@ enableDurableLocking</H3>
 <DD><DL>
 <DT><B>Since:</B></DT>
   <DD>4.0</DD>
-<DT><B>See Also:</B><DD><A HREF="../../../../../org/eclipse/emf/cdo/session/CDOSession.html#openView(java.lang.String)"><CODE>CDOSession.openView(String)</CODE></A>, 
-<A HREF="../../../../../org/eclipse/emf/cdo/session/CDOSession.html#openView(java.lang.String, org.eclipse.emf.ecore.resource.ResourceSet)"><CODE>CDOSession.openView(String, ResourceSet)</CODE></A>, 
-<A HREF="../../../../../org/eclipse/emf/cdo/session/CDOSession.html#openTransaction(java.lang.String)"><CODE>CDOSession.openTransaction(String)</CODE></A>, 
-<A HREF="../../../../../org/eclipse/emf/cdo/session/CDOSession.html#openTransaction(java.lang.String, org.eclipse.emf.ecore.resource.ResourceSet)"><CODE>CDOSession.openTransaction(String, ResourceSet)</CODE></A>, 
+<DT><B>See Also:</B><DD><A HREF="../../../../../org/eclipse/emf/cdo/view/CDOViewContainer.html#openView(java.lang.String)"><CODE>CDOViewContainer.openView(String)</CODE></A>, 
+<A HREF="../../../../../org/eclipse/emf/cdo/view/CDOViewContainer.html#openView(java.lang.String, org.eclipse.emf.ecore.resource.ResourceSet)"><CODE>CDOViewContainer.openView(String, ResourceSet)</CODE></A>, 
+<A HREF="../../../../../org/eclipse/emf/cdo/transaction/CDOTransactionContainer.html#openTransaction(java.lang.String)"><CODE>CDOTransactionContainer.openTransaction(String)</CODE></A>, 
+<A HREF="../../../../../org/eclipse/emf/cdo/transaction/CDOTransactionContainer.html#openTransaction(java.lang.String, org.eclipse.emf.ecore.resource.ResourceSet)"><CODE>CDOTransactionContainer.openTransaction(String, ResourceSet)</CODE></A>, 
 <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.html#lockObjects(java.util.Collection, org.eclipse.net4j.util.concurrent.IRWLockManager.LockType, long)"><CODE>lockObjects(Collection, IRWLockManager.LockType, long)</CODE></A>, 
 <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.html#unlockObjects(java.util.Collection, org.eclipse.net4j.util.concurrent.IRWLockManager.LockType)"><CODE>unlockObjects(Collection, IRWLockManager.LockType)</CODE></A>, 
 <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.html#unlockObjects()"><CODE>unlockObjects()</CODE></A>, 
@@ -1285,8 +1309,11 @@ options</H3>
 <PRE>
 <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html" title="interface in org.eclipse.emf.cdo.view">CDOView.Options</A> <B>options</B>()</PRE>
 <DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonView.html#options()">CDOCommonView</A></CODE></B></DD>
+<DD>Returns the <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonView.Options.html" title="interface in org.eclipse.emf.cdo.common"><CODE>options</CODE></A> of this view.
+<P>
 <DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/options/IOptionsContainer.html?is-external=true#options()" title="class or interface in org.eclipse.net4j.util.options">options</A></CODE> in interface <CODE><A HREF="../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/options/IOptionsContainer.html?is-external=true" title="class or interface in org.eclipse.net4j.util.options">IOptionsContainer</A></CODE></DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonView.html#options()">options</A></CODE> in interface <CODE><A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonView.html" title="interface in org.eclipse.emf.cdo.common">CDOCommonView</A></CODE><DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/options/IOptionsContainer.html?is-external=true#options()" title="class or interface in org.eclipse.net4j.util.options">options</A></CODE> in interface <CODE><A HREF="../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/options/IOptionsContainer.html?is-external=true" title="class or interface in org.eclipse.net4j.util.options">IOptionsContainer</A></CODE></DL>
 </DD>
 <DD><DL>
 <DT><B>Since:</B></DT>
@@ -1311,7 +1338,6 @@ options</H3>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/CDOView.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>

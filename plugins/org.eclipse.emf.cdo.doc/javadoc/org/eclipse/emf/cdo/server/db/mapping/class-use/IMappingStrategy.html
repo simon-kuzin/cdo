@@ -41,7 +41,6 @@ function windowTitle()
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../../../org/eclipse/emf/cdo/server/db/mapping/IMappingStrategy.html" title="interface in org.eclipse.emf.cdo.server.db.mapping"><FONT CLASS="NavBarFont1"><B>Class</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Use</B></FONT>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../../../overview-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
@@ -117,6 +116,15 @@ Uses of <A HREF="../../../../../../../../org/eclipse/emf/cdo/server/db/mapping/I
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="../../../../../../../../org/eclipse/emf/cdo/server/db/mapping/IMappingStrategy.html" title="interface in org.eclipse.emf.cdo.server.db.mapping">IMappingStrategy</A></CODE></FONT></TD>
+<TD><CODE><B>CDODBUtil.</B><B><A HREF="../../../../../../../../org/eclipse/emf/cdo/server/db/CDODBUtil.html#createHorizontalMappingStrategy()">createHorizontalMappingStrategy</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Creates a horizontal <A HREF="../../../../../../../../org/eclipse/emf/cdo/server/db/mapping/IMappingStrategy.html" title="interface in org.eclipse.emf.cdo.server.db.mapping"><CODE>mapping strategy</CODE></A> that supports all valid combinations of auditing and
+ branching.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../../../org/eclipse/emf/cdo/server/db/mapping/IMappingStrategy.html" title="interface in org.eclipse.emf.cdo.server.db.mapping">IMappingStrategy</A></CODE></FONT></TD>
 <TD><CODE><B>CDODBUtil.</B><B><A HREF="../../../../../../../../org/eclipse/emf/cdo/server/db/CDODBUtil.html#createHorizontalMappingStrategy(boolean)">createHorizontalMappingStrategy</A></B>(boolean&nbsp;auditing)</CODE>
 
 <BR>
@@ -127,6 +135,16 @@ Uses of <A HREF="../../../../../../../../org/eclipse/emf/cdo/server/db/mapping/I
 <CODE>static&nbsp;<A HREF="../../../../../../../../org/eclipse/emf/cdo/server/db/mapping/IMappingStrategy.html" title="interface in org.eclipse.emf.cdo.server.db.mapping">IMappingStrategy</A></CODE></FONT></TD>
 <TD><CODE><B>CDODBUtil.</B><B><A HREF="../../../../../../../../org/eclipse/emf/cdo/server/db/CDODBUtil.html#createHorizontalMappingStrategy(boolean, boolean)">createHorizontalMappingStrategy</A></B>(boolean&nbsp;auditing,
                                 boolean&nbsp;branching)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../../../org/eclipse/emf/cdo/server/db/mapping/IMappingStrategy.html" title="interface in org.eclipse.emf.cdo.server.db.mapping">IMappingStrategy</A></CODE></FONT></TD>
+<TD><CODE><B>CDODBUtil.</B><B><A HREF="../../../../../../../../org/eclipse/emf/cdo/server/db/CDODBUtil.html#createHorizontalMappingStrategy(boolean, boolean, boolean)">createHorizontalMappingStrategy</A></B>(boolean&nbsp;auditing,
+                                boolean&nbsp;branching,
+                                boolean&nbsp;withRanges)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -202,7 +220,7 @@ Uses of <A HREF="../../../../../../../../org/eclipse/emf/cdo/server/db/mapping/I
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../../../../../org/eclipse/emf/cdo/server/db/mapping/ITypeMapping.html" title="interface in org.eclipse.emf.cdo.server.db.mapping">ITypeMapping</A></CODE></FONT></TD>
 <TD><CODE><B>ITypeMapping.Provider.</B><B><A HREF="../../../../../../../../org/eclipse/emf/cdo/server/db/mapping/ITypeMapping.Provider.html#createTypeMapping(org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy, org.eclipse.emf.ecore.EStructuralFeature)">createTypeMapping</A></B>(<A HREF="../../../../../../../../org/eclipse/emf/cdo/server/db/mapping/IMappingStrategy.html" title="interface in org.eclipse.emf.cdo.server.db.mapping">IMappingStrategy</A>&nbsp;mappingStrategy,
-                  <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EStructuralFeature.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EStructuralFeature</A>&nbsp;feature)</CODE>
+                  <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EStructuralFeature.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EStructuralFeature</A>&nbsp;feature)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Create an <A HREF="../../../../../../../../org/eclipse/emf/cdo/server/db/mapping/ITypeMapping.html" title="interface in org.eclipse.emf.cdo.server.db.mapping"><CODE>ITypeMapping</CODE></A> implementation.</TD>
@@ -242,7 +260,6 @@ Uses of <A HREF="../../../../../../../../org/eclipse/emf/cdo/server/db/mapping/I
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../../../org/eclipse/emf/cdo/server/db/mapping/IMappingStrategy.html" title="interface in org.eclipse.emf.cdo.server.db.mapping"><FONT CLASS="NavBarFont1"><B>Class</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Use</B></FONT>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../../../overview-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>

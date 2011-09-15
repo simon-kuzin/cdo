@@ -20,6 +20,7 @@ import java.io.Reader;
  * 
  * @author Eike Stepper
  * @since 4.0
+ * @apiviz.composedOf {@link CDOLob}
  */
 public interface CDOLobStore
 {
@@ -36,6 +37,8 @@ public interface CDOLobStore
   public CDOLobInfo putCharacter(Reader contents) throws IOException;
 
   /**
+   * An abstract {@link CDOLobStore large object store} that delegates all method calls to a delegate.
+   * 
    * @author Eike Stepper
    */
   public static abstract class Delegating implements CDOLobStore

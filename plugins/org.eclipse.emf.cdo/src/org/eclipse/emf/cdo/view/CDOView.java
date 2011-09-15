@@ -21,7 +21,6 @@ import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.commit.CDOChangeSetData;
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.lock.CDOLockState;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.util.CDOException;
 import org.eclipse.emf.cdo.eresource.CDOResource;
@@ -35,10 +34,7 @@ import org.eclipse.emf.cdo.util.ReadOnlyException;
 import org.eclipse.net4j.util.collection.CloseableIterator;
 import org.eclipse.net4j.util.concurrent.IRWLockManager;
 import org.eclipse.net4j.util.concurrent.IRWLockManager.LockType;
-import org.eclipse.net4j.util.event.IListener;
 import org.eclipse.net4j.util.event.INotifier;
-import org.eclipse.net4j.util.options.IOptions;
-import org.eclipse.net4j.util.options.IOptionsContainer;
 import org.eclipse.net4j.util.options.IOptionsEvent;
 import org.eclipse.net4j.util.ref.ReferenceType;
 
@@ -75,8 +71,18 @@ import java.util.Set;
  * @since 2.0
  * @noextend This interface is not intended to be extended by clients.
  * @noimplement This interface is not intended to be implemented by clients.
+ * @apiviz.landmark
+ * @apiviz.has {@link CDOView.Options}
+ * @apiviz.owns {@link CDOObjectHandler}
+ * @apiviz.uses {@link CDOQuery} - - creates
+ * @apiviz.uses {@link org.eclipse.emf.cdo.CDOObject} - - manages
+ * @apiviz.uses {@link CDOViewAdaptersNotifiedEvent} - - fires
+ * @apiviz.uses {@link CDOViewDurabilityChangedEvent} - - fires
+ * @apiviz.uses {@link CDOViewInvalidationEvent} - - fires
+ * @apiviz.uses {@link CDOViewLocksChangedEvent} - - fires
+ * @apiviz.uses {@link CDOViewTargetChangedEvent} - - fires
  */
-public interface CDOView extends CDOCommonView, CDOUpdatable, INotifier, IOptionsContainer
+public interface CDOView extends CDOCommonView, CDOUpdatable, INotifier
 {
   /**
    * Returns the {@link CDOSession session} this view was opened by.
@@ -405,8 +411,21 @@ public interface CDOView extends CDOCommonView, CDOUpdatable, INotifier, IOption
    * @author Simon McDuff
    * @noextend This interface is not intended to be extended by clients.
    * @noimplement This interface is not intended to be implemented by clients.
+   * @apiviz.has {@link org.eclipse.net4j.util.ref.ReferenceType} oneway - - cacheReferences
+   * @apiviz.has {@link org.eclipse.emf.cdo.view.CDOInvalidationPolicy}
+   * @apiviz.composedOf {@link org.eclipse.emf.cdo.view.CDOAdapterPolicy} - - changeSubscriptions
+   * @apiviz.has {@link org.eclipse.emf.cdo.view.CDOAdapterPolicy} oneway - - strongReferences
+   * @apiviz.has {@link org.eclipse.emf.cdo.view.CDOStaleReferencePolicy} oneway - - staleReferences
+   * @apiviz.has {@link org.eclipse.emf.cdo.view.CDORevisionPrefetchingPolicy}
+   * @apiviz.uses {@link CDOView.Options.CacheReferenceTypeEvent} - - fires
+   * @apiviz.uses {@link CDOView.Options.StrongReferencePolicyEvent} - - fires
+   * @apiviz.uses {@link CDOView.Options.StaleReferencePolicyEvent} - - fires
+   * @apiviz.uses {@link CDOView.Options.ChangeSubscriptionPoliciesEvent} - - fires
+   * @apiviz.uses {@link CDOView.Options.InvalidationPolicyEvent} - - fires
+   * @apiviz.uses {@link CDOView.Options.InvalidationNotificationEvent} - - fires
+   * @apiviz.uses {@link CDOView.Options.RevisionPrefetchingPolicyEvent} - - fires
    */
-  public interface Options extends IOptions
+  public interface Options extends org.eclipse.emf.cdo.common.CDOCommonView.Options
   {
     /**
      * Returns the {@link CDOView view} of this options object.
@@ -466,27 +485,6 @@ public interface CDOView extends CDOCommonView, CDOUpdatable, INotifier, IOption
      * @see CDOInvalidationNotification
      */
     public void setInvalidationNotificationEnabled(boolean enabled);
-
-    /**
-     * Returns <code>true</code> if this view will notify its {@link IListener listeners} about changes to the
-     * {@link CDOLockState lock states} of the objects in this view (due to lock operations in <i>other</i> views),
-     * <code>false</code> otherwise.
-     * 
-     * @see CDOLocksChangedEvent
-     * @see CDOLockState
-     * @since 4.1
-     */
-    public boolean isLockNotificationEnabled();
-
-    /**
-     * Specifies whether this view will notify its {@link IListener listeners} about changes to the {@link CDOLockState
-     * lock states} of the objects in this view (due to lock operations in <i>other</i> views), or not.
-     * 
-     * @see CDOLocksChangedEvent
-     * @see CDOLockState
-     * @since 4.1
-     */
-    public void setLockNotificationEnabled(boolean enabled);
 
     /**
      * Returns the current set of {@link CDOAdapterPolicy change subscription policies}.
@@ -552,15 +550,33 @@ public interface CDOView extends CDOCommonView, CDOUpdatable, INotifier, IOption
      * Returns the CDOStaleReferencePolicy in use.
      * 
      * @since 3.0
+     * @deprecated Use {@link #getStaleReferencePolicy()}
      */
+    @Deprecated
     public CDOStaleReferencePolicy getStaleReferenceBehaviour();
 
     /**
      * Sets a policy on how to deal with stale references.
      * 
      * @since 3.0
+     * @deprecated Use {@link #setStaleReferencePolicy(CDOStaleReferencePolicy)}
      */
+    @Deprecated
     public void setStaleReferenceBehaviour(CDOStaleReferencePolicy policy);
+
+    /**
+     * Returns the CDOStaleReferencePolicy in use.
+     * 
+     * @since 4.1
+     */
+    public CDOStaleReferencePolicy getStaleReferencePolicy();
+
+    /**
+     * Sets a policy on how to deal with stale references.
+     * 
+     * @since 4.1
+     */
+    public void setStaleReferencePolicy(CDOStaleReferencePolicy policy);
 
     /**
      * Returns the CDORevisionPrefetchingPolicy in use.
@@ -613,6 +629,7 @@ public interface CDOView extends CDOCommonView, CDOUpdatable, INotifier, IOption
      * @noextend This interface is not intended to be extended by clients.
      * @noimplement This interface is not intended to be implemented by clients.
      * @deprecated Use {@link StrongReferencePolicyEvent} instead.
+     * @apiviz.exclude
      */
     @Deprecated
     public interface ReferencePolicyEvent extends StrongReferencePolicyEvent
@@ -665,14 +682,6 @@ public interface CDOView extends CDOCommonView, CDOUpdatable, INotifier, IOption
      * @noimplement This interface is not intended to be implemented by clients.
      */
     public interface InvalidationNotificationEvent extends IOptionsEvent
-    {
-    }
-
-    /**
-     * @author Caspar De Groot
-     * @since 4.1
-     */
-    public interface LockNotificationEvent extends IOptionsEvent
     {
     }
 

@@ -41,7 +41,6 @@ function windowTitle()
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/CDOStaleReferencePolicy.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
@@ -94,7 +93,14 @@ Interface CDOStaleReferencePolicy</H2>
 <HR>
 <DL>
 <DT><PRE>public interface <B>CDOStaleReferencePolicy</B></DL>
-</PRE>
+</PRE><map id="APIVIZ" name="APIVIZ">
+<area shape="rect" id="node1" href="CDOView.Options.html" title="&#171;interface&#187; CDOView.Options" alt="" coords="29,5,155,45"/>
+<area shape="rect" id="node2" href="CDOStaleReferencePolicy.html" title="&#171;interface&#187; CDOStaleReferencePolicy" alt="" coords="5,101,179,141"/>
+</map>
+
+<CENTER><IMG SRC="CDOStaleReferencePolicy.png" USEMAP="#APIVIZ" BORDER="0"></CENTER>
+
+
 
 <P>
 Specifies a policy on how to deal with stale references.
@@ -104,8 +110,6 @@ Specifies a policy on how to deal with stale references.
 <DL>
 <DT><B>Since:</B></DT>
   <DD>3.0</DD>
-<DT><B>Author:</B></DT>
-  <DD>Simon McDuff</DD>
 </DL>
 <HR>
 
@@ -147,8 +151,8 @@ Specifies a policy on how to deal with stale references.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../org/eclipse/emf/cdo/view/CDOStaleReferencePolicy.html#processStaleReference(org.eclipse.emf.ecore.EObject, org.eclipse.emf.ecore.EStructuralFeature, int, org.eclipse.emf.cdo.common.id.CDOID)">processStaleReference</A></B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EObject.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EObject</A>&nbsp;source,
-                      <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EStructuralFeature.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EStructuralFeature</A>&nbsp;feature,
+<TD><CODE><B><A HREF="../../../../../org/eclipse/emf/cdo/view/CDOStaleReferencePolicy.html#processStaleReference(org.eclipse.emf.ecore.EObject, org.eclipse.emf.ecore.EStructuralFeature, int, org.eclipse.emf.cdo.common.id.CDOID)">processStaleReference</A></B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EObject.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EObject</A>&nbsp;source,
+                      <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EStructuralFeature.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EStructuralFeature</A>&nbsp;feature,
                       int&nbsp;index,
                       <A HREF="../../../../../org/eclipse/emf/cdo/common/id/CDOID.html" title="interface in org.eclipse.emf.cdo.common.id">CDOID</A>&nbsp;target)</CODE>
 
@@ -186,7 +190,7 @@ PROXY</H3>
 <PRE>
 static final <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOStaleReferencePolicy.html" title="interface in org.eclipse.emf.cdo.view">CDOStaleReferencePolicy</A> <B>PROXY</B></PRE>
 <DL>
-<DD>Returns a proxy object with the appropriate EClass. The proxy object supports the <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EObject.html?is-external=true#eClass()" title="class or interface in org.eclipse.emf.ecore"><CODE>eClass()</CODE></A> and <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EObject.html?is-external=true#eIsProxy()" title="class or interface in org.eclipse.emf.ecore"><CODE>eIsProxy()</CODE></A> methods. For all invocations to other methods the proxy
+<DD>Returns a proxy object with the appropriate EClass. The proxy object supports the <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EObject.html?is-external=true#eClass()" title="class or interface in org.eclipse.emf.ecore"><CODE>eClass()</CODE></A> and <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EObject.html?is-external=true#eIsProxy()" title="class or interface in org.eclipse.emf.ecore"><CODE>eIsProxy()</CODE></A> methods. For all invocations to other methods the proxy
  object throws an <A HREF="../../../../../org/eclipse/emf/cdo/util/ObjectNotFoundException.html" title="class in org.eclipse.emf.cdo.util"><CODE>ObjectNotFoundException</CODE></A>. The receiver can use <A HREF="../../../../../org/eclipse/emf/cdo/util/CDOUtil.html#isStaleObject(java.lang.Object)"><CODE>CDOUtil.isStaleObject(Object)</CODE></A> to
  detect proxy objects.
 <P>
@@ -207,8 +211,8 @@ static final <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOStaleReferenceP
 <A NAME="processStaleReference(org.eclipse.emf.ecore.EObject, org.eclipse.emf.ecore.EStructuralFeature, int, org.eclipse.emf.cdo.common.id.CDOID)"><!-- --></A><H3>
 processStaleReference</H3>
 <PRE>
-<A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A> <B>processStaleReference</B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EObject.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EObject</A>&nbsp;source,
-                             <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EStructuralFeature.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EStructuralFeature</A>&nbsp;feature,
+<A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A> <B>processStaleReference</B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EObject.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EObject</A>&nbsp;source,
+                             <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EStructuralFeature.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EStructuralFeature</A>&nbsp;feature,
                              int&nbsp;index,
                              <A HREF="../../../../../org/eclipse/emf/cdo/common/id/CDOID.html" title="interface in org.eclipse.emf.cdo.common.id">CDOID</A>&nbsp;target)</PRE>
 <DL>
@@ -236,7 +240,6 @@ processStaleReference</H3>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/CDOStaleReferencePolicy.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>

@@ -11,16 +11,20 @@
 package org.eclipse.emf.cdo.internal.server.syncing;
 
 import org.eclipse.emf.cdo.common.CDOCommonRepository;
+import org.eclipse.emf.cdo.common.CDOCommonSession.Options.LockNotificationMode;
 import org.eclipse.emf.cdo.common.CDOCommonSession.Options.PassiveUpdateMode;
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchCreatedEvent;
 import org.eclipse.emf.cdo.common.commit.CDOCommitInfo;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.lock.CDOLockChangeInfo;
 import org.eclipse.emf.cdo.internal.common.revision.NOOPRevisionCache;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
+import org.eclipse.emf.cdo.server.StoreThreadLocal;
 import org.eclipse.emf.cdo.session.CDOSessionConfiguration;
 import org.eclipse.emf.cdo.session.CDOSessionConfigurationFactory;
 import org.eclipse.emf.cdo.session.CDOSessionInvalidationEvent;
+import org.eclipse.emf.cdo.session.CDOSessionLocksChangedEvent;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionCache;
 import org.eclipse.emf.cdo.spi.server.InternalRepositorySynchronizer;
 import org.eclipse.emf.cdo.spi.server.InternalSynchronizableRepository;
@@ -66,12 +70,18 @@ public class RepositorySynchronizer extends QueueRunner implements InternalRepos
 
   private static final Integer COMMIT_PRIORITY = 3;
 
+  private static final Integer LOCKS_PRIORITY = COMMIT_PRIORITY;
+
   private int retryInterval = DEFAULT_RETRY_INTERVAL;
 
   private Object connectLock = new Object();
 
   private InternalSynchronizableRepository localRepository;
 
+  /**
+   * The session that connects to the master; used passively to receive notifications, and actively to request
+   * replications.
+   */
   private InternalCDOSession remoteSession;
 
   private RemoteSessionListener remoteSessionListener = new RemoteSessionListener();
@@ -117,10 +127,10 @@ public class RepositorySynchronizer extends QueueRunner implements InternalRepos
     return remoteSessionConfigurationFactory;
   }
 
-  public void setRemoteSessionConfigurationFactory(CDOSessionConfigurationFactory remoteSessionConfigurationFactory)
+  public void setRemoteSessionConfigurationFactory(CDOSessionConfigurationFactory masterSessionConfigurationFactory)
   {
-    checkArg(remoteSessionConfigurationFactory, "remoteSessionConfigurationFactory"); //$NON-NLS-1$
-    this.remoteSessionConfigurationFactory = remoteSessionConfigurationFactory;
+    checkArg(masterSessionConfigurationFactory, "remoteSessionConfigurationFactory"); //$NON-NLS-1$
+    remoteSessionConfigurationFactory = masterSessionConfigurationFactory;
   }
 
   public InternalCDOSession getRemoteSession()
@@ -206,7 +216,7 @@ public class RepositorySynchronizer extends QueueRunner implements InternalRepos
     super.doDeactivate();
   }
 
-  private void disconnect()
+  private void handleDisconnect()
   {
     OM.LOG.info("Disconnected from master.");
     if (localRepository.getRootResourceID() == null)
@@ -299,12 +309,17 @@ public class RepositorySynchronizer extends QueueRunner implements InternalRepos
           addWork(new CommitRunnable(e));
         }
       }
+      else if (event instanceof CDOSessionLocksChangedEvent)
+      {
+        CDOSessionLocksChangedEvent e = (CDOSessionLocksChangedEvent)event;
+        addWork(new LocksRunnable(e));
+      }
       else if (event instanceof ILifecycleEvent)
       {
         ILifecycleEvent e = (ILifecycleEvent)event;
         if (e.getKind() == ILifecycleEvent.Kind.DEACTIVATED && e.getSource() == remoteSession)
         {
-          disconnect();
+          handleDisconnect();
         }
       }
     }
@@ -346,6 +361,7 @@ public class RepositorySynchronizer extends QueueRunner implements InternalRepos
         {
           CDOSessionConfiguration masterConfiguration = remoteSessionConfigurationFactory.createSessionConfiguration();
           masterConfiguration.setPassiveUpdateMode(PassiveUpdateMode.ADDITIONS);
+          masterConfiguration.setLockNotificationMode(LockNotificationMode.ALWAYS);
 
           remoteSession = (InternalCDOSession)masterConfiguration.openSession();
 
@@ -442,7 +458,7 @@ public class RepositorySynchronizer extends QueueRunner implements InternalRepos
         {
           OM.LOG.warn("Replication attempt failed. Retrying in " + retryInterval + " seconds...", ex);
           sleepRetryInterval();
-          disconnect();
+          handleDisconnect();
         }
       }
     }
@@ -490,25 +506,64 @@ public class RepositorySynchronizer extends QueueRunner implements InternalRepos
     }
   }
 
-  /**
-   * @author Eike Stepper
-   */
-  private final class CommitRunnable extends QueueRunnable
+  private final class CommitRunnable extends RetryingRunnable
   {
     private CDOCommitInfo commitInfo;
-
-    private List<Exception> failedRuns;
 
     public CommitRunnable(CDOCommitInfo commitInfo)
     {
       this.commitInfo = commitInfo;
     }
 
+    @Override
+    protected void doRun()
+    {
+      localRepository.handleCommitInfo(commitInfo);
+    }
+
+    @Override
+    public int compareTo(QueueRunnable o)
+    {
+      int result = super.compareTo(o);
+      if (result == 0)
+      {
+        Long timeStamp = commitInfo.getTimeStamp();
+        Long timeStamp2 = ((CommitRunnable)o).commitInfo.getTimeStamp();
+        result = timeStamp < timeStamp2 ? -1 : timeStamp == timeStamp2 ? 0 : 1;
+      }
+
+      return result;
+    }
+
+    @Override
+    protected Integer getPriority()
+    {
+      return COMMIT_PRIORITY;
+    }
+
+    @Override
+    protected String getErrorMessage()
+    {
+      return "Replication of master commit failed:" + commitInfo;
+    }
+  }
+
+  /**
+   * @author Eike Stepper
+   */
+  private abstract class RetryingRunnable extends QueueRunnable
+  {
+    private List<Exception> failedRuns;
+
+    protected abstract void doRun();
+
+    protected abstract String getErrorMessage();
+
     public void run()
     {
       try
       {
-        localRepository.handleCommitInfo(commitInfo);
+        doRun();
       }
       catch (Exception ex)
       {
@@ -537,7 +592,7 @@ public class RepositorySynchronizer extends QueueRunner implements InternalRepos
             {
               try
               {
-                addWork(CommitRunnable.this);
+                addWork(this);
               }
               catch (Exception ex)
               {
@@ -548,29 +603,48 @@ public class RepositorySynchronizer extends QueueRunner implements InternalRepos
         }
         else
         {
-          OM.LOG.error("Replication of master commit failed:" + commitInfo, ex);
+          OM.LOG.error(getErrorMessage(), ex);
         }
       }
     }
+  }
 
-    @Override
-    public int compareTo(QueueRunnable o)
+  /**
+   * @author Caspar De Groot
+   */
+  private final class LocksRunnable extends RetryingRunnable
+  {
+    private CDOLockChangeInfo lockChangeInfo;
+
+    public LocksRunnable(CDOLockChangeInfo lockChangeInfo)
     {
-      int result = super.compareTo(o);
-      if (result == 0)
-      {
-        Long timeStamp = commitInfo.getTimeStamp();
-        Long timeStamp2 = ((CommitRunnable)o).commitInfo.getTimeStamp();
-        result = timeStamp < timeStamp2 ? -1 : timeStamp == timeStamp2 ? 0 : 1;
-      }
-
-      return result;
+      this.lockChangeInfo = lockChangeInfo;
     }
 
     @Override
     protected Integer getPriority()
     {
-      return COMMIT_PRIORITY;
+      return LOCKS_PRIORITY;
+    }
+
+    @Override
+    protected void doRun()
+    {
+      try
+      {
+        StoreThreadLocal.setSession(localRepository.getReplicatorSession());
+        localRepository.handleLockChangeInfo(lockChangeInfo);
+      }
+      finally
+      {
+        StoreThreadLocal.release();
+      }
+    }
+
+    @Override
+    protected String getErrorMessage()
+    {
+      return "Replication of master lock changes failed:" + lockChangeInfo;
     }
   }
 }

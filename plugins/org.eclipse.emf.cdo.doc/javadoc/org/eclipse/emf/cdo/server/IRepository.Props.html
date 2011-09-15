@@ -41,7 +41,6 @@ function windowTitle()
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/IRepository.Props.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
@@ -97,14 +96,20 @@ Interface IRepository.Props</H2>
 <HR>
 <DL>
 <DT><PRE>public static interface <B>IRepository.Props</B></DL>
-</PRE>
+</PRE><map id="APIVIZ" name="APIVIZ">
+<area shape="rect" id="node1" href="IRepository.Props.html" title="&#171;interface&#187; IRepository.Props" alt="" coords="5,5,131,45"/>
+</map>
+
+<CENTER><IMG SRC="IRepository.Props.png" USEMAP="#APIVIZ" BORDER="0"></CENTER>
+
+
 
 <P>
 <DL>
-<DT><B>Author:</B></DT>
-  <DD>Eike Stepper</DD>
 <DT><B>No Implement</B></DT>
   <DD>This interface is not intended to be implemented by clients.</DD>
+<DT><B>No Extend</B></DT>
+  <DD>This interface is not intended to be extended by clients.</DD>
 </DL>
 <HR>
 
@@ -136,10 +141,18 @@ Interface IRepository.Props</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../org/eclipse/emf/cdo/server/IRepository.Props.html#OVERRIDE_UUID">OVERRIDE_UUID</A></B></CODE>
+<TD><CODE><B><A HREF="../../../../../org/eclipse/emf/cdo/server/IRepository.Props.html#ID_GENERATION_LOCATION">ID_GENERATION_LOCATION</A></B></CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../org/eclipse/emf/cdo/server/IRepository.Props.html#OVERRIDE_UUID">OVERRIDE_UUID</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Used to override the automatic UUID generation during first startup of a repository.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -184,6 +197,9 @@ OVERRIDE_UUID</H3>
 <PRE>
 static final <A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>OVERRIDE_UUID</B></PRE>
 <DL>
+<DD>Used to override the automatic UUID generation during first startup of a repository. Passing the empty string
+ causes the UUID of the repository to be set to its <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.html#getName()"><CODE>name</CODE></A>.
+<P>
 <DL>
 <DT><B>Since:</B></DT>
   <DD>2.0</DD>
@@ -249,6 +265,18 @@ static final <A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/lang
   <DD>4.0</DD>
 <DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html#org.eclipse.emf.cdo.server.IRepository.Props.ALLOW_INTERRUPT_RUNNING_QUERIES">Constant Field Values</A></DL>
 </DL>
+<HR>
+
+<A NAME="ID_GENERATION_LOCATION"><!-- --></A><H3>
+ID_GENERATION_LOCATION</H3>
+<PRE>
+static final <A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A> <B>ID_GENERATION_LOCATION</B></PRE>
+<DL>
+<DL>
+<DT><B>Since:</B></DT>
+  <DD>4.1</DD>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html#org.eclipse.emf.cdo.server.IRepository.Props.ID_GENERATION_LOCATION">Constant Field Values</A></DL>
+</DL>
 <!-- ========= END OF CLASS DATA ========= -->
 <HR>
 
@@ -266,7 +294,6 @@ static final <A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/lang
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/IRepository.Props.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>

@@ -25,10 +25,17 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import java.util.List;
 
 /**
+ * Represents the change delta between two {@link CDORevision revisions} of a CDO object. The detailed
+ * {@link CDOFeatureDelta feature deltas} are returned by the {@link #getFeatureDeltas()} method.
+ * 
  * @author Eike Stepper
  * @since 2.0
  * @noextend This interface is not intended to be extended by clients.
  * @noimplement This interface is not intended to be implemented by clients.
+ * @apiviz.landmark
+ * @apiviz.has {@link org.eclipse.emf.ecore.EClass}
+ * @apiviz.has {@link org.eclipse.emf.cdo.common.revision.CDORevisable} oneway - - target
+ * @apiviz.composedOf {@link CDOFeatureDelta}
  */
 public interface CDORevisionDelta extends CDORevisionKey
 {

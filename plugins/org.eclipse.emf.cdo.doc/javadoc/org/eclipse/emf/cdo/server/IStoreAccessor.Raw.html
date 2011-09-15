@@ -41,7 +41,6 @@ function windowTitle()
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/IStoreAccessor.Raw.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
@@ -103,14 +102,21 @@ Interface IStoreAccessor.Raw</H2>
 <HR>
 <DL>
 <DT><PRE>public static interface <B>IStoreAccessor.Raw</B><DT>extends <A HREF="../../../../../org/eclipse/emf/cdo/server/IStoreAccessor.html" title="interface in org.eclipse.emf.cdo.server">IStoreAccessor</A></DL>
-</PRE>
+</PRE><map id="APIVIZ" name="APIVIZ">
+<area shape="rect" id="node1" href="IStoreAccessor.Raw.html" title="&#171;interface&#187; IStoreAccessor.Raw" alt="" coords="182,84,321,124"/>
+<area shape="rect" id="node2" href="IStoreAccessor.html" title="&#171;interface&#187; IStoreAccessor" alt="" coords="197,5,307,45"/>
+<area shape="rect" id="node3" href="objectivity/IObjectivityStoreAccessor.html" title="&#171;interface&#187; IObjectivityStoreAccessor (org.eclipse.emf.cdo.server.objectivity)" alt="" coords="5,163,248,218"/>
+<area shape="rect" id="node4" href="db/IDBStoreAccessor.html" title="&#171;interface&#187; IDBStoreAccessor (org.eclipse.emf.cdo.server.db)" alt="" coords="278,163,476,218"/>
+</map>
+
+<CENTER><IMG SRC="IStoreAccessor.Raw.png" USEMAP="#APIVIZ" BORDER="0"></CENTER>
+
+
 
 <P>
 <DL>
 <DT><B>Since:</B></DT>
   <DD>4.0</DD>
-<DT><B>Author:</B></DT>
-  <DD>Eike Stepper</DD>
 </DL>
 <HR>
 
@@ -130,7 +136,7 @@ Interface IStoreAccessor.Raw</H2>
 <TH ALIGN="left"><B>Nested classes/interfaces inherited from interface org.eclipse.emf.cdo.server.<A HREF="../../../../../org/eclipse/emf/cdo/server/IStoreAccessor.html" title="interface in org.eclipse.emf.cdo.server">IStoreAccessor</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../../../../org/eclipse/emf/cdo/server/IStoreAccessor.CommitContext.html" title="interface in org.eclipse.emf.cdo.server">IStoreAccessor.CommitContext</A>, <A HREF="../../../../../org/eclipse/emf/cdo/server/IStoreAccessor.DurableLocking.html" title="interface in org.eclipse.emf.cdo.server">IStoreAccessor.DurableLocking</A>, <A HREF="../../../../../org/eclipse/emf/cdo/server/IStoreAccessor.QueryResourcesContext.html" title="interface in org.eclipse.emf.cdo.server">IStoreAccessor.QueryResourcesContext</A>, <A HREF="../../../../../org/eclipse/emf/cdo/server/IStoreAccessor.QueryXRefsContext.html" title="interface in org.eclipse.emf.cdo.server">IStoreAccessor.QueryXRefsContext</A>, <A HREF="../../../../../org/eclipse/emf/cdo/server/IStoreAccessor.Raw.html" title="interface in org.eclipse.emf.cdo.server">IStoreAccessor.Raw</A></CODE></TD>
+<TD><CODE><A HREF="../../../../../org/eclipse/emf/cdo/server/IStoreAccessor.CommitContext.html" title="interface in org.eclipse.emf.cdo.server">IStoreAccessor.CommitContext</A>, <A HREF="../../../../../org/eclipse/emf/cdo/server/IStoreAccessor.DurableLocking.html" title="interface in org.eclipse.emf.cdo.server">IStoreAccessor.DurableLocking</A>, <A HREF="../../../../../org/eclipse/emf/cdo/server/IStoreAccessor.DurableLocking2.html" title="interface in org.eclipse.emf.cdo.server">IStoreAccessor.DurableLocking2</A>, <A HREF="../../../../../org/eclipse/emf/cdo/server/IStoreAccessor.QueryResourcesContext.html" title="interface in org.eclipse.emf.cdo.server">IStoreAccessor.QueryResourcesContext</A>, <A HREF="../../../../../org/eclipse/emf/cdo/server/IStoreAccessor.QueryXRefsContext.html" title="interface in org.eclipse.emf.cdo.server">IStoreAccessor.QueryXRefsContext</A>, <A HREF="../../../../../org/eclipse/emf/cdo/server/IStoreAccessor.Raw.html" title="interface in org.eclipse.emf.cdo.server">IStoreAccessor.Raw</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -186,13 +192,11 @@ Interface IStoreAccessor.Raw</H2>
 <TD><CODE><B><A HREF="../../../../../org/eclipse/emf/cdo/server/IStoreAccessor.Raw.html#rawDelete(org.eclipse.emf.cdo.common.id.CDOID, int, org.eclipse.emf.cdo.common.branch.CDOBranch, org.eclipse.emf.ecore.EClass, org.eclipse.net4j.util.om.monitor.OMMonitor)">rawDelete</A></B>(<A HREF="../../../../../org/eclipse/emf/cdo/common/id/CDOID.html" title="interface in org.eclipse.emf.cdo.common.id">CDOID</A>&nbsp;id,
           int&nbsp;version,
           <A HREF="../../../../../org/eclipse/emf/cdo/common/branch/CDOBranch.html" title="interface in org.eclipse.emf.cdo.common.branch">CDOBranch</A>&nbsp;branch,
-          <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EClass.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EClass</A>&nbsp;eClass,
+          <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EClass.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EClass</A>&nbsp;eClass,
           <A HREF="../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/om/monitor/OMMonitor.html?is-external=true" title="class or interface in org.eclipse.net4j.util.om.monitor">OMMonitor</A>&nbsp;monitor)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Deletes the revision identified by the given <A HREF="../../../../../org/eclipse/emf/cdo/common/revision/CDORevisionKey.html" title="interface in org.eclipse.emf.cdo.common.revision"><CODE>key</CODE></A> from the backend represented by this
- <A HREF="../../../../../org/eclipse/emf/cdo/server/IStoreAccessor.Raw.html" title="interface in org.eclipse.emf.cdo.server"><CODE>raw store accessor</CODE></A> without going through a regular
- <A HREF="../../../../../org/eclipse/emf/cdo/server/IStoreAccessor.html#commit(org.eclipse.net4j.util.om.monitor.OMMonitor)"><CODE>commit</CODE></A>.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>Deprecated.</B>&nbsp;<I>Not used anymore</I></TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -552,12 +556,15 @@ void <B>rawStore</B>(<A HREF="../../../../../org/eclipse/emf/cdo/common/branch/C
 <A NAME="rawDelete(org.eclipse.emf.cdo.common.id.CDOID, int, org.eclipse.emf.cdo.common.branch.CDOBranch, org.eclipse.emf.ecore.EClass, org.eclipse.net4j.util.om.monitor.OMMonitor)"><!-- --></A><H3>
 rawDelete</H3>
 <PRE>
-void <B>rawDelete</B>(<A HREF="../../../../../org/eclipse/emf/cdo/common/id/CDOID.html" title="interface in org.eclipse.emf.cdo.common.id">CDOID</A>&nbsp;id,
-               int&nbsp;version,
-               <A HREF="../../../../../org/eclipse/emf/cdo/common/branch/CDOBranch.html" title="interface in org.eclipse.emf.cdo.common.branch">CDOBranch</A>&nbsp;branch,
-               <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EClass.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EClass</A>&nbsp;eClass,
-               <A HREF="../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/om/monitor/OMMonitor.html?is-external=true" title="class or interface in org.eclipse.net4j.util.om.monitor">OMMonitor</A>&nbsp;monitor)</PRE>
+<FONT SIZE="-1"><A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/lang/Deprecated.html?is-external=true" title="class or interface in java.lang">@Deprecated</A>
+</FONT>void <B>rawDelete</B>(<A HREF="../../../../../org/eclipse/emf/cdo/common/id/CDOID.html" title="interface in org.eclipse.emf.cdo.common.id">CDOID</A>&nbsp;id,
+                          int&nbsp;version,
+                          <A HREF="../../../../../org/eclipse/emf/cdo/common/branch/CDOBranch.html" title="interface in org.eclipse.emf.cdo.common.branch">CDOBranch</A>&nbsp;branch,
+                          <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EClass.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EClass</A>&nbsp;eClass,
+                          <A HREF="../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/om/monitor/OMMonitor.html?is-external=true" title="class or interface in org.eclipse.net4j.util.om.monitor">OMMonitor</A>&nbsp;monitor)</PRE>
 <DL>
+<DD><B>Deprecated.</B>&nbsp;<I>Not used anymore</I>
+<P>
 <DD>Deletes the revision identified by the given <A HREF="../../../../../org/eclipse/emf/cdo/common/revision/CDORevisionKey.html" title="interface in org.eclipse.emf.cdo.common.revision"><CODE>key</CODE></A> from the backend represented by this
  <A HREF="../../../../../org/eclipse/emf/cdo/server/IStoreAccessor.Raw.html" title="interface in org.eclipse.emf.cdo.server"><CODE>raw store accessor</CODE></A> without going through a regular
  <A HREF="../../../../../org/eclipse/emf/cdo/server/IStoreAccessor.html#commit(org.eclipse.net4j.util.om.monitor.OMMonitor)"><CODE>commit</CODE></A>.
@@ -613,7 +620,6 @@ void <B>rawCommit</B>(double&nbsp;commitWork,
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/IStoreAccessor.Raw.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>

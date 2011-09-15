@@ -23,6 +23,10 @@ import org.eclipse.net4j.util.security.IUserAware;
  * @since 2.0
  * @noextend This interface is not intended to be extended by clients.
  * @noimplement This interface is not intended to be implemented by clients.
+ * @apiviz.landmark
+ * @apiviz.composedOf {@link CDOCommonView} - - views
+ * @apiviz.has {@link CDOCommonSession.Options}
+ * @apiviz.uses {@link CDOCommonRepository} - - connectsTo
  */
 public interface CDOCommonSession extends IUserAware, IOptionsContainer, Closeable
 {
@@ -43,6 +47,8 @@ public interface CDOCommonSession extends IUserAware, IOptionsContainer, Closeab
    * @author Simon McDuff
    * @noextend This interface is not intended to be extended by clients.
    * @noimplement This interface is not intended to be implemented by clients.
+   * @apiviz.has CDOCommonSession.Options.PassiveUpdateMode
+   * @apiviz.has CDOCommonSession.Options.LockNotificationMode
    */
   public interface Options extends IOptions
   {
@@ -85,6 +91,16 @@ public interface CDOCommonSession extends IUserAware, IOptionsContainer, Closeab
     public void setPassiveUpdateMode(PassiveUpdateMode mode);
 
     /**
+     * @since 4.1
+     */
+    public LockNotificationMode getLockNotificationMode();
+
+    /**
+     * @since 4.1
+     */
+    public void setLockNotificationMode(LockNotificationMode mode);
+
+    /**
      * Enumerates the possible {@link CDOCommonSession.Options#getPassiveUpdateMode() passive update modes} of a CDO
      * session.
      * 
@@ -112,6 +128,31 @@ public interface CDOCommonSession extends IUserAware, IOptionsContainer, Closeab
     }
 
     /**
+     * Enumerates the possible {@link CDOCommonSession.Options#getLockNotificationMode() lock notification modes} of a
+     * CDO session.
+     * 
+     * @since 4.1
+     */
+    public enum LockNotificationMode
+    {
+      /**
+       * This mode delivers no lock notifications
+       */
+      OFF,
+
+      /**
+       * This mode delivers lock notifications if one or more views have enabled them.
+       */
+      IF_REQUIRED_BY_VIEWS,
+
+      /**
+       * This mode always delivers lock notifications, even if no views have them enabled, and even if no views are
+       * open.
+       */
+      ALWAYS
+    }
+
+    /**
      * An {@link IOptionsEvent options event} fired when the {@link PassiveUpdateMode passive update mode} of a CDO
      * session has changed.
      * 
@@ -127,6 +168,20 @@ public interface CDOCommonSession extends IUserAware, IOptionsContainer, Closeab
       public PassiveUpdateMode getOldMode();
 
       public PassiveUpdateMode getNewMode();
+    }
+
+    /**
+     * An {@link IOptionsEvent options event} fired when the {@link LockNotificationMode lock notification mode} of a
+     * CDO session has changed.
+     * 
+     * @author Caspar De Groot
+     * @since 4.1
+     */
+    public interface LockNotificationModeEvent extends IOptionsEvent
+    {
+      public LockNotificationMode getOldMode();
+
+      public LockNotificationMode getNewMode();
     }
   }
 }

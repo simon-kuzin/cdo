@@ -41,7 +41,6 @@ function windowTitle()
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Package</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <FONT CLASS="NavBarFont1">Class</FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-use.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
@@ -82,13 +81,21 @@ function windowTitle()
 <H2>
 Package org.eclipse.net4j.util.fsm
 </H2>
-A framework for finite state machines.
-<P>
-<B>See:</B>
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<A HREF="#package_description"><B>Description</B></A>
+<A NAME="package_description"><!-- --></A>
+A framework for <a href="http://en.wikipedia.org/wiki/Finite-state_machine">finite state machines</a>.
+
 <P>
 
+<map id="APIVIZ" name="APIVIZ">
+<area shape="rect" id="node1" href="FiniteStateMachine.ChangeStateTransition.html" title="FiniteStateMachine.ChangeStateTransition" alt="" coords="859,19,1128,45"/>
+<area shape="rect" id="node2" href="FiniteStateMachine.StateChangedEvent.html" title="FiniteStateMachine.StateChangedEvent" alt="" coords="219,19,471,45"/>
+<area shape="rect" id="node3" href="FiniteStateMachine.html" title="FiniteStateMachine" alt="" coords="541,19,675,45"/>
+<area shape="rect" id="node4" href="../event/IEvent.html" title="&#171;interface&#187; IEvent (org.eclipse.net4j.util.event)" alt="" coords="6,5,186,59"/>
+<area shape="rect" id="node5" href="ITransition.html" title="&#171;interface&#187; ITransition" alt="" coords="741,12,827,52"/>
+</map>
+
+<CENTER><IMG SRC="package-summary.png" USEMAP="#APIVIZ" BORDER="0"></CENTER>
+<BR>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
@@ -96,7 +103,7 @@ A framework for finite state machines.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/fsm/ITransition.html" title="interface in org.eclipse.net4j.util.fsm">ITransition&lt;STATE extends Enum&lt;?&gt;,EVENT extends Enum&lt;?&gt;,SUBJECT,DATA&gt;</A></B></TD>
-<TD>&nbsp;</TD>
+<TD>Encpsulates the logic to be executed when an <i>event</i> arrives for a <i>subject</i> in a particular <i>state</i>.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -110,47 +117,21 @@ A framework for finite state machines.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/fsm/FiniteStateMachine.html" title="class in org.eclipse.net4j.util.fsm">FiniteStateMachine&lt;STATE extends Enum&lt;?&gt;,EVENT extends Enum&lt;?&gt;,SUBJECT&gt;</A></B></TD>
-<TD>&nbsp;</TD>
+<TD>A <a href="http://en.wikipedia.org/wiki/Finite-state_machine">finite state machine</a> that is based on a matrix of
+ <A HREF="../../../../../org/eclipse/net4j/util/fsm/ITransition.html" title="interface in org.eclipse.net4j.util.fsm"><CODE>transitions</CODE></A>.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/fsm/FiniteStateMachine.FailTransition.html" title="class in org.eclipse.net4j.util.fsm">FiniteStateMachine.FailTransition</A></B></TD>
-<TD>&nbsp;</TD>
+<TD><B>Deprecated.</B>&nbsp;<I>Use <A HREF="../../../../../org/eclipse/net4j/util/fsm/FiniteStateMachine.html#FAIL"><CODE>FiniteStateMachine.FAIL</CODE></A></I></TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/fsm/FiniteStateMachine.IgnoreTransition.html" title="class in org.eclipse.net4j.util.fsm">FiniteStateMachine.IgnoreTransition</A></B></TD>
-<TD>&nbsp;</TD>
+<TD><B>Deprecated.</B>&nbsp;<I>Use <A HREF="../../../../../org/eclipse/net4j/util/fsm/FiniteStateMachine.html#IGNORE"><CODE>FiniteStateMachine.IGNORE</CODE></A></I></TD>
 </TR>
 </TABLE>
 &nbsp;
 
 <P>
-<A NAME="package_description"><!-- --></A><H2>
-Package org.eclipse.net4j.util.fsm Description
-</H2>
-
-<P>
-A framework for finite state machines.
-<p>
-
-<!--
-
-<h2>Package Specification</h2>
-
-##### FILL IN ANY SPECS NEEDED BY JAVA COMPATIBILITY KIT #####
-<ul>
-  <li><a href="">##### REFER TO ANY FRAMEMAKER SPECIFICATION HERE #####</a>
-</ul>
-
-<h2>Related Documentation</h2>
-
-For overviews, tutorials, examples, guides, and tool documentation, please see:
-<ul>
-  <li><a href="">##### REFER TO NON-SPEC DOCUMENTATION HERE #####</a>
-</ul>
-
--->
-
-<!-- Put @see and @since tags down here. -->
 <P>
 
 <P>
@@ -172,7 +153,6 @@ For overviews, tutorials, examples, guides, and tool documentation, please see:
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Package</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <FONT CLASS="NavBarFont1">Class</FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-use.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>

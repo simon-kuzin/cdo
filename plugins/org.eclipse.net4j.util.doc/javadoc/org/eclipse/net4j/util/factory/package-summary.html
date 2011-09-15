@@ -41,7 +41,6 @@ function windowTitle()
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Package</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <FONT CLASS="NavBarFont1">Class</FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-use.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
@@ -82,13 +81,20 @@ function windowTitle()
 <H2>
 Package org.eclipse.net4j.util.factory
 </H2>
+<A NAME="package_description"><!-- --></A>
 A framework for factory based instance creation.
-<P>
-<B>See:</B>
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<A HREF="#package_description"><B>Description</B></A>
+
 <P>
 
+<map id="APIVIZ" name="APIVIZ">
+<area shape="rect" id="node1" href="Factory.html" title="Factory" alt="" coords="457,5,522,30"/>
+<area shape="rect" id="node2" href="IFactory.html" title="&#171;interface&#187; IFactory" alt="" coords="325,27,411,67"/>
+<area shape="rect" id="node3" href="IFactoryKey.html" title="&#171;interface&#187; IFactoryKey" alt="" coords="443,55,535,95"/>
+<area shape="rect" id="node4" href="../container/IManagedContainer.html" title="&#171;interface&#187; IManagedContainer (org.eclipse.net4j.util.container)" alt="" coords="5,19,208,74"/>
+</map>
+
+<CENTER><IMG SRC="package-summary.png" USEMAP="#APIVIZ" BORDER="0"></CENTER>
+<BR>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
@@ -96,11 +102,11 @@ A framework for factory based instance creation.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/factory/IFactory.html" title="interface in org.eclipse.net4j.util.factory">IFactory</A></B></TD>
-<TD>&nbsp;</TD>
+<TD><A HREF="../../../../../org/eclipse/net4j/util/factory/IFactory.html#create(java.lang.String)"><CODE>Creates</CODE></A> objects from a string <A HREF="../../../../../org/eclipse/net4j/util/factory/IFactory.html#getDescriptionFor(java.lang.Object)"><CODE>description</CODE></A>.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/factory/IFactoryKey.html" title="interface in org.eclipse.net4j.util.factory">IFactoryKey</A></B></TD>
-<TD>&nbsp;</TD>
+<TD>Identifies a <A HREF="../../../../../org/eclipse/net4j/util/factory/IFactory.html" title="interface in org.eclipse.net4j.util.factory"><CODE>factory</CODE></A> by <A HREF="../../../../../org/eclipse/net4j/util/factory/IFactoryKey.html#getProductGroup()"><CODE>product group</CODE></A> and <A HREF="../../../../../org/eclipse/net4j/util/factory/IFactoryKey.html#getType()"><CODE>type</CODE></A>.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -114,15 +120,15 @@ A framework for factory based instance creation.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/factory/Factory.html" title="class in org.eclipse.net4j.util.factory">Factory</A></B></TD>
-<TD>&nbsp;</TD>
+<TD>A default implementation of a <A HREF="../../../../../org/eclipse/net4j/util/factory/IFactory.html" title="interface in org.eclipse.net4j.util.factory"><CODE>factory</CODE></A>.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/factory/FactoryDescriptor.html" title="class in org.eclipse.net4j.util.factory">FactoryDescriptor</A></B></TD>
-<TD>&nbsp;</TD>
+<TD>A <A HREF="../../../../../org/eclipse/net4j/util/factory/IFactory.html" title="interface in org.eclipse.net4j.util.factory"><CODE>factory</CODE></A> that delegates to an <CODE>extension registry</CODE> contribution.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/factory/FactoryKey.html" title="class in org.eclipse.net4j.util.factory">FactoryKey</A></B></TD>
-<TD>&nbsp;</TD>
+<TD>A default implementation of a <A HREF="../../../../../org/eclipse/net4j/util/factory/IFactoryKey.html" title="interface in org.eclipse.net4j.util.factory"><CODE>factory key</CODE></A>.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -136,43 +142,17 @@ A framework for factory based instance creation.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/factory/FactoryCreationException.html" title="class in org.eclipse.net4j.util.factory">FactoryCreationException</A></B></TD>
-<TD>&nbsp;</TD>
+<TD>Thrown from <A HREF="../../../../../org/eclipse/net4j/util/factory/FactoryDescriptor.html#createFactory()"><CODE>FactoryDescriptor.createFactory()</CODE></A> if a <A HREF="../../../../../org/eclipse/net4j/util/factory/IFactory.html" title="interface in org.eclipse.net4j.util.factory"><CODE>factory</CODE></A> could not be created.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/factory/ProductCreationException.html" title="class in org.eclipse.net4j.util.factory">ProductCreationException</A></B></TD>
-<TD>&nbsp;</TD>
+<TD>An unchecked exception that may be thrown from <A HREF="../../../../../org/eclipse/net4j/util/factory/IFactory.html" title="interface in org.eclipse.net4j.util.factory"><CODE>factories</CODE></A> to indicate the inability to create a
+ product.</TD>
 </TR>
 </TABLE>
 &nbsp;
 
 <P>
-<A NAME="package_description"><!-- --></A><H2>
-Package org.eclipse.net4j.util.factory Description
-</H2>
-
-<P>
-A framework for factory based instance creation.
-<p>
-
-<!--
-
-<h2>Package Specification</h2>
-
-##### FILL IN ANY SPECS NEEDED BY JAVA COMPATIBILITY KIT #####
-<ul>
-  <li><a href="">##### REFER TO ANY FRAMEMAKER SPECIFICATION HERE #####</a>
-</ul>
-
-<h2>Related Documentation</h2>
-
-For overviews, tutorials, examples, guides, and tool documentation, please see:
-<ul>
-  <li><a href="">##### REFER TO NON-SPEC DOCUMENTATION HERE #####</a>
-</ul>
-
--->
-
-<!-- Put @see and @since tags down here. -->
 <P>
 
 <P>
@@ -194,7 +174,6 @@ For overviews, tutorials, examples, guides, and tool documentation, please see:
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Package</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <FONT CLASS="NavBarFont1">Class</FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-use.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>

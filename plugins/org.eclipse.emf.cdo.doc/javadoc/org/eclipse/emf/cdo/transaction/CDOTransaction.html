@@ -41,7 +41,6 @@ function windowTitle()
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/CDOTransaction.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
@@ -103,7 +102,21 @@ Interface CDOTransaction</H2>
 <HR>
 <DL>
 <DT><PRE>public interface <B>CDOTransaction</B><DT>extends <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.html" title="interface in org.eclipse.emf.cdo.view">CDOView</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonTransaction.html" title="interface in org.eclipse.emf.cdo.common">CDOCommonTransaction</A>, <A HREF="../../../../../org/eclipse/emf/cdo/transaction/CDOUserTransaction.html" title="interface in org.eclipse.emf.cdo.transaction">CDOUserTransaction</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/commit/CDOChangeSetDataProvider.html" title="interface in org.eclipse.emf.cdo.common.commit">CDOChangeSetDataProvider</A></DL>
-</PRE>
+</PRE><map id="APIVIZ" name="APIVIZ">
+<area shape="rect" id="node1" href="CDOPushTransaction.html" title="CDOPushTransaction" alt="" coords="644,170,791,195"/>
+<area shape="rect" id="node2" href="../common/commit/CDOChangeSetDataProvider.html" title="&#171;interface&#187; CDOChangeSetDataProvider (org.eclipse.emf.cdo.common.commit)" alt="" coords="6,5,250,59"/>
+<area shape="rect" id="node3" href="../common/CDOCommonTransaction.html" title="&#171;interface&#187; CDOCommonTransaction (org.eclipse.emf.cdo.common)" alt="" coords="29,78,227,133"/>
+<area shape="rect" id="node4" href="../session/CDOSession.html" title="&#171;interface&#187; CDOSession (org.eclipse.emf.cdo.session)" alt="" coords="32,151,224,206"/>
+<area shape="rect" id="node5" href="CDOTransaction.html" title="&#171;interface&#187; CDOTransaction" alt="" coords="419,192,536,232"/>
+<area shape="rect" id="node6" href="CDOTransactionContainer.html" title="&#171;interface&#187; CDOTransactionContainer" alt="" coords="42,225,214,265"/>
+<area shape="rect" id="node7" href="CDOUserTransaction.html" title="&#171;interface&#187; CDOUserTransaction" alt="" coords="56,284,200,324"/>
+<area shape="rect" id="node8" href="../view/CDOView.html" title="&#171;interface&#187; CDOView (org.eclipse.emf.cdo.view)" alt="" coords="43,343,213,398"/>
+<area shape="rect" id="node9" href="../../spi/cdo/InternalCDOTransaction.html" title="&#171;interface&#187; InternalCDOTransaction (org.eclipse.emf.spi.cdo)" alt="" coords="635,214,799,269"/>
+</map>
+
+<CENTER><IMG SRC="CDOTransaction.png" USEMAP="#APIVIZ" BORDER="0"></CENTER>
+
+
 
 <P>
 A read-write view to the <em>current</em> (i.e. latest) state of the object graph in the repository.
@@ -113,8 +126,6 @@ A read-write view to the <em>current</em> (i.e. latest) state of the object grap
 <DL>
 <DT><B>Since:</B></DT>
   <DD>2.0</DD>
-<DT><B>Author:</B></DT>
-  <DD>Eike Stepper</DD>
 <DT><B>No Implement</B></DT>
   <DD>This interface is not intended to be implemented by clients.</DD>
 <DT><B>No Extend</B></DT>
@@ -239,7 +250,7 @@ A read-write view to the <em>current</em> (i.e. latest) state of the object grap
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;? extends <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EObject.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EObject</A>&gt;</CODE></FONT></TD>
+<CODE>&nbsp;<A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;? extends <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EObject.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EObject</A>&gt;</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../org/eclipse/emf/cdo/transaction/CDOTransaction.html#getCommittables()">getCommittables</A></B>()</CODE>
 
 <BR>
@@ -393,7 +404,7 @@ A read-write view to the <em>current</em> (i.e. latest) state of the object grap
 <TD><CODE><B><A HREF="../../../../../org/eclipse/emf/cdo/transaction/CDOTransaction.html#options()">options</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonView.Options.html" title="interface in org.eclipse.emf.cdo.common"><CODE>options</CODE></A> of this view.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -414,7 +425,7 @@ A read-write view to the <em>current</em> (i.e. latest) state of the object grap
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../org/eclipse/emf/cdo/transaction/CDOTransaction.html#setCommittables(java.util.Set)">setCommittables</A></B>(<A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;? extends <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EObject.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EObject</A>&gt;&nbsp;committables)</CODE>
+<TD><CODE><B><A HREF="../../../../../org/eclipse/emf/cdo/transaction/CDOTransaction.html#setCommittables(java.util.Set)">setCommittables</A></B>(<A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;? extends <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EObject.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EObject</A>&gt;&nbsp;committables)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -648,7 +659,7 @@ createResource</H3>
 </DL>
 </DD>
 <DD><DL>
-<DT><B>See Also:</B><DD><A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/resource/ResourceSet.html?is-external=true#createResource(org.eclipse.emf.common.util.URI)" title="class or interface in org.eclipse.emf.ecore.resource"><CODE>ResourceSet.createResource(URI)</CODE></A></DL>
+<DT><B>See Also:</B><DD><A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/resource/ResourceSet.html?is-external=true#createResource(org.eclipse.emf.common.util.URI)" title="class or interface in org.eclipse.emf.ecore.resource"><CODE>ResourceSet.createResource(URI)</CODE></A></DL>
 </DD>
 </DL>
 <HR>
@@ -935,7 +946,7 @@ void <B>setCommitComment</B>(<A HREF="http://download.oracle.com/javase/1.5.0/do
 <A NAME="setCommittables(java.util.Set)"><!-- --></A><H3>
 setCommittables</H3>
 <PRE>
-void <B>setCommittables</B>(<A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;? extends <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EObject.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EObject</A>&gt;&nbsp;committables)</PRE>
+void <B>setCommittables</B>(<A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;? extends <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EObject.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EObject</A>&gt;&nbsp;committables)</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -951,7 +962,7 @@ void <B>setCommittables</B>(<A HREF="http://download.oracle.com/javase/1.5.0/doc
 <A NAME="getCommittables()"><!-- --></A><H3>
 getCommittables</H3>
 <PRE>
-<A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;? extends <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EObject.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EObject</A>&gt; <B>getCommittables</B>()</PRE>
+<A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/util/Set.html?is-external=true" title="class or interface in java.util">Set</A>&lt;? extends <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EObject.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EObject</A>&gt; <B>getCommittables</B>()</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -1006,8 +1017,11 @@ options</H3>
 <PRE>
 <A HREF="../../../../../org/eclipse/emf/cdo/transaction/CDOTransaction.Options.html" title="interface in org.eclipse.emf.cdo.transaction">CDOTransaction.Options</A> <B>options</B>()</PRE>
 <DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonView.html#options()">CDOCommonView</A></CODE></B></DD>
+<DD>Returns the <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonView.Options.html" title="interface in org.eclipse.emf.cdo.common"><CODE>options</CODE></A> of this view.
+<P>
 <DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.html#options()">options</A></CODE> in interface <CODE><A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.html" title="interface in org.eclipse.emf.cdo.view">CDOView</A></CODE><DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/options/IOptionsContainer.html?is-external=true#options()" title="class or interface in org.eclipse.net4j.util.options">options</A></CODE> in interface <CODE><A HREF="../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/options/IOptionsContainer.html?is-external=true" title="class or interface in org.eclipse.net4j.util.options">IOptionsContainer</A></CODE></DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonView.html#options()">options</A></CODE> in interface <CODE><A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonView.html" title="interface in org.eclipse.emf.cdo.common">CDOCommonView</A></CODE><DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.html#options()">options</A></CODE> in interface <CODE><A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.html" title="interface in org.eclipse.emf.cdo.view">CDOView</A></CODE><DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/options/IOptionsContainer.html?is-external=true#options()" title="class or interface in org.eclipse.net4j.util.options">options</A></CODE> in interface <CODE><A HREF="../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/options/IOptionsContainer.html?is-external=true" title="class or interface in org.eclipse.net4j.util.options">IOptionsContainer</A></CODE></DL>
 </DD>
 <DD><DL>
 </DL>
@@ -1030,7 +1044,6 @@ options</H3>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/CDOTransaction.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>

@@ -12,6 +12,7 @@ package org.eclipse.emf.cdo.server.internal.db;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.lock.CDOLockUtil;
 import org.eclipse.emf.cdo.common.lock.IDurableLockingManager.LockArea;
 import org.eclipse.emf.cdo.common.lock.IDurableLockingManager.LockArea.Handler;
 import org.eclipse.emf.cdo.common.lock.IDurableLockingManager.LockAreaAlreadyExistsException;
@@ -22,7 +23,6 @@ import org.eclipse.emf.cdo.server.db.IIDHandler;
 import org.eclipse.emf.cdo.server.db.IPreparedStatementCache;
 import org.eclipse.emf.cdo.server.db.IPreparedStatementCache.ReuseProbability;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager;
-import org.eclipse.emf.cdo.spi.server.DurableLockArea;
 import org.eclipse.emf.cdo.spi.server.InternalLockManager;
 
 import org.eclipse.net4j.db.DBException;
@@ -151,39 +151,47 @@ public class DurableLockingManager extends Lifecycle
 
       if (!locks.isEmpty())
       {
-        try
-        {
-          stmt = statementCache.getPreparedStatement(sqlInsertLock, ReuseProbability.MEDIUM);
-          stmt.setString(1, durableLockingID);
-
-          for (Entry<CDOID, LockGrade> entry : locks.entrySet())
-          {
-            CDOID id = entry.getKey();
-            int grade = entry.getValue().getValue();
-
-            idHandler.setCDOID(stmt, 2, id);
-            stmt.setInt(3, grade);
-
-            DBUtil.update(stmt, true);
-          }
-        }
-        catch (SQLException e)
-        {
-          throw new DBException(e);
-        }
-        finally
-        {
-          statementCache.releasePreparedStatement(stmt);
-        }
+        insertLocks(accessor, durableLockingID, locks);
       }
 
       accessor.getConnection().commit();
 
-      return new DurableLockArea(durableLockingID, userID, branchPoint, readOnly, locks);
+      return CDOLockUtil.createLockArea(durableLockingID, userID, branchPoint, readOnly, locks);
     }
     catch (SQLException ex)
     {
       throw new DBException(ex);
+    }
+  }
+
+  private void insertLocks(DBStoreAccessor accessor, String durableLockingID, Map<CDOID, LockGrade> locks)
+  {
+    IPreparedStatementCache statementCache = accessor.getStatementCache();
+    PreparedStatement stmt = null;
+
+    try
+    {
+      stmt = statementCache.getPreparedStatement(sqlInsertLock, ReuseProbability.MEDIUM);
+      stmt.setString(1, durableLockingID);
+
+      for (Entry<CDOID, LockGrade> entry : locks.entrySet())
+      {
+        CDOID id = entry.getKey();
+        int grade = entry.getValue().getValue();
+
+        idHandler.setCDOID(stmt, 2, id);
+        stmt.setInt(3, grade);
+
+        DBUtil.update(stmt, true);
+      }
+    }
+    catch (SQLException e)
+    {
+      throw new DBException(e);
+    }
+    finally
+    {
+      statementCache.releasePreparedStatement(stmt);
     }
   }
 
@@ -291,6 +299,22 @@ public class DurableLockingManager extends Lifecycle
       {
         statementCache.releasePreparedStatement(stmt);
       }
+
+      accessor.getConnection().commit();
+    }
+    catch (SQLException e)
+    {
+      throw new DBException(e);
+    }
+  }
+
+  public void updateLockArea(DBStoreAccessor accessor, LockArea area)
+  {
+    try
+    {
+      String areaID = area.getDurableLockingID();
+      unlockWithoutCommit(accessor, areaID);
+      insertLocks(accessor, areaID, area.getLocks());
 
       accessor.getConnection().commit();
     }
@@ -531,7 +555,7 @@ public class DurableLockingManager extends Lifecycle
   {
     for (;;)
     {
-      String durableLockingID = DurableLockArea.createDurableLockingID();
+      String durableLockingID = CDOLockUtil.createDurableLockingID();
 
       try
       {
@@ -550,7 +574,7 @@ public class DurableLockingManager extends Lifecycle
   {
     CDOBranchPoint branchPoint = branchManager.getBranch(branchID).getPoint(timeStamp);
     Map<CDOID, LockGrade> lockMap = getLockMap(accessor, durableLockingID);
-    return new DurableLockArea(durableLockingID, userID, branchPoint, readOnly, lockMap);
+    return CDOLockUtil.createLockArea(durableLockingID, userID, branchPoint, readOnly, lockMap);
   }
 
   private Map<CDOID, LockGrade> getLockMap(DBStoreAccessor accessor, String durableLockingID)

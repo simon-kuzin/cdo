@@ -41,7 +41,6 @@ function windowTitle()
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Package</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <FONT CLASS="NavBarFont1">Class</FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-use.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
@@ -82,13 +81,16 @@ function windowTitle()
 <H2>
 Package org.eclipse.net4j.util.concurrent
 </H2>
+<A NAME="package_description"><!-- --></A>
 Utility interfaces and classes commonly useful in concurrent programming.
-<P>
-<B>See:</B>
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<A HREF="#package_description"><B>Description</B></A>
+
 <P>
 
+<map id="APIVIZ" name="APIVIZ">
+</map>
+
+<CENTER><IMG SRC="package-summary.png" USEMAP="#APIVIZ" BORDER="0"></CENTER>
+<BR>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
@@ -101,6 +103,10 @@ Utility interfaces and classes commonly useful in concurrent programming.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/concurrent/IRWLockManager.html" title="interface in org.eclipse.net4j.util.concurrent">IRWLockManager&lt;OBJECT,CONTEXT&gt;</A></B></TD>
 <TD>Support Multiple reads/no write and upgrade lock from read to write.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/concurrent/IRWOLockManager.html" title="interface in org.eclipse.net4j.util.concurrent">IRWOLockManager&lt;OBJECT,CONTEXT&gt;</A></B></TD>
+<TD>&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/concurrent/ISynchronizer.html" title="interface in org.eclipse.net4j.util.concurrent">ISynchronizer&lt;RESULT&gt;</A></B></TD>
@@ -116,15 +122,15 @@ Utility interfaces and classes commonly useful in concurrent programming.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/concurrent/RWLockManager.LockEntry.html" title="interface in org.eclipse.net4j.util.concurrent">RWLockManager.LockEntry&lt;OBJECT,CONTEXT&gt;</A></B></TD>
-<TD>&nbsp;</TD>
+<TD><B>Deprecated.</B>&nbsp;<I>Use <A HREF="../../../../../org/eclipse/net4j/util/concurrent/RWOLockManager.html" title="class in org.eclipse.net4j.util.concurrent"><CODE>RWOLockManager</CODE></A></I></TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/concurrent/RWLockManager.LockEntryHandler.html" title="interface in org.eclipse.net4j.util.concurrent">RWLockManager.LockEntryHandler&lt;OBJECT,CONTEXT&gt;</A></B></TD>
-<TD>&nbsp;</TD>
+<TD><B>Deprecated.</B>&nbsp;<I>Use <A HREF="../../../../../org/eclipse/net4j/util/concurrent/RWOLockManager.html" title="class in org.eclipse.net4j.util.concurrent"><CODE>RWOLockManager</CODE></A></I></TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/concurrent/RWLockManager.LockStrategy.html" title="interface in org.eclipse.net4j.util.concurrent">RWLockManager.LockStrategy&lt;OBJECT,CONTEXT&gt;</A></B></TD>
-<TD>&nbsp;</TD>
+<TD><B>Deprecated.</B>&nbsp;<I>Use <A HREF="../../../../../org/eclipse/net4j/util/concurrent/RWOLockManager.html" title="class in org.eclipse.net4j.util.concurrent"><CODE>RWOLockManager</CODE></A></I></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -219,7 +225,15 @@ Utility interfaces and classes commonly useful in concurrent programming.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/concurrent/RWLockManager.html" title="class in org.eclipse.net4j.util.concurrent">RWLockManager&lt;OBJECT,CONTEXT&gt;</A></B></TD>
-<TD>Support Multiple reads/no write and upgrade lock from read to write.</TD>
+<TD><B>Deprecated.</B>&nbsp;<I>Use <A HREF="../../../../../org/eclipse/net4j/util/concurrent/RWOLockManager.html" title="class in org.eclipse.net4j.util.concurrent"><CODE>RWOLockManager</CODE></A></I></TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/concurrent/RWOLockManager.html" title="class in org.eclipse.net4j.util.concurrent">RWOLockManager&lt;OBJECT,CONTEXT&gt;</A></B></TD>
+<TD>Keeps track of locks on objects.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/concurrent/RWOLockManager.LockState.html" title="class in org.eclipse.net4j.util.concurrent">RWOLockManager.LockState&lt;OBJECT,CONTEXT&gt;</A></B></TD>
+<TD>Represents a combination of locks for one OBJECT.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../org/eclipse/net4j/util/concurrent/Sleeper.html" title="class in org.eclipse.net4j.util.concurrent">Sleeper</A></B></TD>
@@ -281,33 +295,6 @@ Utility interfaces and classes commonly useful in concurrent programming.
 &nbsp;
 
 <P>
-<A NAME="package_description"><!-- --></A><H2>
-Package org.eclipse.net4j.util.concurrent Description
-</H2>
-
-<P>
-Utility interfaces and classes commonly useful in concurrent programming.
-<p>
-
-<!--
-
-<h2>Package Specification</h2>
-
-##### FILL IN ANY SPECS NEEDED BY JAVA COMPATIBILITY KIT #####
-<ul>
-  <li><a href="">##### REFER TO ANY FRAMEMAKER SPECIFICATION HERE #####</a>
-</ul>
-
-<h2>Related Documentation</h2>
-
-For overviews, tutorials, examples, guides, and tool documentation, please see:
-<ul>
-  <li><a href="">##### REFER TO NON-SPEC DOCUMENTATION HERE #####</a>
-</ul>
-
--->
-
-<!-- Put @see and @since tags down here. -->
 <P>
 
 <P>
@@ -329,7 +316,6 @@ For overviews, tutorials, examples, guides, and tool documentation, please see:
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Package</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <FONT CLASS="NavBarFont1">Class</FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-use.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>

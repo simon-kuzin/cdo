@@ -41,7 +41,6 @@ function windowTitle()
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/CDOViewSet.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
@@ -92,18 +91,30 @@ org.eclipse.emf.cdo.view</FONT>
 <BR>
 Interface CDOViewSet</H2>
 <DL>
-<DT><B>All Superinterfaces:</B> <DD><A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/common/notify/Notifier.html?is-external=true" title="class or interface in org.eclipse.emf.common.notify">Notifier</A></DD>
+<DT><B>All Superinterfaces:</B> <DD><A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/common/notify/Notifier.html?is-external=true" title="class or interface in org.eclipse.emf.common.notify">Notifier</A></DD>
 </DL>
 <DL>
 <DT><B>All Known Subinterfaces:</B> <DD><A HREF="../../../../../org/eclipse/emf/spi/cdo/InternalCDOViewSet.html" title="interface in org.eclipse.emf.spi.cdo">InternalCDOViewSet</A></DD>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public interface <B>CDOViewSet</B><DT>extends <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/common/notify/Notifier.html?is-external=true" title="class or interface in org.eclipse.emf.common.notify">Notifier</A></DL>
-</PRE>
+<DT><PRE>public interface <B>CDOViewSet</B><DT>extends <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/common/notify/Notifier.html?is-external=true" title="class or interface in org.eclipse.emf.common.notify">Notifier</A></DL>
+</PRE><map id="APIVIZ" name="APIVIZ">
+<area shape="rect" id="node1" title="&#171;interface&#187; ResourceSet (org.eclipse.emf.ecore.resource)" alt="" coords="5,201,213,255"/>
+<area shape="rect" id="node2" title="&#171;interface&#187; Notifier (org.eclipse.emf.common.notify)" alt="" coords="411,6,617,61"/>
+<area shape="rect" id="node3" href="../../spi/cdo/InternalCDOViewSet.html" title="&#171;interface&#187; InternalCDOViewSet (org.eclipse.emf.spi.cdo)" alt="" coords="243,201,407,255"/>
+<area shape="rect" id="node4" title="&#171;interface&#187; EPackage.Registry (org.eclipse.emf.ecore)" alt="" coords="437,201,592,255"/>
+<area shape="rect" id="node5" href="CDOViewSet.html" title="&#171;interface&#187; CDOViewSet" alt="" coords="465,104,564,144"/>
+<area shape="rect" id="node6" href="CDOView.html" title="&#171;interface&#187; CDOView" alt="" coords="621,208,707,248"/>
+<area shape="rect" id="node7" href="../eresource/CDOResourceFactory.html" title="&#171;interface&#187; CDOResourceFactory (org.eclipse.emf.cdo.eresource)" alt="" coords="737,201,940,255"/>
+</map>
+
+<CENTER><IMG SRC="CDOViewSet.png" USEMAP="#APIVIZ" BORDER="0"></CENTER>
+
+
 
 <P>
-A <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/resource/ResourceSet.html?is-external=true" title="class or interface in org.eclipse.emf.ecore.resource"><CODE>ResourceSet</CODE></A> adapter to associate a set of <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.html" title="interface in org.eclipse.emf.cdo.view"><CODE>CDOView</CODE></A> instances.
+A <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/resource/ResourceSet.html?is-external=true" title="class or interface in org.eclipse.emf.ecore.resource"><CODE>ResourceSet</CODE></A> adapter to associate a set of <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.html" title="interface in org.eclipse.emf.cdo.view"><CODE>CDOView</CODE></A> instances.
  <p>
  <b>Note:</b> A view set must have exactly one resource set associated. A resource set can have only one view set
  associated.
@@ -113,8 +124,6 @@ A <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclips
 <DL>
 <DT><B>Since:</B></DT>
   <DD>2.0</DD>
-<DT><B>Author:</B></DT>
-  <DD>Simon McDuff</DD>
 <DT><B>No Implement</B></DT>
   <DD>This interface is not intended to be implemented by clients.</DD>
 <DT><B>No Extend</B></DT>
@@ -134,7 +143,7 @@ A <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclips
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EPackage.Registry.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EPackage.Registry</A></CODE></FONT></TD>
+<CODE>&nbsp;<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EPackage.Registry.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EPackage.Registry</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../org/eclipse/emf/cdo/view/CDOViewSet.html#getPackageRegistry()">getPackageRegistry</A></B>()</CODE>
 
 <BR>
@@ -150,7 +159,7 @@ A <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclips
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/resource/ResourceSet.html?is-external=true" title="class or interface in org.eclipse.emf.ecore.resource">ResourceSet</A></CODE></FONT></TD>
+<CODE>&nbsp;<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/resource/ResourceSet.html?is-external=true" title="class or interface in org.eclipse.emf.ecore.resource">ResourceSet</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../org/eclipse/emf/cdo/view/CDOViewSet.html#getResourceSet()">getResourceSet</A></B>()</CODE>
 
 <BR>
@@ -176,10 +185,10 @@ A <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclips
 &nbsp;<A NAME="methods_inherited_from_class_org.eclipse.emf.common.notify.Notifier"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
-<TH ALIGN="left"><B>Methods inherited from interface org.eclipse.emf.common.notify.<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/common/notify/Notifier.html?is-external=true" title="class or interface in org.eclipse.emf.common.notify">Notifier</A></B></TH>
+<TH ALIGN="left"><B>Methods inherited from interface org.eclipse.emf.common.notify.<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/common/notify/Notifier.html?is-external=true" title="class or interface in org.eclipse.emf.common.notify">Notifier</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/common/notify/Notifier.html?is-external=true#eAdapters()" title="class or interface in org.eclipse.emf.common.notify">eAdapters</A>, <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/common/notify/Notifier.html?is-external=true#eDeliver()" title="class or interface in org.eclipse.emf.common.notify">eDeliver</A>, <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/common/notify/Notifier.html?is-external=true#eNotify(org.eclipse.emf.common.notify.Notification)" title="class or interface in org.eclipse.emf.common.notify">eNotify</A>, <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/common/notify/Notifier.html?is-external=true#eSetDeliver(boolean)" title="class or interface in org.eclipse.emf.common.notify">eSetDeliver</A></CODE></TD>
+<TD><CODE><A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/common/notify/Notifier.html?is-external=true#eAdapters()" title="class or interface in org.eclipse.emf.common.notify">eAdapters</A>, <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/common/notify/Notifier.html?is-external=true#eDeliver()" title="class or interface in org.eclipse.emf.common.notify">eDeliver</A>, <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/common/notify/Notifier.html?is-external=true#eNotify(org.eclipse.emf.common.notify.Notification)" title="class or interface in org.eclipse.emf.common.notify">eNotify</A>, <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/common/notify/Notifier.html?is-external=true#eSetDeliver(boolean)" title="class or interface in org.eclipse.emf.common.notify">eSetDeliver</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -240,7 +249,7 @@ getResourceFactory</H3>
 <A NAME="getPackageRegistry()"><!-- --></A><H3>
 getPackageRegistry</H3>
 <PRE>
-<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EPackage.Registry.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EPackage.Registry</A> <B>getPackageRegistry</B>()</PRE>
+<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EPackage.Registry.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EPackage.Registry</A> <B>getPackageRegistry</B>()</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -254,7 +263,7 @@ getPackageRegistry</H3>
 <A NAME="getResourceSet()"><!-- --></A><H3>
 getResourceSet</H3>
 <PRE>
-<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/resource/ResourceSet.html?is-external=true" title="class or interface in org.eclipse.emf.ecore.resource">ResourceSet</A> <B>getResourceSet</B>()</PRE>
+<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/resource/ResourceSet.html?is-external=true" title="class or interface in org.eclipse.emf.ecore.resource">ResourceSet</A> <B>getResourceSet</B>()</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -280,7 +289,6 @@ getResourceSet</H3>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/CDOViewSet.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>

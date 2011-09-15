@@ -41,7 +41,6 @@ function windowTitle()
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/CDODataOutput.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
@@ -97,7 +96,15 @@ Interface CDODataOutput</H2>
 <HR>
 <DL>
 <DT><PRE>public interface <B>CDODataOutput</B><DT>extends <A HREF="../../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/io/ExtendedDataOutput.html?is-external=true" title="class or interface in org.eclipse.net4j.util.io">ExtendedDataOutput</A></DL>
-</PRE>
+</PRE><map id="APIVIZ" name="APIVIZ">
+<area shape="rect" id="node1" title="&#171;interface&#187; ExtendedDataOutput (org.eclipse.net4j.util.io)" alt="" coords="5,6,165,61"/>
+<area shape="rect" id="node2" href="CDOProtocol.html" title="&#171;interface&#187; CDOProtocol" alt="" coords="36,179,135,219"/>
+<area shape="rect" id="node3" href="CDODataOutput.html" title="&#171;interface&#187; CDODataOutput" alt="" coords="27,100,143,140"/>
+</map>
+
+<CENTER><IMG SRC="CDODataOutput.png" USEMAP="#APIVIZ" BORDER="0"></CENTER>
+
+
 
 <P>
 Provides I/O methods for writing various CDO data types and concepts to streams.
@@ -107,8 +114,6 @@ Provides I/O methods for writing various CDO data types and concepts to streams.
 <DL>
 <DT><B>Since:</B></DT>
   <DD>3.0</DD>
-<DT><B>Author:</B></DT>
-  <DD>Eike Stepper</DD>
 <DT><B>No Implement</B></DT>
   <DD>This interface is not intended to be implemented by clients.</DD>
 <DT><B>No Extend</B></DT>
@@ -204,7 +209,7 @@ Provides I/O methods for writing various CDO data types and concepts to streams.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../org/eclipse/emf/cdo/common/protocol/CDODataOutput.html#writeCDOClassifierRef(org.eclipse.emf.ecore.EClassifier)">writeCDOClassifierRef</A></B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EClassifier.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EClassifier</A>&nbsp;eClassifier)</CODE>
+<TD><CODE><B><A HREF="../../../../../../org/eclipse/emf/cdo/common/protocol/CDODataOutput.html#writeCDOClassifierRef(org.eclipse.emf.ecore.EClassifier)">writeCDOClassifierRef</A></B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EClassifier.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EClassifier</A>&nbsp;eClassifier)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -228,7 +233,7 @@ Provides I/O methods for writing various CDO data types and concepts to streams.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../org/eclipse/emf/cdo/common/protocol/CDODataOutput.html#writeCDOFeatureDelta(org.eclipse.emf.ecore.EClass, org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta)">writeCDOFeatureDelta</A></B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EClass.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EClass</A>&nbsp;owner,
+<TD><CODE><B><A HREF="../../../../../../org/eclipse/emf/cdo/common/protocol/CDODataOutput.html#writeCDOFeatureDelta(org.eclipse.emf.ecore.EClass, org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta)">writeCDOFeatureDelta</A></B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EClass.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EClass</A>&nbsp;owner,
                      <A HREF="../../../../../../org/eclipse/emf/cdo/common/revision/delta/CDOFeatureDelta.html" title="interface in org.eclipse.emf.cdo.common.revision.delta">CDOFeatureDelta</A>&nbsp;featureDelta)</CODE>
 
 <BR>
@@ -237,7 +242,7 @@ Provides I/O methods for writing various CDO data types and concepts to streams.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../org/eclipse/emf/cdo/common/protocol/CDODataOutput.html#writeCDOFeatureValue(org.eclipse.emf.ecore.EStructuralFeature, java.lang.Object)">writeCDOFeatureValue</A></B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EStructuralFeature.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EStructuralFeature</A>&nbsp;feature,
+<TD><CODE><B><A HREF="../../../../../../org/eclipse/emf/cdo/common/protocol/CDODataOutput.html#writeCDOFeatureValue(org.eclipse.emf.ecore.EStructuralFeature, java.lang.Object)">writeCDOFeatureValue</A></B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EStructuralFeature.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EStructuralFeature</A>&nbsp;feature,
                      <A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A>&nbsp;value)</CODE>
 
 <BR>
@@ -278,10 +283,42 @@ Provides I/O methods for writing various CDO data types and concepts to streams.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../org/eclipse/emf/cdo/common/protocol/CDODataOutput.html#writeCDOList(org.eclipse.emf.ecore.EClass, org.eclipse.emf.ecore.EStructuralFeature, org.eclipse.emf.cdo.common.revision.CDOList, int)">writeCDOList</A></B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EClass.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EClass</A>&nbsp;owner,
-             <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EStructuralFeature.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EStructuralFeature</A>&nbsp;feature,
+<TD><CODE><B><A HREF="../../../../../../org/eclipse/emf/cdo/common/protocol/CDODataOutput.html#writeCDOList(org.eclipse.emf.ecore.EClass, org.eclipse.emf.ecore.EStructuralFeature, org.eclipse.emf.cdo.common.revision.CDOList, int)">writeCDOList</A></B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EClass.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EClass</A>&nbsp;owner,
+             <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EStructuralFeature.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EStructuralFeature</A>&nbsp;feature,
              <A HREF="../../../../../../org/eclipse/emf/cdo/common/revision/CDOList.html" title="interface in org.eclipse.emf.cdo.common.revision">CDOList</A>&nbsp;list,
              int&nbsp;referenceChunk)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../org/eclipse/emf/cdo/common/protocol/CDODataOutput.html#writeCDOLockArea(org.eclipse.emf.cdo.common.lock.IDurableLockingManager.LockArea)">writeCDOLockArea</A></B>(<A HREF="../../../../../../org/eclipse/emf/cdo/common/lock/IDurableLockingManager.LockArea.html" title="interface in org.eclipse.emf.cdo.common.lock">IDurableLockingManager.LockArea</A>&nbsp;lockArea)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../org/eclipse/emf/cdo/common/protocol/CDODataOutput.html#writeCDOLockChangeInfo(org.eclipse.emf.cdo.common.lock.CDOLockChangeInfo)">writeCDOLockChangeInfo</A></B>(<A HREF="../../../../../../org/eclipse/emf/cdo/common/lock/CDOLockChangeInfo.html" title="interface in org.eclipse.emf.cdo.common.lock">CDOLockChangeInfo</A>&nbsp;lockChangeInfo)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../org/eclipse/emf/cdo/common/protocol/CDODataOutput.html#writeCDOLockOwner(org.eclipse.emf.cdo.common.lock.CDOLockOwner)">writeCDOLockOwner</A></B>(<A HREF="../../../../../../org/eclipse/emf/cdo/common/lock/CDOLockOwner.html" title="interface in org.eclipse.emf.cdo.common.lock">CDOLockOwner</A>&nbsp;lockOwner)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../org/eclipse/emf/cdo/common/protocol/CDODataOutput.html#writeCDOLockState(org.eclipse.emf.cdo.common.lock.CDOLockState)">writeCDOLockState</A></B>(<A HREF="../../../../../../org/eclipse/emf/cdo/common/lock/CDOLockState.html" title="interface in org.eclipse.emf.cdo.common.lock">CDOLockState</A>&nbsp;lockState)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -541,7 +578,7 @@ void <B>writeCDOClassifierRef</B>(<A HREF="../../../../../../org/eclipse/emf/cdo
 <A NAME="writeCDOClassifierRef(org.eclipse.emf.ecore.EClassifier)"><!-- --></A><H3>
 writeCDOClassifierRef</H3>
 <PRE>
-void <B>writeCDOClassifierRef</B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EClassifier.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EClassifier</A>&nbsp;eClassifier)
+void <B>writeCDOClassifierRef</B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EClassifier.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EClassifier</A>&nbsp;eClassifier)
                            throws <A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></PRE>
 <DL>
 <DD><DL>
@@ -822,8 +859,8 @@ void <B>writeCDORevisable</B>(<A HREF="../../../../../../org/eclipse/emf/cdo/com
 <A NAME="writeCDOList(org.eclipse.emf.ecore.EClass, org.eclipse.emf.ecore.EStructuralFeature, org.eclipse.emf.cdo.common.revision.CDOList, int)"><!-- --></A><H3>
 writeCDOList</H3>
 <PRE>
-void <B>writeCDOList</B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EClass.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EClass</A>&nbsp;owner,
-                  <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EStructuralFeature.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EStructuralFeature</A>&nbsp;feature,
+void <B>writeCDOList</B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EClass.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EClass</A>&nbsp;owner,
+                  <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EStructuralFeature.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EStructuralFeature</A>&nbsp;feature,
                   <A HREF="../../../../../../org/eclipse/emf/cdo/common/revision/CDOList.html" title="interface in org.eclipse.emf.cdo.common.revision">CDOList</A>&nbsp;list,
                   int&nbsp;referenceChunk)
                   throws <A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></PRE>
@@ -842,7 +879,7 @@ void <B>writeCDOList</B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/j
 <A NAME="writeCDOFeatureValue(org.eclipse.emf.ecore.EStructuralFeature, java.lang.Object)"><!-- --></A><H3>
 writeCDOFeatureValue</H3>
 <PRE>
-void <B>writeCDOFeatureValue</B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EStructuralFeature.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EStructuralFeature</A>&nbsp;feature,
+void <B>writeCDOFeatureValue</B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EStructuralFeature.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EStructuralFeature</A>&nbsp;feature,
                           <A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A>&nbsp;value)
                           throws <A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></PRE>
 <DL>
@@ -877,7 +914,7 @@ void <B>writeCDORevisionDelta</B>(<A HREF="../../../../../../org/eclipse/emf/cdo
 <A NAME="writeCDOFeatureDelta(org.eclipse.emf.ecore.EClass, org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta)"><!-- --></A><H3>
 writeCDOFeatureDelta</H3>
 <PRE>
-void <B>writeCDOFeatureDelta</B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EClass.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EClass</A>&nbsp;owner,
+void <B>writeCDOFeatureDelta</B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EClass.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EClass</A>&nbsp;owner,
                           <A HREF="../../../../../../org/eclipse/emf/cdo/common/revision/delta/CDOFeatureDelta.html" title="interface in org.eclipse.emf.cdo.common.revision.delta">CDOFeatureDelta</A>&nbsp;featureDelta)
                           throws <A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></PRE>
 <DL>
@@ -945,6 +982,82 @@ void <B>writeCDOLockType</B>(<A HREF="../../../../../../../../org.eclipse.net4j.
 <DD><CODE><A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></CODE></DL>
 </DD>
 </DL>
+<HR>
+
+<A NAME="writeCDOLockChangeInfo(org.eclipse.emf.cdo.common.lock.CDOLockChangeInfo)"><!-- --></A><H3>
+writeCDOLockChangeInfo</H3>
+<PRE>
+void <B>writeCDOLockChangeInfo</B>(<A HREF="../../../../../../org/eclipse/emf/cdo/common/lock/CDOLockChangeInfo.html" title="interface in org.eclipse.emf.cdo.common.lock">CDOLockChangeInfo</A>&nbsp;lockChangeInfo)
+                            throws <A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></CODE><DT><B>Since:</B></DT>
+  <DD>4.1</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="writeCDOLockState(org.eclipse.emf.cdo.common.lock.CDOLockState)"><!-- --></A><H3>
+writeCDOLockState</H3>
+<PRE>
+void <B>writeCDOLockState</B>(<A HREF="../../../../../../org/eclipse/emf/cdo/common/lock/CDOLockState.html" title="interface in org.eclipse.emf.cdo.common.lock">CDOLockState</A>&nbsp;lockState)
+                       throws <A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></CODE><DT><B>Since:</B></DT>
+  <DD>4.1</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="writeCDOLockOwner(org.eclipse.emf.cdo.common.lock.CDOLockOwner)"><!-- --></A><H3>
+writeCDOLockOwner</H3>
+<PRE>
+void <B>writeCDOLockOwner</B>(<A HREF="../../../../../../org/eclipse/emf/cdo/common/lock/CDOLockOwner.html" title="interface in org.eclipse.emf.cdo.common.lock">CDOLockOwner</A>&nbsp;lockOwner)
+                       throws <A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></CODE><DT><B>Since:</B></DT>
+  <DD>4.1</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="writeCDOLockArea(org.eclipse.emf.cdo.common.lock.IDurableLockingManager.LockArea)"><!-- --></A><H3>
+writeCDOLockArea</H3>
+<PRE>
+void <B>writeCDOLockArea</B>(<A HREF="../../../../../../org/eclipse/emf/cdo/common/lock/IDurableLockingManager.LockArea.html" title="interface in org.eclipse.emf.cdo.common.lock">IDurableLockingManager.LockArea</A>&nbsp;lockArea)
+                      throws <A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</A></CODE><DT><B>Since:</B></DT>
+  <DD>4.1</DD>
+</DL>
+</DD>
+</DL>
 <!-- ========= END OF CLASS DATA ========= -->
 <HR>
 
@@ -962,7 +1075,6 @@ void <B>writeCDOLockType</B>(<A HREF="../../../../../../../../org.eclipse.net4j.
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/CDODataOutput.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>

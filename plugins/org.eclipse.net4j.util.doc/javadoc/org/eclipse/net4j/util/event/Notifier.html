@@ -41,7 +41,6 @@ function windowTitle()
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/Notifier.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
@@ -99,19 +98,34 @@ Class Notifier</H2>
 <DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../org/eclipse/net4j/util/event/INotifier.html" title="interface in org.eclipse.net4j.util.event">INotifier</A></DD>
 </DL>
 <DL>
-<DT><B>Direct Known Subclasses:</B> <DD><A HREF="../../../../../org/eclipse/net4j/util/container/delegate/AbstractDelegator.html" title="class in org.eclipse.net4j.util.container.delegate">AbstractDelegator</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/ExecutorServiceNotifier.html" title="class in org.eclipse.net4j.util.event">ExecutorServiceNotifier</A>, <A HREF="../../../../../org/eclipse/net4j/util/collection/History.html" title="class in org.eclipse.net4j.util.collection">History</A>, <A HREF="../../../../../org/eclipse/net4j/util/lifecycle/Lifecycle.html" title="class in org.eclipse.net4j.util.lifecycle">Lifecycle</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/ValueNotifier.html" title="class in org.eclipse.net4j.util.event">ValueNotifier</A></DD>
+<DT><B>Direct Known Subclasses:</B> <DD><A HREF="../../../../../org/eclipse/net4j/util/container/delegate/AbstractDelegator.html" title="class in org.eclipse.net4j.util.container.delegate">AbstractDelegator</A>, <A HREF="../../../../../org/eclipse/net4j/util/ui/container/ElementWizard.html" title="class in org.eclipse.net4j.util.ui.container">ElementWizard</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/ExecutorServiceNotifier.html" title="class in org.eclipse.net4j.util.event">ExecutorServiceNotifier</A>, <A HREF="../../../../../org/eclipse/net4j/util/collection/History.html" title="class in org.eclipse.net4j.util.collection">History</A>, <A HREF="../../../../../org/eclipse/net4j/util/lifecycle/Lifecycle.html" title="class in org.eclipse.net4j.util.lifecycle">Lifecycle</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/ValueNotifier.html" title="class in org.eclipse.net4j.util.event">ValueNotifier</A></DD>
 </DL>
 <HR>
 <DL>
 <DT><PRE>public class <B>Notifier</B><DT>extends <A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A><DT>implements <A HREF="../../../../../org/eclipse/net4j/util/event/INotifier.html" title="interface in org.eclipse.net4j.util.event">INotifier</A></DL>
-</PRE>
+</PRE><map id="APIVIZ" name="APIVIZ">
+<area shape="rect" id="node1" href="ExecutorServiceNotifier.html" title="ExecutorServiceNotifier" alt="" coords="397,5,553,30"/>
+<area shape="rect" id="node2" href="../collection/History.html" title="History (org.eclipse.net4j.util.collection)" alt="" coords="372,49,577,89"/>
+<area shape="rect" id="node3" href="../lifecycle/Lifecycle.html" title="Lifecycle (org.eclipse.net4j.util.lifecycle)" alt="" coords="376,108,573,148"/>
+<area shape="rect" id="node4" href="Notifier.html" title="Notifier" alt="" coords="187,142,250,167"/>
+<area shape="rect" id="node5" href="ValueNotifier.html" title="ValueNotifier" alt="" coords="427,167,522,193"/>
+<area shape="rect" id="node6" href="../container/delegate/AbstractDelegator.html" title="AbstractDelegator (org.eclipse.net4j.util.container.delegate)" alt="" coords="347,212,603,252"/>
+<area shape="rect" id="node7" href="../ui/container/ElementWizard.html" title="ElementWizard (org.eclipse.net4j.util.ui.container)" alt="" coords="366,271,583,311"/>
+<area shape="rect" id="node8" href="INotifier.html" title="&#171;interface&#187; INotifier" alt="" coords="5,135,91,175"/>
+</map>
+
+<CENTER><IMG SRC="Notifier.png" USEMAP="#APIVIZ" BORDER="0"></CENTER>
+
+
+
+<P>
+A default implementation of a <A HREF="../../../../../org/eclipse/net4j/util/event/INotifier.html" title="interface in org.eclipse.net4j.util.event"><CODE>notifier</CODE></A>.
+<P>
 
 <P>
 <DL>
 <DT><B>Since:</B></DT>
   <DD>3.0</DD>
-<DT><B>Author:</B></DT>
-  <DD>Eike Stepper</DD>
 </DL>
 <HR>
 
@@ -148,6 +162,14 @@ Class Notifier</H2>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Adds a listener to this notifier.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#fireEvent()">fireEvent</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -327,6 +349,22 @@ public <A HREF="../../../../../org/eclipse/net4j/util/event/IListener.html" titl
 </DL>
 <HR>
 
+<A NAME="fireEvent()"><!-- --></A><H3>
+fireEvent</H3>
+<PRE>
+public void <B>fireEvent</B>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Since:</B></DT>
+  <DD>3.2</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="fireEvent(org.eclipse.net4j.util.event.IEvent)"><!-- --></A><H3>
 fireEvent</H3>
 <PRE>
@@ -421,7 +459,6 @@ protected void <B>lastListenerRemoved</B>()</PRE>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/Notifier.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>

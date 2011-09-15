@@ -41,7 +41,6 @@ function windowTitle()
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/CDOSavepoint.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
@@ -100,7 +99,16 @@ Interface CDOSavepoint</H2>
 <HR>
 <DL>
 <DT><PRE>public interface <B>CDOSavepoint</B><DT>extends <A HREF="../../../../../org/eclipse/emf/cdo/transaction/CDOUserSavepoint.html" title="interface in org.eclipse.emf.cdo.transaction">CDOUserSavepoint</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/commit/CDOChangeSetDataProvider.html" title="interface in org.eclipse.emf.cdo.common.commit">CDOChangeSetDataProvider</A></DL>
-</PRE>
+</PRE><map id="APIVIZ" name="APIVIZ">
+<area shape="rect" id="node1" href="../../spi/cdo/InternalCDOSavepoint.html" title="&#171;interface&#187; InternalCDOSavepoint (org.eclipse.emf.spi.cdo)" alt="" coords="99,179,263,234"/>
+<area shape="rect" id="node2" href="CDOUserSavepoint.html" title="&#171;interface&#187; CDOUserSavepoint" alt="" coords="5,13,139,53"/>
+<area shape="rect" id="node3" href="CDOSavepoint.html" title="&#171;interface&#187; CDOSavepoint" alt="" coords="128,100,235,140"/>
+<area shape="rect" id="node4" href="../common/commit/CDOChangeSetDataProvider.html" title="&#171;interface&#187; CDOChangeSetDataProvider (org.eclipse.emf.cdo.common.commit)" alt="" coords="169,6,412,61"/>
+</map>
+
+<CENTER><IMG SRC="CDOSavepoint.png" USEMAP="#APIVIZ" BORDER="0"></CENTER>
+
+
 
 <P>
 One in a sequence of possibly several points in time of a <A HREF="../../../../../org/eclipse/emf/cdo/transaction/CDOTransaction.html" title="interface in org.eclipse.emf.cdo.transaction"><CODE>transaction</CODE></A> that encapsulates the
@@ -109,8 +117,6 @@ One in a sequence of possibly several points in time of a <A HREF="../../../../.
 
 <P>
 <DL>
-<DT><B>Author:</B></DT>
-  <DD>Eike Stepper</DD>
 <DT><B>No Implement</B></DT>
   <DD>This interface is not intended to be implemented by clients.</DD>
 <DT><B>No Extend</B></DT>
@@ -263,7 +269,7 @@ One in a sequence of possibly several points in time of a <A HREF="../../../../.
 <TH ALIGN="left"><B>Methods inherited from interface org.eclipse.emf.cdo.transaction.<A HREF="../../../../../org/eclipse/emf/cdo/transaction/CDOUserSavepoint.html" title="interface in org.eclipse.emf.cdo.transaction">CDOUserSavepoint</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../../../../org/eclipse/emf/cdo/transaction/CDOUserSavepoint.html#isValid()">isValid</A>, <A HREF="../../../../../org/eclipse/emf/cdo/transaction/CDOUserSavepoint.html#rollback()">rollback</A></CODE></TD>
+<TD><CODE><A HREF="../../../../../org/eclipse/emf/cdo/transaction/CDOUserSavepoint.html#getNumber()">getNumber</A>, <A HREF="../../../../../org/eclipse/emf/cdo/transaction/CDOUserSavepoint.html#isValid()">isValid</A>, <A HREF="../../../../../org/eclipse/emf/cdo/transaction/CDOUserSavepoint.html#rollback()">rollback</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_org.eclipse.emf.cdo.common.commit.CDOChangeSetDataProvider"><!-- --></A>
@@ -563,7 +569,6 @@ getAllChangeSetData</H3>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/CDOSavepoint.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>

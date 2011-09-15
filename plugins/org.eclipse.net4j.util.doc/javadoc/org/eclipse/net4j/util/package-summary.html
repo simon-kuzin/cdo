@@ -41,7 +41,6 @@ function windowTitle()
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Package</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <FONT CLASS="NavBarFont1">Class</FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-use.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
@@ -82,13 +81,25 @@ function windowTitle()
 <H2>
 Package org.eclipse.net4j.util
 </H2>
+<A NAME="package_description"><!-- --></A>
 Utility classes.
-<P>
-<B>See:</B>
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<A HREF="#package_description"><B>Description</B></A>
+
 <P>
 
+<map id="APIVIZ" name="APIVIZ">
+<area shape="rect" id="node1" title="&#171;exception&#187; RuntimeException (java.lang)" alt="" coords="5,439,133,494"/>
+<area shape="rect" id="node2" href="WrappedException.html" title="&#171;exception&#187; WrappedException" alt="" coords="163,447,295,487"/>
+<area shape="rect" id="node3" href="UUIDGenerator.html" title="UUIDGenerator" alt="" coords="15,390,124,415"/>
+<area shape="rect" id="node4" href="IErrorHandler.html" title="&#171;interface&#187; IErrorHandler" alt="" coords="21,325,118,365"/>
+<area shape="rect" id="node5" href="AdapterUtil.html" title="&#171;static&#187; AdapterUtil" alt="" coords="26,261,113,301"/>
+<area shape="rect" id="node6" href="HexUtil.html" title="&#171;static&#187; HexUtil" alt="" coords="35,197,103,237"/>
+<area shape="rect" id="node7" href="ObjectUtil.html" title="&#171;static&#187; ObjectUtil" alt="" coords="30,133,109,173"/>
+<area shape="rect" id="node8" href="ReflectUtil.html" title="&#171;static&#187; ReflectUtil" alt="" coords="29,69,110,109"/>
+<area shape="rect" id="node9" href="StringUtil.html" title="&#171;static&#187; StringUtil" alt="" coords="32,5,107,45"/>
+</map>
+
+<CENTER><IMG SRC="package-summary.png" USEMAP="#APIVIZ" BORDER="0"></CENTER>
+<BR>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
@@ -96,7 +107,7 @@ Utility classes.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../org/eclipse/net4j/util/IErrorHandler.html" title="interface in org.eclipse.net4j.util">IErrorHandler</A></B></TD>
-<TD>&nbsp;</TD>
+<TD>A callback interface with a <A HREF="../../../../org/eclipse/net4j/util/IErrorHandler.html#handleError(java.lang.Throwable)"><CODE>handleError()</CODE></A> method.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -110,27 +121,32 @@ Utility classes.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../org/eclipse/net4j/util/AdapterUtil.html" title="class in org.eclipse.net4j.util">AdapterUtil</A></B></TD>
-<TD>&nbsp;</TD>
+<TD>Provides a single static <A HREF="../../../../org/eclipse/net4j/util/AdapterUtil.html#adapt(java.lang.Object, java.lang.Class)"><CODE>adapt()</CODE></A> method that conveniently and safely wraps the
+ Platform's adaptation framework.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../org/eclipse/net4j/util/CheckUtil.html" title="class in org.eclipse.net4j.util">CheckUtil</A></B></TD>
-<TD>&nbsp;</TD>
+<TD>Provides static methods that check object states and invocation arguments.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../org/eclipse/net4j/util/HexUtil.html" title="class in org.eclipse.net4j.util">HexUtil</A></B></TD>
-<TD>&nbsp;</TD>
+<TD>Provides static methods that convert to and from hexadecimal string formats.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../org/eclipse/net4j/util/ObjectUtil.html" title="class in org.eclipse.net4j.util">ObjectUtil</A></B></TD>
-<TD>&nbsp;</TD>
+<TD>Various static helper methods.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../org/eclipse/net4j/util/ReflectUtil.html" title="class in org.eclipse.net4j.util">ReflectUtil</A></B></TD>
-<TD>&nbsp;</TD>
+<TD>Various static helper methods for dealing with Java reflection.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../org/eclipse/net4j/util/StringUtil.html" title="class in org.eclipse.net4j.util">StringUtil</A></B></TD>
-<TD>&nbsp;</TD>
+<TD>Various static helper methods for dealing with strings.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../org/eclipse/net4j/util/UUIDGenerator.html" title="class in org.eclipse.net4j.util">UUIDGenerator</A></B></TD>
+<TD>Generates 16 byte UUID values and can encode them to Strings, decode from Strings respectively.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -144,7 +160,7 @@ Utility classes.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../org/eclipse/net4j/util/WrappedException.html" title="class in org.eclipse.net4j.util">WrappedException</A></B></TD>
-<TD>&nbsp;</TD>
+<TD>An unchecked exception that wraps a checked exception.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -158,7 +174,7 @@ Utility classes.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../org/eclipse/net4j/util/ImplementationError.html" title="class in org.eclipse.net4j.util">ImplementationError</A></B></TD>
-<TD>&nbsp;</TD>
+<TD>Should not be used anymore in favour of <A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/lang/AssertionError.html?is-external=true" title="class or interface in java.lang"><CODE>AssertionError</CODE></A>.</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -172,39 +188,12 @@ Utility classes.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../org/eclipse/net4j/util/ReflectUtil.ExcludeFromDump.html" title="annotation in org.eclipse.net4j.util">ReflectUtil.ExcludeFromDump</A></B></TD>
-<TD>&nbsp;</TD>
+<TD>Annotates fields that are to be skipped in <A HREF="../../../../org/eclipse/net4j/util/ReflectUtil.html#collectFields(java.lang.Class, java.util.List)"><CODE>ReflectUtil.collectFields()</CODE></A> and <A HREF="../../../../org/eclipse/net4j/util/ReflectUtil.html#toString(java.lang.Object)"><CODE>ReflectUtil.toString()</CODE></A>.</TD>
 </TR>
 </TABLE>
 &nbsp;
 
 <P>
-<A NAME="package_description"><!-- --></A><H2>
-Package org.eclipse.net4j.util Description
-</H2>
-
-<P>
-Utility classes.
-<p>
-
-<!--
-
-<h2>Package Specification</h2>
-
-##### FILL IN ANY SPECS NEEDED BY JAVA COMPATIBILITY KIT #####
-<ul>
-  <li><a href="">##### REFER TO ANY FRAMEMAKER SPECIFICATION HERE #####</a>
-</ul>
-
-<h2>Related Documentation</h2>
-
-For overviews, tutorials, examples, guides, and tool documentation, please see:
-<ul>
-  <li><a href="">##### REFER TO NON-SPEC DOCUMENTATION HERE #####</a>
-</ul>
-
--->
-
-<!-- Put @see and @since tags down here. -->
 <P>
 
 <P>
@@ -226,7 +215,6 @@ For overviews, tutorials, examples, guides, and tool documentation, please see:
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Package</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <FONT CLASS="NavBarFont1">Class</FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-use.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>

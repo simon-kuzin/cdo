@@ -1301,6 +1301,12 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor, 
     return manager.createLockArea(this, durableLockingID, userID, branchPoint, readOnly, locks);
   }
 
+  public void updateLockArea(LockArea area)
+  {
+    DurableLockingManager manager = getStore().getDurableLockingManager();
+    manager.updateLockArea(this, area);
+  }
+
   public LockArea getLockArea(String durableLockingID) throws LockAreaNotFoundException
   {
     DurableLockingManager manager = getStore().getDurableLockingManager();

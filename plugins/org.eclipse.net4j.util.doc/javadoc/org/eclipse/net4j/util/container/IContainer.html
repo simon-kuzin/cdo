@@ -41,7 +41,6 @@ function windowTitle()
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/IContainer.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
@@ -103,13 +102,34 @@ Interface IContainer&lt;E&gt;</H2>
 <HR>
 <DL>
 <DT><PRE>public interface <B>IContainer&lt;E&gt;</B><DT>extends <A HREF="../../../../../org/eclipse/net4j/util/event/INotifier.html" title="interface in org.eclipse.net4j.util.event">INotifier</A></DL>
-</PRE>
+</PRE><map id="APIVIZ" name="APIVIZ">
+<area shape="rect" id="node1" title="Object (java.lang)" alt="" coords="645,5,725,45"/>
+<area shape="rect" id="node2" href="delegate/AbstractDelegator.html" title="AbstractDelegator (org.eclipse.net4j.util.container.delegate)" alt="" coords="557,64,813,104"/>
+<area shape="rect" id="node3" href="Container.html" title="Container" alt="" coords="647,123,724,149"/>
+<area shape="rect" id="node4" href="IContainer.html" title="&#171;interface&#187; IContainer" alt="" coords="323,201,408,241"/>
+<area shape="rect" id="node5" href="IContainer.Modifiable.html" title="&#171;interface&#187; IContainer.Modifiable" alt="" coords="614,168,757,208"/>
+<area shape="rect" id="node6" href="delegate/IContainerCollection.html" title="&#171;interface&#187; IContainerCollection (org.eclipse.net4j.util.container.delegate)" alt="" coords="557,227,813,282"/>
+<area shape="rect" id="node7" href="IContainerEvent.html" title="&#171;interface&#187; IContainerEvent" alt="" coords="40,168,152,208"/>
+<area shape="rect" id="node8" href="delegate/IContainerMap.html" title="&#171;interface&#187; IContainerMap (org.eclipse.net4j.util.container.delegate)" alt="" coords="557,301,813,355"/>
+<area shape="rect" id="node9" href="IManagedContainer.html" title="&#171;interface&#187; IManagedContainer" alt="" coords="619,375,752,415"/>
+<area shape="rect" id="node10" href="../event/INotifier.html" title="&#171;interface&#187; INotifier (org.eclipse.net4j.util.event)" alt="" coords="6,227,186,282"/>
+<area shape="rect" id="node11" href="../registry/IRegistry.html" title="&#171;interface&#187; IRegistry (org.eclipse.net4j.util.registry)" alt="" coords="589,434,782,489"/>
+</map>
+
+<CENTER><IMG SRC="IContainer.png" USEMAP="#APIVIZ" BORDER="0"></CENTER>
+
+
 
 <P>
-<DL>
-<DT><B>Author:</B></DT>
-  <DD>Eike Stepper</DD>
-</DL>
+Contains a number of elements and notifies about element addition and removal.
+ <p>
+ A container can fire the following events:
+ <ul>
+ <li> <A HREF="../../../../../org/eclipse/net4j/util/container/IContainerEvent.html" title="interface in org.eclipse.net4j.util.container"><CODE>IContainerEvent</CODE></A> after the addition and/or removal of elements.
+ </ul>
+<P>
+
+<P>
 <HR>
 
 <P>
@@ -221,7 +241,6 @@ getElements</H3>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/IContainer.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>

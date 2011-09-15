@@ -41,7 +41,6 @@ function windowTitle()
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/Store.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
@@ -106,14 +105,21 @@ Class Store</H2>
 <HR>
 <DL>
 <DT><PRE>public abstract class <B>Store</B><DT>extends <A HREF="../../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/lifecycle/Lifecycle.html?is-external=true" title="class or interface in org.eclipse.net4j.util.lifecycle">Lifecycle</A><DT>implements <A HREF="../../../../../../org/eclipse/emf/cdo/spi/server/InternalStore.html" title="interface in org.eclipse.emf.cdo.spi.server">InternalStore</A></DL>
-</PRE>
+</PRE><map id="APIVIZ" name="APIVIZ">
+<area shape="rect" id="node1" href="InternalStore.html" title="&#171;interface&#187; InternalStore" alt="" coords="5,5,99,45"/>
+<area shape="rect" id="node2" href="Store.html" title="Store" alt="" coords="113,85,167,110"/>
+<area shape="rect" id="node3" href="LongIDStore.html" title="LongIDStore" alt="" coords="93,150,187,175"/>
+<area shape="rect" id="node4" title="Lifecycle (org.eclipse.net4j.util.lifecycle)" alt="" coords="129,5,327,45"/>
+</map>
+
+<CENTER><IMG SRC="Store.png" USEMAP="#APIVIZ" BORDER="0"></CENTER>
+
+
 
 <P>
 <DL>
 <DT><B>Since:</B></DT>
   <DD>2.0</DD>
-<DT><B>Author:</B></DT>
-  <DD>Eike Stepper</DD>
 </DL>
 <HR>
 
@@ -143,7 +149,7 @@ Class Store</H2>
 <TH ALIGN="left"><B>Nested classes/interfaces inherited from interface org.eclipse.emf.cdo.server.<A HREF="../../../../../../org/eclipse/emf/cdo/server/IStore.html" title="interface in org.eclipse.emf.cdo.server">IStore</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../../../../../org/eclipse/emf/cdo/server/IStore.ChangeFormat.html" title="enum in org.eclipse.emf.cdo.server">IStore.ChangeFormat</A>, <A HREF="../../../../../../org/eclipse/emf/cdo/server/IStore.RevisionParallelism.html" title="enum in org.eclipse.emf.cdo.server">IStore.RevisionParallelism</A>, <A HREF="../../../../../../org/eclipse/emf/cdo/server/IStore.RevisionTemporality.html" title="enum in org.eclipse.emf.cdo.server">IStore.RevisionTemporality</A></CODE></TD>
+<TD><CODE><A HREF="../../../../../../org/eclipse/emf/cdo/server/IStore.CanHandleClientAssignedIDs.html" title="interface in org.eclipse.emf.cdo.server">IStore.CanHandleClientAssignedIDs</A>, <A HREF="../../../../../../org/eclipse/emf/cdo/server/IStore.ChangeFormat.html" title="enum in org.eclipse.emf.cdo.server">IStore.ChangeFormat</A>, <A HREF="../../../../../../org/eclipse/emf/cdo/server/IStore.RevisionParallelism.html" title="enum in org.eclipse.emf.cdo.server">IStore.RevisionParallelism</A>, <A HREF="../../../../../../org/eclipse/emf/cdo/server/IStore.RevisionTemporality.html" title="enum in org.eclipse.emf.cdo.server">IStore.RevisionTemporality</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -223,7 +229,7 @@ Class Store</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../../../org/eclipse/emf/cdo/spi/common/revision/InternalCDORevision.html" title="interface in org.eclipse.emf.cdo.spi.common.revision">InternalCDORevision</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../org/eclipse/emf/cdo/spi/server/Store.html#createRevision(org.eclipse.emf.ecore.EClass, org.eclipse.emf.cdo.common.id.CDOID)">createRevision</A></B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EClass.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EClass</A>&nbsp;eClass,
+<TD><CODE><B><A HREF="../../../../../../org/eclipse/emf/cdo/spi/server/Store.html#createRevision(org.eclipse.emf.ecore.EClass, org.eclipse.emf.cdo.common.id.CDOID)">createRevision</A></B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EClass.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EClass</A>&nbsp;eClass,
                <A HREF="../../../../../../org/eclipse/emf/cdo/common/id/CDOID.html" title="interface in org.eclipse.emf.cdo.common.id">CDOID</A>&nbsp;id)</CODE>
 
 <BR>
@@ -528,7 +534,7 @@ Class Store</H2>
 <TH ALIGN="left"><B>Methods inherited from class org.eclipse.net4j.util.event.<A HREF="../../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/event/Notifier.html?is-external=true" title="class or interface in org.eclipse.net4j.util.event">Notifier</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/event/Notifier.html?is-external=true#addListener(org.eclipse.net4j.util.event.IListener)" title="class or interface in org.eclipse.net4j.util.event">addListener</A>, <A HREF="../../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/event/Notifier.html?is-external=true#fireEvent(org.eclipse.net4j.util.event.IEvent)" title="class or interface in org.eclipse.net4j.util.event">fireEvent</A>, <A HREF="../../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/event/Notifier.html?is-external=true#fireEvent(org.eclipse.net4j.util.event.IEvent, org.eclipse.net4j.util.event.IListener[])" title="class or interface in org.eclipse.net4j.util.event">fireEvent</A>, <A HREF="../../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/event/Notifier.html?is-external=true#firstListenerAdded()" title="class or interface in org.eclipse.net4j.util.event">firstListenerAdded</A>, <A HREF="../../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/event/Notifier.html?is-external=true#getListeners()" title="class or interface in org.eclipse.net4j.util.event">getListeners</A>, <A HREF="../../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/event/Notifier.html?is-external=true#getNotificationService()" title="class or interface in org.eclipse.net4j.util.event">getNotificationService</A>, <A HREF="../../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/event/Notifier.html?is-external=true#hasListeners()" title="class or interface in org.eclipse.net4j.util.event">hasListeners</A>, <A HREF="../../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/event/Notifier.html?is-external=true#lastListenerRemoved()" title="class or interface in org.eclipse.net4j.util.event">lastListenerRemoved</A>, <A HREF="../../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/event/Notifier.html?is-external=true#removeListener(org.eclipse.net4j.util.event.IListener)" title="class or interface in org.eclipse.net4j.util.event">removeListener</A></CODE></TD>
+<TD><CODE><A HREF="../../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/event/Notifier.html?is-external=true#addListener(org.eclipse.net4j.util.event.IListener)" title="class or interface in org.eclipse.net4j.util.event">addListener</A>, <A HREF="../../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/event/Notifier.html?is-external=true#fireEvent()" title="class or interface in org.eclipse.net4j.util.event">fireEvent</A>, <A HREF="../../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/event/Notifier.html?is-external=true#fireEvent(org.eclipse.net4j.util.event.IEvent)" title="class or interface in org.eclipse.net4j.util.event">fireEvent</A>, <A HREF="../../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/event/Notifier.html?is-external=true#fireEvent(org.eclipse.net4j.util.event.IEvent, org.eclipse.net4j.util.event.IListener[])" title="class or interface in org.eclipse.net4j.util.event">fireEvent</A>, <A HREF="../../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/event/Notifier.html?is-external=true#firstListenerAdded()" title="class or interface in org.eclipse.net4j.util.event">firstListenerAdded</A>, <A HREF="../../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/event/Notifier.html?is-external=true#getListeners()" title="class or interface in org.eclipse.net4j.util.event">getListeners</A>, <A HREF="../../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/event/Notifier.html?is-external=true#getNotificationService()" title="class or interface in org.eclipse.net4j.util.event">getNotificationService</A>, <A HREF="../../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/event/Notifier.html?is-external=true#hasListeners()" title="class or interface in org.eclipse.net4j.util.event">hasListeners</A>, <A HREF="../../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/event/Notifier.html?is-external=true#lastListenerRemoved()" title="class or interface in org.eclipse.net4j.util.event">lastListenerRemoved</A>, <A HREF="../../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/event/Notifier.html?is-external=true#removeListener(org.eclipse.net4j.util.event.IListener)" title="class or interface in org.eclipse.net4j.util.event">removeListener</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -1078,7 +1084,7 @@ public <A HREF="../../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/e
 <A NAME="createRevision(org.eclipse.emf.ecore.EClass, org.eclipse.emf.cdo.common.id.CDOID)"><!-- --></A><H3>
 createRevision</H3>
 <PRE>
-public <A HREF="../../../../../../org/eclipse/emf/cdo/spi/common/revision/InternalCDORevision.html" title="interface in org.eclipse.emf.cdo.spi.common.revision">InternalCDORevision</A> <B>createRevision</B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EClass.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EClass</A>&nbsp;eClass,
+public <A HREF="../../../../../../org/eclipse/emf/cdo/spi/common/revision/InternalCDORevision.html" title="interface in org.eclipse.emf.cdo.spi.common.revision">InternalCDORevision</A> <B>createRevision</B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EClass.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EClass</A>&nbsp;eClass,
                                           <A HREF="../../../../../../org/eclipse/emf/cdo/common/id/CDOID.html" title="interface in org.eclipse.emf.cdo.common.id">CDOID</A>&nbsp;id)</PRE>
 <DL>
 <DD><DL>
@@ -1275,7 +1281,6 @@ public static <A HREF="../../../../../../org/eclipse/emf/cdo/server/IStoreAccess
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/Store.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>

@@ -41,7 +41,6 @@ function windowTitle()
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/IRWLockManager.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
@@ -92,12 +91,23 @@ org.eclipse.net4j.util.concurrent</FONT>
 <BR>
 Interface IRWLockManager&lt;OBJECT,CONTEXT&gt;</H2>
 <DL>
-<DT><B>All Known Implementing Classes:</B> <DD><A HREF="../../../../../org/eclipse/net4j/util/concurrent/RWLockManager.html" title="class in org.eclipse.net4j.util.concurrent">RWLockManager</A></DD>
+<DT><B>All Known Subinterfaces:</B> <DD><A HREF="../../../../../org/eclipse/net4j/util/concurrent/IRWOLockManager.html" title="interface in org.eclipse.net4j.util.concurrent">IRWOLockManager</A>&lt;OBJECT,CONTEXT&gt;</DD>
+</DL>
+<DL>
+<DT><B>All Known Implementing Classes:</B> <DD><A HREF="../../../../../org/eclipse/net4j/util/concurrent/RWLockManager.html" title="class in org.eclipse.net4j.util.concurrent">RWLockManager</A>, <A HREF="../../../../../org/eclipse/net4j/util/concurrent/RWOLockManager.html" title="class in org.eclipse.net4j.util.concurrent">RWOLockManager</A></DD>
 </DL>
 <HR>
 <DL>
 <DT><PRE>public interface <B>IRWLockManager&lt;OBJECT,CONTEXT&gt;</B></DL>
-</PRE>
+</PRE><map id="APIVIZ" name="APIVIZ">
+<area shape="rect" id="node1" href="IRWOLockManager.html" title="&#171;interface&#187; IRWOLockManager" alt="" coords="5,84,139,124"/>
+<area shape="rect" id="node2" href="IRWLockManager.html" title="&#171;interface&#187; IRWLockManager" alt="" coords="88,5,213,45"/>
+<area shape="rect" id="node3" href="RWLockManager.html" title="RWLockManager" alt="" coords="169,91,292,117"/>
+</map>
+
+<CENTER><IMG SRC="IRWLockManager.png" USEMAP="#APIVIZ" BORDER="0"></CENTER>
+
+
 
 <P>
 Support Multiple reads/no write and upgrade lock from read to write. Many context could request
@@ -109,8 +119,6 @@ Support Multiple reads/no write and upgrade lock from read to write. Many contex
 <DL>
 <DT><B>Since:</B></DT>
   <DD>3.0</DD>
-<DT><B>Author:</B></DT>
-  <DD>Eike Stepper</DD>
 </DL>
 <HR>
 
@@ -374,7 +382,6 @@ boolean <B>hasLockByOthers</B>(<A HREF="../../../../../org/eclipse/net4j/util/co
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/IRWLockManager.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>

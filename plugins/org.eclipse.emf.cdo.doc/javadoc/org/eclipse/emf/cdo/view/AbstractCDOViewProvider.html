@@ -41,7 +41,6 @@ function windowTitle()
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/AbstractCDOViewProvider.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
@@ -104,7 +103,16 @@ Class AbstractCDOViewProvider</H2>
 <HR>
 <DL>
 <DT><PRE>public abstract class <B>AbstractCDOViewProvider</B><DT>extends <A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</A><DT>implements <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOViewProvider.html" title="interface in org.eclipse.emf.cdo.view">CDOViewProvider</A></DL>
-</PRE>
+</PRE><map id="APIVIZ" name="APIVIZ">
+<area shape="rect" id="node1" href="CDOViewProvider.html" title="&#171;interface&#187; CDOViewProvider" alt="" coords="154,5,277,45"/>
+<area shape="rect" id="node2" href="ManagedContainerViewProvider.html" title="ManagedContainerViewProvider" alt="" coords="5,157,208,182"/>
+<area shape="rect" id="node3" href="../net4j/CDONet4jViewProvider.html" title="CDONet4jViewProvider (org.eclipse.emf.cdo.net4j)" alt="" coords="237,149,413,189"/>
+<area shape="rect" id="node4" href="AbstractCDOViewProvider.html" title="AbstractCDOViewProvider" alt="" coords="129,85,303,110"/>
+</map>
+
+<CENTER><IMG SRC="AbstractCDOViewProvider.png" USEMAP="#APIVIZ" BORDER="0"></CENTER>
+
+
 
 <P>
 Base logic to handle CDOViewProvider priority and regular expression.
@@ -114,8 +122,6 @@ Base logic to handle CDOViewProvider priority and regular expression.
 <DL>
 <DT><B>Since:</B></DT>
   <DD>2.0</DD>
-<DT><B>Author:</B></DT>
-  <DD>Victor Roldan Betancort</DD>
 </DL>
 <HR>
 
@@ -194,7 +200,7 @@ Base logic to handle CDOViewProvider priority and regular expression.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/common/util/URI.html?is-external=true" title="class or interface in org.eclipse.emf.common.util">URI</A></CODE></FONT></TD>
+<CODE>&nbsp;<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/common/util/URI.html?is-external=true" title="class or interface in org.eclipse.emf.common.util">URI</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../org/eclipse/emf/cdo/view/AbstractCDOViewProvider.html#getResourceURI(org.eclipse.emf.cdo.view.CDOView, java.lang.String)">getResourceURI</A></B>(<A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.html" title="interface in org.eclipse.emf.cdo.view">CDOView</A>&nbsp;view,
                <A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;path)</CODE>
 
@@ -204,7 +210,7 @@ Base logic to handle CDOViewProvider priority and regular expression.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;boolean</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../org/eclipse/emf/cdo/view/AbstractCDOViewProvider.html#matchesRegex(org.eclipse.emf.common.util.URI)">matchesRegex</A></B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/common/util/URI.html?is-external=true" title="class or interface in org.eclipse.emf.common.util">URI</A>&nbsp;uri)</CODE>
+<TD><CODE><B><A HREF="../../../../../org/eclipse/emf/cdo/view/AbstractCDOViewProvider.html#matchesRegex(org.eclipse.emf.common.util.URI)">matchesRegex</A></B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/common/util/URI.html?is-external=true" title="class or interface in org.eclipse.emf.common.util">URI</A>&nbsp;uri)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Checks if the URI matches with the regular expression of this provider</TD>
@@ -357,7 +363,7 @@ public void <B>setRegex</B>(<A HREF="http://download.oracle.com/javase/1.5.0/doc
 <A NAME="matchesRegex(org.eclipse.emf.common.util.URI)"><!-- --></A><H3>
 matchesRegex</H3>
 <PRE>
-public boolean <B>matchesRegex</B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/common/util/URI.html?is-external=true" title="class or interface in org.eclipse.emf.common.util">URI</A>&nbsp;uri)</PRE>
+public boolean <B>matchesRegex</B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/common/util/URI.html?is-external=true" title="class or interface in org.eclipse.emf.common.util">URI</A>&nbsp;uri)</PRE>
 <DL>
 <DD><B>Description copied from interface: <CODE><A HREF="../../../../../org/eclipse/emf/cdo/view/CDOViewProvider.html#matchesRegex(org.eclipse.emf.common.util.URI)">CDOViewProvider</A></CODE></B></DD>
 <DD>Checks if the URI matches with the regular expression of this provider
@@ -374,7 +380,7 @@ public boolean <B>matchesRegex</B>(<A HREF="http://download.eclipse.org/modeling
 <A NAME="getResourceURI(org.eclipse.emf.cdo.view.CDOView, java.lang.String)"><!-- --></A><H3>
 getResourceURI</H3>
 <PRE>
-public <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/common/util/URI.html?is-external=true" title="class or interface in org.eclipse.emf.common.util">URI</A> <B>getResourceURI</B>(<A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.html" title="interface in org.eclipse.emf.cdo.view">CDOView</A>&nbsp;view,
+public <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/common/util/URI.html?is-external=true" title="class or interface in org.eclipse.emf.common.util">URI</A> <B>getResourceURI</B>(<A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.html" title="interface in org.eclipse.emf.cdo.view">CDOView</A>&nbsp;view,
                           <A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</A>&nbsp;path)</PRE>
 <DL>
 <DD>Must be overwritten for non-canonical URI formats!
@@ -405,7 +411,6 @@ public <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/e
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/AbstractCDOViewProvider.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>

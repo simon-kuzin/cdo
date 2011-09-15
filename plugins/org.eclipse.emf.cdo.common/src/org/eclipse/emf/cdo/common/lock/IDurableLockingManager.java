@@ -24,11 +24,12 @@ import java.util.Map;
  * 
  * @author Eike Stepper
  * @since 4.0
+ * @apiviz.uses {@link IDurableLockingManager.LockArea} - - manages
  */
 public interface IDurableLockingManager
 {
   public LockArea createLockArea(String userID, CDOBranchPoint branchPoint, boolean readOnly,
-      Map<CDOID, LockGrade> locks);
+      Map<CDOID, LockGrade> locks) throws LockAreaAlreadyExistsException;
 
   /**
    * Returns the {@link LockArea lock area} specified by the given durableLockingID, never <code>null</code>.
@@ -49,9 +50,15 @@ public interface IDurableLockingManager
    * @author Eike Stepper
    * @noextend This interface is not intended to be extended by clients.
    * @noimplement This interface is not intended to be implemented by clients.
+   * @apiviz.composedOf {@link IDurableLockingManager.LockGrade} - - locks
    */
   public interface LockArea extends CDOBranchPoint
   {
+    /**
+     * @since 4.1
+     */
+    public static final int DEFAULT_DURABLE_LOCKING_ID_BYTES = 32;
+
     public String getDurableLockingID();
 
     public String getUserID();
@@ -61,9 +68,18 @@ public interface IDurableLockingManager
     public Map<CDOID, LockGrade> getLocks();
 
     /**
+     * Returns <code>true</code> if this instance represents a lock area that is known to be missing (not present) on a
+     * master server. (Relevant only in a replicating configuration.)
+     * 
+     * @since 4.1
+     */
+    public boolean isMissing();
+
+    /**
      * A call-back interface for <em>handling</em> {@link LockArea lock area} objects.
      * 
      * @author Eike Stepper
+     * @apiviz.uses {@link IDurableLockingManager.LockArea} - - handles
      */
     public interface Handler
     {
@@ -102,6 +118,8 @@ public interface IDurableLockingManager
   }
 
   /**
+   * Exception occurs when attempting to create a durable {@link LockArea} that already exists.
+   * 
    * @author Caspar De Groot
    * @since 4.1
    */

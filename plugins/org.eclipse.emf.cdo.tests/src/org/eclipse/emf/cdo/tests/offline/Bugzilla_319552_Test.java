@@ -42,7 +42,7 @@ public class Bugzilla_319552_Test extends AbstractSyncingTest
     InternalRepository clone = getRepository();
     waitForOnline(clone);
 
-    CDOSession masterSession = openSession(clone.getName() + "_master");
+    CDOSession masterSession = openSession("master");
     CDOTransaction masterTransaction = masterSession.openTransaction();
 
     CDOSession session = openSession();
@@ -59,7 +59,6 @@ public class Bugzilla_319552_Test extends AbstractSyncingTest
     transaction.commit();
 
     getOfflineConfig().stopMasterTransport();
-    // getOfflineConfig().stopMasterTransport();
     waitForOffline(clone);
 
     // do some online changes to increase the revision.

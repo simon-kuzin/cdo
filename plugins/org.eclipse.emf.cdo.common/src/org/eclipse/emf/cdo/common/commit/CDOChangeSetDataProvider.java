@@ -11,8 +11,11 @@
 package org.eclipse.emf.cdo.common.commit;
 
 /**
+ * Provides consumers with {@link CDOChangeSetData change set data} structures.
+ * 
  * @author Eike Stepper
  * @since 4.0
+ * @apiviz.uses {@link CDOChangeSetData} - - provides
  */
 public interface CDOChangeSetDataProvider
 {

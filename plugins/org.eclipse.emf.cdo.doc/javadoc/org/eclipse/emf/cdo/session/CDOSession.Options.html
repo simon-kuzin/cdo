@@ -41,7 +41,6 @@ function windowTitle()
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/CDOSession.Options.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
@@ -95,7 +94,7 @@ Interface CDOSession.Options</H2>
 <DT><B>All Superinterfaces:</B> <DD><A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonSession.Options.html" title="interface in org.eclipse.emf.cdo.common">CDOCommonSession.Options</A>, <A HREF="../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/event/INotifier.html?is-external=true" title="class or interface in org.eclipse.net4j.util.event">INotifier</A>, <A HREF="../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/options/IOptions.html?is-external=true" title="class or interface in org.eclipse.net4j.util.options">IOptions</A></DD>
 </DL>
 <DL>
-<DT><B>All Known Subinterfaces:</B> <DD><A HREF="../../../../../org/eclipse/emf/cdo/net4j/CDOSession.Options.html" title="interface in org.eclipse.emf.cdo.net4j">CDOSession.Options</A></DD>
+<DT><B>All Known Subinterfaces:</B> <DD><A HREF="../../../../../org/eclipse/emf/cdo/net4j/CDONet4jSession.Options.html" title="interface in org.eclipse.emf.cdo.net4j">CDONet4jSession.Options</A>, <A HREF="../../../../../org/eclipse/emf/cdo/net4j/CDOSession.Options.html" title="interface in org.eclipse.emf.cdo.net4j">CDOSession.Options</A></DD>
 </DL>
 <DL>
 <DT><B>Enclosing interface:</B><DD><A HREF="../../../../../org/eclipse/emf/cdo/session/CDOSession.html" title="interface in org.eclipse.emf.cdo.session">CDOSession</A></DD>
@@ -103,16 +102,36 @@ Interface CDOSession.Options</H2>
 <HR>
 <DL>
 <DT><PRE>public static interface <B>CDOSession.Options</B><DT>extends <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonSession.Options.html" title="interface in org.eclipse.emf.cdo.common">CDOCommonSession.Options</A></DL>
-</PRE>
+</PRE><map id="APIVIZ" name="APIVIZ">
+<area shape="rect" id="node1" href="CDOSession.Options.LobCacheEvent.html" title="&#171;interface&#187; CDOSession.Options.LobCacheEvent" alt="" coords="5,13,245,53"/>
+<area shape="rect" id="node2" href="CDOSession.Options.GeneratedPackageEmulationEvent.html" title="&#171;interface&#187; CDOSession.Options.GeneratedPackageEmulationEvent" alt="" coords="275,13,625,53"/>
+<area shape="rect" id="node3" href="CDOSession.Options.CollectionLoadingPolicyEvent.html" title="&#171;interface&#187; CDOSession.Options.CollectionLoadingPolicyEvent" alt="" coords="656,13,976,53"/>
+<area shape="rect" id="node4" href="CDOSession.Options.html" title="&#171;interface&#187; CDOSession.Options" alt="" coords="743,117,889,157"/>
+<area shape="rect" id="node5" href="CDOSession.html" title="&#171;interface&#187; CDOSession" alt="" coords="1006,13,1103,53"/>
+<area shape="rect" id="node6" href="../net4j/CDONet4jSession.Options.html" title="&#171;interface&#187; CDONet4jSession.Options (org.eclipse.emf.cdo.net4j)" alt="" coords="501,214,677,269"/>
+<area shape="rect" id="node7" href="../common/lob/CDOLobStore.html" title="&#171;interface&#187; CDOLobStore (org.eclipse.emf.cdo.common.lob)" alt="" coords="707,214,925,269"/>
+<area shape="rect" id="node8" href="../common/CDOCommonSession.Options.html" title="&#171;interface&#187; CDOCommonSession.Options (org.eclipse.emf.cdo.common)" alt="" coords="1133,6,1331,61"/>
+<area shape="rect" id="node9" href="CDOCollectionLoadingPolicy.html" title="&#171;interface&#187; CDOCollectionLoadingPolicy" alt="" coords="955,221,1143,261"/>
+</map>
+
+<CENTER><IMG SRC="CDOSession.Options.png" USEMAP="#APIVIZ" BORDER="0"></CENTER>
+
+
 
 <P>
 Encapsulates a set of notifying <A HREF="../../../../../org/eclipse/emf/cdo/session/CDOSession.html" title="interface in org.eclipse.emf.cdo.session"><CODE>session</CODE></A> configuration options.
+ <p>
+ The session options can fire the following events:
+ <ul>
+ <li> <A HREF="../../../../../org/eclipse/emf/cdo/session/CDOSession.Options.GeneratedPackageEmulationEvent.html" title="interface in org.eclipse.emf.cdo.session"><CODE>CDOSession.Options.GeneratedPackageEmulationEvent</CODE></A> after the <A HREF="../../../../../org/eclipse/emf/cdo/session/CDOSession.Options.html#setGeneratedPackageEmulationEnabled(boolean)"><CODE>generated
+ package emulation mode</CODE></A> has changed.
+ <li> <A HREF="../../../../../org/eclipse/emf/cdo/session/CDOSession.Options.CollectionLoadingPolicyEvent.html" title="interface in org.eclipse.emf.cdo.session"><CODE>CDOSession.Options.CollectionLoadingPolicyEvent</CODE></A> after the <A HREF="../../../../../org/eclipse/emf/cdo/session/CDOSession.Options.html#setCollectionLoadingPolicy(org.eclipse.emf.cdo.session.CDOCollectionLoadingPolicy)"><CODE>collection loading policy</CODE></A> has changed.
+ <li> <A HREF="../../../../../org/eclipse/emf/cdo/session/CDOSession.Options.LobCacheEvent.html" title="interface in org.eclipse.emf.cdo.session"><CODE>CDOSession.Options.LobCacheEvent</CODE></A> after the <A HREF="../../../../../org/eclipse/emf/cdo/session/CDOSession.Options.html#setLobCache(org.eclipse.emf.cdo.common.lob.CDOLobStore)"><CODE>large object cache</CODE></A> has changed.
+ </ul>
 <P>
 
 <P>
 <DL>
-<DT><B>Author:</B></DT>
-  <DD>Simon McDuff</DD>
 <DT><B>No Implement</B></DT>
   <DD>This interface is not intended to be implemented by clients.</DD>
 <DT><B>No Extend</B></DT>
@@ -165,7 +184,7 @@ Encapsulates a set of notifying <A HREF="../../../../../org/eclipse/emf/cdo/sess
 <TH ALIGN="left"><B>Nested classes/interfaces inherited from interface org.eclipse.emf.cdo.common.<A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonSession.Options.html" title="interface in org.eclipse.emf.cdo.common">CDOCommonSession.Options</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonSession.Options.PassiveUpdateEvent.html" title="interface in org.eclipse.emf.cdo.common">CDOCommonSession.Options.PassiveUpdateEvent</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonSession.Options.PassiveUpdateMode.html" title="enum in org.eclipse.emf.cdo.common">CDOCommonSession.Options.PassiveUpdateMode</A></CODE></TD>
+<TD><CODE><A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonSession.Options.LockNotificationMode.html" title="enum in org.eclipse.emf.cdo.common">CDOCommonSession.Options.LockNotificationMode</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonSession.Options.LockNotificationModeEvent.html" title="interface in org.eclipse.emf.cdo.common">CDOCommonSession.Options.LockNotificationModeEvent</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonSession.Options.PassiveUpdateEvent.html" title="interface in org.eclipse.emf.cdo.common">CDOCommonSession.Options.PassiveUpdateEvent</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonSession.Options.PassiveUpdateMode.html" title="enum in org.eclipse.emf.cdo.common">CDOCommonSession.Options.PassiveUpdateMode</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -242,7 +261,7 @@ Encapsulates a set of notifying <A HREF="../../../../../org/eclipse/emf/cdo/sess
 <TH ALIGN="left"><B>Methods inherited from interface org.eclipse.emf.cdo.common.<A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonSession.Options.html" title="interface in org.eclipse.emf.cdo.common">CDOCommonSession.Options</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonSession.Options.html#getPassiveUpdateMode()">getPassiveUpdateMode</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonSession.Options.html#isPassiveUpdateEnabled()">isPassiveUpdateEnabled</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonSession.Options.html#setPassiveUpdateEnabled(boolean)">setPassiveUpdateEnabled</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonSession.Options.html#setPassiveUpdateMode(org.eclipse.emf.cdo.common.CDOCommonSession.Options.PassiveUpdateMode)">setPassiveUpdateMode</A></CODE></TD>
+<TD><CODE><A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonSession.Options.html#getLockNotificationMode()">getLockNotificationMode</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonSession.Options.html#getPassiveUpdateMode()">getPassiveUpdateMode</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonSession.Options.html#isPassiveUpdateEnabled()">isPassiveUpdateEnabled</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonSession.Options.html#setLockNotificationMode(org.eclipse.emf.cdo.common.CDOCommonSession.Options.LockNotificationMode)">setLockNotificationMode</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonSession.Options.html#setPassiveUpdateEnabled(boolean)">setPassiveUpdateEnabled</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonSession.Options.html#setPassiveUpdateMode(org.eclipse.emf.cdo.common.CDOCommonSession.Options.PassiveUpdateMode)">setPassiveUpdateMode</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_org.eclipse.net4j.util.event.INotifier"><!-- --></A>
@@ -410,7 +429,6 @@ void <B>setLobCache</B>(<A HREF="../../../../../org/eclipse/emf/cdo/common/lob/C
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/CDOSession.Options.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>

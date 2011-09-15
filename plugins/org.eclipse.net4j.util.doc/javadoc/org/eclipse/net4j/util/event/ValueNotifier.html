@@ -41,7 +41,6 @@ function windowTitle()
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/ValueNotifier.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
@@ -102,14 +101,30 @@ Class ValueNotifier&lt;VALUE&gt;</H2>
 <HR>
 <DL>
 <DT><PRE>public class <B>ValueNotifier&lt;VALUE&gt;</B><DT>extends <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html" title="class in org.eclipse.net4j.util.event">Notifier</A></DL>
-</PRE>
+</PRE><map id="APIVIZ" name="APIVIZ">
+<area shape="rect" id="node1" href="ValueNotifier.html" title="ValueNotifier" alt="" coords="53,89,147,114"/>
+<area shape="rect" id="node2" href="ValueEvent.html" title="ValueEvent" alt="" coords="5,6,91,31"/>
+<area shape="rect" id="node3" title="Object (java.lang)" alt="" coords="60,171,140,211"/>
+<area shape="rect" id="node4" href="Notifier.html" title="Notifier" alt="" coords="121,6,183,31"/>
+</map>
+
+<CENTER><IMG SRC="ValueNotifier.png" USEMAP="#APIVIZ" BORDER="0"></CENTER>
+
+
+
+<P>
+A <A HREF="../../../../../org/eclipse/net4j/util/event/INotifier.html" title="interface in org.eclipse.net4j.util.event"><CODE>notifier</CODE></A> with an <A HREF="../../../../../org/eclipse/net4j/util/event/ValueNotifier.html#getID()"><CODE>ID</CODE></A> and a single <A HREF="../../../../../org/eclipse/net4j/util/event/ValueNotifier.html#getValue()"><CODE>value</CODE></A>.
+ <p>
+ A value notifier can fire the following events:
+ <ul>
+ <li> <A HREF="../../../../../org/eclipse/net4j/util/event/ValueEvent.html" title="class in org.eclipse.net4j.util.event"><CODE>ValueEvent</CODE></A> after value changes.
+ </ul>
+<P>
 
 <P>
 <DL>
 <DT><B>Since:</B></DT>
   <DD>3.1</DD>
-<DT><B>Author:</B></DT>
-  <DD>Eike Stepper</DD>
 </DL>
 <HR>
 
@@ -189,7 +204,7 @@ Class ValueNotifier&lt;VALUE&gt;</H2>
 <TH ALIGN="left"><B>Methods inherited from class org.eclipse.net4j.util.event.<A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html" title="class in org.eclipse.net4j.util.event">Notifier</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#addListener(org.eclipse.net4j.util.event.IListener)">addListener</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#fireEvent(org.eclipse.net4j.util.event.IEvent)">fireEvent</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#fireEvent(org.eclipse.net4j.util.event.IEvent, org.eclipse.net4j.util.event.IListener[])">fireEvent</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#firstListenerAdded()">firstListenerAdded</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#getListeners()">getListeners</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#getNotificationService()">getNotificationService</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#hasListeners()">hasListeners</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#lastListenerRemoved()">lastListenerRemoved</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#removeListener(org.eclipse.net4j.util.event.IListener)">removeListener</A></CODE></TD>
+<TD><CODE><A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#addListener(org.eclipse.net4j.util.event.IListener)">addListener</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#fireEvent()">fireEvent</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#fireEvent(org.eclipse.net4j.util.event.IEvent)">fireEvent</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#fireEvent(org.eclipse.net4j.util.event.IEvent, org.eclipse.net4j.util.event.IListener[])">fireEvent</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#firstListenerAdded()">firstListenerAdded</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#getListeners()">getListeners</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#getNotificationService()">getNotificationService</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#hasListeners()">hasListeners</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#lastListenerRemoved()">lastListenerRemoved</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#removeListener(org.eclipse.net4j.util.event.IListener)">removeListener</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -304,7 +319,6 @@ public void <B>setValue</B>(<A HREF="../../../../../org/eclipse/net4j/util/event
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/ValueNotifier.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>

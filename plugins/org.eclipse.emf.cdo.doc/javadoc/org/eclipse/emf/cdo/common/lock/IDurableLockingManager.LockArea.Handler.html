@@ -41,7 +41,6 @@ function windowTitle()
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/IDurableLockingManager.LockArea.Handler.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
@@ -56,7 +55,7 @@ function windowTitle()
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../../../../../org/eclipse/emf/cdo/common/lock/IDurableLockingManager.LockArea.html" title="interface in org.eclipse.emf.cdo.common.lock"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../../org/eclipse/emf/cdo/common/lock/IDurableLockingManager.LockAreaNotFoundException.html" title="class in org.eclipse.emf.cdo.common.lock"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../../org/eclipse/emf/cdo/common/lock/IDurableLockingManager.LockAreaAlreadyExistsException.html" title="class in org.eclipse.emf.cdo.common.lock"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../../index.html?org/eclipse/emf/cdo/common/lock/IDurableLockingManager.LockArea.Handler.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="IDurableLockingManager.LockArea.Handler.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -92,22 +91,29 @@ org.eclipse.emf.cdo.common.lock</FONT>
 <BR>
 Interface IDurableLockingManager.LockArea.Handler</H2>
 <DL>
+<DT><B>All Known Subinterfaces:</B> <DD><A HREF="../../../../../../org/eclipse/emf/cdo/spi/common/CDOReplicationContext.html" title="interface in org.eclipse.emf.cdo.spi.common">CDOReplicationContext</A>, <A HREF="../../../../../../org/eclipse/emf/cdo/spi/server/InternalFailoverParticipant.html" title="interface in org.eclipse.emf.cdo.spi.server">InternalFailoverParticipant</A>, <A HREF="../../../../../../org/eclipse/emf/cdo/spi/server/InternalSynchronizableRepository.html" title="interface in org.eclipse.emf.cdo.spi.server">InternalSynchronizableRepository</A></DD>
+</DL>
+<DL>
 <DT><B>Enclosing interface:</B><DD><A HREF="../../../../../../org/eclipse/emf/cdo/common/lock/IDurableLockingManager.LockArea.html" title="interface in org.eclipse.emf.cdo.common.lock">IDurableLockingManager.LockArea</A></DD>
 </DL>
 <HR>
 <DL>
 <DT><PRE>public static interface <B>IDurableLockingManager.LockArea.Handler</B></DL>
-</PRE>
+</PRE><map id="APIVIZ" name="APIVIZ">
+<area shape="rect" id="node1" href="IDurableLockingManager.LockArea.Handler.html" title="&#171;interface&#187; IDurableLockingManager.LockArea.Handler" alt="" coords="5,101,275,141"/>
+<area shape="rect" id="node2" href="IDurableLockingManager.LockArea.html" title="&#171;interface&#187; IDurableLockingManager.LockArea" alt="" coords="29,5,251,45"/>
+<area shape="rect" id="node3" href="../../spi/common/CDOReplicationContext.html" title="&#171;interface&#187; CDOReplicationContext (org.eclipse.emf.cdo.spi.common)" alt="" coords="31,185,249,239"/>
+</map>
+
+<CENTER><IMG SRC="IDurableLockingManager.LockArea.Handler.png" USEMAP="#APIVIZ" BORDER="0"></CENTER>
+
+
 
 <P>
 A call-back interface for <em>handling</em> <A HREF="../../../../../../org/eclipse/emf/cdo/common/lock/IDurableLockingManager.LockArea.html" title="interface in org.eclipse.emf.cdo.common.lock"><CODE>lock area</CODE></A> objects.
 <P>
 
 <P>
-<DL>
-<DT><B>Author:</B></DT>
-  <DD>Eike Stepper</DD>
-</DL>
 <HR>
 
 <P>
@@ -168,7 +174,6 @@ boolean <B>handleLockArea</B>(<A HREF="../../../../../../org/eclipse/emf/cdo/com
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/IDurableLockingManager.LockArea.Handler.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
@@ -183,7 +188,7 @@ boolean <B>handleLockArea</B>(<A HREF="../../../../../../org/eclipse/emf/cdo/com
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../../../../../org/eclipse/emf/cdo/common/lock/IDurableLockingManager.LockArea.html" title="interface in org.eclipse.emf.cdo.common.lock"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../../org/eclipse/emf/cdo/common/lock/IDurableLockingManager.LockAreaNotFoundException.html" title="class in org.eclipse.emf.cdo.common.lock"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../../org/eclipse/emf/cdo/common/lock/IDurableLockingManager.LockAreaAlreadyExistsException.html" title="class in org.eclipse.emf.cdo.common.lock"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../../index.html?org/eclipse/emf/cdo/common/lock/IDurableLockingManager.LockArea.Handler.html" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="IDurableLockingManager.LockArea.Handler.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;

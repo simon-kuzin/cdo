@@ -41,7 +41,6 @@ function windowTitle()
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/FactoryDescriptor.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
@@ -102,12 +101,33 @@ Class FactoryDescriptor</H2>
 <HR>
 <DL>
 <DT><PRE>public class <B>FactoryDescriptor</B><DT>extends <A HREF="../../../../../org/eclipse/net4j/util/factory/Factory.html" title="class in org.eclipse.net4j.util.factory">Factory</A></DL>
-</PRE>
+</PRE><map id="APIVIZ" name="APIVIZ">
+<area shape="rect" id="node1" href="Factory.html" title="Factory" alt="" coords="35,6,100,31"/>
+<area shape="rect" id="node2" href="FactoryDescriptor.html" title="FactoryDescriptor" alt="" coords="5,71,131,97"/>
+</map>
+
+<CENTER><IMG SRC="FactoryDescriptor.png" USEMAP="#APIVIZ" BORDER="0"></CENTER>
+
+
+
+<P>
+A <A HREF="../../../../../org/eclipse/net4j/util/factory/IFactory.html" title="interface in org.eclipse.net4j.util.factory"><CODE>factory</CODE></A> that delegates to an <CODE>extension registry</CODE> contribution.
+ <p>
+ Example contribution:
+ 
+ <pre>
+    &lt;extension
+          point="org.eclipse.net4j.util.factories">
+       &lt;factory
+             class="org.eclipse.net4j.util.concurrent.TimerLifecycle$DaemonFactory"
+             productGroup="org.eclipse.net4j.util.timers"
+             type="daemon"/>
+    &lt;/extension>
+ </pre>
+<P>
 
 <P>
 <DL>
-<DT><B>Author:</B></DT>
-  <DD>Eike Stepper</DD>
 <DT><B>No Extend</B></DT>
   <DD>This class is not intended to be subclassed by clients.</DD>
 </DL>
@@ -124,7 +144,7 @@ Class FactoryDescriptor</H2>
 <B>Constructor Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../../org/eclipse/net4j/util/factory/FactoryDescriptor.html#FactoryDescriptor(org.eclipse.core.runtime.IConfigurationElement)">FactoryDescriptor</A></B>(<A HREF="http://help.eclipse.org/indigo/topic/org.eclipse.platform.doc.isv/reference/api/org/eclipse/core/runtime/IConfigurationElement.html?is-external=true" title="class or interface in org.eclipse.core.runtime">IConfigurationElement</A>&nbsp;configurationElement)</CODE>
+<TD><CODE><B><A HREF="../../../../../org/eclipse/net4j/util/factory/FactoryDescriptor.html#FactoryDescriptor(org.eclipse.core.runtime.IConfigurationElement)">FactoryDescriptor</A></B>(org.eclipse.core.runtime.IConfigurationElement&nbsp;configurationElement)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -157,7 +177,7 @@ Class FactoryDescriptor</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://help.eclipse.org/indigo/topic/org.eclipse.platform.doc.isv/reference/api/org/eclipse/core/runtime/IConfigurationElement.html?is-external=true" title="class or interface in org.eclipse.core.runtime">IConfigurationElement</A></CODE></FONT></TD>
+<CODE>&nbsp;org.eclipse.core.runtime.IConfigurationElement</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../org/eclipse/net4j/util/factory/FactoryDescriptor.html#getConfigurationElement()">getConfigurationElement</A></B>()</CODE>
 
 <BR>
@@ -206,7 +226,7 @@ Class FactoryDescriptor</H2>
 <A NAME="FactoryDescriptor(org.eclipse.core.runtime.IConfigurationElement)"><!-- --></A><H3>
 FactoryDescriptor</H3>
 <PRE>
-public <B>FactoryDescriptor</B>(<A HREF="http://help.eclipse.org/indigo/topic/org.eclipse.platform.doc.isv/reference/api/org/eclipse/core/runtime/IConfigurationElement.html?is-external=true" title="class or interface in org.eclipse.core.runtime">IConfigurationElement</A>&nbsp;configurationElement)</PRE>
+public <B>FactoryDescriptor</B>(org.eclipse.core.runtime.IConfigurationElement&nbsp;configurationElement)</PRE>
 <DL>
 </DL>
 
@@ -223,7 +243,7 @@ public <B>FactoryDescriptor</B>(<A HREF="http://help.eclipse.org/indigo/topic/or
 <A NAME="getConfigurationElement()"><!-- --></A><H3>
 getConfigurationElement</H3>
 <PRE>
-public <A HREF="http://help.eclipse.org/indigo/topic/org.eclipse.platform.doc.isv/reference/api/org/eclipse/core/runtime/IConfigurationElement.html?is-external=true" title="class or interface in org.eclipse.core.runtime">IConfigurationElement</A> <B>getConfigurationElement</B>()</PRE>
+public org.eclipse.core.runtime.IConfigurationElement <B>getConfigurationElement</B>()</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -282,7 +302,6 @@ public <A HREF="http://download.oracle.com/javase/1.5.0/docs/api/java/lang/Strin
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/FactoryDescriptor.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>

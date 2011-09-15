@@ -41,7 +41,6 @@ function windowTitle()
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/Worker.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
@@ -106,14 +105,23 @@ Class Worker</H2>
 <HR>
 <DL>
 <DT><PRE>public abstract class <B>Worker</B><DT>extends <A HREF="../../../../../org/eclipse/net4j/util/lifecycle/Lifecycle.html" title="class in org.eclipse.net4j.util.lifecycle">Lifecycle</A></DL>
-</PRE>
+</PRE><map id="APIVIZ" name="APIVIZ">
+<area shape="rect" id="node1" href="Worker.html" title="Worker" alt="" coords="306,85,371,110"/>
+<area shape="rect" id="node2" href="../ref/ReferenceQueueWorker.html" title="ReferenceQueueWorker (org.eclipse.net4j.util.ref)" alt="" coords="5,149,171,189"/>
+<area shape="rect" id="node3" href="QueueWorker.html" title="QueueWorker" alt="" coords="201,157,303,182"/>
+<area shape="rect" id="node4" href="../cache/Cache.html" title="Cache (org.eclipse.net4j.util.cache)" alt="" coords="333,149,517,189"/>
+<area shape="rect" id="node5" href="../lifecycle/Lifecycle.html" title="Lifecycle (org.eclipse.net4j.util.lifecycle)" alt="" coords="240,5,437,45"/>
+<area shape="rect" id="node6" href="../cache/CacheMonitor.html" title="CacheMonitor (org.eclipse.net4j.util.cache)" alt="" coords="547,149,732,189"/>
+</map>
+
+<CENTER><IMG SRC="Worker.png" USEMAP="#APIVIZ" BORDER="0"></CENTER>
+
+
 
 <P>
 <DL>
 <DT><B>Since:</B></DT>
   <DD>2.0</DD>
-<DT><B>Author:</B></DT>
-  <DD>Eike Stepper</DD>
 </DL>
 <HR>
 
@@ -314,7 +322,7 @@ Class Worker</H2>
 <TH ALIGN="left"><B>Methods inherited from class org.eclipse.net4j.util.event.<A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html" title="class in org.eclipse.net4j.util.event">Notifier</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#addListener(org.eclipse.net4j.util.event.IListener)">addListener</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#fireEvent(org.eclipse.net4j.util.event.IEvent)">fireEvent</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#fireEvent(org.eclipse.net4j.util.event.IEvent, org.eclipse.net4j.util.event.IListener[])">fireEvent</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#firstListenerAdded()">firstListenerAdded</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#getListeners()">getListeners</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#getNotificationService()">getNotificationService</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#hasListeners()">hasListeners</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#lastListenerRemoved()">lastListenerRemoved</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#removeListener(org.eclipse.net4j.util.event.IListener)">removeListener</A></CODE></TD>
+<TD><CODE><A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#addListener(org.eclipse.net4j.util.event.IListener)">addListener</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#fireEvent()">fireEvent</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#fireEvent(org.eclipse.net4j.util.event.IEvent)">fireEvent</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#fireEvent(org.eclipse.net4j.util.event.IEvent, org.eclipse.net4j.util.event.IListener[])">fireEvent</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#firstListenerAdded()">firstListenerAdded</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#getListeners()">getListeners</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#getNotificationService()">getNotificationService</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#hasListeners()">hasListeners</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#lastListenerRemoved()">lastListenerRemoved</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#removeListener(org.eclipse.net4j.util.event.IListener)">removeListener</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -575,7 +583,6 @@ public static <A HREF="../../../../../org/eclipse/net4j/util/IErrorHandler.html"
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/Worker.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>

@@ -41,7 +41,6 @@ function windowTitle()
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/CDOTransaction.Options.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
@@ -92,7 +91,7 @@ org.eclipse.emf.cdo.transaction</FONT>
 <BR>
 Interface CDOTransaction.Options</H2>
 <DL>
-<DT><B>All Superinterfaces:</B> <DD><A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html" title="interface in org.eclipse.emf.cdo.view">CDOView.Options</A>, <A HREF="../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/event/INotifier.html?is-external=true" title="class or interface in org.eclipse.net4j.util.event">INotifier</A>, <A HREF="../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/options/IOptions.html?is-external=true" title="class or interface in org.eclipse.net4j.util.options">IOptions</A></DD>
+<DT><B>All Superinterfaces:</B> <DD><A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonView.Options.html" title="interface in org.eclipse.emf.cdo.common">CDOCommonView.Options</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html" title="interface in org.eclipse.emf.cdo.view">CDOView.Options</A>, <A HREF="../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/event/INotifier.html?is-external=true" title="class or interface in org.eclipse.net4j.util.event">INotifier</A>, <A HREF="../../../../../../../org.eclipse.net4j.util.doc/javadoc/org/eclipse/net4j/util/options/IOptions.html?is-external=true" title="class or interface in org.eclipse.net4j.util.options">IOptions</A></DD>
 </DL>
 <DL>
 <DT><B>Enclosing interface:</B><DD><A HREF="../../../../../org/eclipse/emf/cdo/transaction/CDOTransaction.html" title="interface in org.eclipse.emf.cdo.transaction">CDOTransaction</A></DD>
@@ -100,7 +99,15 @@ Interface CDOTransaction.Options</H2>
 <HR>
 <DL>
 <DT><PRE>public static interface <B>CDOTransaction.Options</B><DT>extends <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html" title="interface in org.eclipse.emf.cdo.view">CDOView.Options</A></DL>
-</PRE>
+</PRE><map id="APIVIZ" name="APIVIZ">
+<area shape="rect" id="node1" href="../view/CDOView.Options.html" title="&#171;interface&#187; CDOView.Options (org.eclipse.emf.cdo.view)" alt="" coords="5,6,176,61"/>
+<area shape="rect" id="node2" href="CDOTransaction.Options.html" title="&#171;interface&#187; CDOTransaction.Options" alt="" coords="101,117,267,157"/>
+<area shape="rect" id="node3" href="CDOConflictResolver.html" title="&#171;interface&#187; CDOConflictResolver" alt="" coords="206,13,348,53"/>
+</map>
+
+<CENTER><IMG SRC="CDOTransaction.Options.png" USEMAP="#APIVIZ" BORDER="0"></CENTER>
+
+
 
 <P>
 Encapsulates a set of notifying <A HREF="../../../../../org/eclipse/emf/cdo/transaction/CDOTransaction.html" title="interface in org.eclipse.emf.cdo.transaction"><CODE>transaction</CODE></A> configuration options.
@@ -108,8 +115,6 @@ Encapsulates a set of notifying <A HREF="../../../../../org/eclipse/emf/cdo/tran
 
 <P>
 <DL>
-<DT><B>Author:</B></DT>
-  <DD>Simon McDuff</DD>
 <DT><B>No Implement</B></DT>
   <DD>This interface is not intended to be implemented by clients.</DD>
 <DT><B>No Extend</B></DT>
@@ -152,6 +157,16 @@ Encapsulates a set of notifying <A HREF="../../../../../org/eclipse/emf/cdo/tran
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.CacheReferenceTypeEvent.html" title="interface in org.eclipse.emf.cdo.view">CDOView.Options.CacheReferenceTypeEvent</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.ChangeSubscriptionPoliciesEvent.html" title="interface in org.eclipse.emf.cdo.view">CDOView.Options.ChangeSubscriptionPoliciesEvent</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.InvalidationNotificationEvent.html" title="interface in org.eclipse.emf.cdo.view">CDOView.Options.InvalidationNotificationEvent</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.InvalidationPolicyEvent.html" title="interface in org.eclipse.emf.cdo.view">CDOView.Options.InvalidationPolicyEvent</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.ReferencePolicyEvent.html" title="interface in org.eclipse.emf.cdo.view">CDOView.Options.ReferencePolicyEvent</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.RevisionPrefetchingPolicyEvent.html" title="interface in org.eclipse.emf.cdo.view">CDOView.Options.RevisionPrefetchingPolicyEvent</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.StaleReferencePolicyEvent.html" title="interface in org.eclipse.emf.cdo.view">CDOView.Options.StaleReferencePolicyEvent</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.StrongReferencePolicyEvent.html" title="interface in org.eclipse.emf.cdo.view">CDOView.Options.StrongReferencePolicyEvent</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<A NAME="nested_classes_inherited_from_class_org.eclipse.emf.cdo.common.CDOCommonView.Options"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Nested classes/interfaces inherited from interface org.eclipse.emf.cdo.common.<A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonView.Options.html" title="interface in org.eclipse.emf.cdo.common">CDOCommonView.Options</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonView.Options.LockNotificationEvent.html" title="interface in org.eclipse.emf.cdo.common">CDOCommonView.Options.LockNotificationEvent</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -247,7 +262,16 @@ Encapsulates a set of notifying <A HREF="../../../../../org/eclipse/emf/cdo/tran
 <TH ALIGN="left"><B>Methods inherited from interface org.eclipse.emf.cdo.view.<A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html" title="interface in org.eclipse.emf.cdo.view">CDOView.Options</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#addChangeSubscriptionPolicy(org.eclipse.emf.cdo.view.CDOAdapterPolicy)">addChangeSubscriptionPolicy</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#getCacheReferenceType()">getCacheReferenceType</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#getChangeSubscriptionPolicies()">getChangeSubscriptionPolicies</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#getInvalidationPolicy()">getInvalidationPolicy</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#getRevisionPrefetchingPolicy()">getRevisionPrefetchingPolicy</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#getStaleReferenceBehaviour()">getStaleReferenceBehaviour</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#getStrongReferencePolicy()">getStrongReferencePolicy</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#isInvalidationNotificationEnabled()">isInvalidationNotificationEnabled</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#removeChangeSubscriptionPolicy(org.eclipse.emf.cdo.view.CDOAdapterPolicy)">removeChangeSubscriptionPolicy</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#setCacheReferenceType(org.eclipse.net4j.util.ref.ReferenceType)">setCacheReferenceType</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#setInvalidationNotificationEnabled(boolean)">setInvalidationNotificationEnabled</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#setInvalidationPolicy(org.eclipse.emf.cdo.view.CDOInvalidationPolicy)">setInvalidationPolicy</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#setRevisionPrefetchingPolicy(org.eclipse.emf.cdo.view.CDORevisionPrefetchingPolicy)">setRevisionPrefetchingPolicy</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#setStaleReferenceBehaviour(org.eclipse.emf.cdo.view.CDOStaleReferencePolicy)">setStaleReferenceBehaviour</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#setStrongReferencePolicy(org.eclipse.emf.cdo.view.CDOAdapterPolicy)">setStrongReferencePolicy</A></CODE></TD>
+<TD><CODE><A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#addChangeSubscriptionPolicy(org.eclipse.emf.cdo.view.CDOAdapterPolicy)">addChangeSubscriptionPolicy</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#getCacheReferenceType()">getCacheReferenceType</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#getChangeSubscriptionPolicies()">getChangeSubscriptionPolicies</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#getInvalidationPolicy()">getInvalidationPolicy</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#getRevisionPrefetchingPolicy()">getRevisionPrefetchingPolicy</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#getStaleReferenceBehaviour()">getStaleReferenceBehaviour</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#getStaleReferencePolicy()">getStaleReferencePolicy</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#getStrongReferencePolicy()">getStrongReferencePolicy</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#isInvalidationNotificationEnabled()">isInvalidationNotificationEnabled</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#removeChangeSubscriptionPolicy(org.eclipse.emf.cdo.view.CDOAdapterPolicy)">removeChangeSubscriptionPolicy</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#setCacheReferenceType(org.eclipse.net4j.util.ref.ReferenceType)">setCacheReferenceType</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#setInvalidationNotificationEnabled(boolean)">setInvalidationNotificationEnabled</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#setInvalidationPolicy(org.eclipse.emf.cdo.view.CDOInvalidationPolicy)">setInvalidationPolicy</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#setRevisionPrefetchingPolicy(org.eclipse.emf.cdo.view.CDORevisionPrefetchingPolicy)">setRevisionPrefetchingPolicy</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#setStaleReferenceBehaviour(org.eclipse.emf.cdo.view.CDOStaleReferencePolicy)">setStaleReferenceBehaviour</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#setStaleReferencePolicy(org.eclipse.emf.cdo.view.CDOStaleReferencePolicy)">setStaleReferencePolicy</A>, <A HREF="../../../../../org/eclipse/emf/cdo/view/CDOView.Options.html#setStrongReferencePolicy(org.eclipse.emf.cdo.view.CDOAdapterPolicy)">setStrongReferencePolicy</A></CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_org.eclipse.emf.cdo.common.CDOCommonView.Options"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from interface org.eclipse.emf.cdo.common.<A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonView.Options.html" title="interface in org.eclipse.emf.cdo.common">CDOCommonView.Options</A></B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonView.Options.html#isLockNotificationEnabled()">isLockNotificationEnabled</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonView.Options.html#setLockNotificationEnabled(boolean)">setLockNotificationEnabled</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_org.eclipse.net4j.util.event.INotifier"><!-- --></A>
@@ -409,7 +433,6 @@ void <B>setAutoReleaseLocksEnabled</B>(boolean&nbsp;on)</PRE>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/CDOTransaction.Options.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>

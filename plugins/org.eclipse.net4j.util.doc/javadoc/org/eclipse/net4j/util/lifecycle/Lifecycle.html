@@ -41,7 +41,6 @@ function windowTitle()
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/Lifecycle.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
@@ -100,18 +99,34 @@ Class Lifecycle</H2>
 <DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../org/eclipse/net4j/util/event/INotifier.html" title="interface in org.eclipse.net4j.util.event">INotifier</A>, <A HREF="../../../../../org/eclipse/net4j/util/lifecycle/ILifecycle.html" title="interface in org.eclipse.net4j.util.lifecycle">ILifecycle</A></DD>
 </DL>
 <DL>
-<DT><B>Direct Known Subclasses:</B> <DD><A HREF="../../../../../org/eclipse/net4j/util/container/Container.html" title="class in org.eclipse.net4j.util.container">Container</A>, <A HREF="../../../../../org/eclipse/net4j/util/fsm/FiniteStateMachine.html" title="class in org.eclipse.net4j.util.fsm">FiniteStateMachine</A>, <A HREF="../../../../../org/eclipse/net4j/util/container/ManagedContainer.html" title="class in org.eclipse.net4j.util.container">ManagedContainer</A>, <A HREF="../../../../../org/eclipse/net4j/util/security/Randomizer.html" title="class in org.eclipse.net4j.util.security">Randomizer</A>, <A HREF="../../../../../org/eclipse/net4j/util/concurrent/RWLockManager.html" title="class in org.eclipse.net4j.util.concurrent">RWLockManager</A>, <A HREF="../../../../../org/eclipse/net4j/util/security/UserManager.html" title="class in org.eclipse.net4j.util.security">UserManager</A>, <A HREF="../../../../../org/eclipse/net4j/util/concurrent/Worker.html" title="class in org.eclipse.net4j.util.concurrent">Worker</A></DD>
+<DT><B>Direct Known Subclasses:</B> <DD><A HREF="../../../../../org/eclipse/net4j/util/container/Container.html" title="class in org.eclipse.net4j.util.container">Container</A>, <A HREF="../../../../../org/eclipse/net4j/util/fsm/FiniteStateMachine.html" title="class in org.eclipse.net4j.util.fsm">FiniteStateMachine</A>, <A HREF="../../../../../org/eclipse/net4j/util/container/ManagedContainer.html" title="class in org.eclipse.net4j.util.container">ManagedContainer</A>, <A HREF="../../../../../org/eclipse/net4j/util/security/Randomizer.html" title="class in org.eclipse.net4j.util.security">Randomizer</A>, <A HREF="../../../../../org/eclipse/net4j/util/concurrent/RWLockManager.html" title="class in org.eclipse.net4j.util.concurrent">RWLockManager</A>, <A HREF="../../../../../org/eclipse/net4j/util/concurrent/RWOLockManager.html" title="class in org.eclipse.net4j.util.concurrent">RWOLockManager</A>, <A HREF="../../../../../org/eclipse/net4j/util/security/UserManager.html" title="class in org.eclipse.net4j.util.security">UserManager</A>, <A HREF="../../../../../org/eclipse/net4j/util/concurrent/Worker.html" title="class in org.eclipse.net4j.util.concurrent">Worker</A></DD>
 </DL>
 <HR>
 <DL>
 <DT><PRE>public class <B>Lifecycle</B><DT>extends <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html" title="class in org.eclipse.net4j.util.event">Notifier</A><DT>implements <A HREF="../../../../../org/eclipse/net4j/util/lifecycle/ILifecycle.html" title="interface in org.eclipse.net4j.util.lifecycle">ILifecycle</A></DL>
-</PRE>
+</PRE><map id="APIVIZ" name="APIVIZ">
+<area shape="rect" id="node1" href="Lifecycle.html" title="Lifecycle" alt="" coords="283,218,357,243"/>
+<area shape="rect" id="node2" href="../container/ManagedContainer.html" title="ManagedContainer (org.eclipse.net4j.util.container)" alt="" coords="457,5,660,45"/>
+<area shape="rect" id="node3" href="../event/Notifier.html" title="Notifier (org.eclipse.net4j.util.event)" alt="" coords="6,181,186,221"/>
+<area shape="rect" id="node4" href="../concurrent/RWLockManager.html" title="RWLockManager (org.eclipse.net4j.util.concurrent)" alt="" coords="453,64,664,104"/>
+<area shape="rect" id="node5" href="../concurrent/RWOLockManager.html" title="RWOLockManager (org.eclipse.net4j.util.concurrent)" alt="" coords="453,123,664,163"/>
+<area shape="rect" id="node6" href="../security/Randomizer.html" title="Randomizer (org.eclipse.net4j.util.security)" alt="" coords="461,181,657,221"/>
+<area shape="rect" id="node7" href="../security/UserManager.html" title="UserManager (org.eclipse.net4j.util.security)" alt="" coords="461,240,657,280"/>
+<area shape="rect" id="node8" href="../container/Container.html" title="Container (org.eclipse.net4j.util.container)" alt="" coords="457,299,660,339"/>
+<area shape="rect" id="node9" href="../fsm/FiniteStateMachine.html" title="FiniteStateMachine (org.eclipse.net4j.util.fsm)" alt="" coords="473,357,645,397"/>
+<area shape="rect" id="node10" href="../concurrent/Worker.html" title="Worker (org.eclipse.net4j.util.concurrent)" alt="" coords="453,416,664,456"/>
+<area shape="rect" id="node11" href="ILifecycle.html" title="&#171;interface&#187; ILifecycle" alt="" coords="53,240,139,280"/>
+</map>
+
+<CENTER><IMG SRC="Lifecycle.png" USEMAP="#APIVIZ" BORDER="0"></CENTER>
+
+
 
 <P>
-<DL>
-<DT><B>Author:</B></DT>
-  <DD>Eike Stepper</DD>
-</DL>
+A default implementation of an entity with a <A HREF="../../../../../org/eclipse/net4j/util/lifecycle/ILifecycle.html" title="interface in org.eclipse.net4j.util.lifecycle"><CODE>lifecycle</CODE></A>.
+<P>
+
+<P>
 <HR>
 
 <P>
@@ -329,7 +344,7 @@ Class Lifecycle</H2>
 <TH ALIGN="left"><B>Methods inherited from class org.eclipse.net4j.util.event.<A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html" title="class in org.eclipse.net4j.util.event">Notifier</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#addListener(org.eclipse.net4j.util.event.IListener)">addListener</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#fireEvent(org.eclipse.net4j.util.event.IEvent)">fireEvent</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#fireEvent(org.eclipse.net4j.util.event.IEvent, org.eclipse.net4j.util.event.IListener[])">fireEvent</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#firstListenerAdded()">firstListenerAdded</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#getListeners()">getListeners</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#getNotificationService()">getNotificationService</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#hasListeners()">hasListeners</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#lastListenerRemoved()">lastListenerRemoved</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#removeListener(org.eclipse.net4j.util.event.IListener)">removeListener</A></CODE></TD>
+<TD><CODE><A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#addListener(org.eclipse.net4j.util.event.IListener)">addListener</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#fireEvent()">fireEvent</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#fireEvent(org.eclipse.net4j.util.event.IEvent)">fireEvent</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#fireEvent(org.eclipse.net4j.util.event.IEvent, org.eclipse.net4j.util.event.IListener[])">fireEvent</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#firstListenerAdded()">firstListenerAdded</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#getListeners()">getListeners</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#getNotificationService()">getNotificationService</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#hasListeners()">hasListeners</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#lastListenerRemoved()">lastListenerRemoved</A>, <A HREF="../../../../../org/eclipse/net4j/util/event/Notifier.html#removeListener(org.eclipse.net4j.util.event.IListener)">removeListener</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -742,7 +757,6 @@ protected void <B>doDeactivate</B>()
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/Lifecycle.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>

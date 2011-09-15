@@ -41,7 +41,6 @@ function windowTitle()
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/IStoreAccessor.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
@@ -103,13 +102,24 @@ Interface IStoreAccessor</H2>
 <HR>
 <DL>
 <DT><PRE>public interface <B>IStoreAccessor</B><DT>extends <A HREF="../../../../../org/eclipse/emf/cdo/server/IQueryHandlerProvider.html" title="interface in org.eclipse.emf.cdo.server">IQueryHandlerProvider</A>, <A HREF="../../../../../org/eclipse/emf/cdo/spi/common/branch/InternalCDOBranchManager.BranchLoader.html" title="interface in org.eclipse.emf.cdo.spi.common.branch">InternalCDOBranchManager.BranchLoader</A>, <A HREF="../../../../../org/eclipse/emf/cdo/spi/common/commit/InternalCDOCommitInfoManager.CommitInfoLoader.html" title="interface in org.eclipse.emf.cdo.spi.common.commit">InternalCDOCommitInfoManager.CommitInfoLoader</A></DL>
-</PRE>
+</PRE><map id="APIVIZ" name="APIVIZ">
+<area shape="rect" id="node1" href="../spi/common/commit/InternalCDOCommitInfoManager.CommitInfoLoader.html" title="&#171;interface&#187; InternalCDOCommitInfoManager.CommitInfoLoader (org.eclipse.emf.cdo.spi.common.commit)" alt="" coords="5,6,320,61"/>
+<area shape="rect" id="node2" href="../spi/common/branch/InternalCDOBranchManager.BranchLoader.html" title="&#171;interface&#187; InternalCDOBranchManager.BranchLoader (org.eclipse.emf.cdo.spi.common.branch)" alt="" coords="349,6,616,61"/>
+<area shape="rect" id="node3" href="IStoreChunkReader.html" title="&#171;interface&#187; IStoreChunkReader" alt="" coords="646,13,780,53"/>
+<area shape="rect" id="node4" href="IStoreAccessor.Raw.html" title="&#171;interface&#187; IStoreAccessor.Raw" alt="" coords="193,221,332,261"/>
+<area shape="rect" id="node5" href="IStoreAccessor.html" title="&#171;interface&#187; IStoreAccessor" alt="" coords="542,117,652,157"/>
+<area shape="rect" id="node6" href="IStore.html" title="&#171;interface&#187; IStore" alt="" coords="363,221,448,261"/>
+<area shape="rect" id="node7" href="IQueryHandlerProvider.html" title="&#171;interface&#187; IQueryHandlerProvider" alt="" coords="810,13,960,53"/>
+<area shape="rect" id="node8" href="mongodb/IMongoDBStoreAccessor.html" title="&#171;interface&#187; IMongoDBStoreAccessor (org.eclipse.emf.cdo.server.mongodb)" alt="" coords="478,214,716,269"/>
+<area shape="rect" id="node9" href="hibernate/IHibernateStoreAccessor.html" title="&#171;interface&#187; IHibernateStoreAccessor (org.eclipse.emf.cdo.server.hibernate)" alt="" coords="746,214,984,269"/>
+<area shape="rect" id="node10" href="../spi/server/StoreAccessorBase.html" title="StoreAccessorBase (org.eclipse.emf.cdo.spi.server)" alt="" coords="1014,221,1217,261"/>
+</map>
+
+<CENTER><IMG SRC="IStoreAccessor.png" USEMAP="#APIVIZ" BORDER="0"></CENTER>
+
+
 
 <P>
-<DL>
-<DT><B>Author:</B></DT>
-  <DD>Eike Stepper</DD>
-</DL>
 <HR>
 
 <P>
@@ -134,6 +144,14 @@ Interface IStoreAccessor</H2>
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;interface</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../org/eclipse/emf/cdo/server/IStoreAccessor.DurableLocking.html" title="interface in org.eclipse.emf.cdo.server">IStoreAccessor.DurableLocking</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;interface</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../org/eclipse/emf/cdo/server/IStoreAccessor.DurableLocking2.html" title="interface in org.eclipse.emf.cdo.server">IStoreAccessor.DurableLocking2</A></B></CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -212,7 +230,7 @@ Interface IStoreAccessor</H2>
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../../org/eclipse/emf/cdo/server/IStoreChunkReader.html" title="interface in org.eclipse.emf.cdo.server">IStoreChunkReader</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../org/eclipse/emf/cdo/server/IStoreAccessor.html#createChunkReader(org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision, org.eclipse.emf.ecore.EStructuralFeature)">createChunkReader</A></B>(<A HREF="../../../../../org/eclipse/emf/cdo/spi/common/revision/InternalCDORevision.html" title="interface in org.eclipse.emf.cdo.spi.common.revision">InternalCDORevision</A>&nbsp;revision,
-                  <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EStructuralFeature.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EStructuralFeature</A>&nbsp;feature)</CODE>
+                  <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EStructuralFeature.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EStructuralFeature</A>&nbsp;feature)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -255,7 +273,7 @@ Interface IStoreAccessor</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../org/eclipse/emf/cdo/server/IStoreAccessor.html#handleRevisions(org.eclipse.emf.ecore.EClass, org.eclipse.emf.cdo.common.branch.CDOBranch, long, boolean, org.eclipse.emf.cdo.common.revision.CDORevisionHandler)">handleRevisions</A></B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EClass.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EClass</A>&nbsp;eClass,
+<TD><CODE><B><A HREF="../../../../../org/eclipse/emf/cdo/server/IStoreAccessor.html#handleRevisions(org.eclipse.emf.ecore.EClass, org.eclipse.emf.cdo.common.branch.CDOBranch, long, boolean, org.eclipse.emf.cdo.common.revision.CDORevisionHandler)">handleRevisions</A></B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EClass.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EClass</A>&nbsp;eClass,
                 <A HREF="../../../../../org/eclipse/emf/cdo/common/branch/CDOBranch.html" title="interface in org.eclipse.emf.cdo.common.branch">CDOBranch</A>&nbsp;branch,
                 long&nbsp;timeStamp,
                 boolean&nbsp;exactTime,
@@ -288,7 +306,7 @@ Interface IStoreAccessor</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EPackage.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EPackage</A>[]</CODE></FONT></TD>
+<CODE>&nbsp;<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EPackage.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EPackage</A>[]</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../org/eclipse/emf/cdo/server/IStoreAccessor.html#loadPackageUnit(org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit)">loadPackageUnit</A></B>(<A HREF="../../../../../org/eclipse/emf/cdo/spi/common/model/InternalCDOPackageUnit.html" title="interface in org.eclipse.emf.cdo.spi.common.model">InternalCDOPackageUnit</A>&nbsp;packageUnit)</CODE>
 
 <BR>
@@ -521,7 +539,7 @@ boolean <B>isReader</B>()</PRE>
 createChunkReader</H3>
 <PRE>
 <A HREF="../../../../../org/eclipse/emf/cdo/server/IStoreChunkReader.html" title="interface in org.eclipse.emf.cdo.server">IStoreChunkReader</A> <B>createChunkReader</B>(<A HREF="../../../../../org/eclipse/emf/cdo/spi/common/revision/InternalCDORevision.html" title="interface in org.eclipse.emf.cdo.spi.common.revision">InternalCDORevision</A>&nbsp;revision,
-                                    <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EStructuralFeature.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EStructuralFeature</A>&nbsp;feature)</PRE>
+                                    <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EStructuralFeature.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EStructuralFeature</A>&nbsp;feature)</PRE>
 <DL>
 <DD><DL>
 </DL>
@@ -553,7 +571,7 @@ readPackageUnits</H3>
 <A NAME="loadPackageUnit(org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit)"><!-- --></A><H3>
 loadPackageUnit</H3>
 <PRE>
-<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EPackage.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EPackage</A>[] <B>loadPackageUnit</B>(<A HREF="../../../../../org/eclipse/emf/cdo/spi/common/model/InternalCDOPackageUnit.html" title="interface in org.eclipse.emf.cdo.spi.common.model">InternalCDOPackageUnit</A>&nbsp;packageUnit)</PRE>
+<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EPackage.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EPackage</A>[] <B>loadPackageUnit</B>(<A HREF="../../../../../org/eclipse/emf/cdo/spi/common/model/InternalCDOPackageUnit.html" title="interface in org.eclipse.emf.cdo.spi.common.model">InternalCDOPackageUnit</A>&nbsp;packageUnit)</PRE>
 <DL>
 <DD>Demand loads a given package proxy that has been created on startup of the repository.
  <p>
@@ -615,7 +633,7 @@ readRevisionByVersion</H3>
 <A NAME="handleRevisions(org.eclipse.emf.ecore.EClass, org.eclipse.emf.cdo.common.branch.CDOBranch, long, boolean, org.eclipse.emf.cdo.common.revision.CDORevisionHandler)"><!-- --></A><H3>
 handleRevisions</H3>
 <PRE>
-void <B>handleRevisions</B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EClass.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EClass</A>&nbsp;eClass,
+void <B>handleRevisions</B>(<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EClass.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EClass</A>&nbsp;eClass,
                      <A HREF="../../../../../org/eclipse/emf/cdo/common/branch/CDOBranch.html" title="interface in org.eclipse.emf.cdo.common.branch">CDOBranch</A>&nbsp;branch,
                      long&nbsp;timeStamp,
                      boolean&nbsp;exactTime,
@@ -911,7 +929,6 @@ void <B>release</B>()</PRE>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/IStoreAccessor.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>

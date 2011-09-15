@@ -41,7 +41,6 @@ function windowTitle()
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../org/eclipse/emf/cdo/transaction/CDOCommitContext.html" title="interface in org.eclipse.emf.cdo.transaction"><FONT CLASS="NavBarFont1"><B>Class</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Use</B></FONT>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
@@ -139,13 +138,42 @@ Uses of <A HREF="../../../../../../org/eclipse/emf/cdo/transaction/CDOCommitCont
                      <A HREF="../../../../../../org/eclipse/emf/cdo/transaction/CDOCommitContext.html" title="interface in org.eclipse.emf.cdo.transaction">CDOCommitContext</A>&nbsp;commitContext)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This implementation does nothing.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B>CDODefaultTransactionHandler3.</B><B><A HREF="../../../../../../org/eclipse/emf/cdo/transaction/CDODefaultTransactionHandler3.html#committedTransaction(org.eclipse.emf.cdo.transaction.CDOTransaction, org.eclipse.emf.cdo.transaction.CDOCommitContext)">committedTransaction</A></B>(<A HREF="../../../../../../org/eclipse/emf/cdo/transaction/CDOTransaction.html" title="interface in org.eclipse.emf.cdo.transaction">CDOTransaction</A>&nbsp;transaction,
+                     <A HREF="../../../../../../org/eclipse/emf/cdo/transaction/CDOCommitContext.html" title="interface in org.eclipse.emf.cdo.transaction">CDOCommitContext</A>&nbsp;commitContext)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<B>Deprecated.</B>&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B>CDOTransactionHandler2.</B><B><A HREF="../../../../../../org/eclipse/emf/cdo/transaction/CDOTransactionHandler2.html#committedTransaction(org.eclipse.emf.cdo.transaction.CDOTransaction, org.eclipse.emf.cdo.transaction.CDOCommitContext)">committedTransaction</A></B>(<A HREF="../../../../../../org/eclipse/emf/cdo/transaction/CDOTransaction.html" title="interface in org.eclipse.emf.cdo.transaction">CDOTransaction</A>&nbsp;transaction,
                      <A HREF="../../../../../../org/eclipse/emf/cdo/transaction/CDOCommitContext.html" title="interface in org.eclipse.emf.cdo.transaction">CDOCommitContext</A>&nbsp;commitContext)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Called by a <code>CDOTransaction</code> <b>after</b> it is being committed.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B>CDODefaultTransactionHandler3.</B><B><A HREF="../../../../../../org/eclipse/emf/cdo/transaction/CDODefaultTransactionHandler3.html#committedTransaction(org.eclipse.emf.cdo.transaction.CDOTransaction, org.eclipse.emf.cdo.transaction.CDOCommitContext, org.eclipse.emf.cdo.common.commit.CDOCommitInfo)">committedTransaction</A></B>(<A HREF="../../../../../../org/eclipse/emf/cdo/transaction/CDOTransaction.html" title="interface in org.eclipse.emf.cdo.transaction">CDOTransaction</A>&nbsp;transaction,
+                     <A HREF="../../../../../../org/eclipse/emf/cdo/transaction/CDOCommitContext.html" title="interface in org.eclipse.emf.cdo.transaction">CDOCommitContext</A>&nbsp;commitContext,
+                     <A HREF="../../../../../../org/eclipse/emf/cdo/common/commit/CDOCommitInfo.html" title="interface in org.eclipse.emf.cdo.common.commit">CDOCommitInfo</A>&nbsp;result)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This implementation does nothing.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B>CDOTransactionHandler3.</B><B><A HREF="../../../../../../org/eclipse/emf/cdo/transaction/CDOTransactionHandler3.html#committedTransaction(org.eclipse.emf.cdo.transaction.CDOTransaction, org.eclipse.emf.cdo.transaction.CDOCommitContext, org.eclipse.emf.cdo.common.commit.CDOCommitInfo)">committedTransaction</A></B>(<A HREF="../../../../../../org/eclipse/emf/cdo/transaction/CDOTransaction.html" title="interface in org.eclipse.emf.cdo.transaction">CDOTransaction</A>&nbsp;transaction,
+                     <A HREF="../../../../../../org/eclipse/emf/cdo/transaction/CDOCommitContext.html" title="interface in org.eclipse.emf.cdo.transaction">CDOCommitContext</A>&nbsp;commitContext,
+                     <A HREF="../../../../../../org/eclipse/emf/cdo/common/commit/CDOCommitInfo.html" title="interface in org.eclipse.emf.cdo.common.commit">CDOCommitInfo</A>&nbsp;result)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Called by a <code>CDOTransaction</code> <b>after</b> it is being committed.</TD>
@@ -175,7 +203,16 @@ Uses of <A HREF="../../../../../../org/eclipse/emf/cdo/transaction/CDOCommitCont
                       <A HREF="../../../../../../org/eclipse/emf/cdo/transaction/CDOCommitContext.html" title="interface in org.eclipse.emf.cdo.transaction">CDOCommitContext</A>&nbsp;commitContext)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This implementation does nothing.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B>CDODefaultTransactionHandler3.</B><B><A HREF="../../../../../../org/eclipse/emf/cdo/transaction/CDODefaultTransactionHandler3.html#committingTransaction(org.eclipse.emf.cdo.transaction.CDOTransaction, org.eclipse.emf.cdo.transaction.CDOCommitContext)">committingTransaction</A></B>(<A HREF="../../../../../../org/eclipse/emf/cdo/transaction/CDOTransaction.html" title="interface in org.eclipse.emf.cdo.transaction">CDOTransaction</A>&nbsp;transaction,
+                      <A HREF="../../../../../../org/eclipse/emf/cdo/transaction/CDOCommitContext.html" title="interface in org.eclipse.emf.cdo.transaction">CDOCommitContext</A>&nbsp;commitContext)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This implementation does nothing.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -238,7 +275,6 @@ Uses of <A HREF="../../../../../../org/eclipse/emf/cdo/transaction/CDOCommitCont
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../org/eclipse/emf/cdo/transaction/CDOCommitContext.html" title="interface in org.eclipse.emf.cdo.transaction"><FONT CLASS="NavBarFont1"><B>Class</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Use</B></FONT>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../overview-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>

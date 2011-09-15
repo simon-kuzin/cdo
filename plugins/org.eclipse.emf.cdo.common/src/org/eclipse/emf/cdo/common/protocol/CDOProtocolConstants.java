@@ -242,6 +242,11 @@ public interface CDOProtocolConstants
    */
   public static final short SIGNAL_ENABLE_LOCK_NOTIFICATION = 53;
 
+  /**
+   * @since 4.1
+   */
+  public static final short SIGNAL_SET_LOCK_NOTIFICATION_MODE = 54;
+
   // //////////////////////////////////////////////////////////////////////
   // Session Refresh
 
@@ -324,4 +329,9 @@ public interface CDOProtocolConstants
    * @since 3.0
    */
   public static final byte REPLICATE_COMMIT = 2;
+
+  /**
+   * @since 4.1
+   */
+  public static final byte REPLICATE_LOCKAREA = 3;
 }

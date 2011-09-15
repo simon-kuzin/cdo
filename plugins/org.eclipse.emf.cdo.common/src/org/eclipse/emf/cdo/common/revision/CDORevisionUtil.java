@@ -55,6 +55,7 @@ import java.util.StringTokenizer;
  * Various static helper methods for dealing with {@link CDORevision revisions}.
  * 
  * @author Eike Stepper
+ * @apiviz.exclude
  */
 public final class CDORevisionUtil
 {
@@ -354,7 +355,11 @@ public final class CDORevisionUtil
   }
 
   /**
+   * Dumps {@link CDORevision revisions}, sorted and grouped by {@link CDOBranch branch}, to various output formats and
+   * targets. Concrete output formats and targets are implemented by subclasses.
+   * 
    * @since 4.0
+   * @apiviz.exclude
    */
   public static abstract class AllRevisionsDumper
   {
@@ -405,7 +410,11 @@ public final class CDORevisionUtil
     protected abstract void dumpRevision(CDORevision revision);
 
     /**
+     * A {@link AllRevisionsDumper revision dumper} that directs all output to a stream. The concrete output format is
+     * implemented by subclasses.
+     * 
      * @author Eike Stepper
+     * @apiviz.exclude
      */
     public static abstract class Stream extends AllRevisionsDumper
     {
@@ -423,7 +432,10 @@ public final class CDORevisionUtil
       }
 
       /**
+       * A {@link Stream revision dumper} that directs all output as plain text to a stream.
+       * 
        * @author Eike Stepper
+       * @apiviz.exclude
        */
       public static class Plain extends Stream
       {
@@ -470,7 +482,10 @@ public final class CDORevisionUtil
       }
 
       /**
+       * A {@link Stream revision dumper} that directs all output as HTML text to a stream.
+       * 
        * @author Eike Stepper
+       * @apiviz.exclude
        */
       public static class Html extends Stream
       {
@@ -537,8 +552,12 @@ public final class CDORevisionUtil
   }
 
   /**
+   * Compares {@link CDORevisionKey revision keys} by {@link CDORevision#getID() ID} and
+   * {@link CDORevision#getVersion() version}.
+   * 
    * @author Eike Stepper
    * @since 4.0
+   * @apiviz.exclude
    */
   public static class CDORevisionComparator implements Comparator<CDORevisionKey>
   {

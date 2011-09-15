@@ -41,7 +41,6 @@ function windowTitle()
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/ISynchronizableRepository.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
@@ -100,7 +99,17 @@ Interface ISynchronizableRepository</H2>
 <HR>
 <DL>
 <DT><PRE>public interface <B>ISynchronizableRepository</B><DT>extends <A HREF="../../../../../org/eclipse/emf/cdo/server/IRepository.html" title="interface in org.eclipse.emf.cdo.server">IRepository</A></DL>
-</PRE>
+</PRE><map id="APIVIZ" name="APIVIZ">
+<area shape="rect" id="node1" href="../spi/server/InternalSynchronizableRepository.html" title="&#171;interface&#187; InternalSynchronizableRepository (org.eclipse.emf.cdo.spi.server)" alt="" coords="5,185,219,239"/>
+<area shape="rect" id="node2" href="ISynchronizableRepository.html" title="&#171;interface&#187; ISynchronizableRepository" alt="" coords="204,88,380,128"/>
+<area shape="rect" id="node3" href="ISession.html" title="&#171;interface&#187; ISession" alt="" coords="249,192,335,232"/>
+<area shape="rect" id="node4" href="IRepositorySynchronizer.html" title="&#171;interface&#187; IRepositorySynchronizer" alt="" coords="364,192,527,232"/>
+<area shape="rect" id="node5" href="IRepository.html" title="&#171;interface&#187; IRepository" alt="" coords="249,5,335,45"/>
+</map>
+
+<CENTER><IMG SRC="ISynchronizableRepository.png" USEMAP="#APIVIZ" BORDER="0"></CENTER>
+
+
 
 <P>
 A repository with the ability to <A HREF="../../../../../org/eclipse/emf/cdo/server/IRepositorySynchronizer.html" title="interface in org.eclipse.emf.cdo.server"><CODE>synchronize</CODE></A> its content with another repository.
@@ -110,8 +119,6 @@ A repository with the ability to <A HREF="../../../../../org/eclipse/emf/cdo/ser
 <DL>
 <DT><B>Since:</B></DT>
   <DD>3.0</DD>
-<DT><B>Author:</B></DT>
-  <DD>Eike Stepper</DD>
 <DT><B>No Implement</B></DT>
   <DD>This interface is not intended to be implemented by clients.</DD>
 <DT><B>No Extend</B></DT>
@@ -145,7 +152,7 @@ A repository with the ability to <A HREF="../../../../../org/eclipse/emf/cdo/ser
 <TH ALIGN="left"><B>Nested classes/interfaces inherited from interface org.eclipse.emf.cdo.common.<A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.html" title="interface in org.eclipse.emf.cdo.common">CDOCommonRepository</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.State.html" title="enum in org.eclipse.emf.cdo.common">CDOCommonRepository.State</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.StateChangedEvent.html" title="interface in org.eclipse.emf.cdo.common">CDOCommonRepository.StateChangedEvent</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.Type.html" title="enum in org.eclipse.emf.cdo.common">CDOCommonRepository.Type</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.TypeChangedEvent.html" title="interface in org.eclipse.emf.cdo.common">CDOCommonRepository.TypeChangedEvent</A></CODE></TD>
+<TD><CODE><A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.IDGenerationLocation.html" title="enum in org.eclipse.emf.cdo.common">CDOCommonRepository.IDGenerationLocation</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.State.html" title="enum in org.eclipse.emf.cdo.common">CDOCommonRepository.State</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.StateChangedEvent.html" title="interface in org.eclipse.emf.cdo.common">CDOCommonRepository.StateChangedEvent</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.Type.html" title="enum in org.eclipse.emf.cdo.common">CDOCommonRepository.Type</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.TypeChangedEvent.html" title="interface in org.eclipse.emf.cdo.common">CDOCommonRepository.TypeChangedEvent</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -218,6 +225,22 @@ A repository with the ability to <A HREF="../../../../../org/eclipse/emf/cdo/ser
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../org/eclipse/emf/cdo/server/ISynchronizableRepository.html#goOffline()">goOffline</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../org/eclipse/emf/cdo/server/ISynchronizableRepository.html#goOnline()">goOnline</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_org.eclipse.emf.cdo.server.IRepository"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
@@ -234,7 +257,7 @@ A repository with the ability to <A HREF="../../../../../org/eclipse/emf/cdo/ser
 <TH ALIGN="left"><B>Methods inherited from interface org.eclipse.emf.cdo.common.<A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.html" title="interface in org.eclipse.emf.cdo.common">CDOCommonRepository</A></B></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.html#getCreationTime()">getCreationTime</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.html#getName()">getName</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.html#getObjectIDTypes()">getObjectIDTypes</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.html#getRootResourceID()">getRootResourceID</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.html#getState()">getState</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.html#getStoreType()">getStoreType</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.html#getType()">getType</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.html#getUUID()">getUUID</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.html#isEnsuringReferentialIntegrity()">isEnsuringReferentialIntegrity</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.html#isSupportingAudits()">isSupportingAudits</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.html#isSupportingBranches()">isSupportingBranches</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.html#isSupportingEcore()">isSupportingEcore</A></CODE></TD>
+<TD><CODE><A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.html#getCreationTime()">getCreationTime</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.html#getIDGenerationLocation()">getIDGenerationLocation</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.html#getName()">getName</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.html#getObjectIDTypes()">getObjectIDTypes</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.html#getRootResourceID()">getRootResourceID</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.html#getState()">getState</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.html#getStoreType()">getStoreType</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.html#getType()">getType</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.html#getUUID()">getUUID</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.html#isEnsuringReferentialIntegrity()">isEnsuringReferentialIntegrity</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.html#isSupportingAudits()">isSupportingAudits</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.html#isSupportingBranches()">isSupportingBranches</A>, <A HREF="../../../../../org/eclipse/emf/cdo/common/CDOCommonRepository.html#isSupportingEcore()">isSupportingEcore</A></CODE></TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_org.eclipse.emf.cdo.common.util.CDOTimeProvider"><!-- --></A>
@@ -340,6 +363,38 @@ long <B>getLastReplicatedCommitTime</B>()</PRE>
 </DL>
 </DD>
 </DL>
+<HR>
+
+<A NAME="goOnline()"><!-- --></A><H3>
+goOnline</H3>
+<PRE>
+void <B>goOnline</B>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Since:</B></DT>
+  <DD>4.1</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="goOffline()"><!-- --></A><H3>
+goOffline</H3>
+<PRE>
+void <B>goOffline</B>()</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Since:</B></DT>
+  <DD>4.1</DD>
+</DL>
+</DD>
+</DL>
 <!-- ========= END OF CLASS DATA ========= -->
 <HR>
 
@@ -357,7 +412,6 @@ long <B>getLastReplicatedCommitTime</B>()</PRE>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/ISynchronizableRepository.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>

@@ -41,7 +41,6 @@ function windowTitle()
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/CDOFeatureDelta.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
@@ -97,12 +96,33 @@ Interface CDOFeatureDelta</H2>
 <HR>
 <DL>
 <DT><PRE>public interface <B>CDOFeatureDelta</B></DL>
-</PRE>
+</PRE><map id="APIVIZ" name="APIVIZ">
+<area shape="rect" id="node1" href="CDOAddFeatureDelta.html" title="&#171;interface&#187; CDOAddFeatureDelta" alt="" coords="583,5,729,45"/>
+<area shape="rect" id="node2" href="CDOClearFeatureDelta.html" title="&#171;interface&#187; CDOClearFeatureDelta" alt="" coords="579,64,733,104"/>
+<area shape="rect" id="node3" href="CDOContainerFeatureDelta.html" title="&#171;interface&#187; CDOContainerFeatureDelta" alt="" coords="567,123,745,163"/>
+<area shape="rect" id="node4" href="CDOFeatureDelta.html" title="&#171;interface&#187; CDOFeatureDelta" alt="" coords="233,304,357,344"/>
+<area shape="rect" id="node5" href="CDOFeatureDeltaVisitor.html" title="&#171;interface&#187; CDOFeatureDeltaVisitor" alt="" coords="575,181,737,221"/>
+<area shape="rect" id="node6" href="CDOListFeatureDelta.html" title="&#171;interface&#187; CDOListFeatureDelta" alt="" coords="583,240,729,280"/>
+<area shape="rect" id="node7" href="CDOMoveFeatureDelta.html" title="&#171;interface&#187; CDOMoveFeatureDelta" alt="" coords="579,299,733,339"/>
+<area shape="rect" id="node8" href="CDORemoveFeatureDelta.html" title="&#171;interface&#187; CDORemoveFeatureDelta" alt="" coords="571,357,741,397"/>
+<area shape="rect" id="node9" href="CDORevisionDelta.html" title="&#171;interface&#187; CDORevisionDelta" alt="" coords="5,304,133,344"/>
+<area shape="rect" id="node10" href="CDOSetFeatureDelta.html" title="&#171;interface&#187; CDOSetFeatureDelta" alt="" coords="584,416,728,456"/>
+<area shape="rect" id="node11" href="CDOUnsetFeatureDelta.html" title="&#171;interface&#187; CDOUnsetFeatureDelta" alt="" coords="577,475,735,515"/>
+<area shape="rect" id="node12" title="&#171;interface&#187; EStructuralFeature (org.eclipse.emf.ecore)" alt="" coords="579,534,733,589"/>
+<area shape="rect" id="node13" href="../../../spi/common/revision/InternalCDOFeatureDelta.html" title="&#171;interface&#187; InternalCDOFeatureDelta (org.eclipse.emf.cdo.spi.common.revision)" alt="" coords="523,607,789,662"/>
+<area shape="rect" id="node14" href="CDOFeatureDelta.Type.html" title="&#171;enum&#187; CDOFeatureDelta.Type" alt="" coords="578,681,734,721"/>
+</map>
+
+<CENTER><IMG SRC="CDOFeatureDelta.png" USEMAP="#APIVIZ" BORDER="0"></CENTER>
+
+
+
+<P>
+Represents a change delta between two values of a single <A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EStructuralFeature.html?is-external=true" title="class or interface in org.eclipse.emf.ecore"><CODE>feature</CODE></A>.
+<P>
 
 <P>
 <DL>
-<DT><B>Author:</B></DT>
-  <DD>Simon McDuff</DD>
 <DT><B>No Implement</B></DT>
   <DD>This interface is not intended to be implemented by clients.</DD>
 <DT><B>No Extend</B></DT>
@@ -125,7 +145,7 @@ Interface CDOFeatureDelta</H2>
 <TD><CODE><B><A HREF="../../../../../../../org/eclipse/emf/cdo/common/revision/delta/CDOFeatureDelta.Type.html" title="enum in org.eclipse.emf.cdo.common.revision.delta">CDOFeatureDelta.Type</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Enumerates the possible types of <A HREF="../../../../../../../org/eclipse/emf/cdo/common/revision/delta/CDOFeatureDelta.html" title="interface in org.eclipse.emf.cdo.common.revision.delta"><CODE>feature deltas</CODE></A>.</TD>
 </TR>
 </TABLE>
 &nbsp;<!-- =========== FIELD SUMMARY =========== -->
@@ -188,7 +208,7 @@ Interface CDOFeatureDelta</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EStructuralFeature.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EStructuralFeature</A></CODE></FONT></TD>
+<CODE>&nbsp;<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EStructuralFeature.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EStructuralFeature</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../../org/eclipse/emf/cdo/common/revision/delta/CDOFeatureDelta.html#getFeature()">getFeature</A></B>()</CODE>
 
 <BR>
@@ -271,7 +291,7 @@ getType</H3>
 <A NAME="getFeature()"><!-- --></A><H3>
 getFeature</H3>
 <PRE>
-<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.6.0/org/eclipse/emf/ecore/EStructuralFeature.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EStructuralFeature</A> <B>getFeature</B>()</PRE>
+<A HREF="http://download.eclipse.org/modeling/emf/emf/javadoc/2.7.0/org/eclipse/emf/ecore/EStructuralFeature.html?is-external=true" title="class or interface in org.eclipse.emf.ecore">EStructuralFeature</A> <B>getFeature</B>()</PRE>
 <DL>
 <DD><DL>
 <DT><B>Since:</B></DT>
@@ -344,7 +364,6 @@ boolean <B>isStructurallyEqual</B>(<A HREF="http://download.oracle.com/javase/1.
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/CDOFeatureDelta.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
-  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
   <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../../../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
