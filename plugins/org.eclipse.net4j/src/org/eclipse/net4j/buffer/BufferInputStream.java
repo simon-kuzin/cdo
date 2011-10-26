@@ -121,7 +121,7 @@ public class BufferInputStream extends InputStream implements IBufferHandler
     }
 
     ByteBuffer byteBuffer = currentBuffer.getByteBuffer();
-    if (!byteBuffer.hasRemaining())
+    if (byteBuffer == null || !byteBuffer.hasRemaining())
     {
       // End of stream
       return IOUtil.EOF;

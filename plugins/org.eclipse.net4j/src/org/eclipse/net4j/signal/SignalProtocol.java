@@ -27,6 +27,7 @@ import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 import org.eclipse.net4j.util.om.log.OMLogger;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
+import org.eclipse.internal.net4j.buffer.EOSBuffer;
 import org.eclipse.internal.net4j.bundle.OM;
 
 import org.eclipse.spi.net4j.Protocol;
@@ -37,6 +38,7 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -281,14 +283,23 @@ public class SignalProtocol<INFRA_STRUCTURE> extends Protocol<INFRA_STRUCTURE> i
   @Override
   protected void doDeactivate() throws Exception
   {
-    synchronized (signals)
-    {
-      signals.clear();
-    }
-
     IChannel channel = getChannel();
     if (channel != null)
     {
+      for (Iterator<Signal> it = signals.values().iterator(); it.hasNext();)
+      {
+        BufferInputStream bufferInputStream = it.next().getBufferInputStream();
+        if (bufferInputStream != null)
+        {
+          bufferInputStream.handleBuffer(new EOSBuffer(channel.getID()));
+        }
+      }
+
+      synchronized (signals)
+      {
+        signals.clear();
+      }
+
       channel.close();
       setChannel(null);
     }

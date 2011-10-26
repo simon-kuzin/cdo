@@ -39,6 +39,8 @@ public class TestSignalProtocol extends SignalProtocol<Object>
 
   public static final short SIGNAL_EXCEPTION = 6;
 
+  public static final short SIGNAL_WITH_WAIT = 7;
+
   public static final String SIMULATED_EXCEPTION = "Simulated exception"; //$NON-NLS-1$
 
   public TestSignalProtocol(IConnector connector)
@@ -74,6 +76,9 @@ public class TestSignalProtocol extends SignalProtocol<Object>
 
     case SIGNAL_EXCEPTION:
       return new ExceptionIndication(this);
+      
+    case SIGNAL_WITH_WAIT:
+      return new WaitIndication(this);
 
     default:
       return super.createSignalReactor(signalID);
