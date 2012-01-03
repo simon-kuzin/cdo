@@ -268,6 +268,24 @@ public class SignalProtocol<INFRA_STRUCTURE> extends Protocol<INFRA_STRUCTURE> i
   @Override
   protected void doBeforeDeactivate() throws Exception
   {
+
+    IChannel channel = getChannel();
+    if (channel != null && channel.isClosed())
+    {
+      // deliver to signals empty buffers
+      synchronized (signals)
+      {
+        for (Iterator<Signal> it = signals.values().iterator(); it.hasNext();)
+        {
+          BufferInputStream bufferInputStream = it.next().getBufferInputStream();
+          if (bufferInputStream != null)
+          {
+            bufferInputStream.handleBuffer(new EOSBuffer(channel.getID()));
+          }
+        }
+      }
+    }
+
     synchronized (signals)
     {
       // Wait at most 10 seconds for running signals to finish
@@ -286,15 +304,6 @@ public class SignalProtocol<INFRA_STRUCTURE> extends Protocol<INFRA_STRUCTURE> i
     IChannel channel = getChannel();
     if (channel != null)
     {
-      for (Iterator<Signal> it = signals.values().iterator(); it.hasNext();)
-      {
-        BufferInputStream bufferInputStream = it.next().getBufferInputStream();
-        if (bufferInputStream != null)
-        {
-          bufferInputStream.handleBuffer(new EOSBuffer(channel.getID()));
-        }
-      }
-
       synchronized (signals)
       {
         signals.clear();

@@ -58,7 +58,7 @@ public class TestExitFromReadWait extends AbstractProtocolTest
       }).start();
 
       latch.await(WAIT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-      assertEquals("Signal waits for input, but shouldn't", 0, latch.getCount());
+      assertEquals("Signal waits for input, but it shouldn't.", 0, latch.getCount());
     }
     finally
     {

@@ -14,6 +14,8 @@ import org.eclipse.net4j.signal.IndicationWithResponse;
 import org.eclipse.net4j.util.io.ExtendedDataInputStream;
 import org.eclipse.net4j.util.io.ExtendedDataOutputStream;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * @author Egidijus Vaisnora
  */
@@ -34,5 +36,6 @@ public class WaitIndication extends IndicationWithResponse
   protected void responding(ExtendedDataOutputStream out) throws Exception
   {
     // Do not write anything
+    WaitRequest.getWriteSemaphore().await(30, TimeUnit.SECONDS);
   }
 }
