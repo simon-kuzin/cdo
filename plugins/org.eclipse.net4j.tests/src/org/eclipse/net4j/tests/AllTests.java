@@ -59,6 +59,7 @@ public class AllTests
     suite.addTestSuite(SecurityTest.class);
     suite.addTestSuite(QueueWorkerWorkSerializerTest.class);
     suite.addTestSuite(ExpectedIOTest.class);
+    suite.addTestSuite(TestExitFromReadWait.class);
 
     // Bugzillas
     suite.addTestSuite(Bugzilla_241463_Test.TCP.class);
