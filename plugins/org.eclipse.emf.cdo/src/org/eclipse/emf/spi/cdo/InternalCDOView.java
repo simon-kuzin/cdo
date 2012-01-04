@@ -103,6 +103,11 @@ public interface InternalCDOView extends CDOView, CDOIDProvider, ILifecycle
 
   public void deregisterObject(InternalCDOObject object);
 
+  /**
+   * @since 4.1
+   */
+  public void deregisterObject(CDOID object);
+
   public InternalCDORevision getRevision(CDOID id, boolean loadOnDemand);
 
   /**

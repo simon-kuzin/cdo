@@ -653,7 +653,7 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
     CDOView newView = newResource != null && newResource instanceof CDOResource ? ((CDOResource)newResource).cdoView()
         : null;
 
-    boolean moved = oldView != null && oldView == newView;
+    boolean moved = oldView != null && oldView == newView && cdoState() != CDOState.TRANSIENT;
     if (!moved && oldResource != null && !isResourceRoot)
     {
       oldResource.detached(this);

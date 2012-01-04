@@ -805,7 +805,7 @@ public class CDOViewImpl extends AbstractCDOView
         Set<CDOObject> detachedObjects = new HashSet<CDOObject>();
 
         conflicts = invalidate(lastUpdateTime, allChangedObjects, allDetachedObjects, deltas, revisionDeltas,
-            detachedObjects);
+            detachedObjects, oldRevisions);
 
         sendInvalidationNotifications(revisionDeltas.keySet(), detachedObjects);
         fireInvalidationEvent(lastUpdateTime, Collections.unmodifiableMap(revisionDeltas),

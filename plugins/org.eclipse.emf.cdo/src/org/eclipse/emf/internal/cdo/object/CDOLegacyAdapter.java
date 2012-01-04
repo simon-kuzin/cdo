@@ -12,6 +12,7 @@
 package org.eclipse.emf.internal.cdo.object;
 
 import org.eclipse.emf.cdo.CDONotification;
+import org.eclipse.emf.cdo.CDOState;
 import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 
@@ -80,7 +81,7 @@ public class CDOLegacyAdapter extends CDOLegacyWrapper implements Adapter.Intern
     }
 
     EStructuralFeature feature = (EStructuralFeature)msg.getFeature();
-    if (view == null || feature == null || !(view instanceof CDOTransaction))
+    if (view == null || feature == null || !(view instanceof CDOTransaction) || cdoState() == CDOState.TRANSIENT)
     {
       return;
     }

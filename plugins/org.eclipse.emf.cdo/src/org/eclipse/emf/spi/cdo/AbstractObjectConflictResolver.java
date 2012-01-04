@@ -95,7 +95,13 @@ public abstract class AbstractObjectConflictResolver extends AbstractConflictRes
       CDOObject conflict = entry.getKey();
       CDORevision oldRevision = entry.getValue().getElement1();
       CDORevisionDelta remoteDelta = entry.getValue().getElement2();
-      CDORevisionDelta localDelta = localDeltas.get(conflict.cdoID());
+      CDOID cdoID = conflict.cdoID();
+      if (cdoID == null)
+      {
+        // we have detached object in CONFLICT state. But ID we can obtain from old revision
+        cdoID = oldRevision.getID();
+      }
+      CDORevisionDelta localDelta = localDeltas.get(cdoID);
 
       try
       {

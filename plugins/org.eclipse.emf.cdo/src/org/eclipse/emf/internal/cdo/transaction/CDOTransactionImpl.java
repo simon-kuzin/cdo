@@ -2179,7 +2179,8 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
   @Override
   protected Map<CDOObject, Pair<CDORevision, CDORevisionDelta>> invalidate(long lastUpdateTime,
       List<CDORevisionKey> allChangedObjects, List<CDOIDAndVersion> allDetachedObjects, List<CDORevisionDelta> deltas,
-      Map<CDOObject, CDORevisionDelta> revisionDeltas, Set<CDOObject> detachedObjects)
+      Map<CDOObject, CDORevisionDelta> revisionDeltas, Set<CDOObject> detachedObjects,
+      Map<CDOID, InternalCDORevision> oldRevisions)
   {
     if (!allDetachedObjects.isEmpty())
     {
@@ -2204,7 +2205,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     }
 
     return super.invalidate(lastUpdateTime, allChangedObjects, allDetachedObjects, deltas, revisionDeltas,
-        detachedObjects);
+        detachedObjects, oldRevisions);
   }
 
   private void removeCrossReferences(Collection<CDOObject> referencers, Set<CDOID> referencedOIDs)
@@ -2326,7 +2327,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     InternalCDORevision rev = super.getViewedRevision(object);
 
     // Bug 336590: If we have a clean revision for this object, return that instead
-    if (rev != null)
+    if (rev != null || object.cdoState() == CDOState.TRANSIENT)
     {
       InternalCDORevision cleanRev = cleanRevisions.get(object);
       if (cleanRev != null)

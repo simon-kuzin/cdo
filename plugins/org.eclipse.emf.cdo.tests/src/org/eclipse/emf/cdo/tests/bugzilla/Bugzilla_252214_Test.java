@@ -76,7 +76,8 @@ public class Bugzilla_252214_Test extends AbstractCDOTest
       CDOResource auditResource = audit.getResource(getResourcePath("/res1"));
       Company auditCompany = (Company)auditResource.getContents().get(0);
       CDOObject cdoAuditCompany = CDOUtil.getCDOObject(auditCompany);
-      CDOStateMachine.INSTANCE.invalidate((InternalCDOObject)cdoAuditCompany, null, CDOBranchPoint.UNSPECIFIED_DATE);
+      CDOStateMachine.INSTANCE.invalidate((InternalCDOObject)cdoAuditCompany, null, CDOBranchPoint.UNSPECIFIED_DATE,
+          cdoAuditCompany.cdoView());
     }
 
     audit.setTimeStamp(commitTime2);

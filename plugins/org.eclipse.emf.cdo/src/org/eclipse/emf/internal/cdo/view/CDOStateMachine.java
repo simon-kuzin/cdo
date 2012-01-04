@@ -35,6 +35,7 @@ import org.eclipse.emf.internal.cdo.CDOObjectImpl;
 import org.eclipse.emf.internal.cdo.bundle.OM;
 
 import org.eclipse.net4j.util.collection.Pair;
+import org.eclipse.net4j.util.collection.Triplet;
 import org.eclipse.net4j.util.fsm.FiniteStateMachine;
 import org.eclipse.net4j.util.fsm.ITransition;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
@@ -49,6 +50,7 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.spi.cdo.CDOSessionProtocol.CommitTransactionResult;
 import org.eclipse.emf.spi.cdo.FSMUtil;
 import org.eclipse.emf.spi.cdo.InternalCDOObject;
+import org.eclipse.emf.spi.cdo.InternalCDOSavepoint;
 import org.eclipse.emf.spi.cdo.InternalCDOSession;
 import org.eclipse.emf.spi.cdo.InternalCDOTransaction;
 import org.eclipse.emf.spi.cdo.InternalCDOView;
@@ -86,7 +88,7 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
     init(CDOState.TRANSIENT, CDOEvent.REATTACH, new ReattachTransition());
     init(CDOState.TRANSIENT, CDOEvent.READ, IGNORE);
     init(CDOState.TRANSIENT, CDOEvent.WRITE, IGNORE);
-    init(CDOState.TRANSIENT, CDOEvent.INVALIDATE, IGNORE);
+    init(CDOState.TRANSIENT, CDOEvent.INVALIDATE, new TransientConflictTransition());
     init(CDOState.TRANSIENT, CDOEvent.DETACH_REMOTE, IGNORE);
     init(CDOState.TRANSIENT, CDOEvent.COMMIT, FAIL);
     init(CDOState.TRANSIENT, CDOEvent.ROLLBACK, FAIL);
@@ -286,7 +288,6 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
         transaction.detachObject(content);
         content.cdoInternalSetState(CDOState.TRANSIENT);
 
-        content.cdoInternalSetView(null);
         content.cdoInternalSetID(null);
         content.cdoInternalSetRevision(null);
       }
@@ -391,7 +392,7 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
   /**
    * @since 3.0
    */
-  public void invalidate(InternalCDOObject object, CDORevisionKey key, long lastUpdateTime)
+  public void invalidate(InternalCDOObject object, CDORevisionKey key, long lastUpdateTime, CDOView view)
   {
     synchronized (getMonitor(object))
     {
@@ -400,7 +401,7 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
         trace(object, CDOEvent.INVALIDATE);
       }
 
-      process(object, CDOEvent.INVALIDATE, new Pair<CDORevisionKey, Long>(key, lastUpdateTime));
+      process(object, CDOEvent.INVALIDATE, new Triplet<CDORevisionKey, Long, CDOView>(key, lastUpdateTime, view));
     }
   }
 
@@ -528,6 +529,25 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
 
       if (!reattaching)
       {
+	    InternalCDOView oldView = object.cdoView();
+        if (oldView != null && oldView != transaction && object.cdoState() == CDOState.TRANSIENT)
+        {
+          // transfer to another transaction, make cleanup in old view
+          InternalCDOTransaction oldTransaction = oldView.toTransaction();
+          CDORevisionKey revKey = oldTransaction.getCleanRevisions().get(object);
+          if (revKey != null)
+          {
+            InternalCDOSavepoint lastSavepoint = oldTransaction.getLastSavepoint();
+            for (InternalCDOSavepoint savepoint = lastSavepoint; savepoint != null; savepoint = savepoint
+                .getPreviousSavepoint())
+            {
+              savepoint.getDetachedObjects().remove(revKey.getID());
+            }
+
+            oldTransaction.deregisterObject(revKey.getID());
+          }
+        }
+        
         // Prepare object
         CDOID id = transaction.createIDForNewObject(object.cdoInternalInstance());
         object.cdoInternalSetID(id);
@@ -841,9 +861,10 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
    * @author Eike Stepper
    */
   private class InvalidateTransition implements
-      ITransition<CDOState, CDOEvent, InternalCDOObject, Pair<CDORevisionKey, Long>>
+      ITransition<CDOState, CDOEvent, InternalCDOObject, Triplet<CDORevisionKey, Long, InternalCDOView>>
   {
-    public void execute(InternalCDOObject object, CDOState state, CDOEvent event, Pair<CDORevisionKey, Long> keyAndTime)
+    public void execute(InternalCDOObject object, CDOState state, CDOEvent event,
+        Triplet<CDORevisionKey, Long, InternalCDOView> keyAndTime)
     {
       CDORevisionKey key = keyAndTime.getElement1();
       InternalCDORevision oldRevision = object.cdoRevision();
@@ -905,10 +926,12 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
   private class ConflictTransition extends InvalidateTransition
   {
     @Override
-    public void execute(InternalCDOObject object, CDOState state, CDOEvent event, Pair<CDORevisionKey, Long> keyAndTime)
+    public void execute(InternalCDOObject object, CDOState state, CDOEvent event,
+        Triplet<CDORevisionKey, Long, InternalCDOView> keyAndTime)
     {
       CDORevisionKey key = keyAndTime.getElement1();
       InternalCDORevision oldRevision = object.cdoRevision();
+
       if (key == null || key.getVersion() >= oldRevision.getVersion() - 1)
       {
         changeState(object, CDOState.CONFLICT);
@@ -919,12 +942,29 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
   }
 
   /**
+   * @author Eike Stepper
+   * @since 2.0
+   */
+  private class TransientConflictTransition extends InvalidateTransition
+  {
+    @Override
+    public void execute(InternalCDOObject object, CDOState state, CDOEvent event,
+        Triplet<CDORevisionKey, Long, InternalCDOView> keyAndTime)
+    {
+      InternalCDOTransaction transaction = keyAndTime.getElement3().toTransaction();
+      changeState(object, CDOState.CONFLICT);
+      transaction.setConflict(object);
+    }
+  }
+
+  /**
    * @author Simon McDuff
    */
   private final class InvalidConflictTransition extends ConflictTransition
   {
     @Override
-    public void execute(InternalCDOObject object, CDOState state, CDOEvent event, Pair<CDORevisionKey, Long> UNUSED)
+    public void execute(InternalCDOObject object, CDOState state, CDOEvent event,
+        Triplet<CDORevisionKey, Long, InternalCDOView> UNUSED)
     {
       changeState(object, CDOState.INVALID_CONFLICT);
 

@@ -1125,7 +1125,17 @@ public abstract class AbstractCDOView extends Lifecycle implements InternalCDOVi
       TRACER.format("Deregistering {0}", object); //$NON-NLS-1$
     }
 
-    removeObject(object.cdoID());
+    deregisterObject(object.cdoID());
+  }
+
+  public synchronized void deregisterObject(CDOID id)
+  {
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("Deregistering {0}", id); //$NON-NLS-1$
+    }
+
+    removeObject(id);
   }
 
   public synchronized void remapObject(CDOID oldID)
@@ -1178,7 +1188,8 @@ public abstract class AbstractCDOView extends Lifecycle implements InternalCDOVi
    */
   protected Map<CDOObject, Pair<CDORevision, CDORevisionDelta>> invalidate(long lastUpdateTime,
       List<CDORevisionKey> allChangedObjects, List<CDOIDAndVersion> allDetachedObjects, List<CDORevisionDelta> deltas,
-      Map<CDOObject, CDORevisionDelta> revisionDeltas, Set<CDOObject> detachedObjects)
+      Map<CDOObject, CDORevisionDelta> revisionDeltas, Set<CDOObject> detachedObjects,
+      Map<CDOID, InternalCDORevision> oldRevisions)
   {
     Map<CDOObject, Pair<CDORevision, CDORevisionDelta>> conflicts = null;
     for (CDORevisionKey key : allChangedObjects)
@@ -1200,11 +1211,20 @@ public abstract class AbstractCDOView extends Lifecycle implements InternalCDOVi
 
       if (changedObject != null)
       {
-        Pair<CDORevision, CDORevisionDelta> oldInfo = new Pair<CDORevision, CDORevisionDelta>(
-            changedObject.cdoRevision(), delta);
+        CDOID cdoID = key.getID();
+        Pair<CDORevision, CDORevisionDelta> oldInfo;
+        if (changedObject.cdoState() == CDOState.TRANSIENT)
+        {
+          oldInfo = new Pair<CDORevision, CDORevisionDelta>(oldRevisions.get(cdoID), delta);
+        }
+        else
+        {
+          oldInfo = new Pair<CDORevision, CDORevisionDelta>(changedObject.cdoRevision(), delta);
+        }
+
         // if (!isLocked(changedObject))
         {
-          CDOStateMachine.INSTANCE.invalidate((InternalCDOObject)changedObject, key, lastUpdateTime);
+          CDOStateMachine.INSTANCE.invalidate((InternalCDOObject)changedObject, key, lastUpdateTime, this);
         }
 
         revisionDeltas.put(changedObject, delta);
@@ -1391,12 +1411,13 @@ public abstract class AbstractCDOView extends Lifecycle implements InternalCDOVi
     for (InternalCDOObject object : objects.values())
     {
       CDOState state = object.cdoState();
-      if (state != CDOState.CLEAN && state != CDOState.DIRTY && state != CDOState.CONFLICT)
+      if (state != CDOState.CLEAN && state != CDOState.DIRTY && state != CDOState.CONFLICT
+          && state != CDOState.TRANSIENT)
       {
         continue;
       }
 
-      CDOID id = object.cdoID();
+      CDOID id = getID(object, true);
       if (revisions.containsKey(id))
       {
         continue;

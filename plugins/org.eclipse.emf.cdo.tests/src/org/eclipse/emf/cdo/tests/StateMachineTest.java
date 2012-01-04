@@ -25,6 +25,7 @@ import org.eclipse.emf.cdo.tests.model1.Product1;
 import org.eclipse.emf.cdo.tests.model1.Supplier;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.cdo.util.CDOUtil;
+import org.eclipse.emf.cdo.view.CDOView;
 
 import org.eclipse.emf.internal.cdo.view.CDOStateMachine;
 
@@ -137,8 +138,13 @@ public class StateMachineTest extends AbstractCDOTest
     Supplier supplier = getModel1Factory().createSupplier();
     supplier.setName("Stepper");
     assertTransient(supplier);
-    invalidate(supplier);
-    assertTransient(supplier);
+
+    CDOSession session = openSession();
+    CDOTransaction transaction = session.openTransaction();
+    invalidate(supplier, transaction);
+    CDOObject object = CDOUtil.getCDOObject(supplier);
+    assertEquals(CDOState.CONFLICT, object.cdoState());
+    session.close();
   }
 
   public void test_TRANSIENT_with_COMMIT() throws Exception
@@ -255,7 +261,7 @@ public class StateMachineTest extends AbstractCDOTest
 
     try
     {
-      invalidate(supplier);
+      invalidate(supplier, CDOUtil.getCDOObject(supplier).cdoView());
       fail("IllegalStateException expected");
     }
     catch (IllegalStateException expected)
@@ -455,12 +461,12 @@ public class StateMachineTest extends AbstractCDOTest
     }
   }
 
-  private static void invalidate(EObject object)
+  private static void invalidate(EObject object, CDOView view)
   {
     CDOObject cdoObject = CDOUtil.getCDOObject(object);
     if (cdoObject != null)
     {
-      CDOStateMachine.INSTANCE.invalidate((InternalCDOObject)cdoObject, null, CDOBranchPoint.UNSPECIFIED_DATE);
+      CDOStateMachine.INSTANCE.invalidate((InternalCDOObject)cdoObject, null, CDOBranchPoint.UNSPECIFIED_DATE, view);
     }
   }
 
