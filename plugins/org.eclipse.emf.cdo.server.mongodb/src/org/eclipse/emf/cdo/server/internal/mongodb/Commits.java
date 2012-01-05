@@ -24,6 +24,7 @@ import org.eclipse.emf.cdo.common.model.CDOModelUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.model.CDOType;
 import org.eclipse.emf.cdo.common.model.EMFUtil;
+import org.eclipse.emf.cdo.common.revision.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDORevisionCacheAdder;
 import org.eclipse.emf.cdo.common.revision.CDORevisionData;
@@ -530,9 +531,9 @@ public class Commits extends Coll
 
   private boolean isBeingDetached(InternalCommitContext context, CDOID id)
   {
-    for (CDOID idBeingDetached : context.getDetachedObjects())
+    for (CDOIDAndVersion idBeingDetached : context.getDetachedObjects())
     {
-      if (id.equals(idBeingDetached))
+      if (id.equals(idBeingDetached.getID()))
       {
         return true;
       }

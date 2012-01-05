@@ -2548,7 +2548,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
       {
         // Add "version-less" key.
         // CDOSessionImpl.reviseRevisions() will call reviseLatest() accordingly.
-        detached.add(CDOIDUtil.createIDAndVersion(id, CDOBranchVersion.UNSPECIFIED_VERSION));
+        detached.add(CDOIDUtil.createIDAndVersion(id, getCleanRevisions().get(detachedObjects.get(id)).getVersion()));
       }
 
       dirtyObjects = filterCommittables(transaction.getDirtyObjects());

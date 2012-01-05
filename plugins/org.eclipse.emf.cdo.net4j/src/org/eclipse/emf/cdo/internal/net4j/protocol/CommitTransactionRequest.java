@@ -193,11 +193,10 @@ public class CommitTransactionRequest extends CDOClientRequestWithMonitoring<Com
     boolean ensuringReferentialIntegrity = getSession().getRepositoryInfo().isEnsuringReferentialIntegrity();
     for (CDOIDAndVersion detachedObject : detachedObjects)
     {
-      CDOID id = detachedObject.getID();
-      out.writeCDOID(id);
+      out.writeCDOIDAndVersion(detachedObject);
       if (ensuringReferentialIntegrity)
       {
-        EClass eClass = getObjectType(id);
+        EClass eClass = getObjectType(detachedObject.getID());
         out.writeCDOClassifierRef(eClass);
       }
     }

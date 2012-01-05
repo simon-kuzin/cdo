@@ -135,7 +135,7 @@ public class TransactionCommitContext implements InternalCommitContext
 
   private InternalCDORevisionDelta[] dirtyObjectDeltas = new InternalCDORevisionDelta[0];
 
-  private CDOID[] detachedObjects = new CDOID[0];
+  private CDOIDAndVersion[] detachedObjects = new CDOIDAndVersion[0];
 
   private Map<CDOID, EClass> detachedObjectTypes;
 
@@ -239,7 +239,7 @@ public class TransactionCommitContext implements InternalCommitContext
     return dirtyObjects;
   }
 
-  public CDOID[] getDetachedObjects()
+  public CDOIDAndVersion[] getDetachedObjects()
   {
     return detachedObjects;
   }
@@ -316,7 +316,7 @@ public class TransactionCommitContext implements InternalCommitContext
     {
       for (int i = 0; i < detachedObjects.length; i++)
       {
-        cache.put(detachedObjects[i], DETACHED);
+        cache.put(detachedObjects[i].getID(), DETACHED);
       }
     }
 
@@ -404,7 +404,7 @@ public class TransactionCommitContext implements InternalCommitContext
     this.dirtyObjectDeltas = dirtyObjectDeltas;
   }
 
-  public void setDetachedObjects(CDOID[] detachedObjects)
+  public void setDetachedObjects(CDOIDAndVersion[] detachedObjects)
   {
     this.detachedObjects = detachedObjects;
   }
@@ -679,7 +679,7 @@ public class TransactionCommitContext implements InternalCommitContext
           return cachedDetachedRevisions[i];
         }
 
-        return CDOIDUtil.createIDAndVersion(detachedObjects[i], CDORevision.UNSPECIFIED_VERSION);
+        return detachedObjects[i];
       }
 
       @Override
@@ -790,7 +790,7 @@ public class TransactionCommitContext implements InternalCommitContext
 
       for (int i = 0; i < detachedObjects.length; i++)
       {
-        CDOID id = detachedObjects[i];
+        CDOID id = detachedObjects[i].getID();
         Object key = lockManager.getLockKey(id, transaction.getBranch());
         lockedObjects.add(key);
       }
@@ -987,11 +987,7 @@ public class TransactionCommitContext implements InternalCommitContext
     }
 
     CDOBranch branch = transaction.getBranch();
-    if (ObjectUtil.equals(oldRevision.getBranch(), branch) && oldRevision.isHistorical())
-    {
-      throw new ConcurrentModificationException("Attempt by " + transaction + " to modify historical revision: "
-          + oldRevision);
-    }
+    checkForStaleRevision(oldRevision, branch);
 
     // Make sure all chunks are loaded
     for (EStructuralFeature feature : CDOModelUtil.getAllPersistentFeatures(oldRevision.getEClass()))
@@ -1007,6 +1003,15 @@ public class TransactionCommitContext implements InternalCommitContext
 
     delta.apply(newRevision);
     return newRevision;
+  }
+
+  private void checkForStaleRevision(InternalCDORevision oldRevision, CDOBranch branch)
+  {
+    if (ObjectUtil.equals(oldRevision.getBranch(), branch) && oldRevision.isHistorical())
+    {
+      throw new ConcurrentModificationException("Attempt by " + transaction + " to modify historical revision: "
+          + oldRevision);
+    }
   }
 
   private void applyIDMappings(InternalCDORevision[] revisions, OMMonitor monitor)
@@ -1216,15 +1221,26 @@ public class TransactionCommitContext implements InternalCommitContext
     int size = detachedObjects.length;
     cachedDetachedRevisions = new InternalCDORevision[size];
 
-    CDOID[] detachedObjects = getDetachedObjects();
+    CDOIDAndVersion[] detachedObjects = getDetachedObjects();
 
     try
     {
       monitor.begin(size);
       for (int i = 0; i < size; i++)
       {
-        CDOID id = detachedObjects[i];
+        CDOID id = detachedObjects[i].getID();
+        CDOBranch branch = transaction.getBranch();
+        InternalCDORevision oldRevision = revisionManager.getRevisionByVersion(id,
+            branch.getVersion(detachedObjects[i].getVersion()), CDORevision.UNCHUNKED, true);
 
+        /*
+         * why oldRevision is null, even if it is present in the revision cache? Because it is PointerCDORevision and
+         * it's method getVersion gives UNSPECIFIED_VERSION
+         */
+        if (oldRevision != null)
+        {
+          checkForStaleRevision(oldRevision, branch);
+        }
         // Remember the cached revision that must be revised after successful commit through updateInfraStructure
         cachedDetachedRevisions[i] = (InternalCDORevision)revisionManager.getCache().getRevision(id, transaction);
         monitor.worked();
@@ -1360,9 +1376,9 @@ public class TransactionCommitContext implements InternalCommitContext
     {
       XRefsQueryHandler.collectSourceCandidates(transaction, detachedObjectTypes.values(), sourceCandidates);
 
-      for (CDOID id : detachedObjects)
+      for (CDOIDAndVersion id : detachedObjects)
       {
-        detachedIDs.add(id);
+        detachedIDs.add(id.getID());
       }
 
       for (InternalCDORevision revision : dirtyObjects)

@@ -15,6 +15,7 @@ package org.eclipse.emf.cdo.spi.server;
 import org.eclipse.emf.cdo.common.CDOCommonRepository.IDGenerationLocation;
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.revision.CDOIDAndVersion;
 import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.IStore;
 import org.eclipse.emf.cdo.server.ITransaction;
@@ -64,12 +65,18 @@ public abstract class StoreAccessor extends StoreAccessorBase
 
     InternalCDOPackageUnit[] newPackageUnits = context.getNewPackageUnits();
     InternalCDORevision[] newObjects = context.getNewObjects();
-    CDOID[] detachedObjects = context.getDetachedObjects();
+    CDOIDAndVersion[] detachedObjects = context.getDetachedObjects();
+    CDOID[] detachedObjectsIDs = new CDOID[detachedObjects.length];
+    for (int i = 0; i < detachedObjects.length; i++)
+    {
+      detachedObjectsIDs[i] = detachedObjects[i].getID();
+    }
+
     int dirtyCount = deltas ? context.getDirtyObjectDeltas().length : context.getDirtyObjects().length;
 
     try
     {
-      monitor.begin(1 + newPackageUnits.length + 2 + newObjects.length + detachedObjects.length + dirtyCount);
+      monitor.begin(1 + newPackageUnits.length + 2 + newObjects.length + detachedObjectsIDs.length + dirtyCount);
       writeCommitInfo(branch, timeStamp, previousTimeStamp, userID, commitComment, monitor.fork());
 
       if (newPackageUnits.length != 0)
@@ -84,9 +91,9 @@ public abstract class StoreAccessor extends StoreAccessorBase
 
       applyIDMappings(context, monitor);
 
-      if (detachedObjects.length != 0)
+      if (detachedObjectsIDs.length != 0)
       {
-        detachObjects(detachedObjects, branch, timeStamp, monitor.fork(detachedObjects.length));
+        detachObjects(detachedObjectsIDs, branch, timeStamp, monitor.fork(detachedObjectsIDs.length));
       }
 
       if (newObjects.length != 0)

@@ -21,6 +21,7 @@ import org.eclipse.emf.cdo.common.model.EMFUtil;
 import org.eclipse.emf.cdo.common.protocol.CDODataInput;
 import org.eclipse.emf.cdo.common.protocol.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
+import org.eclipse.emf.cdo.common.revision.CDOIDAndVersion;
 import org.eclipse.emf.cdo.server.IView;
 import org.eclipse.emf.cdo.server.internal.net4j.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
@@ -124,7 +125,7 @@ public class CommitTransactionIndication extends CDOServerIndicationWithMonitori
     CDOLockState[] locksOnNewObjects = new CDOLockState[in.readInt()];
     InternalCDORevision[] newObjects = new InternalCDORevision[in.readInt()];
     InternalCDORevisionDelta[] dirtyObjectDeltas = new InternalCDORevisionDelta[in.readInt()];
-    CDOID[] detachedObjects = new CDOID[in.readInt()];
+    CDOIDAndVersion[] detachedObjects = new CDOIDAndVersion[in.readInt()];
     monitor.begin(newPackageUnits.length + newObjects.length + dirtyObjectDeltas.length + detachedObjects.length);
 
     try
@@ -201,13 +202,13 @@ public class CommitTransactionIndication extends CDOServerIndicationWithMonitori
 
       for (int i = 0; i < detachedObjects.length; i++)
       {
-        CDOID id = in.readCDOID();
+        CDOIDAndVersion id = in.readCDOIDAndVersion();
         detachedObjects[i] = id;
 
         if (detachedObjectTypes != null)
         {
           EClass eClass = (EClass)in.readCDOClassifierRefAndResolve();
-          detachedObjectTypes.put(id, eClass);
+          detachedObjectTypes.put(id.getID(), eClass);
         }
 
         monitor.worked();

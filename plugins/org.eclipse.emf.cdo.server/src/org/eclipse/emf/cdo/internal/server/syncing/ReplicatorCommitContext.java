@@ -12,7 +12,6 @@ package org.eclipse.emf.cdo.internal.server.syncing;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.commit.CDOCommitInfo;
-import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.revision.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
@@ -53,7 +52,7 @@ public final class ReplicatorCommitContext extends TransactionCommitContext
     InternalCDORevisionDelta[] dirtyObjectDeltas = getDirtyObjectDeltas(commitInfo);
     setDirtyObjectDeltas(dirtyObjectDeltas);
 
-    CDOID[] detachedObjects = getDetachedObjects(commitInfo);
+    CDOIDAndVersion[] detachedObjects = getDetachedObjects(commitInfo);
     setDetachedObjects(detachedObjects);
   }
 
@@ -155,17 +154,9 @@ public final class ReplicatorCommitContext extends TransactionCommitContext
     return result;
   }
 
-  private static CDOID[] getDetachedObjects(CDOCommitInfo commitInfo)
+  private static CDOIDAndVersion[] getDetachedObjects(CDOCommitInfo commitInfo)
   {
     List<CDOIDAndVersion> list = commitInfo.getDetachedObjects();
-    CDOID[] result = new CDOID[list.size()];
-
-    int i = 0;
-    for (CDOIDAndVersion key : list)
-    {
-      result[i++] = key.getID();
-    }
-
-    return result;
+    return list.toArray(new CDOIDAndVersion[list.size()]);
   }
 }

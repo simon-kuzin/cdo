@@ -26,6 +26,7 @@ import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
 import org.eclipse.emf.cdo.common.protocol.CDODataInput;
 import org.eclipse.emf.cdo.common.protocol.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
+import org.eclipse.emf.cdo.common.revision.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionCacheAdder;
 import org.eclipse.emf.cdo.common.revision.CDORevisionHandler;
@@ -354,9 +355,9 @@ public interface IStoreAccessor extends IQueryHandlerProvider, BranchLoader, Com
      * Returns an array of the removed object that are part of the commit operation represented by this
      * <code>CommitContext</code>.
      * 
-     * @since 2.0
+     * @since 4.1
      */
-    public CDOID[] getDetachedObjects();
+    public CDOIDAndVersion[] getDetachedObjects();
 
     /**
      * Returns a map with an {@link EClass} value per {@link CDOID} type.

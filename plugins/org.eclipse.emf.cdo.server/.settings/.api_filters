@@ -232,6 +232,14 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="src/org/eclipse/emf/cdo/server/IStoreAccessor.java" type="org.eclipse.emf.cdo.server.IStoreAccessor$CommitContext">
+        <filter id="405901410">
+            <message_arguments>
+                <message_argument value="org.eclipse.emf.cdo.server.IStoreAccessor.CommitContext"/>
+                <message_argument value="getDetachedObjects()"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="src/org/eclipse/emf/cdo/server/IStoreAccessor.java" type="org.eclipse.emf.cdo.server.IStoreAccessor$DurableLocking">
         <filter id="571473929">
             <message_arguments>
@@ -301,6 +309,14 @@
             <message_arguments>
                 <message_argument value="CDOProtocol"/>
                 <message_argument value="ISessionProtocol"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/emf/cdo/spi/server/InternalCommitContext.java" type="org.eclipse.emf.cdo.spi.server.InternalCommitContext">
+        <filter id="405901410">
+            <message_arguments>
+                <message_argument value="org.eclipse.emf.cdo.spi.server.InternalCommitContext"/>
+                <message_argument value="setDetachedObjects(CDOID[])"/>
             </message_arguments>
         </filter>
     </resource>

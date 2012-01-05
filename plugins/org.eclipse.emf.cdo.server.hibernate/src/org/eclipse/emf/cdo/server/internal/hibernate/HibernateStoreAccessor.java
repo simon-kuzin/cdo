@@ -21,6 +21,7 @@ import org.eclipse.emf.cdo.common.id.CDOIDTemp;
 import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.lob.CDOLobHandler;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
+import org.eclipse.emf.cdo.common.revision.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionCacheAdder;
 import org.eclipse.emf.cdo.common.revision.CDORevisionData;
@@ -694,11 +695,11 @@ public class HibernateStoreAccessor extends StoreAccessor implements IHibernateS
       session.flush();
 
       // delete all objects
-      for (CDOID id : context.getDetachedObjects())
+      for (CDOIDAndVersion idAndVersion : context.getDetachedObjects())
       {
         try
         {
-          final CDORevision revision = HibernateUtil.getInstance().getCDORevision(id);
+          final CDORevision revision = HibernateUtil.getInstance().getCDORevision(idAndVersion.getID());
 
           // maybe deleted in parallell?
           if (revision != null)

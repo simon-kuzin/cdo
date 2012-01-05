@@ -459,7 +459,7 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
       serverCommitContext.setDirtyObjectDeltas(rd.toArray(new InternalCDORevisionDelta[rd.size()]));
 
       List<CDOIDAndVersion> detachedObjects = commitData.getDetachedObjects();
-      serverCommitContext.setDetachedObjects(detachedObjects.toArray(new CDOID[detachedObjects.size()]));
+      serverCommitContext.setDetachedObjects(detachedObjects.toArray(new CDOIDAndVersion[detachedObjects.size()]));
 
       serverCommitContext.write(monitor.fork());
       success = serverCommitContext.getRollbackMessage() == null;

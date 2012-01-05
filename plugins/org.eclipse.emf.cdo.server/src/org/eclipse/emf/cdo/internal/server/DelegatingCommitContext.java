@@ -12,6 +12,7 @@ package org.eclipse.emf.cdo.internal.server;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.revision.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.IStoreAccessor.CommitContext;
@@ -82,7 +83,7 @@ public abstract class DelegatingCommitContext implements IStoreAccessor.CommitCo
     return getDelegate().getDirtyObjectDeltas();
   }
 
-  public CDOID[] getDetachedObjects()
+  public CDOIDAndVersion[] getDetachedObjects()
   {
     return getDelegate().getDetachedObjects();
   }
