@@ -23,6 +23,7 @@ import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
 import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
+import org.eclipse.emf.cdo.common.util.PartialCollectionLoadingNotSupportedException;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionCache;
@@ -33,6 +34,7 @@ import org.eclipse.emf.cdo.view.CDOView;
 
 import org.eclipse.emf.internal.cdo.CDOObjectImpl;
 import org.eclipse.emf.internal.cdo.bundle.OM;
+import org.eclipse.emf.internal.cdo.object.CDONotificationBuilder;
 
 import org.eclipse.net4j.util.collection.Pair;
 import org.eclipse.net4j.util.collection.Triplet;
@@ -40,6 +42,7 @@ import org.eclipse.net4j.util.fsm.FiniteStateMachine;
 import org.eclipse.net4j.util.fsm.ITransition;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
 
+import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
@@ -1001,6 +1004,27 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
       object.cdoInternalSetRevision(revision);
       changeState(object, CDOState.CLEAN);
       object.cdoInternalPostLoad();
+
+      if (view.options().isLoadNotificationEnabled())
+      {
+        try
+        {
+          CDONotificationBuilder builder = new CDONotificationBuilder(view);
+
+          NotificationChain notification = builder.buildNotification(object, revision);
+          if (notification != null)
+          {
+            notification.dispatch();
+          }
+        }
+        catch (PartialCollectionLoadingNotSupportedException ex)
+        {
+          if (TRACER.isEnabled())
+          {
+            TRACER.trace(ex);
+          }
+        }
+      }
 
       if (forWrite)
       {
