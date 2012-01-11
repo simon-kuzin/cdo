@@ -994,9 +994,9 @@ public abstract class CDOLegacyWrapper extends CDOObjectWrapper
     InternalCDOObject oppositeCDOObject = (InternalCDOObject)CDOUtil.getCDOObject(oppositeObject);
     if (oppositeCDOObject != null)
     {
-      InternalCDOView view = oppositeCDOObject.cdoView();
-      if (view != null)
+      if (!FSMUtil.isTransient(oppositeCDOObject))
       {
+        InternalCDOView view = oppositeCDOObject.cdoView();
         CDOStore store = view.getStore();
         if (store != null)
         {
