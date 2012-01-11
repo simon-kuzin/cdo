@@ -981,10 +981,6 @@ public class TransactionCommitContext implements InternalCommitContext
     CDOID id = delta.getID();
 
     InternalCDORevision oldRevision = revisionManager.getRevisionByVersion(id, delta, CDORevision.UNCHUNKED, true);
-    if (oldRevision == null)
-    {
-      throw new IllegalStateException("Origin revision not found for " + delta);
-    }
 
     CDOBranch branch = transaction.getBranch();
     checkForStaleRevision(oldRevision, branch);
@@ -1007,6 +1003,11 @@ public class TransactionCommitContext implements InternalCommitContext
 
   private void checkForStaleRevision(InternalCDORevision oldRevision, CDOBranch branch)
   {
+    if (oldRevision == null)
+    {
+      throw new IllegalStateException("Origin revision not found for " + oldRevision);
+    }
+
     if (ObjectUtil.equals(oldRevision.getBranch(), branch) && oldRevision.isHistorical())
     {
       throw new ConcurrentModificationException("Attempt by " + transaction + " to modify historical revision: "
@@ -1230,15 +1231,13 @@ public class TransactionCommitContext implements InternalCommitContext
       {
         CDOID id = detachedObjects[i].getID();
         CDOBranch branch = transaction.getBranch();
-        InternalCDORevision oldRevision = revisionManager.getRevisionByVersion(id,
-            branch.getVersion(detachedObjects[i].getVersion()), CDORevision.UNCHUNKED, true);
-
-        /*
-         * why oldRevision is null, even if it is present in the revision cache? Because it is PointerCDORevision and
-         * it's method getVersion gives UNSPECIFIED_VERSION
-         */
-        if (oldRevision != null)
+        // if we are removing object which has no version in a branch, his version will be UNSPECIFIED_VERSION. We do
+        // not need to check it
+        if (detachedObjects[i].getVersion() != CDORevision.UNSPECIFIED_VERSION)
         {
+          InternalCDORevision oldRevision = revisionManager.getRevisionByVersion(id,
+              branch.getVersion(detachedObjects[i].getVersion()), CDORevision.UNCHUNKED, true);
+
           checkForStaleRevision(oldRevision, branch);
         }
         // Remember the cached revision that must be revised after successful commit through updateInfraStructure

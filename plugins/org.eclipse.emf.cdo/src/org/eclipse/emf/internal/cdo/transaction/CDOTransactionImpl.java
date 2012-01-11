@@ -2543,12 +2543,31 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
       }
 
       detachedObjects = filterCommittables(transaction.getDetachedObjects());
+      boolean supportingBranches = transaction.getSession().getRepositoryInfo().isSupportingBranches();
       List<CDOIDAndVersion> detached = new ArrayList<CDOIDAndVersion>(detachedObjects.size());
       for (CDOID id : detachedObjects.keySet())
       {
         // Add "version-less" key.
         // CDOSessionImpl.reviseRevisions() will call reviseLatest() accordingly.
-        detached.add(CDOIDUtil.createIDAndVersion(id, getCleanRevisions().get(detachedObjects.get(id)).getVersion()));
+        InternalCDORevision detachedRevision = getCleanRevisions().get(detachedObjects.get(id));
+
+        if (supportingBranches)
+        {
+          if (detachedRevision.getBranch().equals(getBranch()))
+          {
+            detached.add(CDOIDUtil.createIDAndVersion(id, detachedRevision.getVersion()));
+          }
+          else
+          {
+            // Branch for clean revision do not match to branch in which it was deleted. This can only happen
+            // when in current branch there was no version created
+            detached.add(CDOIDUtil.createIDAndVersion(id, CDORevision.UNSPECIFIED_VERSION));
+          }
+        }
+        else
+        {
+          detached.add(CDOIDUtil.createIDAndVersion(id, detachedRevision.getVersion()));
+        }
       }
 
       dirtyObjects = filterCommittables(transaction.getDirtyObjects());
