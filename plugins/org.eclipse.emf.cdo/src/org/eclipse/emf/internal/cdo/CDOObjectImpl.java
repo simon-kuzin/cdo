@@ -63,6 +63,7 @@ import org.eclipse.emf.spi.cdo.InternalCDOLoadable;
 import org.eclipse.emf.spi.cdo.InternalCDOObject;
 import org.eclipse.emf.spi.cdo.InternalCDOView;
 
+import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -82,7 +83,7 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
 
   private CDOState state;
 
-  private InternalCDOView view;
+  private WeakReference<InternalCDOView> view;
 
   private InternalCDORevision revision;
 
@@ -124,7 +125,11 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
    */
   public InternalCDOView cdoView()
   {
-    return view;
+    if (view != null)
+    {
+      return view.get();
+    }
+    return null;
   }
 
   public CDOResourceImpl cdoResource()
@@ -157,7 +162,7 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
    */
   public void cdoPrefetch(int depth)
   {
-    view.prefetchRevisions(id, depth);
+    cdoView().prefetchRevisions(id, depth);
   }
 
   public void cdoReload()
@@ -234,9 +239,10 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
       }
 
       this.state = state;
-      if (view != null)
+      InternalCDOView v = cdoView();
+      if (v != null)
       {
-        view.handleObjectStateChanged(this, oldState, state);
+        v.handleObjectStateChanged(this, oldState, state);
       }
 
       return oldState;
@@ -263,13 +269,14 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
    */
   public void cdoInternalSetView(CDOView view)
   {
-    this.view = (InternalCDOView)view;
-    if (this.view != null)
+    if (view != null)
     {
-      eSetStore(this.view.getStore());
+      this.view = new WeakReference<InternalCDOView>((InternalCDOView)view);
+      eSetStore(((InternalCDOView)view).getStore());
     }
     else
     {
+      this.view = null;
       eSetStore(null);
     }
   }
@@ -322,7 +329,7 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
       TRACER.format("Populating revision for {0}", this); //$NON-NLS-1$
     }
 
-    revision.setContainerID(eContainer == null ? CDOID.NULL : view.convertObjectToID(eContainer, true));
+    revision.setContainerID(eContainer == null ? CDOID.NULL : cdoView().convertObjectToID(eContainer, true));
     revision.setContainingFeatureID(eContainerFeatureID);
 
     Resource directResource = eDirectResource();
@@ -340,7 +347,7 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
         EStructuralFeature eFeature = cdoInternalDynamicFeature(i);
         if (EMFUtil.isPersistent(eFeature))
         {
-          instanceToRevisionFeature(view, this, eFeature, cdoSettings[i]);
+          instanceToRevisionFeature(cdoView(), this, eFeature, cdoSettings[i]);
         }
       }
 
@@ -425,12 +432,13 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
         @Override
         protected void didAdd(int index, Adapter newObject)
         {
-          if (view == null || view.isActive())
+          InternalCDOView v = cdoView();
+          if (v == null || v.isActive())
           {
             super.didAdd(index, newObject);
             if (!FSMUtil.isTransient(CDOObjectImpl.this))
             {
-              view.handleAddAdapter(CDOObjectImpl.this, newObject);
+              v.handleAddAdapter(CDOObjectImpl.this, newObject);
             }
           }
         }
@@ -438,12 +446,13 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
         @Override
         protected void didRemove(int index, Adapter oldObject)
         {
-          if (view == null || view.isActive())
+          InternalCDOView v = cdoView();
+          if (v == null || v.isActive())
           {
             super.didRemove(index, oldObject);
             if (!FSMUtil.isTransient(CDOObjectImpl.this))
             {
-              view.handleRemoveAdapter(CDOObjectImpl.this, oldObject);
+              v.handleRemoveAdapter(CDOObjectImpl.this, oldObject);
             }
           }
         }
@@ -649,7 +658,7 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
       }
     }
 
-    CDOView oldView = view;
+    CDOView oldView = cdoView();
     CDOView newView = newResource != null && newResource instanceof CDOResource ? ((CDOResource)newResource).cdoView()
         : null;
 
@@ -712,7 +721,7 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
   {
     Resource.Internal oldResource = eDirectResource();
 
-    CDOView oldView = view;
+    CDOView oldView = cdoView();
     CDOView newView = resource != null && resource instanceof CDOResource ? ((CDOResource)resource).cdoView() : null;
 
     boolean isSameView;
@@ -1027,7 +1036,7 @@ public class CDOObjectImpl extends EStoreEObjectImpl implements InternalCDOObjec
 
   private CDOStore cdoStore()
   {
-    return view.getStore();
+    return cdoView().getStore();
   }
 
   private void resetSettings()
