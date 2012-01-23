@@ -54,6 +54,7 @@ import org.eclipse.net4j.util.io.IOUtil;
 import org.eclipse.net4j.util.om.monitor.Monitor;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.monitor.OMMonitor.Async;
+import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EPackage;
@@ -90,6 +91,8 @@ import java.util.Set;
  */
 public class DB4OStoreAccessor extends LongIDStoreAccessor implements Raw, DurableLocking
 {
+  private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, DB4OStoreAccessor.class);
+
   private ObjectContainer objectContainer;
 
   public DB4OStoreAccessor(DB4OStore store, ISession session)
@@ -598,10 +601,18 @@ public class DB4OStoreAccessor extends LongIDStoreAccessor implements Raw, Durab
 
     try
     {
-      long start = System.currentTimeMillis();
+      long start = 0;
+      if (TRACER.isEnabled())
+      {
+        start = System.currentTimeMillis();
+      }
       getObjectContainer().commit();
-      long end = System.currentTimeMillis();
-      OM.LOG.debug("Commit took -> " + (end - start) + " milliseconds");
+
+      if (TRACER.isEnabled())
+      {
+        long end = System.currentTimeMillis();
+        TRACER.format("Commit took: {0} milliseconds.", end - start);
+      }
     }
     catch (Exception e)
     {
@@ -629,13 +640,22 @@ public class DB4OStoreAccessor extends LongIDStoreAccessor implements Raw, Durab
 
     try
     {
-      long start = System.currentTimeMillis();
+      long start = 0;
+      if (TRACER.isEnabled())
+      {
+        start = System.currentTimeMillis();
+      }
+
       for (InternalCDORevision revision : revisions)
       {
         writeRevision(revision, monitor.fork());
       }
-      long end = System.currentTimeMillis();
-      OM.LOG.debug("Storage of " + revisions.length + " revisions took: " + (end - start) + " milliseconds");
+
+      if (TRACER.isEnabled())
+      {
+        long end = System.currentTimeMillis();
+        TRACER.format("Storage of {0} revisions took: {1} milliseconds.", revisions.length, end - start);
+      }
     }
     finally
     {
@@ -668,13 +688,20 @@ public class DB4OStoreAccessor extends LongIDStoreAccessor implements Raw, Durab
 
       // TODO removal of previous version implies query, this should be optimized
 
-      long start = System.currentTimeMillis();
+      long start = 0;
+      if (TRACER.isEnabled())
+      {
+        start = System.currentTimeMillis();
+      }
       CDOID id = revision.getID();
       DB4OStore.removeRevision(getObjectContainer(), id);
       DB4ORevision primitiveRevision = DB4ORevision.getDB4ORevision(revision);
       writeObject(primitiveRevision, monitor);
-      long end = System.currentTimeMillis();
-      OM.LOG.debug("Writing revision " + id + " took: " + (end - start) + " milliseconds");
+      if (TRACER.isEnabled())
+      {
+        long end = System.currentTimeMillis();
+        TRACER.format("Writing revision {0} took: {1} milliseconds.", id, end - start);
+      }
     }
     finally
     {
