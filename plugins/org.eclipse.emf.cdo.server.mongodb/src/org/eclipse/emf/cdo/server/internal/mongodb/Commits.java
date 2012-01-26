@@ -46,6 +46,7 @@ import org.eclipse.emf.cdo.spi.server.InternalRepository;
 import org.eclipse.net4j.util.ObjectUtil;
 import org.eclipse.net4j.util.StringUtil;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
+import org.eclipse.net4j.util.om.monitor.OMMonitor.Async;
 
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
@@ -404,8 +405,9 @@ public class Commits extends Coll
 
       monitor.worked();
 
+      Async async = monitor.forkAsync(100);
       collection.insert(doc);
-      monitor.worked(100);
+      async.stop();
     }
     finally
     {
