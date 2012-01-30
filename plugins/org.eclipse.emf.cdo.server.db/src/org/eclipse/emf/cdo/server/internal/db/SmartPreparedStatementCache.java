@@ -14,6 +14,7 @@ import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
 
 import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.util.ImplementationError;
+import org.eclipse.net4j.util.om.trace.ContextTracer;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -26,6 +27,8 @@ import java.util.HashMap;
  */
 public class SmartPreparedStatementCache extends AbstractPreparedStatementCache
 {
+  private static ContextTracer TRACER = new ContextTracer(OM.DEBUG, SmartPreparedStatementCache.class);
+
   private Cache cache;
 
   private HashMap<PreparedStatement, CachedPreparedStatement> checkedOut = new HashMap<PreparedStatement, CachedPreparedStatement>();
@@ -38,9 +41,19 @@ public class SmartPreparedStatementCache extends AbstractPreparedStatementCache
   public PreparedStatement getPreparedStatement(String sql, ReuseProbability reuseProbability)
   {
     CachedPreparedStatement cachedStatement = cache.remove(sql);
+
+    if (TRACER.isEnabled() && cachedStatement != null)
+    {
+      TRACER.format("Cache hit: {0}", cachedStatement.getSQL());
+    }
+
     if (cachedStatement == null)
     {
       cachedStatement = createCachedPreparedStatement(sql, reuseProbability);
+      if (TRACER.isEnabled())
+      {
+        TRACER.format("Cache miss - created statement: {0}", cachedStatement.getSQL());
+      }
     }
 
     PreparedStatement result = cachedStatement.getPreparedStatement();
@@ -58,6 +71,10 @@ public class SmartPreparedStatementCache extends AbstractPreparedStatementCache
     if (ps != null) // Bug 276926: Silently accept ps == null and do nothing.
     {
       CachedPreparedStatement cachedStatement = checkedOut.remove(ps);
+      if (TRACER.isEnabled())
+      {
+        TRACER.format("Releasing statement to cache: {0}", cachedStatement.getSQL());
+      }
       cache.put(cachedStatement);
     }
   }
