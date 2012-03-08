@@ -129,6 +129,8 @@ public class TypeMappingRegistry implements ITypeMapping.Registry, ITypeMapping.
     container.registerFactory(CoreTypeMappings.TMBytes.FACTORY);
     container.registerFactory(CoreTypeMappings.TMCharacter.FACTORY);
     container.registerFactory(CoreTypeMappings.TMCharacter.FACTORY_OBJECT);
+    container.registerFactory(CoreTypeMappings.TMCharacter2Integer.FACTORY);
+    container.registerFactory(CoreTypeMappings.TMCharacter2Integer.FACTORY_OBJECT);
     container.registerFactory(CoreTypeMappings.TMCustom.FACTORY_VARCHAR);
     container.registerFactory(CoreTypeMappings.TMCustom.FACTORY_CLOB);
     container.registerFactory(CoreTypeMappings.TMCustom.FACTORY_LONG_VARCHAR);
@@ -262,6 +264,7 @@ public class TypeMappingRegistry implements ITypeMapping.Registry, ITypeMapping.
 
       if (descriptor == null)
       {
+        System.out.println();
         EClassifier type = getEType(feature);
         throw new IllegalStateException(MessageFormat.format(Messages.getString("TypeMappingRegistry.1"), feature
             .getEContainingClass().getName() + "." + feature.getName(),

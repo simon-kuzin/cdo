@@ -31,6 +31,12 @@ import java.sql.SQLException;
  */
 public class PostgresqlConfig extends DBConfig
 {
+  private static final String HOSTNAME = "majua02";
+
+  private static final String USER_NAME = "cdo";
+
+  private static final String PASSWORD = USER_NAME;
+
   public static final String DB_ADAPTER_NAME = "Postgresql";
 
   private static final long serialVersionUID = 1L;
@@ -65,10 +71,10 @@ public class PostgresqlConfig extends DBConfig
     currentRepositoryName = repoName;
 
     dataSource = new Jdbc3SimpleDataSource();
-    dataSource.setServerName("localhost");
+    dataSource.setServerName(HOSTNAME);
     dataSource.setDatabaseName(currentRepositoryName);
-    dataSource.setUser("sa");
-    dataSource.setPassword("sa");
+    dataSource.setUser(USER_NAME);
+    dataSource.setPassword(PASSWORD);
 
     try
     {
@@ -114,15 +120,11 @@ public class PostgresqlConfig extends DBConfig
 
   private DataSource getSetupDataSource()
   {
-    if (setupDataSource == null)
-    {
-      setupDataSource = new Jdbc3SimpleDataSource();
-      setupDataSource.setServerName("localhost");
-      setupDataSource.setDatabaseName(currentRepositoryName);
-      setupDataSource.setUser("sa");
-      setupDataSource.setPassword("sa");
-    }
-
+    setupDataSource = new Jdbc3SimpleDataSource();
+    setupDataSource.setServerName(HOSTNAME);
+    setupDataSource.setDatabaseName(currentRepositoryName);
+    setupDataSource.setUser(USER_NAME);
+    setupDataSource.setPassword(PASSWORD);
     return setupDataSource;
   }
 }

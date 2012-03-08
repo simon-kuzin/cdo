@@ -10,6 +10,8 @@
  *    Eike Stepper - maintenance
  *    Stefan Winkler - Bug 276979
  *    Stefan Winkler - Bug 289445
+ *    Stefan Winker  - Bug 350137
+ *    Victor Roldan Betancort - Bug 323006
  */
 package org.eclipse.net4j.db.postgresql;
 
@@ -98,11 +100,18 @@ public class PostgreSQLAdapter extends DBAdapter
     case LONGVARCHAR:
     case VARCHAR:
     case CLOB:
-      return "text"; //$NON-NLS-1$
+      return "text"; //$NON-NLS-1$    
+    case BINARY:
+    case VARBINARY:
+    case LONGVARBINARY:
     case BLOB:
       return "bytea"; //$NON-NLS-1$
     case DOUBLE:
       return "double precision"; //$NON-NLS-1$
+    case BIT:
+      return "boolean"; //$NON-NLS-1$
+    case TINYINT:
+      return "smallint"; //$NON-NLS-1$
     }
 
     return super.getTypeName(field);
@@ -171,9 +180,10 @@ public class PostgreSQLAdapter extends DBAdapter
   {
     switch (type)
     {
-    // Due to Bug 289194: [DB] BLOB not correctly handled by PostgreSQL DBAdapter
-    case BLOB:
-      return DBType.VARBINARY;
+    case CHAR:
+      // Due to Bug 350137 (PostgreSQL does not like zeros in strings ...)
+      // SMALLINT won't fit since it only supports 32767 as maximum value, whereas Character.MAX_VALUE is 65535
+      return DBType.INTEGER;
     }
 
     return super.adaptType(type);
