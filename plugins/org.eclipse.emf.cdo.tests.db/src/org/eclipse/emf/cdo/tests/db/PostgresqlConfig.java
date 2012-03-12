@@ -84,8 +84,10 @@ public class PostgresqlConfig extends DBConfig
     {
       OM.LOG.warn(ex.getMessage());
     }
-
-    dropDatabase();
+    if (!isRestarting())
+    {
+      dropDatabase();
+    }
 
     return dataSource;
   }
