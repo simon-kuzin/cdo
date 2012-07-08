@@ -152,6 +152,8 @@ public interface InternalRepository extends IRepository, PackageProcessor, Packa
    */
   public void failCommit(long timeStamp);
 
+  public void commit(InternalCommitContext commitContext, OMMonitor monitor);
+
   /**
    * @since 4.0
    */

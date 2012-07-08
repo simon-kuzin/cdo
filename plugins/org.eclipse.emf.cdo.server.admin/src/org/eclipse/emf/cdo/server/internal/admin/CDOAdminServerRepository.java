@@ -164,6 +164,11 @@ public class CDOAdminServerRepository extends Notifier implements CDOAdminReposi
     return delegate.isSupportingEcore();
   }
 
+  public boolean isSerializingCommits()
+  {
+    return delegate.isSerializingCommits();
+  }
+
   public boolean isEnsuringReferentialIntegrity()
   {
     return delegate.isEnsuringReferentialIntegrity();
