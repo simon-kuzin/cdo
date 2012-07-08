@@ -36,8 +36,8 @@ public class BinaryCommitInfoLog implements CDOCommitInfoHandler
 
   public BinaryCommitInfoLog(OutputStream stream, CDOPackageRegistry packageRegistry)
   {
-    ExtendedDataOutput eod = ExtendedDataOutputStream.wrap(stream);
-    out = CDOCommonUtil.createCDODataOutput(eod, packageRegistry, CDOIDProvider.NOOP);
+    ExtendedDataOutput edo = ExtendedDataOutputStream.wrap(stream);
+    out = CDOCommonUtil.createCDODataOutput(edo, packageRegistry, CDOIDProvider.NOOP);
   }
 
   public void handleCommitInfo(CDOCommitInfo commitInfo)
