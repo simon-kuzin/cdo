@@ -36,6 +36,7 @@ import org.eclipse.emf.cdo.server.IStoreAccessor.CommitContext;
 import org.eclipse.emf.cdo.server.ITransaction;
 import org.eclipse.emf.cdo.server.StoreThreadLocal;
 import org.eclipse.emf.cdo.server.admin.CDOAdminServerUtil;
+import org.eclipse.emf.cdo.server.internal.lissome.db.DBBrowserPage;
 import org.eclipse.emf.cdo.server.lissome.LissomeStoreUtil;
 import org.eclipse.emf.cdo.server.mem.MEMStoreUtil;
 import org.eclipse.emf.cdo.server.net4j.CDONet4jServerUtil;
@@ -62,6 +63,7 @@ import org.eclipse.net4j.util.ObjectUtil;
 import org.eclipse.net4j.util.ReflectUtil;
 import org.eclipse.net4j.util.concurrent.ConcurrencyUtil;
 import org.eclipse.net4j.util.container.IManagedContainer;
+import org.eclipse.net4j.util.container.IPluginContainer;
 import org.eclipse.net4j.util.io.IOUtil;
 import org.eclipse.net4j.util.lifecycle.ILifecycle;
 import org.eclipse.net4j.util.lifecycle.LifecycleEventAdapter;
@@ -970,7 +972,15 @@ public abstract class RepositoryConfig extends Config implements IRepositoryConf
     public IStore createStore(String repoName)
     {
       File folder = getCurrentTest().createTempFolder("lissome-", ".tmp");
+      IOUtil.ERR().println("Lissome folder: " + folder);
       return LissomeStoreUtil.createStore(folder);
+    }
+
+    @Override
+    public void setUp() throws Exception
+    {
+      IPluginContainer.INSTANCE.registerFactory(new DBBrowserPage.Factory());
+      super.setUp();
     }
   }
 }
