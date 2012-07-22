@@ -41,6 +41,7 @@ import org.eclipse.net4j.util.ReflectUtil;
 import org.eclipse.net4j.util.event.IEvent;
 import org.eclipse.net4j.util.event.IListener;
 
+import org.eclipse.emf.spi.cdo.CDOSessionProtocol;
 import org.eclipse.emf.spi.cdo.InternalCDOSession;
 
 import java.lang.reflect.Field;
@@ -912,12 +913,17 @@ public class BranchingTest extends AbstractCDOTest
 
     final List<CDORevision> revisions = new ArrayList<CDORevision>();
 
-    ((InternalCDOSession)session).getSessionProtocol().handleRevisions(null, subBranch, false,
-        CDOBranchPoint.UNSPECIFIED_DATE, false, new CDORevisionHandler()
+    CDOSessionProtocol sessionProtocol = ((InternalCDOSession)session).getSessionProtocol();
+    sessionProtocol.handleRevisions(null, subBranch, false, CDOBranchPoint.UNSPECIFIED_DATE, false,
+        new CDORevisionHandler()
         {
           public boolean handleRevision(CDORevision revision)
           {
-            assertNotSame("Product1", revision.getEClass().getName());
+            if (revision.getEClass() == getModel1Package().getProduct1())
+            {
+              fail("Product1 has been detached and should not be passed in here");
+            }
+
             revisions.add(revision);
             return true;
           }
