@@ -666,22 +666,26 @@ public class BranchingTest extends AbstractCDOTest
     session.close();
   }
 
-  private void check(CDOSession session, CDOBranch branch, long timeStamp, float price, String name,
-      int expectedContentsSize)
+  private void check(CDOSession session, CDOBranch branch, long timeStamp, float price, String name, int size)
   {
     CDOView view = session.openView(branch, timeStamp);
     CDOResource resource = view.getResource(getResourcePath("/res"));
-    assertEquals(expectedContentsSize, resource.getContents().size());
+
+    int actualSize = resource.getContents().size();
+    assertEquals(size, actualSize);
 
     dumpAll(session);
     OrderDetail orderDetail = (OrderDetail)resource.getContents().get(1);
-
     dumpAll(session);
-    assertEquals(price, orderDetail.getPrice());
+
+    float actualPrice = orderDetail.getPrice();
+    assertEquals(price, actualPrice);
 
     Product1 product = orderDetail.getProduct();
     dumpAll(session);
-    assertEquals(name, product.getName());
+
+    String actualName = product.getName();
+    assertEquals(name, actualName);
 
     view.close();
   }
