@@ -14,7 +14,6 @@ import org.eclipse.emf.cdo.common.CDOCommonRepository.IDGenerationLocation;
 import org.eclipse.emf.cdo.tests.config.impl.ContainerConfig;
 import org.eclipse.emf.cdo.tests.config.impl.ModelConfig;
 import org.eclipse.emf.cdo.tests.config.impl.RepositoryConfig;
-import org.eclipse.emf.cdo.tests.config.impl.RepositoryConfig.LissomeConfig;
 import org.eclipse.emf.cdo.tests.config.impl.RepositoryConfig.MEMConfig;
 import org.eclipse.emf.cdo.tests.config.impl.RepositoryConfig.MEMOfflineConfig;
 import org.eclipse.emf.cdo.tests.config.impl.SessionConfig;
@@ -38,8 +37,6 @@ public interface IConstants
   public static final RepositoryConfig MEM_BRANCHES_UUIDS = new MEMConfig(true, true, IDGenerationLocation.CLIENT);
 
   public static final RepositoryConfig MEM_OFFLINE = new MEMOfflineConfig(IDGenerationLocation.CLIENT);
-
-  public static final RepositoryConfig LISSOME = new LissomeConfig(IDGenerationLocation.STORE);
 
   /**
    * @deprecated Not yet supported.

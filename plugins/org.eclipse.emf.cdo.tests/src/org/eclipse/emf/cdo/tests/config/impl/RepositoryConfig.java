@@ -36,8 +36,6 @@ import org.eclipse.emf.cdo.server.IStoreAccessor.CommitContext;
 import org.eclipse.emf.cdo.server.ITransaction;
 import org.eclipse.emf.cdo.server.StoreThreadLocal;
 import org.eclipse.emf.cdo.server.admin.CDOAdminServerUtil;
-import org.eclipse.emf.cdo.server.internal.lissome.db.DBBrowserPage;
-import org.eclipse.emf.cdo.server.lissome.LissomeStoreUtil;
 import org.eclipse.emf.cdo.server.mem.MEMStoreUtil;
 import org.eclipse.emf.cdo.server.net4j.CDONet4jServerUtil;
 import org.eclipse.emf.cdo.server.ocl.OCLQueryHandler;
@@ -63,7 +61,6 @@ import org.eclipse.net4j.util.ObjectUtil;
 import org.eclipse.net4j.util.ReflectUtil;
 import org.eclipse.net4j.util.concurrent.ConcurrencyUtil;
 import org.eclipse.net4j.util.container.IManagedContainer;
-import org.eclipse.net4j.util.container.IPluginContainer;
 import org.eclipse.net4j.util.io.IOUtil;
 import org.eclipse.net4j.util.lifecycle.ILifecycle;
 import org.eclipse.net4j.util.lifecycle.LifecycleEventAdapter;
@@ -74,7 +71,6 @@ import org.eclipse.net4j.util.tests.AbstractOMTest;
 
 import org.eclipse.emf.spi.cdo.InternalCDOSession;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.lang.annotation.Annotation;
@@ -940,47 +936,6 @@ public abstract class RepositoryConfig extends Config implements IRepositoryConf
     public IStore createStore(String repoName)
     {
       return MEMStoreUtil.createMEMStore();
-    }
-  }
-
-  /**
-   * @author Eike Stepper
-   */
-  public static class LissomeConfig extends RepositoryConfig
-  {
-    public static final String STORE_NAME = "Lissome";
-
-    private static final long serialVersionUID = 1L;
-
-    public LissomeConfig(IDGenerationLocation idGenerationLocation)
-    {
-      super(STORE_NAME, true, true, idGenerationLocation);
-    }
-
-    @Override
-    protected String getStoreName()
-    {
-      return STORE_NAME;
-    }
-
-    @Override
-    public boolean isRestartable()
-    {
-      return false;
-    }
-
-    public IStore createStore(String repoName)
-    {
-      File folder = getCurrentTest().createTempFolder("lissome-", ".tmp");
-      IOUtil.ERR().println("Lissome folder: " + folder);
-      return LissomeStoreUtil.createStore(folder);
-    }
-
-    @Override
-    public void setUp() throws Exception
-    {
-      IPluginContainer.INSTANCE.registerFactory(new DBBrowserPage.Factory());
-      super.setUp();
     }
   }
 }
