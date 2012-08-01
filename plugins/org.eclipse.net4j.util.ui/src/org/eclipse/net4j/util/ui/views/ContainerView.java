@@ -557,6 +557,9 @@ public abstract class ContainerView extends ViewPart implements ISelectionProvid
     itemProvider.revealElement(element);
   }
 
+  /**
+   * @since 3.3
+   */
   public void expandElement(Object element, int level)
   {
     itemProvider.expandElement(element, level);

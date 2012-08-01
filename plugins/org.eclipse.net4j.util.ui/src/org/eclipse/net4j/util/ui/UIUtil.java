@@ -104,6 +104,9 @@ public final class UIUtil
     }
   }
 
+  /**
+   * @since 3.3
+   */
   public static Font getItalicFont(Control control)
   {
     FontData[] datas = control.getFont().getFontData().clone();
@@ -391,6 +394,9 @@ public final class UIUtil
     }
   }
 
+  /**
+   * @since 3.3
+   */
   public static void preserveViewerState(final Viewer viewer, final Runnable runnable)
   {
     try
@@ -448,6 +454,9 @@ public final class UIUtil
     });
   }
 
+  /**
+   * @since 3.3
+   */
   public static void refreshElement(final StructuredViewer viewer, final Object element, final boolean updateLabels)
   {
     preserveViewerState(viewer, new Runnable()

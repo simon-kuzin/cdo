@@ -270,6 +270,9 @@ public interface IRepository extends CDOCommonRepository, IQueryHandlerProvider,
      */
     public static final String SUPPORTING_ECORE = "supportingEcore"; //$NON-NLS-1$
 
+    /**
+     * @since 4.2
+     */
     public static final String SERIALIZE_COMMITS = "serializeCommits"; //$NON-NLS-1$
 
     /**

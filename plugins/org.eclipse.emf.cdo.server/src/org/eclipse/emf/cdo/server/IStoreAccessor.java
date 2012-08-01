@@ -365,6 +365,9 @@ public interface IStoreAccessor extends IQueryHandlerProvider, BranchLoader, Com
      */
     public Map<CDOID, EClass> getDetachedObjectTypes();
 
+    /**
+     * @since 4.2
+     */
     public int[] getDetachedObjectVersions();
 
     /**

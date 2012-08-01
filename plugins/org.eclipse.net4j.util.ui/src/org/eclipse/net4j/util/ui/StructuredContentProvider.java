@@ -214,6 +214,9 @@ public abstract class StructuredContentProvider<INPUT> implements IStructuredCon
     }
   }
 
+  /**
+   * @since 3.3
+   */
   public void expandElement(final Object element, final int level)
   {
     if (element != null)
@@ -270,7 +273,7 @@ public abstract class StructuredContentProvider<INPUT> implements IStructuredCon
   }
 
   /**
-   * @since 3.1
+   * @since 3.3
    */
   protected synchronized Font getBoldFont()
   {

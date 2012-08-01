@@ -337,7 +337,7 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, BranchLo
     private IDGenerationLocation repositoryIDGenerationLocation;
 
     /**
-     * @since 4.1
+     * @since 4.2
      */
     public OpenSessionResult(int sessionID, String userID, String repositoryUUID,
         CDOCommonRepository.Type repositoryType, CDOCommonRepository.State repositoryState, String storeType,
@@ -448,6 +448,9 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, BranchLo
       return repositorySupportingEcore;
     }
 
+    /**
+     * @since 4.2
+     */
     public boolean isRepositorySerializingCommits()
     {
       return repositorySerializingCommits;

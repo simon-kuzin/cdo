@@ -548,11 +548,17 @@ public abstract class DBAdapter implements IDBAdapter
     return "23001".equals(ex.getSQLState());
   }
 
+  /**
+   * @since 4.2
+   */
   public String format(PreparedStatement stmt)
   {
     return stmt.toString();
   }
 
+  /**
+   * @since 4.2
+   */
   public String format(ResultSet resultSet)
   {
     try

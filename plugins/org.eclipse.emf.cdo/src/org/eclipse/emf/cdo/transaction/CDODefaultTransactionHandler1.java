@@ -49,6 +49,9 @@ public class CDODefaultTransactionHandler1 implements CDOTransactionHandler1
     handleDefault(transaction);
   }
 
+  /**
+   * @since 4.2
+   */
   protected void handleDefault(CDOTransaction transaction)
   {
     // Do nothing
