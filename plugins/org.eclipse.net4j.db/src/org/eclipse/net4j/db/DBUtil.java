@@ -797,6 +797,7 @@ public final class DBUtil
     {
       statement = connection.createStatement();
       statement.execute(string);
+      connection.commit();
     }
     catch (SQLException ex)
     {

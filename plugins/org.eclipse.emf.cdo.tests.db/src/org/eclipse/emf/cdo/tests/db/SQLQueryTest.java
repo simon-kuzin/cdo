@@ -358,8 +358,9 @@ public class SQLQueryTest extends AbstractCDOTest
     List<Map<String, Object>> results = query.getResult();
     for (int i = 0; i < NUM_OF_CUSTOMERS; i++)
     {
-      assertEquals("Street " + i, results.get(i).get("STREET"));
-      Object actual = results.get(i).get("CITY");
+      Map<String, Object> result = results.get(i);
+      assertEquals("Street " + i, result.containsKey("STREET") ? result.get("STREET") : result.get("street"));
+      Object actual = result.containsKey("CITY") ? result.get("CITY") : result.get("city");
       if (i == 0)
       {
         assertEquals(null, actual);
@@ -369,7 +370,7 @@ public class SQLQueryTest extends AbstractCDOTest
         assertEquals("City " + i, actual);
       }
 
-      assertEquals("" + i, results.get(i).get("NAME"));
+      assertEquals("" + i, result.containsKey("NAME") ? result.get("NAME") : result.get("name"));
     }
   }
 

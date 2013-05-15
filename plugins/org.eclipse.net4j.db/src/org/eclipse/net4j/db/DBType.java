@@ -26,8 +26,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.sql.Blob;
-import java.sql.Clob;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -470,7 +468,18 @@ public enum DBType
     public Object writeValueWithResult(ExtendedDataOutput out, ResultSet resultSet, int column, boolean canBeNull)
         throws SQLException, IOException
     {
-      Clob value = resultSet.getClob(column);
+      InputStream inputStream = resultSet.getBinaryStream(column);
+      long length = -1;
+      try
+      {
+        length = resultSet.getClob(column).length();
+      }
+      catch (SQLException ex)
+      {
+        // Postgresql does not have support for Blob/Clob
+        // InputStream.available() returns the actual length
+        length = inputStream.available();
+      }
       if (canBeNull)
       {
         if (resultSet.wasNull())
@@ -482,21 +491,18 @@ public enum DBType
         out.writeBoolean(true);
       }
 
-      long length = value.length();
-      Reader reader = value.getCharacterStream();
-
       try
       {
         out.writeLong(length);
         while (length-- > 0)
         {
-          int c = reader.read();
+          int c = inputStream.read();
           out.writeChar(c);
         }
       }
       finally
       {
-        IOUtil.close(reader);
+        IOUtil.close(inputStream);
       }
 
       return null;
@@ -844,7 +850,18 @@ public enum DBType
     public Object writeValueWithResult(ExtendedDataOutput out, ResultSet resultSet, int column, boolean canBeNull)
         throws SQLException, IOException
     {
-      Blob value = resultSet.getBlob(column);
+      InputStream inputStream = resultSet.getBinaryStream(column);
+      long length = -1;
+      try
+      {
+        length = resultSet.getBlob(column).length();
+      }
+      catch (SQLException ex)
+      {
+        // Postgresql does not have support for Blob/Clob
+        // InputStream.available() returns the actual length
+        length = inputStream.available();
+      }
       if (canBeNull)
       {
         if (resultSet.wasNull())
@@ -856,17 +873,19 @@ public enum DBType
         out.writeBoolean(true);
       }
 
-      long length = value.length();
-      InputStream stream = value.getBinaryStream();
-
       try
       {
         out.writeLong(length);
-        IOUtil.copyBinary(stream, new ExtendedDataOutput.Stream(out), length);
+        IOUtil.copyBinary(inputStream, new ExtendedDataOutput.Stream(out), length);
+        // while (length-- > 0)
+        // {
+        // int b = inputStream.read();
+        // out.writeByte(b + Byte.MIN_VALUE);
+        // }
       }
       finally
       {
-        IOUtil.close(stream);
+        IOUtil.close(inputStream);
       }
 
       return null;

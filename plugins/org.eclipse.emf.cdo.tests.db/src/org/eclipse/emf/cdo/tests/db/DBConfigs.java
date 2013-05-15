@@ -24,6 +24,7 @@ import org.eclipse.emf.cdo.tests.bugzilla.Bugzilla_303807_Test;
 import org.eclipse.emf.cdo.tests.config.IScenario;
 import org.eclipse.emf.cdo.tests.config.impl.ConfigTest;
 
+
 import java.util.List;
 
 /**
@@ -40,6 +41,7 @@ public abstract class DBConfigs extends AllConfigs
     testClasses.add(CustomTypeMappingTest.class);
     testClasses.add(SQLQueryTest.class);
     testClasses.add(Bugzilla_351068_Test.class);
+    testClasses.add(Bugzilla_350137_Test.class);
 
     super.initTestClasses(testClasses, scenario);
     testClasses.remove(MEMStoreQueryTest.class);
