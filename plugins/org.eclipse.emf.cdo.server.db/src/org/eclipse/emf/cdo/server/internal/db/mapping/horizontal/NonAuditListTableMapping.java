@@ -284,6 +284,7 @@ public class NonAuditListTableMapping extends AbstractListTableMapping implement
   {
     CDOBranchPoint main = accessor.getStore().getRepository().getBranchManager().getMainBranch().getHead();
 
+    int xxx;
     InternalCDORevision originalRevision = (InternalCDORevision)accessor.getStore().getRepository()
         .getRevisionManager().getRevision(id, main, CDORevision.UNCHUNKED, CDORevision.DEPTH_NONE, true);
     int oldListSize = originalRevision.getList(getFeature()).size();

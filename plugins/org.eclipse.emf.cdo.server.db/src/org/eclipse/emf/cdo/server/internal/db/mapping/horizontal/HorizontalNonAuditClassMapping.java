@@ -16,6 +16,7 @@ package org.eclipse.emf.cdo.server.internal.db.mapping.horizontal;
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDOAddFeatureDelta;
@@ -53,7 +54,10 @@ import org.eclipse.net4j.util.om.trace.ContextTracer;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -529,9 +533,36 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
       IListMappingDeltaSupport listMapping = (IListMappingDeltaSupport)getListMapping(feature);
       listMapping.processDelta(accessor, id, branchId, oldVersion, oldVersion + 1, created, delta);
 
-      int oldSize = tempRevision.getList(feature).size();
+      CDOList list = tempRevision.getList(feature);
+      int oldSize = list.size();
       delta.apply(tempRevision);
-      int newSize = tempRevision.getList(feature).size();
+      int newSize = list.size();
+
+      Statement stmt = null;
+      ResultSet rset = null;
+
+      try
+      {
+        Connection conn = accessor.getConnection();
+        stmt = conn.createStatement();
+        rset = stmt.executeQuery("SELECT COUNT(*) FROM " + getListMapping(feature).getDBTables().iterator().next()
+            + " WHERE " + IMappingConstants.LIST_REVISION_ID + "=" + CDOIDUtil.getLong(id));
+        rset.next();
+        int wantedSize = rset.getInt(1);
+        if (wantedSize != newSize)
+        {
+          throw new IllegalStateException();
+        }
+      }
+      catch (SQLException ex)
+      {
+        ex.printStackTrace();
+      }
+      finally
+      {
+        DBUtil.close(rset);
+        DBUtil.close(stmt);
+      }
 
       if (oldSize != newSize)
       {
@@ -565,8 +596,8 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
     private void updateAttributes()
     {
       IIDHandler idHandler = getMappingStrategy().getStore().getIDHandler();
-      IDBPreparedStatement stmt = accessor.getDBConnection().prepareStatement(buildUpdateStatement(),
-          ReuseProbability.MEDIUM);
+      String sql = buildUpdateSQL();
+      IDBPreparedStatement stmt = accessor.getDBConnection().prepareStatement(sql, ReuseProbability.MEDIUM);
 
       try
       {
@@ -597,7 +628,7 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
       }
     }
 
-    private String buildUpdateStatement()
+    private String buildUpdateSQL()
     {
       StringBuilder builder = new StringBuilder(sqlUpdatePrefix);
       if (updateContainer)

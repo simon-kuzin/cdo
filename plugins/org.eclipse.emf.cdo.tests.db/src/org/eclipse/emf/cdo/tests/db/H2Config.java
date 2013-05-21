@@ -71,7 +71,7 @@ public class H2Config extends DBConfig
     H2Adapter.createSchema(defaultDataSource, repoName, !isRestarting());
 
     JdbcDataSource dataSource = new JdbcDataSource();
-    dataSource.setURL("jdbc:h2:" + reusableFolder.getAbsolutePath() + "/h2test;SCHEMA=" + repoName);
+    dataSource.setURL("jdbc:h2:" + reusableFolder.getAbsolutePath() + "/h2test;LOCK_MODE=1;SCHEMA=" + repoName);
     return dataSource;
   }
 

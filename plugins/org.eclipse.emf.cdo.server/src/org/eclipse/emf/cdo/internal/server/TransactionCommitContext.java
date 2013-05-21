@@ -1139,6 +1139,7 @@ public class TransactionCommitContext implements InternalCommitContext
 
     if (oldRevision == null)
     {
+      // If the object is logically locked (see lockObjects) but has a wrong (newer) version, someone else modified it
       throw new ConcurrentModificationException("Attempt by " + transaction + " to modify historical revision: "
           + delta);
     }

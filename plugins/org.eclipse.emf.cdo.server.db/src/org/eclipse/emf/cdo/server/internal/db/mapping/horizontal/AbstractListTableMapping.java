@@ -244,7 +244,17 @@ public abstract class AbstractListTableMapping extends AbstractBasicListTableMap
 
       if (listChunk != CDORevision.UNCHUNKED)
       {
-        stmt.setMaxRows(listChunk); // optimization - don't read unneeded rows.
+        if (stmt.getMaxRows() != listChunk)
+        {
+          stmt.setMaxRows(listChunk); // optimization - don't read unneeded rows.
+        }
+      }
+      else
+      {
+        if (stmt.getMaxRows() != 0)
+        {
+          stmt.setMaxRows(0);
+        }
       }
 
       resultSet = stmt.executeQuery();
@@ -258,7 +268,14 @@ public abstract class AbstractListTableMapping extends AbstractBasicListTableMap
           TRACER.format("Read value for index {0} from result set: {1}", currentIndex, value); //$NON-NLS-1$
         }
 
-        list.set(currentIndex++, value);
+        try
+        {
+          list.set(currentIndex++, value);
+        }
+        catch (IndexOutOfBoundsException ex)
+        {
+          ex.printStackTrace();
+        }
       }
     }
     catch (SQLException ex)
