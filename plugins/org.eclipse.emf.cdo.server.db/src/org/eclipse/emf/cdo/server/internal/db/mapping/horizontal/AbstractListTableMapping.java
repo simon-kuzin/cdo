@@ -16,6 +16,7 @@ package org.eclipse.emf.cdo.server.internal.db.mapping.horizontal;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.common.util.CDOCommonUtil;
 import org.eclipse.emf.cdo.server.IStoreAccessor.QueryXRefsContext;
 import org.eclipse.emf.cdo.server.IStoreChunkReader.Chunk;
 import org.eclipse.emf.cdo.server.db.IDBStore;
@@ -216,10 +217,9 @@ public abstract class AbstractListTableMapping extends AbstractBasicListTableMap
   public void readValues(IDBStoreAccessor accessor, InternalCDORevision revision, int listChunk)
   {
     MoveableList<Object> list = revision.getList(getFeature());
-
     if (listChunk == 0 || list.size() == 0)
     {
-      // nothing to read take shortcut
+      // Nothing to read. Take shortcut.
       return;
     }
 
@@ -274,6 +274,11 @@ public abstract class AbstractListTableMapping extends AbstractBasicListTableMap
         }
         catch (IndexOutOfBoundsException ex)
         {
+          CDOCommonUtil.STOP_CLIENTS = true;
+          int size = list.size();
+          int badIndex = currentIndex - 1;
+          System.out.println("Size = " + size);
+          System.out.println("Bad index = " + badIndex);
           ex.printStackTrace();
         }
       }

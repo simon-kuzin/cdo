@@ -62,55 +62,6 @@ public class TransactionTest extends AbstractCDOTest
     OMPlatform.INSTANCE.setDebugging(false);
   }
 
-  public void testWrongListSize() throws Exception
-  {
-    {
-      CDOSession session = openSession();
-      CDOTransaction transaction = session.openTransaction();
-      CDOResource resource = transaction.createResource(getResourcePath("/test1"));
-      resource.getContents().add(getModel1Factory().createCompany());
-      transaction.commit();
-      session.close();
-    }
-
-    for (int i = 0; i < 2; i++)
-    {
-      new Thread()
-      {
-        @Override
-        public void run()
-        {
-          CDOSession session = openSession();
-          for (;;)
-          {
-            CDOTransaction transaction = session.openTransaction();
-
-            try
-            {
-              ((org.eclipse.emf.cdo.net4j.CDONet4jSession)session).options().setCommitTimeout(100000000);
-              CDOResource resource = transaction.getResource(getResourcePath("/test1"));
-              Company company = (Company)resource.getContents().get(0);
-
-              Category category = getModel1Factory().createCategory();
-              company.getCategories().add(category);
-              transaction.commit();
-            }
-            catch (CommitException ex)
-            {
-              ex.printStackTrace();
-            }
-            finally
-            {
-              transaction.close();
-            }
-          }
-        }
-      }.start();
-    }
-
-    sleep(1000000000L);
-  }
-
   public void testCommitAfterClose() throws Exception
   {
     CDOSession session = openSession();

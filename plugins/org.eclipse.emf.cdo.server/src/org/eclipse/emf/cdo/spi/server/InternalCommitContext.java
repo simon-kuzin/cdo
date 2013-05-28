@@ -37,6 +37,11 @@ import java.util.Map;
  */
 public interface InternalCommitContext extends IStoreAccessor.CommitContext
 {
+  /**
+   * @since 4.2
+   */
+  public static final ThreadLocal<Boolean> COMPUTING_DIRTY_OBJECTS = new ThreadLocal<Boolean>();
+
   @SuppressWarnings("unchecked")
   public static final ProgressDistributable<InternalCommitContext>[] OPS = ProgressDistributor.array( //
       new ProgressDistributable.Default<InternalCommitContext>()

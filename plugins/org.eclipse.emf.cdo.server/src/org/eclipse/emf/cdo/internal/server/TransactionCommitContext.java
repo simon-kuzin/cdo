@@ -28,15 +28,12 @@ import org.eclipse.emf.cdo.common.lock.CDOLockOwner;
 import org.eclipse.emf.cdo.common.lock.CDOLockState;
 import org.eclipse.emf.cdo.common.lock.CDOLockUtil;
 import org.eclipse.emf.cdo.common.model.CDOPackageUnit;
-import org.eclipse.emf.cdo.common.protocol.CDODataOutput;
 import org.eclipse.emf.cdo.common.revision.CDOIDAndBranch;
 import org.eclipse.emf.cdo.common.revision.CDOIDAndVersion;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
-import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.common.revision.delta.CDOAddFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOContainerFeatureDelta;
-import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDeltaVisitor;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOSetFeatureDelta;
@@ -47,13 +44,11 @@ import org.eclipse.emf.cdo.internal.common.commit.CDOCommitDataImpl;
 import org.eclipse.emf.cdo.internal.common.commit.FailureCommitInfo;
 import org.eclipse.emf.cdo.internal.common.model.CDOPackageRegistryImpl;
 import org.eclipse.emf.cdo.internal.server.bundle.OM;
-import org.eclipse.emf.cdo.server.ContainmentCycleDetectedException;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.IStoreAccessor.QueryXRefsContext;
 import org.eclipse.emf.cdo.server.IView;
 import org.eclipse.emf.cdo.server.StoreThreadLocal;
 import org.eclipse.emf.cdo.spi.common.commit.InternalCDOCommitInfoManager;
-import org.eclipse.emf.cdo.spi.common.id.AbstractCDOID;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
@@ -86,7 +81,6 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
-import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -109,11 +103,17 @@ public class TransactionCommitContext implements InternalCommitContext
 
   private final InternalTransaction transaction;
 
-  private InternalRepository repository;
+  private final CDOBranch branch;
 
-  private InternalCDORevisionManager revisionManager;
+  private final InternalRepository repository;
 
-  private InternalLockManager lockManager;
+  private final InternalCDORevisionManager revisionManager;
+
+  private final InternalLockManager lockManager;
+
+  private final boolean serializingCommits;
+
+  private final boolean ensuringReferentialIntegrity;
 
   private InternalCDOPackageRegistry repositoryPackageRegistry;
 
@@ -171,10 +171,6 @@ public class TransactionCommitContext implements InternalCommitContext
 
   private boolean hasChanges;
 
-  private boolean serializingCommits;
-
-  private boolean ensuringReferentialIntegrity;
-
   private boolean autoReleaseLocksEnabled;
 
   private ExtendedDataInputStream lobs;
@@ -183,6 +179,7 @@ public class TransactionCommitContext implements InternalCommitContext
   {
     this.transaction = transaction;
 
+    branch = transaction.getBranch();
     repository = transaction.getRepository();
     revisionManager = repository.getRevisionManager();
     lockManager = repository.getLockingManager();
@@ -199,7 +196,7 @@ public class TransactionCommitContext implements InternalCommitContext
 
   public CDOBranchPoint getBranchPoint()
   {
-    return transaction.getBranch().getPoint(timeStamp);
+    return branch.getPoint(timeStamp);
   }
 
   public String getUserID()
@@ -652,9 +649,9 @@ public class TransactionCommitContext implements InternalCommitContext
     }
   }
 
-  private void setTimeStamp(OMMonitor mmonitor)
+  private void setTimeStamp(OMMonitor monitor)
   {
-    long[] times = createTimeStamp(mmonitor); // Could throw an exception
+    long[] times = createTimeStamp(monitor); // Could throw an exception
     timeStamp = times[0];
     previousTimeStamp = times[1];
     CheckUtil.checkState(timeStamp != CDOBranchPoint.UNSPECIFIED_DATE, "Commit timestamp must not be 0");
@@ -715,7 +712,6 @@ public class TransactionCommitContext implements InternalCommitContext
 
   public CDOCommitInfo createCommitInfo()
   {
-    CDOBranch branch = transaction.getBranch();
     String userID = transaction.getSession().getUserID();
     CDOCommitData commitData = createCommitData();
 
@@ -788,7 +784,6 @@ public class TransactionCommitContext implements InternalCommitContext
       newPackageUnit.setTimeStamp(timeStamp);
     }
 
-    CDOBranch branch = transaction.getBranch();
     for (InternalCDORevision newObject : newObjects)
     {
       newObject.adjustForCommit(branch, timeStamp);
@@ -853,24 +848,8 @@ public class TransactionCommitContext implements InternalCommitContext
       {
         InternalCDORevisionDelta delta = dirtyObjectDeltas[i];
         CDOID id = delta.getID();
-        Object key = lockManager.getLockKey(id, transaction.getBranch());
-        if (serializingCommits)
-        {
-          lockedObjects.add(key);
-        }
-        else
-        {
-          lockedObjects.add(createDeltaLockWrapper(key, delta));
-
-          if (hasContainmentChanges(delta))
-          {
-            if (isContainerLocked(delta))
-            {
-              throw new ContainmentCycleDetectedException("Parent (" + key
-                  + ") is already locked for containment changes");
-            }
-          }
-        }
+        Object key = lockManager.getLockKey(id, branch);
+        lockedObjects.add(key);
       }
 
       if (deltaTargetLocker != null)
@@ -885,7 +864,7 @@ public class TransactionCommitContext implements InternalCommitContext
       for (int i = 0; i < detachedObjects.length; i++)
       {
         CDOID id = detachedObjects[i];
-        Object key = lockManager.getLockKey(id, transaction.getBranch());
+        Object key = lockManager.getLockKey(id, branch);
         lockedObjects.add(key);
       }
 
@@ -893,7 +872,7 @@ public class TransactionCommitContext implements InternalCommitContext
       {
         // First lock all objects (incl. possible ref targets).
         // This is a transient operation, it does not check for existance!
-        lockManager.lock2(LockType.WRITE, transaction, lockedObjects, 1000);
+        lockManager.lock2(LockType.WRITE, transaction, lockedObjects, 10000);
 
         // If all locks could be acquired, check if locked targets do still exist
         if (lockedTargets != null)
@@ -920,92 +899,6 @@ public class TransactionCommitContext implements InternalCommitContext
     }
   }
 
-  private DeltaLockWrapper createDeltaLockWrapper(Object key, InternalCDORevisionDelta delta)
-  {
-    if (key instanceof CDOID)
-    {
-      return new DeltaLockWrapper.ForID((CDOID)key, delta);
-    }
-
-    if (key instanceof CDOIDAndBranch)
-    {
-      return new DeltaLockWrapper.ForIDAndBranch((CDOIDAndBranch)key, delta);
-    }
-
-    throw new IllegalArgumentException("Invalid key: " + key);
-  }
-
-  /**
-   * Iterates up the eContainers of an object and returns <code>true</code> on the first parent locked by another view.
-   *
-   * @return <code>true</code> if any parent is locked, <code>false</code> otherwise.
-   */
-  private boolean isContainerLocked(InternalCDORevisionDelta delta)
-  {
-    CDOID id = delta.getID();
-    InternalCDORevision revision = revisionManager.getRevisionByVersion(id, delta, CDORevision.UNCHUNKED, true);
-    if (revision == null)
-    {
-      // Can happen with non-auditing cache
-      throw new ConcurrentModificationException("Attempt by " + transaction + " to modify historical revision: "
-          + CDORevisionUtil.copyRevisionKey(delta));
-    }
-
-    return isContainerLocked(revision);
-  }
-
-  private boolean isContainerLocked(InternalCDORevision revision)
-  {
-    CDOID id = (CDOID)revision.getContainerID();
-    if (CDOIDUtil.isNull(id))
-    {
-      return false;
-    }
-
-    Object key = lockManager.getLockKey(id, transaction.getBranch());
-    DeltaLockWrapper lockWrapper = createDeltaLockWrapper(key, null);
-
-    if (lockManager.hasLockByOthers(LockType.WRITE, transaction, lockWrapper))
-    {
-      Object object = lockManager.getLockEntryObject(lockWrapper);
-      if (object instanceof DeltaLockWrapper)
-      {
-        InternalCDORevisionDelta delta = ((DeltaLockWrapper)object).getDelta();
-        if (delta != null && hasContainmentChanges(delta))
-        {
-          return true;
-        }
-      }
-    }
-
-    InternalCDORevision parent = revisionManager.getRevision(id, transaction, CDORevision.UNCHUNKED,
-        CDORevision.DEPTH_NONE, true);
-
-    if (parent != null)
-    {
-      return isContainerLocked(parent);
-    }
-
-    return false;
-  }
-
-  private boolean hasContainmentChanges(InternalCDORevisionDelta delta)
-  {
-    for (CDOFeatureDelta featureDelta : delta.getFeatureDeltas())
-    {
-      EStructuralFeature feature = featureDelta.getFeature();
-      if (feature instanceof EReference)
-      {
-        if (((EReference)feature).isContainment())
-        {
-          return true;
-        }
-      }
-    }
-
-    return false;
-  }
-
   private void lockTarget(Object value, Set<CDOID> newIDs, boolean supportingBranches)
   {
     if (value instanceof CDOIDObject)
@@ -1028,7 +921,7 @@ public class TransactionCommitContext implements InternalCommitContext
       }
 
       // Let this object be locked
-      Object key = lockManager.getLockKey(id, transaction.getBranch());
+      Object key = lockManager.getLockKey(id, branch);
       lockedObjects.add(key);
 
       // Let this object be checked for existance after it has been locked
@@ -1071,7 +964,7 @@ public class TransactionCommitContext implements InternalCommitContext
         List<CDOIDAndBranch> keys = new ArrayList<CDOIDAndBranch>(detachedObjects.length);
         for (CDOID id : detachedObjects)
         {
-          CDOIDAndBranch idAndBranch = CDOIDUtil.createIDAndBranch(id, transaction.getBranch());
+          CDOIDAndBranch idAndBranch = CDOIDUtil.createIDAndBranch(id, branch);
           keys.add(idAndBranch);
         }
 
@@ -1088,6 +981,8 @@ public class TransactionCommitContext implements InternalCommitContext
 
   private void computeDirtyObjects(OMMonitor monitor)
   {
+    COMPUTING_DIRTY_OBJECTS.set(Boolean.TRUE);
+
     try
     {
       monitor.begin(dirtyObjectDeltas.length);
@@ -1109,29 +1004,28 @@ public class TransactionCommitContext implements InternalCommitContext
     }
     finally
     {
+      COMPUTING_DIRTY_OBJECTS.remove();
       monitor.done();
     }
   }
 
   private InternalCDORevision computeDirtyObject(InternalCDORevisionDelta delta)
   {
-    CDOBranch branch = transaction.getBranch();
-    CDOID id = delta.getID();
-
     InternalCDORevision oldRevision = null;
 
     try
     {
-      oldRevision = revisionManager.getRevisionByVersion(id, delta, CDORevision.UNCHUNKED, true);
+      CDOID id = delta.getID();
+      oldRevision = revisionManager.getRevision(id, transaction, CDORevision.UNCHUNKED, CDORevision.DEPTH_NONE, true);
       if (oldRevision != null)
       {
-        if (oldRevision.getBranch() == branch && oldRevision.isHistorical())
+        if (oldRevision.getBranch() != delta.getBranch() || oldRevision.getVersion() != delta.getVersion())
         {
           oldRevision = null;
         }
       }
     }
-    catch (Exception ex)
+    catch (RuntimeException ex)
     {
       OM.LOG.error(ex);
       oldRevision = null;
@@ -1187,8 +1081,8 @@ public class TransactionCommitContext implements InternalCommitContext
     {
       rollbackMessage = message;
 
+      int CheckRollback;
       removePackageAdapters();
-      unlockObjects();
 
       if (accessor != null)
       {
@@ -1205,6 +1099,8 @@ public class TransactionCommitContext implements InternalCommitContext
           repository.failCommit(timeStamp);
         }
       }
+
+      unlockObjects();
     }
   }
 
@@ -1302,12 +1198,10 @@ public class TransactionCommitContext implements InternalCommitContext
     CDOLockState[] newStates = Repository.toCDOLockStates(newLockStates);
 
     long timeStamp = getTimeStamp();
-    InternalTransaction tx = getTransaction();
-    CDOBranch branch = tx.getBranch();
     Operation unlock = Operation.UNLOCK;
 
-    CDOLockChangeInfo info = CDOLockUtil.createLockChangeInfo(timeStamp, tx, branch, unlock, null, newStates);
-    repository.getSessionManager().sendLockNotification(tx.getSession(), info);
+    CDOLockChangeInfo info = CDOLockUtil.createLockChangeInfo(timeStamp, transaction, branch, unlock, null, newStates);
+    repository.getSessionManager().sendLockNotification(transaction.getSession(), info);
   }
 
   private void addNewPackageUnits(OMMonitor monitor)
@@ -1456,157 +1350,6 @@ public class TransactionCommitContext implements InternalCommitContext
   }
 
   /**
-   * @author Martin Fluegge
-   */
-  private static abstract class DeltaLockWrapper extends AbstractCDOID
-  {
-    private static final long serialVersionUID = 1L;
-
-    private Object key;
-
-    private InternalCDORevisionDelta delta;
-
-    public DeltaLockWrapper(Object key, InternalCDORevisionDelta delta)
-    {
-      this.key = key;
-      this.delta = delta;
-    }
-
-    public Object getKey()
-    {
-      return key;
-    }
-
-    public InternalCDORevisionDelta getDelta()
-    {
-      return delta;
-    }
-
-    public abstract CDOID getID();
-
-    @Override
-    public void write(CDODataOutput out) throws IOException
-    {
-      ((AbstractCDOID)getID()).write(out);
-    }
-
-    public String toURIFragment()
-    {
-      return getID().toURIFragment();
-    }
-
-    public Type getType()
-    {
-      return getID().getType();
-    }
-
-    public boolean isObject()
-    {
-      return getID().isObject();
-    }
-
-    public boolean isTemporary()
-    {
-      return getID().isTemporary();
-    }
-
-    public boolean isExternal()
-    {
-      return getID().isExternal();
-    }
-
-    @Override
-    protected int doCompareTo(CDOID o) throws ClassCastException
-    {
-      return getID().compareTo(o);
-    }
-
-    @Override
-    public boolean equals(Object obj)
-    {
-      if (obj instanceof DeltaLockWrapper)
-      {
-        DeltaLockWrapper wrapper = (DeltaLockWrapper)obj;
-        obj = wrapper.getKey();
-      }
-
-      if (key instanceof CDOID)
-      {
-        return key == obj;
-      }
-
-      return key.equals(obj);
-    }
-
-    @Override
-    public int hashCode()
-    {
-      return key.hashCode();
-    }
-
-    @Override
-    public String toString()
-    {
-      return key.toString();
-    }
-
-    /**
-     * @author Eike Stepper
-     */
-    private static final class ForID extends DeltaLockWrapper
-    {
-      private static final long serialVersionUID = 1L;
-
-      public ForID(CDOID key, InternalCDORevisionDelta delta)
-      {
-        super(key, delta);
-      }
-
-      @Override
-      public CDOID getKey()
-      {
-        return (CDOID)super.getKey();
-      }
-
-      @Override
-      public CDOID getID()
-      {
-        return getKey();
-      }
-    }
-
-    /**
-     * @author Martin Fluegge
-     */
-    private static final class ForIDAndBranch extends DeltaLockWrapper implements CDOIDAndBranch
-    {
-      private static final long serialVersionUID = 1L;
-
-      public ForIDAndBranch(CDOIDAndBranch key, InternalCDORevisionDelta delta)
-      {
-        super(key, delta);
-      }
-
-      @Override
-      public CDOIDAndBranch getKey()
-      {
-        return (CDOIDAndBranch)super.getKey();
-      }
-
-      @Override
-      public CDOID getID()
-      {
-        return getKey().getID();
-      }
-
-      public CDOBranch getBranch()
-      {
-        return getKey().getBranch();
-      }
-    }
-  }
-
-  /**
    * @author Eike Stepper
    */
   private final class XRefContext implements QueryXRefsContext
@@ -1675,7 +1418,7 @@ public class TransactionCommitContext implements InternalCommitContext
 
     public CDOBranch getBranch()
     {
-      return transaction.getBranch();
+      return branch;
     }
 
     public Map<CDOID, EClass> getTargetObjects()

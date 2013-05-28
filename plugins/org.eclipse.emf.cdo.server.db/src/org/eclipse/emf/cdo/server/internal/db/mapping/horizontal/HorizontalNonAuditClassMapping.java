@@ -13,10 +13,10 @@
  */
 package org.eclipse.emf.cdo.server.internal.db.mapping.horizontal;
 
+import org.eclipse.emf.cdo.common.CDOCommonView;
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.revision.CDOList;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.delta.CDOAddFeatureDelta;
@@ -30,15 +30,22 @@ import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOSetFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOUnsetFeatureDelta;
 import org.eclipse.emf.cdo.eresource.EresourcePackage;
+import org.eclipse.emf.cdo.server.IRepository;
+import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.IStoreAccessor.QueryXRefsContext;
+import org.eclipse.emf.cdo.server.IView;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IIDHandler;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMappingDeltaSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IListMappingDeltaSupport;
 import org.eclipse.emf.cdo.server.db.mapping.ITypeMapping;
+import org.eclipse.emf.cdo.server.internal.db.DBStore;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
+import org.eclipse.emf.cdo.server.internal.db.mapping.horizontal.NonAuditListTableMapping.NewListSizeResult;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
+import org.eclipse.emf.cdo.spi.server.InternalCommitContext;
+import org.eclipse.emf.cdo.spi.server.InternalLockManager;
 
 import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.db.DBUtil;
@@ -46,7 +53,9 @@ import org.eclipse.net4j.db.IDBPreparedStatement;
 import org.eclipse.net4j.db.IDBPreparedStatement.ReuseProbability;
 import org.eclipse.net4j.db.ddl.IDBField;
 import org.eclipse.net4j.util.ImplementationError;
+import org.eclipse.net4j.util.WrappedException;
 import org.eclipse.net4j.util.collection.Pair;
+import org.eclipse.net4j.util.concurrent.IRWLockManager.LockType;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.monitor.OMMonitor.Async;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
@@ -54,11 +63,10 @@ import org.eclipse.net4j.util.om.trace.ContextTracer;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -69,6 +77,8 @@ import java.util.Map;
 public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMapping implements IClassMappingDeltaSupport
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, HorizontalNonAuditClassMapping.class);
+
+  private static final IView VIEW_FOR_IMPLICIT_READ_LOCKS = new ViewForImplicitReadLocks();
 
   private String sqlSelectAllObjectIDs;
 
@@ -84,6 +94,8 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
 
   private String sqlDelete;
 
+  private boolean hasLists;
+
   private ThreadLocal<FeatureDeltaWriter> deltaWriter = new ThreadLocal<FeatureDeltaWriter>()
   {
     @Override
@@ -97,6 +109,7 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
   {
     super(mappingStrategy, eClass);
     initSQLStrings();
+    hasLists = !getListMappings().isEmpty();
   }
 
   private void initSQLStrings()
@@ -340,13 +353,30 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
       throw new UnsupportedOperationException("Mapping strategy does not support audits"); //$NON-NLS-1$
     }
 
-    IIDHandler idHandler = getMappingStrategy().getStore().getIDHandler();
+    DBStore store = (DBStore)getMappingStrategy().getStore();
+    IIDHandler idHandler = store.getIDHandler();
     IDBPreparedStatement stmt = accessor.getDBConnection().prepareStatement(sqlSelectCurrentAttributes,
         ReuseProbability.HIGH);
 
+    CDOID id = revision.getID();
+
+    InternalLockManager lockingManager = null;
+    Collection<CDOID> ids = null;
+
+    if (hasLists && !isComputingDirtyObjects())
+    {
+      lockingManager = store.getRepository().getLockingManager();
+      ids = Collections.singleton(id);
+    }
+
     try
     {
-      idHandler.setCDOID(stmt, 1, revision.getID());
+      idHandler.setCDOID(stmt, 1, id);
+
+      if (lockingManager != null)
+      {
+        lockingManager.lock2(LockType.READ, VIEW_FOR_IMPLICIT_READ_LOCKS, ids, 10000);
+      }
 
       // Read singleval-attribute table always (even without modeled attributes!)
       boolean success = readValuesFromStatement(stmt, revision, accessor);
@@ -363,10 +393,29 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
     {
       throw new DBException(ex);
     }
+    catch (InterruptedException ex)
+    {
+      throw WrappedException.wrap(ex);
+    }
     finally
     {
-      DBUtil.close(stmt);
+      try
+      {
+        if (lockingManager != null)
+        {
+          lockingManager.unlock2(LockType.READ, VIEW_FOR_IMPLICIT_READ_LOCKS, ids);
+        }
+      }
+      finally
+      {
+        DBUtil.close(stmt);
+      }
     }
+  }
+
+  private boolean isComputingDirtyObjects()
+  {
+    return InternalCommitContext.COMPUTING_DIRTY_OBJECTS.get() == Boolean.TRUE;
   }
 
   @Override
@@ -429,6 +478,28 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
     }
   }
 
+  @Override
+  protected void reviseOldRevision(IDBStoreAccessor accessor, CDOID id, CDOBranch branch, long timeStamp)
+  {
+    // do nothing
+  }
+
+  @Override
+  protected String getListXRefsWhere(QueryXRefsContext context)
+  {
+    if (CDORevision.UNSPECIFIED_DATE != context.getTimeStamp())
+    {
+      throw new IllegalArgumentException("Non-audit mode does not support timestamp specification");
+    }
+
+    if (!context.getBranch().isMainBranch())
+    {
+      throw new IllegalArgumentException("Non-audit mode does not support branch specification");
+    }
+
+    return ATTRIBUTES_REVISED + "=0";
+  }
+
   /**
    * @author Eike Stepper
    */
@@ -458,11 +529,6 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
 
     private int newVersion;
 
-    /*
-     * this is a temporary copy of the revision to track list size changes...
-     */
-    private InternalCDORevision tempRevision;
-
     public FeatureDeltaWriter()
     {
       attributeChanges = new ArrayList<Pair<ITypeMapping, Object>>();
@@ -476,25 +542,29 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
       updateContainer = false;
     }
 
-    public void process(IDBStoreAccessor a, CDORevisionDelta d, long c)
+    public void process(IDBStoreAccessor accessor, CDORevisionDelta delta, long created)
     {
-      // set context
-      id = d.getID();
+      try
+      {
+        // Set context
+        id = delta.getID();
 
-      branchId = d.getBranch().getID();
-      oldVersion = d.getVersion();
-      newVersion = oldVersion + 1;
-      created = c;
-      accessor = a;
+        branchId = delta.getBranch().getID();
+        oldVersion = delta.getVersion();
+        newVersion = oldVersion + 1;
+        this.created = created;
+        this.accessor = accessor;
 
-      tempRevision = (InternalCDORevision)accessor.getTransaction().getRevision(id).copy();
+        // Process revision delta tree
+        delta.accept(this);
 
-      // process revision delta tree
-      d.accept(this);
-
-      updateAttributes();
-      // clean up
-      reset();
+        updateAttributes();
+      }
+      finally
+      {
+        // Clean up
+        reset();
+      }
     }
 
     public void visit(CDOMoveFeatureDelta delta)
@@ -529,39 +599,17 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
     public void visit(CDOListFeatureDelta delta)
     {
       EStructuralFeature feature = delta.getFeature();
-
-      IListMappingDeltaSupport listMapping = (IListMappingDeltaSupport)getListMapping(feature);
-      listMapping.processDelta(accessor, id, branchId, oldVersion, oldVersion + 1, created, delta);
-
-      CDOList list = tempRevision.getList(feature);
-      int oldSize = list.size();
-      delta.apply(tempRevision);
-      int newSize = list.size();
-
-      Statement stmt = null;
-      ResultSet rset = null;
+      int oldSize = delta.getOriginSize();
+      int newSize = -1;
 
       try
       {
-        Connection conn = accessor.getConnection();
-        stmt = conn.createStatement();
-        rset = stmt.executeQuery("SELECT COUNT(*) FROM " + getListMapping(feature).getDBTables().iterator().next()
-            + " WHERE " + IMappingConstants.LIST_REVISION_ID + "=" + CDOIDUtil.getLong(id));
-        rset.next();
-        int wantedSize = rset.getInt(1);
-        if (wantedSize != newSize)
-        {
-          throw new IllegalStateException();
-        }
+        IListMappingDeltaSupport listMapping = (IListMappingDeltaSupport)getListMapping(feature);
+        listMapping.processDelta(accessor, id, branchId, oldVersion, oldVersion + 1, created, delta);
       }
-      catch (SQLException ex)
+      catch (NewListSizeResult result)
       {
-        ex.printStackTrace();
-      }
-      finally
-      {
-        DBUtil.close(rset);
-        DBUtil.close(stmt);
+        newSize = result.getNewListSize();
       }
 
       if (oldSize != newSize)
@@ -707,25 +755,79 @@ public class HorizontalNonAuditClassMapping extends AbstractHorizontalClassMappi
     }
   }
 
-  @Override
-  protected void reviseOldRevision(IDBStoreAccessor accessor, CDOID id, CDOBranch branch, long timeStamp)
+  /**
+   * @author Eike Stepper
+   */
+  private static final class ViewForImplicitReadLocks implements IView
   {
-    // do nothing
-  }
-
-  @Override
-  protected String getListXRefsWhere(QueryXRefsContext context)
-  {
-    if (CDORevision.UNSPECIFIED_DATE != context.getTimeStamp())
+    public boolean isClosed()
     {
-      throw new IllegalArgumentException("Non-audit mode does not support timestamp specification");
+      return false;
     }
 
-    if (!context.getBranch().isMainBranch())
+    public void close()
     {
-      throw new IllegalArgumentException("Non-audit mode does not support branch specification");
     }
 
-    return ATTRIBUTES_REVISED + "=0";
+    @SuppressWarnings("rawtypes")
+    public Object getAdapter(Class adapter)
+    {
+      return null;
+    }
+
+    public CDORevision getRevision(CDOID id)
+    {
+      return null;
+    }
+
+    public long getTimeStamp()
+    {
+      return CDOBranchPoint.UNSPECIFIED_DATE;
+    }
+
+    public CDOBranch getBranch()
+    {
+      return null;
+    }
+
+    public boolean isDurableView()
+    {
+      return false;
+    }
+
+    public int getSessionID()
+    {
+      return -1;
+    }
+
+    public CDOCommonView.Options options()
+    {
+      return null;
+    }
+
+    public boolean isReadOnly()
+    {
+      return true;
+    }
+
+    public int getViewID()
+    {
+      return -1;
+    }
+
+    public String getDurableLockingID()
+    {
+      return null;
+    }
+
+    public ISession getSession()
+    {
+      return null;
+    }
+
+    public IRepository getRepository()
+    {
+      return null;
+    }
   }
 }

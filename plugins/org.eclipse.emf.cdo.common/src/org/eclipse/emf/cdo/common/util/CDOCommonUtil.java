@@ -57,8 +57,14 @@ public final class CDOCommonUtil
    */
   public static final String SYSTEM_USER_ID = "CDO_SYSTEM"; //$NON-NLS-1$
 
+  /**
+   * @since 4.2
+   */
+  public static boolean STOP_CLIENTS;
+
   private CDOCommonUtil()
   {
+    int StopClients;
   }
 
   /**

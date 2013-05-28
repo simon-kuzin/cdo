@@ -42,6 +42,8 @@ import org.eclipse.emf.cdo.common.revision.CDORevisionFactory;
 import org.eclipse.emf.cdo.common.revision.CDORevisionHandler;
 import org.eclipse.emf.cdo.common.revision.CDORevisionKey;
 import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
+import org.eclipse.emf.cdo.common.revision.delta.CDOContainerFeatureDelta;
+import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
 import org.eclipse.emf.cdo.common.util.CDOCommonUtil;
 import org.eclipse.emf.cdo.common.util.CDOQueryInfo;
 import org.eclipse.emf.cdo.common.util.RepositoryStateChangedEvent;
@@ -74,6 +76,7 @@ import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
 import org.eclipse.emf.cdo.spi.common.revision.DetachedCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDOList;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
 import org.eclipse.emf.cdo.spi.common.revision.PointerCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.RevisionInfo;
@@ -482,7 +485,7 @@ public class Repository extends Container<Object> implements InternalRepository
       }
 
       IStoreAccessor accessor = StoreThreadLocal.getAccessor();
-      InternalCDORevision revision = accessor.readRevision(id, branchPoint, referenceChunk, revisionManager);
+      InternalCDORevision revision = loadRevision(id, branchPoint, referenceChunk, accessor);
       if (revision == null)
       {
         if (isSupportingAudits())
@@ -539,7 +542,7 @@ public class Repository extends Container<Object> implements InternalRepository
       branchPoint = branch.getBase();
       branch = branchPoint.getBranch();
 
-      InternalCDORevision revision = accessor.readRevision(id, branchPoint, referenceChunk, revisionManager);
+      InternalCDORevision revision = loadRevision(id, branchPoint, referenceChunk, accessor);
       if (revision != null)
       {
         revision.freeze();
@@ -548,6 +551,12 @@ public class Repository extends Container<Object> implements InternalRepository
     }
 
     return null;
+  }
+
+  private InternalCDORevision loadRevision(CDOID id, CDOBranchPoint branchPoint, int referenceChunk,
+      IStoreAccessor accessor)
+  {
+    return accessor.readRevision(id, branchPoint, referenceChunk, revisionManager);
   }
 
   private long loadRevisionRevised(CDOID id, CDOBranch branch)
@@ -564,6 +573,11 @@ public class Repository extends Container<Object> implements InternalRepository
 
   public InternalCDORevision loadRevisionByVersion(CDOID id, CDOBranchVersion branchVersion, int referenceChunk)
   {
+    if (!supportingAudits)
+    {
+      throw new IllegalStateException("Auditing is not supported");
+    }
+
     IStoreAccessor accessor = StoreThreadLocal.getAccessor();
     return accessor.readRevisionByVersion(id, branchVersion, referenceChunk, revisionManager);
   }
@@ -891,7 +905,7 @@ public class Repository extends Container<Object> implements InternalRepository
 
   public void commit(InternalCommitContext commitContext, OMMonitor monitor)
   {
-    if (serializingCommits)
+    if (serializingCommits || includesMovesToOtherObjects(commitContext))
     {
       synchronized (commitTransactionLock)
       {
@@ -902,6 +916,23 @@ public class Repository extends Container<Object> implements InternalRepository
     {
       commitUnsynced(commitContext, monitor);
     }
+  }
+
+  private boolean includesMovesToOtherObjects(InternalCommitContext commitContext)
+  {
+    for (InternalCDORevisionDelta delta : commitContext.getDirtyObjectDeltas())
+    {
+      for (CDOFeatureDelta featureDelta : delta.getFeatureDeltas())
+      {
+        EStructuralFeature feature = featureDelta.getFeature();
+        if (feature == CDOContainerFeatureDelta.CONTAINER_FEATURE)
+        {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   protected void commitUnsynced(InternalCommitContext commitContext, OMMonitor monitor)
