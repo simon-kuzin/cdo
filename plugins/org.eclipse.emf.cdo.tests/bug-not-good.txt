@@ -1,0 +1,46 @@
+LOAD
+LOAD
+
+java.lang.Exception: ADD Company@OID:0v1
+	at org.eclipse.emf.cdo.internal.common.revision.CDORevisionCacheNonAuditing.addRevision(CDORevisionCacheNonAuditing.java:186)
+	at org.eclipse.emf.cdo.internal.common.revision.CDORevisionManagerImpl.addRevision(CDORevisionManagerImpl.java:461)
+	at org.eclipse.emf.cdo.spi.common.revision.RevisionInfo.processResult(RevisionInfo.java:183)
+	at org.eclipse.emf.cdo.internal.common.revision.CDORevisionManagerImpl.getResultsAndSynthetics(CDORevisionManagerImpl.java:411)
+	at org.eclipse.emf.cdo.internal.common.revision.CDORevisionManagerImpl.getRevisions(CDORevisionManagerImpl.java:295)
+	at org.eclipse.emf.cdo.tests.util.TestRevisionManager.getRevisions(TestRevisionManager.java:71)
+	at org.eclipse.emf.cdo.internal.common.revision.CDORevisionManagerImpl.getRevision(CDORevisionManagerImpl.java:275)
+	at org.eclipse.emf.cdo.internal.common.revision.CDORevisionManagerImpl.getRevision(CDORevisionManagerImpl.java:268)
+	at org.eclipse.emf.internal.cdo.view.CDOViewImpl.getRevision(CDOViewImpl.java:733)
+	at org.eclipse.emf.internal.cdo.view.AbstractCDOView.createObject(AbstractCDOView.java:1019)
+	at org.eclipse.emf.internal.cdo.view.AbstractCDOView.getObject(AbstractCDOView.java:918)
+	at org.eclipse.emf.internal.cdo.transaction.CDOTransactionImpl.getObject(CDOTransactionImpl.java:1150)
+	at org.eclipse.emf.internal.cdo.view.AbstractCDOView.getObject(AbstractCDOView.java:972)
+	at org.eclipse.emf.cdo.tests.bugzilla.Bugzilla_329254_Test$3.run(Bugzilla_329254_Test.java:165)
+
+Committed from thread 11
+
+Simulated problem in thread 21: org.eclipse.emf.cdo.util.CommitConflictException
+
+java.lang.Exception: ADD Company@OID:0v1
+	at org.eclipse.emf.cdo.internal.common.revision.CDORevisionCacheNonAuditing.addRevision(CDORevisionCacheNonAuditing.java:186)
+	at org.eclipse.emf.cdo.internal.common.revision.CDORevisionManagerImpl.addRevision(CDORevisionManagerImpl.java:461)
+	at org.eclipse.emf.cdo.spi.common.revision.RevisionInfo.processResult(RevisionInfo.java:183)
+	at org.eclipse.emf.cdo.spi.common.revision.RevisionInfo$Available$Normal.processResult(RevisionInfo.java:472)
+	at org.eclipse.emf.cdo.internal.common.revision.CDORevisionManagerImpl.getResultsAndSynthetics(CDORevisionManagerImpl.java:411)
+	at org.eclipse.emf.cdo.internal.common.revision.CDORevisionManagerImpl.getRevisions(CDORevisionManagerImpl.java:295)
+	at org.eclipse.emf.cdo.tests.util.TestRevisionManager.getRevisions(TestRevisionManager.java:71)
+	at org.eclipse.emf.cdo.internal.common.revision.CDORevisionManagerImpl.getRevision(CDORevisionManagerImpl.java:275)
+	at org.eclipse.emf.cdo.internal.common.revision.CDORevisionManagerImpl.getRevision(CDORevisionManagerImpl.java:268)
+	at org.eclipse.emf.internal.cdo.view.CDOViewImpl.getRevision(CDOViewImpl.java:733)
+	at org.eclipse.emf.internal.cdo.view.AbstractCDOView.createObject(AbstractCDOView.java:1019)
+	at org.eclipse.emf.internal.cdo.view.AbstractCDOView.getObject(AbstractCDOView.java:918)
+	at org.eclipse.emf.internal.cdo.transaction.CDOTransactionImpl.getObject(CDOTransactionImpl.java:1150)
+	at org.eclipse.emf.internal.cdo.view.AbstractCDOView.getObject(AbstractCDOView.java:972)
+	at org.eclipse.emf.cdo.tests.bugzilla.Bugzilla_329254_Test.testCommitTimeStampUpdateOnError(Bugzilla_329254_Test.java:189)
+
+org.eclipse.emf.cdo.util.CommitConflictException: Attempt by Transaction[17:2] to modify historical revision: CDORevisionDelta[Company@OID:0v1 --> [CDOFeatureDelta[name, SET, value=company2, oldValue=UNSPECIFIED]]]
+	at org.eclipse.emf.internal.cdo.transaction.CDOSingleTransactionStrategyImpl.commit(CDOSingleTransactionStrategyImpl.java:86)
+	at org.eclipse.emf.internal.cdo.transaction.CDOTransactionImpl.commit(CDOTransactionImpl.java:1191)
+	at org.eclipse.emf.internal.cdo.transaction.CDOTransactionImpl.commit(CDOTransactionImpl.java:1219)
+	at org.eclipse.emf.cdo.tests.AbstractCDOTest.commitAndSync(AbstractCDOTest.java:362)
+	at org.eclipse.emf.cdo.tests.bugzilla.Bugzilla_329254_Test.testCommitTimeStampUpdateOnError(Bugzilla_329254_Test.java:194)

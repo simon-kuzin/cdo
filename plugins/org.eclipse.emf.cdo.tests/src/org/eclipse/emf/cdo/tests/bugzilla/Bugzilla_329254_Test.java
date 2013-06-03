@@ -19,41 +19,39 @@ import org.eclipse.emf.cdo.spi.server.InternalCommitContext;
 import org.eclipse.emf.cdo.spi.server.InternalRepository;
 import org.eclipse.emf.cdo.spi.server.InternalTransaction;
 import org.eclipse.emf.cdo.tests.AbstractCDOTest;
+import org.eclipse.emf.cdo.tests.config.IRepositoryConfig;
 import org.eclipse.emf.cdo.tests.config.impl.RepositoryConfig;
 import org.eclipse.emf.cdo.tests.model1.Category;
 import org.eclipse.emf.cdo.tests.model1.Company;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.cdo.util.CommitException;
 
+import org.eclipse.net4j.util.WrappedException;
 import org.eclipse.net4j.util.io.IOUtil;
 
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
- * LastCommitTimeStamp updated even when a serverSide Error occurred.
- * <p>
- * See bug 329254.
+ * Bug 329254: LastCommitTimeStamp updated even when a serverSide Error occurred.
  *
  * @author Pascal Lehmann
  * @since 4.0
  */
 public class Bugzilla_329254_Test extends AbstractCDOTest
 {
-  private static final String REPOSITORY_NAME = "repo1";
+  private CountDownLatch enterLatch = new CountDownLatch(1);
 
-  private final CountDownLatch enterLatch = new CountDownLatch(1);
-
-  private final CountDownLatch leaveLatch = new CountDownLatch(1);
+  private CountDownLatch leaveLatch = new CountDownLatch(1);
 
   private boolean modelInitialized;
 
-  private int sessionId2;
+  private int sessionID2;
 
   @Override
   protected void doSetUp() throws Exception
   {
-    modelInitialized = false;
     createRepository();
     super.doSetUp();
   }
@@ -70,32 +68,31 @@ public class Bugzilla_329254_Test extends AbstractCDOTest
           @Override
           protected void adjustForCommit()
           {
-            // ignore all calls before model has been initialized.
-            if (modelInitialized)
+            // Ignore all calls before model has been initialized.
+            if (!modelInitialized)
             {
-              IOUtil.OUT().println("AdjustForCommit entered: " + this);
-              if (getTransaction().getSession().getSessionID() == sessionId2)
-              {
-                // grant the other session access to enter and
-                // block until it has left again.
-                enterLatch.countDown();
-                try
-                {
-                  leaveLatch.await();
-                }
-                catch (InterruptedException ex)
-                {
-                  ex.printStackTrace();
-                }
-              }
+              super.adjustForCommit();
+              return;
+            }
 
-              super.adjustForCommit();
-              IOUtil.OUT().println("AdjustForCommit left: " + this);
-            }
-            else
+            IOUtil.OUT().println("AdjustForCommit entered: " + this);
+            if (getTransaction().getSession().getSessionID() == sessionID2)
             {
-              super.adjustForCommit();
+              // Grant the other session access to enter and block until it has left again.
+              enterLatch.countDown();
+
+              try
+              {
+                leaveLatch.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+              }
+              catch (InterruptedException ex)
+              {
+                throw WrappedException.wrap(ex);
+              }
             }
+
+            super.adjustForCommit();
+            IOUtil.OUT().println("AdjustForCommit left: " + this);
           }
         };
       }
@@ -104,7 +101,7 @@ public class Bugzilla_329254_Test extends AbstractCDOTest
     Map<String, String> props = getRepositoryProperties();
     ((InternalRepository)repository).setProperties(props);
 
-    repository.setName(REPOSITORY_NAME);
+    repository.setName(IRepositoryConfig.REPOSITORY_NAME);
 
     Map<String, Object> map = getTestProperties();
     map.put(RepositoryConfig.PROP_TEST_REPOSITORY, repository);
@@ -114,26 +111,26 @@ public class Bugzilla_329254_Test extends AbstractCDOTest
   {
     disableConsole();
 
-    CDOSession session1 = openSession(REPOSITORY_NAME);
-    CDOSession session2 = openSession(REPOSITORY_NAME);
+    CDOSession session1 = openSession();
+    CDOSession session2 = openSession();
 
     session1.options().setPassiveUpdateMode(PassiveUpdateMode.CHANGES);
     session2.options().setPassiveUpdateMode(PassiveUpdateMode.CHANGES);
 
-    sessionId2 = session2.getSessionID();
+    sessionID2 = session2.getSessionID();
 
     CDOTransaction transaction10 = session1.openTransaction();
     final CDOTransaction transaction11async = session1.openTransaction();
     final CDOTransaction transaction21async = session2.openTransaction();
-    CDOTransaction transaction12 = session1.openTransaction();
-    CDOTransaction transaction22 = session2.openTransaction();
+    final CDOTransaction transaction12 = session1.openTransaction();
+    final CDOTransaction transaction22 = session2.openTransaction();
 
     // Create initial model.
     CDOResource resource = transaction10.createResource(getResourcePath("/test"));
     final Company company10 = getModel1Factory().createCompany();
     company10.setName("company");
     resource.getContents().add(company10);
-    commitAndSync(transaction10, transaction11async, transaction21async);
+    commitAndSync(transaction10, "transaction10", transaction11async, transaction21async, transaction12, transaction22);
 
     Thread thread11 = new Thread()
     {
@@ -145,7 +142,9 @@ public class Bugzilla_329254_Test extends AbstractCDOTest
           // Do concurrent changes on company to produce an error.
           Company company11 = transaction11async.getObject(company10);
           company11.setCity("city");
-          transaction11async.commit();
+
+          commitAndSync(transaction11async, "transaction11async", transaction12, transaction22);
+          IOUtil.OUT().println("Committed from thread 11");
         }
         catch (Exception ex)
         {
@@ -164,7 +163,9 @@ public class Bugzilla_329254_Test extends AbstractCDOTest
           // Do concurrent changes on company to produce an error.
           Company company21 = transaction21async.getObject(company10);
           company21.setStreet("street");
-          transaction21async.commit();
+
+          commitAndSync(transaction21async, "transaction21async", transaction12, transaction22);
+          IOUtil.OUT().println("Committed from thread 21");
         }
         catch (Exception ex)
         {
@@ -185,7 +186,18 @@ public class Bugzilla_329254_Test extends AbstractCDOTest
     // Do another commit.
     Company company4 = transaction22.getObject(company10);
     company4.setName("company2");
-    commitAndSync(transaction22, transaction10, transaction12);
+
+    try
+    {
+      commitAndSync(transaction22, "transaction22", transaction10, transaction12);
+    }
+    catch (Exception ex)
+    {
+      ex.printStackTrace();
+
+      sleep(1000000000);
+      System.out.println();
+    }
 
     // Check if update arrived.
     assertEquals(company4.getName(), company10.getName());
@@ -193,21 +205,121 @@ public class Bugzilla_329254_Test extends AbstractCDOTest
     // Check committing on the other session too.
     Company company5 = transaction12.getObject(company10);
     company5.setName("company3");
-    commitAndSync(transaction12, transaction22);
+    commitAndSync(transaction12, "transaction12", transaction22);
 
     // Check if update arrived.
     assertEquals(company5.getName(), company4.getName());
   }
 
+  public void test1() throws Exception
+  {
+    testCommitTimeStampUpdateOnError();
+  }
+
+  public void test2() throws Exception
+  {
+    testCommitTimeStampUpdateOnError();
+  }
+
+  public void test3() throws Exception
+  {
+    testCommitTimeStampUpdateOnError();
+  }
+
+  public void test4() throws Exception
+  {
+    testCommitTimeStampUpdateOnError();
+  }
+
+  public void test5() throws Exception
+  {
+    testCommitTimeStampUpdateOnError();
+  }
+
+  public void test6() throws Exception
+  {
+    testCommitTimeStampUpdateOnError();
+  }
+
+  public void test7() throws Exception
+  {
+    testCommitTimeStampUpdateOnError();
+  }
+
+  public void test8() throws Exception
+  {
+    testCommitTimeStampUpdateOnError();
+  }
+
+  public void test9() throws Exception
+  {
+    testCommitTimeStampUpdateOnError();
+  }
+
+  public void test10() throws Exception
+  {
+    testCommitTimeStampUpdateOnError();
+  }
+
+  public void test11() throws Exception
+  {
+    testCommitTimeStampUpdateOnError();
+  }
+
+  public void test12() throws Exception
+  {
+    testCommitTimeStampUpdateOnError();
+  }
+
+  public void test13() throws Exception
+  {
+    testCommitTimeStampUpdateOnError();
+  }
+
+  public void test14() throws Exception
+  {
+    testCommitTimeStampUpdateOnError();
+  }
+
+  public void test15() throws Exception
+  {
+    testCommitTimeStampUpdateOnError();
+  }
+
+  public void test16() throws Exception
+  {
+    testCommitTimeStampUpdateOnError();
+  }
+
+  public void test17() throws Exception
+  {
+    testCommitTimeStampUpdateOnError();
+  }
+
+  public void test18() throws Exception
+  {
+    testCommitTimeStampUpdateOnError();
+  }
+
+  public void test19() throws Exception
+  {
+    testCommitTimeStampUpdateOnError();
+  }
+
+  public void test20() throws Exception
+  {
+    testCommitTimeStampUpdateOnError();
+  }
+
   @CleanRepositoriesBefore
-  public void testCommitTimeStampUpdateLongRunningCommitSameType() throws Exception
+  public void _testCommitTimeStampUpdateLongRunningCommitSameType() throws Exception
   {
     disableConsole();
 
-    CDOSession session1 = openSession(REPOSITORY_NAME);
-    CDOSession session2 = openSession(REPOSITORY_NAME);
+    CDOSession session1 = openSession();
+    CDOSession session2 = openSession();
     session1.options().setPassiveUpdateMode(PassiveUpdateMode.CHANGES);
-    sessionId2 = session2.getSessionID();
+    sessionID2 = session2.getSessionID();
 
     CDOTransaction transaction1 = session1.openTransaction();
     final CDOTransaction transaction2 = session2.openTransaction();
@@ -299,14 +411,14 @@ public class Bugzilla_329254_Test extends AbstractCDOTest
   }
 
   @CleanRepositoriesBefore
-  public void testCommitTimeStampUpdateLongRunningCommitDifferentType() throws Exception
+  public void _testCommitTimeStampUpdateLongRunningCommitDifferentType() throws Exception
   {
     disableConsole();
 
-    CDOSession session1 = openSession(REPOSITORY_NAME);
-    CDOSession session2 = openSession(REPOSITORY_NAME);
+    CDOSession session1 = openSession();
+    CDOSession session2 = openSession();
     session1.options().setPassiveUpdateMode(PassiveUpdateMode.CHANGES);
-    sessionId2 = session2.getSessionID();
+    sessionID2 = session2.getSessionID();
 
     CDOTransaction transaction1 = session1.openTransaction();
     final CDOTransaction transaction2 = session2.openTransaction();

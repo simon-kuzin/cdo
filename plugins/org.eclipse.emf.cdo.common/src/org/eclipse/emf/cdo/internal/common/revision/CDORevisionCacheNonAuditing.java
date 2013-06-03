@@ -174,10 +174,41 @@ public class CDORevisionCacheNonAuditing extends AbstractCDORevisionCache
 
     if (!revision.isHistorical())
     {
+      CDOID id = revision.getID();
       Reference<InternalCDORevision> reference = createReference(revision);
       synchronized (revisions)
       {
-        revisions.put(revision.getID(), reference);
+        Reference<InternalCDORevision> oldReference = revisions.get(id);
+        InternalCDORevision oldRevision = oldReference == null ? null : oldReference.get();
+        if (oldRevision == null || oldRevision.getVersion() < revision.getVersion())
+        {
+          int xxx;
+          String revstr = revision.toString();
+          if (revstr.contains("Company"))
+          {
+            String name = getName();
+            if (name.contains("SignalProtocol[2, CLIENT, cdo]"))
+            {
+              // System.out.println("ADD " + revstr);
+
+              try
+              {
+                throw new Exception("ADD " + revstr);
+              }
+              catch (Exception ex)
+              {
+                ex.printStackTrace();
+              }
+            }
+          }
+
+          revisions.put(id, reference);
+
+          if (oldRevision != null && oldRevision.getVersion() == revision.getVersion() - 1)
+          {
+            oldRevision.setRevised(revision.getTimeStamp() - 1);
+          }
+        }
       }
     }
   }

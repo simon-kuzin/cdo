@@ -902,6 +902,13 @@ public abstract class CDOSessionImpl extends CDOTransactionContainerImpl impleme
 
   private Map<CDOID, InternalCDORevision> reviseRevisions(CDOCommitInfo commitInfo)
   {
+    int xxx;
+    if (revisionManager.getCache().toString().contains("SignalProtocol[2, CLIENT, cdo]"))
+    {
+      InternalCDORevisionCache cache = revisionManager.getCache();
+      System.err.println("REVISE REVISIONS:\n" + CDORevisionUtil.dumpAllRevisions(cache.getAllRevisions()));
+    }
+
     Map<CDOID, InternalCDORevision> oldRevisions = null;
     CDOBranch newBranch = commitInfo.getBranch();
     long timeStamp = commitInfo.getTimeStamp();
