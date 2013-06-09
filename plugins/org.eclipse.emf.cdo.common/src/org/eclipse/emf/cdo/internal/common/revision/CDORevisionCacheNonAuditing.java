@@ -189,7 +189,7 @@ public class CDORevisionCacheNonAuditing extends AbstractCDORevisionCache
             String name = getName();
             if (name.contains("SignalProtocol[2, CLIENT, cdo]"))
             {
-              // System.out.println("ADD " + revstr);
+              // System.err.println("ADD " + revstr);
 
               try
               {

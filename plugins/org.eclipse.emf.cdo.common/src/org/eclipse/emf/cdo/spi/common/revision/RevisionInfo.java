@@ -178,10 +178,7 @@ public abstract class RevisionInfo
       results.add(result);
     }
 
-    if (result != null)
-    {
-      revisionManager.addRevision(result);
-    }
+    cacheResultRevision(revisionManager);
 
     if (synthetic != null)
     {
@@ -200,6 +197,17 @@ public abstract class RevisionInfo
       {
         synthetics[i] = synthetic;
       }
+    }
+  }
+
+  /**
+   * @since 4.2
+   */
+  protected void cacheResultRevision(InternalCDORevisionManager revisionManager)
+  {
+    if (result != null)
+    {
+      revisionManager.addRevision(result);
     }
   }
 
@@ -470,6 +478,14 @@ public abstract class RevisionInfo
         }
 
         super.processResult(revisionManager, results, synthetics, i);
+      }
+
+      private int xxx;
+
+      @Override
+      protected void cacheResultRevision(InternalCDORevisionManager revisionManager)
+      {
+        // Do nothing
       }
     }
 

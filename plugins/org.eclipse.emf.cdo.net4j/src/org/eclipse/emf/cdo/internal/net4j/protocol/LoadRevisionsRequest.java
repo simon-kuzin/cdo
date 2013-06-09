@@ -59,6 +59,9 @@ public class LoadRevisionsRequest extends CDOClientRequest<List<InternalCDORevis
   @Override
   protected void requesting(CDODataOutput out) throws IOException
   {
+    int xxx;
+    System.out.println("LOAD in thread " + Thread.currentThread().getName());
+
     if (TRACER.isEnabled())
     {
       TRACER.format("Writing branchPoint: {0}", branchPoint); //$NON-NLS-1$

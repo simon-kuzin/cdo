@@ -906,7 +906,8 @@ public abstract class CDOSessionImpl extends CDOTransactionContainerImpl impleme
     if (revisionManager.getCache().toString().contains("SignalProtocol[2, CLIENT, cdo]"))
     {
       InternalCDORevisionCache cache = revisionManager.getCache();
-      System.err.println("REVISE REVISIONS:\n" + CDORevisionUtil.dumpAllRevisions(cache.getAllRevisions()));
+      System.err.println("REVISE REVISIONS in thread " + Thread.currentThread().getName() + "\n"
+          + CDORevisionUtil.dumpAllRevisions(cache.getAllRevisions()));
     }
 
     Map<CDOID, InternalCDORevision> oldRevisions = null;
@@ -1103,14 +1104,16 @@ public abstract class CDOSessionImpl extends CDOTransactionContainerImpl impleme
 
         if (sender == null)
         {
+          // We're called from handleCommitNotification, process invalidations inside synchronized() block
           QueueRunner invalidationRunner = getInvalidationRunner();
           invalidationRunner.addWork(invalidationRunnable);
-          invalidationRunnable = null;
+          invalidationRunnable = null; // Avoid duplicate processing below
         }
       }
 
       if (invalidationRunnable != null)
       {
+        // We're called from a local postCommit(), process invalidations outside synchronized() block to avoid deadlock
         invalidationRunnable.run();
       }
     }

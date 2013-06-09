@@ -132,7 +132,7 @@ public class Bugzilla_329254_Test extends AbstractCDOTest
     resource.getContents().add(company10);
     commitAndSync(transaction10, "transaction10", transaction11async, transaction21async, transaction12, transaction22);
 
-    Thread thread11 = new Thread()
+    Thread thread11 = new Thread("11")
     {
       @Override
       public void run()
@@ -144,32 +144,34 @@ public class Bugzilla_329254_Test extends AbstractCDOTest
           company11.setCity("city");
 
           commitAndSync(transaction11async, "transaction11async", transaction12, transaction22);
-          IOUtil.OUT().println("Committed from thread 11");
+          IOUtil.ERR().println("Committed from thread 11");
         }
         catch (Exception ex)
         {
-          IOUtil.OUT().println("Simulated problem in thread 11: " + ex.getClass().getName());
+          IOUtil.ERR().println("Simulated problem in thread 11: " + ex.getClass().getName());
         }
       }
     };
 
-    Thread thread21 = new Thread()
+    Thread thread21 = new Thread("21")
     {
       @Override
       public void run()
       {
         try
         {
+          // sleep(100);
+
           // Do concurrent changes on company to produce an error.
           Company company21 = transaction21async.getObject(company10);
           company21.setStreet("street");
 
           commitAndSync(transaction21async, "transaction21async", transaction12, transaction22);
-          IOUtil.OUT().println("Committed from thread 21");
+          IOUtil.ERR().println("Committed from thread 21");
         }
         catch (Exception ex)
         {
-          IOUtil.OUT().println("Simulated problem in thread 21: " + ex.getClass().getName());
+          IOUtil.ERR().println("Simulated problem in thread 21: " + ex.getClass().getName());
         }
       }
     };
@@ -189,7 +191,7 @@ public class Bugzilla_329254_Test extends AbstractCDOTest
 
     try
     {
-      commitAndSync(transaction22, "transaction22", transaction10, transaction12);
+      commitAndSync(transaction22, "transaction22", transaction10, transaction12, transaction22);
     }
     catch (Exception ex)
     {
