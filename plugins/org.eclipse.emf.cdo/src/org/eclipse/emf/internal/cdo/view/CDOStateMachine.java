@@ -120,7 +120,7 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
     init(CDOState.NEW, CDOEvent.WRITE, new WriteNewTransition());
     init(CDOState.NEW, CDOEvent.INVALIDATE, FAIL);
     init(CDOState.NEW, CDOEvent.DETACH_REMOTE, FAIL);
-    init(CDOState.NEW, CDOEvent.COMMIT, new CommitTransition(false));
+    init(CDOState.NEW, CDOEvent.COMMIT, new CommitTransition());
     init(CDOState.NEW, CDOEvent.ROLLBACK, FAIL);
 
     init(CDOState.CLEAN, CDOEvent.PREPARE, FAIL);
@@ -142,7 +142,7 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
     init(CDOState.DIRTY, CDOEvent.WRITE, new RewriteTransition());
     init(CDOState.DIRTY, CDOEvent.INVALIDATE, new ConflictTransition());
     init(CDOState.DIRTY, CDOEvent.DETACH_REMOTE, new InvalidConflictTransition());
-    init(CDOState.DIRTY, CDOEvent.COMMIT, new CommitTransition(true));
+    init(CDOState.DIRTY, CDOEvent.COMMIT, new CommitTransition());
     init(CDOState.DIRTY, CDOEvent.ROLLBACK, new RollbackTransition());
 
     init(CDOState.PROXY, CDOEvent.PREPARE, FAIL);
@@ -841,10 +841,6 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
   final private class CommitTransition implements
       ITransition<CDOState, CDOEvent, InternalCDOObject, CommitTransactionResult>
   {
-    public CommitTransition(boolean useDeltas)
-    {
-    }
-
     public void execute(InternalCDOObject object, CDOState state, CDOEvent event, CommitTransactionResult data)
     {
       InternalCDOTransaction transaction = object.cdoView().toTransaction();
@@ -864,9 +860,6 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
       revision.adjustForCommit(transaction.getBranch(), data.getTimeStamp());
       revision.adjustReferences(data.getReferenceAdjuster());
       revision.freeze();
-
-      InternalCDORevisionManager revisionManager = transaction.getSession().getRevisionManager();
-      revisionManager.addRevision(revision);
 
       changeState(object, CDOState.CLEAN);
     }
