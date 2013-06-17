@@ -1056,6 +1056,24 @@ public abstract class CDOSessionImpl extends CDOTransactionContainerImpl impleme
     long previousTimeStamp = commitInfo.getPreviousTimeStamp();
     long lastUpdateTime = getLastUpdateTime();
 
+    int xxx;
+    if (sessionID == 3)
+    {
+      ArrayList<Long> queue;
+      synchronized (outOfSequenceInvalidations)
+      {
+        queue = new ArrayList<Long>(outOfSequenceInvalidations.size());
+        for (OutOfSequenceInvalidation invalidation : outOfSequenceInvalidations.values())
+        {
+          queue.add(invalidation.getCommitInfo().getTimeStamp() % 10000L);
+        }
+      }
+
+      Collections.sort(queue);
+      System.out.println("(" + lastUpdateTime % 10000L + ")    " + commitInfo.getClass().getSimpleName() + ": "
+          + previousTimeStamp % 10000L + " --> " + commitInfo.getTimeStamp() % 10000L + "      Queue=" + queue);
+    }
+
     if (previousTimeStamp < lastUpdateTime)
     {
       previousTimeStamp = lastUpdateTime;
@@ -1142,33 +1160,43 @@ public abstract class CDOSessionImpl extends CDOTransactionContainerImpl impleme
 
   private void invalidateOrdered(CDOCommitInfo commitInfo, InternalCDOTransaction sender, boolean clearResourcePathCache)
   {
-    Map<CDOID, InternalCDORevision> oldRevisions = null;
-    boolean success = commitInfo.getBranch() != null;
-    if (success)
+    try
     {
-      oldRevisions = reviseRevisions(commitInfo);
-    }
-
-    if (options.isPassiveUpdateEnabled())
-    {
-      setLastUpdateTime(commitInfo.getTimeStamp());
-    }
-
-    if (success)
-    {
-      fireInvalidationEvent(sender, commitInfo);
-      commitInfoManager.notifyCommitInfoHandlers(commitInfo);
-    }
-
-    for (InternalCDOView view : getViews())
-    {
-      if (view != sender)
+      Map<CDOID, InternalCDORevision> oldRevisions = null;
+      boolean success = commitInfo.getBranch() != null;
+      if (success)
       {
-        invalidateView(commitInfo, view, oldRevisions, clearResourcePathCache);
+        oldRevisions = reviseRevisions(commitInfo);
       }
-      else
+
+      if (options.isPassiveUpdateEnabled())
       {
-        view.setLastUpdateTime(commitInfo.getTimeStamp());
+        setLastUpdateTime(commitInfo.getTimeStamp());
+      }
+
+      if (success)
+      {
+        fireInvalidationEvent(sender, commitInfo);
+        commitInfoManager.notifyCommitInfoHandlers(commitInfo);
+      }
+
+      for (InternalCDOView view : getViews())
+      {
+        if (view != sender)
+        {
+          invalidateView(commitInfo, view, oldRevisions, clearResourcePathCache);
+        }
+        else
+        {
+          view.setLastUpdateTime(commitInfo.getTimeStamp());
+        }
+      }
+    }
+    catch (RuntimeException ex)
+    {
+      if (isActive())
+      {
+        throw ex;
       }
     }
   }

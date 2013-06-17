@@ -100,10 +100,11 @@ class TimeStampAuthority
         now = timeStampOverride;
       }
 
+      long previousTimeStamp = lastIssuedTimeStamp;
       lastIssuedTimeStamp = now;
 
-      runningTransactions.add(lastIssuedTimeStamp);
-      return new long[] { lastIssuedTimeStamp, getLastFinishedTimeStamp() };
+      runningTransactions.add(now);
+      return new long[] { now, previousTimeStamp };
     }
     finally
     {
