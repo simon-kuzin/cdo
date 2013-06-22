@@ -1251,6 +1251,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     }
 
     InternalCDOObject internal = (InternalCDOObject)object;
+    // internal.cdoInternalPostDetach(false);
     internal.cdoInternalSetView(null);
     internal.cdoInternalSetID(null);
     internal.cdoInternalSetState(CDOState.TRANSIENT);
