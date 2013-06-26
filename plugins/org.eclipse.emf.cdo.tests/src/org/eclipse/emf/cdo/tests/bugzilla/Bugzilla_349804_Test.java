@@ -96,7 +96,8 @@ public class Bugzilla_349804_Test extends AbstractCDOTest
     // Invalidation shall fail, because it will use lastUpdateTime from TimeStampAuthority for commit result
     transaction.commit();
 
-    invalidationLatch.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+    int removeEXPECTED;
+    invalidationLatch.await(DEFAULT_TIMEOUT_EXPECTED, TimeUnit.MILLISECONDS);
     assertEquals("Invalidation was not delivered", 0, invalidationLatch.getCount());
   }
 
