@@ -703,7 +703,7 @@ public class OfflineTest extends AbstractSyncingTest
 
     getOfflineConfig().startMasterTransport();
     waitForOnline(clone);
-    sleep(1000);
+    sleep(3000);
 
     IEvent[] sessionEvents = sessionListener.getEvents();
     assertEquals(4, sessionEvents.length); // 3x repo state change + 1x invalidation
