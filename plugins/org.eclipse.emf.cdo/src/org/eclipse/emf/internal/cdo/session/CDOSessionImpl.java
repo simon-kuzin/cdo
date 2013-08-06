@@ -1649,7 +1649,7 @@ public abstract class CDOSessionImpl extends CDOTransactionContainerImpl impleme
    */
   private class Invalidator extends QueueRunner2<Invalidation>
   {
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private final Set<Object> unfinishedLocalCommits = new HashSet<Object>();
 
