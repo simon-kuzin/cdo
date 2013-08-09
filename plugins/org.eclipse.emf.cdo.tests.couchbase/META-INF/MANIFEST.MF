@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Couchbase Tests for CDO
+Bundle-SymbolicName: org.eclipse.emf.cdo.tests.couchbase
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: eclipse.org
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: org.eclipse.emf.cdo.tests;bundle-version="[4.0.0,5.0.0)",
+ org.eclipse.emf.cdo.server.couchbase;bundle-version="[1.0.0,2.0.0)",
+ com.couchbase.client;bundle-version="[1.1.5,2.0.0)",
+ org.apache.commons.codec;bundle-version="[1.5.0,2.0.0)",
+ net.spy.memcached;bundle-version="[2.8.0,3.0.0)",
+ com.google.gson;bundle-version="[2.2.0,3.0.0)"
