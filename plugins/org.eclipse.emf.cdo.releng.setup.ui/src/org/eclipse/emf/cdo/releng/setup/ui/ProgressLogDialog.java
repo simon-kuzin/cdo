@@ -10,9 +10,9 @@
  */
 package org.eclipse.emf.cdo.releng.setup.ui;
 
-import org.eclipse.emf.cdo.releng.setup.helper.Progress;
-import org.eclipse.emf.cdo.releng.setup.helper.ProgressLog;
-import org.eclipse.emf.cdo.releng.setup.helper.ProgressLogRunnable;
+import org.eclipse.emf.cdo.releng.internal.setup.SetupTaskPerformer;
+import org.eclipse.emf.cdo.releng.setup.util.log.ProgressLog;
+import org.eclipse.emf.cdo.releng.setup.util.log.ProgressLogRunnable;
 
 import org.eclipse.net4j.util.io.IOUtil;
 
@@ -133,13 +133,13 @@ public class ProgressLogDialog extends TitleAreaDialog implements ProgressLog
   public synchronized void create()
   {
     super.create();
-    Progress.set(this);
+    SetupTaskPerformer.setProgress(this);
   }
 
   @Override
   public boolean close()
   {
-    Progress.set(null);
+    SetupTaskPerformer.setProgress(null);
 
     if (logStream != null)
     {
@@ -167,7 +167,7 @@ public class ProgressLogDialog extends TitleAreaDialog implements ProgressLog
     return cancelled;
   }
 
-  public void addLine(String line)
+  public void log(String line)
   {
     if (isCancelled())
     {
@@ -294,20 +294,20 @@ public class ProgressLogDialog extends TitleAreaDialog implements ProgressLog
 
               try
               {
-                dialog.addLine(jobName);
+                dialog.log(jobName);
                 restart[0] = runnable.run(dialog);
               }
               catch (Exception ex)
               {
                 Activator.log(ex);
-                dialog.addLine("An error occured: " + ex.getMessage());
-                dialog.addLine("The Error Log contains more infos...");
+                dialog.log("An error occured: " + ex.getMessage());
+                dialog.log("The Error Log contains more infos...");
               }
               finally
               {
                 long seconds = (System.currentTimeMillis() - start) / 1000;
-                dialog.addLine("Took " + seconds + " seconds.");
-                dialog.addLine("Press OK to close the dialog" + (restart[0] ? " and restart Eclipse" : "") + "...");
+                dialog.log("Took " + seconds + " seconds.");
+                dialog.log("Press OK to close the dialog" + (restart[0] ? " and restart Eclipse" : "") + "...");
                 dialog.setFinished();
               }
 

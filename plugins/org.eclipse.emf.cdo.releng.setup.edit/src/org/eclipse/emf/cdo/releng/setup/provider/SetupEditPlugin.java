@@ -11,6 +11,7 @@
 package org.eclipse.emf.cdo.releng.setup.provider;
 
 import org.eclipse.emf.cdo.releng.workingsets.provider.WorkingSetsEditPlugin;
+
 import org.eclipse.emf.common.EMFPlugin;
 import org.eclipse.emf.common.util.ResourceLocator;
 

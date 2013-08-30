@@ -19,6 +19,7 @@ import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.util.ResourceLocator;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.edit.provider.ComposeableAdapterFactory;
+import org.eclipse.emf.edit.provider.IChildCreationExtender;
 import org.eclipse.emf.edit.provider.IEditingDomainItemProvider;
 import org.eclipse.emf.edit.provider.IItemLabelProvider;
 import org.eclipse.emf.edit.provider.IItemPropertyDescriptor;
@@ -102,7 +103,7 @@ public class EclipseVersionItemProvider extends ItemProviderAdapter implements I
     if (childrenFeatures == null)
     {
       super.getChildrenFeatures(object);
-      childrenFeatures.add(SetupPackage.Literals.ECLIPSE_VERSION__DIRECTOR_CALL);
+      childrenFeatures.add(SetupPackage.Literals.ECLIPSE_VERSION__INSTALL_TASKS);
     }
     return childrenFeatures;
   }
@@ -175,7 +176,7 @@ public class EclipseVersionItemProvider extends ItemProviderAdapter implements I
     case SetupPackage.ECLIPSE_VERSION__VERSION:
       fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
       return;
-    case SetupPackage.ECLIPSE_VERSION__DIRECTOR_CALL:
+    case SetupPackage.ECLIPSE_VERSION__INSTALL_TASKS:
       fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), true, false));
       return;
     }
@@ -194,8 +195,14 @@ public class EclipseVersionItemProvider extends ItemProviderAdapter implements I
   {
     super.collectNewChildDescriptors(newChildDescriptors, object);
 
-    newChildDescriptors.add(createChildParameter(SetupPackage.Literals.ECLIPSE_VERSION__DIRECTOR_CALL,
-        SetupFactory.eINSTANCE.createDirectorCall()));
+    newChildDescriptors.add(createChildParameter(SetupPackage.Literals.ECLIPSE_VERSION__INSTALL_TASKS,
+        SetupFactory.eINSTANCE.createEclipseIniTask()));
+
+    newChildDescriptors.add(createChildParameter(SetupPackage.Literals.ECLIPSE_VERSION__INSTALL_TASKS,
+        SetupFactory.eINSTANCE.createLinkLocationTask()));
+
+    newChildDescriptors.add(createChildParameter(SetupPackage.Literals.ECLIPSE_VERSION__INSTALL_TASKS,
+        SetupFactory.eINSTANCE.createP2Task()));
   }
 
   /**
@@ -207,7 +214,7 @@ public class EclipseVersionItemProvider extends ItemProviderAdapter implements I
   @Override
   public ResourceLocator getResourceLocator()
   {
-    return SetupEditPlugin.INSTANCE;
+    return ((IChildCreationExtender)adapterFactory).getResourceLocator();
   }
 
 }

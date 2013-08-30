@@ -10,7 +10,6 @@
  */
 package org.eclipse.emf.cdo.releng.setup.ide;
 
-import org.eclipse.emf.cdo.releng.setup.GitClone;
 import org.eclipse.emf.cdo.releng.setup.Setup;
 
 import java.io.File;
@@ -18,6 +17,7 @@ import java.io.File;
 /**
  * @author Eike Stepper
  */
+@Deprecated
 public interface SetupContext
 {
   public File getLogFile();
@@ -30,9 +30,9 @@ public interface SetupContext
 
   public File getEclipseDir();
 
-  public File getGitDir();
-
-  public File getWorkDir(GitClone clone);
+  // public File getGitDir();
+  //
+  // public File getWorkDir(GitClone clone);
 
   public File getWorkspaceDir();
 

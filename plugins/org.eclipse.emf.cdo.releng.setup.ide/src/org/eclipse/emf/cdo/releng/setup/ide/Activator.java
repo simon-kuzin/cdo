@@ -10,18 +10,9 @@
  */
 package org.eclipse.emf.cdo.releng.setup.ide;
 
-import org.eclipse.emf.cdo.releng.setup.GitClone;
 import org.eclipse.emf.cdo.releng.setup.Setup;
 
-import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
-
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -35,7 +26,7 @@ import java.io.File;
 /**
  * @author Eike Stepper
  */
-public class Activator extends AbstractUIPlugin implements SetupContext
+public class Activator extends AbstractUIPlugin // implements SetupContext
 {
   public static final String PLUGIN_ID = "org.eclipse.emf.cdo.releng.setup.ide";
 
@@ -76,15 +67,15 @@ public class Activator extends AbstractUIPlugin implements SetupContext
     return new File(branchDir, "eclipse");
   }
 
-  public File getGitDir()
-  {
-    return new File(branchDir, "git");
-  }
-
-  public File getWorkDir(GitClone clone)
-  {
-    return new File(getGitDir(), clone.getName());
-  }
+  // public File getGitDir()
+  // {
+  // return new File(branchDir, "git");
+  // }
+  //
+  // public File getWorkDir(GitClone clone)
+  // {
+  // return new File(getGitDir(), clone.getName());
+  // }
 
   public File getWorkspaceDir()
   {
@@ -108,27 +99,27 @@ public class Activator extends AbstractUIPlugin implements SetupContext
     bundleContext = context;
     plugin = this;
 
-    try
-    {
-      if ("true".equals(System.getProperty("org.eclipse.emf.cdo.releng.setup.ide", "false")))
-      {
-        ResourceSet resourceSet = new ResourceSetImpl();
-        resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("*", new XMIResourceFactoryImpl());
-
-        IPath branchDirPath = ResourcesPlugin.getWorkspace().getRoot().getLocation().removeLastSegments(1);
-        branchDir = new File(branchDirPath.toOSString());
-
-        URI uri = URI.createFileURI(branchDirPath.append("setup.xmi").toOSString());
-        Resource resource = resourceSet.getResource(uri, true);
-
-        setup = (Setup)resource.getContents().get(0);
-        SetupIDE.run();
-      }
-    }
-    catch (Exception ex)
-    {
-      log(ex);
-    }
+    // try
+    // {
+    // if ("true".equalsIgnoreCase(System.getProperty("org.eclipse.emf.cdo.releng.setup.ide", "false")))
+    // {
+    // ResourceSet resourceSet = new ResourceSetImpl();
+    // resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
+    //
+    // IPath branchDirPath = ResourcesPlugin.getWorkspace().getRoot().getLocation().removeLastSegments(1);
+    // branchDir = new File(branchDirPath.toOSString());
+    //
+    // URI uri = URI.createFileURI(branchDirPath.append("setup.xmi").toOSString());
+    // Resource resource = resourceSet.getResource(uri, true);
+    //
+    // setup = (Setup)resource.getContents().get(0);
+    // SetupIDE.run();
+    // }
+    // }
+    // catch (Exception ex)
+    // {
+    // log(ex);
+    // }
   }
 
   @Override

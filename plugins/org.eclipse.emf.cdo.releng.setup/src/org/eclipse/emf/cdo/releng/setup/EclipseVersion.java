@@ -10,11 +10,13 @@
  */
 package org.eclipse.emf.cdo.releng.setup;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 
 /**
  * <!-- begin-user-doc -->
  * A representation of the model object '<em><b>Eclipse Version</b></em>'.
+ * @extends SetupTaskContainer
  * <!-- end-user-doc -->
  *
  * <p>
@@ -22,7 +24,7 @@ import org.eclipse.emf.ecore.EObject;
  * <ul>
  *   <li>{@link org.eclipse.emf.cdo.releng.setup.EclipseVersion#getConfiguration <em>Configuration</em>}</li>
  *   <li>{@link org.eclipse.emf.cdo.releng.setup.EclipseVersion#getVersion <em>Version</em>}</li>
- *   <li>{@link org.eclipse.emf.cdo.releng.setup.EclipseVersion#getDirectorCall <em>Director Call</em>}</li>
+ *   <li>{@link org.eclipse.emf.cdo.releng.setup.EclipseVersion#getInstallTasks <em>Install Tasks</em>}</li>
  * </ul>
  * </p>
  *
@@ -30,7 +32,7 @@ import org.eclipse.emf.ecore.EObject;
  * @model
  * @generated
  */
-public interface EclipseVersion extends EObject
+public interface EclipseVersion extends EObject, SetupTaskContainer
 {
   /**
    * Returns the value of the '<em><b>Configuration</b></em>' container reference.
@@ -87,29 +89,19 @@ public interface EclipseVersion extends EObject
   void setVersion(String value);
 
   /**
-   * Returns the value of the '<em><b>Director Call</b></em>' containment reference.
+   * Returns the value of the '<em><b>Install Tasks</b></em>' containment reference list.
+   * The list contents are of type {@link org.eclipse.emf.cdo.releng.setup.InstallTask}.
    * <!-- begin-user-doc -->
    * <p>
-   * If the meaning of the '<em>Director Call</em>' containment reference isn't clear,
+   * If the meaning of the '<em>Install Tasks</em>' containment reference list isn't clear,
    * there really should be more of a description here...
    * </p>
    * <!-- end-user-doc -->
-   * @return the value of the '<em>Director Call</em>' containment reference.
-   * @see #setDirectorCall(DirectorCall)
-   * @see org.eclipse.emf.cdo.releng.setup.SetupPackage#getEclipseVersion_DirectorCall()
-   * @model containment="true" required="true"
+   * @return the value of the '<em>Install Tasks</em>' containment reference list.
+   * @see org.eclipse.emf.cdo.releng.setup.SetupPackage#getEclipseVersion_InstallTasks()
+   * @model containment="true" resolveProxies="true" required="true"
    * @generated
    */
-  DirectorCall getDirectorCall();
-
-  /**
-   * Sets the value of the '{@link org.eclipse.emf.cdo.releng.setup.EclipseVersion#getDirectorCall <em>Director Call</em>}' containment reference.
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
-   * @param value the new value of the '<em>Director Call</em>' containment reference.
-   * @see #getDirectorCall()
-   * @generated
-   */
-  void setDirectorCall(DirectorCall value);
+  EList<InstallTask> getInstallTasks();
 
 } // EclipseVersion

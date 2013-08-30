@@ -12,6 +12,7 @@ package org.eclipse.emf.cdo.releng.setup.presentation;
 
 import org.eclipse.emf.cdo.releng.setup.Preferences;
 import org.eclipse.emf.cdo.releng.setup.provider.SetupItemProviderAdapterFactory;
+import org.eclipse.emf.cdo.releng.workingsets.provider.WorkingSetsItemProviderAdapterFactory;
 
 import org.eclipse.emf.common.command.BasicCommandStack;
 import org.eclipse.emf.common.command.Command;
@@ -84,6 +85,8 @@ import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -689,6 +692,7 @@ public class SetupEditor extends MultiPageEditorPart implements IEditingDomainPr
 
     adapterFactory.addAdapterFactory(new ResourceItemProviderAdapterFactory());
     adapterFactory.addAdapterFactory(new SetupItemProviderAdapterFactory());
+    adapterFactory.addAdapterFactory(new WorkingSetsItemProviderAdapterFactory());
     adapterFactory.addAdapterFactory(new ReflectiveItemProviderAdapterFactory());
 
     // Create the command stack that will notify this editor as commands are executed.
@@ -1066,6 +1070,31 @@ public class SetupEditor extends MultiPageEditorPart implements IEditingDomainPr
       public void run()
       {
         updateProblemIndication();
+      }
+    });
+
+    getViewer().getControl().addMouseListener(new MouseListener()
+    {
+      public void mouseDoubleClick(MouseEvent e)
+      {
+        try
+        {
+          getSite().getPage().showView("org.eclipse.ui.views.PropertySheet"); //$NON-NLS-1$
+        }
+        catch (PartInitException ex)
+        {
+          SetupEditorPlugin.INSTANCE.log(ex);
+        }
+      }
+
+      public void mouseDown(MouseEvent e)
+      {
+        // do nothing
+      }
+
+      public void mouseUp(MouseEvent e)
+      {
+        // do nothing
       }
     });
   }

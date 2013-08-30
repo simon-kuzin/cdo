@@ -10,13 +10,6 @@
  */
 package org.eclipse.emf.cdo.releng.setup.ide.actions;
 
-import org.eclipse.emf.cdo.releng.setup.helper.ProgressLog;
-import org.eclipse.emf.cdo.releng.setup.helper.ProgressLogRunnable;
-import org.eclipse.emf.cdo.releng.setup.ide.Activator;
-import org.eclipse.emf.cdo.releng.setup.ide.Buckminster;
-import org.eclipse.emf.cdo.releng.setup.ide.SetupContext;
-import org.eclipse.emf.cdo.releng.setup.ui.ProgressLogDialog;
-
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -27,8 +20,6 @@ import org.eclipse.ui.IWorkbenchWindowActionDelegate;
  */
 public class BuckyAction implements IWorkbenchWindowActionDelegate
 {
-  private static final SetupContext CONTEXT = Activator.getDefault();
-
   private IWorkbenchWindow window;
 
   public BuckyAction()
@@ -50,22 +41,22 @@ public class BuckyAction implements IWorkbenchWindowActionDelegate
 
   public void run(IAction action)
   {
-    ProgressLogDialog.run(window.getShell(), CONTEXT.getLogFile(), "Importing mspec", new ProgressLogRunnable()
-    {
-      public boolean run(ProgressLog log) throws Exception
-      {
-        boolean autoBuilding = Buckminster.disableAutoBuilding();
-
-        try
-        {
-          Buckminster.importMSpec();
-          return true;
-        }
-        finally
-        {
-          Buckminster.restoreAutoBuilding(autoBuilding);
-        }
-      }
-    });
+    // ProgressLogDialog.run(window.getShell(), CONTEXT.getLogFile(), "Importing mspec", new ProgressLogRunnable()
+    // {
+    // public boolean run(ProgressLog log) throws Exception
+    // {
+    // boolean autoBuilding = Buckminster.disableAutoBuilding();
+    //
+    // try
+    // {
+    // Buckminster.importMSpec();
+    // return true;
+    // }
+    // finally
+    // {
+    // Buckminster.restoreAutoBuilding(autoBuilding);
+    // }
+    // }
+    // });
   }
 }

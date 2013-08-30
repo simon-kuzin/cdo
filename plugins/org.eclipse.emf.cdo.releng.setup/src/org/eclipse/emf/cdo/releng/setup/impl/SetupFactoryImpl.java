@@ -10,7 +10,27 @@
  */
 package org.eclipse.emf.cdo.releng.setup.impl;
 
-import org.eclipse.emf.cdo.releng.setup.*;
+import org.eclipse.emf.cdo.releng.setup.ApiBaselineTask;
+import org.eclipse.emf.cdo.releng.setup.Branch;
+import org.eclipse.emf.cdo.releng.setup.BuckminsterImportTask;
+import org.eclipse.emf.cdo.releng.setup.CompoundSetupTask;
+import org.eclipse.emf.cdo.releng.setup.Configuration;
+import org.eclipse.emf.cdo.releng.setup.EclipseIniTask;
+import org.eclipse.emf.cdo.releng.setup.EclipsePreferenceTask;
+import org.eclipse.emf.cdo.releng.setup.EclipseVersion;
+import org.eclipse.emf.cdo.releng.setup.GitCloneTask;
+import org.eclipse.emf.cdo.releng.setup.InstallableUnit;
+import org.eclipse.emf.cdo.releng.setup.LinkLocationTask;
+import org.eclipse.emf.cdo.releng.setup.P2Repository;
+import org.eclipse.emf.cdo.releng.setup.P2Task;
+import org.eclipse.emf.cdo.releng.setup.Preferences;
+import org.eclipse.emf.cdo.releng.setup.Project;
+import org.eclipse.emf.cdo.releng.setup.Setup;
+import org.eclipse.emf.cdo.releng.setup.SetupFactory;
+import org.eclipse.emf.cdo.releng.setup.SetupPackage;
+import org.eclipse.emf.cdo.releng.setup.SetupTaskScope;
+import org.eclipse.emf.cdo.releng.setup.StringVariableTask;
+import org.eclipse.emf.cdo.releng.setup.WorkingSetTask;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EDataType;
@@ -71,32 +91,42 @@ public class SetupFactoryImpl extends EFactoryImpl implements SetupFactory
   {
     switch (eClass.getClassifierID())
     {
-    case SetupPackage.PREFERENCES:
-      return createPreferences();
-    case SetupPackage.LINK_LOCATION:
-      return createLinkLocation();
-    case SetupPackage.TOOL_PREFERENCE:
-      return createToolPreference();
     case SetupPackage.ECLIPSE_VERSION:
       return createEclipseVersion();
-    case SetupPackage.DIRECTOR_CALL:
-      return createDirectorCall();
-    case SetupPackage.INSTALLABLE_UNIT:
-      return createInstallableUnit();
-    case SetupPackage.P2_REPOSITORY:
-      return createP2Repository();
     case SetupPackage.CONFIGURATION:
       return createConfiguration();
     case SetupPackage.PROJECT:
       return createProject();
     case SetupPackage.BRANCH:
       return createBranch();
-    case SetupPackage.API_BASELINE:
-      return createApiBaseline();
-    case SetupPackage.GIT_CLONE:
-      return createGitClone();
+    case SetupPackage.PREFERENCES:
+      return createPreferences();
     case SetupPackage.SETUP:
       return createSetup();
+    case SetupPackage.COMPOUND_SETUP_TASK:
+      return createCompoundSetupTask();
+    case SetupPackage.ECLIPSE_INI_TASK:
+      return createEclipseIniTask();
+    case SetupPackage.LINK_LOCATION_TASK:
+      return createLinkLocationTask();
+    case SetupPackage.P2_TASK:
+      return createP2Task();
+    case SetupPackage.INSTALLABLE_UNIT:
+      return createInstallableUnit();
+    case SetupPackage.P2_REPOSITORY:
+      return createP2Repository();
+    case SetupPackage.BUCKMINSTER_IMPORT_TASK:
+      return createBuckminsterImportTask();
+    case SetupPackage.API_BASELINE_TASK:
+      return createApiBaselineTask();
+    case SetupPackage.GIT_CLONE_TASK:
+      return createGitCloneTask();
+    case SetupPackage.ECLIPSE_PREFERENCE_TASK:
+      return createEclipsePreferenceTask();
+    case SetupPackage.STRING_VARIABLE_TASK:
+      return createStringVariableTask();
+    case SetupPackage.WORKING_SET_TASK:
+      return createWorkingSetTask();
     default:
       throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
     }
@@ -112,8 +142,12 @@ public class SetupFactoryImpl extends EFactoryImpl implements SetupFactory
   {
     switch (eDataType.getClassifierID())
     {
+    case SetupPackage.SETUP_TASK_SCOPE:
+      return createSetupTaskScopeFromString(eDataType, initialValue);
     case SetupPackage.URI:
       return createURIFromString(eDataType, initialValue);
+    case SetupPackage.EXCEPTION:
+      return createExceptionFromString(eDataType, initialValue);
     default:
       throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
     }
@@ -129,8 +163,12 @@ public class SetupFactoryImpl extends EFactoryImpl implements SetupFactory
   {
     switch (eDataType.getClassifierID())
     {
+    case SetupPackage.SETUP_TASK_SCOPE:
+      return convertSetupTaskScopeToString(eDataType, instanceValue);
     case SetupPackage.URI:
       return convertURIToString(eDataType, instanceValue);
+    case SetupPackage.EXCEPTION:
+      return convertExceptionToString(eDataType, instanceValue);
     default:
       throw new IllegalArgumentException("The datatype '" + eDataType.getName() + "' is not a valid classifier");
     }
@@ -174,6 +212,28 @@ public class SetupFactoryImpl extends EFactoryImpl implements SetupFactory
    * <!-- end-user-doc -->
    * @generated
    */
+  public ApiBaselineTask createApiBaselineTask()
+  {
+    ApiBaselineTaskImpl apiBaselineTask = new ApiBaselineTaskImpl();
+    return apiBaselineTask;
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  public GitCloneTask createGitCloneTask()
+  {
+    GitCloneTaskImpl gitCloneTask = new GitCloneTaskImpl();
+    return gitCloneTask;
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
   public EclipseVersion createEclipseVersion()
   {
     EclipseVersionImpl eclipseVersion = new EclipseVersionImpl();
@@ -185,10 +245,10 @@ public class SetupFactoryImpl extends EFactoryImpl implements SetupFactory
    * <!-- end-user-doc -->
    * @generated
    */
-  public DirectorCall createDirectorCall()
+  public P2Task createP2Task()
   {
-    DirectorCallImpl directorCall = new DirectorCallImpl();
-    return directorCall;
+    P2TaskImpl p2Task = new P2TaskImpl();
+    return p2Task;
   }
 
   /**
@@ -218,28 +278,6 @@ public class SetupFactoryImpl extends EFactoryImpl implements SetupFactory
    * <!-- end-user-doc -->
    * @generated
    */
-  public ApiBaseline createApiBaseline()
-  {
-    ApiBaselineImpl apiBaseline = new ApiBaselineImpl();
-    return apiBaseline;
-  }
-
-  /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
-   * @generated
-   */
-  public GitClone createGitClone()
-  {
-    GitCloneImpl gitClone = new GitCloneImpl();
-    return gitClone;
-  }
-
-  /**
-   * <!-- begin-user-doc -->
-   * <!-- end-user-doc -->
-   * @generated
-   */
   public Setup createSetup()
   {
     SetupImpl setup = new SetupImpl();
@@ -251,10 +289,10 @@ public class SetupFactoryImpl extends EFactoryImpl implements SetupFactory
    * <!-- end-user-doc -->
    * @generated
    */
-  public ToolPreference createToolPreference()
+  public WorkingSetTask createWorkingSetTask()
   {
-    ToolPreferenceImpl toolPreference = new ToolPreferenceImpl();
-    return toolPreference;
+    WorkingSetTaskImpl workingSetTask = new WorkingSetTaskImpl();
+    return workingSetTask;
   }
 
   /**
@@ -262,10 +300,67 @@ public class SetupFactoryImpl extends EFactoryImpl implements SetupFactory
    * <!-- end-user-doc -->
    * @generated
    */
-  public LinkLocation createLinkLocation()
+  public EclipseIniTask createEclipseIniTask()
   {
-    LinkLocationImpl linkLocation = new LinkLocationImpl();
-    return linkLocation;
+    EclipseIniTaskImpl eclipseIniTask = new EclipseIniTaskImpl();
+    return eclipseIniTask;
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  public SetupTaskScope createSetupTaskScopeFromString(EDataType eDataType, String initialValue)
+  {
+    SetupTaskScope result = SetupTaskScope.get(initialValue);
+    if (result == null)
+      throw new IllegalArgumentException("The value '" + initialValue + "' is not a valid enumerator of '"
+          + eDataType.getName() + "'");
+    return result;
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  public String convertSetupTaskScopeToString(EDataType eDataType, Object instanceValue)
+  {
+    return instanceValue == null ? null : instanceValue.toString();
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  public CompoundSetupTask createCompoundSetupTask()
+  {
+    CompoundSetupTaskImpl compoundSetupTask = new CompoundSetupTaskImpl();
+    return compoundSetupTask;
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  public BuckminsterImportTask createBuckminsterImportTask()
+  {
+    BuckminsterImportTaskImpl buckminsterImportTask = new BuckminsterImportTaskImpl();
+    return buckminsterImportTask;
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  public StringVariableTask createStringVariableTask()
+  {
+    StringVariableTaskImpl stringVariableTask = new StringVariableTaskImpl();
+    return stringVariableTask;
   }
 
   /**
@@ -284,6 +379,28 @@ public class SetupFactoryImpl extends EFactoryImpl implements SetupFactory
    * <!-- end-user-doc -->
    * @generated
    */
+  public LinkLocationTask createLinkLocationTask()
+  {
+    LinkLocationTaskImpl linkLocationTask = new LinkLocationTaskImpl();
+    return linkLocationTask;
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  public EclipsePreferenceTask createEclipsePreferenceTask()
+  {
+    EclipsePreferenceTaskImpl eclipsePreferenceTask = new EclipsePreferenceTaskImpl();
+    return eclipsePreferenceTask;
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
   public URI createURIFromString(EDataType eDataType, String initialValue)
   {
     return (URI)super.createFromString(eDataType, initialValue);
@@ -295,6 +412,26 @@ public class SetupFactoryImpl extends EFactoryImpl implements SetupFactory
    * @generated
    */
   public String convertURIToString(EDataType eDataType, Object instanceValue)
+  {
+    return super.convertToString(eDataType, instanceValue);
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  public Exception createExceptionFromString(EDataType eDataType, String initialValue)
+  {
+    return (Exception)super.createFromString(eDataType, initialValue);
+  }
+
+  /**
+   * <!-- begin-user-doc -->
+   * <!-- end-user-doc -->
+   * @generated
+   */
+  public String convertExceptionToString(EDataType eDataType, Object instanceValue)
   {
     return super.convertToString(eDataType, instanceValue);
   }
