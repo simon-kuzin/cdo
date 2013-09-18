@@ -47,6 +47,7 @@ import org.eclipse.emf.cdo.common.revision.delta.CDOMoveFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDORemoveFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOSetFeatureDelta;
+import org.eclipse.emf.cdo.common.security.CDOPermission;
 import org.eclipse.emf.cdo.common.util.CDOCommonUtil;
 import org.eclipse.emf.cdo.common.util.CDOException;
 import org.eclipse.emf.cdo.common.util.RepositoryStateChangedEvent;
@@ -938,6 +939,12 @@ public abstract class CDOSessionImpl extends CDOTransactionContainerImpl impleme
           addOldValuesToDelta(oldRevision, revisionDelta);
 
           InternalCDORevision newRevision = oldRevision.copy();
+          // If revision as READ permission, temporarily provide WRITE permission to be able to integrate remote changes
+          CDOPermission oldPermission = newRevision.getPermission();
+          if (CDOPermission.READ.equals(oldPermission))
+          {
+            newRevision.setPermission(CDOPermission.WRITE);
+          }
           newRevision.adjustForCommit(commitInfo.getBranch(), commitInfo.getTimeStamp());
 
           CDORevisable target = revisionDelta.getTarget();
@@ -948,7 +955,7 @@ public abstract class CDOSessionImpl extends CDOTransactionContainerImpl impleme
 
           revisionDelta.apply(newRevision);
           newRevision.freeze();
-
+          newRevision.setPermission(oldPermission);
           revisionManager.addRevision(newRevision);
           if (oldRevisions == null)
           {

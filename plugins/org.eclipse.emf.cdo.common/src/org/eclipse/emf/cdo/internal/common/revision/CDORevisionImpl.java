@@ -31,6 +31,11 @@ public class CDORevisionImpl extends BaseCDORevision
 {
   private Object[] values;
 
+  /**
+   * Indicates if the revision is being copied from another revision. In that case isWritable() will allways return true.
+   */
+  private boolean isCopying;
+
   public CDORevisionImpl(EClass eClass)
   {
     super(eClass);
@@ -42,23 +47,31 @@ public class CDORevisionImpl extends BaseCDORevision
     EStructuralFeature[] features = clearValues();
 
     int length = features.length;
-    for (int i = 0; i < length; i++)
+    isCopying = true;
+    try
     {
-      EStructuralFeature feature = features[i];
-      if (feature.isMany())
+      for (int i = 0; i < length; i++)
       {
-        InternalCDOList sourceList = (InternalCDOList)source.values[i];
-        if (sourceList != null)
+        EStructuralFeature feature = features[i];
+        if (feature.isMany())
         {
-          EClassifier classifier = feature.getEType();
-          setValue(i, sourceList.clone(classifier));
+          InternalCDOList sourceList = (InternalCDOList)source.values[i];
+          if (sourceList != null)
+          {
+            EClassifier classifier = feature.getEType();
+            setValue(i, sourceList.clone(classifier));
+          }
+        }
+        else
+        {
+          CDOType type = CDOModelUtil.getType(feature);
+          setValue(i, type.copyValue(source.values[i]));
         }
       }
-      else
-      {
-        CDOType type = CDOModelUtil.getType(feature);
-        setValue(i, type.copyValue(source.values[i]));
-      }
+    }
+    finally
+    {
+      isCopying = false;
     }
   }
 
@@ -84,4 +97,22 @@ public class CDORevisionImpl extends BaseCDORevision
   {
     values[featureIndex] = value;
   }
+
+  /**
+   * 
+   * {@inheritDoc}
+   * 
+   * @see org.eclipse.emf.cdo.spi.common.revision.AbstractCDORevision#isWritable()
+   */
+  @Override
+  public boolean isWritable()
+  {
+    // If we are copying another revision (
+    if (isCopying)
+    {
+      return true;
+    }
+    return super.isWritable();
+  }
+
 }
