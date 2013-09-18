@@ -11,6 +11,7 @@
  */
 package org.eclipse.emf.spi.cdo;
 
+import org.eclipse.emf.cdo.CDOObject;
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.commit.CDOChangeSetData;
@@ -27,6 +28,7 @@ import org.eclipse.emf.cdo.transaction.CDOCommitContext;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 
 import org.eclipse.net4j.util.collection.Pair;
+import org.eclipse.net4j.util.event.IListener;
 
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.spi.cdo.CDOSessionProtocol.CommitTransactionResult;
@@ -77,54 +79,39 @@ public interface InternalCDOTransaction extends CDOTransaction, InternalCDOUserT
   public void setTransactionStrategy(CDOTransactionStrategy transactionStrategy);
 
   /**
-   * @return never <code>null</code>;
+   * @return Never <code>null</code>;
    */
   public CDOResourceFolder getOrCreateResourceFolder(List<String> names);
 
-  public void detachObject(InternalCDOObject object);
+  public void attachObject(InternalCDOObject object);
 
-  /**
-   * @deprecated {@link #createIDForNewObject(EObject)} is called since 4.1.
-   */
-  @Deprecated
-  public CDOIDTemp getNextTemporaryID();
+  public void detachObject(InternalCDOObject object);
 
   /**
    * @since 4.1
    */
   public CDOID createIDForNewObject(EObject object);
 
+  public void handleAttachingObject(CDOObject object);
+
+  public void handleModifyingObject(CDOObject object, CDOFeatureDelta featureDelta);
+
+  public void handleDetachingObject(CDOObject object);
+
   /**
    * @since 4.0
    */
-  public void registerAttached(InternalCDOObject object, boolean isNew);
+  public void _registerAttached(InternalCDOObject object, boolean isNew);
 
-  public void registerDirty(InternalCDOObject object, CDOFeatureDelta featureDelta);
+  public void _registerDirty(InternalCDOObject object, CDOFeatureDelta featureDelta);
 
-  public void registerFeatureDelta(InternalCDOObject object, CDOFeatureDelta featureDelta);
+  public void _registerFeatureDelta(InternalCDOObject object, CDOFeatureDelta featureDelta);
 
-  public void registerRevisionDelta(CDORevisionDelta revisionDelta);
+  public void _registerRevisionDelta(CDORevisionDelta revisionDelta);
 
-  /**
-   * @since 4.2
-   */
-  public void setDirty(boolean dirty);
+  public IListener[] updateDirtyState(boolean undone);
 
   public void setConflict(InternalCDOObject object);
-
-  /**
-   * @param source
-   *          May be <code>null</code> if changeSetData does not result from a
-   *          {@link #merge(CDOBranchPoint, org.eclipse.emf.cdo.transaction.CDOMerger) merge} or if the merge was not in
-   *          a {@link CDOBranch#isLocal() local} branch.
-   * @since 4.0
-   * @deprecated Use
-   *             {@link #applyChangeSet(CDOChangeSetData, CDORevisionProvider, CDORevisionProvider, CDOBranchPoint, boolean)}
-   */
-  @Deprecated
-  public Pair<CDOChangeSetData, Pair<Map<CDOID, CDOID>, List<CDOID>>> applyChangeSetData(
-      CDOChangeSetData changeSetData, CDORevisionProvider ancestorProvider, CDORevisionProvider targetProvider,
-      CDOBranchPoint source);
 
   /**
    * @param source
@@ -139,8 +126,39 @@ public interface InternalCDOTransaction extends CDOTransaction, InternalCDOUserT
 
   /**
    * @since 4.0
+   * @deprecated As of 4.3 use {@link #getCleanRevision(InternalCDOObject)}.
    */
-  public Map<InternalCDOObject, InternalCDORevision> getCleanRevisions();
+  @Deprecated
+  public Map<InternalCDOObject, InternalCDORevision> _getCleanRevisions();
+
+  public InternalCDORevision getCleanRevision(CDOObject object);
+
+  /**
+   * @deprecated As of 4.1 use {@link #createIDForNewObject(EObject)}.
+   */
+  @Deprecated
+  public CDOIDTemp getNextTemporaryID();
+
+  /**
+   * @since 4.2
+   * @deprecated As of 4.3 use {@link #updateDirtyState(boolean)}.
+   */
+  @Deprecated
+  public void setDirty(boolean dirty);
+
+  /**
+   * @param source
+   *          May be <code>null</code> if changeSetData does not result from a
+   *          {@link #merge(CDOBranchPoint, org.eclipse.emf.cdo.transaction.CDOMerger) merge} or if the merge was not in
+   *          a {@link CDOBranch#isLocal() local} branch.
+   * @since 4.0
+   * @deprecated Use
+   *             {@link #applyChangeSet(CDOChangeSetData, CDORevisionProvider, CDORevisionProvider, CDOBranchPoint, boolean)}
+   */
+  @Deprecated
+  public Pair<CDOChangeSetData, Pair<Map<CDOID, CDOID>, List<CDOID>>> applyChangeSetData(
+      CDOChangeSetData changeSetData, CDORevisionProvider ancestorProvider, CDORevisionProvider targetProvider,
+      CDOBranchPoint source);
 
   /**
    * Provides a context for a commit operation.

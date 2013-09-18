@@ -10,6 +10,7 @@
  */
 package org.eclipse.emf.cdo.tests.bugzilla;
 
+import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
 import org.eclipse.emf.cdo.internal.common.revision.delta.CDOMoveFeatureDeltaImpl;
 import org.eclipse.emf.cdo.tests.AbstractCDOTest;
 
@@ -26,7 +27,8 @@ public class Bugzilla_350027_Test extends AbstractCDOTest
   {
     // ABCD (before move)
     // ACDB (after move from 1 => 3)
-    CDOMoveFeatureDeltaImpl move = new CDOMoveFeatureDeltaImpl(getModel1Package().getAddress_Name(), 3, 1);
+    CDOMoveFeatureDeltaImpl move = new CDOMoveFeatureDeltaImpl(getModel1Package().getAddress_Name(), 3, 1,
+        CDOFeatureDelta.UNKNOWN_VALUE);
 
     // This simulates the removal of D which is at position 3 before the move
     move.adjustAfterRemoval(3);

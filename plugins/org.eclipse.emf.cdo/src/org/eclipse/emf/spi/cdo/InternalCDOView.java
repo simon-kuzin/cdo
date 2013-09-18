@@ -106,6 +106,8 @@ public interface InternalCDOView extends CDOView, CDOIDProvider, ILifecycle
    */
   public void collectViewedRevisions(Map<CDOID, InternalCDORevision> revisions);
 
+  public void dispatchLoadNotification(InternalCDOObject object);
+
   public void remapObject(CDOID oldID);
 
   /**

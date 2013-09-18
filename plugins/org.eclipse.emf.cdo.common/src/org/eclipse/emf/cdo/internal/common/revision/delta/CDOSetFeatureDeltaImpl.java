@@ -28,7 +28,7 @@ import java.text.MessageFormat;
 /**
  * @author Simon McDuff
  */
-public class CDOSetFeatureDeltaImpl extends CDOSingleValueFeatureDeltaImpl implements CDOSetFeatureDelta,
+public final class CDOSetFeatureDeltaImpl extends CDOSingleValueFeatureDeltaImpl implements CDOSetFeatureDelta,
     ListTargetAdding
 {
   private Object oldValue = CDOSetFeatureDelta.UNSPECIFIED;

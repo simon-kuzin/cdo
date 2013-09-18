@@ -31,7 +31,7 @@ import org.eclipse.emf.cdo.view.CDOViewProvider;
 import org.eclipse.emf.cdo.view.CDOViewProviderRegistry;
 
 import org.eclipse.emf.internal.cdo.bundle.OM;
-import org.eclipse.emf.internal.cdo.view.CDOStateMachine;
+import org.eclipse.emf.internal.cdo.view.CDOStateMachine2;
 
 import org.eclipse.net4j.util.WrappedException;
 import org.eclipse.net4j.util.collection.Pair;
@@ -347,7 +347,6 @@ public class CDOResourceImpl extends CDOResourceLeafImpl implements InternalCDOR
     setPath(newPath);
   }
 
-
   @Override
   public Object eGet(int featureID, boolean resolve, boolean coreType)
   {
@@ -355,7 +354,7 @@ public class CDOResourceImpl extends CDOResourceLeafImpl implements InternalCDOR
     {
     case EresourcePackage.CDO_RESOURCE__URI:
       return getURI();
-      
+
     default:
       return super.eGet(featureID, resolve, coreType);
     }
@@ -369,7 +368,7 @@ public class CDOResourceImpl extends CDOResourceLeafImpl implements InternalCDOR
     case EresourcePackage.CDO_RESOURCE__URI:
       setURI((URI)newValue);
       break;
-      
+
     default:
       super.eSet(featureID, newValue);
     }
@@ -670,7 +669,6 @@ public class CDOResourceImpl extends CDOResourceLeafImpl implements InternalCDOR
     try
     {
       EObject eObjectByFragment = getEObjectByFragment(uriFragment);
-
       if (eObjectByFragment != null)
       {
         return eObjectByFragment;
@@ -1497,7 +1495,7 @@ public class CDOResourceImpl extends CDOResourceLeafImpl implements InternalCDOR
    */
   private void attached(InternalCDOObject cdoObject, InternalCDOTransaction transaction)
   {
-    CDOStateMachine.INSTANCE.attach(cdoObject, transaction);
+    CDOStateMachine2.INSTANCE.attach(cdoObject, transaction);
   }
 
   /**
@@ -1511,7 +1509,7 @@ public class CDOResourceImpl extends CDOResourceLeafImpl implements InternalCDOR
       if (view instanceof InternalCDOTransaction) // Bug 376075
       {
         InternalCDOObject cdoObject = FSMUtil.adapt(object, view);
-        CDOStateMachine.INSTANCE.detach(cdoObject);
+        CDOStateMachine2.INSTANCE.detach(cdoObject);
       }
     }
   }

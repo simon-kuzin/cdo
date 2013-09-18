@@ -34,7 +34,7 @@ import java.text.MessageFormat;
 /**
  * @author Simon McDuff
  */
-public class CDOContainerFeatureDeltaImpl extends CDOFeatureDeltaImpl implements CDOContainerFeatureDelta
+public final class CDOContainerFeatureDeltaImpl extends CDOFeatureDeltaImpl implements CDOContainerFeatureDelta
 {
   private CDOID newResourceID;
 

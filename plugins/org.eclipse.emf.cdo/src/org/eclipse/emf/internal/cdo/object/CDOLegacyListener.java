@@ -10,7 +10,7 @@
  */
 package org.eclipse.emf.internal.cdo.object;
 
-import org.eclipse.emf.internal.cdo.view.CDOStateMachine;
+import org.eclipse.emf.internal.cdo.view.CDOStateMachine2;
 
 import org.eclipse.emf.ecore.InternalEObject;
 
@@ -76,7 +76,7 @@ public final class CDOLegacyListener extends CDOLegacyWrapper
       try
       {
         handlingCallback = true;
-        CDOStateMachine.INSTANCE.read(this);
+        CDOStateMachine2.INSTANCE.read(this);
 
         // TODO Optimize this when the list position index is added to the new callbacks
         resolveAllProxies();
@@ -95,7 +95,7 @@ public final class CDOLegacyListener extends CDOLegacyWrapper
       try
       {
         handlingCallback = true;
-        CDOStateMachine.INSTANCE.write(this);
+        CDOStateMachine2.INSTANCE.write(this, null);
 
         // TODO Optimize this when the list position index is added to the new callbacks
         resolveAllProxies();

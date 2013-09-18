@@ -27,7 +27,7 @@ import java.io.IOException;
 /**
  * @author Simon McDuff
  */
-public class CDOUnsetFeatureDeltaImpl extends CDOFeatureDeltaImpl implements CDOUnsetFeatureDelta
+public final class CDOUnsetFeatureDeltaImpl extends CDOFeatureDeltaImpl implements CDOUnsetFeatureDelta
 {
   public CDOUnsetFeatureDeltaImpl(EStructuralFeature feature)
   {

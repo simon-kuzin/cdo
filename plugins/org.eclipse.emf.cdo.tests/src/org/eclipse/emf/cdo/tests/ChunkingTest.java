@@ -12,10 +12,13 @@ package org.eclipse.emf.cdo.tests;
 
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.session.CDOSession;
+import org.eclipse.emf.cdo.tests.model1.Category;
+import org.eclipse.emf.cdo.tests.model1.Company;
 import org.eclipse.emf.cdo.tests.model1.Customer;
 import org.eclipse.emf.cdo.tests.model1.SalesOrder;
 import org.eclipse.emf.cdo.tests.model5.GenListOfInt;
 import org.eclipse.emf.cdo.tests.model5.Model5Factory;
+import org.eclipse.emf.cdo.transaction.CDOSavepoint;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.cdo.util.CDOUtil;
 import org.eclipse.emf.cdo.util.CommitException;
@@ -317,6 +320,79 @@ public class ChunkingTest extends AbstractCDOTest
     clearCache(getRepository().getRevisionManager());
 
     testListResult(0, 1, 2, 3, 4, 6, 7, 8);
+  }
+
+  public void testPartiallyLoadedUseAfterAddition() throws CommitException
+  {
+    createInitialList();
+
+    CDOSession session = openSession();
+    session.options().setCollectionLoadingPolicy(CDOUtil.createCollectionLoadingPolicy(3, 1));
+    CDOTransaction tx = session.openTransaction();
+    CDOResource resource = tx.getResource(getResourcePath(RESOURCE_PATH));
+
+    GenListOfInt list = (GenListOfInt)resource.getContents().get(0);
+    EList<Integer> elements = list.getElements();
+
+    elements.add(5, 666);
+    tx.commit();
+
+    int lastElement = elements.get(8);
+    assertEquals(7, lastElement);
+  }
+
+  public void testSetTwice() throws CommitException
+  {
+    Company company = getModel1Factory().createCompany();
+    company.setName("FirstName");
+
+    CDOSession session = openSession();
+    CDOTransaction tx = session.openTransaction();
+    CDOSavepoint savepoint = tx.getLastSavepoint();
+
+    CDOResource resource = tx.createResource(getResourcePath(RESOURCE_PATH));
+    resource.getContents().add(company);
+    tx.commit();
+
+    company.setName("SecondName");
+    company.setName("FirstName");
+
+    System.out.println(savepoint);
+  }
+
+  public void testSetSame() throws CommitException
+  {
+    Company company = getModel1Factory().createCompany();
+    company.setName("FirstName");
+
+    CDOSession session = openSession();
+    CDOTransaction tx = session.openTransaction();
+    CDOSavepoint savepoint = tx.getLastSavepoint();
+
+    CDOResource resource = tx.createResource(getResourcePath(RESOURCE_PATH));
+    resource.getContents().add(company);
+    tx.commit();
+
+    company.setName("FirstName");
+    System.out.println(savepoint);
+  }
+
+  public void testAddRemove() throws CommitException
+  {
+    Company company = getModel1Factory().createCompany();
+    EList<Category> categories = company.getCategories();
+
+    CDOSession session = openSession();
+    CDOTransaction tx = session.openTransaction();
+    CDOSavepoint savepoint = tx.getLastSavepoint();
+
+    CDOResource resource = tx.createResource(getResourcePath(RESOURCE_PATH));
+    resource.getContents().add(company);
+    tx.commit();
+
+    categories.add(getModel1Factory().createCategory());
+    categories.remove(0);
+    System.out.println(savepoint);
   }
 
   private void createInitialList() throws CommitException

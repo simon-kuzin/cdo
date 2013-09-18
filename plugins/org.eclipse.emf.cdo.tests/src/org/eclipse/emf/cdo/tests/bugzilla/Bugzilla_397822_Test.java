@@ -70,10 +70,10 @@ public class Bugzilla_397822_Test extends AbstractCDOTest
 
     assertRevisionDeltaContainsListChanges(revisionDelta, reference //
         // removal of elem4 at index 3
-        , new CDORemoveFeatureDeltaImpl(reference, 3)
+        , new CDORemoveFeatureDeltaImpl(reference, 3, CDOFeatureDelta.UNKNOWN_VALUE)
 
         // removal of elem2 at index 1
-        , new CDORemoveFeatureDeltaImpl(reference, 1)
+        , new CDORemoveFeatureDeltaImpl(reference, 1, CDOFeatureDelta.UNKNOWN_VALUE)
 
     // TODO Clarify where the following delta is supposed to come from (see bug 390283)
     // // elem5 (at index 3 after the two removals) takes elem2's place at index 1
@@ -105,10 +105,10 @@ public class Bugzilla_397822_Test extends AbstractCDOTest
 
     assertRevisionDeltaContainsListChanges(revisionDelta, attribute //
         // removal of '4' at index 3
-        , new CDORemoveFeatureDeltaImpl(attribute, 3)
+        , new CDORemoveFeatureDeltaImpl(attribute, 3, CDOFeatureDelta.UNKNOWN_VALUE)
 
         // removal of '2' at index 1
-        , new CDORemoveFeatureDeltaImpl(attribute, 1)
+        , new CDORemoveFeatureDeltaImpl(attribute, 1, CDOFeatureDelta.UNKNOWN_VALUE)
 
     );
   }

@@ -10,6 +10,8 @@
  */
 package org.eclipse.emf.cdo.common.revision.delta;
 
+import org.eclipse.emf.cdo.common.revision.CDOList;
+
 /**
  * If the meaning of this type isn't clear, there really should be more of a description here...
  *
@@ -19,4 +21,27 @@ package org.eclipse.emf.cdo.common.revision.delta;
 public interface CDOOriginSizeProvider
 {
   public int getOriginSize();
+
+  /**
+   * @author Eike Stepper
+   */
+  public static abstract class Caching implements CDOOriginSizeProvider
+  {
+    private static final int UNKNOWN = -1;
+
+    private int originSize = UNKNOWN;
+
+    public int getOriginSize()
+    {
+      if (originSize == UNKNOWN)
+      {
+        CDOList list = getList();
+        originSize = list.size();
+      }
+
+      return originSize;
+    }
+
+    protected abstract CDOList getList();
+  }
 }

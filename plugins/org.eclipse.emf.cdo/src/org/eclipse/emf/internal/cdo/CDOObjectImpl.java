@@ -30,7 +30,7 @@ import org.eclipse.emf.cdo.view.CDOView;
 import org.eclipse.emf.internal.cdo.bundle.OM;
 import org.eclipse.emf.internal.cdo.messages.Messages;
 import org.eclipse.emf.internal.cdo.object.CDOLockImpl;
-import org.eclipse.emf.internal.cdo.view.CDOStateMachine;
+import org.eclipse.emf.internal.cdo.view.CDOStateMachine2;
 
 import org.eclipse.net4j.util.ObjectUtil;
 import org.eclipse.net4j.util.concurrent.IRWLockManager.LockType;
@@ -198,7 +198,7 @@ public class CDOObjectImpl extends MinimalEStoreEObjectImpl implements InternalC
   @Deprecated
   public final void cdoReload()
   {
-    CDOStateMachine.INSTANCE.reload(this);
+    // CDOStateMachine2.INSTANCE.reload(this);
   }
 
   /**
@@ -1186,7 +1186,7 @@ public class CDOObjectImpl extends MinimalEStoreEObjectImpl implements InternalC
   }
 
   /**
-   * Adjust the reference ONLY if the opposite reference used CDOID. This is true ONLY if the state of <cdo>this</code>
+   * Adjust the reference ONLY if the opposite reference used CDOID. This is true ONLY if the state of <code>this</code>
    * was not {@link CDOState#NEW}.
    */
   private static void adjustOppositeReference(InternalCDOObject instance, InternalEObject object, EReference feature)
@@ -1632,7 +1632,7 @@ public class CDOObjectImpl extends MinimalEStoreEObjectImpl implements InternalC
     {
       if (!FSMUtil.isTransient(CDOObjectImpl.this))
       {
-        CDOStateMachine.INSTANCE.read(CDOObjectImpl.this);
+        CDOStateMachine2.INSTANCE.read(CDOObjectImpl.this);
       }
     }
 

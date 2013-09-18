@@ -35,7 +35,7 @@ import org.eclipse.emf.cdo.view.CDOView;
 
 import org.eclipse.emf.internal.cdo.CDOObjectImpl;
 import org.eclipse.emf.internal.cdo.bundle.OM;
-import org.eclipse.emf.internal.cdo.view.CDOStateMachine;
+import org.eclipse.emf.internal.cdo.view.CDOStateMachine2;
 
 import org.eclipse.net4j.util.ReflectUtil;
 import org.eclipse.net4j.util.WrappedException;
@@ -200,7 +200,7 @@ public abstract class CDOLegacyWrapper extends CDOObjectWrapper
   @Deprecated
   public void cdoReload()
   {
-    CDOStateMachine.INSTANCE.reload(this);
+    // CDOStateMachine2.INSTANCE.reload(this);
   }
 
   public CDOObjectHistory cdoHistory()
@@ -305,7 +305,7 @@ public abstract class CDOLegacyWrapper extends CDOObjectWrapper
    */
   public void cdoInternalPostRollback()
   {
-    CDOStateMachine.INSTANCE.read(this);
+    CDOStateMachine2.INSTANCE.read(this);
   }
 
   /**

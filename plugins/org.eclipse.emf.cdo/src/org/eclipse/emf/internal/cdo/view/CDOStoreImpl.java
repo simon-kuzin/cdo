@@ -54,6 +54,7 @@ import org.eclipse.emf.ecore.util.FeatureMapUtil;
 import org.eclipse.emf.spi.cdo.CDOStore;
 import org.eclipse.emf.spi.cdo.FSMUtil;
 import org.eclipse.emf.spi.cdo.InternalCDOObject;
+import org.eclipse.emf.spi.cdo.InternalCDOSession;
 import org.eclipse.emf.spi.cdo.InternalCDOView;
 
 import java.text.MessageFormat;
@@ -110,10 +111,7 @@ public final class CDOStoreImpl implements CDOStore
       CDOID newResourceID = newResource == null ? CDOID.NULL : newResource.cdoID();
 
       CDOFeatureDelta delta = new CDOContainerFeatureDeltaImpl(newResourceID, newContainerID, newContainerFeatureID);
-      InternalCDORevision revision = getRevisionForWriting(cdoObject, delta);
-      revision.setResourceID(newResourceID);
-      revision.setContainerID(newContainerID);
-      revision.setContainingFeatureID(newContainerFeatureID);
+      getRevisionForWriting(cdoObject, delta);
     }
   }
 
@@ -397,15 +395,18 @@ public final class CDOStoreImpl implements CDOStore
         TRACER.format("set({0}, {1}, {2}, {3})", cdoObject, feature, index, value); //$NON-NLS-1$
       }
 
-      value = convertToCDO(cdoObject, feature, value);
-
       InternalCDORevision oldRevision = getRevisionForReading(cdoObject);
       Object oldValue = oldRevision.get(feature, index);
       oldValue = convertToEMF(eObject, oldRevision, feature, index, oldValue);
 
-      CDOFeatureDelta delta = new CDOSetFeatureDeltaImpl(feature, index, value, oldValue);
-      InternalCDORevision revision = getRevisionForWriting(cdoObject, delta);
-      revision.set(feature, index, value);
+      if (!ObjectUtil.equals(value, oldValue))
+      {
+        value = convertToCDO(cdoObject, feature, value);
+
+        CDOFeatureDelta delta = new CDOSetFeatureDeltaImpl(feature, index, value, oldValue);
+        InternalCDORevision revision = getRevisionForWriting(cdoObject, delta);
+        revision.set(feature, index, value);
+      }
 
       return oldValue;
     }
@@ -422,28 +423,7 @@ public final class CDOStoreImpl implements CDOStore
       }
 
       CDOFeatureDelta delta = new CDOUnsetFeatureDeltaImpl(feature);
-      InternalCDORevision revision = getRevisionForWriting(cdoObject, delta);
-
-      if (feature.isUnsettable())
-      {
-        revision.unset(feature);
-      }
-      else
-      {
-        if (feature.isMany())
-        {
-          Object value = revision.getValue(feature);
-
-          @SuppressWarnings("unchecked")
-          List<Object> list = (List<Object>)value;
-          list.clear();
-        }
-        else
-        {
-          Object defaultValue = convertToCDO(cdoObject, feature, feature.getDefaultValue());
-          revision.set(feature, NO_INDEX, defaultValue);
-        }
-      }
+      getRevisionForWriting(cdoObject, delta);
     }
   }
 
@@ -457,18 +437,13 @@ public final class CDOStoreImpl implements CDOStore
         TRACER.format("add({0}, {1}, {2}, {3})", cdoObject, feature, index, value); //$NON-NLS-1$
       }
 
-      if (feature.isMany())
-      {
-        value = convertToCDO(cdoObject, feature, value);
-      }
-      else
-      {
-        throw new UnsupportedOperationException("ADD is not supported for single-valued features");
-      }
+      checkManyValued(feature);
+      value = convertToCDO(cdoObject, feature, value);
 
       CDOFeatureDelta delta = new CDOAddFeatureDeltaImpl(feature, index, value);
-      InternalCDORevision revision = getRevisionForWriting(cdoObject, delta);
-      revision.add(feature, index, value);
+      getRevisionForWriting(cdoObject, delta);
+      // InternalCDORevision revision = getRevisionForWriting(cdoObject, delta);
+      // revision.add(feature, index, value);
     }
   }
 
@@ -482,39 +457,47 @@ public final class CDOStoreImpl implements CDOStore
         TRACER.format("remove({0}, {1}, {2})", cdoObject, feature, index); //$NON-NLS-1$
       }
 
-      Object oldValue = null;
+      Object oldValue = getListElement(cdoObject, feature, index);
+      oldValue = convertToEMF(eObject, cdoObject.cdoRevision(), feature, index, oldValue);
 
-      // Bug 293283 / Bug 314387
-      if (feature.isMany())
-      {
-        InternalCDORevision readLockedRevision = getRevisionForReading(cdoObject);
-        CDOList list = readLockedRevision.getList(feature);
-        int size = list.size();
-        if (index < 0 || size <= index)
-        {
-          throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
-        }
-      }
-      else
-      {
-        throw new UnsupportedOperationException("REMOVE is not supported for single-valued features");
-      }
+      CDOFeatureDelta delta = new CDORemoveFeatureDeltaImpl(feature, index, oldValue);
+      getRevisionForWriting(cdoObject, delta);
 
-      CDOFeatureDelta delta = new CDORemoveFeatureDeltaImpl(feature, index);
-      InternalCDORevision revision = getRevisionForWriting(cdoObject, delta);
-
-      oldValue = revision.get(feature, index);
-
-      try
-      {
-        oldValue = convertToEMF(eObject, revision, feature, index, oldValue);
-      }
-      finally
-      {
-        revision.remove(feature, index);
-      }
+      // InternalCDORevision revision = getRevisionForWriting(cdoObject, delta);
+      // try
+      // {
+      // oldValue = convertToEMF(eObject, revision, feature, index, oldValue);
+      // }
+      // finally
+      // {
+      // revision.remove(feature, index);
+      // }
 
       return oldValue;
+    }
+  }
+
+  private Object getListElement(InternalCDOObject object, EStructuralFeature feature, int index)
+  {
+    checkManyValued(feature);
+
+    // Bug 293283 / Bug 314387
+    InternalCDORevision readLockedRevision = getRevisionForReading(object);
+    CDOList list = readLockedRevision.getList(feature);
+    int size = list.size();
+    if (index < 0 || size <= index)
+    {
+      throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
+    }
+
+    return readLockedRevision.get(feature, index);
+  }
+
+  private void checkManyValued(EStructuralFeature feature)
+  {
+    if (!feature.isMany())
+    {
+      throw new UnsupportedOperationException("Single-valued features have no list elements");
     }
   }
 
@@ -529,9 +512,10 @@ public final class CDOStoreImpl implements CDOStore
       }
 
       CDOFeatureDelta delta = new CDOClearFeatureDeltaImpl(feature);
-      InternalCDORevision revision = getRevisionForWriting(cdoObject, delta);
-      // TODO Handle containment remove!!!
-      revision.clear(feature);
+      getRevisionForWriting(cdoObject, delta);
+      // InternalCDORevision revision = getRevisionForWriting(cdoObject, delta);
+      // // TODO Handle containment remove!!!
+      // revision.clear(feature);
     }
   }
 
@@ -545,12 +529,14 @@ public final class CDOStoreImpl implements CDOStore
         TRACER.format("move({0}, {1}, {2}, {3})", cdoObject, feature, target, source); //$NON-NLS-1$
       }
 
-      CDOFeatureDelta delta = new CDOMoveFeatureDeltaImpl(feature, target, source);
-      InternalCDORevision revision = getRevisionForWriting(cdoObject, delta);
-      Object result = revision.move(feature, target, source);
+      Object value = getListElement(cdoObject, feature, source);
+      CDOFeatureDelta delta = new CDOMoveFeatureDeltaImpl(feature, target, source, value);
 
-      result = convertToEMF(eObject, revision, feature, target, result);
-      return result;
+      InternalCDORevision revision = getRevisionForWriting(cdoObject, delta);
+      // value = revision.move(feature, target, source);
+
+      value = convertToEMF(eObject, revision, feature, target, value);
+      return value;
     }
   }
 
@@ -644,11 +630,13 @@ public final class CDOStoreImpl implements CDOStore
             CDOID id = (CDOID)value;
             CDOList list = revision.getList(feature);
             CDORevisionPrefetchingPolicy policy = view.options().getRevisionPrefetchingPolicy();
-            InternalCDORevisionManager revisionManager = view.getSession().getRevisionManager();
+
+            InternalCDOSession session = view.getSession();
+            InternalCDORevisionManager revisionManager = session.getRevisionManager();
             List<CDOID> listOfIDs = policy.loadAhead(revisionManager, view, eObject, feature, list, index, id);
             if (!listOfIDs.isEmpty())
             {
-              int initialChunkSize = view.getSession().options().getCollectionLoadingPolicy().getInitialChunkSize();
+              int initialChunkSize = session.options().getCollectionLoadingPolicy().getInitialChunkSize();
               revisionManager.getRevisions(listOfIDs, view, initialChunkSize, CDORevision.DEPTH_NONE, true);
             }
           }
@@ -718,19 +706,21 @@ public final class CDOStoreImpl implements CDOStore
 
   private static InternalCDORevision getRevisionForReading(InternalCDOObject cdoObject)
   {
-    CDOStateMachine.INSTANCE.read(cdoObject);
-    return getRevision(cdoObject);
+    return safe(CDOStateMachine2.INSTANCE.read(cdoObject));
   }
 
   private static InternalCDORevision getRevisionForWriting(InternalCDOObject cdoObject, CDOFeatureDelta delta)
   {
-    CDOStateMachine.INSTANCE.write(cdoObject, delta);
-    return getRevision(cdoObject);
+    return safe(CDOStateMachine2.INSTANCE.write(cdoObject, delta));
   }
 
   private static InternalCDORevision getRevision(InternalCDOObject cdoObject)
   {
-    InternalCDORevision revision = cdoObject.cdoRevision();
+    return safe(cdoObject.cdoRevision());
+  }
+
+  private static InternalCDORevision safe(InternalCDORevision revision)
+  {
     if (revision == null)
     {
       throw new IllegalStateException("revision == null");

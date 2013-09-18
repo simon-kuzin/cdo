@@ -68,6 +68,45 @@ public final class CDORevisionUtil
   {
   }
 
+  private static Object convertEObject(Object value)
+  {
+    CDOID id = CDOIDUtil.getCDOID(value);
+    if (id != null)
+    {
+      return id;
+    }
+
+    return value;
+  }
+
+  public static boolean areValuesEqual(Object value1, Object value2)
+  {
+    Object v1 = convertEObject(value1);
+    Object v2 = convertEObject(value2);
+
+    if (v1 == null)
+    {
+      return v2 == null;
+    }
+
+    if (v2 == null)
+    {
+      return false;
+    }
+
+    if (v1 == v2)
+    {
+      return true;
+    }
+
+    if (v1 instanceof CDOID)
+    {
+      return false;
+    }
+
+    return v1.equals(v2);
+  }
+
   /**
    * Creates and returns a new memory sensitive revision cache.
    *

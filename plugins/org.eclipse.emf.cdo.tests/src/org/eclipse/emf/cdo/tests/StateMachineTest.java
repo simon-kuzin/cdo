@@ -27,6 +27,7 @@ import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.cdo.util.CDOUtil;
 
 import org.eclipse.emf.internal.cdo.view.CDOStateMachine;
+import org.eclipse.emf.internal.cdo.view.CDOStateMachine2;
 
 import org.eclipse.net4j.util.io.IOUtil;
 
@@ -189,117 +190,6 @@ public class StateMachineTest extends AbstractCDOTest
 
   // ///////////////////////////////////////////////////
 
-  public void test_PREPARED_with_ATTACH() throws Exception
-  {
-    Supplier supplier = getModel1Factory().createSupplier();
-    supplier.setName("Stepper");
-    setState(supplier, CDOState.PREPARED);
-
-    try
-    {
-      testAttach(CDOUtil.getCDOObject(supplier));
-      fail("Expected NullPointerException due to revision==null");
-    }
-    catch (NullPointerException ex)
-    {
-    }
-  }
-
-  public void test_PREPARED_with_DETACH() throws Exception
-  {
-    Supplier supplier = getModel1Factory().createSupplier();
-    supplier.setName("Stepper");
-    setState(supplier, CDOState.PREPARED);
-
-    try
-    {
-      detach(supplier);
-      fail("IllegalStateException expected");
-    }
-    catch (IllegalStateException expected)
-    {
-      assertFailure(expected);
-    }
-  }
-
-  public void test_PREPARED_with_READ() throws Exception
-  {
-    Supplier supplier = getModel1Factory().createSupplier();
-    supplier.setName("Stepper");
-    setState(supplier, CDOState.PREPARED);
-    read(supplier);
-    assertEquals(CDOState.PREPARED, CDOUtil.getCDOObject(supplier).cdoState());
-  }
-
-  public void test_PREPARED_with_WRITE() throws Exception
-  {
-    Supplier supplier = getModel1Factory().createSupplier();
-    supplier.setName("Stepper");
-    setState(supplier, CDOState.PREPARED);
-
-    try
-    {
-      write(supplier);
-      fail("IllegalStateException expected");
-    }
-    catch (IllegalStateException expected)
-    {
-      assertFailure(expected);
-    }
-  }
-
-  public void test_PREPARED_with_INVALIDATE() throws Exception
-  {
-    Supplier supplier = getModel1Factory().createSupplier();
-    supplier.setName("Stepper");
-    setState(supplier, CDOState.PREPARED);
-
-    try
-    {
-      invalidate(supplier);
-      fail("IllegalStateException expected");
-    }
-    catch (IllegalStateException expected)
-    {
-      assertFailure(expected);
-    }
-  }
-
-  public void test_PREPARED_with_COMMIT() throws Exception
-  {
-    Supplier supplier = getModel1Factory().createSupplier();
-    supplier.setName("Stepper");
-    setState(supplier, CDOState.PREPARED);
-
-    try
-    {
-      commit(supplier, new CommitTransactionResult(null, BRANCH.getPoint(TIMESTAMP), CDOBranchPoint.UNSPECIFIED_DATE,
-          false));
-      fail("IllegalStateException expected");
-    }
-    catch (IllegalStateException expected)
-    {
-      assertFailure(expected);
-    }
-  }
-
-  public void test_PREPARED_with_ROLLBACK() throws Exception
-  {
-    Supplier supplier = getModel1Factory().createSupplier();
-    supplier.setName("Stepper");
-    setState(supplier, CDOState.PREPARED);
-
-    try
-    {
-      rollback(supplier);
-      fail("IllegalStateException expected");
-    }
-    catch (IllegalStateException expected)
-    {
-      assertFailure(expected);
-    }
-  }
-
   // ///////////////////////////////////////////////////
 
   public void test_NEW_with_ATTACH() throws Exception
@@ -418,7 +308,7 @@ public class StateMachineTest extends AbstractCDOTest
   private static void assertFailure(IllegalStateException ex)
   {
     IOUtil.print(ex);
-    assertEquals("Expected FAIL transition", true, ex.getMessage().startsWith("Failing event "));
+    assertEquals("Expected FAIL transition", true, ex.getMessage().startsWith(CDOStateMachine2.State.FAIL_PREFIX));
   }
 
   private static void setState(EObject object, CDOState state)
@@ -435,7 +325,7 @@ public class StateMachineTest extends AbstractCDOTest
     CDOObject cdoObject = CDOUtil.getCDOObject(object);
     if (cdoObject != null)
     {
-      CDOStateMachine.INSTANCE.detach((InternalCDOObject)cdoObject);
+      CDOStateMachine2.INSTANCE.detach((InternalCDOObject)cdoObject);
     }
   }
 
@@ -444,7 +334,7 @@ public class StateMachineTest extends AbstractCDOTest
     CDOObject cdoObject = CDOUtil.getCDOObject(object);
     if (cdoObject != null)
     {
-      CDOStateMachine.INSTANCE.read((InternalCDOObject)cdoObject);
+      CDOStateMachine2.INSTANCE.read((InternalCDOObject)cdoObject);
     }
   }
 
@@ -453,7 +343,7 @@ public class StateMachineTest extends AbstractCDOTest
     CDOObject cdoObject = CDOUtil.getCDOObject(object);
     if (cdoObject != null)
     {
-      CDOStateMachine.INSTANCE.write((InternalCDOObject)cdoObject);
+      CDOStateMachine2.INSTANCE.write((InternalCDOObject)cdoObject, null);
     }
   }
 
@@ -462,7 +352,7 @@ public class StateMachineTest extends AbstractCDOTest
     CDOObject cdoObject = CDOUtil.getCDOObject(object);
     if (cdoObject != null)
     {
-      CDOStateMachine.INSTANCE.invalidate((InternalCDOObject)cdoObject, null);
+      CDOStateMachine2.INSTANCE.invalidate((InternalCDOObject)cdoObject, null);
     }
   }
 
@@ -471,7 +361,7 @@ public class StateMachineTest extends AbstractCDOTest
     CDOObject cdoObject = CDOUtil.getCDOObject(object);
     if (cdoObject != null)
     {
-      CDOStateMachine.INSTANCE.commit((InternalCDOObject)cdoObject, result);
+      CDOStateMachine2.INSTANCE.commit((InternalCDOObject)cdoObject, result);
     }
   }
 
@@ -480,7 +370,7 @@ public class StateMachineTest extends AbstractCDOTest
     CDOObject cdoObject = CDOUtil.getCDOObject(object);
     if (cdoObject != null)
     {
-      CDOStateMachine.INSTANCE.rollback((InternalCDOObject)cdoObject);
+      CDOStateMachine2.INSTANCE.rollback((InternalCDOObject)cdoObject);
     }
   }
 
@@ -501,7 +391,7 @@ public class StateMachineTest extends AbstractCDOTest
     {
       method = CDOStateMachine.class.getDeclaredMethod(methodName, new Class[] { InternalCDOObject.class });
       method.setAccessible(true);
-      method.invoke(CDOStateMachine.INSTANCE, object);
+      method.invoke(CDOStateMachine2.INSTANCE, object);
     }
     catch (RuntimeException ex)
     {

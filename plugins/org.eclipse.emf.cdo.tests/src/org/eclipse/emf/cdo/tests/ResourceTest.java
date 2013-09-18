@@ -445,26 +445,25 @@ public class ResourceTest extends AbstractCDOTest
 
   public void testRemoveResourceByIndex() throws Exception
   {
-    final int trees = 5;
-    final int depth = 5;
-    int count = 0;
+    final int trees = 4;
+    final int depth = 3;
+
+    final int treeToRemove = 3;
+    int treeSize;
 
     {
       CDOSession session = openSession();
       CDOTransaction transaction = session.openTransaction();
       CDOResource resource = transaction.createResource(getResourcePath("/test1"));
+
+      EList<EObject> contents = resource.getContents();
       for (int i = 0; i < trees; i++)
       {
-        Category tree = createCategoryTree(depth);
-        if (count == 0)
-        {
-          count = 1 + countObjects(tree);
-        }
-
-        resource.getContents().add(tree);
+        contents.add(createCategoryTree(depth));
       }
 
       transaction.commit();
+      treeSize = countObjects(contents.get(treeToRemove));
       session.close();
     }
 
@@ -474,15 +473,18 @@ public class ResourceTest extends AbstractCDOTest
 
     CDOResource resource = transaction.getResource(getResourcePath("/test1"));
     EList<EObject> contents = resource.getContents();
-    int expected = ((InternalCDOTransaction)transaction).getObjects().size() + count;
 
-    contents.remove(3);
-    assertEquals(expected, ((InternalCDOTransaction)transaction).getObjects().size());
+    EObject keepObjectInMemory = contents.remove(treeToRemove);
+    assertEquals(1, ((InternalCDOTransaction)transaction).getObjects().size());
+    assertEquals(1 + treeSize, ((InternalCDOTransaction)transaction).getLastSavepoint().getChangeInfos().size());
+    assertEquals(treeSize, ((InternalCDOTransaction)transaction).getLastSavepoint().getDetachedInfos().size());
+
+    keepObjectInMemory.getClass(); // Prevent compiler optimizations
   }
 
   private int countObjects(EObject tree)
   {
-    int count = 0;
+    int count = 1; // Root
     for (TreeIterator<EObject> it = tree.eAllContents(); it.hasNext();)
     {
       it.next();

@@ -548,7 +548,7 @@ public class DefaultCDOMerger implements CDOMerger
           CDOFeatureDelta featureDelta = changedInTarget(targetFeatureDelta);
           if (featureDelta != null)
           {
-            result.addFeatureDelta(featureDelta, null);
+            result.mergeFeatureDelta(featureDelta, null);
           }
         }
         else
@@ -556,7 +556,7 @@ public class DefaultCDOMerger implements CDOMerger
           CDOFeatureDelta featureDelta = changedInSourceAndTarget(targetFeatureDelta, sourceFeatureDelta);
           if (featureDelta != null)
           {
-            result.addFeatureDelta(featureDelta, null);
+            result.mergeFeatureDelta(featureDelta, null);
           }
           else
           {
@@ -583,8 +583,8 @@ public class DefaultCDOMerger implements CDOMerger
               }
             }
 
-            ((InternalCDORevisionDelta)conflict.getTargetDelta()).addFeatureDelta(targetFeatureDelta, null);
-            ((InternalCDORevisionDelta)conflict.getSourceDelta()).addFeatureDelta(sourceFeatureDelta, null);
+            ((InternalCDORevisionDelta)conflict.getTargetDelta()).mergeFeatureDelta(targetFeatureDelta, null);
+            ((InternalCDORevisionDelta)conflict.getSourceDelta()).mergeFeatureDelta(sourceFeatureDelta, null);
           }
         }
       }
@@ -599,7 +599,7 @@ public class DefaultCDOMerger implements CDOMerger
           CDOFeatureDelta featureDelta = changedInSource(sourceFeatureDelta);
           if (featureDelta != null)
           {
-            result.addFeatureDelta(featureDelta, null);
+            result.mergeFeatureDelta(featureDelta, null);
           }
         }
       }
@@ -781,7 +781,7 @@ public class DefaultCDOMerger implements CDOMerger
 
         for (int i = 0; i < originSize; i++)
         {
-          expandedDeltas.add(new CDORemoveFeatureDeltaImpl(feature, 0));
+          expandedDeltas.add(new CDORemoveFeatureDeltaImpl(feature, 0, CDOFeatureDelta.UNKNOWN_VALUE));
         }
 
         return expandedDeltas;

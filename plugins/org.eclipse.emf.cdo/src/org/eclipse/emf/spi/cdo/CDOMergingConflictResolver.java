@@ -105,7 +105,6 @@ public class CDOMergingConflictResolver extends AbstractChangeSetsConflictResolv
     InternalCDOTransaction transaction = (InternalCDOTransaction)getTransaction();
     InternalCDOSavepoint savepoint = transaction.getLastSavepoint();
 
-    Map<InternalCDOObject, InternalCDORevision> cleanRevisions = transaction.getCleanRevisions();
     Map<CDOID, CDOObject> dirtyObjects = savepoint.getDirtyObjects();
     // final ObjectsMapUpdater newObjectsUpdater = new ObjectsMapUpdater(savepoint.getNewObjects());
     final ObjectsMapUpdater detachedObjectsUpdater = new ObjectsMapUpdater(savepoint.getDetachedObjects());
@@ -125,7 +124,7 @@ public class CDOMergingConflictResolver extends AbstractChangeSetsConflictResolv
         int newVersion = localRevision.getVersion() + 1;
 
         // Compute new local revision
-        InternalCDORevision cleanRevision = cleanRevisions.get(object);
+        InternalCDORevision cleanRevision = transaction.getCleanRevision(object);
         if (cleanRevision == null)
         {
           // In this case the object revision *is clean*
@@ -159,7 +158,8 @@ public class CDOMergingConflictResolver extends AbstractChangeSetsConflictResolv
           localDeltas.put(id, newLocalDelta);
           object.cdoInternalSetState(CDOState.DIRTY);
 
-          cleanRevisions.put(object, newCleanRevision);
+          int xxx;
+          // cleanRevisions.put(object, newCleanRevision);
           dirtyObjects.put(id, object);
 
           newLocalDelta.accept(new CDOFeatureDeltaVisitorImpl()

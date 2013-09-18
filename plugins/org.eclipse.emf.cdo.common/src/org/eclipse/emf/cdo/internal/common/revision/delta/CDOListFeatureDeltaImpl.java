@@ -44,7 +44,7 @@ import java.util.Map;
 /**
  * @author Simon McDuff
  */
-public class CDOListFeatureDeltaImpl extends CDOFeatureDeltaImpl implements CDOListFeatureDelta
+public final class CDOListFeatureDeltaImpl extends CDOFeatureDeltaImpl implements CDOListFeatureDelta
 {
   private final int originSize;
 
@@ -398,7 +398,7 @@ public class CDOListFeatureDeltaImpl extends CDOFeatureDeltaImpl implements CDOL
     return true;
   }
 
-  public void add(CDOFeatureDelta featureDelta)
+  public void mergeFeatureDelta(CDOFeatureDelta featureDelta)
   {
     // Only adds the feature delta to the list if required.
     if (cleanupWithNewDelta(featureDelta))

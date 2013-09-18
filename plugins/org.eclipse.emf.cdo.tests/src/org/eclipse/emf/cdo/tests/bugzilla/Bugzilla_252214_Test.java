@@ -21,7 +21,7 @@ import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.cdo.util.CDOUtil;
 import org.eclipse.emf.cdo.view.CDOView;
 
-import org.eclipse.emf.internal.cdo.view.CDOStateMachine;
+import org.eclipse.emf.internal.cdo.view.CDOStateMachine2;
 
 import org.eclipse.emf.spi.cdo.InternalCDOObject;
 
@@ -75,7 +75,7 @@ public class Bugzilla_252214_Test extends AbstractCDOTest
       CDOResource auditResource = audit.getResource(getResourcePath("/res1"));
       Company auditCompany = (Company)auditResource.getContents().get(0);
       CDOObject cdoAuditCompany = CDOUtil.getCDOObject(auditCompany);
-      CDOStateMachine.INSTANCE.invalidate((InternalCDOObject)cdoAuditCompany, null);
+      CDOStateMachine2.INSTANCE.invalidate((InternalCDOObject)cdoAuditCompany, null);
     }
 
     audit.setTimeStamp(commitTime2);

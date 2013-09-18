@@ -66,7 +66,7 @@ public class CDOCollectionLoadingPolicyImpl implements CDOCollectionLoadingPolic
     doResolveProxy(revision, feature, 0, 0, Integer.MAX_VALUE);
   }
 
-  public Object resolveProxy(CDORevision rev, EStructuralFeature feature, int accessIndex, int serverIndex)
+  public Object resolveProxy(CDORevision revision, EStructuralFeature feature, int accessIndex, int serverIndex)
   {
     int chunkSize = resolveChunkSize;
     if (chunkSize == CDORevision.UNCHUNKED)
@@ -75,26 +75,27 @@ public class CDOCollectionLoadingPolicyImpl implements CDOCollectionLoadingPolic
       chunkSize = Integer.MAX_VALUE;
     }
 
-    return doResolveProxy(rev, feature, accessIndex, serverIndex, chunkSize);
+    return doResolveProxy(revision, feature, accessIndex, serverIndex, chunkSize);
   }
 
-  private Object doResolveProxy(CDORevision rev, EStructuralFeature feature, int accessIndex, int serverIndex,
+  private Object doResolveProxy(CDORevision revision, EStructuralFeature feature, int accessIndex, int serverIndex,
       int chunkSize)
   {
     // Get proxy values
-    InternalCDORevision revision = (InternalCDORevision)rev;
-    int fetchIndex = serverIndex;
-
-    MoveableList<Object> list = revision.getList(feature);
+    InternalCDORevision rev = (InternalCDORevision)revision;
+    MoveableList<Object> list = rev.getList(feature);
     int size = list.size();
+
     int fromIndex = accessIndex;
     int toIndex = accessIndex;
+
     boolean minReached = false;
     boolean maxReached = false;
-    boolean alternation = false;
+    boolean towardsEnd = false;
+
     for (int i = 0; i < chunkSize; i++)
     {
-      if (alternation)
+      if (towardsEnd)
       {
         if (!maxReached && toIndex < size - 1 && list.get(toIndex + 1) instanceof CDOElementProxy)
         {
@@ -107,7 +108,7 @@ public class CDOCollectionLoadingPolicyImpl implements CDOCollectionLoadingPolic
 
         if (!minReached)
         {
-          alternation = false;
+          towardsEnd = false;
         }
       }
       else
@@ -123,7 +124,7 @@ public class CDOCollectionLoadingPolicyImpl implements CDOCollectionLoadingPolic
 
         if (!maxReached)
         {
-          alternation = true;
+          towardsEnd = true;
         }
       }
 
@@ -134,6 +135,6 @@ public class CDOCollectionLoadingPolicyImpl implements CDOCollectionLoadingPolic
     }
 
     CDOSessionProtocol protocol = ((InternalCDOSession)session).getSessionProtocol();
-    return protocol.loadChunk(revision, feature, accessIndex, fetchIndex, fromIndex, toIndex);
+    return protocol.loadChunk(rev, feature, accessIndex, serverIndex, fromIndex, toIndex);
   }
 }

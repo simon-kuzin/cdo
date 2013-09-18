@@ -42,9 +42,19 @@ public interface InternalCDOObject extends CDOObject, InternalEObject, InternalC
 
   public InternalCDORevision cdoRevision();
 
+  /**
+   * Migrates the object values from the instance to the revision.
+   * <p>
+   * This object must be in state PREPARED, so that eStore() uses the instance and cdoStore() uses the revision. 
+   */
   public void cdoInternalPostAttach();
 
-  public void cdoInternalPostDetach(boolean remote);
+  /**
+   * Migrates the object values from the revision to the instance.
+   * <p>
+   * This object must be in state TRANSIENT, so that eStore() uses the instance and cdoStore() uses the revision. 
+   */
+  public void cdoInternalPostDetach(boolean remote); // TODO Rename to preDetach
 
   public void cdoInternalPostInvalidate();
 

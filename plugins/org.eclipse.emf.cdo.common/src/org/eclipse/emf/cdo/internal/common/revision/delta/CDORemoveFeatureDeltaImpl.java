@@ -28,12 +28,12 @@ import java.io.IOException;
 /**
  * @author Simon McDuff
  */
-public class CDORemoveFeatureDeltaImpl extends CDOSingleValueFeatureDeltaImpl implements CDORemoveFeatureDelta,
+public final class CDORemoveFeatureDeltaImpl extends CDOSingleValueFeatureDeltaImpl implements CDORemoveFeatureDelta,
     ListIndexAffecting
 {
-  public CDORemoveFeatureDeltaImpl(EStructuralFeature feature, int index)
+  public CDORemoveFeatureDeltaImpl(EStructuralFeature feature, int index, Object value)
   {
-    super(feature, index, UNKNOWN_VALUE);
+    super(feature, index, value);
   }
 
   public CDORemoveFeatureDeltaImpl(CDODataInput in, EClass eClass) throws IOException
@@ -60,7 +60,7 @@ public class CDORemoveFeatureDeltaImpl extends CDOSingleValueFeatureDeltaImpl im
 
   public CDOFeatureDelta copy()
   {
-    CDORemoveFeatureDeltaImpl delta = new CDORemoveFeatureDeltaImpl(getFeature(), getIndex());
+    CDORemoveFeatureDeltaImpl delta = new CDORemoveFeatureDeltaImpl(getFeature(), getIndex(), getValue());
     delta.setValue(getValue());
     return delta;
   }

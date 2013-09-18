@@ -34,7 +34,7 @@ import org.eclipse.emf.cdo.util.CDOUtil;
 import org.eclipse.emf.cdo.view.CDOView;
 import org.eclipse.emf.cdo.view.CDOViewTargetChangedEvent;
 
-import org.eclipse.emf.internal.cdo.view.CDOStateMachine;
+import org.eclipse.emf.internal.cdo.view.CDOStateMachine2;
 
 import org.eclipse.net4j.util.event.IEvent;
 import org.eclipse.net4j.util.event.IListener;
@@ -1190,7 +1190,6 @@ public class CDOEditor extends MultiPageEditorPart implements IEditingDomainProv
                 switch (cdoObject.cdoState())
                 {
                 case TRANSIENT:
-                case PREPARED:
                 case INVALID:
                 case INVALID_CONFLICT:
                   it.remove();
@@ -1275,7 +1274,7 @@ public class CDOEditor extends MultiPageEditorPart implements IEditingDomainProv
         {
           if (CDOUtil.isLegacyObject(cdoObject))
           {
-            CDOStateMachine.INSTANCE.read(cdoObject);
+            CDOStateMachine2.INSTANCE.read(cdoObject);
           }
         }
 

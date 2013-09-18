@@ -31,7 +31,8 @@ public enum CDOState
   INVALID_CONFLICT,
 
   /**
-   * An intermediary state for internal use only. This state marks the first of two phases during an attach operation.
+   * Indicates that the object had been changed in a transaction, 
+   * but has then been changed back to its clean state.
    */
   PREPARED
 }

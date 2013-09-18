@@ -36,7 +36,7 @@ import org.eclipse.emf.cdo.view.CDOViewInvalidationEvent;
 import org.eclipse.emf.internal.cdo.bundle.OM;
 import org.eclipse.emf.internal.cdo.messages.Messages;
 import org.eclipse.emf.internal.cdo.object.CDOObjectMerger;
-import org.eclipse.emf.internal.cdo.view.CDOStateMachine;
+import org.eclipse.emf.internal.cdo.view.CDOStateMachine2;
 
 import org.eclipse.net4j.util.collection.Pair;
 import org.eclipse.net4j.util.event.IEvent;
@@ -129,12 +129,12 @@ public abstract class AbstractObjectConflictResolver extends AbstractConflictRes
   @Deprecated
   public static void rollbackObject(CDOObject object)
   {
-    CDOStateMachine.INSTANCE.rollback((InternalCDOObject)object);
+    CDOStateMachine2.INSTANCE.rollback((InternalCDOObject)object);
   }
 
   public static void readObject(CDOObject object)
   {
-    CDOStateMachine.INSTANCE.read((InternalCDOObject)object);
+    CDOStateMachine2.INSTANCE.read((InternalCDOObject)object);
   }
 
   /**
@@ -377,7 +377,7 @@ public abstract class AbstractObjectConflictResolver extends AbstractConflictRes
         for (CDOFeatureDelta remoteFeatureDelta : remoteDelta.getFeatureDeltas())
         {
           // TODO Add public API for this:
-          ((InternalCDORevisionDelta)localDelta).addFeatureDelta(remoteFeatureDelta, null);
+          ((InternalCDORevisionDelta)localDelta).mergeFeatureDelta(remoteFeatureDelta, null);
         }
       }
 

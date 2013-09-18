@@ -355,21 +355,22 @@ public class CDOWorkspaceImpl extends Notifier implements InternalCDOWorkspace
         InternalCDOTransaction tx = (InternalCDOTransaction)transaction;
         Set<CDOID> dirtyObjects = tx.getDirtyObjects().keySet();
         Set<CDOID> detachedObjects = tx.getDetachedObjects().keySet();
-        for (InternalCDORevision revision : tx.getCleanRevisions().values())
-        {
-          CDOID id = revision.getID();
-          boolean isDetached = detachedObjects.contains(id);
-
-          if (isDetached && base.isAddedObject(id))
-          {
-            base.deregisterObject(id);
-          }
-
-          if (dirtyObjects.contains(id) || isDetached)
-          {
-            base.registerChangedOrDetachedObject(revision);
-          }
-        }
+        int xxx;
+        // for (InternalCDORevision revision : tx.getCleanRevisions().values())
+        // {
+        // CDOID id = revision.getID();
+        // boolean isDetached = detachedObjects.contains(id);
+        //
+        // if (isDetached && base.isAddedObject(id))
+        // {
+        // base.deregisterObject(id);
+        // }
+        //
+        // if (dirtyObjects.contains(id) || isDetached)
+        // {
+        // base.registerChangedOrDetachedObject(revision);
+        // }
+        // }
 
         // Don't use keySet() because only the values() are ID-mapped!
         for (CDOObject object : tx.getNewObjects().values())

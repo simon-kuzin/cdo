@@ -25,12 +25,10 @@ import org.eclipse.emf.cdo.util.CDOUtil;
 import org.eclipse.emf.cdo.util.CommitException;
 
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.spi.cdo.InternalCDOObject;
 import org.eclipse.emf.spi.cdo.InternalCDOTransaction;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Bug 350987: Revision compare does not consider EObject values in references
@@ -76,9 +74,7 @@ public class Bugzilla_350987_Test extends AbstractCDOTest
     CDOObject cdoOrderDetail = CDOUtil.getCDOObject(orderDetail);
     CDORevision revision = cdoOrderDetail.cdoRevision();
 
-    Map<InternalCDOObject, InternalCDORevision> cleanRevisions = ((InternalCDOTransaction)transaction)
-        .getCleanRevisions();
-    InternalCDORevision originRevision = cleanRevisions.get(cdoOrderDetail);
+    InternalCDORevision originRevision = ((InternalCDOTransaction)transaction).getCleanRevision(cdoOrderDetail);
 
     CDORevisionDelta delta = revision.compare(originRevision);
 
@@ -97,7 +93,7 @@ public class Bugzilla_350987_Test extends AbstractCDOTest
 
     // Element shouldn't be added
     assertEquals(previousSize, product.getOrderDetails().size());
-    originRevision = cleanRevisions.get(cdoProduct);
+    originRevision = ((InternalCDOTransaction)transaction).getCleanRevision(cdoProduct);
     delta = revision.compare(originRevision);
 
     // Comparing with clean revision should not give changes

@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.emf.cdo" version="2">
+    <resource path="META-INF/MANIFEST.MF">
+        <filter id="923795461">
+            <message_arguments>
+                <message_argument value="4.3.0"/>
+                <message_argument value="4.2.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="META-INF/MANIFEST.MF" type="org.eclipse.emf.cdo.spi.common.id.AbstractCDOIDByteArray">
         <filter id="305422471">
             <message_arguments>
@@ -132,6 +140,11 @@
                 <message_argument value="CDOSavepoint"/>
             </message_arguments>
         </filter>
+        <filter id="1211105284">
+            <message_arguments>
+                <message_argument value="isEmpty()"/>
+            </message_arguments>
+        </filter>
     </resource>
     <resource path="src/org/eclipse/emf/cdo/transaction/CDOTransaction.java" type="org.eclipse.emf.cdo.transaction.CDOTransaction">
         <filter id="571473929">
@@ -144,6 +157,20 @@
             <message_arguments>
                 <message_argument value="CDOCommonTransaction"/>
                 <message_argument value="CDOTransaction"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/emf/cdo/transaction/CDOTransactionFinishedEvent.java" type="org.eclipse.emf.cdo.transaction.CDOTransactionFinishedEvent">
+        <filter id="1211105284">
+            <message_arguments>
+                <message_argument value="getReason()"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/emf/cdo/transaction/CDOTransactionFinishedEvent.java" type="org.eclipse.emf.cdo.transaction.CDOTransactionFinishedEvent$Reason">
+        <filter id="1211105284">
+            <message_arguments>
+                <message_argument value="Reason"/>
             </message_arguments>
         </filter>
     </resource>
@@ -613,6 +640,39 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="src/org/eclipse/emf/internal/cdo/view/CDOStateMachine2.java" type="org.eclipse.emf.internal.cdo.view.CDOStateMachine2$Attached$Dirty">
+        <filter id="574668824">
+            <message_arguments>
+                <message_argument value="ChangeInfo"/>
+                <message_argument value="Dirty"/>
+                <message_argument value="CDOIDAndVersion"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/emf/internal/cdo/view/CDOStateMachine2.java" type="org.eclipse.emf.internal.cdo.view.CDOStateMachine2$Attached$New">
+        <filter id="574668824">
+            <message_arguments>
+                <message_argument value="ChangeInfo"/>
+                <message_argument value="New"/>
+                <message_argument value="CDOIDAndVersion"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/emf/internal/cdo/view/CDOStateMachine2.java" type="org.eclipse.emf.internal.cdo.view.CDOStateMachine2$Unattached$Detached">
+        <filter id="574619656">
+            <message_arguments>
+                <message_argument value="CDOIDAndVersion"/>
+                <message_argument value="Detached"/>
+            </message_arguments>
+        </filter>
+        <filter id="574668824">
+            <message_arguments>
+                <message_argument value="ChangeInfo"/>
+                <message_argument value="Detached"/>
+                <message_argument value="CDOIDAndVersion"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="src/org/eclipse/emf/internal/cdo/view/CDOViewImpl.java" type="org.eclipse.emf.internal.cdo.view.CDOViewImpl$OptionsImpl">
         <filter id="574660632">
             <message_arguments>
@@ -664,6 +724,179 @@
             <message_arguments>
                 <message_argument value="CDOObjectMarker"/>
                 <message_argument value="InternalCDOObject"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/emf/spi/cdo/InternalCDOSavepoint.java" type="org.eclipse.emf.spi.cdo.InternalCDOSavepoint">
+        <filter id="1211105284">
+            <message_arguments>
+                <message_argument value="addChangeInfo(InternalCDOSavepoint.ChangeInfo)"/>
+            </message_arguments>
+        </filter>
+        <filter id="1211105284">
+            <message_arguments>
+                <message_argument value="attachObject(InternalCDOObject)"/>
+            </message_arguments>
+        </filter>
+        <filter id="1211105284">
+            <message_arguments>
+                <message_argument value="getChangeInfo(CDOID)"/>
+            </message_arguments>
+        </filter>
+        <filter id="1211105284">
+            <message_arguments>
+                <message_argument value="getChangeInfos()"/>
+            </message_arguments>
+        </filter>
+        <filter id="1211105284">
+            <message_arguments>
+                <message_argument value="getDetachedInfo(CDOObject)"/>
+            </message_arguments>
+        </filter>
+        <filter id="1211105284">
+            <message_arguments>
+                <message_argument value="getDetachedInfos()"/>
+            </message_arguments>
+        </filter>
+        <filter id="1211105284">
+            <message_arguments>
+                <message_argument value="isDetachedObject(CDOID)"/>
+            </message_arguments>
+        </filter>
+        <filter id="1211105284">
+            <message_arguments>
+                <message_argument value="isInMemory()"/>
+            </message_arguments>
+        </filter>
+        <filter id="1211105284">
+            <message_arguments>
+                <message_argument value="removeChangeInfo(CDOID)"/>
+            </message_arguments>
+        </filter>
+        <filter id="1211105284">
+            <message_arguments>
+                <message_argument value="removeChangeInfo(CDOObject)"/>
+            </message_arguments>
+        </filter>
+        <filter id="1211105284">
+            <message_arguments>
+                <message_argument value="removeObject(InternalCDOObject)"/>
+            </message_arguments>
+        </filter>
+        <filter id="1211105284">
+            <message_arguments>
+                <message_argument value="setInMemory(boolean)"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/emf/spi/cdo/InternalCDOSavepoint.java" type="org.eclipse.emf.spi.cdo.InternalCDOSavepoint$ChangeInfo">
+        <filter id="571473929">
+            <message_arguments>
+                <message_argument value="CDOIDAndVersion"/>
+                <message_argument value="ChangeInfo"/>
+            </message_arguments>
+        </filter>
+        <filter id="1211105284">
+            <message_arguments>
+                <message_argument value="ChangeInfo"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/emf/spi/cdo/InternalCDOTransaction.java" type="org.eclipse.emf.spi.cdo.InternalCDOTransaction">
+        <filter id="405901410">
+            <message_arguments>
+                <message_argument value="org.eclipse.emf.spi.cdo.InternalCDOTransaction"/>
+                <message_argument value="getCleanRevisions()"/>
+            </message_arguments>
+        </filter>
+        <filter id="405901410">
+            <message_arguments>
+                <message_argument value="org.eclipse.emf.spi.cdo.InternalCDOTransaction"/>
+                <message_argument value="registerAttached(InternalCDOObject, boolean)"/>
+            </message_arguments>
+        </filter>
+        <filter id="405901410">
+            <message_arguments>
+                <message_argument value="org.eclipse.emf.spi.cdo.InternalCDOTransaction"/>
+                <message_argument value="registerDirty(InternalCDOObject, CDOFeatureDelta)"/>
+            </message_arguments>
+        </filter>
+        <filter id="405901410">
+            <message_arguments>
+                <message_argument value="org.eclipse.emf.spi.cdo.InternalCDOTransaction"/>
+                <message_argument value="registerFeatureDelta(InternalCDOObject, CDOFeatureDelta)"/>
+            </message_arguments>
+        </filter>
+        <filter id="405901410">
+            <message_arguments>
+                <message_argument value="org.eclipse.emf.spi.cdo.InternalCDOTransaction"/>
+                <message_argument value="registerRevisionDelta(CDORevisionDelta)"/>
+            </message_arguments>
+        </filter>
+        <filter id="1209008130">
+            <message_arguments>
+                <message_argument value="4.0"/>
+                <message_argument value="4.3"/>
+                <message_argument value="_getCleanRevisions()"/>
+            </message_arguments>
+        </filter>
+        <filter id="1209008130">
+            <message_arguments>
+                <message_argument value="4.0"/>
+                <message_argument value="4.3"/>
+                <message_argument value="_registerAttached(InternalCDOObject, boolean)"/>
+            </message_arguments>
+        </filter>
+        <filter id="1211105284">
+            <message_arguments>
+                <message_argument value="_registerDirty(InternalCDOObject, CDOFeatureDelta)"/>
+            </message_arguments>
+        </filter>
+        <filter id="1211105284">
+            <message_arguments>
+                <message_argument value="_registerFeatureDelta(InternalCDOObject, CDOFeatureDelta)"/>
+            </message_arguments>
+        </filter>
+        <filter id="1211105284">
+            <message_arguments>
+                <message_argument value="_registerRevisionDelta(CDORevisionDelta)"/>
+            </message_arguments>
+        </filter>
+        <filter id="1211105284">
+            <message_arguments>
+                <message_argument value="attachObject(InternalCDOObject)"/>
+            </message_arguments>
+        </filter>
+        <filter id="1211105284">
+            <message_arguments>
+                <message_argument value="getCleanRevision(CDOObject)"/>
+            </message_arguments>
+        </filter>
+        <filter id="1211105284">
+            <message_arguments>
+                <message_argument value="handleAttachingObject(CDOObject)"/>
+            </message_arguments>
+        </filter>
+        <filter id="1211105284">
+            <message_arguments>
+                <message_argument value="handleDetachingObject(CDOObject)"/>
+            </message_arguments>
+        </filter>
+        <filter id="1211105284">
+            <message_arguments>
+                <message_argument value="handleModifyingObject(CDOObject, CDOFeatureDelta)"/>
+            </message_arguments>
+        </filter>
+        <filter id="1211105284">
+            <message_arguments>
+                <message_argument value="updateDirtyState(boolean)"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/emf/spi/cdo/InternalCDOView.java" type="org.eclipse.emf.spi.cdo.InternalCDOView">
+        <filter id="1211105284">
+            <message_arguments>
+                <message_argument value="dispatchLoadNotification(InternalCDOObject)"/>
             </message_arguments>
         </filter>
     </resource>

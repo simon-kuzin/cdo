@@ -39,15 +39,7 @@ public interface CDOSavepoint extends CDOUserSavepoint, CDOChangeSetDataProvider
 
   public CDOSavepoint getPreviousSavepoint();
 
-  /**
-   * @since 3.0
-   */
-  public boolean wasDirty();
-
-  /**
-   * @since 3.0
-   */
-  public Map<CDOID, CDORevision> getBaseNewObjects();
+  public boolean isEmpty();
 
   /**
    * @since 3.0
@@ -60,16 +52,52 @@ public interface CDOSavepoint extends CDOUserSavepoint, CDOChangeSetDataProvider
   public Map<CDOID, CDOObject> getDetachedObjects();
 
   /**
-   * Bug 283985 (Re-attachment)
+   * @since 3.0
+   */
+  public Map<CDOID, CDOObject> getDirtyObjects();
+
+  /**
+   * @since 4.2
+   */
+  public Map<CDOID, CDORevisionDelta> getRevisionDeltas2();
+
+  /**
+   * Return the list of new objects from this point without objects that are removed.
    *
    * @since 3.0
    */
-  public Map<CDOID, CDOObject> getReattachedObjects();
+  public Map<CDOID, CDOObject> getAllNewObjects();
+
+  /**
+   * Return the list of new objects from this point.
+   *
+   * @since 3.0
+   */
+  public Map<CDOID, CDOObject> getAllDirtyObjects();
 
   /**
    * @since 3.0
    */
-  public Map<CDOID, CDOObject> getDirtyObjects();
+  public Map<CDOID, CDOObject> getAllDetachedObjects();
+
+  /**
+   * Return the list of all deltas without objects that are removed.
+   *
+   * @since 3.0
+   */
+  public Map<CDOID, CDORevisionDelta> getAllRevisionDeltas();
+
+  /**
+   * @since 4.0
+   */
+  public CDOChangeSetData getAllChangeSetData();
+
+  /**
+   * @since 3.0
+   * @deprecated As of 4.3 no longer supported.
+   */
+  @Deprecated
+  public boolean wasDirty();
 
   /**
    * The returned map delegates to {@link #getRevisionDeltas2()} and does <b>not</b> support the following methods:
@@ -88,43 +116,25 @@ public interface CDOSavepoint extends CDOUserSavepoint, CDOChangeSetDataProvider
   public ConcurrentMap<CDOID, CDORevisionDelta> getRevisionDeltas();
 
   /**
-   * @since 4.2
+   * @since 3.0
+   * @deprecated As of 4.3 no longer supported.
    */
-  public Map<CDOID, CDORevisionDelta> getRevisionDeltas2();
+  @Deprecated
+  public Map<CDOID, CDORevision> getBaseNewObjects();
 
   /**
    * @since 3.0
+   * @deprecated As of 4.3 no longer supported.
    */
+  @Deprecated
   public Map<CDOID, CDORevision> getAllBaseNewObjects();
 
   /**
-   * Return the list of new objects from this point without objects that are removed.
+   * Bug 283985 (Re-attachment)
    *
    * @since 3.0
+   * @deprecated As of 4.3 no longer supported.
    */
-  public Map<CDOID, CDOObject> getAllNewObjects();
-
-  /**
-   * @since 3.0
-   */
-  public Map<CDOID, CDOObject> getAllDetachedObjects();
-
-  /**
-   * Return the list of new objects from this point.
-   *
-   * @since 3.0
-   */
-  public Map<CDOID, CDOObject> getAllDirtyObjects();
-
-  /**
-   * Return the list of all deltas without objects that are removed.
-   *
-   * @since 3.0
-   */
-  public Map<CDOID, CDORevisionDelta> getAllRevisionDeltas();
-
-  /**
-   * @since 4.0
-   */
-  public CDOChangeSetData getAllChangeSetData();
+  @Deprecated
+  public Map<CDOID, CDOObject> getReattachedObjects();
 }

@@ -95,7 +95,7 @@ public class CDOSingleTransactionStrategyImpl implements CDOTransactionStrategy
         throw new CommitException(rollbackMessage);
 
       default:
-        throw new IllegalStateException("Invalid rollbackreason: " + rollbackReason);
+        throw new IllegalStateException("Invalid rollback reason: " + rollbackReason);
       }
     }
 

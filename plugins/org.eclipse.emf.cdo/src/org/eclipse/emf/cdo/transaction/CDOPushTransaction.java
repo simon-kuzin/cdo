@@ -196,9 +196,15 @@ public class CDOPushTransaction extends Notifier implements CDOTransaction
             return CDOPushTransaction.this;
           }
 
+          @Deprecated
           public Type getType()
           {
             return Type.COMMITTED;
+          }
+
+          public Reason getReason()
+          {
+            return Reason.COMMITTED;
           }
 
           public Map<CDOID, CDOID> getIDMappings()

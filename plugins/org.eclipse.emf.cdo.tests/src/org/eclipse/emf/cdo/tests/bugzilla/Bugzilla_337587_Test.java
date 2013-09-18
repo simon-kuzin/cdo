@@ -68,7 +68,7 @@ public class Bugzilla_337587_Test extends AbstractCDOTest
     salesOrders.set(5, salesOrder);
 
     CDOObject cdoResource = CDOUtil.getCDOObject(resource);
-    InternalCDORevision cleanRevision = ((InternalCDOTransaction)transaction).getCleanRevisions().get(cdoResource);
+    InternalCDORevision cleanRevision = ((InternalCDOTransaction)transaction).getCleanRevision(cdoResource);
 
     try
     {

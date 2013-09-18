@@ -43,8 +43,18 @@ public interface InternalCDORevisionDelta extends CDORevisionDelta, CDOReference
 
   /**
    * @since 4.2
+   * @deprecated As of 4.3 use {@link #mergeFeatureDelta(CDOFeatureDelta, CDOOriginSizeProvider)}.
    */
+  @Deprecated
   public void addFeatureDelta(CDOFeatureDelta delta, CDOOriginSizeProvider originSizeProvider);
+
+  /**
+   * Merges the given feature delta to this revision delta and returns <code>true</code> if the 
+   * merge result for the associated feature is empty, <code>false</code> otherwise.
+   * 
+   * @since 4.3
+   */
+  public boolean mergeFeatureDelta(CDOFeatureDelta delta, CDOOriginSizeProvider originSizeProvider);
 
   /**
    * @since 3.0

@@ -37,6 +37,7 @@ import org.eclipse.emf.cdo.common.revision.delta.CDOListFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.common.util.CDOCommonUtil;
 import org.eclipse.emf.cdo.common.util.CDOException;
+import org.eclipse.emf.cdo.common.util.PartialCollectionLoadingNotSupportedException;
 import org.eclipse.emf.cdo.eresource.CDOBinaryResource;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.eresource.CDOResourceFolder;
@@ -66,6 +67,7 @@ import org.eclipse.emf.cdo.view.CDOViewTargetChangedEvent;
 import org.eclipse.emf.internal.cdo.bundle.OM;
 import org.eclipse.emf.internal.cdo.messages.Messages;
 import org.eclipse.emf.internal.cdo.object.CDOLegacyAdapter;
+import org.eclipse.emf.internal.cdo.object.CDONotificationBuilder;
 import org.eclipse.emf.internal.cdo.query.CDOQueryImpl;
 import org.eclipse.emf.internal.cdo.transaction.CDOTransactionImpl;
 
@@ -90,6 +92,7 @@ import org.eclipse.net4j.util.ref.ReferenceValueMap2;
 
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
+import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.common.notify.impl.AdapterImpl;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
@@ -111,7 +114,6 @@ import org.eclipse.core.runtime.Platform;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -1131,8 +1133,33 @@ public abstract class AbstractCDOView extends CDOCommitHistoryProviderImpl<CDOOb
     }
 
     cleanObject(object, revision);
-    CDOStateMachine.INSTANCE.dispatchLoadNotification(object);
+    dispatchLoadNotification(object);
     return object;
+  }
+
+  public void dispatchLoadNotification(InternalCDOObject object)
+  {
+    if (options().isLoadNotificationEnabled())
+    {
+      try
+      {
+        InternalCDORevision revision = object.cdoRevision();
+        CDONotificationBuilder builder = new CDONotificationBuilder(this);
+
+        NotificationChain notification = builder.buildNotification(object, revision);
+        if (notification != null)
+        {
+          notification.dispatch();
+        }
+      }
+      catch (PartialCollectionLoadingNotSupportedException ex)
+      {
+        if (TRACER.isEnabled())
+        {
+          TRACER.trace(ex);
+        }
+      }
+    }
   }
 
   private CDOResource newResourceInstance(InternalCDORevision revision)
@@ -1510,7 +1537,7 @@ public abstract class AbstractCDOView extends CDOCommitHistoryProviderImpl<CDOOb
         Pair<CDORevision, CDORevisionDelta> oldInfo = Pair.create(changedObject.cdoRevision(), delta);
         // if (!isLocked(changedObject))
         {
-          CDOStateMachine.INSTANCE.invalidate((InternalCDOObject)changedObject, key);
+          CDOStateMachine2.INSTANCE.invalidate((InternalCDOObject)changedObject, key);
         }
 
         revisionDeltas.put(changedObject, delta);
@@ -1535,7 +1562,7 @@ public abstract class AbstractCDOView extends CDOCommitHistoryProviderImpl<CDOOb
             CDORevisionDelta.DETACHED);
         // if (!isLocked(detachedObject))
         {
-          CDOStateMachine.INSTANCE.detachRemote(detachedObject);
+          CDOStateMachine2.INSTANCE.detachRemote(detachedObject);
         }
 
         detachedObjects.add(detachedObject);
@@ -1590,30 +1617,31 @@ public abstract class AbstractCDOView extends CDOCommitHistoryProviderImpl<CDOOb
   @Deprecated
   public synchronized int reload(CDOObject... objects)
   {
-    Collection<InternalCDOObject> internalObjects;
-    if (objects != null && objects.length != 0)
-    {
-      internalObjects = new ArrayList<InternalCDOObject>(objects.length);
-      for (CDOObject object : objects)
-      {
-        if (object instanceof InternalCDOObject)
-        {
-          internalObjects.add((InternalCDOObject)object);
-        }
-      }
-    }
-    else
-    {
-      internalObjects = new ArrayList<InternalCDOObject>(this.objects.values());
-    }
-
-    int result = internalObjects.size();
-    if (result != 0)
-    {
-      CDOStateMachine.INSTANCE.reload(internalObjects.toArray(new InternalCDOObject[result]));
-    }
-
-    return result;
+    // Collection<InternalCDOObject> internalObjects;
+    // if (objects != null && objects.length != 0)
+    // {
+    // internalObjects = new ArrayList<InternalCDOObject>(objects.length);
+    // for (CDOObject object : objects)
+    // {
+    // if (object instanceof InternalCDOObject)
+    // {
+    // internalObjects.add((InternalCDOObject)object);
+    // }
+    // }
+    // }
+    // else
+    // {
+    // internalObjects = new ArrayList<InternalCDOObject>(this.objects.values());
+    // }
+    //
+    // int result = internalObjects.size();
+    // if (result != 0)
+    // {
+    // CDOStateMachine2.INSTANCE.reload(internalObjects.toArray(new InternalCDOObject[result]));
+    // }
+    //
+    // return result;
+    return 0;
   }
 
   public void close()
@@ -1733,7 +1761,7 @@ public abstract class AbstractCDOView extends CDOCommitHistoryProviderImpl<CDOOb
 
   protected InternalCDORevision getViewedRevision(InternalCDOObject object)
   {
-    return CDOStateMachine.INSTANCE.readNoLoad(object);
+    return CDOStateMachine2.INSTANCE.readNoLoad(object);
   }
 
   public synchronized CDOChangeSetData compareRevisions(CDOBranchPoint source)

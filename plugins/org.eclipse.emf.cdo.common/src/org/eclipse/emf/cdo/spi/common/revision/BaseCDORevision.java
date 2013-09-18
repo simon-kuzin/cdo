@@ -56,6 +56,7 @@ import org.eclipse.emf.ecore.util.FeatureMapUtil;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -591,7 +592,36 @@ public abstract class BaseCDORevision extends AbstractCDORevision
 
   public void unset(EStructuralFeature feature)
   {
-    setValue(feature, null);
+    if (feature.isUnsettable())
+    {
+      setValue(feature, null);
+    }
+    else
+    {
+      if (feature.isMany())
+      {
+        Object value = getValue(feature);
+
+        @SuppressWarnings("unchecked")
+        List<Object> list = (List<Object>)value;
+        if (list != null)
+        {
+          list.clear();
+        }
+      }
+      else
+      {
+        Object defaultValue = null;
+
+        CDOType type = CDOModelUtil.getType(feature.getEType());
+        if (type != null)
+        {
+          defaultValue = type.convertToCDO(feature.getEType(), feature.getDefaultValue());
+        }
+
+        setValue(feature, defaultValue);
+      }
+    }
   }
 
   /**
@@ -655,6 +685,11 @@ public abstract class BaseCDORevision extends AbstractCDORevision
 
   public Object getValue(EStructuralFeature feature)
   {
+    if (feature == CDOContainerFeatureDelta.CONTAINER_FEATURE)
+    {
+      return containerID;
+    }
+
     int featureIndex = getFeatureIndex(feature);
     return getValue(featureIndex);
   }

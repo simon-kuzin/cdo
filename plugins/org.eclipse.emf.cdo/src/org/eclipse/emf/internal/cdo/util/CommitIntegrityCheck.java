@@ -139,7 +139,7 @@ public class CommitIntegrityCheck
   {
     // Getting the deltas from the TX is not a good idea...
     // We better recompute a fresh delta:
-    InternalCDORevision cleanRev = transaction.getCleanRevisions().get(dirtyObject);
+    InternalCDORevision cleanRev = transaction.getCleanRevision(dirtyObject);
     CheckUtil.checkNull(cleanRev, "Could not obtain clean revision for dirty object " + dirtyObject);
 
     InternalCDOClassInfo classInfo = dirtyObject.cdoClassInfo();
@@ -275,7 +275,7 @@ public class CommitIntegrityCheck
       else if (featureDelta instanceof CDOClearFeatureDelta)
       {
         EStructuralFeature feat = ((CDOClearFeatureDelta)featureDelta).getFeature();
-        InternalCDORevision cleanRev = transaction.getCleanRevisions().get(dirtyObject);
+        InternalCDORevision cleanRev = transaction.getCleanRevision(dirtyObject);
         int n = cleanRev.size(feat);
         for (int i = 0; i < n; i++)
         {
@@ -287,7 +287,7 @@ public class CommitIntegrityCheck
       else if (featureDelta instanceof CDOUnsetFeatureDelta)
       {
         EStructuralFeature feat = ((CDOUnsetFeatureDelta)featureDelta).getFeature();
-        InternalCDORevision cleanRev = transaction.getCleanRevisions().get(dirtyObject);
+        InternalCDORevision cleanRev = transaction.getCleanRevision(dirtyObject);
         Object idOrObject = cleanRev.getValue(feat);
         CDOID id = (CDOID)transaction.convertObjectToID(idOrObject);
         checkIncluded(id, "removed child / refTarget of", dirtyObject);
@@ -436,7 +436,7 @@ public class CommitIntegrityCheck
     // that we can find the pre-detach revision in tx.getFormerRevisions(). However,
     // the object may have already been dirty prior to detachment, so we check the
     // clean revisions first.
-    InternalCDORevision cleanRev = transaction.getCleanRevisions().get(referencer);
+    InternalCDORevision cleanRev = transaction.getCleanRevision(referencer);
     CheckUtil.checkState(cleanRev, "cleanRev");
 
     InternalCDOClassInfo referencerClassInfo = ((InternalCDOObject)referencer).cdoClassInfo();
@@ -491,7 +491,7 @@ public class CommitIntegrityCheck
 
   private void checkFormerContainerIncluded(CDOObject detachedObject) throws CommitIntegrityException
   {
-    InternalCDORevision rev = transaction.getCleanRevisions().get(detachedObject);
+    InternalCDORevision rev = transaction.getCleanRevision(detachedObject);
     CheckUtil.checkNull(rev, "Could not obtain clean revision for detached object " + detachedObject);
 
     CDOID id = getContainerOrResourceID(rev);

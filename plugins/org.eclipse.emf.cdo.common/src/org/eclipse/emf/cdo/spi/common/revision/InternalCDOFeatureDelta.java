@@ -30,6 +30,8 @@ public interface InternalCDOFeatureDelta extends CDOFeatureDelta
    */
   public interface WithIndex
   {
+    public int getIndex();
+
     public void adjustAfterAddition(int index);
 
     public void adjustAfterRemoval(int index);

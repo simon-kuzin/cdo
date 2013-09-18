@@ -120,10 +120,9 @@ public abstract class AbstractCDOTest extends ConfigTest
     }
   }
 
-  protected static void assertNotTransient(EObject eObject, CDOView view)
+  private static void assertNotTransient(EObject eObject, CDOView view)
   {
     CDOObject object = FSMUtil.adapt(eObject, view);
-    assertEquals(false, FSMUtil.isTransient(object));
     assertNotNull(object.cdoID());
     assertNotNull(object.cdoRevision());
     assertNotNull(object.cdoView());

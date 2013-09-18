@@ -242,13 +242,13 @@ public class CDOViewImpl extends AbstractCDOView
 
     try
     {
-      CDOStateMachine.SWITCHING_TARGET.set(Boolean.TRUE);
+      CDOStateMachine2.SWITCHING_TARGET.set(Boolean.TRUE);
       doInvalidate(branchPoint.getBranch(), CDOBranchPoint.UNSPECIFIED_DATE, allChangedObjects, allDetachedObjects,
           oldRevisions, true);
     }
     finally
     {
-      CDOStateMachine.SWITCHING_TARGET.remove();
+      CDOStateMachine2.SWITCHING_TARGET.remove();
     }
 
     IListener[] listeners = getListeners();
@@ -504,7 +504,7 @@ public class CDOViewImpl extends AbstractCDOView
     InternalCDORevision revision = (InternalCDORevision)object.cdoRevision();
     if (revision == null)
     {
-      revision = CDOStateMachine.INSTANCE.read((InternalCDOObject)object);
+      revision = CDOStateMachine2.INSTANCE.read((InternalCDOObject)object);
     }
 
     return revision;

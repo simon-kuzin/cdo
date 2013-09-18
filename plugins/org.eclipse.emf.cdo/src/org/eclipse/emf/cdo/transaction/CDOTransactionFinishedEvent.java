@@ -27,18 +27,37 @@ import java.util.Map;
  */
 public interface CDOTransactionFinishedEvent extends CDOViewEvent
 {
+  /**
+   * @deprecated As of 4.3 use {@link #getReason()}.
+   */
+  @Deprecated
   public Type getType();
+
+  public Reason getReason();
 
   public Map<CDOID, CDOID> getIDMappings();
 
   /**
-   * Enumerates the possible {@link CDOTransactionFinishedEvent#getType() causes} for a {@link CDOTransaction
-   * transaction} to become finished.
+   * Enumerates the possible {@link CDOTransactionFinishedEvent#getType() causes} for a 
+   * {@link CDOTransaction transaction} to become finished.
    * 
    * @author Eike Stepper
+   * @deprecated As of 4.3 use {@link Reason}. 
    */
+  @Deprecated
   public enum Type
   {
     COMMITTED, ROLLED_BACK
+  }
+
+  /**
+   * Enumerates the possible {@link CDOTransactionFinishedEvent#getReason() causes} for a 
+   * {@link CDOTransaction transaction} to become finished.
+   * 
+   * @author Eike Stepper
+   */
+  public enum Reason
+  {
+    COMMITTED, ROLLED_BACK, UNDONE, MERGED
   }
 }

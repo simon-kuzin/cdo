@@ -107,8 +107,9 @@ public class LoadChunkRequest extends CDOClientRequest<Object>
   @Override
   protected Object confirming(CDODataInput in) throws IOException
   {
+    Object accessValue = null;
     CDOType type = CDOModelUtil.getType(feature);
-    Object accessID = null;
+
     InternalCDOList list = (InternalCDOList)revision.getList(feature);
     for (int i = fromIndex; i <= toIndex; i++)
     {
@@ -116,10 +117,10 @@ public class LoadChunkRequest extends CDOClientRequest<Object>
       list.setWithoutFrozenCheck(i, value);
       if (i == accessIndex)
       {
-        accessID = value;
+        accessValue = value;
       }
     }
 
-    return accessID;
+    return accessValue;
   }
 }

@@ -101,17 +101,6 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
     init(CDOState.TRANSIENT, CDOEvent.COMMIT, FAIL);
     init(CDOState.TRANSIENT, CDOEvent.ROLLBACK, FAIL);
 
-    init(CDOState.PREPARED, CDOEvent.PREPARE, FAIL);
-    init(CDOState.PREPARED, CDOEvent.ATTACH, new AttachTransition());
-    init(CDOState.PREPARED, CDOEvent.DETACH, FAIL);
-    init(CDOState.PREPARED, CDOEvent.REATTACH, FAIL);
-    init(CDOState.PREPARED, CDOEvent.READ, IGNORE);
-    init(CDOState.PREPARED, CDOEvent.WRITE, FAIL);
-    init(CDOState.PREPARED, CDOEvent.INVALIDATE, FAIL);
-    init(CDOState.PREPARED, CDOEvent.DETACH_REMOTE, FAIL);
-    init(CDOState.PREPARED, CDOEvent.COMMIT, FAIL);
-    init(CDOState.PREPARED, CDOEvent.ROLLBACK, FAIL);
-
     init(CDOState.NEW, CDOEvent.PREPARE, FAIL);
     init(CDOState.NEW, CDOEvent.ATTACH, FAIL);
     init(CDOState.NEW, CDOEvent.DETACH, new DetachTransition());
@@ -191,11 +180,11 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
   }
 
   /**
-   * The object is already attached in EMF world. It contains all the information needed to know where it will be
-   * connected.
-   *
-   * @since 2.0
-   */
+  * The object is already attached in EMF world. It contains all the information needed to know where it will be
+  * connected.
+  *
+  * @since 2.0
+  */
   public void attach(InternalCDOObject object, InternalCDOTransaction transaction)
   {
     synchronized (transaction)
@@ -211,24 +200,9 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
     }
   }
 
-  private void attachOrReattach(InternalCDOObject object, InternalCDOTransaction transaction)
-  {
-    // Bug 283985 (Re-attachment):
-    // If the object going through a prepareTransition is present in cleanRevisions,
-    // then it was detached earlier, and so we can infer that it is being re-attached
-    if (transaction.getCleanRevisions().containsKey(object))
-    {
-      reattachObject(object, transaction);
-    }
-    else
-    {
-      attachObject(object);
-    }
-  }
-
   /**
-   * Phase 1: TRANSIENT --> PREPARED
-   */
+  * Phase 1: TRANSIENT --> PREPARED
+  */
   private void prepare(InternalCDOObject object,
       Pair<InternalCDOTransaction, List<InternalCDOObject>> transactionAndContents)
   {
@@ -240,32 +214,34 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
     process(object, CDOEvent.PREPARE, transactionAndContents);
   }
 
-  /**
-   * Phase 2: PREPARED --> NEW
-   */
-  private void attachObject(InternalCDOObject object)
+  private void attachOrReattach(InternalCDOObject object, InternalCDOTransaction transaction)
   {
-    if (TRACER.isEnabled())
+    // Bug 283985 (Re-attachment):
+    // If the object going through a prepareTransition is present in cleanRevisions,
+    // then it was detached earlier, and so we can infer that it is being re-attached
+    if (transaction.getCleanRevision(object) != null)
     {
-      TRACER.format("ATTACH: {0}", object); //$NON-NLS-1$
-    }
+      if (TRACER.isEnabled())
+      {
+        TRACER.format("REATTACH: {0}", object);
+      }
 
-    process(object, CDOEvent.ATTACH, null);
+      process(object, CDOEvent.REATTACH, transaction);
+    }
+    else
+    {
+      if (TRACER.isEnabled())
+      {
+        TRACER.format("ATTACH: {0}", object); //$NON-NLS-1$
+      }
+
+      process(object, CDOEvent.ATTACH, null);
+    }
   }
 
-  private void reattachObject(InternalCDOObject object, InternalCDOTransaction transaction)
-  {
-    if (TRACER.isEnabled())
-    {
-      TRACER.format("REATTACH: {0}", object);
-    }
-
-    process(object, CDOEvent.REATTACH, transaction);
-  }
-
   /**
-   * @since 2.0
-   */
+  * @since 2.0
+  */
   public void detach(InternalCDOObject object)
   {
     synchronized (getMonitor(object))
@@ -303,8 +279,8 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
   }
 
   /**
-   * @since 2.0
-   */
+  * @since 2.0
+  */
   public InternalCDORevision read(InternalCDOObject object)
   {
     synchronized (getMonitor(object))
@@ -321,8 +297,8 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
   }
 
   /**
-   * @since 2.0
-   */
+  * @since 2.0
+  */
   public InternalCDORevision readNoLoad(InternalCDOObject object)
   {
     synchronized (getMonitor(object))
@@ -344,16 +320,16 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
   }
 
   /**
-   * @since 2.0
-   */
+  * @since 2.0
+  */
   public void write(InternalCDOObject object)
   {
     write(object, null);
   }
 
   /**
-   * @since 2.0
-   */
+  * @since 2.0
+  */
   public void write(InternalCDOObject object, CDOFeatureDelta featureDelta)
   {
     synchronized (getMonitor(object))
@@ -373,8 +349,8 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
   }
 
   /**
-   * @since 2.0
-   */
+  * @since 2.0
+  */
   public void reload(InternalCDOObject... objects)
   {
     if (objects == null || objects.length == 0)
@@ -398,8 +374,8 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
   }
 
   /**
-   * @since 3.0
-   */
+  * @since 3.0
+  */
   public void invalidate(InternalCDOObject object, CDORevisionKey key)
   {
     synchronized (getMonitor(object))
@@ -414,8 +390,8 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
   }
 
   /**
-   * @since 2.0
-   */
+  * @since 2.0
+  */
   public void detachRemote(InternalCDOObject object)
   {
     synchronized (getMonitor(object))
@@ -430,8 +406,8 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
   }
 
   /**
-   * @since 2.0
-   */
+  * @since 2.0
+  */
   public void commit(InternalCDOObject object, CommitTransactionResult result)
   {
     synchronized (getMonitor(object))
@@ -446,8 +422,8 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
   }
 
   /**
-   * @since 2.0
-   */
+  * @since 2.0
+  */
   public void rollback(InternalCDOObject object)
   {
     synchronized (getMonitor(object))
@@ -486,8 +462,8 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
   }
 
   /**
-   * Removes clutter from the trace log
-   */
+  * Removes clutter from the trace log
+  */
   private void trace(InternalCDOObject object, CDOEvent event)
   {
     CDOState state = object.cdoState();
@@ -509,7 +485,7 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
   public void internalReattach(InternalCDOObject object, InternalCDOTransaction transaction)
   {
     InternalCDORevisionManager revisionManager = transaction.getSession().getRevisionManager();
-    InternalCDORevision cleanRevision = transaction.getCleanRevisions().get(object).copy();
+    InternalCDORevision cleanRevision = transaction.getCleanRevision(object).copy();
     CDOID id = cleanRevision.getID();
 
     // Bug 373096: Determine clean revision of the CURRENT/LAST savepoint
@@ -546,8 +522,8 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
     }
     else
     {
-      transaction.registerRevisionDelta(revisionDelta);
-      transaction.registerDirty(object, (CDOFeatureDelta)null);
+      // transaction.registerRevisionDelta(revisionDelta);
+      // transaction.registerDirty(object, (CDOFeatureDelta)null);
       changeState(object, CDOState.DIRTY);
     }
 
@@ -583,20 +559,20 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
   }
 
   /**
-   * Prepares a tree of transient objects to be subsequently {@link AttachTransition attached} to a CDOView.
-   * <p>
-   * Execution is recursive and includes:
-   * <ol>
-   * <li>Assignment of a new {@link CDOIDTemp}
-   * <li>Assignment of a new {@link CDORevision}
-   * <li>Bidirectional association with the {@link CDOView}
-   * <li>Registration with the {@link CDOTransaction}
-   * <li>Changing state to {@link CDOState#PREPARED PREPARED}
-   * </ol>
-   *
-   * @see AttachTransition
-   * @author Eike Stepper
-   */
+  * Prepares a tree of transient objects to be subsequently {@link AttachTransition attached} to a CDOView.
+  * <p>
+  * Execution is recursive and includes:
+  * <ol>
+  * <li>Assignment of a new {@link CDOIDTemp}
+  * <li>Assignment of a new {@link CDORevision}
+  * <li>Bidirectional association with the {@link CDOView}
+  * <li>Registration with the {@link CDOTransaction}
+  * <li>Changing state to {@link CDOState#PREPARED PREPARED}
+  * </ol>
+  *
+  * @see AttachTransition
+  * @author Eike Stepper
+  */
   private final class PrepareTransition implements
       ITransition<CDOState, CDOEvent, InternalCDOObject, Pair<InternalCDOTransaction, List<InternalCDOObject>>>
   {
@@ -608,10 +584,12 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
 
       // If the object going through a prepareTransition is present in cleanRevisions,
       // then it was detached earlier, and so we can infer that it is being re-attached
-      boolean reattaching = transaction.getCleanRevisions().containsKey(object);
+      boolean reattaching = transaction.getCleanRevision(object) != null;
 
       if (!reattaching)
       {
+        // TRANSIENT
+
         // Prepare object
         CDOID id = transaction.createIDForNewObject(object.cdoInternalInstance());
         object.cdoInternalSetView(transaction);
@@ -633,7 +611,7 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
         transaction.registerObject(object);
       }
 
-      transaction.registerAttached(object, !reattaching);
+      // transaction.registerAttached(object, !reattaching);
 
       // Prepare content tree
       for (Iterator<InternalEObject> it = getPersistentContents(object); it.hasNext();)
@@ -680,23 +658,23 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
   }
 
   /**
-   * Attaches a tree of {@link PrepareTransition prepared} objects to a CDOView.
-   * <p>
-   * Execution is recursive and includes:
-   * <ol>
-   * <li>Calling {@link InternalCDOObject#cdoInternalPostAttach()},<br>
-   * which includes for {@link CDOObjectImpl}:
-   * <ol>
-   * <li>Population of the CDORevision with the current values in
-   * {@link EStoreEObjectImpl#eSetting(org.eclipse.emf.ecore.EStructuralFeature) eSettings}
-   * <li>Unsetting {@link EStoreEObjectImpl#eSetting(org.eclipse.emf.ecore.EStructuralFeature) eSettings}
-   * </ol>
-   * <li>Changing state to {@link CDOState#NEW NEW}
-   * </ol>
-   *
-   * @see PrepareTransition
-   * @author Eike Stepper
-   */
+  * Attaches a tree of {@link PrepareTransition prepared} objects to a CDOView.
+  * <p>
+  * Execution is recursive and includes:
+  * <ol>
+  * <li>Calling {@link InternalCDOObject#cdoInternalPostAttach()},<br>
+  * which includes for {@link CDOObjectImpl}:
+  * <ol>
+  * <li>Population of the CDORevision with the current values in
+  * {@link EStoreEObjectImpl#eSetting(org.eclipse.emf.ecore.EStructuralFeature) eSettings}
+  * <li>Unsetting {@link EStoreEObjectImpl#eSetting(org.eclipse.emf.ecore.EStructuralFeature) eSettings}
+  * </ol>
+  * <li>Changing state to {@link CDOState#NEW NEW}
+  * </ol>
+  *
+  * @see PrepareTransition
+  * @author Eike Stepper
+  */
   private final class AttachTransition implements ITransition<CDOState, CDOEvent, InternalCDOObject, Object>
   {
     public void execute(InternalCDOObject object, CDOState state, CDOEvent event, Object NULL)
@@ -707,10 +685,10 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
   }
 
   /**
-   * Bug 283985 (Re-attachment)
-   *
-   * @author Caspar De Groot
-   */
+  * Bug 283985 (Re-attachment)
+  *
+  * @author Caspar De Groot
+  */
   private final class ReattachTransition implements
       ITransition<CDOState, CDOEvent, InternalCDOObject, InternalCDOTransaction>
   {
@@ -806,8 +784,8 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
   }
 
   /**
-   * @author Eike Stepper
-   */
+  * @author Eike Stepper
+  */
   private static final class DetachTransition implements
       ITransition<CDOState, CDOEvent, InternalCDOObject, List<InternalCDOObject>>
   {
@@ -836,8 +814,8 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
   }
 
   /**
-   * @author Eike Stepper
-   */
+  * @author Eike Stepper
+  */
   final private class CommitTransition implements
       ITransition<CDOState, CDOEvent, InternalCDOObject, CommitTransactionResult>
   {
@@ -873,8 +851,8 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
   }
 
   /**
-   * @author Eike Stepper
-   */
+  * @author Eike Stepper
+  */
   private final class RollbackTransition implements ITransition<CDOState, CDOEvent, InternalCDOObject, Object>
   {
     public void execute(InternalCDOObject object, CDOState state, CDOEvent event, Object NULL)
@@ -896,8 +874,8 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
   }
 
   /**
-   * @author Eike Stepper
-   */
+  * @author Eike Stepper
+  */
   private final class WriteTransition implements ITransition<CDOState, CDOEvent, InternalCDOObject, Object>
   {
     public void execute(InternalCDOObject object, CDOState state, CDOEvent event, Object featureDelta)
@@ -909,20 +887,20 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
         throw new NoPermissionException(cleanRevision);
       }
 
-      transaction.getCleanRevisions().put(object, cleanRevision);
+      // transaction.getCleanRevisions().put(object, cleanRevision);
 
       // Copy revision
       InternalCDORevision revision = object.cdoRevision().copy();
       object.cdoInternalSetRevision(revision);
 
-      transaction.registerDirty(object, (CDOFeatureDelta)featureDelta);
+      // transaction.registerDirty(object, (CDOFeatureDelta)featureDelta);
       changeState(object, CDOState.DIRTY);
     }
   }
 
   /**
-   * @author Simon McDuff
-   */
+  * @author Simon McDuff
+  */
   private static final class WriteNewTransition implements ITransition<CDOState, CDOEvent, InternalCDOObject, Object>
   {
     public void execute(InternalCDOObject object, CDOState state, CDOEvent event, Object featureDelta)
@@ -934,13 +912,13 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
       }
 
       InternalCDOTransaction transaction = object.cdoView().toTransaction();
-      transaction.registerFeatureDelta(object, (CDOFeatureDelta)featureDelta);
+      // transaction.registerFeatureDelta(object, (CDOFeatureDelta)featureDelta);
     }
   }
 
   /**
-   * @author Simon McDuff
-   */
+  * @author Simon McDuff
+  */
   private static final class RewriteTransition implements ITransition<CDOState, CDOEvent, InternalCDOObject, Object>
   {
     public void execute(InternalCDOObject object, CDOState state, CDOEvent event, Object featureDelta)
@@ -952,20 +930,20 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
       }
 
       InternalCDOTransaction transaction = object.cdoView().toTransaction();
-      transaction.registerFeatureDelta(object, (CDOFeatureDelta)featureDelta);
+      // transaction.registerFeatureDelta(object, (CDOFeatureDelta)featureDelta);
     }
   }
 
   /**
-   * @author Simon McDuff
-   */
+  * @author Simon McDuff
+  */
   private static class DetachRemoteTransition implements ITransition<CDOState, CDOEvent, InternalCDOObject, Object>
   {
     static final DetachRemoteTransition INSTANCE = new DetachRemoteTransition();
 
     public void execute(InternalCDOObject object, CDOState state, CDOEvent event, Object NULL)
     {
-      CDOStateMachine.INSTANCE.changeState(object, CDOState.INVALID);
+      // INSTANCE.changeState(object, CDOState.INVALID);
 
       InternalCDOView view = object.cdoView();
       view.deregisterObject(object);
@@ -974,8 +952,8 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
   }
 
   /**
-   * @author Eike Stepper
-   */
+  * @author Eike Stepper
+  */
   private class InvalidateTransition implements ITransition<CDOState, CDOEvent, InternalCDOObject, CDORevisionKey>
   {
     public void execute(InternalCDOObject object, CDOState state, CDOEvent event, CDORevisionKey key)
@@ -1054,9 +1032,9 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
   }
 
   /**
-   * @author Eike Stepper
-   * @since 2.0
-   */
+  * @author Eike Stepper
+  * @since 2.0
+  */
   private class ConflictTransition extends InvalidateTransition
   {
     @Override
@@ -1073,8 +1051,8 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
   }
 
   /**
-   * @author Simon McDuff
-   */
+  * @author Simon McDuff
+  */
   private final class InvalidConflictTransition extends ConflictTransition
   {
     @Override
@@ -1088,8 +1066,8 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
   }
 
   /**
-   * @author Eike Stepper
-   */
+  * @author Eike Stepper
+  */
   private final class LoadTransition implements ITransition<CDOState, CDOEvent, InternalCDOObject, Object>
   {
     private boolean forWrite;
@@ -1130,8 +1108,8 @@ public final class CDOStateMachine extends FiniteStateMachine<CDOState, CDOEvent
   }
 
   /**
-   * @author Simon McDuff
-   */
+  * @author Simon McDuff
+  */
   private static final class InvalidTransition implements ITransition<CDOState, CDOEvent, InternalCDOObject, Object>
   {
     public static final InvalidTransition INSTANCE = new InvalidTransition();

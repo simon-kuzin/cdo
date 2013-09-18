@@ -14,7 +14,6 @@ package org.eclipse.emf.cdo.internal.common.revision.delta;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
-import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.id.CDOWithID;
 import org.eclipse.emf.cdo.common.protocol.CDODataInput;
 import org.eclipse.emf.cdo.common.protocol.CDODataOutput;
@@ -26,10 +25,12 @@ import org.eclipse.emf.cdo.common.revision.CDORevisionData;
 import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
 import org.eclipse.emf.cdo.common.revision.delta.CDOClearFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta;
+import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDelta.Type;
 import org.eclipse.emf.cdo.common.revision.delta.CDOFeatureDeltaVisitor;
 import org.eclipse.emf.cdo.common.revision.delta.CDOListFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOOriginSizeProvider;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
+import org.eclipse.emf.cdo.common.revision.delta.CDOSetFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOUnsetFeatureDelta;
 import org.eclipse.emf.cdo.common.util.PartialCollectionLoadingNotSupportedException;
 import org.eclipse.emf.cdo.internal.common.revision.CDOListImpl;
@@ -95,7 +96,7 @@ public class CDORevisionDeltaImpl implements InternalCDORevisionDelta
       for (CDOFeatureDelta delta : revisionDelta.getFeatureDeltas())
       {
         CDOFeatureDelta copy = ((InternalCDOFeatureDelta)delta).copy();
-        addFeatureDelta(copy, null);
+        mergeFeatureDelta(copy, null);
       }
     }
   }
@@ -126,13 +127,13 @@ public class CDORevisionDeltaImpl implements InternalCDORevisionDelta
 
     CDOID dirtyResourceID = dirtyData.getResourceID();
     int dirtyContainingFeatureID = dirtyData.getContainingFeatureID();
-    if (!compareValue(originData.getContainerID(), dirtyContainerID)
-        || !compareValue(originData.getContainingFeatureID(), dirtyContainingFeatureID)
-        || !compareValue(originData.getResourceID(), dirtyResourceID))
+    if (!CDORevisionUtil.areValuesEqual(originData.getContainerID(), dirtyContainerID)
+        || !CDORevisionUtil.areValuesEqual(originData.getContainingFeatureID(), dirtyContainingFeatureID)
+        || !CDORevisionUtil.areValuesEqual(originData.getResourceID(), dirtyResourceID))
     {
       CDOFeatureDelta delta = new CDOContainerFeatureDeltaImpl(dirtyResourceID, dirtyContainerID,
           dirtyContainingFeatureID);
-      addFeatureDelta(delta, null);
+      mergeFeatureDelta(delta, null);
     }
   }
 
@@ -262,23 +263,31 @@ public class CDORevisionDeltaImpl implements InternalCDORevisionDelta
     throw new UnsupportedOperationException();
   }
 
+  @Deprecated
   public void addFeatureDelta(CDOFeatureDelta delta, CDOOriginSizeProvider originSizeProvider)
+  {
+    mergeFeatureDelta(delta, originSizeProvider);
+  }
+
+  public boolean mergeFeatureDelta(CDOFeatureDelta delta, CDOOriginSizeProvider originSizeProvider)
   {
     if (delta instanceof CDOListFeatureDelta)
     {
       CDOListFeatureDelta listDelta = (CDOListFeatureDelta)delta;
+
+      boolean lastDeltaResultsInNoChange = false;
       for (CDOFeatureDelta listChange : listDelta.getListChanges())
       {
-        addFeatureDelta(listChange, listDelta);
+        lastDeltaResultsInNoChange = mergeFeatureDelta(listChange, listDelta);
       }
+
+      return lastDeltaResultsInNoChange;
     }
-    else
-    {
-      addSingleFeatureDelta(delta, originSizeProvider);
-    }
+
+    return addSingleFeatureDelta(delta, originSizeProvider);
   }
 
-  private void addSingleFeatureDelta(CDOFeatureDelta delta, CDOOriginSizeProvider originSizeProvider)
+  private boolean addSingleFeatureDelta(CDOFeatureDelta delta, CDOOriginSizeProvider originSizeProvider)
   {
     EStructuralFeature feature = delta.getFeature();
     if (feature.isMany())
@@ -292,17 +301,64 @@ public class CDORevisionDeltaImpl implements InternalCDORevisionDelta
       }
 
       // Remove all previous changes
+      List<CDOFeatureDelta> listChanges = listDelta.getListChanges();
       if (delta instanceof CDOClearFeatureDelta || delta instanceof CDOUnsetFeatureDelta)
       {
-        listDelta.getListChanges().clear();
+        listChanges.clear();
       }
 
-      listDelta.add(delta);
+      listDelta.mergeFeatureDelta(delta); // Net result can be empty!
+
+      if (listChanges.isEmpty())
+      {
+        featureDeltas.remove(feature);
+        return true;
+      }
     }
     else
     {
-      featureDeltas.put(feature, delta);
+      CDOFeatureDelta old = featureDeltas.put(feature, delta);
+      if (old != null)
+      {
+        if (old.getType() == Type.SET && delta.getType() == Type.SET)
+        {
+          Object oldValue = ((CDOSetFeatureDelta)old).getOldValue();
+
+          CDOSetFeatureDeltaImpl newSetDelta = (CDOSetFeatureDeltaImpl)delta;
+          if (CDORevisionUtil.areValuesEqual(oldValue, newSetDelta.getValue()))
+          {
+            featureDeltas.remove(feature);
+            return true;
+          }
+
+          newSetDelta.setOldValue(oldValue);
+        }
+        else
+        {
+          // TODO Handle SET / UNSET combinations?
+        }
+      }
+      else
+      {
+        // CDOStoreImpl.set() should prevent this case!
+
+        // if (delta.getType() == Type.SET)
+        // {
+        // CDOSetFeatureDelta setDelta = (CDOSetFeatureDelta)delta;
+        // if (compareValue(setDelta.getOldValue(), setDelta.getValue()))
+        // {
+        // featureDeltas.remove(feature);
+        // return true;
+        // }
+        // }
+        // else
+        // {
+        // // TODO Handle UNSET?
+        // }
+      }
     }
+
+    return false;
   }
 
   public boolean adjustReferences(CDOReferenceAdjuster referenceAdjuster)
@@ -345,7 +401,7 @@ public class CDORevisionDeltaImpl implements InternalCDORevisionDelta
         final int originSize = originData.size(feature);
         if (originSize > 0 && dirtyData.size(feature) == 0)
         {
-          addFeatureDelta(new CDOClearFeatureDeltaImpl(feature), new CDOOriginSizeProvider()
+          mergeFeatureDelta(new CDOClearFeatureDeltaImpl(feature), new CDOOriginSizeProvider()
           {
             public int getOriginSize()
             {
@@ -381,9 +437,13 @@ public class CDORevisionDeltaImpl implements InternalCDORevisionDelta
             protected void createRemoveListChange(EList<?> oldList, EList<ListChange> listChanges, Object value,
                 int index)
             {
-              CDORemoveFeatureDeltaImpl delta = new CDORemoveFeatureDeltaImpl(feature, index);
-              // fix until ListDifferenceAnalyzer delivers the correct value (bug #308618).
-              delta.setValue(oldList.get(index));
+              int xxx;
+              // CDORemoveFeatureDeltaImpl delta = new CDORemoveFeatureDeltaImpl(feature, index);
+              // // fix until ListDifferenceAnalyzer delivers the correct value (bug 308618).
+              // delta.setValue(oldList.get(index));
+
+              // Valid since EMF 2.6 (bug 308618)
+              CDORemoveFeatureDeltaImpl delta = new CDORemoveFeatureDeltaImpl(feature, index, value);
               changes.add(delta);
               oldList.remove(index);
             }
@@ -392,9 +452,13 @@ public class CDORevisionDeltaImpl implements InternalCDORevisionDelta
             protected void createMoveListChange(EList<?> oldList, EList<ListChange> listChanges, Object value,
                 int index, int toIndex)
             {
-              CDOMoveFeatureDeltaImpl delta = new CDOMoveFeatureDeltaImpl(feature, toIndex, index);
-              // fix until ListDifferenceAnalyzer delivers the correct value (same problem as bug #308618).
-              delta.setValue(oldList.get(index));
+              int xxx;
+              // CDOMoveFeatureDeltaImpl delta = new CDOMoveFeatureDeltaImpl(feature, toIndex, index);
+              // // fix until ListDifferenceAnalyzer delivers the correct value (same problem as bug 308618).
+              // delta.setValue(oldList.get(index));
+
+              // Valid since EMF 2.6 (bug 308618)
+              CDOMoveFeatureDeltaImpl delta = new CDOMoveFeatureDeltaImpl(feature, toIndex, index, value);
               changes.add(delta);
               oldList.move(toIndex, index);
             }
@@ -402,7 +466,7 @@ public class CDORevisionDeltaImpl implements InternalCDORevisionDelta
             @Override
             protected boolean equal(Object originValue, Object dirtyValue)
             {
-              return compareValue(originValue, dirtyValue);
+              return CDORevisionUtil.areValuesEqual(originValue, dirtyValue);
             }
 
             private void checkNoProxies(EList<?> list, CDORevision revision)
@@ -434,60 +498,21 @@ public class CDORevisionDeltaImpl implements InternalCDORevisionDelta
       {
         Object originValue = originData.get(feature, 0);
         Object dirtyValue = dirtyData.get(feature, 0);
-        if (!compareValue(originValue, dirtyValue))
+        if (!CDORevisionUtil.areValuesEqual(originValue, dirtyValue))
         {
           if (dirtyValue == null)
           {
             CDOFeatureDelta delta = new CDOUnsetFeatureDeltaImpl(feature);
-            addFeatureDelta(delta, null);
+            mergeFeatureDelta(delta, null);
           }
           else
           {
             CDOFeatureDelta delta = new CDOSetFeatureDeltaImpl(feature, 0, dirtyValue, originValue);
-            addFeatureDelta(delta, null);
+            mergeFeatureDelta(delta, null);
           }
         }
       }
     }
-  }
-
-  private boolean compareValue(Object originValue, Object dirtyValue)
-  {
-    Object origin = convertEObject(originValue);
-    Object dirty = convertEObject(dirtyValue);
-
-    if (origin == null)
-    {
-      return dirty == null;
-    }
-
-    if (dirty == null)
-    {
-      return false;
-    }
-
-    if (origin == dirty)
-    {
-      return true;
-    }
-
-    if (origin instanceof CDOID)
-    {
-      return false;
-    }
-
-    return origin.equals(dirty);
-  }
-
-  private Object convertEObject(Object value)
-  {
-    CDOID id = CDOIDUtil.getCDOID(value);
-    if (id != null)
-    {
-      return id;
-    }
-
-    return value;
   }
 
   @Override

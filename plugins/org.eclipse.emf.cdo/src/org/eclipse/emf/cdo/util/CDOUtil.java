@@ -49,7 +49,7 @@ import org.eclipse.emf.internal.cdo.session.CDOCollectionLoadingPolicyImpl;
 import org.eclipse.emf.internal.cdo.transaction.CDOXATransactionImpl;
 import org.eclipse.emf.internal.cdo.transaction.CDOXATransactionImpl.CDOXAInternalAdapter;
 import org.eclipse.emf.internal.cdo.view.CDORevisionPrefetchingPolicyImpl;
-import org.eclipse.emf.internal.cdo.view.CDOStateMachine;
+import org.eclipse.emf.internal.cdo.view.CDOStateMachine2;
 
 import org.eclipse.net4j.util.AdapterUtil;
 import org.eclipse.net4j.util.container.IPluginContainer;
@@ -426,7 +426,7 @@ public final class CDOUtil
   public static void load(EObject eObject, CDOView view)
   {
     InternalCDOObject cdoObject = FSMUtil.adapt(eObject, view);
-    CDOStateMachine.INSTANCE.read(cdoObject);
+    CDOStateMachine2.INSTANCE.read(cdoObject);
 
     for (Iterator<InternalCDOObject> it = FSMUtil.iterator(cdoObject.eContents(), (InternalCDOView)view); it.hasNext();)
     {
@@ -479,7 +479,7 @@ public final class CDOUtil
       return null;
     }
 
-    CDORevision revision = CDOStateMachine.INSTANCE.read((InternalCDOObject)object);
+    CDORevision revision = CDOStateMachine2.INSTANCE.read((InternalCDOObject)object);
     return getRevisionByVersion(object, revision.getBranch(), version, revision);
   }
 
@@ -493,7 +493,7 @@ public final class CDOUtil
       return null;
     }
 
-    CDORevision revision = CDOStateMachine.INSTANCE.read((InternalCDOObject)object);
+    CDORevision revision = CDOStateMachine2.INSTANCE.read((InternalCDOObject)object);
     return getRevisionByVersion(object, branch, version, revision);
   }
 

@@ -35,7 +35,7 @@ import org.eclipse.emf.cdo.view.CDOView;
 import org.eclipse.emf.cdo.view.CDOViewInvalidationEvent;
 import org.eclipse.emf.cdo.view.CDOViewTargetChangedEvent;
 
-import org.eclipse.emf.internal.cdo.view.CDOStateMachine;
+import org.eclipse.emf.internal.cdo.view.CDOStateMachine2;
 
 import org.eclipse.net4j.util.container.ContainerEventAdapter;
 import org.eclipse.net4j.util.container.IContainer;
@@ -368,7 +368,7 @@ public class RepositoryContentProvider extends StructuredContentProvider<IWorksp
     {
       if (CDOUtil.isLegacyObject(cdoObject))
       {
-        CDOStateMachine.INSTANCE.read(cdoObject);
+        CDOStateMachine2.INSTANCE.read(cdoObject);
       }
 
       if (cdoObject instanceof CDOResource)

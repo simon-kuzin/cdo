@@ -11,6 +11,7 @@
 package org.eclipse.emf.cdo.tests;
 
 import org.eclipse.emf.cdo.CDOObject;
+import org.eclipse.emf.cdo.common.commit.CDOCommitInfo;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.server.IRepository;
@@ -293,44 +294,44 @@ public class PartialCommitTest extends AbstractCDOTest
     cat.getProducts().remove(product);
 
     assertEquals(true, tx.getDetachedObjects().containsValue(CDOUtil.getCDOObject(company4)));
-    assertEquals(true, tx.getCleanRevisions().containsKey(CDOUtil.getCDOObject(company4)));
+    assertEquals(true, tx.getCleanRevision(CDOUtil.getCDOObject(company4)) != null);
     assertEquals(true, tx.getDetachedObjects().containsValue(CDOUtil.getCDOObject(po)));
-    assertEquals(true, tx.getCleanRevisions().containsKey(CDOUtil.getCDOObject(company4)));
+    assertEquals(true, tx.getCleanRevision(CDOUtil.getCDOObject(company4)) != null);
     assertEquals(true, tx.getDetachedObjects().containsValue(CDOUtil.getCDOObject(product)));
-    assertEquals(true, tx.getCleanRevisions().containsKey(CDOUtil.getCDOObject(company4)));
+    assertEquals(true, tx.getCleanRevision(CDOUtil.getCDOObject(company4)) != null);
     assertEquals(true, tx.isDirty());
 
     tx.setCommittables(createSet(company4, resource1));
     tx.commit();
 
     assertEquals(false, tx.getDetachedObjects().containsValue(CDOUtil.getCDOObject(company4)));
-    assertEquals(false, tx.getCleanRevisions().containsKey(CDOUtil.getCDOObject(company4)));
+    assertEquals(false, tx.getCleanRevision(CDOUtil.getCDOObject(company4)) != null);
     assertEquals(true, tx.getDetachedObjects().containsValue(CDOUtil.getCDOObject(po)));
-    assertEquals(true, tx.getCleanRevisions().containsKey(CDOUtil.getCDOObject(po)));
+    assertEquals(true, tx.getCleanRevision(CDOUtil.getCDOObject(po)) != null);
     assertEquals(true, tx.getDetachedObjects().containsValue(CDOUtil.getCDOObject(product)));
-    assertEquals(true, tx.getCleanRevisions().containsKey(CDOUtil.getCDOObject(product)));
+    assertEquals(true, tx.getCleanRevision(CDOUtil.getCDOObject(product)) != null);
     assertEquals(true, tx.isDirty());
 
     tx.setCommittables(createSet(po, company2));
     tx.commit();
 
     assertEquals(false, tx.getDetachedObjects().containsValue(CDOUtil.getCDOObject(company4)));
-    assertEquals(false, tx.getCleanRevisions().containsKey(CDOUtil.getCDOObject(company4)));
+    assertEquals(false, tx.getCleanRevision(CDOUtil.getCDOObject(company4)) != null);
     assertEquals(false, tx.getDetachedObjects().containsValue(CDOUtil.getCDOObject(po)));
-    assertEquals(false, tx.getCleanRevisions().containsKey(CDOUtil.getCDOObject(po)));
+    assertEquals(false, tx.getCleanRevision(CDOUtil.getCDOObject(po)) != null);
     assertEquals(true, tx.getDetachedObjects().containsValue(CDOUtil.getCDOObject(product)));
-    assertEquals(true, tx.getCleanRevisions().containsKey(CDOUtil.getCDOObject(product)));
+    assertEquals(true, tx.getCleanRevision(CDOUtil.getCDOObject(product)) != null);
     assertEquals(true, tx.isDirty());
 
     tx.setCommittables(createSet(product, cat));
     tx.commit();
 
     assertEquals(false, tx.getDetachedObjects().containsValue(CDOUtil.getCDOObject(company4)));
-    assertEquals(false, tx.getCleanRevisions().containsKey(CDOUtil.getCDOObject(company4)));
+    assertEquals(false, tx.getCleanRevision(CDOUtil.getCDOObject(company4)) != null);
     assertEquals(false, tx.getDetachedObjects().containsValue(CDOUtil.getCDOObject(po)));
-    assertEquals(false, tx.getCleanRevisions().containsKey(CDOUtil.getCDOObject(po)));
+    assertEquals(false, tx.getCleanRevision(CDOUtil.getCDOObject(po)) != null);
     assertEquals(false, tx.getDetachedObjects().containsValue(CDOUtil.getCDOObject(product)));
-    assertEquals(false, tx.getCleanRevisions().containsKey(CDOUtil.getCDOObject(product)));
+    assertEquals(false, tx.getCleanRevision(CDOUtil.getCDOObject(product)) != null);
     assertEquals(true, tx.isDirty());
 
     tx.setCommittables(createSet(company1));
@@ -345,7 +346,7 @@ public class PartialCommitTest extends AbstractCDOTest
     company1.setName("Company");
 
     tx.setCommittables(createSet(supplier1));
-    tx.commit();
+    CDOCommitInfo commitInfo = tx.commit();
 
     assertDirty(company1, tx);
     assertEquals(company1.getName(), "Company");
