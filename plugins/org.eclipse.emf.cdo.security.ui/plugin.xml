@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <!--
-	Copyright (c) 2013 Eike Stepper (Berlin, Germany) and others.
-	All rights reserved. This program and the accompanying materials
-	are made available under the terms of the Eclipse Public License v1.0
-	which accompanies this distribution, and is available at
-	http://www.eclipse.org/legal/epl-v10.html
+    Copyright (c) 2013 Eike Stepper (Berlin, Germany) and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
 
-	Contributors:
-	  Christian W. Damus (CEA LIST) - initial API and implementation
+    Contributors:
+      Christian W. Damus (CEA LIST) - initial API and implementation
 -->
-
 <plugin>
 
-   <extension
+    <extension
          point="org.eclipse.ui.popupMenus">
       <objectContribution
             adaptable="true"
@@ -29,6 +28,56 @@
             <test property="org.eclipse.emf.cdo.object.writable" value="true"/>
          </enablement>
       </objectContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="org.eclipse.emf.cdo.security.internal.ui.editor.CDOSecurityFormEditor"
+            contributorClass="org.eclipse.emf.cdo.security.internal.ui.editor.CDOSecurityFormActionBarContributor"
+            default="false"
+            icon="icons/full/obj16/SecurityRealmResource.png"
+            id="org.eclipse.emf.cdo.security.ui.CDOSecurityFormEditor"
+            name="%editor.name">
+      </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+         <command
+               commandId="org.eclipse.emf.cdo.security.ui.openEditor"
+               icon="$nl$/icons/full/ctool16/ManageSecurity.png"
+               label="%command.label"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="activeMenuSelection">
+                  <count
+                        value="1">
+                  </count>
+                  <iterate >
+                     <adapt
+                           type="org.eclipse.emf.cdo.session.CDOSession">
+                     </adapt>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            id="org.eclipse.emf.cdo.security.ui.management"
+            name="%category.name">
+      </category>
+      <command
+            id="org.eclipse.emf.cdo.security.ui.openEditor"
+            name="%command.name"
+            categoryId="org.eclipse.emf.cdo.security.ui.management"
+            defaultHandler="org.eclipse.emf.cdo.security.internal.ui.commands.ManageSecurityHandler">
+      </command>
    </extension>
 
 </plugin>
