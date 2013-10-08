@@ -8,16 +8,12 @@
  * Contributors:
  *    Christian W. Damus (CEA LIST) - initial API and implementation
  */
-package org.eclipse.emf.cdo.internal.security.ui.editor;
+package org.eclipse.emf.cdo.internal.security.ui.util;
 
 import static org.eclipse.emf.cdo.internal.security.ui.util.SecurityModelUtil.applyTypeFilter;
 import static org.eclipse.emf.cdo.internal.security.ui.util.SecurityModelUtil.viewerFilter;
 
 import org.eclipse.emf.cdo.internal.security.ui.messages.Messages;
-import org.eclipse.emf.cdo.internal.security.ui.util.INewObjectConfigurator;
-import org.eclipse.emf.cdo.internal.security.ui.util.ObjectExistsConverter;
-import org.eclipse.emf.cdo.internal.security.ui.util.SecurityModelUtil;
-import org.eclipse.emf.cdo.internal.security.ui.util.TableLabelProvider;
 import org.eclipse.emf.cdo.security.Directory;
 import org.eclipse.emf.cdo.security.Realm;
 import org.eclipse.emf.cdo.security.SecurityItem;
@@ -286,8 +282,8 @@ public class OneToManyBlock
             available.removeAll(value);
             SecurityModelUtil.applyDefaultFilters(available, itemType);
 
-            String label = NLS.bind(Messages.OneToManyBlock_3, SecurityEditPlugin.INSTANCE.getString(String.format("_UI_%s_%s_feature", //$NON-NLS-2$
-                reference.getEContainingClass().getName(), reference.getName())));
+            String label = NLS.bind(Messages.OneToManyBlock_3, SecurityEditPlugin.INSTANCE.getString(String.format(
+                "_UI_%s_%s_feature", reference.getEContainingClass().getName(), reference.getName()))); //$NON-NLS-1$
             FeatureEditorDialog dlg = new FeatureEditorDialog(viewer.getControl().getShell(), new TableLabelProvider(
                 adapterFactory), input.getValue(), reference.getEContainingClass(), Collections.EMPTY_LIST, label,
                 available, false, true, true);

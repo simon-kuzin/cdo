@@ -12,6 +12,7 @@ package org.eclipse.emf.cdo.internal.security.ui.editor;
 
 import org.eclipse.emf.cdo.internal.security.ui.messages.Messages;
 import org.eclipse.emf.cdo.internal.security.ui.util.INewObjectConfigurator;
+import org.eclipse.emf.cdo.internal.security.ui.util.OneToManyTableBlock;
 import org.eclipse.emf.cdo.internal.security.ui.util.ResourceBasedPermissionFilter;
 import org.eclipse.emf.cdo.security.Access;
 import org.eclipse.emf.cdo.security.FilterPermission;

@@ -13,6 +13,8 @@ package org.eclipse.emf.cdo.internal.security.ui.editor;
 import org.eclipse.emf.cdo.internal.security.ui.bundle.OM;
 import org.eclipse.emf.cdo.internal.security.ui.messages.Messages;
 import org.eclipse.emf.cdo.internal.security.ui.util.ObjectExistsConverter;
+import org.eclipse.emf.cdo.internal.security.ui.util.OneToManyBlock;
+import org.eclipse.emf.cdo.internal.security.ui.util.OneToManyTableBlock;
 import org.eclipse.emf.cdo.security.provider.SecurityEditPlugin;
 
 import org.eclipse.emf.common.command.Command;

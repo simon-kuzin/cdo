@@ -8,7 +8,7 @@
  * Contributors:
  *    Christian W. Damus (CEA LIST) - initial API and implementation
  */
-package org.eclipse.emf.cdo.internal.security.ui.editor;
+package org.eclipse.emf.cdo.internal.security.ui.util;
 
 import org.eclipse.emf.common.notify.AdapterFactory;
 import org.eclipse.emf.ecore.EClass;

@@ -15,6 +15,7 @@
          point="org.eclipse.ui.editors">
       <editor
             class="org.eclipse.emf.cdo.internal.security.ui.editor.CDOSecurityFormEditor"
+            contributorClass="org.eclipse.emf.cdo.internal.security.ui.editor.CDOSecurityFormActionBarContributor"
             default="false"
             icon="icons/full/obj16/SecurityRealmResource.png"
             id="org.eclipse.emf.cdo.security.ui.CDOSecurityFormEditor"
