@@ -10,7 +10,14 @@
  */
 package org.eclipse.emf.cdo.internal.security.ui.editor;
 
+import static org.eclipse.emf.cdo.internal.security.ui.util.SecurityModelUtil.getTypeFilter;
+import static org.eclipse.emf.cdo.internal.security.ui.util.SecurityModelUtil.viewerFilter;
+
+import org.eclipse.emf.cdo.eresource.CDOResourceNode;
+import org.eclipse.emf.cdo.eresource.EresourcePackage;
+import org.eclipse.emf.cdo.internal.security.ui.dialogs.FilterTreeSelectionDialog;
 import org.eclipse.emf.cdo.internal.security.ui.messages.Messages;
+import org.eclipse.emf.cdo.internal.security.ui.util.EditableDialogCellEditor;
 import org.eclipse.emf.cdo.internal.security.ui.util.INewObjectConfigurator;
 import org.eclipse.emf.cdo.internal.security.ui.util.OneToManyTableBlock;
 import org.eclipse.emf.cdo.internal.security.ui.util.ResourceBasedPermissionFilter;
@@ -22,8 +29,11 @@ import org.eclipse.emf.cdo.security.Role;
 import org.eclipse.emf.cdo.security.SecurityFactory;
 import org.eclipse.emf.cdo.security.SecurityPackage;
 import org.eclipse.emf.cdo.security.provider.SecurityEditPlugin;
+import org.eclipse.emf.cdo.ui.CDOItemProvider;
+import org.eclipse.emf.cdo.view.CDOView;
 
 import org.eclipse.net4j.util.ObjectUtil;
+import org.eclipse.net4j.util.container.IContainer;
 
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.common.notify.AdapterFactory;
@@ -39,9 +49,10 @@ import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ComboBoxViewerCellEditor;
 import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.jface.viewers.TextCellEditor;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import java.util.Collections;
@@ -71,9 +82,11 @@ public class RoleDetailsPage extends AbstractDetailsPage<Role>
 
     space(parent, toolkit);
 
-    oneToMany(parent, toolkit, Messages.RoleDetailsPage_2, SecurityPackage.Literals.ROLE__ASSIGNEES, SecurityPackage.Literals.GROUP);
+    oneToMany(parent, toolkit, Messages.RoleDetailsPage_2, SecurityPackage.Literals.ROLE__ASSIGNEES,
+        SecurityPackage.Literals.GROUP);
 
-    oneToMany(parent, toolkit, Messages.RoleDetailsPage_3, SecurityPackage.Literals.ROLE__ASSIGNEES, SecurityPackage.Literals.USER);
+    oneToMany(parent, toolkit, Messages.RoleDetailsPage_3, SecurityPackage.Literals.ROLE__ASSIGNEES,
+        SecurityPackage.Literals.USER);
   }
 
   protected INewObjectConfigurator createNewPermissionConfigurator()
@@ -104,7 +117,8 @@ public class RoleDetailsPage extends AbstractDetailsPage<Role>
 
       private static final int COL_PATH = 2;
 
-      private final String[] columnTitles = { Messages.RoleDetailsPage_5, Messages.RoleDetailsPage_6, Messages.RoleDetailsPage_7 };
+      private final String[] columnTitles = { Messages.RoleDetailsPage_5, Messages.RoleDetailsPage_6,
+          Messages.RoleDetailsPage_7 };
 
       private final CellEditor[] cellEditors = new CellEditor[3];
 
@@ -293,7 +307,77 @@ public class RoleDetailsPage extends AbstractDetailsPage<Role>
           return result;
         }
         case COL_PATH:
-          return new TextCellEditor(parent);
+          return new EditableDialogCellEditor(parent)
+          {
+
+            @Override
+            protected Object openDialogBox(Control cellEditorWindow)
+            {
+              final CDOView view = getInput().cdoView();
+              @SuppressWarnings({ "rawtypes", "unchecked" })
+              CDOItemProvider provider = new CDOItemProvider(null)
+              {
+                private boolean connected;
+
+                {
+                  // connect the input now, because the dialog will try to access the content provider before it has
+                  // been set into the tree viewer
+                  connectInput((IContainer)view);
+                }
+
+                @Override
+                protected void connectInput(IContainer<Object> input)
+                {
+                  if (!connected)
+                  {
+                    super.connectInput(input);
+                    connected = true;
+                  }
+                }
+
+                @Override
+                protected void disconnectInput(IContainer<Object> input)
+                {
+                  if (connected)
+                  {
+                    connected = false;
+                    super.disconnectInput(input);
+                  }
+                }
+              };
+
+              FilterTreeSelectionDialog dlg = new FilterTreeSelectionDialog(cellEditorWindow.getShell(), provider,
+                  provider);
+
+              dlg.setAllowMultiple(false);
+              dlg.setMessage("Choose a resource node to which to grant access.");
+              dlg.setTitle("Browse Resources");
+              dlg.setDoubleClickSelects(true);
+              dlg.addFilter(viewerFilter(getTypeFilter(EresourcePackage.Literals.CDO_RESOURCE_NODE)));
+              dlg.setBlockOnOpen(true);
+
+              String current = (String)getValue();
+
+              dlg.setInput(view);
+              if (current != null && view.hasResource(current))
+              {
+                dlg.setInitialSelection(view.getResourceNode(current));
+              }
+
+              String result = null;
+
+              if (dlg.open() == Window.OK)
+              {
+                CDOResourceNode node = (CDOResourceNode)dlg.getFirstResult();
+                if (node != null)
+                {
+                  result = node.getPath();
+                }
+              }
+
+              return result;
+            }
+          };
         default:
           throw new IllegalArgumentException("columnIndex"); //$NON-NLS-1$
         }
