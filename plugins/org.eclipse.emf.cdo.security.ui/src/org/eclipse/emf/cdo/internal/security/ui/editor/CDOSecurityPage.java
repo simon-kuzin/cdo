@@ -36,6 +36,8 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.forms.AbstractFormPart;
 import org.eclipse.ui.forms.DetailsPart;
 import org.eclipse.ui.forms.IFormPart;
@@ -57,6 +59,8 @@ public class CDOSecurityPage extends FormPage
 
   private Object formInput;
 
+  private IActionBars actionBars;
+
   CDOSecurityPage(CDOSecurityFormEditor editor)
   {
     super(editor, "securityForm", Messages.CDOSecurityPage_1); //$NON-NLS-1$
@@ -69,6 +73,8 @@ public class CDOSecurityPage extends FormPage
 
     viewTargetListener = createViewTargetListener();
     getView().addListener(viewTargetListener);
+
+    actionBars = getEditor().getActionBars();
 
     CDOResource resource = getEditor().getResource();
     if (resource == null)
@@ -120,7 +126,7 @@ public class CDOSecurityPage extends FormPage
       @Override
       protected void registerPages(DetailsPart detailsPart)
       {
-        detailsPart.setPageProvider(EClassDetailsPageProvider.builder() //
+        detailsPart.setPageProvider(EClassDetailsPageProvider.builder(actionBars) //
             .page(SecurityPackage.Literals.GROUP, new GroupDetailsPage(getEditingDomain(), getAdapterFactory())) //
             .page(SecurityPackage.Literals.USER, new UserDetailsPage(getEditingDomain(), getAdapterFactory())) //
             .page(SecurityPackage.Literals.ROLE, new RoleDetailsPage(getEditingDomain(), getAdapterFactory())) //
@@ -160,18 +166,29 @@ public class CDOSecurityPage extends FormPage
 
     if (getEditor().isReadOnly())
     {
-      managedForm.getMessageManager().addMessage(this,
-          Messages.CDOSecurityPage_3, null, IMessageProvider.INFORMATION);
+      managedForm.getMessageManager().addMessage(this, Messages.CDOSecurityPage_3, null, IMessageProvider.INFORMATION);
     }
     else
     {
       // check for unsupported security constructs
       checkForUnsupportedModelContent();
     }
+
+    // update the message manager after he form's contents have been presented to ensure the heading's summary of
+    // problems is up-to-date
+    Display.getCurrent().asyncExec(new Runnable()
+    {
+
+      public void run()
+      {
+        getManagedForm().getMessageManager().update();
+      }
+    });
   }
 
   protected <S extends AbstractSectionPart<?>> S addSection(S section, IManagedForm managedForm, Composite parent)
   {
+    section.setEditorActionBars(actionBars);
     managedForm.addPart(section);
     section.createContents(parent);
     return section;

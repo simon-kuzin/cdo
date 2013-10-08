@@ -36,6 +36,8 @@ import org.eclipse.emf.edit.provider.resource.ResourceItemProviderAdapterFactory
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
@@ -93,14 +95,35 @@ public class CDOSecurityFormEditor extends FormEditor implements IEditingDomainP
       try
       {
         ((CDOTransaction)view).commit(monitor);
+        fireDirtyStateChanged();
       }
       catch (CommitException e)
       {
-        StatusAdapter status = new StatusAdapter(new Status(IStatus.ERROR, OM.BUNDLE_ID, Messages.CDOSecurityFormEditor_0, e));
+        StatusAdapter status = new StatusAdapter(new Status(IStatus.ERROR, OM.BUNDLE_ID,
+            Messages.CDOSecurityFormEditor_0, e));
         status.setProperty(IStatusAdapterConstants.TITLE_PROPERTY, Messages.CDOSecurityFormEditor_1);
         status.setProperty(IStatusAdapterConstants.TIMESTAMP_PROPERTY, System.currentTimeMillis());
         StatusManager.getManager().handle(status, StatusManager.SHOW);
       }
+    }
+  }
+
+  protected void fireDirtyStateChanged()
+  {
+    Display display = getContainer().getDisplay();
+    if (display == Display.getCurrent())
+    {
+      firePropertyChange(IEditorPart.PROP_DIRTY);
+    }
+    else
+    {
+      display.asyncExec(new Runnable()
+      {
+        public void run()
+        {
+          fireDirtyStateChanged();
+        }
+      });
     }
   }
 
@@ -141,13 +164,7 @@ public class CDOSecurityFormEditor extends FormEditor implements IEditingDomainP
       {
         public void commandStackChanged(final EventObject event)
         {
-          getContainer().getDisplay().asyncExec(new Runnable()
-          {
-            public void run()
-            {
-              firePropertyChange(IEditorPart.PROP_DIRTY);
-            }
-          });
+          fireDirtyStateChanged();
         }
       });
 
@@ -207,5 +224,10 @@ public class CDOSecurityFormEditor extends FormEditor implements IEditingDomainP
   public EditingDomain getEditingDomain()
   {
     return editingDomain;
+  }
+
+  public IActionBars getActionBars()
+  {
+    return ((CDOSecurityFormActionBarContributor)getEditorSite().getActionBarContributor()).getActionBars();
   }
 }

@@ -13,6 +13,7 @@ package org.eclipse.emf.cdo.internal.security.ui.editor;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 
+import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.forms.IDetailsPage;
 import org.eclipse.ui.forms.IDetailsPageProvider;
 
@@ -30,9 +31,9 @@ public class EClassDetailsPageProvider implements IDetailsPageProvider
   {
   }
 
-  public static Builder builder()
+  public static Builder builder(IActionBars editorActionBars)
   {
-    return new Builder();
+    return new Builder(editorActionBars);
   }
 
   public Object getPageKey(Object object)
@@ -53,13 +54,22 @@ public class EClassDetailsPageProvider implements IDetailsPageProvider
   {
     private final Map<EClass, IDetailsPage> pages = new java.util.HashMap<EClass, IDetailsPage>();
 
-    private Builder()
+    private final IActionBars actionBars;
+
+    private Builder(IActionBars actionBars)
     {
+      this.actionBars = actionBars;
     }
 
     public Builder page(EClass eclass, IDetailsPage page)
     {
+      if (page instanceof AbstractSectionPart<?>)
+      {
+        ((AbstractSectionPart<?>)page).setEditorActionBars(actionBars);
+      }
+
       pages.put(eclass, page);
+
       return this;
     }
 

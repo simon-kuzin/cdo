@@ -12,6 +12,7 @@ package org.eclipse.emf.cdo.internal.security.ui.editor;
 
 import org.eclipse.emf.cdo.internal.security.ui.actions.SelectionListenerAction;
 import org.eclipse.emf.cdo.internal.security.ui.messages.Messages;
+import org.eclipse.emf.cdo.internal.security.ui.util.ActionBarsHelper;
 import org.eclipse.emf.cdo.internal.security.ui.util.ObjectExistsConverter;
 import org.eclipse.emf.cdo.internal.security.ui.util.SecurityModelUtil;
 import org.eclipse.emf.cdo.internal.security.ui.util.TableLabelProvider;
@@ -61,6 +62,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.forms.IManagedForm;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
@@ -174,6 +176,9 @@ public abstract class TableSection<T extends EObject> extends AbstractSectionPar
 
     mgr.update(true);
     section.setTextClient(toolbar);
+
+    new ActionBarsHelper(getEditorActionBars()).addGlobalAction(ActionFactory.DELETE.getId(), deleteAction).install(
+        viewer);
   }
 
   protected IAction createAddNewAction()
@@ -242,7 +247,7 @@ public abstract class TableSection<T extends EObject> extends AbstractSectionPar
       @Override
       protected boolean updateSelection(IStructuredSelection selection)
       {
-        return super.updateSelection(selection) && !selection.isEmpty() && SecurityModelUtil.isEditable(getInput());
+        return super.updateSelection(selection) && SecurityModelUtil.isEditable(getInput());
       }
     };
   }
@@ -298,17 +303,16 @@ public abstract class TableSection<T extends EObject> extends AbstractSectionPar
   {
     if (getInput() == null)
     {
-      getManagedForm().getMessageManager().addMessage(this,
-          Messages.TableSection_2, null, IStatus.WARNING, viewer.getControl());
+      getManagedForm().getMessageManager().addMessage(this, Messages.TableSection_2, null, IStatus.WARNING,
+          viewer.getControl());
     }
     else
     {
       // anything not matching filters?
       if (viewer.getTable().getItemCount() < getInput().getItems().size())
       {
-        getManagedForm().getMessageManager().addMessage(this,
-            Messages.TableSection_3, null,
-            IStatus.WARNING, viewer.getControl());
+        getManagedForm().getMessageManager().addMessage(this, Messages.TableSection_3, null, IStatus.WARNING,
+            viewer.getControl());
       }
     }
 

@@ -254,6 +254,7 @@ public abstract class AbstractDetailsPage<T extends EObject> extends AbstractSec
     OneToManyBlock result = new OneToManyBlock(getContext(), getEditingDomain(), getAdapterFactory(),
         new OneToManyBlock.OneToManyConfiguration(reference, itemType, itemFilter));
 
+    result.setEditorActionBars(getEditorActionBars());
     result.setInput(getValue());
     result.createControl(blockParent, toolkit);
     return result;
@@ -268,6 +269,7 @@ public abstract class AbstractDetailsPage<T extends EObject> extends AbstractSec
 
     OneToManyTableBlock result = new OneToManyTableBlock(getContext(), getEditingDomain(), getAdapterFactory(), config);
 
+    result.setEditorActionBars(getEditorActionBars());
     result.setInput(getValue());
     result.createControl(blockParent, toolkit);
     return result;

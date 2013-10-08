@@ -13,12 +13,14 @@ package org.eclipse.emf.cdo.internal.security.ui.util;
 import static org.eclipse.emf.cdo.internal.security.ui.util.SecurityModelUtil.applyTypeFilter;
 import static org.eclipse.emf.cdo.internal.security.ui.util.SecurityModelUtil.viewerFilter;
 
+import org.eclipse.emf.cdo.internal.security.ui.actions.SelectionListenerAction;
 import org.eclipse.emf.cdo.internal.security.ui.messages.Messages;
 import org.eclipse.emf.cdo.security.Directory;
 import org.eclipse.emf.cdo.security.Realm;
 import org.eclipse.emf.cdo.security.SecurityItem;
 import org.eclipse.emf.cdo.security.SecurityPackage;
 import org.eclipse.emf.cdo.security.provider.SecurityEditPlugin;
+import org.eclipse.emf.cdo.ui.shared.SharedIcons;
 
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.common.command.IdentityCommand;
@@ -66,6 +68,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
+import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.actions.ActionFactory;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 
 import java.util.Collections;
@@ -93,6 +97,8 @@ public class OneToManyBlock
   private TableViewer viewer;
 
   private INewObjectConfigurator newObjectConfigurator;
+
+  private IActionBars editorActionBars;
 
   public OneToManyBlock(DataBindingContext context, EditingDomain domain, AdapterFactory adapterFactory,
       EReference reference)
@@ -125,6 +131,11 @@ public class OneToManyBlock
   protected boolean isTable()
   {
     return false;
+  }
+
+  public void setEditorActionBars(IActionBars actionBars)
+  {
+    editorActionBars = actionBars;
   }
 
   public void createControl(Composite parent, FormToolkit toolkit)
@@ -301,10 +312,11 @@ public class OneToManyBlock
       });
     }
 
-    removeButton.addSelectionListener(new SelectionAdapter()
+    final SelectionListenerAction removeAction = new SelectionListenerAction(Messages.OneToManyBlock_2,
+        SharedIcons.getDescriptor("etool16/delete.gif")) //$NON-NLS-1$
     {
       @Override
-      public void widgetSelected(SelectionEvent e)
+      public void run()
       {
         Object selected = selection.getValue();
         if (selected != null)
@@ -323,7 +335,27 @@ public class OneToManyBlock
           execute(command);
         }
       }
+
+      @Override
+      protected boolean updateSelection(IStructuredSelection selection)
+      {
+        return super.updateSelection(selection) && SecurityModelUtil.isEditable(input.getValue());
+      }
+    };
+    removeButton.addSelectionListener(new SelectionAdapter()
+    {
+      @Override
+      public void widgetSelected(SelectionEvent e)
+      {
+        if (removeAction.isEnabled())
+        {
+          removeAction.run();
+        }
+      }
     });
+    viewer.addSelectionChangedListener(removeAction);
+
+    new ActionBarsHelper(editorActionBars).addGlobalAction(ActionFactory.DELETE.getId(), removeAction).install(viewer);
   }
 
   public void setInput(IObservableValue input)

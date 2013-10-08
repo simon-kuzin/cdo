@@ -29,6 +29,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.forms.AbstractFormPart;
 import org.eclipse.ui.forms.IFormPart;
 import org.eclipse.ui.forms.IManagedForm;
@@ -57,6 +58,8 @@ public abstract class AbstractSectionPart<T extends EObject> extends AbstractFor
 
   private WritableValue value;
 
+  private IActionBars editorActionBars;
+
   public AbstractSectionPart(Class<T> inputType, EClass inputEClass, EditingDomain domain, AdapterFactory adapterFactory)
   {
     this.inputType = inputType;
@@ -71,6 +74,16 @@ public abstract class AbstractSectionPart<T extends EObject> extends AbstractFor
     super.initialize(form);
 
     initDatabindings();
+  }
+
+  public void setEditorActionBars(IActionBars actionBars)
+  {
+    this.editorActionBars = actionBars;
+  }
+
+  protected IActionBars getEditorActionBars()
+  {
+    return editorActionBars;
   }
 
   protected void initDatabindings()
