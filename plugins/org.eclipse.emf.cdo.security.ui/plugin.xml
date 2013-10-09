@@ -22,5 +22,44 @@
             name="%editor.name">
       </editor>
    </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+         <command
+               commandId="org.eclipse.emf.cdo.security.ui.openEditor"
+               icon="$nl$/icons/full/ctool16/ManageSecurity.png"
+               label="%command.label"
+               style="push">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="activeMenuSelection">
+                  <count
+                        value="1">
+                  </count>
+                  <iterate >
+                     <adapt
+                           type="org.eclipse.emf.cdo.session.CDOSession">
+                     </adapt>
+                  </iterate>
+               </with>
+            </visibleWhen>
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            id="org.eclipse.emf.cdo.security.ui.management"
+            name="%category.name">
+      </category>
+      <command
+            id="org.eclipse.emf.cdo.security.ui.openEditor"
+            name="%command.name"
+            categoryId="org.eclipse.emf.cdo.security.ui.management"
+            defaultHandler="org.eclipse.emf.cdo.internal.security.ui.commands.ManageSecurityHandler">
+      </command>
+   </extension>
 
 </plugin>

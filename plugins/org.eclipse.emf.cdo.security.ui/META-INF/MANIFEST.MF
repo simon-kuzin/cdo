@@ -17,7 +17,9 @@ Require-Bundle: org.eclipse.emf.cdo.security;bundle-version="[4.3.0,5.0.0)",
 Bundle-ActivationPolicy: lazy
 Export-Package: org.eclipse.emf.cdo.internal.security.ui.actions;version="1.0.0";x-internal:=true,
  org.eclipse.emf.cdo.internal.security.ui.bundle;version="1.0.0";x-internal:=true,
+ org.eclipse.emf.cdo.internal.security.ui.commands;version="1.0.0";x-internal:=true,
  org.eclipse.emf.cdo.internal.security.ui.dialogs;version="1.0.0";x-internal:=true,
  org.eclipse.emf.cdo.internal.security.ui.editor;version="1.0.0";x-internal:=true,
  org.eclipse.emf.cdo.internal.security.ui.messages;version="1.0.0";x-internal:=true,
- org.eclipse.emf.cdo.internal.security.ui.util;version="1.0.0";x-internal:=true
+ org.eclipse.emf.cdo.internal.security.ui.util;version="1.0.0";x-internal:=true,
+ org.eclipse.emf.cdo.security.ui;version="1.0.0"

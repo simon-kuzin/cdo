@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2013 Eike Stepper (Berlin, Germany) and others.
+ * Copyright (c) 2007-2013 Eike Stepper (Berlin, Germany), CEA LIST, and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  *    Victor Roldan Betancort - maintenance
+ *    Christian W. Damus (CEA LIST) - 418452
  */
 package org.eclipse.net4j.util.ui;
 
@@ -15,6 +16,7 @@ import org.eclipse.net4j.util.internal.ui.bundle.OM;
 import org.eclipse.net4j.util.security.IPasswordCredentialsProvider;
 import org.eclipse.net4j.util.ui.security.InteractiveCredentialsProvider;
 
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.fieldassist.FieldDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
@@ -257,6 +259,29 @@ public final class UIUtil
     }
 
     return null;
+  }
+
+  /**
+   * Like {@link #getElement(ISelection, Class)} except that it attempts to adaptable
+   * {@link IAdaptable}s to the required {@code type}, if necessary.
+   * 
+   * @since 4.3
+   */
+  public static <T> T adaptElement(ISelection selection, Class<T> type)
+  {
+    T result = null;
+
+    Object element = getElement(selection);
+    if (type.isInstance(element))
+    {
+      result = type.cast(element);
+    }
+    else if (element instanceof IAdaptable)
+    {
+      result = type.cast(((IAdaptable)element).getAdapter(type));
+    }
+
+    return result;
   }
 
   /**

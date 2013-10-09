@@ -47,6 +47,12 @@ public class Messages extends NLS
 
   public static String GroupsSection_0;
 
+  public static String ManageSecurityHandler_0;
+
+  public static String ManageSecurityHandler_1;
+
+  public static String ManageSecurityHandler_2;
+
   public static String OneToManyBlock_0;
 
   public static String OneToManyBlock_1;
@@ -63,11 +69,15 @@ public class Messages extends NLS
 
   public static String RoleDetailsPage_3;
 
+  public static String RoleDetailsPage_4;
+
   public static String RoleDetailsPage_5;
 
   public static String RoleDetailsPage_6;
 
   public static String RoleDetailsPage_7;
+
+  public static String RoleDetailsPage_8;
 
   public static String RolesSection_0;
 

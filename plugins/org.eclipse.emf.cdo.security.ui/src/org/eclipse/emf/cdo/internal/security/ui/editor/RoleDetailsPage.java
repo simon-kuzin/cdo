@@ -350,8 +350,8 @@ public class RoleDetailsPage extends AbstractDetailsPage<Role>
                   provider);
 
               dlg.setAllowMultiple(false);
-              dlg.setMessage("Choose a resource node to which to grant access.");
-              dlg.setTitle("Browse Resources");
+              dlg.setMessage(Messages.RoleDetailsPage_4);
+              dlg.setTitle(Messages.RoleDetailsPage_8);
               dlg.setDoubleClickSelects(true);
               dlg.addFilter(viewerFilter(getTypeFilter(EresourcePackage.Literals.CDO_RESOURCE_NODE)));
               dlg.setBlockOnOpen(true);

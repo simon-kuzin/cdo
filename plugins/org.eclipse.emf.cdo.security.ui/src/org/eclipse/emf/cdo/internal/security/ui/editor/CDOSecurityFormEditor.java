@@ -13,7 +13,6 @@ package org.eclipse.emf.cdo.internal.security.ui.editor;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.internal.security.ui.bundle.OM;
 import org.eclipse.emf.cdo.internal.security.ui.messages.Messages;
-import org.eclipse.emf.cdo.internal.ui.CDOLobEditorInput;
 import org.eclipse.emf.cdo.security.provider.SecurityItemProviderAdapterFactory;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.cdo.ui.CDOEditorInput;
@@ -54,6 +53,8 @@ import java.util.EventObject;
  */
 public class CDOSecurityFormEditor extends FormEditor implements IEditingDomainProvider
 {
+
+  public static final String ID = "org.eclipse.emf.cdo.security.ui.CDOSecurityFormEditor"; //$NON-NLS-1$
 
   private ComposedAdapterFactory adapterFactory;
 
@@ -202,10 +203,6 @@ public class CDOSecurityFormEditor extends FormEditor implements IEditingDomainP
     {
       CDOEditorInput cdoInput = (CDOEditorInput)input;
       result = cdoInput.getView().getResource(cdoInput.getResourcePath());
-    }
-    else if (input instanceof CDOLobEditorInput)
-    {
-      result = (CDOResource)((CDOLobEditorInput)input).getResource();
     }
 
     return result;
