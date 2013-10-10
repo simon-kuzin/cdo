@@ -107,6 +107,19 @@ public abstract class TableSection<T extends EObject> extends AbstractSectionPar
     configureDragSupport(viewer);
   }
 
+  @Override
+  public void setFocus()
+  {
+    if (viewer != null)
+    {
+      viewer.getControl().setFocus();
+    }
+    else
+    {
+      super.setFocus();
+    }
+  }
+
   protected void addFilters(TableViewer viewer)
   {
     viewer.addFilter(createTypeFilter(elementEClass));
@@ -315,6 +328,5 @@ public abstract class TableSection<T extends EObject> extends AbstractSectionPar
             viewer.getControl());
       }
     }
-
   }
 }

@@ -328,7 +328,7 @@ public abstract class AbstractDetailsPage<T extends EObject> extends AbstractSec
     decoration.hide();
     decoration.setDescriptionText(Messages.AbstractDetailsPage_3);
     decoration.setImage(ExtendedImageRegistry.getInstance().getImage(
-        URI.createPlatformPluginURI(OM.BUNDLE_ID + "/icons/full/ctool16/revert.gif", true))); //$NON-NLS-1$
+        URI.createPlatformPluginURI(OM.BUNDLE_ID + "/icons/full/elcl16/revert.gif", true))); //$NON-NLS-1$
     decoration.setMarginWidth(2);
 
     decoration.addSelectionListener(new SelectionAdapter()

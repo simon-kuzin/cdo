@@ -42,6 +42,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.forms.editor.FormEditor;
+import org.eclipse.ui.forms.editor.IFormPage;
 import org.eclipse.ui.statushandlers.IStatusAdapterConstants;
 import org.eclipse.ui.statushandlers.StatusAdapter;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -226,5 +227,19 @@ public class CDOSecurityFormEditor extends FormEditor implements IEditingDomainP
   public IActionBars getActionBars()
   {
     return ((CDOSecurityFormActionBarContributor)getEditorSite().getActionBarContributor()).getActionBars();
+  }
+
+  @Override
+  public void setFocus()
+  {
+    super.setFocus();
+
+    IFormPage page = getActivePageInstance();
+    if (page != null && page instanceof CDOSecurityPage)
+    {
+      // ensure that the first focusable part is focused so that the page's toolbar will not be focused (which shows
+      // ugly blue highlights on the toolbar buttons)
+      page.setFocus();
+    }
   }
 }

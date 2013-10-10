@@ -36,6 +36,8 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.statushandlers.StatusManager;
 
+import java.util.Set;
+
 /**
  * 
  */
@@ -173,10 +175,20 @@ public class ManageSecurityHandler extends AbstractHandler
     page.addPartListener(new IPartListener()
     {
 
+      private final IEditorInput input = editor.getEditorInput();
+
+      private final Set<IEditorPart> openEditors = new java.util.HashSet<IEditorPart>();
+
+      {
+        openEditors.add(editor);
+      }
+
       public void partClosed(IWorkbenchPart part)
       {
-        if (part == editor)
+        openEditors.remove(part);
+        if (openEditors.isEmpty())
         {
+          // no more editors using this view
           context.disconnect(view);
           page.removePartListener(this);
         }
@@ -184,7 +196,15 @@ public class ManageSecurityHandler extends AbstractHandler
 
       public void partOpened(IWorkbenchPart part)
       {
-        // pass
+        if (part instanceof IEditorPart)
+        {
+          IEditorPart editor = (IEditorPart)part;
+          if (input.equals(editor.getEditorInput()))
+          {
+            // the user opened the advanced-mode editor from the form editor
+            openEditors.add(editor);
+          }
+        }
       }
 
       public void partDeactivated(IWorkbenchPart part)

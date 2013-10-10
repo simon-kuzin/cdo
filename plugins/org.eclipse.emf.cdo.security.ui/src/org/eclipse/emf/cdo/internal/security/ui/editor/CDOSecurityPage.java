@@ -17,6 +17,7 @@ import org.eclipse.emf.cdo.internal.security.ui.bundle.OM;
 import org.eclipse.emf.cdo.internal.security.ui.messages.Messages;
 import org.eclipse.emf.cdo.security.Realm;
 import org.eclipse.emf.cdo.security.SecurityPackage;
+import org.eclipse.emf.cdo.ui.CDOEditorUtil;
 import org.eclipse.emf.cdo.util.CDOUtil;
 import org.eclipse.emf.cdo.view.CDOView;
 import org.eclipse.emf.cdo.view.CDOViewTargetChangedEvent;
@@ -25,12 +26,16 @@ import org.eclipse.net4j.util.event.IEvent;
 import org.eclipse.net4j.util.event.IListener;
 
 import org.eclipse.emf.common.notify.AdapterFactory;
+import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EcoreFactory;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.edit.domain.EditingDomain;
+import org.eclipse.emf.edit.ui.provider.ExtendedImageRegistry;
 
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
@@ -38,6 +43,9 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.forms.AbstractFormPart;
 import org.eclipse.ui.forms.DetailsPart;
 import org.eclipse.ui.forms.IFormPart;
@@ -46,6 +54,8 @@ import org.eclipse.ui.forms.IPartSelectionListener;
 import org.eclipse.ui.forms.MasterDetailsBlock;
 import org.eclipse.ui.forms.editor.FormEditor;
 import org.eclipse.ui.forms.editor.FormPage;
+import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.eclipse.ui.forms.widgets.ScrolledForm;
 
 /**
  * 
@@ -96,6 +106,11 @@ public class CDOSecurityPage extends FormPage
   @Override
   protected void createFormContent(IManagedForm managedForm)
   {
+    final ScrolledForm form = managedForm.getForm();
+    final FormToolkit toolkit = managedForm.getToolkit();
+    toolkit.decorateFormHeading(form.getForm());
+    form.getToolBarManager().add(createEditAdvancedAction());
+
     class EmptySelectionForwarder extends AbstractFormPart implements IPartSelectionListener
     {
       private DetailsPart details;
@@ -155,7 +170,7 @@ public class CDOSecurityPage extends FormPage
       }
     };
 
-    managedForm.getForm().setText(Messages.CDOSecurityPage_2);
+    form.setText(Messages.CDOSecurityPage_2);
     masterDetail.createContent(managedForm);
 
     managedForm.setInput(formInput);
@@ -163,6 +178,8 @@ public class CDOSecurityPage extends FormPage
     // initialize the empty selection
     managedForm.addPart(emptySelectionForwarder);
     emptySelectionForwarder.forwardEmptySelection();
+
+    form.updateToolBar();
 
     if (getEditor().isReadOnly())
     {
@@ -174,7 +191,7 @@ public class CDOSecurityPage extends FormPage
       checkForUnsupportedModelContent();
     }
 
-    // update the message manager after he form's contents have been presented to ensure the heading's summary of
+    // update the message manager after the form's contents have been presented to ensure the heading's summary of
     // problems is up-to-date
     Display.getCurrent().asyncExec(new Runnable()
     {
@@ -315,5 +332,31 @@ public class CDOSecurityPage extends FormPage
     {
       getManagedForm().getMessageManager().addMessage(this, Messages.CDOSecurityPage_4, null, IMessageProvider.ERROR);
     }
+  }
+
+  private IAction createEditAdvancedAction()
+  {
+    return new Action("Open Advanced Editor", ExtendedImageRegistry.getInstance().getImageDescriptor(
+        URI.createPlatformPluginURI(OM.BUNDLE_ID + "/icons/full/elcl16/advanced.gif", true)))
+    {
+      @Override
+      public void run()
+      {
+        try
+        {
+          IEditorPart advancedEditor = getSite().getPage().openEditor(getEditorInput(), CDOEditorUtil.getEditorID(),
+              true, IWorkbenchPage.MATCH_INPUT | IWorkbenchPage.MATCH_ID);
+          if (advancedEditor != null)
+          {
+            // close me
+            closeEditor();
+          }
+        }
+        catch (PartInitException e)
+        {
+          OM.LOG.error(e);
+        }
+      }
+    };
   }
 }
