@@ -22,12 +22,16 @@ import org.eclipse.emf.cdo.security.SecurityFactory;
 import org.eclipse.emf.cdo.security.SecurityPackage;
 import org.eclipse.emf.cdo.ui.shared.SharedIcons;
 
+import org.eclipse.net4j.util.ui.UIUtil;
+
 import org.eclipse.emf.common.command.Command;
 import org.eclipse.emf.common.notify.AdapterFactory;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EClassifier;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.emf.edit.command.AddCommand;
 import org.eclipse.emf.edit.command.CommandActionDelegate;
 import org.eclipse.emf.edit.command.CommandParameter;
 import org.eclipse.emf.edit.command.CreateChildCommand;
@@ -51,12 +55,14 @@ import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerDropAdapter;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSourceAdapter;
 import org.eclipse.swt.dnd.DragSourceEvent;
 import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.dnd.TransferData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -105,6 +111,7 @@ public abstract class TableSection<T extends EObject> extends AbstractSectionPar
     getContext().bindValue(ViewersObservables.observeInput(viewer), getValue());
 
     configureDragSupport(viewer);
+    configureDropSupport(viewer);
   }
 
   @Override
@@ -310,6 +317,83 @@ public abstract class TableSection<T extends EObject> extends AbstractSectionPar
             }
           }
         });
+  }
+
+  protected void configureDropSupport(final TableViewer viewer)
+  {
+    viewer.addDropSupport(DND.DROP_LINK | DND.DROP_MOVE | DND.DROP_COPY,
+        new Transfer[] { LocalSelectionTransfer.getTransfer() }, new ViewerDropAdapter(viewer)
+        {
+
+          {
+            // we don't want it to look like you can insert new elements, only drop onto existing elements
+            setFeedbackEnabled(false);
+          }
+
+          @Override
+          public boolean validateDrop(Object target, int operation, TransferData transferType)
+          {
+            boolean result = false;
+
+            if (target instanceof EObject && LocalSelectionTransfer.getTransfer().isSupportedType(transferType))
+            {
+              EObject objectToDrop = getObjectToDrop(transferType);
+              if (objectToDrop != null)
+              {
+                result = getDropReference((EObject)target, objectToDrop) != null;
+
+                if (result && (getCurrentEvent().operations | DND.DROP_COPY) != 0)
+                {
+                  overrideOperation(DND.DROP_COPY);
+                }
+              }
+            }
+
+            return result;
+          }
+
+          @Override
+          public boolean performDrop(Object data)
+          {
+            IStructuredSelection selection = (IStructuredSelection)data;
+            EObject objectToDrop = UIUtil.getElement(selection, EObject.class);
+            EObject target = (EObject)getCurrentTarget();
+
+            Command command = AddCommand.create(getEditingDomain(), target, getDropReference(target, objectToDrop),
+                selection.toList());
+
+            boolean result = execute(command);
+            if (result)
+            {
+              viewer.getControl().setFocus();
+              viewer.setSelection(new StructuredSelection(target));
+            }
+
+            return result;
+          }
+
+          private EObject getObjectToDrop(TransferData transferType)
+          {
+            return UIUtil.getElement(LocalSelectionTransfer.getTransfer().getSelection(), EObject.class);
+          }
+        });
+  }
+
+  protected EReference getDropReference(EObject target, EObject objectToDrop)
+  {
+    return null;
+  }
+
+  protected boolean execute(Command command)
+  {
+    boolean result = command.canExecute();
+
+    if (result)
+    {
+      getEditingDomain().getCommandStack().execute(command);
+    }
+
+    return result;
   }
 
   protected void checkForUnsupportedModelContent()
