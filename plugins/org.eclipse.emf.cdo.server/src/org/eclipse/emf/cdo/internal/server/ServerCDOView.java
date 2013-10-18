@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2013 Eike Stepper (Berlin, Germany) and others.
+ * Copyright (c) 2010-2013 Eike Stepper (Berlin, Germany), CEA LIST, and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Christian W. Damus (CEA LIST) - 399306
  */
 package org.eclipse.emf.cdo.internal.server;
 
@@ -513,6 +514,17 @@ public class ServerCDOView extends AbstractCDOView implements org.eclipse.emf.cd
     }
 
     public CDOLobStore getLobStore()
+    {
+      throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Server sessions may not be used to change the user's credentials: it must
+     * be done client-side by interaction with the user.
+     * 
+     * @since 4.3
+     */
+    public void changeCredentials()
     {
       throw new UnsupportedOperationException();
     }

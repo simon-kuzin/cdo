@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 Eike Stepper (Berlin, Germany) and others.
+ * Copyright (c) 2009-2012 Eike Stepper (Berlin, Germany), CEA LIST, and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  *    Andre Dietisheim - bug 256649
+ *    Christian W. Damus (CEA LIST) - 399306
  */
 package org.eclipse.emf.cdo.internal.server.embedded;
 
@@ -62,6 +63,17 @@ public class EmbeddedClientSession extends CDOSessionImpl implements CDOSession
 
   @Override
   public CDOLobStore getLobStore()
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Changing the user's password in an embedded client session is not supported:
+   * it must be done interactively with the user in a client session.
+   * 
+   * @since 4.3
+   */
+  public void changeCredentials()
   {
     throw new UnsupportedOperationException();
   }

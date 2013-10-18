@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2013 Eike Stepper (Berlin, Germany) and others.
+ * Copyright (c) 2009-2013 Eike Stepper (Berlin, Germany), CEA LIST, and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *    Simon McDuff - bug 230832
  *    Simon McDuff - bug 233490
  *    Simon McDuff - bug 213402
+ *    Christian W. Damus (CEA LIST) - 399306
  */
 package org.eclipse.emf.cdo.common.protocol;
 
@@ -28,9 +29,9 @@ public interface CDOProtocolConstants
   /**
    * @since 4.2
    */
-  public static final int PROTOCOL_VERSION = 17; // Make query fail in sequence
+  public static final int PROTOCOL_VERSION = 18; // Password change protocol
 
-  // public static final int PROTOCOL_VERSION = 16; // Last update for permission transfers
+  // public static final int PROTOCOL_VERSION = 17; // Last update for make query fail in sequence
 
   // //////////////////////////////////////////////////////////////////////
   // Signal IDs
@@ -258,6 +259,24 @@ public interface CDOProtocolConstants
    * @since 4.3
    */
   public static final short SIGNAL_LOAD_PERMISSIONS = 55;
+
+  /**
+   * Server's request to the client for new credentials.
+   * 
+   * @since 4.3
+   * 
+   * @see #SIGNAL_REQUEST_CHANGE_CREDENTIALS
+   */
+  public static final short SIGNAL_CHANGE_CREDENTIALS = 56;
+
+  /**
+   * Client's request to the server to initiate a change-credentials operation.
+   * 
+   * @since 4.3
+   * 
+   * @see #SIGNAL_CHANGE_CREDENTIALS
+   */
+  public static final short SIGNAL_REQUEST_CHANGE_CREDENTIALS = 57;
 
   // //////////////////////////////////////////////////////////////////////
   // Session Refresh

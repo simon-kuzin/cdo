@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 Eike Stepper (Berlin, Germany) and others.
+ * Copyright (c) 2009-2012 Eike Stepper (Berlin, Germany), CEA LIST, and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
  *    Simon McDuff - bug 230832
  *    Simon McDuff - bug 233490
  *    Simon McDuff - bug 213402
+ *    Christian W. Damus (CEA LIST) - 399306
  */
 package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
@@ -93,6 +94,11 @@ public class CDOServerProtocol extends SignalProtocol<InternalSession> implement
   public Response sendAuthenticationChallenge(Challenge challenge) throws Exception
   {
     return new AuthenticationRequest(this, challenge).send(negotiationTimeout);
+  }
+
+  public Response sendChangeCredentialsChallenge(Challenge challenge) throws Exception
+  {
+    return new ChangeCredentialsRequest(this, challenge).send(negotiationTimeout);
   }
 
   public void sendRepositoryTypeNotification(CDOCommonRepository.Type oldType, CDOCommonRepository.Type newType)
@@ -350,6 +356,9 @@ public class CDOServerProtocol extends SignalProtocol<InternalSession> implement
 
     case SIGNAL_LOAD_PERMISSIONS:
       return new LoadPermissionsIndication(this);
+
+    case SIGNAL_REQUEST_CHANGE_CREDENTIALS:
+      return new RequestChangeCredentialsIndication(this);
 
     default:
       return super.createSignalReactor(signalID);

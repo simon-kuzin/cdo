@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2013 Eike Stepper (Berlin, Germany) and others.
+ * Copyright (c) 2009-2013 Eike Stepper (Berlin, Germany), CEA LIST, and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Christian W. Damus (CEA LIST) - 399306
  */
 package org.eclipse.emf.spi.cdo;
 
@@ -295,6 +296,17 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, BranchLo
    * @since 4.3
    */
   public Map<CDORevision, CDOPermission> loadPermissions(InternalCDORevision[] revisions);
+
+  /**
+   * Requests that the server initiate the change-credentials protocol.
+   * This is an optional session protocol operation.
+   * 
+   * @since 4.3
+   * 
+   * @throws UnsupportedOperationException if the session protocol implementation does
+   *         not support requesting change of credentials
+   */
+  public void requestChangeCredentials();
 
   /**
    * If the meaning of this type isn't clear, there really should be more of a description here...

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2013 Eike Stepper (Berlin, Germany) and others.
+ * Copyright (c) 2007-2013 Eike Stepper (Berlin, Germany), CEA LIST, and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *    Eike Stepper - initial API and implementation
  *    Simon McDuff - bug 201266
  *    Simon McDuff - bug 202725
+ *    Christian W. Damus (CEA LIST) - 399306
  */
 package org.eclipse.emf.cdo.internal.server;
 
@@ -39,6 +40,7 @@ import org.eclipse.net4j.util.security.DiffieHellman;
 import org.eclipse.net4j.util.security.DiffieHellman.Client.Response;
 import org.eclipse.net4j.util.security.DiffieHellman.Server.Challenge;
 import org.eclipse.net4j.util.security.IAuthenticator;
+import org.eclipse.net4j.util.security.IAuthenticator2;
 import org.eclipse.net4j.util.security.IUserManager;
 import org.eclipse.net4j.util.security.UserManagerAuthenticator;
 
@@ -419,6 +421,59 @@ public class SessionManager extends Container<ISession> implements InternalSessi
 
       authenticator.authenticate(userID, password);
       return userID;
+    }
+    catch (SecurityException ex)
+    {
+      throw ex;
+    }
+    catch (Exception ex)
+    {
+      Throwable cause = ex.getCause();
+      if (cause instanceof SecurityException)
+      {
+        throw (SecurityException)cause;
+      }
+
+      throw new SecurityException(ex);
+    }
+  }
+
+  public void changeUserCredentials(ISessionProtocol sessionProtocol)
+  {
+
+    if (sessionProtocol == null)
+    {
+      return;
+    }
+
+    if (authenticationServer == null || authenticator == null)
+    {
+      return;
+    }
+
+    if (!(authenticator instanceof IAuthenticator2))
+    {
+      throw new SecurityException("Current authenticator does not permit password updates"); //$NON-NLS-1$
+    }
+
+    try
+    {
+      Challenge challenge = authenticationServer.getChallenge();
+      Response response = sessionProtocol.sendChangeCredentialsChallenge(challenge);
+      if (response == null)
+      {
+        throw new NotAuthenticatedException();
+      }
+
+      ByteArrayInputStream baos = new ByteArrayInputStream(authenticationServer.handleResponse(response));
+      @SuppressWarnings("resource")
+      ExtendedDataInputStream stream = new ExtendedDataInputStream(baos);
+      String userID = stream.readString();
+      char[] password = stream.readString().toCharArray();
+      char[] newPassword = stream.readString().toCharArray();
+
+      // this will throw if the "old password" provided by the user is not correct
+      ((IAuthenticator2)authenticator).updatePassword(userID, password, newPassword);
     }
     catch (SecurityException ex)
     {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2013 Eike Stepper (Berlin, Germany) and others.
+ * Copyright (c) 2009-2013 Eike Stepper (Berlin, Germany), CEA LIST, and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *    Simon McDuff - maintenance
  *    Victor Roldan Betancort - maintenance
  *    Andre Dietisheim - bug 256649
+ *    Christian W. Damus (CEA LIST) - 399306
  */
 package org.eclipse.emf.cdo.session;
 
@@ -137,6 +138,16 @@ public interface CDOSession extends CDOCommonSession, CDOUpdatable, CDOTransacti
    * @since 4.3
    */
   public IPasswordCredentialsProvider getCredentialsProvider();
+
+  /**
+   * Initiates interactive changing of credentials for the user logged in in this session.
+   * This is an optional operation of the session.
+   * 
+   * @since 4.3
+   * 
+   * @throws UnsupportedOperationException if the session implementation does not permit changing credentials
+   */
+  public void changeCredentials();
 
   /**
    * Returns the CDO {@link CDORemoteSessionManager remote session manager} that keeps track of the other remote

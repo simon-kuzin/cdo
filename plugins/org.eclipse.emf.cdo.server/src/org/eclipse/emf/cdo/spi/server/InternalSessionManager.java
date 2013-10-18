@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 Eike Stepper (Berlin, Germany) and others.
+ * Copyright (c) 2009-2012 Eike Stepper (Berlin, Germany), CEA LIST, and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Christian W. Damus (CEA LIST) - 399306
  */
 package org.eclipse.emf.cdo.spi.server;
 
@@ -62,6 +63,14 @@ public interface InternalSessionManager extends ISessionManager
    * @since 4.2
    */
   public void setAuthenticationServer(DiffieHellman.Server authenticationServer);
+
+  /**
+   * Initiates the change-credentials protocol with the client and processes the
+   * client response to update the user's credentials.
+   * 
+   * @since 4.3
+   */
+  public void changeUserCredentials(ISessionProtocol sessionProtocol);
 
   /**
    * @since 4.1

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2013 Eike Stepper (Berlin, Germany) and others.
+ * Copyright (c) 2009-2013 Eike Stepper (Berlin, Germany), CEA LIST, and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@
  *    Simon McDuff - bug 213402
  *    Victor Roldan Betancort - maintenance
  *    Andre Dietisheim - bug 256649
+ *    Christian W. Damus (CEA LIST) - 399306
  */
 package org.eclipse.emf.cdo.internal.net4j;
 
@@ -292,6 +293,14 @@ public class CDONet4jSessionImpl extends CDOSessionImpl implements org.eclipse.e
     }
 
     getPackageRegistry().deactivate();
+  }
+
+  public void changeCredentials()
+  {
+    // send a request to the server to initiate (from the server) the password change protocol
+    CDOSessionProtocol sessionProtocol = getSessionProtocol();
+
+    sessionProtocol.requestChangeCredentials();
   }
 
   /**

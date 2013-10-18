@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2013 Eike Stepper (Berlin, Germany) and others.
+ * Copyright (c) 2012, 2013 Eike Stepper (Berlin, Germany), CEA LIST, and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Christian W. Damus (CEA LIST) - 399306
  */
 package org.eclipse.emf.cdo.server.internal.security;
 
@@ -76,6 +77,7 @@ import org.eclipse.net4j.util.lifecycle.LifecycleEventAdapter;
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.security.IAuthenticator;
+import org.eclipse.net4j.util.security.IAuthenticator2;
 import org.eclipse.net4j.util.security.IPasswordCredentials;
 
 import org.eclipse.emf.common.util.EList;
@@ -856,7 +858,7 @@ public class SecurityManager extends Lifecycle implements InternalSecurityManage
   /**
    * @author Eike Stepper
    */
-  private final class Authenticator implements IAuthenticator
+  private final class Authenticator implements IAuthenticator2
   {
     public void authenticate(String userID, char[] password) throws SecurityException
     {
@@ -871,6 +873,12 @@ public class SecurityManager extends Lifecycle implements InternalSecurityManage
           throw new SecurityException("Access denied"); //$NON-NLS-1$
         }
       }
+    }
+
+    public void updatePassword(String userID, char[] oldPassword, char[] newPassword)
+    {
+      authenticate(userID, oldPassword);
+      setPassword(userID, new String(newPassword));
     }
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2007-2013 Eike Stepper (Berlin, Germany) and others.
+ * Copyright (c) 2007-2013 Eike Stepper (Berlin, Germany), CEA LIST, and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  *    Victor Roldan Betancort - maintenance
+ *    Christian W. Damus (CEA LIST) - 399306
  */
 package org.eclipse.emf.cdo.ui;
 
@@ -25,6 +26,7 @@ import org.eclipse.emf.cdo.eresource.CDOResourceFolder;
 import org.eclipse.emf.cdo.eresource.CDOResourceLeaf;
 import org.eclipse.emf.cdo.eresource.CDOResourceNode;
 import org.eclipse.emf.cdo.eresource.CDOTextResource;
+import org.eclipse.emf.cdo.internal.ui.actions.ChangePasswordAction;
 import org.eclipse.emf.cdo.internal.ui.actions.CloseSessionAction;
 import org.eclipse.emf.cdo.internal.ui.actions.CloseViewAction;
 import org.eclipse.emf.cdo.internal.ui.actions.CommitTransactionAction;
@@ -518,6 +520,7 @@ public class CDOItemProvider extends ContainerItemProvider<IContainer<Object>>
     }
 
     manager.add(new Separator());
+    manager.add(new ChangePasswordAction(page, session));
     manager.add(new CloseSessionAction(page, session));
   }
 

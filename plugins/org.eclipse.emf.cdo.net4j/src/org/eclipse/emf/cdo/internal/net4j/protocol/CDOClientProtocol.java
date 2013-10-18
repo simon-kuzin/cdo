@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2012 Eike Stepper (Berlin, Germany) and others.
+ * Copyright (c) 2009-2013 Eike Stepper (Berlin, Germany), CEA LIST, and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Christian W. Damus (CEA LIST) - 399306
  */
 package org.eclipse.emf.cdo.internal.net4j.protocol;
 
@@ -491,6 +492,9 @@ public class CDOClientProtocol extends SignalProtocol<CDOSession> implements CDO
     case SIGNAL_LOCK_NOTIFICATION:
       return new LockNotificationIndication(this);
 
+    case SIGNAL_CHANGE_CREDENTIALS:
+      return new ChangeCredentialsIndication(this);
+
     default:
       return super.createSignalReactor(signalID);
     }
@@ -559,5 +563,10 @@ public class CDOClientProtocol extends SignalProtocol<CDOSession> implements CDO
   public Map<CDORevision, CDOPermission> loadPermissions(InternalCDORevision[] revisions)
   {
     return send(new LoadPermissionsRequest(this, revisions));
+  }
+
+  public void requestChangeCredentials()
+  {
+    send(new RequestChangeCredentialsRequest(this));
   }
 }
