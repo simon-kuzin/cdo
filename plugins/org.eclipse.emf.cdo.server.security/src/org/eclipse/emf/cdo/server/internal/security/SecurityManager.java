@@ -795,6 +795,30 @@ public class SecurityManager extends Lifecycle implements InternalSecurityManage
     }
   }
 
+  protected final boolean isAdministrator(User user)
+  {
+    // an administrator is one that has write permission on the realm resource
+    Realm realm = getRealm();
+
+    if (realm != null)
+    {
+      // can't be an administrator if there isn't a realm
+      CDORevision revision = realm.cdoRevision();
+      CDORevisionProvider revisionProvider = realm.cdoView();
+      CDOBranchPoint securityContext = realm.cdoView();
+
+      for (Permission next : user.getAllPermissions())
+      {
+        if (next.getAccess() == Access.WRITE && next.isApplicable(revision, revisionProvider, securityContext))
+        {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
   @Override
   protected void doActivate() throws Exception
   {
@@ -878,6 +902,19 @@ public class SecurityManager extends Lifecycle implements InternalSecurityManage
     public void updatePassword(String userID, char[] oldPassword, char[] newPassword)
     {
       authenticate(userID, oldPassword);
+      setPassword(userID, new String(newPassword));
+    }
+
+    public void resetPassword(String adminID, char[] adminPassword, String userID, char[] newPassword)
+    {
+      authenticate(adminID, adminPassword);
+
+      User admin = getUser(adminID);
+      if (!isAdministrator(admin))
+      {
+        throw new SecurityException("Password reset requires administrator privilege"); //$NON-NLS-1$
+      }
+
       setPassword(userID, new String(newPassword));
     }
   }

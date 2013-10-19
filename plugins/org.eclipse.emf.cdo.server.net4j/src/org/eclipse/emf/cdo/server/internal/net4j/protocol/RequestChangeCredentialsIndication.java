@@ -29,6 +29,10 @@ public class RequestChangeCredentialsIndication extends CDOServerIndicationWithM
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
       RequestChangeCredentialsIndication.class);
 
+  private Operation operation;
+
+  private String userID;
+
   public RequestChangeCredentialsIndication(CDOServerProtocol protocol)
   {
     super(protocol, CDOProtocolConstants.SIGNAL_REQUEST_CHANGE_CREDENTIALS);
@@ -37,11 +41,12 @@ public class RequestChangeCredentialsIndication extends CDOServerIndicationWithM
   @Override
   protected void indicating(CDODataInput in, OMMonitor monitor) throws Exception
   {
-    // nothing to read from the client
+    operation = in.readEnum(Operation.class);
+    userID = in.readString();
 
     if (TRACER.isEnabled())
     {
-      TRACER.trace("Initiating change of user credentials"); //$NON-NLS-1$
+      TRACER.format("Initiating %s of user credentials", operation); //$NON-NLS-1$
     }
   }
 
@@ -56,11 +61,20 @@ public class RequestChangeCredentialsIndication extends CDOServerIndicationWithM
       try
       {
         InternalSessionManager sessionManager = getRepository().getSessionManager();
-        sessionManager.changeUserCredentials(getProtocol());
+
+        switch (operation)
+        {
+        case CHANGE_PASSWORD:
+          sessionManager.changeUserCredentials(getProtocol());
+          break;
+        case RESET_PASSWORD:
+          sessionManager.resetUserCredentials(getProtocol(), userID);
+          break;
+        }
 
         if (TRACER.isEnabled())
         {
-          TRACER.format("Credentials change processed."); //$NON-NLS-1$
+          TRACER.format("Credentials %s processed.", operation); //$NON-NLS-1$
         }
         out.writeBoolean(true);
       }
@@ -75,6 +89,29 @@ public class RequestChangeCredentialsIndication extends CDOServerIndicationWithM
     {
       async.stop();
       monitor.done();
+    }
+  }
+
+  //
+  // Nested types
+  //
+
+  public static enum Operation
+  {
+    CHANGE_PASSWORD, RESET_PASSWORD;
+
+    @Override
+    public String toString()
+    {
+      switch (this)
+      {
+      case CHANGE_PASSWORD:
+        return "change"; //$NON-NLS-1$
+      case RESET_PASSWORD:
+        return "reset"; //$NON-NLS-1$
+      }
+
+      return super.toString();
     }
   }
 }

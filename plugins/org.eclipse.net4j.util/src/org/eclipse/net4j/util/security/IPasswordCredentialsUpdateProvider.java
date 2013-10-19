@@ -17,7 +17,7 @@ package org.eclipse.net4j.util.security;
  */
 public interface IPasswordCredentialsUpdateProvider
 {
-  public IPasswordCredentialsUpdate getCredentialsUpdate();
+  public IPasswordCredentialsUpdate getCredentialsUpdate(String userID, boolean isReset);
 
-  public IPasswordCredentialsUpdate getCredentialsUpdate(String realm);
+  public IPasswordCredentialsUpdate getCredentialsUpdate(String realm, String userID, boolean isReset);
 }

@@ -567,6 +567,11 @@ public class CDOClientProtocol extends SignalProtocol<CDOSession> implements CDO
 
   public void requestChangeCredentials()
   {
-    send(new RequestChangeCredentialsRequest(this));
+    send(new RequestChangeCredentialsRequest(this, RequestChangeCredentialsRequest.Operation.CHANGE_PASSWORD, null));
+  }
+
+  public void requestResetCredentials(String userID)
+  {
+    send(new RequestChangeCredentialsRequest(this, RequestChangeCredentialsRequest.Operation.RESET_PASSWORD, userID));
   }
 }

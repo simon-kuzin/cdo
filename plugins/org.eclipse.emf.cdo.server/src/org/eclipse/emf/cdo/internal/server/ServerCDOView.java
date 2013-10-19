@@ -529,6 +529,17 @@ public class ServerCDOView extends AbstractCDOView implements org.eclipse.emf.cd
       throw new UnsupportedOperationException();
     }
 
+    /**
+     * Server sessions may not be used to reset a user's credentials: it must
+     * be done client-side by interaction with an adminstrator.
+     * 
+     * @since 4.3
+     */
+    public void resetCredentials(String userID)
+    {
+      throw new UnsupportedOperationException();
+    }
+
     public InternalCDORevisionManager getRevisionManager()
     {
       return repository.getRevisionManager();

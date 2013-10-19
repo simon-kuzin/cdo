@@ -28,24 +28,56 @@ public class RequestChangeCredentialsRequest extends CDOClientRequestWithMonitor
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG_PROTOCOL,
       RequestChangeCredentialsRequest.class);
 
-  public RequestChangeCredentialsRequest(CDOClientProtocol protocol)
+  private final Operation operation;
+
+  private final String userID;
+
+  public RequestChangeCredentialsRequest(CDOClientProtocol protocol, Operation operation, String userID)
   {
     super(protocol, CDOProtocolConstants.SIGNAL_REQUEST_CHANGE_CREDENTIALS);
+
+    this.operation = operation;
+    this.userID = userID;
   }
 
   @Override
   protected void requesting(CDODataOutput out, OMMonitor monitor) throws IOException
   {
-    // nothing to communicate
     if (TRACER.isEnabled())
     {
-      TRACER.trace("Requesting change of user credentials"); //$NON-NLS-1$
+      TRACER.format("Requesting %s of user credentials", operation); //$NON-NLS-1$
     }
+
+    out.writeEnum(operation);
+    out.writeString(userID);
   }
 
   @Override
   protected Boolean confirming(CDODataInput in, OMMonitor monitor) throws IOException
   {
     return in.readBoolean();
+  }
+
+  //
+  // Nested types
+  //
+
+  public static enum Operation
+  {
+    CHANGE_PASSWORD, RESET_PASSWORD;
+
+    @Override
+    public String toString()
+    {
+      switch (this)
+      {
+      case CHANGE_PASSWORD:
+        return "change"; //$NON-NLS-1$
+      case RESET_PASSWORD:
+        return "reset"; //$NON-NLS-1$
+      }
+
+      return super.toString();
+    }
   }
 }

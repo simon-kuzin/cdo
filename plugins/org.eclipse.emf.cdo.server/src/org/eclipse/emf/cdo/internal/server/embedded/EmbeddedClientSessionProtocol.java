@@ -605,6 +605,15 @@ public class EmbeddedClientSessionProtocol extends Lifecycle implements CDOSessi
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Reset of credentials may not be requested by embedded client sessions, only by
+   * interactive client sessions.
+   */
+  public void requestResetCredentials(String userID)
+  {
+    throw new UnsupportedOperationException();
+  }
+
   @Override
   protected void doActivate() throws Exception
   {

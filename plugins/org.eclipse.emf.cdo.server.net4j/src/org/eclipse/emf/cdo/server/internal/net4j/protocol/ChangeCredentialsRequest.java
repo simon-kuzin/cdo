@@ -12,6 +12,7 @@ package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.util.NotAuthenticatedException;
+import org.eclipse.emf.cdo.server.internal.net4j.protocol.RequestChangeCredentialsIndication.Operation;
 
 import org.eclipse.net4j.signal.RemoteException;
 import org.eclipse.net4j.signal.RequestWithMonitoring;
@@ -31,15 +32,23 @@ public class ChangeCredentialsRequest extends RequestWithMonitoring<Response>
 {
   private Challenge challenge;
 
-  public ChangeCredentialsRequest(CDOServerProtocol protocol, Challenge challenge)
+  private Operation operation;
+
+  private String userID;
+
+  public ChangeCredentialsRequest(CDOServerProtocol protocol, Challenge challenge, String userID, boolean isReset)
   {
     super(protocol, CDOProtocolConstants.SIGNAL_CHANGE_CREDENTIALS);
     this.challenge = challenge;
+    operation = isReset ? Operation.RESET_PASSWORD : Operation.CHANGE_PASSWORD;
+    this.userID = userID;
   }
 
   @Override
   protected void requesting(ExtendedDataOutputStream out, OMMonitor monitor) throws Exception
   {
+    out.writeEnum(operation);
+    out.writeString(userID);
     challenge.write(out);
   }
 

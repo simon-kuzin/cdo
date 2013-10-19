@@ -150,6 +150,18 @@ public interface CDOSession extends CDOCommonSession, CDOUpdatable, CDOTransacti
   public void changeCredentials();
 
   /**
+   * Initiates interactive reset of credentials for the specified user.
+   * This is an optional operation of the session.
+   * 
+   * @param userID the ID of the user for which to reset credentials
+   * 
+   * @since 4.3
+   * 
+   * @throws UnsupportedOperationException if the session implementation does not permit resetting user credentials
+   */
+  public void resetCredentials(String userID);
+
+  /**
    * Returns the CDO {@link CDORemoteSessionManager remote session manager} that keeps track of the other remote
    * sessions served by the repository of this local session.
    */

@@ -309,6 +309,19 @@ public interface CDOSessionProtocol extends CDOProtocol, PackageLoader, BranchLo
   public void requestChangeCredentials();
 
   /**
+   * Requests that the server initiate the reset-credentials protocol.
+   * This is an optional session protocol operation.
+   * 
+   * @param userID the ID of the user whose credentials are to be reset
+   * 
+   * @since 4.3
+   * 
+   * @throws UnsupportedOperationException if the session protocol implementation does
+   *         not support requesting reset of credentials
+   */
+  public void requestResetCredentials(String userID);
+
+  /**
    * If the meaning of this type isn't clear, there really should be more of a description here...
    *
    * @author Eike Stepper

@@ -13,6 +13,7 @@ package org.eclipse.emf.cdo.internal.net4j.protocol;
 
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.internal.net4j.bundle.OM;
+import org.eclipse.emf.cdo.internal.net4j.protocol.RequestChangeCredentialsRequest.Operation;
 
 import org.eclipse.net4j.signal.IndicationWithMonitoring;
 import org.eclipse.net4j.signal.SignalProtocol;
@@ -39,6 +40,10 @@ public class ChangeCredentialsIndication extends IndicationWithMonitoring
 {
   private Challenge challenge;
 
+  private Operation operation;
+
+  private String userID;
+
   public ChangeCredentialsIndication(SignalProtocol<?> protocol)
   {
     super(protocol, CDOProtocolConstants.SIGNAL_CHANGE_CREDENTIALS);
@@ -58,6 +63,8 @@ public class ChangeCredentialsIndication extends IndicationWithMonitoring
   @Override
   protected void indicating(ExtendedDataInputStream in, OMMonitor monitor) throws Exception
   {
+    operation = in.readEnum(Operation.class);
+    userID = in.readString(); // may be null if operation is not reset
     challenge = new Challenge(in);
   }
 
@@ -76,7 +83,7 @@ public class ChangeCredentialsIndication extends IndicationWithMonitoring
       }
 
       IPasswordCredentialsUpdate credentials = ((IPasswordCredentialsUpdateProvider)credentialsProvider)
-          .getCredentialsUpdate();
+          .getCredentialsUpdate(userID, operation == Operation.RESET_PASSWORD);
       if (credentials == null)
       {
         // user canceled. Fine
@@ -84,14 +91,14 @@ public class ChangeCredentialsIndication extends IndicationWithMonitoring
         return;
       }
 
-      String userID = credentials.getUserID();
-      if (StringUtil.isEmpty(userID))
+      String authUserID = credentials.getUserID();
+      if (StringUtil.isEmpty(authUserID))
       {
         throw new IllegalStateException("No userID provided"); //$NON-NLS-1$
       }
 
-      String password = new String(credentials.getPassword());
-      if (StringUtil.isEmpty(password))
+      String authPassword = new String(credentials.getPassword());
+      if (StringUtil.isEmpty(authPassword))
       {
         throw new IllegalStateException("No password provided"); //$NON-NLS-1$
       }
@@ -105,9 +112,22 @@ public class ChangeCredentialsIndication extends IndicationWithMonitoring
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       @SuppressWarnings("resource")
       ExtendedDataOutputStream stream = new ExtendedDataOutputStream(baos);
+
+      switch (operation)
+      {
+      case CHANGE_PASSWORD:
+        stream.writeString(authUserID);
+        stream.writeString(authPassword);
+        stream.writeString(newPassword);
+        break;
+      case RESET_PASSWORD:
+        stream.writeString(authUserID);
+        stream.writeString(authPassword);
       stream.writeString(userID);
-      stream.writeString(password);
       stream.writeString(newPassword);
+        break;
+      }
+
       stream.flush();
       byte[] clearText = baos.toByteArray();
 

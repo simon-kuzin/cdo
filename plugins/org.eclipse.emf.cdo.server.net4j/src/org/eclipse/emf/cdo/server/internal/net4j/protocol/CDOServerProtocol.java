@@ -96,9 +96,9 @@ public class CDOServerProtocol extends SignalProtocol<InternalSession> implement
     return new AuthenticationRequest(this, challenge).send(negotiationTimeout);
   }
 
-  public Response sendChangeCredentialsChallenge(Challenge challenge) throws Exception
+  public Response sendChangeCredentialsChallenge(Challenge challenge, String userID, boolean isReset) throws Exception
   {
-    return new ChangeCredentialsRequest(this, challenge).send(negotiationTimeout);
+    return new ChangeCredentialsRequest(this, challenge, userID, isReset).send(negotiationTimeout);
   }
 
   public void sendRepositoryTypeNotification(CDOCommonRepository.Type oldType, CDOCommonRepository.Type newType)

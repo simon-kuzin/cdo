@@ -303,6 +303,14 @@ public class CDONet4jSessionImpl extends CDOSessionImpl implements org.eclipse.e
     sessionProtocol.requestChangeCredentials();
   }
 
+  public void resetCredentials(String userID)
+  {
+    // send a request to the server to initiate (from the server) the password reset protocol
+    CDOSessionProtocol sessionProtocol = getSessionProtocol();
+
+    sessionProtocol.requestResetCredentials(userID);
+  }
+
   /**
    * @author Eike Stepper
    */

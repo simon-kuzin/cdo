@@ -71,7 +71,7 @@ public class EmbeddedServerSessionProtocol extends Lifecycle implements ISession
     throw new UnsupportedOperationException();
   }
 
-  public Response sendChangeCredentialsChallenge(Challenge challenge) throws Exception
+  public Response sendChangeCredentialsChallenge(Challenge challenge, String userID, boolean isReset) throws Exception
   {
     throw new UnsupportedOperationException();
   }

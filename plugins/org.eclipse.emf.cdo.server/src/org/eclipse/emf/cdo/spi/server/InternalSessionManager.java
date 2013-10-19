@@ -73,6 +73,14 @@ public interface InternalSessionManager extends ISessionManager
   public void changeUserCredentials(ISessionProtocol sessionProtocol);
 
   /**
+   * Initiates the administrative reset-credentials protocol with the client and
+   * processes the client response to reset the specified {@code userID}'s credentials.
+   * 
+   * @since 4.3
+   */
+  public void resetUserCredentials(ISessionProtocol sessionProtocol, String userID);
+
+  /**
    * @since 4.1
    */
   public IPermissionManager getPermissionManager();

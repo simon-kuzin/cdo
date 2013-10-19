@@ -48,7 +48,7 @@ public interface ISessionProtocol extends CDOProtocol
   /**
    * @since 4.3
    */
-  public Response sendChangeCredentialsChallenge(Challenge challenge) throws Exception;
+  public Response sendChangeCredentialsChallenge(Challenge challenge, String userID, boolean isReset) throws Exception;
 
   public void sendRepositoryTypeNotification(CDOCommonRepository.Type oldType, CDOCommonRepository.Type newType)
       throws Exception;

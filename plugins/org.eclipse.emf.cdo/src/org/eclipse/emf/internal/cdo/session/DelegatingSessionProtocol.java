@@ -951,6 +951,23 @@ public class DelegatingSessionProtocol extends Lifecycle implements CDOSessionPr
     }
   }
 
+  public void requestResetCredentials(String userID)
+  {
+    int attempt = 0;
+    for (;;)
+    {
+      try
+      {
+        delegate.requestResetCredentials(userID);
+        return;
+      }
+      catch (Exception ex)
+      {
+        handleException(++attempt, ex);
+      }
+    }
+  }
+
   @Override
   protected void doActivate() throws Exception
   {
