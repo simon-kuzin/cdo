@@ -21,6 +21,8 @@ import org.eclipse.emf.cdo.releng.setup.util.OS;
 import org.eclipse.emf.cdo.releng.setup.util.log.ProgressLog;
 import org.eclipse.emf.cdo.releng.setup.util.log.ProgressLogRunnable;
 
+import org.eclipse.net4j.util.io.IOUtil;
+
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
@@ -30,15 +32,22 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.eclipse.emf.edit.EMFEditPlugin;
+import org.eclipse.emf.edit.provider.ComposedAdapterFactory;
+import org.eclipse.emf.edit.provider.IItemLabelProvider;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -57,6 +66,15 @@ public class SetupTaskPerformer extends HashMap<Object, Object> implements Setup
   private static final String RELENG_URL = System.getProperty("releng.url",
       "http://download.eclipse.org/modeling/emf/cdo/updates/integration").replace('\\', '/');
 
+  private static boolean NEEDS_PATH_SEPARATOR_CONVERSION = File.pathSeparatorChar == '\\';
+
+  private static final ComposedAdapterFactory ADAPTER_FACTORY = new ComposedAdapterFactory(
+      EMFEditPlugin.getComposedAdapterFactoryDescriptorRegistry());
+
+  private static final Pattern STRING_EXPANSION_PATTERN = Pattern.compile("\\$\\{([^${}|]+)(\\|([^}]+))?}");
+
+  private static final Map<String, StringFilter> STRING_FILTER_REGISTRY = new HashMap<String, StringFilter>();
+
   private static final long serialVersionUID = 1L;
 
   private static ProgressLog progress;
@@ -69,12 +87,13 @@ public class SetupTaskPerformer extends HashMap<Object, Object> implements Setup
 
   private transient boolean restartNeeded;
 
+  private PrintStream logStream;
+
   private List<String> logMessageBuffer;
 
   public SetupTaskPerformer(File branchDir)
   {
     trigger = Trigger.BOOTSTRAP;
-
     this.branchDir = branchDir;
 
     initialize();
@@ -88,34 +107,6 @@ public class SetupTaskPerformer extends HashMap<Object, Object> implements Setup
     branchDir = new File(branchDirPath.toOSString()).getCanonicalFile();
 
     initialize();
-  }
-
-  private void initialize()
-  {
-    ResourceSet resourceSet = new ResourceSetImpl();
-    resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
-
-    URI uri = URI.createFileURI(branchDir.toString() + "/setup.xmi");
-    Resource resource = resourceSet.getResource(uri, true);
-
-    setup = (Setup)resource.getContents().get(0);
-
-    Branch branch = setup.getBranch();
-    String branchName = branch.getName();
-
-    Project project = branch.getProject();
-    String projectName = project.getName();
-
-    put("setup.git.prefix", setup.getPreferences().getGitPrefix());
-    put("setup.install.dir", getInstallDir());
-    put("setup.project.dir", getProjectDir());
-    put("setup.branch.dir", getBranchDir());
-    put("setup.eclipse.dir", getEclipseDir());
-    put("setup.tp.dir", getTargetPlatformDir());
-    put("setup.ws.dir", getWorkspaceDir());
-    put("setup.project.name", projectName);
-    put("setup.branch.name", branchName);
-    put("releng.url", RELENG_URL);
   }
 
   public void dispose()
@@ -132,13 +123,13 @@ public class SetupTaskPerformer extends HashMap<Object, Object> implements Setup
       {
         for (String value : logMessageBuffer)
         {
-          progress.log(value);
+          doLog(value);
         }
 
         logMessageBuffer = null;
       }
 
-      progress.log(line);
+      doLog(line);
     }
     else
     {
@@ -149,6 +140,29 @@ public class SetupTaskPerformer extends HashMap<Object, Object> implements Setup
 
       logMessageBuffer.add(line);
     }
+  }
+
+  private void doLog(String line)
+  {
+    if (logStream != null)
+    {
+      try
+      {
+        logStream.println("[" + ProgressLogDialog.DATE_TIME.format(new Date()) + "] " + line);
+        logStream.flush();
+      }
+      catch (Exception ex)
+      {
+        Activator.log(ex);
+      }
+    }
+
+    progress.log(line);
+  }
+
+  public void log(IStatus status)
+  {
+    log(ProgressLogDialog.toString(status));
   }
 
   public boolean isCancelled()
@@ -176,70 +190,27 @@ public class SetupTaskPerformer extends HashMap<Object, Object> implements Setup
     restartNeeded = true;
   }
 
-  private static final Pattern PATTERN = Pattern.compile("\\$\\{([^${}|]+)(\\|([^}]+))?}");
-
-  protected String lookup(String key)
-  {
-    Object object = get(key);
-    if (object != null)
-    {
-      return object.toString();
-    }
-
-    return System.getProperty(key, key);
-  }
-
-  interface StringFilter
-  {
-    public String filter(String value);
-  }
-
-  private static final Map<String, StringFilter> FILTERS = new HashMap<String, StringFilter>();
-
-  static
-  {
-    FILTERS.put("uri", new StringFilter()
-    {
-      public String filter(String value)
-      {
-        return URI.createFileURI(value).toString();
-      }
-    });
-    FILTERS.put("upper", new StringFilter()
-    {
-      public String filter(String value)
-      {
-        return value.toUpperCase();
-      }
-    });
-    FILTERS.put("lower", new StringFilter()
-    {
-      public String filter(String value)
-      {
-        return value.toLowerCase();
-      }
-    });
-  }
-
-  protected String filter(String value, String filterName)
-  {
-    StringFilter filter = FILTERS.get(filterName);
-    if (filter != null)
-    {
-      return filter.filter(value);
-    }
-
-    return value;
-  }
-
   public String expandString(String string)
   {
     StringBuilder result = new StringBuilder();
     int previous = 0;
-    for (Matcher matcher = PATTERN.matcher(string); matcher.find();)
+    for (Matcher matcher = STRING_EXPANSION_PATTERN.matcher(string); matcher.find();)
     {
       result.append(string.substring(previous, matcher.start()));
       String key = matcher.group(1);
+      String suffix = "";
+
+      int prefixIndex = key.indexOf('/');
+      if (prefixIndex != -1)
+      {
+        suffix = key.substring(prefixIndex);
+        key = key.substring(0, prefixIndex);
+        if (NEEDS_PATH_SEPARATOR_CONVERSION)
+        {
+          suffix = suffix.replace('/', File.pathSeparatorChar);
+        }
+      }
+
       String value = lookup(key);
       String filters = matcher.group(3);
       if (filters != null)
@@ -249,9 +220,12 @@ public class SetupTaskPerformer extends HashMap<Object, Object> implements Setup
           value = filter(value, filterName);
         }
       }
+
       result.append(value);
+      result.append(suffix);
       previous = matcher.end();
     }
+
     result.append(string.substring(previous));
     return result.toString();
   }
@@ -337,8 +311,77 @@ public class SetupTaskPerformer extends HashMap<Object, Object> implements Setup
     setup = copySetup(setupTasks, substitutions);
 
     reorder(setupTasks);
-
     perform(setupTasks);
+
+    if (logStream != null)
+    {
+      logStream.println();
+      logStream.println();
+      logStream.println();
+      logStream.println();
+      IOUtil.closeSilent(logStream);
+    }
+  }
+
+  protected String lookup(String key)
+  {
+    Object object = get(key);
+    if (object != null)
+    {
+      return object.toString();
+    }
+
+    return System.getProperty(key, key);
+  }
+
+  protected String filter(String value, String filterName)
+  {
+    StringFilter filter = STRING_FILTER_REGISTRY.get(filterName);
+    if (filter != null)
+    {
+      return filter.filter(value);
+    }
+
+    return value;
+  }
+
+  private void initialize()
+  {
+    ResourceSet resourceSet = new ResourceSetImpl();
+    resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
+
+    URI uri = URI.createFileURI(branchDir.toString() + "/setup.xmi");
+    Resource resource = resourceSet.getResource(uri, true);
+
+    setup = (Setup)resource.getContents().get(0);
+
+    Branch branch = setup.getBranch();
+    String branchName = branch.getName();
+
+    Project project = branch.getProject();
+    String projectName = project.getName();
+
+    put("setup.git.prefix", setup.getPreferences().getGitPrefix());
+    put("setup.install.dir", getInstallDir());
+    put("setup.project.dir", getProjectDir());
+    put("setup.branch.dir", getBranchDir());
+    put("setup.eclipse.dir", getEclipseDir());
+    put("setup.tp.dir", getTargetPlatformDir());
+    put("setup.ws.dir", getWorkspaceDir());
+    put("setup.project.name", projectName);
+    put("setup.branch.name", branchName);
+    put("releng.url", RELENG_URL);
+
+    try
+    {
+      File logFile = new File(getBranchDir(), "setup.log");
+      logFile.getParentFile().mkdirs();
+      logStream = new PrintStream(new FileOutputStream(logFile, true));
+    }
+    catch (FileNotFoundException ex)
+    {
+      throw new RuntimeException(ex);
+    }
   }
 
   private void reorder(EList<SetupTask> setupTasks)
@@ -351,9 +394,8 @@ public class SetupTaskPerformer extends HashMap<Object, Object> implements Setup
         throw new IllegalArgumentException("Circular requirements " + setupTask);
       }
 
-      EList<SetupTask> requirements = setupTask.getRequirements();
       boolean changed = false;
-      for (SetupTask requirement : requirements)
+      for (SetupTask requirement : setupTask.getRequirements())
       {
         int index = setupTasks.indexOf(requirement);
         if (index > i)
@@ -385,10 +427,9 @@ public class SetupTaskPerformer extends HashMap<Object, Object> implements Setup
 
     if (Activator.SETUP_IDE && trigger != Trigger.MANUAL)
     {
-      File logFile = new File(getInstallDir(), "setup.log");
-      IWorkbenchWindow window = PlatformUI.getWorkbench().getWorkbenchWindows()[0];
-      final Shell shell = window.getShell();
-      ProgressLogDialog.run(shell, logFile, "Setting up IDE", new ProgressLogRunnable()
+      Shell shell = PlatformUI.getWorkbench().getWorkbenchWindows()[0].getShell();
+
+      ProgressLogDialog.run(shell, "Setting up IDE", new ProgressLogRunnable()
       {
         public boolean run(ProgressLog log) throws Exception
         {
@@ -410,6 +451,7 @@ public class SetupTaskPerformer extends HashMap<Object, Object> implements Setup
 
     for (SetupTask neededTask : neededTasks)
     {
+      log("Performing setup task " + getLabel(neededTask));
       neededTask.perform(this);
       neededTask.dispose();
     }
@@ -512,6 +554,12 @@ public class SetupTaskPerformer extends HashMap<Object, Object> implements Setup
     return result;
   }
 
+  private static String getLabel(Object object)
+  {
+    IItemLabelProvider labelProvider = (IItemLabelProvider)ADAPTER_FACTORY.adapt(object, IItemLabelProvider.class);
+    return labelProvider.getText(object);
+  }
+
   public static ProgressLog getProgress()
   {
     return progress;
@@ -520,5 +568,40 @@ public class SetupTaskPerformer extends HashMap<Object, Object> implements Setup
   public static void setProgress(ProgressLog progress)
   {
     SetupTaskPerformer.progress = progress;
+  }
+
+  static
+  {
+    STRING_FILTER_REGISTRY.put("uri", new StringFilter()
+    {
+      public String filter(String value)
+      {
+        return URI.createFileURI(value).toString();
+      }
+    });
+
+    STRING_FILTER_REGISTRY.put("upper", new StringFilter()
+    {
+      public String filter(String value)
+      {
+        return value.toUpperCase();
+      }
+    });
+
+    STRING_FILTER_REGISTRY.put("lower", new StringFilter()
+    {
+      public String filter(String value)
+      {
+        return value.toLowerCase();
+      }
+    });
+  }
+
+  /**
+   * @author Eike Stepper
+   */
+  public interface StringFilter
+  {
+    public String filter(String value);
   }
 }
