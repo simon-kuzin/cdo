@@ -8,7 +8,7 @@
  * Contributors:
  *    Eike Stepper - initial API and implementation
  *    Victor Roldan Betancort - maintenance
- *    Christian W. Damus (CEA LIST) - 399306
+ *    Christian W. Damus (CEA LIST) - 399306, 419805
  */
 package org.eclipse.emf.cdo.ui;
 
@@ -182,7 +182,12 @@ public class CDOItemProvider extends ContainerItemProvider<IContainer<Object>>
 
     if (element instanceof CDOResourceFolder)
     {
-      return ((CDOResourceFolder)element).getNodes().toArray();
+      CDOResourceFolder folder = (CDOResourceFolder)element;
+      if (folder.cdoPermission() == CDOPermission.NONE)
+      {
+        return NO_ELEMENTS;
+      }
+      return folder.getNodes().toArray();
     }
 
     return super.getChildren(element);
