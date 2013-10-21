@@ -27,6 +27,8 @@ public class Messages extends NLS
 
   public static String CDOSecurityFormEditor_1;
 
+  public static String CDOSecurityPage_0;
+
   public static String CDOSecurityPage_1;
 
   public static String CDOSecurityPage_2;
@@ -102,6 +104,8 @@ public class Messages extends NLS
   public static String UserDetailsPage_7;
 
   public static String UserDetailsPage_8;
+
+  public static String UserDetailsPage_9;
 
   public static String UsersSection_0;
   static

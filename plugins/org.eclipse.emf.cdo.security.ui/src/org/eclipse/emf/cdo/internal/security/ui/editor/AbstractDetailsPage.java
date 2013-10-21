@@ -44,6 +44,7 @@ import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -285,6 +286,16 @@ public abstract class AbstractDetailsPage<T extends EObject> extends AbstractSec
         ObjectExistsConverter.createUpdateValueStrategy());
 
     addRevertDecoration(result, attribute);
+
+    return result;
+  }
+
+  protected Button button(Composite parent, FormToolkit toolkit, String label, SelectionListener selectionListener)
+  {
+    Button result = toolkit.createButton(parent, label, SWT.PUSH);
+    result.setLayoutData(layoutData(parent, SWT.LEFT, false, 2));
+
+    result.addSelectionListener(selectionListener);
 
     return result;
   }
