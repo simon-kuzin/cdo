@@ -92,10 +92,7 @@ public class ChangeCredentialsIndication extends IndicationWithMonitoring
       }
 
       String authUserID = credentials.getUserID();
-      if (StringUtil.isEmpty(authUserID))
-      {
-        throw new IllegalStateException("No userID provided"); //$NON-NLS-1$
-      }
+      // don't require the current credentials because the user may not have any, yet
 
       String authPassword = new String(credentials.getPassword());
       if (StringUtil.isEmpty(authPassword))
@@ -123,8 +120,8 @@ public class ChangeCredentialsIndication extends IndicationWithMonitoring
       case RESET_PASSWORD:
         stream.writeString(authUserID);
         stream.writeString(authPassword);
-      stream.writeString(userID);
-      stream.writeString(newPassword);
+        stream.writeString(userID);
+        stream.writeString(newPassword);
         break;
       }
 
