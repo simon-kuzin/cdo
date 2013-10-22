@@ -141,7 +141,7 @@
         </filter>
     </resource>
     <resource path="src/org/eclipse/emf/cdo/common/protocol/CDOProtocolConstants.java" type="org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants">
-        <filter id="388194388">
+        <filter comment="The fact of this value being different from one deployment to another is deliberate to enable detection of incompatible protocols." id="388194388">
             <message_arguments>
                 <message_argument value="org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants"/>
                 <message_argument value="PROTOCOL_VERSION"/>
