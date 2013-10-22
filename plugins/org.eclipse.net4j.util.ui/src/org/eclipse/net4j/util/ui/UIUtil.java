@@ -265,7 +265,7 @@ public final class UIUtil
    * Like {@link #getElement(ISelection, Class)} except that it attempts to adaptable
    * {@link IAdaptable}s to the required {@code type}, if necessary.
    * 
-   * @since 4.3
+   * @since 3.4
    */
   public static <T> T adaptElement(ISelection selection, Class<T> type)
   {
