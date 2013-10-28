@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Christian W. Damus (CEA LIST) - bug 420528
  */
 package org.eclipse.emf.internal.cdo.object;
 
@@ -184,7 +185,23 @@ public class ObjectProperties extends Properties<EObject>
       @Override
       protected Object eval(EObject object)
       {
-        CDOObject cdoObject = CDOUtil.getCDOObject(object.eContainer());
+        CDOObject cdoObject = null;
+
+        EObject eContainer = object.eContainer();
+        if (eContainer != null)
+        {
+          cdoObject = CDOUtil.getCDOObject(eContainer);
+        }
+
+        if (cdoObject == null)
+        {
+          Resource resource = object.eResource();
+          if (resource instanceof CDOObject)
+          {
+            cdoObject = (CDOObject)resource;
+          }
+        }
+
         if (cdoObject == null)
         {
           return null;
