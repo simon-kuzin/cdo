@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Christian W. Damus (CEA LIST) - bug 418454
  */
 package org.eclipse.emf.cdo.common.admin;
 
@@ -28,6 +29,34 @@ import java.util.Map;
  */
 public interface CDOAdmin extends IContainer<CDOAdminRepository>, Closeable
 {
+
+  /**
+   * The name of the boolean property that indicates whether to configure the
+   * default security manager in a repository to be
+   * {@linkplain #createRepository(String, String, Map) created}.
+   * 
+   * @since 4.3
+   */
+  public static final String PROPERTY_SECURITY_MANAGER = "__securityManager"; //$NON-NLS-1$
+
+  /**
+   * The name of the boolean property that indicates whether to configure the
+   * default {@linkplain #PROPERTY_SECURITY_MANAGER security manager} with
+   * support for user home folders.
+   * 
+   * @since 4.3
+   */
+  public static final String PROPERTY_SECURITY_HOME_FOLDERS = "__security_homeFolders"; //$NON-NLS-1$
+
+  /**
+   * The name of the property that provides the XML configuration string for
+   * the store of a repository to be
+   * {@linkplain #createRepository(String, String, Map) created}.
+   * 
+   * @since 4.3
+   */
+  public static final String PROPERTY_STORE_XML_CONFIG = "__store_xml_config"; //$NON-NLS-1$
+
   public CDOAdminRepository[] getRepositories();
 
   public CDOAdminRepository getRepository(String name);
