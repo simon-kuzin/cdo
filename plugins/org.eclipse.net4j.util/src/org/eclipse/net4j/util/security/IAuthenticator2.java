@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Christian W. Damus (CEA LIST) - initial API and implementation
+ *    Christian W. Damus (CEA LIST) - bug 418454
  */
 package org.eclipse.net4j.util.security;
 
@@ -45,4 +46,13 @@ public interface IAuthenticator2 extends IAuthenticator
    * @throws SecurityException on any failure to authenticate the {@code oldPassword} or validate and/or set the {@code newPassword}
    */
   public void resetPassword(String adminID, char[] adminPassword, String userID, char[] newPassword);
+
+  /**
+   * Queries whether a given user has administrative privileges.
+   * 
+   * @param userID an user ID, which may or may not exist
+   * 
+   * @return whether the userID exists and has administrative privileges
+   */
+  public boolean isAdministrator(String userID);
 }

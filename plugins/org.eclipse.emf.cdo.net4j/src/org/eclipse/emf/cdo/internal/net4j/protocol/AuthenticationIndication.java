@@ -7,35 +7,23 @@
  *
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Christian W. Damus (CEA LIST) - bug 418454
  */
 package org.eclipse.emf.cdo.internal.net4j.protocol;
 
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
-import org.eclipse.emf.cdo.internal.net4j.bundle.OM;
 
-import org.eclipse.net4j.signal.IndicationWithMonitoring;
 import org.eclipse.net4j.signal.SignalProtocol;
-import org.eclipse.net4j.util.StringUtil;
-import org.eclipse.net4j.util.io.ExtendedDataInputStream;
-import org.eclipse.net4j.util.io.ExtendedDataOutputStream;
-import org.eclipse.net4j.util.om.monitor.OMMonitor;
-import org.eclipse.net4j.util.om.monitor.OMMonitor.Async;
-import org.eclipse.net4j.util.security.DiffieHellman;
-import org.eclipse.net4j.util.security.DiffieHellman.Client.Response;
-import org.eclipse.net4j.util.security.DiffieHellman.Server.Challenge;
-import org.eclipse.net4j.util.security.IPasswordCredentials;
+import org.eclipse.net4j.signal.security.AbstractAuthenticationIndication;
 import org.eclipse.net4j.util.security.IPasswordCredentialsProvider;
 
 import org.eclipse.emf.spi.cdo.InternalCDOSession;
 
-import java.io.ByteArrayOutputStream;
-
 /**
  * @author Eike Stepper
  */
-public class AuthenticationIndication extends IndicationWithMonitoring
+public class AuthenticationIndication extends AbstractAuthenticationIndication
 {
-  private Challenge challenge;
 
   public AuthenticationIndication(SignalProtocol<?> protocol)
   {
@@ -54,65 +42,8 @@ public class AuthenticationIndication extends IndicationWithMonitoring
   }
 
   @Override
-  protected void indicating(ExtendedDataInputStream in, OMMonitor monitor) throws Exception
+  protected IPasswordCredentialsProvider getCredentialsProvider()
   {
-    challenge = new Challenge(in);
-  }
-
-  @Override
-  protected void responding(ExtendedDataOutputStream out, OMMonitor monitor) throws Exception
-  {
-    monitor.begin();
-    Async async = monitor.forkAsync();
-
-    try
-    {
-      IPasswordCredentialsProvider credentialsProvider = getSession().getCredentialsProvider();
-      if (credentialsProvider == null)
-      {
-        throw new IllegalStateException("No credentials provider configured"); //$NON-NLS-1$
-      }
-
-      IPasswordCredentials credentials = credentialsProvider.getCredentials();
-      if (credentials == null)
-      {
-        throw new IllegalStateException("No credentials provided"); //$NON-NLS-1$
-      }
-
-      String userID = credentials.getUserID();
-      if (StringUtil.isEmpty(userID))
-      {
-        throw new IllegalStateException("No userID provided"); //$NON-NLS-1$
-      }
-
-      String password = new String(credentials.getPassword());
-      if (StringUtil.isEmpty(userID))
-      {
-        throw new IllegalStateException("No password provided"); //$NON-NLS-1$
-      }
-
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      @SuppressWarnings("resource")
-      ExtendedDataOutputStream stream = new ExtendedDataOutputStream(baos);
-      stream.writeString(userID);
-      stream.writeString(password);
-      stream.flush();
-      byte[] clearText = baos.toByteArray();
-
-      DiffieHellman.Client client = new DiffieHellman.Client();
-      Response response = client.handleChallenge(challenge, clearText);
-      out.writeBoolean(true);
-      response.write(out);
-    }
-    catch (Throwable ex)
-    {
-      out.writeBoolean(false);
-      OM.LOG.error(ex);
-    }
-    finally
-    {
-      async.stop();
-      monitor.done();
-    }
+    return getSession().getCredentialsProvider();
   }
 }

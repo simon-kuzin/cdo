@@ -7,72 +7,22 @@
  *
  * Contributors:
  *    Eike Stepper - initial API and implementation
+ *    Christian W. Damus (CEA LIST) - bug 418454
  */
 package org.eclipse.emf.cdo.server.internal.net4j.protocol;
 
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
-import org.eclipse.emf.cdo.common.util.NotAuthenticatedException;
 
-import org.eclipse.net4j.signal.RemoteException;
-import org.eclipse.net4j.signal.RequestWithMonitoring;
-import org.eclipse.net4j.util.io.ExtendedDataInputStream;
-import org.eclipse.net4j.util.io.ExtendedDataOutputStream;
-import org.eclipse.net4j.util.om.monitor.OMMonitor;
-import org.eclipse.net4j.util.security.DiffieHellman.Client.Response;
+import org.eclipse.net4j.signal.security.AbstractAuthenticationRequest;
 import org.eclipse.net4j.util.security.DiffieHellman.Server.Challenge;
 
 /**
  * @author Eike Stepper
  */
-public class AuthenticationRequest extends RequestWithMonitoring<Response>
+public class AuthenticationRequest extends AbstractAuthenticationRequest
 {
-  private Challenge challenge;
-
   public AuthenticationRequest(CDOServerProtocol protocol, Challenge challenge)
   {
-    super(protocol, CDOProtocolConstants.SIGNAL_AUTHENTICATION);
-    this.challenge = challenge;
-  }
-
-  @Override
-  protected void requesting(ExtendedDataOutputStream out, OMMonitor monitor) throws Exception
-  {
-    challenge.write(out);
-  }
-
-  @Override
-  protected Response confirming(ExtendedDataInputStream in, OMMonitor monitor) throws Exception
-  {
-    try
-    {
-      if (in.readBoolean())
-      {
-        return new Response(in);
-      }
-    }
-    catch (RemoteException ex)
-    {
-      if (ex.getCause() instanceof NotAuthenticatedException)
-      {
-        // Skip silently because user has canceled the authentication
-      }
-      else
-      {
-        throw ex;
-      }
-    }
-    catch (Exception ex)
-    {
-      if (ex instanceof NotAuthenticatedException)
-      {
-        // Skip silently because user has canceled the authentication
-      }
-      else
-      {
-        throw ex;
-      }
-    }
-
-    return null;
+    super(protocol, CDOProtocolConstants.SIGNAL_AUTHENTICATION, challenge);
   }
 }
