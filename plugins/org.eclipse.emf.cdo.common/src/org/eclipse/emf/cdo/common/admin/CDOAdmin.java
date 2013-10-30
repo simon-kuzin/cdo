@@ -29,6 +29,12 @@ import java.util.Map;
  */
 public interface CDOAdmin extends IContainer<CDOAdminRepository>, Closeable
 {
+  /**
+   * The default admin-handler type, which is guaranteed to exist on the server.
+   * 
+   * @since 4.3
+   */
+  public static final String TYPE_DEFAULT = "default"; //$NON-NLS-1$
 
   /**
    * The name of the boolean property that indicates whether to configure the
