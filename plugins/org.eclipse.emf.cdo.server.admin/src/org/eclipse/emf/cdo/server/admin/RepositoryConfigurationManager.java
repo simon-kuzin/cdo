@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Christian W. Damus (CEA LIST) - initial API and implementation
  */
@@ -21,12 +21,11 @@ import java.util.Map;
 
 /**
  * @author Christian W. Damus (CEA LIST)
- * 
+ *
  * @since 4.2
  */
 public interface RepositoryConfigurationManager extends ILifecycle
 {
-
   public Map<String, IRepository> getRepositories();
 
   public IRepository addRepository(String name, Document configuration);
@@ -37,14 +36,14 @@ public interface RepositoryConfigurationManager extends ILifecycle
 
   /**
    * Authenticates the user as a server administrator, if applicable.
-   * 
+   *
    * @throws SecurityException if authentication is required and fails
    */
   public void authenticateAdministrator() throws SecurityException;
 
   /**
    * Specification of the factory API for {@link RepositoryConfigurationManager}s.
-   * 
+   *
    * @author Christian W. Damus (CEA LIST)
    */
   public static abstract class Factory extends org.eclipse.net4j.util.factory.Factory
@@ -58,5 +57,4 @@ public interface RepositoryConfigurationManager extends ILifecycle
 
     public abstract RepositoryConfigurationManager create(String description) throws ProductCreationException;
   }
-
 }

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Christian W. Damus (CEA LIST) - initial API and implementation
  */
@@ -75,13 +75,12 @@ import java.util.Map;
 /**
  * A default implementation of the {@link RepositoryConfigurationManager} interface
  * that stores dynamically created repositories' configurations in XML files.
- * 
+ *
  * @author Christian W. Damus (CEA LIST)
  */
 public class DefaultRepositoryConfigurationManager extends Lifecycle implements InternalRepositoryConfigurationManager,
     ContainerAware
 {
-
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, DefaultRepositoryConfigurationManager.class);
 
   private IManagedContainer container = IPluginContainer.INSTANCE;
@@ -257,7 +256,6 @@ public class DefaultRepositoryConfigurationManager extends Lifecycle implements 
   protected IManagedContainer requireContainer()
   {
     IManagedContainer result = getManagedContainer();
-
     if (result == null)
     {
       throw new IllegalStateException("No container."); //$NON-NLS-1$
@@ -270,7 +268,6 @@ public class DefaultRepositoryConfigurationManager extends Lifecycle implements 
   {
     RepositoryConfigurator configurator = new RepositoryConfigurator(requireContainer());
     IRepository[] result = configurator.configure(configuration.getConfigXML().getContents());
-
     if (result.length == 1)
     {
       startExtensions(result[0], configuration);
@@ -296,10 +293,9 @@ public class DefaultRepositoryConfigurationManager extends Lifecycle implements 
 
   protected <T> T modify(final CatalogOperation<T> operation, boolean waitUntilReadable)
   {
-    final Object[] result = new Object[1];
-
     checkActive();
 
+    final Object[] result = new Object[1];
     requireSecurityManager().modify(new RealmOperation()
     {
 
@@ -526,7 +522,6 @@ public class DefaultRepositoryConfigurationManager extends Lifecycle implements 
     // Get the read-only view of the catalog now from the security manager's view
     requireSecurityManager().read(new RealmOperation()
     {
-
       public void execute(Realm realm)
       {
         catalog = realm.cdoView().getObject(catalog);

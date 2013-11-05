@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    Christian W. Damus (CEA LIST) - initial API and implementation
  */
@@ -45,7 +45,6 @@ import java.util.Map;
  */
 public class DefaultCDOAdminHandler implements CDOAdminHandler2, ContainerAware
 {
-
   private final String type;
 
   private IManagedContainer container = IPluginContainer.INSTANCE;
@@ -150,7 +149,6 @@ public class DefaultCDOAdminHandler implements CDOAdminHandler2, ContainerAware
   protected IManagedContainer requireContainer()
   {
     IManagedContainer result = getManagedContainer();
-
     if (result == null)
     {
       throw new IllegalStateException("No container."); //$NON-NLS-1$
@@ -166,6 +164,7 @@ public class DefaultCDOAdminHandler implements CDOAdminHandler2, ContainerAware
     {
       throw new SecurityException("Remote administration of repositories requires a repository configuration manager."); //$NON-NLS-1$
     }
+
     return result;
   }
 
@@ -209,8 +208,8 @@ public class DefaultCDOAdminHandler implements CDOAdminHandler2, ContainerAware
       // OK, then import it (which creates a copy)
       adopted = result.importNode(storeConfig, true);
     }
-    repository.appendChild(adopted);
 
+    repository.appendChild(adopted);
     return result;
   }
 
