@@ -15,9 +15,13 @@ import org.eclipse.emf.cdo.common.CDOCommonView;
 import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.common.revision.CDORevisionHandler;
 import org.eclipse.emf.cdo.common.revision.CDORevisionManager;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
+import org.eclipse.emf.cdo.server.IUnit;
+import org.eclipse.emf.cdo.server.IUnitManager;
 import org.eclipse.emf.cdo.spi.common.branch.CDOBranchUtil;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
@@ -29,6 +33,7 @@ import org.eclipse.emf.cdo.spi.server.InternalView;
 import org.eclipse.net4j.util.AdapterUtil;
 import org.eclipse.net4j.util.ObjectUtil;
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
+import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.options.IOptionsContainer;
 import org.eclipse.net4j.util.registry.HashMapRegistry;
 import org.eclipse.net4j.util.registry.IRegistry;
@@ -57,9 +62,11 @@ public class View extends Lifecycle implements InternalView, CDOCommonView.Optio
 
   private String durableLockingID;
 
-  private InternalRepository repository;
+  private final InternalRepository repository;
 
-  private Set<CDOID> changeSubscriptionIDs = new HashSet<CDOID>();
+  private final Set<CDOID> changeSubscriptionIDs = new HashSet<CDOID>();
+
+  private final Set<CDOID> openUnitRoots = new HashSet<CDOID>();
 
   private boolean lockNotificationsEnabled;
 
@@ -155,7 +162,7 @@ public class View extends Lifecycle implements InternalView, CDOCommonView.Optio
     List<CDORevision> oldRevisions = getRevisions(invalidObjects);
     setBranchPoint(branchPoint);
     List<CDORevision> newRevisions = getRevisions(invalidObjects);
-  
+
     Iterator<CDORevision> it = newRevisions.iterator();
     for (CDORevision oldRevision : oldRevisions)
     {
@@ -169,7 +176,7 @@ public class View extends Lifecycle implements InternalView, CDOCommonView.Optio
         // Fix for Bug 369646: ensure that revisions are fully loaded
         repository.ensureChunks((InternalCDORevision)newRevision, CDORevision.UNCHUNKED);
         repository.ensureChunks((InternalCDORevision)oldRevision, CDORevision.UNCHUNKED);
-  
+
         CDORevisionDelta delta = newRevision.compare(oldRevision);
         allChangedObjects.add(delta);
       }
@@ -197,6 +204,64 @@ public class View extends Lifecycle implements InternalView, CDOCommonView.Optio
   public void setDurableLockingID(String durableLockingID)
   {
     this.durableLockingID = durableLockingID;
+  }
+
+  public boolean openUnit(CDOID rootID, boolean create, CDORevisionHandler revisionHandler, OMMonitor monitor)
+  {
+    IUnitManager unitManager = repository.getUnitManager();
+    IUnit unit = unitManager.getUnit(rootID);
+
+    if (create)
+    {
+      if (unit != null)
+      {
+        return false;
+      }
+
+      unit = unitManager.createUnit(rootID, this, revisionHandler);
+    }
+    else
+    {
+      if (unit == null)
+      {
+        return false;
+      }
+
+      int xxx; // TODO Use monitor?
+      unit.open(this, revisionHandler);
+    }
+
+    openUnitRoots.add(rootID);
+    return true;
+  }
+
+  private boolean isInOpenUnit(CDOID id)
+  {
+    if (openUnitRoots.isEmpty())
+    {
+      return false;
+    }
+
+    if (openUnitRoots.contains(id))
+    {
+      return true;
+    }
+
+    int xxx; // TODO Remember object->unit relationship for modified objects?!
+
+    InternalCDORevision revision = getRevision(id);
+    if (revision != null)
+    {
+      CDOID parentID = revision.getResourceID();
+      if (CDOIDUtil.isNull(parentID))
+      {
+        parentID = (CDOID)revision.getContainerID();
+      }
+
+      return isInOpenUnit(parentID);
+    }
+
+    return false;
   }
 
   /**
@@ -227,7 +292,17 @@ public class View extends Lifecycle implements InternalView, CDOCommonView.Optio
       return false;
     }
 
-    return changeSubscriptionIDs.contains(id);
+    if (changeSubscriptionIDs.contains(id))
+    {
+      return true;
+    }
+
+    if (repository.isSupportingUnits())
+    {
+      return isInOpenUnit(id);
+    }
+
+    return false;
   }
 
   /**

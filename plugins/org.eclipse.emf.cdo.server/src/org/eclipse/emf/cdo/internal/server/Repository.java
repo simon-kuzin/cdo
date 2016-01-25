@@ -147,7 +147,7 @@ import java.util.concurrent.Semaphore;
  * @author Eike Stepper
  * @since 2.0
  */
-public class Repository extends Container<Object>implements InternalRepository, IExecutorServiceProvider
+public class Repository extends Container<Object> implements InternalRepository, IExecutorServiceProvider
 {
   private static final int UNCHUNKED = CDORevision.UNCHUNKED;
 
@@ -169,6 +169,8 @@ public class Repository extends Container<Object>implements InternalRepository, 
 
   private boolean supportingBranches;
 
+  private boolean supportingUnits;
+
   private boolean serializingCommits;
 
   private boolean ensuringReferentialIntegrity;
@@ -180,7 +182,7 @@ public class Repository extends Container<Object>implements InternalRepository, 
   /**
    * Must not be thread-bound to support XA commits.
    */
-  private Semaphore packageRegistryCommitLock = new Semaphore(1);
+  private final Semaphore packageRegistryCommitLock = new Semaphore(1);
 
   private InternalCDOPackageRegistry packageRegistry;
 
@@ -202,26 +204,28 @@ public class Repository extends Container<Object>implements InternalRepository, 
 
   private IManagedContainer container;
 
-  private List<ReadAccessHandler> readAccessHandlers = new ArrayList<ReadAccessHandler>();
+  private final UnitManager unitManager = new UnitManager(this);
 
-  private List<WriteAccessHandler> writeAccessHandlers = new ArrayList<WriteAccessHandler>();
+  private final List<ReadAccessHandler> readAccessHandlers = new ArrayList<ReadAccessHandler>();
 
-  private EPackage[] initialPackages;
+  private final List<WriteAccessHandler> writeAccessHandlers = new ArrayList<WriteAccessHandler>();
 
   // Bug 297940
-  private TimeStampAuthority timeStampAuthority = new TimeStampAuthority(this);
-
-  private long lastTreeRestructuringCommit = -1;
+  private final TimeStampAuthority timeStampAuthority = new TimeStampAuthority(this);
 
   @ExcludeFromDump
-  private transient Object commitTransactionLock = new Object();
+  private final transient Object commitTransactionLock = new Object();
 
   @ExcludeFromDump
-  private transient Object createBranchLock = new Object();
+  private final transient Object createBranchLock = new Object();
 
   private boolean skipInitialization;
 
+  private EPackage[] initialPackages;
+
   private CDOID rootResourceID;
+
+  private long lastTreeRestructuringCommit = -1;
 
   public Repository()
   {
@@ -353,6 +357,11 @@ public class Repository extends Container<Object>implements InternalRepository, 
   public boolean isSupportingBranches()
   {
     return supportingBranches;
+  }
+
+  public boolean isSupportingUnits()
+  {
+    return supportingUnits;
   }
 
   @Deprecated
@@ -961,6 +970,11 @@ public class Repository extends Container<Object>implements InternalRepository, 
   public InternalSessionManager getSessionManager()
   {
     return sessionManager;
+  }
+
+  public UnitManager getUnitManager()
+  {
+    return unitManager;
   }
 
   /**
@@ -1918,6 +1932,13 @@ public class Repository extends Container<Object>implements InternalRepository, 
       supportingBranches = store.getRevisionParallelism() == IStore.RevisionParallelism.BRANCHING;
     }
 
+    // SUPPORTING_UNITS
+    String valueUnits = properties.get(Props.SUPPORTING_UNITS);
+    if (valueUnits != null)
+    {
+      supportingUnits = Boolean.valueOf(valueUnits);
+    }
+
     // SERIALIZE_COMMITS
     String valueCommits = properties.get(Props.SERIALIZE_COMMITS);
     if (valueCommits != null)
@@ -2086,6 +2107,7 @@ public class Repository extends Container<Object>implements InternalRepository, 
         newPackageUnitsForRootResource.add(packageUnit);
       }
     }
+
     return newPackageUnitsForRootResource.toArray(new InternalCDOPackageUnit[0]);
   }
 
@@ -2152,7 +2174,7 @@ public class Repository extends Container<Object>implements InternalRepository, 
     checkState(queryManager, "queryManager"); //$NON-NLS-1$
     checkState(commitInfoManager, "commitInfoManager"); //$NON-NLS-1$
     checkState(commitManager, "commitManager"); //$NON-NLS-1$
-    checkState(getLockingManager(), "lockingManager"); //$NON-NLS-1$
+    checkState(lockingManager, "lockingManager"); //$NON-NLS-1$
 
     packageRegistry.setReplacingDescriptors(true);
     packageRegistry.setPackageProcessor(this);
@@ -2167,7 +2189,7 @@ public class Repository extends Container<Object>implements InternalRepository, 
     commitInfoManager.setRepository(this);
     commitInfoManager.setCommitInfoLoader(this);
     commitManager.setRepository(this);
-    getLockingManager().setRepository(this);
+    lockingManager.setRepository(this);
     store.setRepository(this);
   }
 
@@ -2221,13 +2243,20 @@ public class Repository extends Container<Object>implements InternalRepository, 
     }
 
     LifecycleUtil.activate(lockingManager); // Needs an initialized main branch / branch manager
+
+    if (supportingUnits)
+    {
+      LifecycleUtil.activate(unitManager);
+    }
+
     setPostActivateState();
   }
 
   @Override
   protected void doDeactivate() throws Exception
   {
-    LifecycleUtil.deactivate(getLockingManager());
+    LifecycleUtil.deactivate(unitManager);
+    LifecycleUtil.deactivate(lockingManager);
     LifecycleUtil.deactivate(queryHandlerProvider);
     LifecycleUtil.deactivate(commitManager);
     LifecycleUtil.deactivate(commitInfoManager);

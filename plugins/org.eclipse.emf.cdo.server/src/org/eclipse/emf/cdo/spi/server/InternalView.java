@@ -12,10 +12,12 @@ package org.eclipse.emf.cdo.spi.server;
 
 import org.eclipse.emf.cdo.common.branch.CDOBranchPoint;
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.revision.CDORevisionHandler;
 import org.eclipse.emf.cdo.common.revision.delta.CDORevisionDelta;
 import org.eclipse.emf.cdo.server.IView;
 
 import org.eclipse.net4j.util.lifecycle.ILifecycle;
+import org.eclipse.net4j.util.om.monitor.OMMonitor;
 
 import java.util.List;
 
@@ -55,4 +57,9 @@ public interface InternalView extends IView, ILifecycle
   public void clearChangeSubscription();
 
   public void doClose();
+
+  /**
+   * @since 4.5
+   */
+  public boolean openUnit(CDOID rootID, boolean create, CDORevisionHandler revisionHandler, OMMonitor monitor);
 }

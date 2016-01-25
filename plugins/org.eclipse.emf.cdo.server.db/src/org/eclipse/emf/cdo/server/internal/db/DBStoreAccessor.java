@@ -39,6 +39,7 @@ import org.eclipse.emf.cdo.server.ISession;
 import org.eclipse.emf.cdo.server.IStoreAccessor;
 import org.eclipse.emf.cdo.server.IStoreAccessor.DurableLocking2;
 import org.eclipse.emf.cdo.server.ITransaction;
+import org.eclipse.emf.cdo.server.IView;
 import org.eclipse.emf.cdo.server.db.IDBStore;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IIDHandler;
@@ -49,6 +50,7 @@ import org.eclipse.emf.cdo.server.db.mapping.IClassMappingDeltaSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
 import org.eclipse.emf.cdo.server.internal.db.mapping.horizontal.AbstractHorizontalClassMapping;
+import org.eclipse.emf.cdo.server.internal.db.mapping.horizontal.UnitMappingTable;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranch;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager;
 import org.eclipse.emf.cdo.spi.common.branch.InternalCDOBranchManager.BranchLoader3;
@@ -133,17 +135,17 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor, 
   }
 
   @Override
-  public DBStore getStore()
+  public final DBStore getStore()
   {
     return (DBStore)super.getStore();
   }
 
-  public IDBConnection getDBConnection()
+  public final IDBConnection getDBConnection()
   {
     return connection;
   }
 
-  public Connection getConnection()
+  public final Connection getConnection()
   {
     return connection;
   }
@@ -480,11 +482,12 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor, 
   {
     super.applyIDMappings(context, monitor);
 
+    DBStore store = getStore();
+    IIDHandler idHandler = store.getIDHandler();
+
     // Remember maxID because it may have to be adjusted if the repository is BACKUP or CLONE. See bug 325097.
     boolean adjustMaxID = !context.getBranchPoint().getBranch().isLocal()
-        && getStore().getRepository().getIDGenerationLocation() == IDGenerationLocation.STORE;
-
-    IIDHandler idHandler = getStore().getIDHandler();
+        && store.getRepository().getIDGenerationLocation() == IDGenerationLocation.STORE;
 
     // Remember CDOIDs of new objects. They are cleared after writeRevisions()
     for (InternalCDORevision revision : context.getNewObjects())
@@ -850,6 +853,13 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor, 
 
       IMappingStrategy mappingStrategy = store.getMappingStrategy();
       mappingStrategy.createMapping(connection, packageUnits, monitor.fork());
+
+      int writePackageUnits; // TODO Extra commit needed for Mysql between DDL and DML.
+      connection.commit();
+    }
+    catch (SQLException ex)
+    {
+      throw new DBException(ex);
     }
     finally
     {
@@ -1441,6 +1451,25 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor, 
   {
     DurableLockingManager manager = getStore().getDurableLockingManager();
     manager.unlock(this, durableLockingID);
+  }
+
+  public List<CDOID> readUnitRoots()
+  {
+    UnitMappingTable unitMappingTable = getStore().getUnitMappingTable();
+    return unitMappingTable.readUnitRoots(this);
+  }
+
+  public void initUnit(IView view, CDOID rootID, CDORevisionHandler revisionHandler)
+  {
+    long created = getStore().getRepository().getTimeStamp();
+    UnitMappingTable unitMappingTable = getStore().getUnitMappingTable();
+    unitMappingTable.initUnit(this, view, rootID, created, revisionHandler);
+  }
+
+  public void readUnit(IView view, CDOID rootID, CDORevisionHandler revisionHandler)
+  {
+    UnitMappingTable unitMappingTable = getStore().getUnitMappingTable();
+    unitMappingTable.readUnitRevisions(this, view, rootID, revisionHandler);
   }
 
   /**

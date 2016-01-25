@@ -798,4 +798,20 @@ public interface IStoreAccessor extends IQueryHandlerProvider, BranchLoader, Com
 
     public void updateLockArea(LockArea lockArea);
   }
+
+  /**
+   * An extension interface for {@link IStoreAccessor store accessors} that support <i>units</i>.
+   *
+   * @author Eike Stepper
+   * @since 4.5
+   * @apiviz.exclude
+   */
+  public interface UnitSupport extends IStoreAccessor
+  {
+    public List<CDOID> readUnitRoots();
+
+    public void initUnit(IView view, CDOID rootID, CDORevisionHandler revisionHandler);
+
+    public void readUnit(IView view, CDOID rootID, CDORevisionHandler revisionHandler);
+  }
 }

@@ -717,6 +717,9 @@ public class TransactionCommitContext implements InternalCommitContext
 
   protected void handleException(Throwable ex)
   {
+    int xxx;
+    ex.printStackTrace();
+
     try
     {
       if (TRACER.isEnabled())
