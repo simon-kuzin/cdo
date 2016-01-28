@@ -14,10 +14,12 @@ import org.eclipse.net4j.db.DBType;
 import org.eclipse.net4j.db.IDBAdapter;
 import org.eclipse.net4j.db.ddl.IDBField;
 import org.eclipse.net4j.db.ddl.IDBIndex;
+import org.eclipse.net4j.db.ddl.IDBTable;
 import org.eclipse.net4j.spi.db.DBAdapter;
 
 import com.mysql.jdbc.ConnectionProperties;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -69,9 +71,28 @@ public class MYSQLAdapter extends DBAdapter
       "WHEN", "WHERE", "WHILE", "WITH", "WRITE", "X509", "XOR", "YEAR_MONTH", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
       "ZEROFILL" }; //$NON-NLS-1$
 
+  private final boolean optimizingRandomInserts;
+
   public MYSQLAdapter()
   {
+    this(false);
+  }
+
+  /**
+   * @since 4.2
+   */
+  public MYSQLAdapter(boolean optimizingRandomInserts)
+  {
     super(NAME, VERSION);
+    this.optimizingRandomInserts = optimizingRandomInserts;
+  }
+
+  /**
+   * @since 4.2
+   */
+  public final boolean isOptimizingRandomInserts()
+  {
+    return optimizingRandomInserts;
   }
 
   /**
@@ -109,11 +130,51 @@ public class MYSQLAdapter extends DBAdapter
   }
 
   @Override
+  protected void appendFieldDefs(Appendable appendable, IDBTable table, String[] defs)
+  {
+    try
+    {
+      if (optimizingRandomInserts && !table.isInsertSequential())
+      {
+        appendable.append("CDO_PK BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT, "); //$NON-NLS-1$
+      }
+
+      super.appendFieldDefs(appendable, table, defs);
+    }
+    catch (IOException canNotHappen)
+    {
+    }
+  }
+
+  @Override
+  protected void createPrimaryKey(IDBIndex index, StringBuilder builder)
+  {
+    if (optimizingRandomInserts)
+    {
+      IDBTable table = index.getTable();
+      if (!table.isInsertSequential())
+      {
+        builder.append("CREATE "); //$NON-NLS-1$
+        builder.append("UNIQUE "); //$NON-NLS-1$
+        builder.append("INDEX "); //$NON-NLS-1$
+        builder.append(index);
+        builder.append(" ON "); //$NON-NLS-1$
+        builder.append(table);
+        return;
+      }
+    }
+
+    super.createPrimaryKey(index, builder);
+  }
+
+  @Override
   protected void dropPrimaryKey(IDBIndex index, StringBuilder builder)
   {
     builder.append("ALTER TABLE "); //$NON-NLS-1$
     builder.append(index.getTable());
     builder.append(" DROP PRIMARY KEY"); //$NON-NLS-1$
+
+    int xxx; // TODO Deal with optimizingRandomInserts
   }
 
   @Override

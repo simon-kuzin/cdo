@@ -40,6 +40,8 @@ public class DBTable extends DBSchemaElement implements InternalDBTable
 
   private List<IDBIndex> indices = new ArrayList<IDBIndex>();
 
+  private boolean insertSequential;
+
   public DBTable(IDBSchema schema, String name)
   {
     super(name);
@@ -334,6 +336,17 @@ public class DBTable extends DBSchemaElement implements InternalDBTable
 
     builder.append(")"); //$NON-NLS-1$
     return builder.toString();
+  }
+
+  public boolean isInsertSequential()
+  {
+    return insertSequential;
+  }
+
+  public void setInsertSequential(boolean on)
+  {
+    assertUnlocked();
+    insertSequential = on;
   }
 
   @Override

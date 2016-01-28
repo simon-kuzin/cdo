@@ -110,4 +110,14 @@ public interface IDBTable extends IDBSchemaElement
   public IDBIndex getPrimaryKeyIndex();
 
   public String sqlInsert();
+
+  /**
+   * @since 4.5
+   */
+  public boolean isInsertSequential();
+
+  /**
+   * @since 4.5
+   */
+  public void setInsertSequential(boolean on);
 }

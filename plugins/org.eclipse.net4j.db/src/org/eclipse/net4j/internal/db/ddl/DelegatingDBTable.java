@@ -208,4 +208,14 @@ public final class DelegatingDBTable extends DelegatingDBSchemaElement implement
   {
     return getDelegate().sqlInsert();
   }
+
+  public boolean isInsertSequential()
+  {
+    return getDelegate().isInsertSequential();
+  }
+
+  public void setInsertSequential(boolean on)
+  {
+    getDelegate().setInsertSequential(on);
+  }
 }
