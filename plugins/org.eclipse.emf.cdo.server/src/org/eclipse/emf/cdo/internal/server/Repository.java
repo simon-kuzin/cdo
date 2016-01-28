@@ -92,6 +92,7 @@ import org.eclipse.emf.cdo.spi.server.InternalSession;
 import org.eclipse.emf.cdo.spi.server.InternalSessionManager;
 import org.eclipse.emf.cdo.spi.server.InternalStore;
 import org.eclipse.emf.cdo.spi.server.InternalTransaction;
+import org.eclipse.emf.cdo.spi.server.InternalUnitManager;
 import org.eclipse.emf.cdo.spi.server.InternalView;
 
 import org.eclipse.emf.internal.cdo.object.CDOFactoryImpl;
@@ -200,11 +201,11 @@ public class Repository extends Container<Object> implements InternalRepository,
 
   private InternalLockManager lockingManager;
 
+  private InternalUnitManager unitManager;
+
   private IQueryHandlerProvider queryHandlerProvider;
 
   private IManagedContainer container;
-
-  private final UnitManager unitManager = new UnitManager(this);
 
   private final List<ReadAccessHandler> readAccessHandlers = new ArrayList<ReadAccessHandler>();
 
@@ -972,11 +973,6 @@ public class Repository extends Container<Object> implements InternalRepository,
     return sessionManager;
   }
 
-  public UnitManager getUnitManager()
-  {
-    return unitManager;
-  }
-
   /**
    * @since 2.0
    */
@@ -984,6 +980,17 @@ public class Repository extends Container<Object> implements InternalRepository,
   {
     checkInactive();
     this.sessionManager = sessionManager;
+  }
+
+  public InternalUnitManager getUnitManager()
+  {
+    return unitManager;
+  }
+
+  public void setUnitManager(InternalUnitManager unitManager)
+  {
+    checkInactive();
+    this.unitManager = unitManager;
   }
 
   public InternalCDOBranchManager getBranchManager()
@@ -2221,6 +2228,11 @@ public class Repository extends Container<Object> implements InternalRepository,
     LifecycleUtil.activate(commitManager);
     LifecycleUtil.activate(queryHandlerProvider);
 
+    if (supportingUnits)
+    {
+      LifecycleUtil.activate(unitManager);
+    }
+
     if (!skipInitialization)
     {
       long creationTime = store.getCreationTime();
@@ -2243,12 +2255,6 @@ public class Repository extends Container<Object> implements InternalRepository,
     }
 
     LifecycleUtil.activate(lockingManager); // Needs an initialized main branch / branch manager
-
-    if (supportingUnits)
-    {
-      LifecycleUtil.activate(unitManager);
-    }
-
     setPostActivateState();
   }
 
@@ -2322,6 +2328,11 @@ public class Repository extends Container<Object> implements InternalRepository,
         setLockingManager(createLockManager());
       }
 
+      if (getUnitManager() == null)
+      {
+        setUnitManager(createUnitManager());
+      }
+
       super.doBeforeActivate();
     }
 
@@ -2358,6 +2369,11 @@ public class Repository extends Container<Object> implements InternalRepository,
     protected InternalCommitManager createCommitManager()
     {
       return new CommitManager();
+    }
+
+    protected InternalUnitManager createUnitManager()
+    {
+      return new UnitManager(this);
     }
 
     @Deprecated

@@ -65,6 +65,8 @@ import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionManager;
 import org.eclipse.emf.cdo.spi.server.InternalCommitContext;
 import org.eclipse.emf.cdo.spi.server.InternalRepository;
+import org.eclipse.emf.cdo.spi.server.InternalUnitManager;
+import org.eclipse.emf.cdo.spi.server.InternalUnitManager.InternalObjectAttacher;
 import org.eclipse.emf.cdo.spi.server.StoreAccessor;
 
 import org.eclipse.net4j.db.DBException;
@@ -120,9 +122,9 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor, 
 
   private ConnectionKeepAliveTask connectionKeepAliveTask;
 
-  private Set<CDOID> newObjects = new HashSet<CDOID>();
-
   private CDOID maxID = CDOID.NULL;
+
+  private InternalObjectAttacher objectAttacher;
 
   public DBStoreAccessor(DBStore store, ISession session) throws DBException
   {
@@ -493,7 +495,6 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor, 
     for (InternalCDORevision revision : context.getNewObjects())
     {
       CDOID id = revision.getID();
-      newObjects.add(id);
 
       if (adjustMaxID && idHandler.compare(id, maxID) > 0)
       {
@@ -563,22 +564,50 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor, 
   }
 
   @Override
-  protected void writeRevisions(InternalCDORevision[] revisions, CDOBranch branch, OMMonitor monitor)
+  protected void writeNewObjectRevisions(InternalCommitContext context, InternalCDORevision[] newObjects,
+      CDOBranch branch, OMMonitor monitor)
+  {
+    writeRevisions(context, true, newObjects, branch, monitor);
+  }
+
+  @Override
+  protected void writeDirtyObjectRevisions(InternalCommitContext context, InternalCDORevision[] dirtyObjects,
+      CDOBranch branch, OMMonitor monitor)
+  {
+    writeRevisions(context, false, dirtyObjects, branch, monitor);
+  }
+
+  protected void writeRevisions(InternalCommitContext context, boolean attachNewObjects,
+      InternalCDORevision[] revisions, CDOBranch branch, OMMonitor monitor)
   {
     try
     {
       monitor.begin(revisions.length);
       for (InternalCDORevision revision : revisions)
       {
-        boolean mapType = newObjects.contains(revision.getID());
-        writeRevision(revision, mapType, true, monitor.fork());
+        writeRevision(revision, attachNewObjects, true, monitor.fork());
+      }
+
+      if (attachNewObjects)
+      {
+        InternalRepository repository = getStore().getRepository();
+        if (repository.isSupportingUnits())
+        {
+          InternalUnitManager unitManager = repository.getUnitManager();
+          objectAttacher = unitManager.attachObjects(context); // TODO Fork a monitor.
+        }
       }
     }
     finally
     {
-      newObjects.clear();
       monitor.done();
     }
+  }
+
+  @Override
+  protected void writeRevisions(InternalCDORevision[] revisions, CDOBranch branch, OMMonitor monitor)
+  {
+    throw new UnsupportedOperationException();
   }
 
   protected void writeRevision(InternalCDORevision revision, boolean mapType, boolean revise, OMMonitor monitor)
@@ -711,6 +740,12 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor, 
           getStore().getIDHandler().adjustLastObjectID(maxID);
           maxID = CDOID.NULL;
         }
+
+        if (objectAttacher != null)
+        {
+          objectAttacher.finishedCommit(true);
+          objectAttacher = null;
+        }
       }
       finally
       {
@@ -733,6 +768,12 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor, 
   @Override
   protected final void doRollback(IStoreAccessor.CommitContext commitContext)
   {
+    if (objectAttacher != null)
+    {
+      objectAttacher.finishedCommit(false);
+      objectAttacher = null;
+    }
+
     getStore().getMetaDataManager().clearMetaIDMappings();
 
     if (TRACER.isEnabled())
@@ -761,6 +802,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor, 
     DBStore store = getStore();
     connection = store.getDatabase().getConnection();
     connectionKeepAliveTask = new ConnectionKeepAliveTask(this);
+    objectAttacher = null;
 
     long keepAlivePeriod = ConnectionKeepAliveTask.EXECUTION_PERIOD;
     Map<String, String> storeProps = store.getProperties();
@@ -1459,17 +1501,29 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor, 
     return unitMappingTable.readUnitRoots(this);
   }
 
-  public void initUnit(IView view, CDOID rootID, CDORevisionHandler revisionHandler)
-  {
-    long created = getStore().getRepository().getTimeStamp();
-    UnitMappingTable unitMappingTable = getStore().getUnitMappingTable();
-    unitMappingTable.initUnit(this, view, rootID, created, revisionHandler);
-  }
-
   public void readUnit(IView view, CDOID rootID, CDORevisionHandler revisionHandler)
   {
     UnitMappingTable unitMappingTable = getStore().getUnitMappingTable();
     unitMappingTable.readUnitRevisions(this, view, rootID, revisionHandler);
+  }
+
+  public Object initUnit(IView view, CDOID rootID, CDORevisionHandler revisionHandler, long timeStamp)
+  {
+    UnitMappingTable unitMappingTable = getStore().getUnitMappingTable();
+    return unitMappingTable.initUnit(this, timeStamp, view, rootID, revisionHandler);
+  }
+
+  public void finishUnit(IView view, CDOID rootID, CDORevisionHandler revisionHandler, long timeStamp,
+      Object initResult, List<CDOID> ids)
+  {
+    UnitMappingTable unitMappingTable = getStore().getUnitMappingTable();
+    unitMappingTable.finishUnit(rootID, timeStamp, initResult, ids);
+  }
+
+  public void writeUnits(Map<CDOID, CDOID> unitMappings, long timeStamp)
+  {
+    UnitMappingTable unitMappingTable = getStore().getUnitMappingTable();
+    unitMappingTable.writeUnitMappings(this, unitMappings, timeStamp);
   }
 
   /**

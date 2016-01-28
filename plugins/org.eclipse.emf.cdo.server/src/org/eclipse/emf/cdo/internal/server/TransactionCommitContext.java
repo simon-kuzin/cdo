@@ -1325,7 +1325,7 @@ public class TransactionCommitContext implements InternalCommitContext
     }
   }
 
-  protected IStoreAccessor getAccessor()
+  public IStoreAccessor getAccessor()
   {
     return accessor;
   }

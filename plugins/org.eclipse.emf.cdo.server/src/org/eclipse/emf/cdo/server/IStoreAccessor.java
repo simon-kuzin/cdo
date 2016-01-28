@@ -810,8 +810,13 @@ public interface IStoreAccessor extends IQueryHandlerProvider, BranchLoader, Com
   {
     public List<CDOID> readUnitRoots();
 
-    public void initUnit(IView view, CDOID rootID, CDORevisionHandler revisionHandler);
-
     public void readUnit(IView view, CDOID rootID, CDORevisionHandler revisionHandler);
+
+    public Object initUnit(IView view, CDOID rootID, CDORevisionHandler revisionHandler, long timeStamp);
+
+    public void finishUnit(IView view, CDOID rootID, CDORevisionHandler revisionHandler, long timeStamp,
+        Object initResult, List<CDOID> ids);
+
+    public void writeUnits(Map<CDOID, CDOID> unitMappings, long timeStamp);
   }
 }
