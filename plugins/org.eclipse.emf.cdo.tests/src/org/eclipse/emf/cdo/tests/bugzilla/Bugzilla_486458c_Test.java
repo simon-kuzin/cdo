@@ -43,7 +43,6 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.InternalEList;
 
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -62,8 +61,6 @@ import java.util.concurrent.TimeUnit;
 public class Bugzilla_486458c_Test extends AbstractCDOTest
 {
   private CountDownLatch createStarted;
-
-  private CountDownLatch initializeFinished;
 
   public void testParallelCreateUnits() throws Exception
   {
@@ -262,22 +259,5 @@ public class Bugzilla_486458c_Test extends AbstractCDOTest
   private static <T extends EObject> void addUnique(EList<T> list, T object)
   {
     ((InternalEList<T>)list).addUnique(object);
-  }
-
-  private static int iterateResource(CDOResource resource)
-  {
-    int count = 0;
-    long start = System.currentTimeMillis();
-
-    for (Iterator<EObject> it = resource.eAllContents(); it.hasNext();)
-    {
-      it.next();
-      ++count;
-    }
-
-    long stop = System.currentTimeMillis();
-    System.out.println("Iterated: " + (stop - start));
-
-    return count;
   }
 }
