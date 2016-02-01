@@ -1822,7 +1822,7 @@ public class CDOViewImpl extends AbstractCDOView implements IExecutorServiceProv
   /**
    * @author Eike Stepper
    */
-  protected final class CDOUnitManagerImpl extends Container<CDOUnit> implements CDOUnitManager
+  public final class CDOUnitManagerImpl extends Container<CDOUnit> implements CDOUnitManager
   {
     private final Map<EObject, CDOUnit> unitPerRoot = new HashMap<EObject, CDOUnit>();
 
@@ -1961,6 +1961,7 @@ public class CDOViewImpl extends AbstractCDOView implements IExecutorServiceProv
           {
             public boolean handleRevision(CDORevision revision)
             {
+              ++unit.initialElements;
               revisionManager.addRevision(revision);
 
               InternalCDOObject object = getObject(revision.getID());
@@ -2023,9 +2024,11 @@ public class CDOViewImpl extends AbstractCDOView implements IExecutorServiceProv
     /**
      * @author Eike Stepper
      */
-    protected final class CDOUnitImpl implements CDOUnit
+    public final class CDOUnitImpl implements CDOUnit
     {
       private final EObject root;
+
+      private int initialElements;
 
       public CDOUnitImpl(EObject root)
       {
@@ -2040,6 +2043,11 @@ public class CDOViewImpl extends AbstractCDOView implements IExecutorServiceProv
       public EObject getRoot()
       {
         return root;
+      }
+
+      public int getInitialElements()
+      {
+        return initialElements;
       }
 
       public void close()

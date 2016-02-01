@@ -247,8 +247,6 @@ public class View extends Lifecycle implements InternalView, CDOCommonView.Optio
       return true;
     }
 
-    int xxx; // TODO Remember object->unit relationship for modified objects?!
-
     InternalCDORevision revision = getRevision(id);
     if (revision != null)
     {

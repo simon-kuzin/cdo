@@ -102,6 +102,8 @@ public class UnitManager extends Container<IUnit> implements InternalUnitManager
 
     try
     {
+      createUnitHook1();
+
       // No need to synchronize on units because all other access holds the manager lock.
       if (units.containsKey(rootID))
       {
@@ -116,7 +118,7 @@ public class UnitManager extends Container<IUnit> implements InternalUnitManager
       }
       else
       {
-        unitInitializer = new UnitInitializer(rootID, view, revisionHandler);
+        unitInitializer = createUnitInitializer(rootID, view, revisionHandler);
 
         // No need to synchronize on unitInitializers because all other access holds the manager lock.
         unitInitializers.put(rootID, unitInitializer);
@@ -237,7 +239,7 @@ public class UnitManager extends Container<IUnit> implements InternalUnitManager
 
     long timeStamp = commitContext.getTimeStamp();
 
-    ObjectAttacher objectAttacher;
+    ObjectAttacher objectAttacher = null;
     Map<CDOID, CDOID> unitMappings = new HashMap<CDOID, CDOID>();
 
     ///////////////////////////////////////////////
@@ -249,6 +251,8 @@ public class UnitManager extends Container<IUnit> implements InternalUnitManager
 
     try
     {
+      attachObjectsHook1();
+
       Set<CDOID> rootIDs = new HashSet<CDOID>();
 
       // No need to synchronize on units because all other modifiers hold the manager write lock.
@@ -258,30 +262,31 @@ public class UnitManager extends Container<IUnit> implements InternalUnitManager
       rootIDs.addAll(unitInitializers.keySet());
 
       List<InternalCDORevision> unmappedRevisions = new ArrayList<InternalCDORevision>();
-      for (InternalCDORevision revision : commitContext.getNewObjects())
+      if (!rootIDs.isEmpty())
       {
-        CDOID rootID = getUnit(revision, commitContext, rootIDs);
-        if (rootID != null)
+        for (InternalCDORevision revision : commitContext.getNewObjects())
         {
-          unitMappings.put(revision.getID(), rootID);
-        }
-        else
-        {
-          unmappedRevisions.add(revision);
+          CDOID rootID = getUnit(revision, commitContext, rootIDs);
+          if (rootID != null)
+          {
+            unitMappings.put(revision.getID(), rootID);
+          }
+          else
+          {
+            unmappedRevisions.add(revision);
+          }
         }
       }
 
-      if (unmappedRevisions.isEmpty())
+      if (!unmappedRevisions.isEmpty())
       {
-        return null;
-      }
+        objectAttacher = createObjectAttacher(commitContext, unmappedRevisions);
 
-      objectAttacher = new ObjectAttacher(commitContext, unmappedRevisions);
-
-      // Read lock holders must synchronize modifications of the private collections.
-      synchronized (objectAttachers)
-      {
-        objectAttachers.add(objectAttacher);
+        // Read lock holders must synchronize modifications of the private collections.
+        synchronized (objectAttachers)
+        {
+          objectAttachers.add(objectAttacher);
+        }
       }
     }
     finally
@@ -293,8 +298,10 @@ public class UnitManager extends Container<IUnit> implements InternalUnitManager
     // Phase 2: Map objects to existing units (long, unlocked)
     //////////////////////////////////////////////////////////
 
-    UnitSupport storeAccessor = (UnitSupport)commitContext.getAccessor();
-    storeAccessor.writeUnits(unitMappings, timeStamp); // TODO Fork a monitor.
+    if (!unitMappings.isEmpty())
+    {
+      mapAttachedObjectsToUnits(commitContext, timeStamp, unitMappings);
+    }
 
     return objectAttacher;
   }
@@ -324,7 +331,7 @@ public class UnitManager extends Container<IUnit> implements InternalUnitManager
       List<CDOID> roots = storeAccessor.readUnitRoots();
       for (CDOID root : roots)
       {
-        IUnit unit = new Unit(root);
+        IUnit unit = createUnit(root);
 
         // No need to synchronize on units because all other access call checkActive()
         units.put(root, unit);
@@ -343,6 +350,37 @@ public class UnitManager extends Container<IUnit> implements InternalUnitManager
     units.clear();
 
     super.doDeactivate();
+  }
+
+  protected Unit createUnit(CDOID root)
+  {
+    return new Unit(root);
+  }
+
+  protected UnitInitializer createUnitInitializer(CDOID rootID, IView view, CDORevisionHandler revisionHandler)
+  {
+    return new UnitInitializer(rootID, view, revisionHandler);
+  }
+
+  protected ObjectAttacher createObjectAttacher(InternalCommitContext commitContext,
+      List<InternalCDORevision> unmappedRevisions)
+  {
+    return new ObjectAttacher(commitContext, unmappedRevisions);
+  }
+
+  protected void mapAttachedObjectsToUnits(InternalCommitContext commitContext, long timeStamp,
+      Map<CDOID, CDOID> unitMappings)
+  {
+    UnitSupport storeAccessor = (UnitSupport)commitContext.getAccessor();
+    storeAccessor.writeUnits(unitMappings, timeStamp); // TODO Fork a monitor.
+  }
+
+  protected void createUnitHook1()
+  {
+  }
+
+  protected void attachObjectsHook1()
+  {
   }
 
   private static CDOID getUnit(InternalCDORevision revision, CDORevisionProvider revisionProvider, Set<CDOID> rootIDs)
@@ -365,7 +403,7 @@ public class UnitManager extends Container<IUnit> implements InternalUnitManager
   /**
    * @author Eike Stepper
    */
-  private final class Unit implements IUnit
+  protected class Unit implements IUnit
   {
     private final CDOID rootID;
 
@@ -461,7 +499,7 @@ public class UnitManager extends Container<IUnit> implements InternalUnitManager
   /**
    * @author Eike Stepper
    */
-  private final class UnitInitializer implements CDORevisionHandler
+  protected class UnitInitializer implements CDORevisionHandler
   {
     private final long timeStamp = repository.getTimeStamp();
 
@@ -592,7 +630,7 @@ public class UnitManager extends Container<IUnit> implements InternalUnitManager
   /**
    * @author Eike Stepper
    */
-  private final class ObjectAttacher implements InternalObjectAttacher
+  protected class ObjectAttacher implements InternalObjectAttacher
   {
     private final InternalCommitContext commitContext;
 
