@@ -52,6 +52,7 @@ import org.eclipse.emf.ecore.util.InternalEList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Bug 486458 - Provide support for optimized loading and notifying of object units
@@ -95,7 +96,7 @@ public class Bugzilla_486458a_Test extends AbstractCDOTest
 
         try
         {
-          unitRegistered.await();
+          unitRegistered.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
         }
         catch (InterruptedException ex)
         {
@@ -204,7 +205,7 @@ public class Bugzilla_486458a_Test extends AbstractCDOTest
 
                 try
                 {
-                  startInitializeUnit.await();
+                  startInitializeUnit.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
                 }
                 catch (InterruptedException ex)
                 {

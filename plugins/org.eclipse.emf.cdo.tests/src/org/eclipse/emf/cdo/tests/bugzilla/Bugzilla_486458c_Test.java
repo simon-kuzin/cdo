@@ -50,7 +50,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Bug 486458 - Provide support for optimized loading and notifying of object units
  * <p>
- * Tests that a commit() that starts slightly before a createUnit() contributes to the new unit.
+ * Tests that a createUnit() that starts slightly before another createUnit() creates/opens the same new unit.
  *
  * @author Eike Stepper
  */
