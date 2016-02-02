@@ -55,8 +55,10 @@ import org.eclipse.net4j.db.IDBPreparedStatement.ReuseProbability;
 import org.eclipse.net4j.db.IDBResultSet;
 import org.eclipse.net4j.db.ddl.IDBField;
 import org.eclipse.net4j.util.ImplementationError;
+import org.eclipse.net4j.util.WrappedException;
 import org.eclipse.net4j.util.collection.MoveableList;
 import org.eclipse.net4j.util.concurrent.ConcurrencyUtil;
+import org.eclipse.net4j.util.concurrent.TimeoutRuntimeException;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.monitor.OMMonitor.Async;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
@@ -255,6 +257,13 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping
 
     builder.append(ATTRIBUTES_REVISED);
     builder.append("=0"); //$NON-NLS-1$
+
+    if (forUnits)
+    {
+      builder.append(" ORDER BY "); //$NON-NLS-1$
+      builder.append(ATTRIBUTES_ID);
+    }
+
     strings[1] = builder.toString();
 
     builder = new StringBuilder(strings[0]);
@@ -265,6 +274,13 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping
     builder.append("=0 OR "); //$NON-NLS-1$
     builder.append(ATTRIBUTES_REVISED);
     builder.append(">=?))"); //$NON-NLS-1$
+
+    if (forUnits)
+    {
+      builder.append(" ORDER BY "); //$NON-NLS-1$
+      builder.append(ATTRIBUTES_ID);
+    }
+
     strings[2] = builder.toString();
 
     return strings;
@@ -671,10 +687,6 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping
     CDOBranchPoint head = repository.getBranchManager().getMainBranch().getHead();
     EClass eClass = getEClass();
 
-    int xxx;
-    long start = System.currentTimeMillis();
-    System.out.print(eClass.getName() + ":\t");
-
     IIDHandler idHandler = store.getIDHandler();
     IDBPreparedStatement stmt = null;
     int oldFetchSize = -1;
@@ -715,19 +727,7 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping
         listFiller.schedule(revision);
       }
 
-      long stop = System.currentTimeMillis();
-      System.out.print(stop - start);
-      start = stop;
-
       listFiller.await();
-
-      stop = System.currentTimeMillis() - start;
-      if (stop != 0)
-      {
-        System.out.print("\t" + stop);
-      }
-
-      System.out.println();
     }
     finally
     {
@@ -760,6 +760,8 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping
 
     private final CDORevisionHandler revisionHandler;
 
+    private Throwable exception;
+
     public AsnychronousListFiller(IDBStoreAccessor accessor, CDOID rootID, CDORevisionHandler revisionHandler)
     {
       this.accessor = accessor;
@@ -787,7 +789,7 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping
       queue.offer(revision);
     }
 
-    public void await()
+    public void await() throws SQLException
     {
       // Schedule an end marker revision.
       schedule(new StubCDORevision(getEClass()));
@@ -798,7 +800,27 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping
       }
       catch (InterruptedException ex)
       {
-        //$FALL-THROUGH$
+        throw new TimeoutRuntimeException();
+      }
+
+      if (exception instanceof RuntimeException)
+      {
+        throw (RuntimeException)exception;
+      }
+
+      if (exception instanceof Error)
+      {
+        throw (Error)exception;
+      }
+
+      if (exception instanceof SQLException)
+      {
+        throw (SQLException)exception;
+      }
+
+      if (exception instanceof Exception)
+      {
+        throw WrappedException.wrap((Exception)exception);
       }
     }
 
@@ -808,37 +830,23 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping
       {
         while (store.isActive())
         {
-          InternalCDORevision revision;
-
-          try
+          InternalCDORevision revision = queue.poll(1, TimeUnit.SECONDS);
+          if (revision == null)
           {
-            revision = queue.poll(1, TimeUnit.SECONDS);
-            if (revision == null)
-            {
-              continue;
-            }
-
-            if (revision instanceof StubCDORevision)
-            {
-              return;
-            }
+            continue;
           }
-          catch (InterruptedException ex)
+
+          if (revision instanceof StubCDORevision)
           {
             return;
           }
 
-          try
-          {
-            readUnitEntries(revision);
-          }
-          catch (SQLException ex)
-          {
-            int xxx;
-            ex.printStackTrace();
-            return;
-          }
+          readUnitEntries(revision);
         }
+      }
+      catch (Throwable ex)
+      {
+        exception = ex;
       }
       finally
       {
@@ -848,6 +856,8 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping
 
     private void readUnitEntries(InternalCDORevision revision) throws SQLException
     {
+      CDOID id = revision.getID();
+
       for (int i = 0; i < listMappings.length; i++)
       {
         IListMappingUnitSupport listMapping = listMappings[i];
@@ -862,7 +872,7 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping
             resultSets[i] = listMapping.queryUnitEntries(accessor, idHandler, rootID);
           }
 
-          listMapping.readUnitEntries(resultSets[i], list);
+          listMapping.readUnitEntries(resultSets[i], idHandler, id, list);
         }
       }
 

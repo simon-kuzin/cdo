@@ -31,6 +31,9 @@ import org.eclipse.emf.cdo.tests.model1.Supplier;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.cdo.util.CommitException;
 import org.eclipse.emf.cdo.util.ConcurrentAccessException;
+import org.eclipse.emf.cdo.view.CDOUnit;
+
+import org.eclipse.emf.internal.cdo.view.CDOViewImpl.CDOUnitManagerImpl.CDOUnitImpl;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
@@ -74,7 +77,7 @@ public class Bugzilla_486458_Test extends AbstractCDOTest
     System.out.println("Prefetched: " + (stop - start));
 
     int count = iterateResource(resource);
-    assertEquals(7713, count);
+    assertEquals(7714, count);
   }
 
   public void testCreateUnit() throws Exception
@@ -92,31 +95,40 @@ public class Bugzilla_486458_Test extends AbstractCDOTest
     System.out.println("Created Unit: " + (stop - start));
 
     int count = iterateResource(resource);
-    assertEquals(7713, count);
+    assertEquals(7714, count);
   }
 
   public void testOpenUnit() throws Exception
   {
     fillRepository();
 
-    CDOSession session = openSession();
-    CDOTransaction transaction = session.openTransaction();
-    CDOResource resource = transaction.getResource(getResourcePath("test"));
-    transaction.getUnitManager().createUnit(resource);
-    session.close();
-    clearCache(getRepository().getRevisionManager());
+    {
+      CDOSession session = openSession();
+      CDOTransaction transaction = session.openTransaction();
+      CDOResource resource = transaction.getResource(getResourcePath("test"));
+      CDOUnit createdUnit = transaction.getUnitManager().createUnit(resource);
+      assertEquals(7714, ((CDOUnitImpl)createdUnit).getInitialElements());
 
-    session = openSession();
-    transaction = session.openTransaction();
-    resource = transaction.getResource(getResourcePath("test"));
+      session.close();
+      clearCache(getRepository().getRevisionManager());
+    }
 
-    long start = System.currentTimeMillis();
-    transaction.getUnitManager().openUnit(resource);
-    long stop = System.currentTimeMillis();
-    System.out.println("Opened Unit: " + (stop - start));
+    {
+      CDOSession session = openSession();
+      CDOTransaction transaction = session.openTransaction();
+      CDOResource resource = transaction.getResource(getResourcePath("test"));
 
-    int count = iterateResource(resource);
-    assertEquals(7713, count);
+      long start = System.currentTimeMillis();
+
+      CDOUnit openedUnit = transaction.getUnitManager().openUnit(resource);
+      assertEquals(7714, ((CDOUnitImpl)openedUnit).getInitialElements());
+
+      long stop = System.currentTimeMillis();
+      System.out.println("Opened Unit: " + (stop - start));
+
+      int count = iterateResource(resource);
+      assertEquals(7714, count);
+    }
   }
 
   private void fillRepository() throws ConcurrentAccessException, CommitException
@@ -132,12 +144,12 @@ public class Bugzilla_486458_Test extends AbstractCDOTest
       addUnique(resource.getContents(), company);
       fillCompany(company);
       long stop = System.currentTimeMillis();
-      System.out.println("Filled " + i + ": " + (stop - start));
+      System.out.println("Filled: " + (stop - start));
 
       start = stop;
       transaction.commit();
       stop = System.currentTimeMillis();
-      System.out.println("Committed " + i + ": " + (stop - start));
+      System.out.println("Committed: " + (stop - start));
       start = stop;
     }
 
@@ -218,7 +230,7 @@ public class Bugzilla_486458_Test extends AbstractCDOTest
 
   private static int iterateResource(CDOResource resource)
   {
-    int count = 0;
+    int count = 1;
     long start = System.currentTimeMillis();
 
     for (Iterator<EObject> it = resource.eAllContents(); it.hasNext();)

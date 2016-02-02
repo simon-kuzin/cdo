@@ -95,8 +95,5 @@ public class UnitIndication extends CDOServerReadIndicationWithMonitoring
 
     out.writeCDORevision(null, CDORevision.UNCHUNKED); // No more revisions
     out.writeBoolean(success);
-
-    int xxx;
-    System.out.println("--> DONE");
   }
 }

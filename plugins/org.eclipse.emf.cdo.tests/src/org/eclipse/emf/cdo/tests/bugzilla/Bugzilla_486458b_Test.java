@@ -119,7 +119,7 @@ public class Bugzilla_486458b_Test extends AbstractCDOTest
     resource = transaction.getResource(getResourcePath("test"));
 
     int count = iterateResource(resource);
-    int expected = 7713 + committed[0];
+    int expected = 7714 + committed[0];
     assertEquals(expected, count);
 
     session = openSession();
@@ -127,7 +127,7 @@ public class Bugzilla_486458b_Test extends AbstractCDOTest
     resource = transaction.getResource(getResourcePath("test"));
 
     CDOUnit unit = transaction.getUnitManager().openUnit(resource);
-    assertEquals(1 + expected, ((CDOUnitImpl)unit).getInitialElements());
+    assertEquals(expected, ((CDOUnitImpl)unit).getInitialElements());
 
     session = openSession();
     transaction = session.openTransaction();
@@ -363,7 +363,7 @@ public class Bugzilla_486458b_Test extends AbstractCDOTest
 
   private static int iterateResource(CDOResource resource)
   {
-    int count = 0;
+    int count = 1;
     long start = System.currentTimeMillis();
 
     for (Iterator<EObject> it = resource.eAllContents(); it.hasNext();)

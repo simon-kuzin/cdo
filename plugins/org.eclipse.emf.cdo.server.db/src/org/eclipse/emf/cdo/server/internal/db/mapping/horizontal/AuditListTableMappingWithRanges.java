@@ -90,6 +90,9 @@ public class AuditListTableMappingWithRanges extends AbstractBasicListTableMappi
 
   private static final String SQL_ORDER_BY_INDEX = " ORDER BY " + LIST_IDX;
 
+  private static final boolean CHECK_UNIT_ENTRIES = Boolean
+      .getBoolean("org.eclipse.emf.cdo.server.db.checkUnitEntries");
+
   /**
    * The table of this mapping.
    */
@@ -284,7 +287,7 @@ public class AuditListTableMappingWithRanges extends AbstractBasicListTableMappi
       String listTableName = getTable().getName();
       String attributesTableName = classMapping.getDBTables().get(0).getName();
 
-      sqlSelectUnitEntries = "SELECT cdo_list." + LIST_VALUE + //
+      sqlSelectUnitEntries = "SELECT " + (CHECK_UNIT_ENTRIES ? ATTRIBUTES_ID + ", " : "") + "cdo_list." + LIST_VALUE + //
           " FROM " + listTableName + " cdo_list, " + attributesTableName + ", " + UnitMappingTable.UNITS + //
           " WHERE " + UnitMappingTable.UNITS_ELEM + "=" + ATTRIBUTES_ID + //
           " AND " + ATTRIBUTES_ID + "=cdo_list." + LIST_REVISION_ID + //
@@ -568,14 +571,22 @@ public class AuditListTableMappingWithRanges extends AbstractBasicListTableMappi
     return stmt.executeQuery();
   }
 
-  public void readUnitEntries(ResultSet resultSet, MoveableList<Object> list) throws SQLException
+  public void readUnitEntries(ResultSet resultSet, IIDHandler idHandler, CDOID id, MoveableList<Object> list)
+      throws SQLException
   {
     int size = list.size();
     for (int i = 0; i < size; i++)
     {
       resultSet.next();
 
-      int xxx; // TODO Check that this is the correct revision?
+      if (CHECK_UNIT_ENTRIES)
+      {
+        CDOID checkID = idHandler.getCDOID(resultSet, 1);
+        if (checkID != id)
+        {
+          throw new IllegalStateException("Result set does not deliver expected result");
+        }
+      }
 
       Object value = typeMapping.readValue(resultSet);
       list.set(i, value);
