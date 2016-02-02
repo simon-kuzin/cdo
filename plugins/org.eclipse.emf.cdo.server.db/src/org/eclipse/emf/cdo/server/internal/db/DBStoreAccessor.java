@@ -594,7 +594,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor, 
         if (repository.isSupportingUnits())
         {
           InternalUnitManager unitManager = repository.getUnitManager();
-          objectAttacher = unitManager.attachObjects(context); // TODO Fork a monitor.
+          objectAttacher = unitManager.attachObjects(context);
         }
       }
     }

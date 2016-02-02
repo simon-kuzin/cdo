@@ -144,8 +144,6 @@ public abstract class AbstractHorizontalClassMapping implements IClassMapping, I
         primaryKey.addIndexField(branchField);
       }
 
-      int xxx;
-      // table.addIndex(IDBIndex.Type.NON_UNIQUE, ATTRIBUTES_ID, ATTRIBUTES_REVISED);
       table.addIndex(IDBIndex.Type.NON_UNIQUE, ATTRIBUTES_REVISED);
     }
   }

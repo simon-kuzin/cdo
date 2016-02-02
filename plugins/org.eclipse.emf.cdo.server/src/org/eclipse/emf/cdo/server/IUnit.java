@@ -14,6 +14,8 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevisionHandler;
 
 /**
+ * @noextend This interface is not intended to be extended by clients.
+ * @noimplement This interface is not intended to be implemented by clients.
  * @author Eike Stepper
  * @since 4.5
  */

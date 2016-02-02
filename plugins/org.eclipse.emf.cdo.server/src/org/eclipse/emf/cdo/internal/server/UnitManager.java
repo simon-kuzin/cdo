@@ -15,6 +15,7 @@ import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionHandler;
 import org.eclipse.emf.cdo.common.revision.CDORevisionProvider;
 import org.eclipse.emf.cdo.common.revision.CDORevisionUtil;
+import org.eclipse.emf.cdo.common.util.CDOException;
 import org.eclipse.emf.cdo.server.IStoreAccessor.UnitSupport;
 import org.eclipse.emf.cdo.server.IUnit;
 import org.eclipse.emf.cdo.server.IUnitManager;
@@ -88,8 +89,6 @@ public class UnitManager extends Container<IUnit> implements InternalUnitManager
   {
     checkActive();
 
-    int xxx; // TODO Check that units are not nested.
-
     WriteLock writeLock = managerLock.writeLock();
     UnitInitializer unitInitializer;
     boolean hook = false;
@@ -118,6 +117,9 @@ public class UnitManager extends Container<IUnit> implements InternalUnitManager
       }
       else
       {
+        checkNotNested(rootID, view, units.keySet());
+        checkNotNested(rootID, view, unitInitializers.keySet());
+
         unitInitializer = createUnitInitializer(rootID, view, revisionHandler);
 
         // No need to synchronize on unitInitializers because all other access holds the manager lock.
@@ -191,6 +193,26 @@ public class UnitManager extends Container<IUnit> implements InternalUnitManager
 
     fireElementAddedEvent(unit);
     return unit;
+  }
+
+  private void checkNotNested(CDOID rootID, IView view, Set<CDOID> unitIDs)
+  {
+    InternalCDORevision rootRevision = (InternalCDORevision)view.getRevision(rootID);
+    CDOID unitID = getUnit(rootRevision, view, unitIDs);
+    if (unitID != null)
+    {
+      throw new CDOException("Attempt to nest the new unit " + rootID + " in the existing unit " + unitID);
+    }
+
+    Set<CDOID> set = Collections.singleton(rootID);
+    for (CDOID id : unitIDs)
+    {
+      InternalCDORevision revision = (InternalCDORevision)view.getRevision(id);
+      if (getUnit(revision, view, set) != null)
+      {
+        throw new CDOException("Attempt to nest the existing unit " + id + " in the new unit " + rootID);
+      }
+    }
   }
 
   public IUnit getUnit(CDOID rootID)
@@ -372,7 +394,7 @@ public class UnitManager extends Container<IUnit> implements InternalUnitManager
       Map<CDOID, CDOID> unitMappings)
   {
     UnitSupport storeAccessor = (UnitSupport)commitContext.getAccessor();
-    storeAccessor.writeUnits(unitMappings, timeStamp); // TODO Fork a monitor.
+    storeAccessor.writeUnits(unitMappings, timeStamp);
   }
 
   protected void createUnitHook1()
@@ -385,6 +407,11 @@ public class UnitManager extends Container<IUnit> implements InternalUnitManager
 
   private static CDOID getUnit(InternalCDORevision revision, CDORevisionProvider revisionProvider, Set<CDOID> rootIDs)
   {
+    if (rootIDs.isEmpty())
+    {
+      return null;
+    }
+
     CDOID id = revision.getID();
     if (rootIDs.contains(id))
     {

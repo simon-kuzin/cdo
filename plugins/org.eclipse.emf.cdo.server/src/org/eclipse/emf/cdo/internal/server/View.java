@@ -33,7 +33,6 @@ import org.eclipse.emf.cdo.spi.server.InternalView;
 import org.eclipse.net4j.util.AdapterUtil;
 import org.eclipse.net4j.util.ObjectUtil;
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
-import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.options.IOptionsContainer;
 import org.eclipse.net4j.util.registry.HashMapRegistry;
 import org.eclipse.net4j.util.registry.IRegistry;
@@ -206,7 +205,7 @@ public class View extends Lifecycle implements InternalView, CDOCommonView.Optio
     this.durableLockingID = durableLockingID;
   }
 
-  public boolean openUnit(CDOID rootID, boolean create, CDORevisionHandler revisionHandler, OMMonitor monitor)
+  public boolean openUnit(CDOID rootID, boolean create, CDORevisionHandler revisionHandler)
   {
     IUnitManager unitManager = repository.getUnitManager();
     IUnit unit = unitManager.getUnit(rootID);
@@ -227,7 +226,6 @@ public class View extends Lifecycle implements InternalView, CDOCommonView.Optio
         return false;
       }
 
-      int xxx; // TODO Use monitor?
       unit.open(this, revisionHandler);
     }
 

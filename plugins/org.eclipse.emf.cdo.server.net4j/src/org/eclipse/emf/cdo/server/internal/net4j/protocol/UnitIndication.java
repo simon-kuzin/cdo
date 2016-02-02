@@ -20,6 +20,7 @@ import org.eclipse.emf.cdo.server.IUnitManager;
 import org.eclipse.emf.cdo.spi.server.InternalView;
 
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
+import org.eclipse.net4j.util.om.monitor.OMMonitor.Async;
 
 import java.io.IOException;
 
@@ -61,39 +62,50 @@ public class UnitIndication extends CDOServerReadIndicationWithMonitoring
     final RuntimeException[] runtimeException = { null };
     InternalView view = getView(viewID);
 
-    boolean success = view.openUnit(rootID, opcode == CDOProtocolConstants.UNIT_CREATE, new CDORevisionHandler()
+    monitor.begin();
+    Async async = monitor.forkAsync();
+
+    try
     {
-      public boolean handleRevision(CDORevision revision)
+      boolean success = view.openUnit(rootID, opcode == CDOProtocolConstants.UNIT_CREATE, new CDORevisionHandler()
       {
-        try
+        public boolean handleRevision(CDORevision revision)
         {
-          out.writeCDORevision(revision, CDORevision.UNCHUNKED); // Exposes revision to client side
-          return true;
-        }
-        catch (IOException ex)
-        {
-          ioException[0] = ex;
-        }
-        catch (RuntimeException ex)
-        {
-          runtimeException[0] = ex;
-        }
+          try
+          {
+            out.writeCDORevision(revision, CDORevision.UNCHUNKED); // Exposes revision to client side
+            return true;
+          }
+          catch (IOException ex)
+          {
+            ioException[0] = ex;
+          }
+          catch (RuntimeException ex)
+          {
+            runtimeException[0] = ex;
+          }
 
-        return false;
+          return false;
+        }
+      });
+
+      if (ioException[0] != null)
+      {
+        throw ioException[0];
       }
-    }, monitor);
 
-    if (ioException[0] != null)
-    {
-      throw ioException[0];
+      if (runtimeException[0] != null)
+      {
+        throw runtimeException[0];
+      }
+
+      out.writeCDORevision(null, CDORevision.UNCHUNKED); // No more revisions
+      out.writeBoolean(success);
     }
-
-    if (runtimeException[0] != null)
+    finally
     {
-      throw runtimeException[0];
+      async.stop();
+      monitor.done();
     }
-
-    out.writeCDORevision(null, CDORevision.UNCHUNKED); // No more revisions
-    out.writeBoolean(success);
   }
 }
