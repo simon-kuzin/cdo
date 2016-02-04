@@ -896,6 +896,13 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor, 
 
       IMappingStrategy mappingStrategy = store.getMappingStrategy();
       mappingStrategy.createMapping(connection, packageUnits, monitor.fork());
+
+      int writePackageUnits; // TODO Extra commit needed for Mysql between DDL and DML.
+      connection.commit();
+    }
+    catch (SQLException ex)
+    {
+      throw new DBException(ex);
     }
     finally
     {

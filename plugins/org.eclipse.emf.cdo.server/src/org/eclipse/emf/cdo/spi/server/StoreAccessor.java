@@ -77,8 +77,9 @@ public abstract class StoreAccessor extends StoreAccessorBase
     {
       monitor.begin(1 + newPackageUnits.length + 2 + newObjects.length + detachedObjects.length + dirtyCount + 1);
 
-      writeCommitInfo(branch, timeStamp, previousTimeStamp, userID, commitComment, monitor.fork());
+      int writePackageUnits; // TODO writePackageUnits() first.
       writePackageUnits(newPackageUnits, monitor.fork(newPackageUnits.length));
+      writeCommitInfo(branch, timeStamp, previousTimeStamp, userID, commitComment, monitor.fork());
 
       IDGenerationLocation idGenerationLocation = store.getRepository().getIDGenerationLocation();
       if (idGenerationLocation == IDGenerationLocation.STORE)
