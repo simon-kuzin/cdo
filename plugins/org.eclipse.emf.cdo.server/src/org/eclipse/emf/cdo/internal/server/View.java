@@ -233,7 +233,12 @@ public class View extends Lifecycle implements InternalView, CDOCommonView.Optio
     return true;
   }
 
-  private boolean isInOpenUnit(CDOID id)
+  public void closeUnit(CDOID rootID)
+  {
+    openUnitRoots.remove(rootID);
+  }
+
+  public boolean isInOpenUnit(CDOID id)
   {
     if (openUnitRoots.isEmpty())
     {
@@ -291,11 +296,6 @@ public class View extends Lifecycle implements InternalView, CDOCommonView.Optio
     if (changeSubscriptionIDs.contains(id))
     {
       return true;
-    }
-
-    if (repository.isSupportingUnits())
-    {
-      return isInOpenUnit(id);
     }
 
     return false;
@@ -359,6 +359,7 @@ public class View extends Lifecycle implements InternalView, CDOCommonView.Optio
   public void doClose()
   {
     clearChangeSubscription();
+    openUnitRoots.clear();
     closed = true;
   }
 

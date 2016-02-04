@@ -61,4 +61,14 @@ public interface InternalView extends IView, ILifecycle
    * @since 4.5
    */
   public boolean openUnit(CDOID rootID, boolean create, CDORevisionHandler revisionHandler);
+
+  /**
+   * @since 4.5
+   */
+  public void closeUnit(CDOID rootID);
+
+  /**
+   * @since 4.5
+   */
+  public boolean isInOpenUnit(CDOID id);
 }

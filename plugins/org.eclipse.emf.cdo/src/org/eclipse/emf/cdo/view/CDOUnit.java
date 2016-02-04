@@ -24,5 +24,16 @@ public interface CDOUnit
 
   public EObject getRoot();
 
+  public int getElements();
+
+  /**
+   * Same as calling {@link #close() close(true}.
+   */
   public void close();
+
+  /**
+   * Closes this unit and optionally {@link CDOView.Options#addChangeSubscriptionPolicy(CDOAdapterPolicy) resubscribes}
+   * all contained objects for change notifications.
+   */
+  public void close(boolean resubscribe);
 }

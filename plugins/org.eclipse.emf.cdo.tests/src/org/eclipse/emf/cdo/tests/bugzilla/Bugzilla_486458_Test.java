@@ -10,10 +10,15 @@
  */
 package org.eclipse.emf.cdo.tests.bugzilla;
 
+import org.eclipse.emf.cdo.CDOState;
+import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
+import org.eclipse.emf.cdo.common.util.CDOException;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.server.IRepository.Props;
 import org.eclipse.emf.cdo.session.CDOSession;
+import org.eclipse.emf.cdo.spi.server.InternalSession;
+import org.eclipse.emf.cdo.spi.server.InternalView;
 import org.eclipse.emf.cdo.tests.AbstractCDOTest;
 import org.eclipse.emf.cdo.tests.config.IRepositoryConfig;
 import org.eclipse.emf.cdo.tests.config.impl.ConfigTest.CleanRepositoriesAfter;
@@ -28,16 +33,19 @@ import org.eclipse.emf.cdo.tests.model1.Product1;
 import org.eclipse.emf.cdo.tests.model1.PurchaseOrder;
 import org.eclipse.emf.cdo.tests.model1.SalesOrder;
 import org.eclipse.emf.cdo.tests.model1.Supplier;
+import org.eclipse.emf.cdo.tests.util.TestAdapter;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
+import org.eclipse.emf.cdo.util.CDOUtil;
 import org.eclipse.emf.cdo.util.CommitException;
 import org.eclipse.emf.cdo.util.ConcurrentAccessException;
+import org.eclipse.emf.cdo.view.CDOAdapterPolicy;
 import org.eclipse.emf.cdo.view.CDOUnit;
 
-import org.eclipse.emf.internal.cdo.view.CDOViewImpl.CDOUnitManagerImpl.CDOUnitImpl;
-
+import org.eclipse.emf.common.notify.impl.AdapterImpl;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.InternalEList;
+import org.eclipse.emf.spi.cdo.InternalCDOView;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -83,19 +91,78 @@ public class Bugzilla_486458_Test extends AbstractCDOTest
   public void testCreateUnit() throws Exception
   {
     fillRepository();
-    clearCache(getRepository().getRevisionManager());
 
     CDOSession session = openSession();
     CDOTransaction transaction = session.openTransaction();
     CDOResource resource = transaction.getResource(getResourcePath("test"));
 
+    assertEquals(false, transaction.getUnitManager().isUnit(resource));
+    assertEquals(0, transaction.getUnitManager().getOpenUnits().length);
+
+    InternalSession serverSession = getRepository().getSessionManager().getSession(session.getSessionID());
+    InternalView serverView = serverSession.getView(transaction.getViewID());
+    CDOID childID = CDOUtil.getCDOObject(resource.getContents().get(0)).cdoID();
+    assertEquals(false, serverView.isInOpenUnit(childID));
+
     long start = System.currentTimeMillis();
-    transaction.getUnitManager().createUnit(resource);
+    CDOUnit unit = transaction.getUnitManager().createUnit(resource);
     long stop = System.currentTimeMillis();
     System.out.println("Created Unit: " + (stop - start));
 
+    assertEquals(true, transaction.getUnitManager().isUnit(resource));
+    assertEquals(1, transaction.getUnitManager().getOpenUnits().length);
+    assertSame(unit, transaction.getUnitManager().getOpenUnits()[0]);
+    assertSame(unit, transaction.getUnitManager().getOpenUnit(resource));
+    assertEquals(true, serverView.isInOpenUnit(childID));
+
     int count = iterateResource(resource);
     assertEquals(7714, count);
+
+    unit.close();
+    assertEquals(true, transaction.getUnitManager().isUnit(resource));
+    assertEquals(0, transaction.getUnitManager().getOpenUnits().length);
+    assertEquals(null, transaction.getUnitManager().getOpenUnit(resource));
+    assertEquals(false, serverView.isInOpenUnit(childID));
+  }
+
+  public void testDetectNestedUnit() throws Exception
+  {
+    fillRepository();
+
+    CDOSession session = openSession();
+    CDOTransaction transaction = session.openTransaction();
+    CDOResource resource = transaction.getResource(getResourcePath("test"));
+
+    CDOUnit unit = transaction.getUnitManager().createUnit(resource);
+    EObject parent = resource.getFolder();
+    EObject child = resource.getContents().get(0);
+
+    try
+    {
+      transaction.getUnitManager().createUnit(parent);
+      fail("CDOException expected");
+    }
+    catch (CDOException expected)
+    {
+      // SUCCESS
+    }
+
+    try
+    {
+      transaction.getUnitManager().createUnit(child);
+      fail("CDOException expected");
+    }
+    catch (CDOException expected)
+    {
+      // SUCCESS
+    }
+
+    assertEquals(true, transaction.getUnitManager().isUnit(resource));
+    assertEquals(false, transaction.getUnitManager().isUnit(parent));
+    assertEquals(false, transaction.getUnitManager().isUnit(child));
+
+    assertEquals(1, transaction.getUnitManager().getOpenUnits().length);
+    assertSame(unit, transaction.getUnitManager().getOpenUnits()[0]);
   }
 
   public void testOpenUnit() throws Exception
@@ -107,10 +174,9 @@ public class Bugzilla_486458_Test extends AbstractCDOTest
       CDOTransaction transaction = session.openTransaction();
       CDOResource resource = transaction.getResource(getResourcePath("test"));
       CDOUnit createdUnit = transaction.getUnitManager().createUnit(resource);
-      assertEquals(7714, ((CDOUnitImpl)createdUnit).getInitialElements());
+      assertEquals(7714, createdUnit.getElements());
 
       session.close();
-      clearCache(getRepository().getRevisionManager());
     }
 
     {
@@ -118,17 +184,118 @@ public class Bugzilla_486458_Test extends AbstractCDOTest
       CDOTransaction transaction = session.openTransaction();
       CDOResource resource = transaction.getResource(getResourcePath("test"));
 
+      assertEquals(true, transaction.getUnitManager().isUnit(resource));
+      assertEquals(0, transaction.getUnitManager().getOpenUnits().length);
+
       long start = System.currentTimeMillis();
-
       CDOUnit openedUnit = transaction.getUnitManager().openUnit(resource);
-      assertEquals(7714, ((CDOUnitImpl)openedUnit).getInitialElements());
-
+      assertEquals(7714, openedUnit.getElements());
       long stop = System.currentTimeMillis();
       System.out.println("Opened Unit: " + (stop - start));
+
+      assertEquals(true, transaction.getUnitManager().isUnit(resource));
+      assertEquals(1, transaction.getUnitManager().getOpenUnits().length);
+      assertSame(openedUnit, transaction.getUnitManager().getOpenUnits()[0]);
 
       int count = iterateResource(resource);
       assertEquals(7714, count);
     }
+  }
+
+  public void testUpdateUnit() throws Exception
+  {
+    fillRepository();
+
+    CDOSession session = openSession();
+    CDOTransaction transaction = session.openTransaction();
+    CDOResource resource = transaction.getResource(getResourcePath("test"));
+
+    CDOUnit unit = transaction.getUnitManager().createUnit(resource);
+    int elements = unit.getElements();
+
+    Company company = (Company)resource.getContents().get(0);
+    Category category = getModel1Factory().createCategory();
+    company.getCategories().add(category);
+    assertEquals(elements + 1, unit.getElements());
+
+    transaction.commit();
+    transaction.options().addChangeSubscriptionPolicy(CDOAdapterPolicy.ALL);
+
+    category.eAdapters().add(new AdapterImpl());
+    assertEquals(false, ((InternalCDOView)transaction).hasSubscription(CDOUtil.getCDOObject(category).cdoID()));
+
+    company.getCategories().remove(category);
+    assertEquals(elements, unit.getElements());
+  }
+
+  public void testNotificationsAfterOpenUnit() throws Exception
+  {
+    fillRepository();
+
+    CDOSession session = openSession();
+    CDOTransaction transaction = session.openTransaction();
+    transaction.options().addChangeSubscriptionPolicy(CDOAdapterPolicy.ALL);
+
+    CDOResource resource = transaction.getResource(getResourcePath("test"));
+    Company root = (Company)resource.getContents().get(0);
+    Category child = (Category)root.eContents().get(0);
+    Company sibling = (Company)resource.getContents().get(1);
+
+    CDOUnit unit = transaction.getUnitManager().createUnit(root);
+
+    TestAdapter adapter = new TestAdapter();
+    root.eAdapters().add(adapter);
+    child.eAdapters().add(adapter);
+    sibling.eAdapters().add(adapter);
+
+    assertEquals(false, ((InternalCDOView)transaction).hasSubscription(CDOUtil.getCDOObject(root).cdoID()));
+    assertEquals(false, ((InternalCDOView)transaction).hasSubscription(CDOUtil.getCDOObject(child).cdoID()));
+    assertEquals(true, ((InternalCDOView)transaction).hasSubscription(CDOUtil.getCDOObject(sibling).cdoID()));
+
+    InternalSession serverSession = getRepository().getSessionManager().getSession(session.getSessionID());
+    InternalView serverView = serverSession.getView(transaction.getViewID());
+    assertEquals(false, serverView.hasSubscription(CDOUtil.getCDOObject(root).cdoID()));
+    assertEquals(false, serverView.hasSubscription(CDOUtil.getCDOObject(child).cdoID()));
+    assertEquals(true, serverView.hasSubscription(CDOUtil.getCDOObject(sibling).cdoID()));
+
+    CDOSession session2 = openSession();
+    CDOTransaction transaction2 = session2.openTransaction();
+    CDOResource resource2 = transaction2.getResource(getResourcePath("test"));
+
+    Company root2 = (Company)resource2.getContents().get(0);
+    root2.setName("Name");
+    commitAndSync(transaction2, transaction);
+    assertEquals(CDOState.CLEAN, CDOUtil.getCDOObject(root).cdoState());
+    assertEquals("Name", root.getName());
+
+    Category child2 = (Category)root2.eContents().get(0);
+    child2.setName("Name");
+    commitAndSync(transaction2, transaction);
+    assertEquals(CDOState.CLEAN, CDOUtil.getCDOObject(child2).cdoState());
+    assertEquals("Name", child.getName());
+
+    Company sibling2 = (Company)resource2.getContents().get(1);
+    sibling2.setName("Name");
+    commitAndSync(transaction2, transaction);
+    assertEquals(CDOState.CLEAN, CDOUtil.getCDOObject(sibling2).cdoState());
+    assertEquals("Name", sibling.getName());
+
+    unit.close();
+
+    root2.setName("Name2");
+    commitAndSync(transaction2, transaction);
+    assertEquals(CDOState.CLEAN, CDOUtil.getCDOObject(root).cdoState());
+    assertEquals("Name2", root.getName());
+
+    child2.setName("Name2");
+    commitAndSync(transaction2, transaction);
+    assertEquals(CDOState.CLEAN, CDOUtil.getCDOObject(child2).cdoState());
+    assertEquals("Name2", child.getName());
+
+    sibling2.setName("Name2");
+    commitAndSync(transaction2, transaction);
+    assertEquals(CDOState.CLEAN, CDOUtil.getCDOObject(sibling2).cdoState());
+    assertEquals("Name2", sibling.getName());
   }
 
   private void fillRepository() throws ConcurrentAccessException, CommitException
@@ -137,20 +304,16 @@ public class Bugzilla_486458_Test extends AbstractCDOTest
     CDOTransaction transaction = session.openTransaction();
     CDOResource resource = transaction.createResource(getResourcePath("test"));
 
-    long start = System.currentTimeMillis();
     for (int i = 0; i < 3; i++)
     {
       Company company = getModel1Factory().createCompany();
       addUnique(resource.getContents(), company);
       fillCompany(company);
-      long stop = System.currentTimeMillis();
-      System.out.println("Filled: " + (stop - start));
 
-      start = stop;
+      long start = System.currentTimeMillis();
       transaction.commit();
-      stop = System.currentTimeMillis();
+      long stop = System.currentTimeMillis();
       System.out.println("Committed: " + (stop - start));
-      start = stop;
     }
 
     session.close();

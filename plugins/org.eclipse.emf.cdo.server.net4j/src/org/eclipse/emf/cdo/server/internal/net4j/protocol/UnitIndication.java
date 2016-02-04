@@ -16,6 +16,7 @@ import org.eclipse.emf.cdo.common.protocol.CDODataOutput;
 import org.eclipse.emf.cdo.common.protocol.CDOProtocolConstants;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionHandler;
+import org.eclipse.emf.cdo.server.IUnit;
 import org.eclipse.emf.cdo.server.IUnitManager;
 import org.eclipse.emf.cdo.spi.server.InternalView;
 
@@ -51,16 +52,31 @@ public class UnitIndication extends CDOServerReadIndicationWithMonitoring
   @Override
   protected void responding(final CDODataOutput out, OMMonitor monitor) throws Exception
   {
+    final InternalView view = getView(viewID);
+    IUnitManager unitManager = getRepository().getUnitManager();
+
     if (opcode == CDOProtocolConstants.UNIT_CHECK)
     {
-      IUnitManager unitManager = getRepository().getUnitManager();
       out.writeBoolean(unitManager.isUnit(rootID));
+      return;
+    }
+
+    if (opcode == CDOProtocolConstants.UNIT_CLOSE)
+    {
+      IUnit unit = unitManager.getUnit(rootID);
+      if (unit != null)
+      {
+        unit.close(view);
+        out.writeBoolean(true);
+        return;
+      }
+
+      out.writeBoolean(false);
       return;
     }
 
     final IOException[] ioException = { null };
     final RuntimeException[] runtimeException = { null };
-    InternalView view = getView(viewID);
 
     monitor.begin();
     Async async = monitor.forkAsync();
@@ -73,6 +89,7 @@ public class UnitIndication extends CDOServerReadIndicationWithMonitoring
         {
           try
           {
+            view.unsubscribe(revision.getID());
             out.writeCDORevision(revision, CDORevision.UNCHUNKED); // Exposes revision to client side
             return true;
           }

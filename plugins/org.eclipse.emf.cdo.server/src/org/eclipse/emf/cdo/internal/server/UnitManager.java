@@ -11,6 +11,7 @@
 package org.eclipse.emf.cdo.internal.server;
 
 import org.eclipse.emf.cdo.common.id.CDOID;
+import org.eclipse.emf.cdo.common.id.CDOIDUtil;
 import org.eclipse.emf.cdo.common.revision.CDORevision;
 import org.eclipse.emf.cdo.common.revision.CDORevisionHandler;
 import org.eclipse.emf.cdo.common.revision.CDORevisionProvider;
@@ -24,6 +25,7 @@ import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.server.InternalCommitContext;
 import org.eclipse.emf.cdo.spi.server.InternalRepository;
 import org.eclipse.emf.cdo.spi.server.InternalUnitManager;
+import org.eclipse.emf.cdo.spi.server.InternalView;
 
 import org.eclipse.net4j.util.container.Container;
 
@@ -49,9 +51,9 @@ public class UnitManager extends Container<IUnit> implements InternalUnitManager
 {
   private final InternalRepository repository;
 
-  private final Map<CDOID, IUnit> units = new HashMap<CDOID, IUnit>();
+  private final Map<CDOID, IUnit> units = CDOIDUtil.createMap();
 
-  private final Map<CDOID, UnitInitializer> unitInitializers = new HashMap<CDOID, UnitInitializer>();
+  private final Map<CDOID, UnitInitializer> unitInitializers = CDOIDUtil.createMap();
 
   private final Set<ObjectAttacher> objectAttachers = new HashSet<ObjectAttacher>();
 
@@ -262,7 +264,7 @@ public class UnitManager extends Container<IUnit> implements InternalUnitManager
     long timeStamp = commitContext.getTimeStamp();
 
     ObjectAttacher objectAttacher = null;
-    Map<CDOID, CDOID> unitMappings = new HashMap<CDOID, CDOID>();
+    Map<CDOID, CDOID> unitMappings = CDOIDUtil.createMap();
 
     ///////////////////////////////////////////////
     // Phase 1: Analyze new objects (short, locked)
@@ -284,20 +286,21 @@ public class UnitManager extends Container<IUnit> implements InternalUnitManager
       rootIDs.addAll(unitInitializers.keySet());
 
       List<InternalCDORevision> unmappedRevisions = new ArrayList<InternalCDORevision>();
-      if (!rootIDs.isEmpty())
+      boolean checkUnits = !rootIDs.isEmpty();
+
+      for (InternalCDORevision revision : commitContext.getNewObjects())
       {
-        for (InternalCDORevision revision : commitContext.getNewObjects())
+        if (checkUnits)
         {
           CDOID rootID = getUnit(revision, commitContext, rootIDs);
           if (rootID != null)
           {
             unitMappings.put(revision.getID(), rootID);
-          }
-          else
-          {
-            unmappedRevisions.add(revision);
+            continue;
           }
         }
+
+        unmappedRevisions.add(revision);
       }
 
       if (!unmappedRevisions.isEmpty())
@@ -484,6 +487,8 @@ public class UnitManager extends Container<IUnit> implements InternalUnitManager
       {
         views.remove(view);
       }
+
+      ((InternalView)view).closeUnit(rootID);
     }
 
     @Override
@@ -502,7 +507,8 @@ public class UnitManager extends Container<IUnit> implements InternalUnitManager
 
       try
       {
-        Object initResult = storeAccessor.initUnit(view, rootID, revisionHandler, timeStamp);
+        Set<CDOID> initializedIDs = new HashSet<CDOID>();
+        Object initResult = storeAccessor.initUnit(view, rootID, revisionHandler, initializedIDs, timeStamp);
 
         List<CDOID> ids = new ArrayList<CDOID>();
         for (Entry<ObjectAttacher, List<CDOID>> entry : objectAttachers.entrySet())
@@ -510,7 +516,13 @@ public class UnitManager extends Container<IUnit> implements InternalUnitManager
           ObjectAttacher objectAttacher = entry.getKey();
           if (objectAttacher.awaitFinishedCommit())
           {
-            ids.addAll(entry.getValue());
+            for (CDOID id : entry.getValue())
+            {
+              if (!initializedIDs.contains(id))
+              {
+                ids.add(id);
+              }
+            }
           }
         }
 

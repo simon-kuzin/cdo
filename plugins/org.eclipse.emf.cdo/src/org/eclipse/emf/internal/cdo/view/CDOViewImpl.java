@@ -123,6 +123,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.CountDownLatch;
@@ -935,23 +936,15 @@ public class CDOViewImpl extends AbstractCDOView implements IExecutorServiceProv
   }
 
   @Override
-  public InternalCDOObject removeObject(CDOID id)
+  protected void objectRegistered(InternalCDOObject object)
   {
-    synchronized (getViewMonitor())
-    {
-      lockView();
+    unitManager.addObject(object);
+  }
 
-      try
-      {
-        InternalCDOObject removedObject = super.removeObject(id);
-        removeLockState(removedObject);
-        return removedObject;
-      }
-      finally
-      {
-        unlockView();
-      }
-    }
+  @Override
+  protected void objectDeregistered(InternalCDOObject object)
+  {
+    removeLockState(object);
   }
 
   public CDOLockState[] getLockStates(Collection<CDOID> ids)
@@ -1560,6 +1553,8 @@ public class CDOViewImpl extends AbstractCDOView implements IExecutorServiceProv
     {
       new SyncTester().start();
     }
+
+    unitManager.activate();
   }
 
   @Override
@@ -1600,6 +1595,8 @@ public class CDOViewImpl extends AbstractCDOView implements IExecutorServiceProv
   @Override
   protected void doDeactivate() throws Exception
   {
+    unitManager.deactivate();
+
     CDOViewRegistryImpl.INSTANCE.deregister(this);
     LifecycleUtil.deactivate(invalidationRunner, OMLogger.Level.WARN);
 
@@ -1867,6 +1864,28 @@ public class CDOViewImpl extends AbstractCDOView implements IExecutorServiceProv
       return unit;
     }
 
+    public CDOUnit[] getElements()
+    {
+      synchronized (getViewMonitor())
+      {
+        lockView();
+
+        try
+        {
+          return unitPerRoot.values().toArray(new CDOUnit[unitPerRoot.size()]);
+        }
+        finally
+        {
+          unlockView();
+        }
+      }
+    }
+
+    public CDOUnit[] getOpenUnits()
+    {
+      return getElements();
+    }
+
     public CDOUnit getOpenUnit(EObject object)
     {
       synchronized (getViewMonitor())
@@ -1889,26 +1908,66 @@ public class CDOViewImpl extends AbstractCDOView implements IExecutorServiceProv
       return unitPerObject.get(object);
     }
 
-    public CDOUnit[] getOpenUnits()
+    public void addObject(InternalCDOObject object)
     {
-      return getElements();
-    }
-
-    public CDOUnit[] getElements()
-    {
-      synchronized (getViewMonitor())
+      if (!unitPerRoot.isEmpty())
       {
-        lockView();
+        CDOUnit unit = getOpenUnitUnsynced(object);
+        if (unit == null)
+        {
+          EObject parent = getParent(object);
+          EObject rootResource = getRootResource();
 
-        try
-        {
-          return unitPerRoot.values().toArray(new CDOUnit[unitPerRoot.size()]);
-        }
-        finally
-        {
-          unlockView();
+          while (parent != null && parent != rootResource)
+          {
+            unit = getOpenUnitUnsynced(parent);
+            if (unit != null)
+            {
+              unitPerObject.put(object, unit);
+              ++((CDOUnitImpl)unit).elements;
+              break;
+            }
+
+            parent = getParent(parent);
+          }
         }
       }
+    }
+
+    public void removeObject(InternalCDOObject object)
+    {
+      if (!unitPerRoot.isEmpty())
+      {
+        CDOUnit unit = unitPerObject.remove(object);
+        if (unit != null)
+        {
+          if (unit.getRoot() == object)
+          {
+            unitPerRoot.remove(object);
+          }
+
+          --((CDOUnitImpl)unit).elements;
+        }
+      }
+    }
+
+    @Override
+    protected void doDeactivate() throws Exception
+    {
+      unitPerRoot.clear();
+      unitPerObject.clear();
+      super.doDeactivate();
+    }
+
+    private EObject getParent(EObject object)
+    {
+      EObject parent = object.eContainer();
+      if (parent == null)
+      {
+        parent = (EObject)((InternalEObject)object).eDirectResource();
+      }
+
+      return parent;
     }
 
     private CDOObject getCDORoot(EObject root)
@@ -1936,17 +1995,22 @@ public class CDOViewImpl extends AbstractCDOView implements IExecutorServiceProv
 
         try
         {
-          CDOUnit containingUnit = getOpenUnit(root);
-          if (containingUnit != null)
+          if (opcode == CDOProtocolConstants.UNIT_CREATE)
           {
-            throw new IllegalArgumentException("Root " + root + " is contained by " + containingUnit);
-          }
-
-          for (CDOUnit existingUnit : unitPerRoot.values())
-          {
-            if (EcoreUtil.isAncestor(root, existingUnit.getRoot()))
+            CDOUnit containingUnit = getOpenUnit(root);
+            if (containingUnit != null)
             {
-              throw new IllegalArgumentException("Root " + root + " contains " + existingUnit);
+              throw new CDOException(
+                  "Attempt to nest the new unit " + root + " in the existing unit " + containingUnit);
+            }
+
+            for (CDOUnit existingUnit : unitPerRoot.values())
+            {
+              if (EcoreUtil.isAncestor(root, existingUnit.getRoot()))
+              {
+                throw new CDOException(
+                    "Attempt to nest the existing unit " + existingUnit + " in the new unit " + root);
+              }
             }
           }
 
@@ -1956,25 +2020,29 @@ public class CDOViewImpl extends AbstractCDOView implements IExecutorServiceProv
           int viewID = getViewID();
           CDOID rootID = getCDORoot(root).cdoID();
 
+          CDORevisionHandler revisionHandler = opcode == CDOProtocolConstants.UNIT_CREATE
+              || opcode == CDOProtocolConstants.UNIT_OPEN ? new CDORevisionHandler()
+              {
+                public boolean handleRevision(CDORevision revision)
+                {
+                  ++unit.elements;
+                  revisionManager.addRevision(revision);
+
+                  CDOID id = revision.getID();
+                  changeSubscriptionManager.removeEntry(id);
+
+                  InternalCDOObject object = getObject(id);
+                  unitPerObject.put(object, unit);
+                  return true;
+                }
+              } : null;
+
           CDOSessionProtocol sessionProtocol = session.getSessionProtocol();
-          boolean success = sessionProtocol.requestUnit(viewID, rootID, opcode, new CDORevisionHandler()
-          {
-            public boolean handleRevision(CDORevision revision)
-            {
-              ++unit.initialElements;
-              revisionManager.addRevision(revision);
-
-              InternalCDOObject object = getObject(revision.getID());
-              unitPerObject.put(object, unit);
-
-              int xxx; // TODO Release possible change subscriptions!
-              return true;
-            }
-          });
+          boolean success = sessionProtocol.requestUnit(viewID, rootID, opcode, revisionHandler);
 
           if (success)
           {
-            if (opcode == CDOProtocolConstants.UNIT_CREATE || opcode == CDOProtocolConstants.UNIT_OPEN)
+            if (revisionHandler != null)
             {
               unitPerRoot.put(root, unit);
               unitPerObject.put(root, unit);
@@ -1992,7 +2060,7 @@ public class CDOViewImpl extends AbstractCDOView implements IExecutorServiceProv
       }
     }
 
-    private void closeUnit(CDOUnit unit)
+    private void closeUnit(CDOUnit unit, boolean resubscribe)
     {
       synchronized (getViewMonitor())
       {
@@ -2000,13 +2068,28 @@ public class CDOViewImpl extends AbstractCDOView implements IExecutorServiceProv
 
         try
         {
-          for (Iterator<CDOUnit> it = unitPerObject.values().iterator(); it.hasNext();)
-          {
-            if (it.next() == unit)
-            {
-              int xxx; // TODO Re-create needed change subscriptions?
+          requestUnit(unit.getRoot(), CDOProtocolConstants.UNIT_CLOSE);
 
-              it.remove();
+          if (resubscribe && !options.hasChangeSubscriptionPolicies())
+          {
+            resubscribe = false;
+          }
+
+          for (Iterator<Entry<EObject, CDOUnit>> it = unitPerObject.entrySet().iterator(); it.hasNext();)
+          {
+            Entry<EObject, CDOUnit> entry = it.next();
+            if (entry.getValue() == unit)
+            {
+              it.remove(); // Remove the object from its unit first, so that shouldSubscribe() can return true.
+
+              if (resubscribe)
+              {
+                EObject object = entry.getKey();
+                for (Adapter adapter : object.eAdapters())
+                {
+                  changeSubscriptionManager.subscribe(object, adapter);
+                }
+              }
             }
           }
 
@@ -2028,7 +2111,7 @@ public class CDOViewImpl extends AbstractCDOView implements IExecutorServiceProv
     {
       private final EObject root;
 
-      private int initialElements;
+      private int elements;
 
       public CDOUnitImpl(EObject root)
       {
@@ -2045,14 +2128,19 @@ public class CDOViewImpl extends AbstractCDOView implements IExecutorServiceProv
         return root;
       }
 
-      public int getInitialElements()
+      public int getElements()
       {
-        return initialElements;
+        return elements;
       }
 
       public void close()
       {
-        closeUnit(this);
+        close(true);
+      }
+
+      public void close(boolean resubscribe)
+      {
+        closeUnit(this, resubscribe);
       }
 
       @Override
@@ -2222,13 +2310,13 @@ public class CDOViewImpl extends AbstractCDOView implements IExecutorServiceProv
     {
       for (CDOObject object : newObjects)
       {
-        InternalCDOObject cdoDetachedObject = (InternalCDOObject)object;
-        if (cdoDetachedObject != null)
+        InternalCDOObject internalObject = (InternalCDOObject)object;
+        if (internalObject != null)
         {
-          int count = getNumberOfValidAdapters(cdoDetachedObject);
+          int count = getNumberOfValidAdapters(internalObject);
           if (count > 0)
           {
-            subscribe(cdoDetachedObject.cdoID(), cdoDetachedObject, count);
+            subscribe(internalObject.cdoID(), internalObject, count);
           }
         }
       }
@@ -2289,6 +2377,11 @@ public class CDOViewImpl extends AbstractCDOView implements IExecutorServiceProv
 
     private boolean shouldSubscribe(EObject eObject, Adapter adapter)
     {
+      if (unitManager.getOpenUnitUnsynced(eObject) != null)
+      {
+        return false;
+      }
+
       for (CDOAdapterPolicy policy : options().getChangeSubscriptionPolicies())
       {
         if (policy.isValid(eObject, adapter))
@@ -2330,7 +2423,7 @@ public class CDOViewImpl extends AbstractCDOView implements IExecutorServiceProv
       // Look if objects need to be unsubscribe
       if (count <= 0)
       {
-        subscriptions.remove(id);
+        removeEntry(id);
 
         // Notification need to be enable to send correct value to the server
         if (policiesPresent)
@@ -2356,9 +2449,14 @@ public class CDOViewImpl extends AbstractCDOView implements IExecutorServiceProv
       subscribe(id, null, Integer.MIN_VALUE);
     }
 
-    private void addEntry(CDOID key, InternalCDOObject object, int count)
+    private void addEntry(CDOID id, InternalCDOObject object, int count)
     {
-      subscriptions.put(key, new SubscribeEntry(object, count));
+      subscriptions.put(id, new SubscribeEntry(object, count));
+    }
+
+    private void removeEntry(CDOID id)
+    {
+      subscriptions.remove(id);
     }
   }
 
@@ -2394,7 +2492,8 @@ public class CDOViewImpl extends AbstractCDOView implements IExecutorServiceProv
   }
 
   /**
-   * A {@link IListener} to prefetch {@link CDOLockState lockstates} when {@link CDORevision revisions} are loaded, according to {@link Options#setLockStatePrefetchEnabled(boolean)} option.
+   * A {@link IListener} to prefetch {@link CDOLockState lock states} when {@link CDORevision revisions} are loaded,
+   * according to {@link Options#setLockStatePrefetchEnabled(boolean)} option.
    *
    * @author Esteban Dugueperoux
    */

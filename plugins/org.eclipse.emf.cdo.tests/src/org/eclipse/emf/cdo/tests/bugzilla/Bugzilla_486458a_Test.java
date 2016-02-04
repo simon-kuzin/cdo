@@ -74,7 +74,6 @@ public class Bugzilla_486458a_Test extends AbstractCDOTest
   public void testCreateUnitWithParallelCommit() throws Exception
   {
     fillRepository();
-    clearCache(getRepository().getRevisionManager());
 
     unitRegistered = new CountDownLatch(1);
     startInitializeUnit = new CountDownLatch(1);
@@ -89,6 +88,7 @@ public class Bugzilla_486458a_Test extends AbstractCDOTest
         CDOSession session = openSession();
         CDOTransaction transaction = session.openTransaction();
         CDOResource resource = transaction.getResource(getResourcePath("test"));
+
         Company company = (Company)resource.getContents().get(0);
         Category category = company.getCategories().get(0);
 
@@ -235,20 +235,16 @@ public class Bugzilla_486458a_Test extends AbstractCDOTest
     CDOTransaction transaction = session.openTransaction();
     CDOResource resource = transaction.createResource(getResourcePath("test"));
 
-    long start = System.currentTimeMillis();
     for (int i = 0; i < 3; i++)
     {
       Company company = getModel1Factory().createCompany();
       addUnique(resource.getContents(), company);
       fillCompany(company);
-      long stop = System.currentTimeMillis();
-      System.out.println("Filled " + i + ": " + (stop - start));
 
-      start = stop;
+      long start = System.currentTimeMillis();
       transaction.commit();
-      stop = System.currentTimeMillis();
-      System.out.println("Committed " + i + ": " + (stop - start));
-      start = stop;
+      long stop = System.currentTimeMillis();
+      System.out.println("Committed: " + (stop - start));
     }
 
     session.close();

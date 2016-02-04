@@ -37,8 +37,6 @@ import org.eclipse.emf.cdo.util.CommitException;
 import org.eclipse.emf.cdo.util.ConcurrentAccessException;
 import org.eclipse.emf.cdo.view.CDOUnit;
 
-import org.eclipse.emf.internal.cdo.view.CDOViewImpl.CDOUnitManagerImpl.CDOUnitImpl;
-
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.InternalEList;
@@ -65,7 +63,6 @@ public class Bugzilla_486458c_Test extends AbstractCDOTest
   public void testParallelCreateUnits() throws Exception
   {
     fillRepository();
-    clearCache(getRepository().getRevisionManager());
 
     createStarted = new CountDownLatch(1);
 
@@ -91,7 +88,7 @@ public class Bugzilla_486458c_Test extends AbstractCDOTest
         }
 
         CDOUnit unit = transaction.getUnitManager().createUnit(resource);
-        secondCreated[0] = ((CDOUnitImpl)unit).getInitialElements();
+        secondCreated[0] = unit.getElements();
 
         session.close();
       }
@@ -105,7 +102,7 @@ public class Bugzilla_486458c_Test extends AbstractCDOTest
     CDOResource resource = transaction.getResource(getResourcePath("test"));
 
     CDOUnit unit = transaction.getUnitManager().createUnit(resource);
-    int created = ((CDOUnitImpl)unit).getInitialElements();
+    int created = unit.getElements();
     assertEquals(7714, created);
 
     secondCreator.join(DEFAULT_TIMEOUT);
@@ -163,20 +160,16 @@ public class Bugzilla_486458c_Test extends AbstractCDOTest
     CDOTransaction transaction = session.openTransaction();
     CDOResource resource = transaction.createResource(getResourcePath("test"));
 
-    long start = System.currentTimeMillis();
     for (int i = 0; i < 3; i++)
     {
       Company company = getModel1Factory().createCompany();
       addUnique(resource.getContents(), company);
       fillCompany(company);
-      long stop = System.currentTimeMillis();
-      System.out.println("Filled " + i + ": " + (stop - start));
 
-      start = stop;
+      long start = System.currentTimeMillis();
       transaction.commit();
-      stop = System.currentTimeMillis();
-      System.out.println("Committed " + i + ": " + (stop - start));
-      start = stop;
+      long stop = System.currentTimeMillis();
+      System.out.println("Committed: " + (stop - start));
     }
 
     session.close();
