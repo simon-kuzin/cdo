@@ -26,6 +26,7 @@ import org.eclipse.emf.cdo.server.db.mapping.IClassMappingUnitSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
 import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
 
+import org.eclipse.net4j.db.BatchedStatement;
 import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.db.DBType;
 import org.eclipse.net4j.db.DBUtil;
@@ -37,11 +38,11 @@ import org.eclipse.net4j.db.IDBPreparedStatement.ReuseProbability;
 import org.eclipse.net4j.db.ddl.IDBIndex;
 import org.eclipse.net4j.db.ddl.IDBSchema;
 import org.eclipse.net4j.db.ddl.IDBTable;
-import org.eclipse.net4j.util.collection.Pair;
 import org.eclipse.net4j.util.lifecycle.Lifecycle;
 
 import org.eclipse.emf.ecore.EClass;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -167,19 +168,20 @@ public class UnitMappingTable extends Lifecycle implements IMappingConstants
     }
   }
 
-  public Object initUnit(IDBStoreAccessor accessor, long timeStamp, IView view, CDOID rootID,
+  public BatchedStatement initUnit(IDBStoreAccessor accessor, long timeStamp, IView view, CDOID rootID,
       CDORevisionHandler revisionHandler, Set<CDOID> initializedIDs)
   {
     IIDHandler idHandler = mappingStrategy.getStore().getIDHandler();
     IDBConnection connection = accessor.getDBConnection();
-    IDBPreparedStatement stmt = connection.prepareStatement(SQL_INSERT_MAPPINGS, ReuseProbability.HIGH);
+    BatchedStatement stmt = DBUtil.batched(connection.prepareStatement(SQL_INSERT_MAPPINGS, ReuseProbability.HIGH),
+        WRITE_UNIT_MAPPING_BATCH_SIZE);
 
     try
     {
       CDORevision revision = view.getRevision(rootID);
 
-      int batchCount = initUnit(stmt, view, rootID, revisionHandler, initializedIDs, timeStamp, idHandler, revision, 0);
-      return Pair.create(stmt, batchCount);
+      initUnit(stmt, view, rootID, revisionHandler, initializedIDs, timeStamp, idHandler, revision);
+      return stmt;
     }
     catch (SQLException ex)
     {
@@ -191,38 +193,28 @@ public class UnitMappingTable extends Lifecycle implements IMappingConstants
     }
   }
 
-  private int initUnit(IDBPreparedStatement stmt, IView view, CDOID rootID, CDORevisionHandler revisionHandler,
-      Set<CDOID> initializedIDs, long timeStamp, IIDHandler idHandler, CDORevision revision, int batchCount)
-          throws SQLException
+  private void initUnit(BatchedStatement stmt, IView view, CDOID rootID, CDORevisionHandler revisionHandler,
+      Set<CDOID> initializedIDs, long timeStamp, IIDHandler idHandler, CDORevision revision) throws SQLException
   {
     revisionHandler.handleRevision(revision);
 
     CDOID id = revision.getID();
     initializedIDs.add(id);
 
-    batchCount = writeUnitMapping(stmt, rootID, timeStamp, idHandler, id, batchCount);
+    writeUnitMapping(stmt, rootID, timeStamp, idHandler, id);
 
     List<CDORevision> children = CDORevisionUtil.getChildRevisions(revision, view, true);
     for (CDORevision child : children)
     {
-      batchCount = initUnit(stmt, view, rootID, revisionHandler, initializedIDs, timeStamp, idHandler, child,
-          batchCount);
+      initUnit(stmt, view, rootID, revisionHandler, initializedIDs, timeStamp, idHandler, child);
     }
-
-    return batchCount;
   }
 
-  public void finishUnit(CDOID rootID, long timeStamp, Object initResult, List<CDOID> ids)
+  public void finishUnit(BatchedStatement stmt, CDOID rootID, List<CDOID> ids, long timeStamp)
   {
-    @SuppressWarnings("unchecked")
-    Pair<IDBPreparedStatement, Integer> pair = (Pair<IDBPreparedStatement, Integer>)initResult;
-
-    IDBPreparedStatement stmt = pair.getElement1();
-    int batchCount = pair.getElement2();
-
     IDBStore store = mappingStrategy.getStore();
     IIDHandler idHandler = store.getIDHandler();
-    IDBConnection connection = null;
+    Connection connection = null;
 
     try
     {
@@ -230,15 +222,8 @@ public class UnitMappingTable extends Lifecycle implements IMappingConstants
 
       for (CDOID id : ids)
       {
-        batchCount = writeUnitMapping(stmt, rootID, timeStamp, idHandler, id, batchCount);
+        writeUnitMapping(stmt, rootID, timeStamp, idHandler, id);
       }
-
-      if (batchCount != 0)
-      {
-        stmt.executeBatch();
-      }
-
-      connection.commit();
     }
     catch (SQLException ex)
     {
@@ -249,14 +234,23 @@ public class UnitMappingTable extends Lifecycle implements IMappingConstants
     {
       DBUtil.close(stmt);
     }
+
+    try
+    {
+      connection.commit();
+    }
+    catch (SQLException ex)
+    {
+      throw new DBException(ex);
+    }
   }
 
   public void writeUnitMappings(IDBStoreAccessor accessor, Map<CDOID, CDOID> unitMappings, long timeStamp)
   {
     IIDHandler idHandler = mappingStrategy.getStore().getIDHandler();
     IDBConnection connection = accessor.getDBConnection();
-    IDBPreparedStatement stmt = connection.prepareStatement(SQL_INSERT_MAPPINGS, ReuseProbability.HIGH);
-    int batchCount = 0;
+    BatchedStatement stmt = DBUtil.batched(connection.prepareStatement(SQL_INSERT_MAPPINGS, ReuseProbability.HIGH),
+        WRITE_UNIT_MAPPING_BATCH_SIZE);
 
     try
     {
@@ -264,12 +258,7 @@ public class UnitMappingTable extends Lifecycle implements IMappingConstants
       {
         CDOID id = entry.getKey();
         CDOID rootID = entry.getValue();
-        batchCount = writeUnitMapping(stmt, rootID, timeStamp, idHandler, id, batchCount);
-      }
-
-      if (batchCount != 0)
-      {
-        stmt.executeBatch();
+        writeUnitMapping(stmt, rootID, timeStamp, idHandler, id);
       }
     }
     catch (SQLException ex)
@@ -282,21 +271,13 @@ public class UnitMappingTable extends Lifecycle implements IMappingConstants
     }
   }
 
-  private int writeUnitMapping(IDBPreparedStatement stmt, CDOID rootID, long timeStamp, IIDHandler idHandler, CDOID id,
-      int batchCount) throws SQLException
+  private void writeUnitMapping(BatchedStatement stmt, CDOID rootID, long timeStamp, IIDHandler idHandler, CDOID id)
+      throws SQLException
   {
     idHandler.setCDOID(stmt, 1, id);
     idHandler.setCDOID(stmt, 2, rootID);
     // stmt.setLong(3, timeStamp);
-    stmt.addBatch();
-
-    if (++batchCount > WRITE_UNIT_MAPPING_BATCH_SIZE)
-    {
-      stmt.executeBatch();
-      batchCount = 0;
-    }
-
-    return batchCount;
+    stmt.executeUpdate();
   }
 
   @Override

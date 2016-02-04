@@ -69,6 +69,7 @@ import org.eclipse.emf.cdo.spi.server.InternalUnitManager;
 import org.eclipse.emf.cdo.spi.server.InternalUnitManager.InternalObjectAttacher;
 import org.eclipse.emf.cdo.spi.server.StoreAccessor;
 
+import org.eclipse.net4j.db.BatchedStatement;
 import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.db.DBUtil;
 import org.eclipse.net4j.db.IDBConnection;
@@ -1518,7 +1519,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor, 
       Object initResult, List<CDOID> ids)
   {
     UnitMappingTable unitMappingTable = getStore().getUnitMappingTable();
-    unitMappingTable.finishUnit(rootID, timeStamp, initResult, ids);
+    unitMappingTable.finishUnit((BatchedStatement)initResult, rootID, ids, timeStamp);
   }
 
   public void writeUnits(Map<CDOID, CDOID> unitMappings, long timeStamp)
