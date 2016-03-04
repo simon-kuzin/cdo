@@ -10,7 +10,10 @@
  */
 package org.eclipse.net4j.db;
 
+import org.eclipse.net4j.util.om.monitor.OMMonitor;
+
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 /**
  * @since 4.5
@@ -25,4 +28,8 @@ public interface BatchedStatement extends PreparedStatement
   public int getBatchCount();
 
   public int getTotalResult();
+
+  public int executeUpdate(OMMonitor monitor) throws SQLException;
+
+  public void close(OMMonitor monitor) throws SQLException;
 }

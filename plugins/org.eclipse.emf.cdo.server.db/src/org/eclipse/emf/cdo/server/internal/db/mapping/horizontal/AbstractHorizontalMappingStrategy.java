@@ -12,6 +12,7 @@
 package org.eclipse.emf.cdo.server.internal.db.mapping.horizontal;
 
 import org.eclipse.emf.cdo.common.CDOCommonRepository.IDGenerationLocation;
+import org.eclipse.emf.cdo.common.branch.CDOBranch;
 import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.common.model.CDOClassifierRef;
 import org.eclipse.emf.cdo.common.protocol.CDODataInput;
@@ -26,11 +27,14 @@ import org.eclipse.emf.cdo.server.db.IDBStore;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IIDHandler;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
+import org.eclipse.emf.cdo.server.db.mapping.IClassMappingBulkSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IListMapping;
 import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
 import org.eclipse.emf.cdo.server.internal.db.IObjectTypeMapper;
+import org.eclipse.emf.cdo.server.internal.db.IObjectTypeMapperBulkSupport;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
 import org.eclipse.emf.cdo.server.internal.db.mapping.AbstractMappingStrategy;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.db.DBUtil;
@@ -52,6 +56,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * * This abstract base class refines {@link AbstractMappingStrategy} by implementing aspects common to horizontal
@@ -370,6 +376,46 @@ public abstract class AbstractHorizontalMappingStrategy extends AbstractMappingS
   }
 
   @Override
+  public void writeBulkRevisions(IDBStoreAccessor accessor, Map<EClass, List<InternalCDORevision>> revisionsPerClass,
+      Map<CDOID, EClass> newObjectTypes, CDOBranch branch, long timeStamp, OMMonitor monitor)
+  {
+    monitor.begin(revisionsPerClass.size() + (newObjectTypes.isEmpty() ? 0 : 1));
+
+    try
+    {
+      for (Entry<EClass, List<InternalCDORevision>> entry : revisionsPerClass.entrySet())
+      {
+        EClass eClass = entry.getKey();
+        List<InternalCDORevision> revisions = entry.getValue();
+
+        IClassMappingBulkSupport classMapping = (IClassMappingBulkSupport)getClassMapping(eClass);
+        classMapping.writeBulkRevisions(accessor, revisions, branch, timeStamp, monitor.fork());
+      }
+
+      if (!newObjectTypes.isEmpty())
+      {
+        if (objectTypeMapper instanceof IObjectTypeMapperBulkSupport)
+        {
+          IObjectTypeMapperBulkSupport bulkSupport = (IObjectTypeMapperBulkSupport)objectTypeMapper;
+          bulkSupport.putObjectTypes(accessor, newObjectTypes, timeStamp, monitor.fork());
+        }
+        else
+        {
+          putObjectTypes(accessor, newObjectTypes, timeStamp, monitor.fork());
+        }
+      }
+    }
+    catch (SQLException ex)
+    {
+      throw new DBException(ex);
+    }
+    finally
+    {
+      monitor.done();
+    }
+  }
+
+  @Override
   protected void doActivate() throws Exception
   {
     super.doActivate();
@@ -424,6 +470,25 @@ public abstract class AbstractHorizontalMappingStrategy extends AbstractMappingS
     }
 
     return objectTypeCacheSize;
+  }
+
+  private void putObjectTypes(IDBStoreAccessor accessor, Map<CDOID, EClass> newObjectTypes, long timeStamp,
+      OMMonitor monitor)
+  {
+    monitor.begin(newObjectTypes.size());
+
+    try
+    {
+      for (Entry<CDOID, EClass> entry : newObjectTypes.entrySet())
+      {
+        putObjectType(accessor, timeStamp, entry.getKey(), entry.getValue());
+        monitor.worked();
+      }
+    }
+    finally
+    {
+      monitor.done();
+    }
   }
 
   /**

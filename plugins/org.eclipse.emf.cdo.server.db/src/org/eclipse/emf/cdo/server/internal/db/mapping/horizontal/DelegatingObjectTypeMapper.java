@@ -17,6 +17,7 @@ import org.eclipse.emf.cdo.common.protocol.CDODataOutput;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IIDHandler;
 import org.eclipse.emf.cdo.server.internal.db.IObjectTypeMapper;
+import org.eclipse.emf.cdo.server.internal.db.IObjectTypeMapperBulkSupport;
 
 import org.eclipse.net4j.util.lifecycle.LifecycleUtil;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
@@ -25,12 +26,15 @@ import org.eclipse.emf.ecore.EClass;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Eike Stepper
  * @since 4.0
  */
 public abstract class DelegatingObjectTypeMapper extends AbstractObjectTypeMapper
+    implements IObjectTypeMapperBulkSupport
 {
   private IObjectTypeMapper delegate;
 
@@ -97,6 +101,29 @@ public abstract class DelegatingObjectTypeMapper extends AbstractObjectTypeMappe
   public void rawImport(Connection connection, CDODataInput in, OMMonitor monitor) throws IOException
   {
     delegate.rawImport(connection, in, monitor);
+  }
+
+  public boolean hasBulkSupport()
+  {
+    if (delegate instanceof IObjectTypeMapperBulkSupport)
+    {
+      IObjectTypeMapperBulkSupport bulkSupport = (IObjectTypeMapperBulkSupport)delegate;
+      return bulkSupport.hasBulkSupport();
+    }
+
+    return false;
+  }
+
+  public Set<CDOID> putObjectTypes(IDBStoreAccessor accessor, Map<CDOID, EClass> newObjectTypes, long timeStamp,
+      OMMonitor monitor)
+  {
+    if (delegate instanceof IObjectTypeMapperBulkSupport)
+    {
+      IObjectTypeMapperBulkSupport bulkSupport = (IObjectTypeMapperBulkSupport)delegate;
+      return bulkSupport.putObjectTypes(accessor, newObjectTypes, timeStamp, monitor);
+    }
+
+    throw new UnsupportedOperationException();
   }
 
   @Override

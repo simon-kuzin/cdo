@@ -57,26 +57,21 @@ public abstract class StoreAccessor extends StoreAccessorBase
   @Override
   protected void doWrite(InternalCommitContext context, OMMonitor monitor)
   {
+    Store store = getStore();
     CDOBranch branch = context.getBranchPoint().getBranch();
     long timeStamp = context.getBranchPoint().getTimeStamp();
     long previousTimeStamp = context.getPreviousTimeStamp();
     String userID = context.getUserID();
     String commitComment = context.getCommitComment();
 
-    Store store = getStore();
-    boolean deltas = store.getSupportedChangeFormats().contains(IStore.ChangeFormat.DELTA);
-
     InternalCDOPackageUnit[] newPackageUnits = context.getNewPackageUnits();
-    InternalCDORevision[] newObjects = context.getNewObjects();
     CDOID[] detachedObjects = context.getDetachedObjects();
-    InternalCDORevisionDelta[] dirtyObjectDeltas = context.getDirtyObjectDeltas();
-    InternalCDORevision[] dirtyObjects = context.getDirtyObjects();
-    int dirtyCount = deltas ? dirtyObjectDeltas.length : dirtyObjects.length;
+
+    monitor.begin(1 + newPackageUnits.length + 2 + context.getNewObjects().length + detachedObjects.length
+        + context.getDirtyObjectDeltas().length + 1);
 
     try
     {
-      monitor.begin(1 + newPackageUnits.length + 2 + newObjects.length + detachedObjects.length + dirtyCount + 1);
-
       writeCommitInfo(branch, timeStamp, previousTimeStamp, userID, commitComment, monitor.fork());
       writePackageUnits(newPackageUnits, monitor.fork(newPackageUnits.length));
 
@@ -93,22 +88,8 @@ public abstract class StoreAccessor extends StoreAccessorBase
         detachObjects(detachedObjects, branch, timeStamp, monitor.fork(detachedObjects.length));
       }
 
-      if (newObjects.length != 0)
-      {
-        writeNewObjectRevisions(context, newObjects, branch, monitor.fork(newObjects.length));
-      }
-
-      if (dirtyCount != 0)
-      {
-        if (deltas)
-        {
-          writeRevisionDeltas(dirtyObjectDeltas, branch, timeStamp, monitor.fork(dirtyCount));
-        }
-        else
-        {
-          writeDirtyObjectRevisions(context, dirtyObjects, branch, monitor.fork(dirtyCount));
-        }
-      }
+      boolean deltas = store.getSupportedChangeFormats().contains(IStore.ChangeFormat.DELTA);
+      writeNewAndDirtyRevisions(context, deltas, branch, timeStamp, monitor);
 
       ExtendedDataInputStream in = context.getLobs();
       if (in != null)
@@ -182,6 +163,36 @@ public abstract class StoreAccessor extends StoreAccessorBase
       CDOBranch branch, OMMonitor monitor)
   {
     writeRevisions(dirtyObjects, branch, monitor);
+  }
+
+  /**
+   * @since 4.5
+   */
+  protected void writeNewAndDirtyRevisions(InternalCommitContext context, boolean deltas, CDOBranch branch,
+      long timeStamp, OMMonitor monitor)
+  {
+    InternalCDORevision[] newObjects = context.getNewObjects();
+    if (newObjects.length != 0)
+    {
+      writeNewObjectRevisions(context, newObjects, branch, monitor.fork(newObjects.length));
+    }
+
+    if (deltas)
+    {
+      InternalCDORevisionDelta[] dirtyObjectDeltas = context.getDirtyObjectDeltas();
+      if (dirtyObjectDeltas.length != 0)
+      {
+        writeRevisionDeltas(dirtyObjectDeltas, branch, timeStamp, monitor.fork(dirtyObjectDeltas.length));
+      }
+    }
+    else
+    {
+      InternalCDORevision[] dirtyObjects = context.getDirtyObjects();
+      if (dirtyObjects.length != 0)
+      {
+        writeDirtyObjectRevisions(context, dirtyObjects, branch, monitor.fork(dirtyObjects.length));
+      }
+    }
   }
 
   /**

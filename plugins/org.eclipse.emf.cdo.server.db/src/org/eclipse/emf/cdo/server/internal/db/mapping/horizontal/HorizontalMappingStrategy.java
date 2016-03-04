@@ -25,9 +25,11 @@ import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
 import org.eclipse.emf.cdo.server.db.mapping.IListMapping;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
+import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategyBulkSupport;
 import org.eclipse.emf.cdo.server.db.mapping.ITypeMapping;
 import org.eclipse.emf.cdo.spi.common.commit.CDOChangeSetSegment;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 
 import org.eclipse.net4j.db.IDBAdapter;
 import org.eclipse.net4j.util.collection.CloseableIterator;
@@ -42,13 +44,14 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import java.io.IOException;
 import java.sql.Connection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * @author Eike Stepper
  */
-public class HorizontalMappingStrategy extends Lifecycle implements IMappingStrategy
+public class HorizontalMappingStrategy extends Lifecycle implements IMappingStrategyBulkSupport
 {
   private Map<String, String> properties;
 
@@ -230,6 +233,31 @@ public class HorizontalMappingStrategy extends Lifecycle implements IMappingStra
   public String getListJoin(String attrTable, String listTable)
   {
     return delegate.getListJoin(attrTable, listTable);
+  }
+
+  public boolean hasBulkSupport()
+  {
+    if (delegate instanceof IMappingStrategyBulkSupport)
+    {
+      IMappingStrategyBulkSupport bulkSupport = (IMappingStrategyBulkSupport)delegate;
+      return bulkSupport.hasBulkSupport();
+    }
+
+    return false;
+  }
+
+  public void writeBulkRevisions(IDBStoreAccessor accessor, Map<EClass, List<InternalCDORevision>> revisionsPerClass,
+      Map<CDOID, EClass> newObjectTypes, CDOBranch branch, long timeStamp, OMMonitor monitor)
+  {
+    if (delegate instanceof IMappingStrategyBulkSupport)
+    {
+      IMappingStrategyBulkSupport bulkSupport = (IMappingStrategyBulkSupport)delegate;
+      bulkSupport.writeBulkRevisions(accessor, revisionsPerClass, newObjectTypes, branch, timeStamp, monitor);
+    }
+    else
+    {
+      throw new UnsupportedOperationException();
+    }
   }
 
   @Override

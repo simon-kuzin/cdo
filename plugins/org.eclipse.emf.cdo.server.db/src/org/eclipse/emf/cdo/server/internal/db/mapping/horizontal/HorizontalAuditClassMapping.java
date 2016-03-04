@@ -31,14 +31,16 @@ import org.eclipse.emf.cdo.common.revision.delta.CDORemoveFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOSetFeatureDelta;
 import org.eclipse.emf.cdo.common.revision.delta.CDOUnsetFeatureDelta;
 import org.eclipse.emf.cdo.eresource.EresourcePackage;
+import org.eclipse.emf.cdo.server.IRepository;
 import org.eclipse.emf.cdo.server.IStoreAccessor.QueryXRefsContext;
-import org.eclipse.emf.cdo.server.StoreThreadLocal;
+import org.eclipse.emf.cdo.server.db.IDBStore;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IIDHandler;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMappingAuditSupport;
+import org.eclipse.emf.cdo.server.db.mapping.IClassMappingBulkSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMappingDeltaSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMappingUnitSupport;
-import org.eclipse.emf.cdo.server.db.mapping.IListMapping;
+import org.eclipse.emf.cdo.server.db.mapping.IListMappingBulkSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IListMappingDeltaSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IListMappingUnitSupport;
 import org.eclipse.emf.cdo.server.db.mapping.ITypeMapping;
@@ -46,20 +48,19 @@ import org.eclipse.emf.cdo.server.internal.db.DBStore;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevisionDelta;
-import org.eclipse.emf.cdo.spi.common.revision.StubCDORevision;
 import org.eclipse.emf.cdo.spi.server.InternalRepository;
 
+import org.eclipse.net4j.db.BatchedStatement;
 import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.db.DBUtil;
+import org.eclipse.net4j.db.IDBConnection;
 import org.eclipse.net4j.db.IDBPreparedStatement;
 import org.eclipse.net4j.db.IDBPreparedStatement.ReuseProbability;
 import org.eclipse.net4j.db.IDBResultSet;
 import org.eclipse.net4j.db.ddl.IDBField;
 import org.eclipse.net4j.util.ImplementationError;
-import org.eclipse.net4j.util.WrappedException;
 import org.eclipse.net4j.util.collection.MoveableList;
 import org.eclipse.net4j.util.concurrent.ConcurrencyUtil;
-import org.eclipse.net4j.util.concurrent.TimeoutRuntimeException;
 import org.eclipse.net4j.util.om.monitor.OMMonitor;
 import org.eclipse.net4j.util.om.monitor.OMMonitor.Async;
 import org.eclipse.net4j.util.om.trace.ContextTracer;
@@ -67,27 +68,26 @@ import org.eclipse.net4j.util.om.trace.ContextTracer;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Eike Stepper
  * @since 2.0
  */
 public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping
-    implements IClassMappingAuditSupport, IClassMappingDeltaSupport, IClassMappingUnitSupport
+    implements IClassMappingAuditSupport, IClassMappingDeltaSupport, IClassMappingUnitSupport, IClassMappingBulkSupport
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, HorizontalAuditClassMapping.class);
 
   private static final ContextTracer TRACER_UNITS = new ContextTracer(OM.DEBUG_UNITS,
       HorizontalAuditClassMapping.class);
+
+  private static final int BULK_SUPPORT_BATCH_SIZE = 100000;
 
   private String sqlInsertAttributes;
 
@@ -464,51 +464,7 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping
 
     try
     {
-      int column = 1;
-      idHandler.setCDOID(stmt, column++, revision.getID());
-      stmt.setInt(column++, revision.getVersion());
-      stmt.setLong(column++, revision.getTimeStamp());
-      stmt.setLong(column++, revision.getRevised());
-      idHandler.setCDOID(stmt, column++, revision.getResourceID());
-      idHandler.setCDOID(stmt, column++, (CDOID)revision.getContainerID());
-      stmt.setInt(column++, revision.getContainingFeatureID());
-
-      int isSetCol = column + getValueMappings().size();
-
-      for (ITypeMapping mapping : getValueMappings())
-      {
-        EStructuralFeature feature = mapping.getFeature();
-        if (feature.isUnsettable())
-        {
-          if (revision.getValue(feature) == null)
-          {
-            stmt.setBoolean(isSetCol++, false);
-
-            // also set value column to default value
-            mapping.setDefaultValue(stmt, column++);
-
-            continue;
-          }
-
-          stmt.setBoolean(isSetCol++, true);
-        }
-
-        mapping.setValueFromRevision(stmt, column++, revision);
-      }
-
-      Map<EStructuralFeature, IDBField> listSizeFields = getListSizeFields();
-      if (listSizeFields != null)
-      {
-        // isSetCol now points to the first listTableSize-column
-        column = isSetCol;
-
-        for (EStructuralFeature feature : listSizeFields.keySet())
-        {
-          CDOList list = revision.getList(feature);
-          stmt.setInt(column++, list.size());
-        }
-      }
-
+      writeValuesToStatement(stmt, idHandler, revision);
       DBUtil.update(stmt, true);
     }
     catch (SQLException e)
@@ -518,6 +474,55 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping
     finally
     {
       DBUtil.close(stmt);
+    }
+  }
+
+  protected void writeValuesToStatement(PreparedStatement stmt, IIDHandler idHandler, InternalCDORevision revision)
+      throws SQLException
+  {
+    int column = 1;
+    idHandler.setCDOID(stmt, column++, revision.getID());
+    stmt.setInt(column++, revision.getVersion());
+    stmt.setLong(column++, revision.getTimeStamp());
+    stmt.setLong(column++, revision.getRevised());
+    idHandler.setCDOID(stmt, column++, revision.getResourceID());
+    idHandler.setCDOID(stmt, column++, (CDOID)revision.getContainerID());
+    stmt.setInt(column++, revision.getContainingFeatureID());
+
+    int isSetCol = column + getValueMappings().size();
+
+    for (ITypeMapping mapping : getValueMappings())
+    {
+      EStructuralFeature feature = mapping.getFeature();
+      if (feature.isUnsettable())
+      {
+        if (revision.getValue(feature) == null)
+        {
+          stmt.setBoolean(isSetCol++, false);
+
+          // also set value column to default value
+          mapping.setDefaultValue(stmt, column++);
+
+          continue;
+        }
+
+        stmt.setBoolean(isSetCol++, true);
+      }
+
+      mapping.setValueFromRevision(stmt, column++, revision);
+    }
+
+    Map<EStructuralFeature, IDBField> listSizeFields = getListSizeFields();
+    if (listSizeFields != null)
+    {
+      // isSetCol now points to the first listTableSize-column
+      column = isSetCol;
+
+      for (EStructuralFeature feature : listSizeFields.keySet())
+      {
+        CDOList list = revision.getList(feature);
+        stmt.setInt(column++, list.size());
+      }
     }
   }
 
@@ -694,6 +699,9 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping
     IDBPreparedStatement stmt = null;
     int oldFetchSize = -1;
 
+    AsnychronousListReader listReader = new AsnychronousListReader(accessor, timeStamp, rootID, revisionHandler);
+    ConcurrencyUtil.execute(repository, listReader);
+
     final long start1 = TRACER_UNITS.isEnabled() ? System.currentTimeMillis() : CDOBranchPoint.UNSPECIFIED_DATE;
 
     try
@@ -702,9 +710,6 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping
       idHandler.setCDOID(stmt, 1, rootID);
       stmt.setLong(2, timeStamp);
       stmt.setLong(3, timeStamp);
-
-      AsnychronousListFiller listFiller = new AsnychronousListFiller(accessor, timeStamp, rootID, revisionHandler);
-      ConcurrencyUtil.execute(repository, listFiller);
 
       oldFetchSize = stmt.getFetchSize();
       stmt.setFetchSize(100000);
@@ -720,17 +725,7 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping
           break;
         }
 
-        listFiller.schedule(revision);
-      }
-
-      final long start2 = start1 != CDOBranchPoint.UNSPECIFIED_DATE ? System.currentTimeMillis() : start1;
-
-      listFiller.await();
-
-      if (start1 != CDOBranchPoint.UNSPECIFIED_DATE)
-      {
-        TRACER_UNITS.format("Read {0} revisions of unit {1}: {2} millis + {3} millis", eClass.getName(), rootID,
-            start2 - start1, System.currentTimeMillis() - start2);
+        listReader.schedule(revision);
       }
     }
     finally
@@ -742,165 +737,159 @@ public class HorizontalAuditClassMapping extends AbstractHorizontalClassMapping
 
       DBUtil.close(stmt);
     }
+
+    final long start2 = start1 != CDOBranchPoint.UNSPECIFIED_DATE ? System.currentTimeMillis() : start1;
+
+    listReader.await(null);
+
+    if (start1 != CDOBranchPoint.UNSPECIFIED_DATE)
+    {
+      TRACER_UNITS.format("Read {0} revisions of unit {1}: {2} millis + {3} millis", eClass.getName(), rootID,
+          start2 - start1, System.currentTimeMillis() - start2);
+    }
   }
 
-  private class AsnychronousListFiller implements Runnable
+  public void writeBulkRevisions(IDBStoreAccessor accessor, List<InternalCDORevision> revisions, CDOBranch branch,
+      long timeStamp, OMMonitor monitor) throws SQLException
   {
-    private final BlockingQueue<InternalCDORevision> queue = new LinkedBlockingQueue<InternalCDORevision>();
+    IDBStore store = getMappingStrategy().getStore();
+    IRepository repository = store.getRepository();
+    IIDHandler idHandler = store.getIDHandler();
 
-    private final CountDownLatch latch = new CountDownLatch(1);
+    IDBConnection connection = accessor.getDBConnection();
+    BatchedStatement stmt = DBUtil.batched(connection.prepareStatement(sqlInsertAttributes, ReuseProbability.HIGH),
+        BULK_SUPPORT_BATCH_SIZE);
 
-    private final IDBStoreAccessor accessor;
+    AsnychronousListWriter listWriter = new AsnychronousListWriter(accessor);
+    ConcurrencyUtil.execute(repository, listWriter);
 
+    try
+    {
+      for (InternalCDORevision revision : revisions)
+      {
+        int xxx1; // checkDuplicateResources() for resource nodes
+        int xxx2; // reviseOldRevision() for dirty (not new) objects
+
+        writeValuesToStatement(stmt, idHandler, revision);
+        stmt.executeUpdate(monitor);
+
+        listWriter.schedule(revision);
+      }
+    }
+    catch (SQLException e)
+    {
+      throw new DBException(e);
+    }
+    finally
+    {
+      DBUtil.close(stmt, monitor);
+    }
+
+    listWriter.await(monitor);
+  }
+
+  /**
+   * @author Eike Stepper
+   */
+  private class AsnychronousListReader extends AsnychronousListIO<IListMappingUnitSupport>
+  {
     private final long timeStamp;
 
     private final CDOID rootID;
 
-    private final DBStore store;
-
-    private final IIDHandler idHandler;
-
-    private final IListMappingUnitSupport[] listMappings;
+    private final CDORevisionHandler revisionHandler;
 
     private final ResultSet[] resultSets;
 
-    private final CDORevisionHandler revisionHandler;
-
-    private Throwable exception;
-
-    public AsnychronousListFiller(IDBStoreAccessor accessor, long timeStamp, CDOID rootID,
+    public AsnychronousListReader(IDBStoreAccessor accessor, long timeStamp, CDOID rootID,
         CDORevisionHandler revisionHandler)
     {
-      this.accessor = accessor;
+      super(accessor);
       this.timeStamp = timeStamp;
       this.rootID = rootID;
       this.revisionHandler = revisionHandler;
 
-      store = (DBStore)accessor.getStore();
-      idHandler = store.getIDHandler();
-
-      List<IListMapping> tmp = getListMappings();
-      int size = tmp.size();
-
-      listMappings = new IListMappingUnitSupport[size];
-      resultSets = new ResultSet[size];
-
-      int i = 0;
-      for (IListMapping listMapping : tmp)
-      {
-        listMappings[i++] = (IListMappingUnitSupport)listMapping;
-      }
+      resultSets = new ResultSet[listMappings.length];
     }
 
-    public void schedule(InternalCDORevision revision)
+    @Override
+    protected void runWithRevision(InternalCDORevision revision) throws SQLException
     {
-      queue.offer(revision);
-    }
-
-    public void await() throws SQLException
-    {
-      // Schedule an end marker revision.
-      schedule(new StubCDORevision(getEClass()));
-
-      try
-      {
-        latch.await();
-      }
-      catch (InterruptedException ex)
-      {
-        throw new TimeoutRuntimeException();
-      }
-      finally
-      {
-        for (ResultSet resultSet : resultSets)
-        {
-          if (resultSet != null)
-          {
-            Statement statement = resultSet.getStatement();
-            DBUtil.close(statement);
-          }
-        }
-      }
-
-      if (exception instanceof RuntimeException)
-      {
-        throw (RuntimeException)exception;
-      }
-
-      if (exception instanceof Error)
-      {
-        throw (Error)exception;
-      }
-
-      if (exception instanceof SQLException)
-      {
-        throw (SQLException)exception;
-      }
-
-      if (exception instanceof Exception)
-      {
-        throw WrappedException.wrap((Exception)exception);
-      }
-    }
-
-    public void run()
-    {
-      StoreThreadLocal.setAccessor(accessor);
-
-      try
-      {
-        while (store.isActive())
-        {
-          InternalCDORevision revision = queue.poll(1, TimeUnit.SECONDS);
-          if (revision == null)
-          {
-            continue;
-          }
-
-          if (revision instanceof StubCDORevision)
-          {
-            return;
-          }
-
-          readUnitEntries(revision);
-        }
-      }
-      catch (Throwable ex)
-      {
-        exception = ex;
-      }
-      finally
-      {
-        latch.countDown();
-        StoreThreadLocal.remove();
-      }
-    }
-
-    private void readUnitEntries(InternalCDORevision revision) throws SQLException
-    {
-      CDOID id = revision.getID();
-
-      for (int i = 0; i < listMappings.length; i++)
-      {
-        IListMappingUnitSupport listMapping = listMappings[i];
-        EStructuralFeature feature = listMapping.getFeature();
-
-        MoveableList<Object> list = revision.getList(feature);
-        int size = list.size();
-        if (size != 0)
-        {
-          if (resultSets[i] == null)
-          {
-            resultSets[i] = listMapping.queryUnitEntries(accessor, idHandler, timeStamp, rootID);
-          }
-
-          listMapping.readUnitEntries(resultSets[i], idHandler, id, list);
-        }
-      }
+      super.runWithRevision(revision);
 
       synchronized (revisionHandler)
       {
         revisionHandler.handleRevision(revision);
+      }
+    }
+
+    @Override
+    protected void runWithList(InternalCDORevision revision, int i, IListMappingUnitSupport listMapping,
+        MoveableList<Object> list) throws SQLException
+    {
+      if (resultSets[i] == null)
+      {
+        resultSets[i] = listMapping.queryUnitEntries(accessor, idHandler, timeStamp, rootID);
+      }
+
+      CDOID id = revision.getID();
+      listMapping.readUnitEntries(resultSets[i], idHandler, id, list);
+    }
+
+    @Override
+    protected void closeStatements(OMMonitor monitor) throws SQLException
+    {
+      for (ResultSet resultSet : resultSets)
+      {
+        if (resultSet != null)
+        {
+          Statement statement = resultSet.getStatement();
+          DBUtil.close(statement);
+        }
+      }
+    }
+  }
+
+  /**
+   * @author Eike Stepper
+   */
+  private class AsnychronousListWriter extends AsnychronousListIO<IListMappingBulkSupport>
+  {
+    private final BatchedStatement[] statements;
+
+    public AsnychronousListWriter(IDBStoreAccessor accessor)
+    {
+      super(accessor);
+      statements = new BatchedStatement[listMappings.length];
+    }
+
+    @Override
+    protected void runWithList(InternalCDORevision revision, int i, IListMappingBulkSupport listMapping,
+        MoveableList<Object> list) throws SQLException
+    {
+      if (statements[i] == null)
+      {
+        statements[i] = DBUtil.batched(listMapping.getInsertEntryStatement(accessor), BULK_SUPPORT_BATCH_SIZE);
+      }
+
+      listMapping.writeBulkValues(statements[i], idHandler, revision, list);
+    }
+
+    @Override
+    protected void closeStatements(OMMonitor monitor) throws SQLException
+    {
+      monitor.begin(statements.length);
+
+      try
+      {
+        for (PreparedStatement statement : statements)
+        {
+          DBUtil.close(statement, monitor.fork());
+        }
+      }
+      finally
+      {
+        monitor.done();
       }
     }
   }

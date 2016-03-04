@@ -12,7 +12,6 @@
  */
 package org.eclipse.emf.cdo.server.internal.db.mapping.horizontal;
 
-import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
 import org.eclipse.emf.cdo.server.db.mapping.IListMapping;
 
 import org.eclipse.emf.ecore.EClass;
@@ -35,9 +34,9 @@ public class HorizontalAuditMappingStrategyWithRanges extends HorizontalAuditMap
   }
 
   @Override
-  protected IClassMapping doCreateClassMapping(EClass eClass)
+  public boolean hasBulkSupport()
   {
-    return new HorizontalAuditClassMapping(this, eClass);
+    return true;
   }
 
   @Override

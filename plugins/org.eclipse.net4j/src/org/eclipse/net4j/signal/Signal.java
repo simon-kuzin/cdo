@@ -13,6 +13,8 @@ package org.eclipse.net4j.signal;
 import org.eclipse.net4j.buffer.BufferInputStream;
 import org.eclipse.net4j.buffer.BufferOutputStream;
 import org.eclipse.net4j.util.ReflectUtil;
+import org.eclipse.net4j.util.StringUtil;
+import org.eclipse.net4j.util.concurrent.RunnableWithName;
 import org.eclipse.net4j.util.io.ExtendedDataInputStream;
 import org.eclipse.net4j.util.io.ExtendedDataOutputStream;
 import org.eclipse.net4j.util.io.IOTimeoutException;
@@ -270,6 +272,18 @@ public abstract class Signal implements Runnable
   {
     Exception exception = null;
 
+    String name = null;
+    String oldName = null;
+    Thread thread = null;
+
+    if (RunnableWithName.THREAD_NAMES)
+    {
+      thread = Thread.currentThread();
+      oldName = thread.getName();
+      name = StringUtil.isEmpty(oldName) ? toString() : oldName + " - " + toString();
+      thread.setName(name);
+    }
+
     try
     {
       execute(bufferInputStream, bufferOutputStream);
@@ -286,6 +300,11 @@ public abstract class Signal implements Runnable
     }
     finally
     {
+      if (thread != null)
+      {
+        thread.setName(oldName);
+      }
+
       if (closeInputStreamAfterMe())
       {
         IOUtil.closeSilent(wrappedInputStream != null ? wrappedInputStream : bufferInputStream);

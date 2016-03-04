@@ -18,7 +18,6 @@ import org.eclipse.emf.cdo.common.protocol.CDODataInput;
 import org.eclipse.emf.cdo.common.protocol.CDODataOutput;
 import org.eclipse.emf.cdo.server.db.CDODBUtil;
 import org.eclipse.emf.cdo.server.db.IIDHandler;
-import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
 import org.eclipse.emf.cdo.server.db.mapping.IListMapping;
 
 import org.eclipse.net4j.db.DBException;
@@ -63,12 +62,6 @@ public class HorizontalBranchingMappingStrategyWithRanges extends HorizontalBran
   public boolean shallCopyOnBranch()
   {
     return copyOnBranch;
-  }
-
-  @Override
-  protected IClassMapping doCreateClassMapping(EClass eClass)
-  {
-    return new HorizontalBranchingClassMapping(this, eClass);
   }
 
   @Override

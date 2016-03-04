@@ -21,6 +21,7 @@ import org.eclipse.emf.cdo.server.db.IDBStore;
 import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IIDHandler;
 import org.eclipse.emf.cdo.server.internal.db.CDODBSchema;
+import org.eclipse.emf.cdo.server.internal.db.IObjectTypeMapperBulkSupport;
 import org.eclipse.emf.cdo.spi.server.InternalRepository;
 
 import org.eclipse.net4j.db.DBException;
@@ -42,13 +43,20 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * @author Eike Stepper
  * @since 4.0
  */
-public class ObjectTypeTable extends AbstractObjectTypeMapper implements IMappingConstants
+public class ObjectTypeTable extends AbstractObjectTypeMapper implements IMappingConstants, IObjectTypeMapperBulkSupport
 {
+  private static final int BATCH_SIZE = 300000;
+
   private IDBTable table;
 
   private String sqlDelete;
@@ -59,6 +67,11 @@ public class ObjectTypeTable extends AbstractObjectTypeMapper implements IMappin
 
   public ObjectTypeTable()
   {
+  }
+
+  public final boolean hasBulkSupport()
+  {
+    return false;
   }
 
   public final CDOClassifierRef getObjectType(IDBStoreAccessor accessor, CDOID id)
@@ -140,6 +153,75 @@ public class ObjectTypeTable extends AbstractObjectTypeMapper implements IMappin
     {
       DBUtil.close(stmt);
     }
+  }
+
+  public final Set<CDOID> putObjectTypes(IDBStoreAccessor accessor, Map<CDOID, EClass> newObjectTypes, long timeStamp,
+      OMMonitor monitor)
+  {
+    IDBStore store = getMappingStrategy().getStore();
+    IIDHandler idHandler = store.getIDHandler();
+    IDBPreparedStatement stmt = accessor.getDBConnection().prepareStatement(sqlInsert, ReuseProbability.MAX);
+
+    Set<CDOID> duplicateIDs = null;
+    List<CDOID> batchIDs = new ArrayList<CDOID>();
+    int batchCount = 0;
+
+    try
+    {
+      for (Entry<CDOID, EClass> entry : newObjectTypes.entrySet())
+      {
+        CDOID id = entry.getKey();
+        EClass type = entry.getValue();
+
+        batchIDs.add(id);
+
+        idHandler.setCDOID(stmt, 1, id);
+        idHandler.setCDOID(stmt, 2, getMetaDataManager().getMetaID(type, timeStamp));
+        stmt.setLong(3, timeStamp);
+        stmt.addBatch();
+
+        batchCount = executeBatch(stmt, batchIDs, batchCount);
+      }
+
+      executeBatch(stmt, batchIDs, batchCount);
+      return duplicateIDs;
+    }
+    catch (SQLException ex)
+    {
+      int xxx;
+
+      if (store.getDBAdapter().isDuplicateKeyException(ex))
+      {
+        // Unique key violation can occur in rare cases (merging new objects from other branches)
+        return duplicateIDs;
+      }
+
+      throw new DBException(ex);
+    }
+    finally
+    {
+      DBUtil.close(stmt);
+    }
+  }
+
+  private int executeBatch(IDBPreparedStatement stmt, List<CDOID> batchIDs, int batchCount) throws SQLException
+  {
+    if (++batchCount > BATCH_SIZE)
+    {
+      int[] results = stmt.executeBatch();
+      for (int i = 0; i < results.length; i++)
+      {
+        int result = results[i];
+        if (result != 1)
+        {
+          throw new DBException("Object type could not be inserted: " + batchIDs.get(i)); //$NON-NLS-1$
+        }
+      }
+
+      batchCount = 0;
+    }
+
+    return batchCount;
   }
 
   public final boolean removeObjectType(IDBStoreAccessor accessor, CDOID id)

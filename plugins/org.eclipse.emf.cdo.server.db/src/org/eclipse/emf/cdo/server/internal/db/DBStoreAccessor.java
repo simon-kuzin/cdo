@@ -48,6 +48,7 @@ import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMappingAuditSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMappingDeltaSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
+import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategyBulkSupport;
 import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
 import org.eclipse.emf.cdo.server.internal.db.mapping.horizontal.AbstractHorizontalClassMapping;
 import org.eclipse.emf.cdo.server.internal.db.mapping.horizontal.UnitMappingTable;
@@ -106,6 +107,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -166,7 +168,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor, 
       public IDBPreparedStatement getPreparedStatement(String sql, ReuseProbability reuseProbability)
       {
         org.eclipse.net4j.db.IDBPreparedStatement.ReuseProbability converted = //
-        org.eclipse.net4j.db.IDBPreparedStatement.ReuseProbability.values()[reuseProbability.ordinal()];
+            org.eclipse.net4j.db.IDBPreparedStatement.ReuseProbability.values()[reuseProbability.ordinal()];
 
         return connection.prepareStatement(sql, converted);
       }
@@ -542,6 +544,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor, 
     }
 
     monitor.begin(revisionDeltas.length);
+
     try
     {
       for (InternalCDORevisionDelta delta : revisionDeltas)
@@ -557,6 +560,9 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor, 
 
   protected void writeRevisionDelta(InternalCDORevisionDelta delta, long created, OMMonitor monitor)
   {
+    int xxx;
+    // eClass ?= delta.getEClass()
+
     CDOID id = delta.getID();
     EClass eClass = getObjectType(id);
     IClassMappingDeltaSupport mapping = (IClassMappingDeltaSupport)getStore().getMappingStrategy()
@@ -609,6 +615,71 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor, 
   protected void writeRevisions(InternalCDORevision[] revisions, CDOBranch branch, OMMonitor monitor)
   {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  protected void writeNewAndDirtyRevisions(InternalCommitContext context, boolean deltas, CDOBranch branch,
+      long timeStamp, OMMonitor monitor)
+  {
+    IMappingStrategy mappingStrategy = getStore().getMappingStrategy();
+    if (mappingStrategy instanceof IMappingStrategyBulkSupport
+        && !"true".equalsIgnoreCase(mappingStrategy.getProperties().get("disableBulkInserts")))
+    {
+      IMappingStrategyBulkSupport bulkSupport = (IMappingStrategyBulkSupport)mappingStrategy;
+      if (bulkSupport.hasBulkSupport())
+      {
+        Map<EClass, List<InternalCDORevision>> revisionsPerClass = new HashMap<EClass, List<InternalCDORevision>>();
+        Map<CDOID, EClass> newObjectTypes = new HashMap<CDOID, EClass>();
+
+        InternalCDORevision[] newObjects = context.getNewObjects();
+        classifyRevisions(newObjects, revisionsPerClass, newObjectTypes);
+        int count = newObjects.length;
+
+        if (!deltas)
+        {
+          InternalCDORevision[] dirtyObjects = context.getDirtyObjects();
+          classifyRevisions(dirtyObjects, revisionsPerClass, null);
+          count += dirtyObjects.length;
+        }
+
+        bulkSupport.writeBulkRevisions(this, revisionsPerClass, newObjectTypes, branch, timeStamp, monitor.fork(count));
+
+        if (deltas)
+        {
+          InternalCDORevisionDelta[] dirtyObjectDeltas = context.getDirtyObjectDeltas();
+          if (dirtyObjectDeltas.length != 0)
+          {
+            writeRevisionDeltas(dirtyObjectDeltas, branch, timeStamp, monitor.fork(dirtyObjectDeltas.length));
+          }
+        }
+
+        return;
+      }
+    }
+
+    super.writeNewAndDirtyRevisions(context, deltas, branch, timeStamp, monitor);
+  }
+
+  private void classifyRevisions(InternalCDORevision[] revisions,
+      Map<EClass, List<InternalCDORevision>> revisionsPerClass, Map<CDOID, EClass> newObjectTypes)
+  {
+    for (InternalCDORevision revision : revisions)
+    {
+      EClass eClass = revision.getEClass();
+      if (newObjectTypes != null)
+      {
+        newObjectTypes.put(revision.getID(), eClass);
+      }
+
+      List<InternalCDORevision> list = revisionsPerClass.get(eClass);
+      if (list == null)
+      {
+        list = new ArrayList<InternalCDORevision>();
+        revisionsPerClass.put(eClass, list);
+      }
+
+      list.add(revision);
+    }
   }
 
   protected void writeRevision(InternalCDORevision revision, boolean mapType, boolean revise, OMMonitor monitor)
@@ -1308,7 +1379,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor, 
       Connection connection = getConnection();
 
       Collection<InternalCDOPackageUnit> imported = //
-      metaDataManager.rawImport(connection, in, fromCommitTime, toCommitTime, monitor.fork());
+          metaDataManager.rawImport(connection, in, fromCommitTime, toCommitTime, monitor.fork());
       packageUnits.addAll(imported);
 
       if (!packageUnits.isEmpty())

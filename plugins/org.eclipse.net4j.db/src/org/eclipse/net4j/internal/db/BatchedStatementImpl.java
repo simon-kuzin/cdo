@@ -13,6 +13,8 @@ package org.eclipse.net4j.internal.db;
 import org.eclipse.net4j.db.BatchedStatement;
 import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.db.jdbc.DelegatingPreparedStatement;
+import org.eclipse.net4j.util.om.monitor.OMMonitor;
+import org.eclipse.net4j.util.om.monitor.OMMonitor.Async;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -56,12 +58,17 @@ public final class BatchedStatementImpl extends DelegatingPreparedStatement impl
   @Override
   public int executeUpdate() throws SQLException
   {
+    return executeUpdate((OMMonitor)null);
+  }
+
+  public int executeUpdate(OMMonitor monitor) throws SQLException
+  {
     PreparedStatement delegate = getDelegate();
     delegate.addBatch();
 
     if (++batchCount >= batchSize)
     {
-      return doExecuteBatch();
+      return doExecuteBatch(monitor);
     }
 
     return 0;
@@ -70,9 +77,14 @@ public final class BatchedStatementImpl extends DelegatingPreparedStatement impl
   @Override
   public void close() throws SQLException
   {
+    close(null);
+  }
+
+  public void close(OMMonitor monitor) throws SQLException
+  {
     if (batchCount != 0)
     {
-      doExecuteBatch();
+      doExecuteBatch(monitor);
     }
 
     super.close();
@@ -97,27 +109,39 @@ public final class BatchedStatementImpl extends DelegatingPreparedStatement impl
     throw new UnsupportedOperationException("Only updates are supported");
   }
 
-  private int doExecuteBatch() throws SQLException
+  private int doExecuteBatch(OMMonitor monitor) throws SQLException
   {
-    int sum = 0;
+    Async async = monitor != null ? monitor.forkAsync() : null;
 
-    int[] results = getDelegate().executeBatch();
-    for (int i = 0; i < results.length; i++)
+    try
     {
-      int result = results[i];
-      if (result != Statement.SUCCESS_NO_INFO)
-      {
-        if (result < 0)
-        {
-          throw new DBException("Result " + i + " is not successful: " + result);
-        }
+      int sum = 0;
 
-        sum += result;
+      int[] results = getDelegate().executeBatch();
+      for (int i = 0; i < results.length; i++)
+      {
+        int result = results[i];
+        if (result != Statement.SUCCESS_NO_INFO)
+        {
+          if (result < 0)
+          {
+            throw new DBException("Result " + i + " is not successful: " + result);
+          }
+
+          sum += result;
+        }
+      }
+
+      totalResult += sum;
+      return sum;
+    }
+    finally
+    {
+      if (async != null)
+      {
+        async.stop();
       }
     }
-
-    totalResult += sum;
-    return sum;
   }
 
   private static Connection getConnection(PreparedStatement delegate) throws DBException

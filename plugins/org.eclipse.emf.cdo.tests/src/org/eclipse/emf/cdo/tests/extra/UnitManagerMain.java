@@ -37,6 +37,8 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.InternalEList;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
+
 import java.util.Iterator;
 
 /**
@@ -73,7 +75,7 @@ public class UnitManagerMain
           stop();
 
           start("Commit " + i);
-          transaction.commit();
+          transaction.commit(new NullProgressMonitor());
           stop();
         }
       }

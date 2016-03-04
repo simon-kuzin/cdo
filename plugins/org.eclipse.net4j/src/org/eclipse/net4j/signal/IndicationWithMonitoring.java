@@ -21,6 +21,8 @@ import org.eclipse.net4j.util.om.monitor.TimeoutMonitor;
 
 import org.eclipse.internal.net4j.bundle.OM;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 
@@ -168,6 +170,9 @@ public abstract class IndicationWithMonitoring extends IndicationWithResponse
         double totalWork = getTotalWork();
         double work = getWork();
 
+        int xxx;
+        System.out.println(++count + ": " + formatter.format(work) + " / " + formatter.format(totalWork));
+
         new MonitorProgressRequest(protocol, correlationID, totalWork, work).sendAsync();
       }
       catch (Exception ex)
@@ -179,5 +184,9 @@ public abstract class IndicationWithMonitoring extends IndicationWithResponse
         }
       }
     }
+
+    private int count;
   }
+
+  private static NumberFormat formatter = new DecimalFormat("#0.00");
 }

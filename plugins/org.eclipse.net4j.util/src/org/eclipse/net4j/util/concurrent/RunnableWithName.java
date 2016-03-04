@@ -11,6 +11,7 @@
 package org.eclipse.net4j.util.concurrent;
 
 import org.eclipse.net4j.util.StringUtil;
+import org.eclipse.net4j.util.om.OMPlatform;
 
 /**
  * @author Eike Stepper
@@ -18,28 +19,35 @@ import org.eclipse.net4j.util.StringUtil;
  */
 public abstract class RunnableWithName implements Runnable
 {
+  public static final boolean THREAD_NAMES = Boolean
+      .parseBoolean(OMPlatform.INSTANCE.getProperty("org.eclipse.net4j.util.thread.names", "false"));
+
   public abstract String getName();
 
   public final void run()
   {
-    Thread thread = null;
-    String oldName = null;
+    if (!THREAD_NAMES)
+    {
+      doRun();
+      return;
+    }
 
     String name = getName();
-    if (!StringUtil.isEmpty(name))
+    if (StringUtil.isEmpty(name))
     {
-      thread = Thread.currentThread();
-      oldName = thread.getName();
-      if (name.equals(oldName))
-      {
-        thread = null;
-        oldName = null;
-      }
-      else
-      {
-        thread.setName(name);
-      }
+      doRun();
+      return;
     }
+
+    Thread thread = Thread.currentThread();
+    String oldName = thread.getName();
+
+    if (!StringUtil.isEmpty(oldName))
+    {
+      name = oldName + " - " + name;
+    }
+
+    thread.setName(name);
 
     try
     {
@@ -47,12 +55,33 @@ public abstract class RunnableWithName implements Runnable
     }
     finally
     {
-      if (thread != null)
-      {
-        thread.setName(oldName);
-      }
+      thread.setName(oldName);
     }
   }
 
   protected abstract void doRun();
+
+  public static void runWithName(final String name, final Runnable runnable)
+  {
+    if (!THREAD_NAMES || StringUtil.isEmpty(name))
+    {
+      runnable.run();
+      return;
+    }
+
+    new RunnableWithName()
+    {
+      @Override
+      public String getName()
+      {
+        return name;
+      }
+
+      @Override
+      protected void doRun()
+      {
+        runnable.run();
+      }
+    }.run();
+  }
 }

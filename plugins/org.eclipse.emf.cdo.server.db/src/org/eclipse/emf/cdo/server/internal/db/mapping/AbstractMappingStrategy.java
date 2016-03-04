@@ -36,6 +36,7 @@ import org.eclipse.emf.cdo.server.db.IMetaDataManager;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
 import org.eclipse.emf.cdo.server.db.mapping.IListMapping;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
+import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategyBulkSupport;
 import org.eclipse.emf.cdo.server.db.mapping.ITypeMapping;
 import org.eclipse.emf.cdo.server.internal.db.DBAnnotation;
 import org.eclipse.emf.cdo.server.internal.db.ObjectIDIterator;
@@ -43,6 +44,7 @@ import org.eclipse.emf.cdo.spi.common.commit.CDOChangeSetSegment;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageInfo;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageRegistry;
 import org.eclipse.emf.cdo.spi.common.model.InternalCDOPackageUnit;
+import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.server.InternalRepository;
 
 import org.eclipse.net4j.db.DBException;
@@ -92,7 +94,7 @@ import java.util.concurrent.Semaphore;
  * @author Eike Stepper
  * @since 2.0
  */
-public abstract class AbstractMappingStrategy extends Lifecycle implements IMappingStrategy
+public abstract class AbstractMappingStrategy extends Lifecycle implements IMappingStrategyBulkSupport
 {
   // --------- database name generation strings --------------
   protected static final String NAME_SEPARATOR = "_"; //$NON-NLS-1$
@@ -828,6 +830,17 @@ public abstract class AbstractMappingStrategy extends Lifecycle implements IMapp
   public abstract IListMapping doCreateListMapping(EClass containingClass, EStructuralFeature feature);
 
   public abstract IListMapping doCreateFeatureMapMapping(EClass containingClass, EStructuralFeature feature);
+
+  public boolean hasBulkSupport()
+  {
+    return false;
+  }
+
+  public void writeBulkRevisions(IDBStoreAccessor accessor, Map<EClass, List<InternalCDORevision>> revisionsPerClass,
+      Map<CDOID, EClass> newObjectTypes, CDOBranch branch, long timeStamp, OMMonitor monitor)
+  {
+    throw new UnsupportedOperationException();
+  }
 
   @Override
   protected void doDeactivate() throws Exception

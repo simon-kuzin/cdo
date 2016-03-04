@@ -10,7 +10,6 @@
  */
 package org.eclipse.net4j.util.om.monitor;
 
-import org.eclipse.net4j.util.concurrent.TimeoutRuntimeException;
 import org.eclipse.net4j.util.concurrent.Timeouter;
 
 /**
@@ -118,7 +117,8 @@ public class TimeoutMonitor extends Monitor
 
   protected void handleTimeout(long untouched)
   {
-    cancel(new TimeoutRuntimeException("Timeout after " + untouched + " millis"));
+    int xxx;
+    // cancel(new TimeoutRuntimeException("Timeout after " + untouched + " millis"));
   }
 
   private void cancelTimeouter()

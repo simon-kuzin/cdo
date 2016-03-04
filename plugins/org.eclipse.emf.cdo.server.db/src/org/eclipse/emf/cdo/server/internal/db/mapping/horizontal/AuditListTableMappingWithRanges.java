@@ -37,6 +37,7 @@ import org.eclipse.emf.cdo.server.db.IDBStoreAccessor;
 import org.eclipse.emf.cdo.server.db.IDBStoreChunkReader;
 import org.eclipse.emf.cdo.server.db.IIDHandler;
 import org.eclipse.emf.cdo.server.db.mapping.IClassMapping;
+import org.eclipse.emf.cdo.server.db.mapping.IListMappingBulkSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IListMappingDeltaSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IListMappingUnitSupport;
 import org.eclipse.emf.cdo.server.db.mapping.IMappingStrategy;
@@ -45,6 +46,7 @@ import org.eclipse.emf.cdo.server.internal.db.bundle.OM;
 import org.eclipse.emf.cdo.spi.common.revision.InternalCDORevision;
 import org.eclipse.emf.cdo.spi.server.InternalRepository;
 
+import org.eclipse.net4j.db.BatchedStatement;
 import org.eclipse.net4j.db.DBException;
 import org.eclipse.net4j.db.DBType;
 import org.eclipse.net4j.db.DBUtil;
@@ -61,6 +63,7 @@ import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
@@ -71,7 +74,7 @@ import java.util.List;
  * This is a list-table mapping for audit mode. It is optimized for frequent insert operations at the list's end, which
  * causes just 1 DB row to be changed. This is achieved by introducing a version range (columns cdo_version_added and
  * cdo_version_removed) which records for which revisions a particular entry existed. Also, this mapping is mainly
- * optimized for potentially very large lists: the need for having the complete list stored in memopy to do
+ * optimized for potentially very large lists: the need for having the complete list stored in memory to do
  * in-the-middle-moved and inserts is traded in for a few more DB access operations.
  *
  * @author Eike Stepper
@@ -79,7 +82,7 @@ import java.util.List;
  * @author Lothar Werzinger
  */
 public class AuditListTableMappingWithRanges extends AbstractBasicListTableMapping
-    implements IListMappingDeltaSupport, IListMappingUnitSupport
+    implements IListMappingDeltaSupport, IListMappingUnitSupport, IListMappingBulkSupport
 {
   private static final ContextTracer TRACER = new ContextTracer(OM.DEBUG, AuditListTableMappingWithRanges.class);
 
@@ -598,6 +601,25 @@ public class AuditListTableMappingWithRanges extends AbstractBasicListTableMappi
     }
   }
 
+  public IDBPreparedStatement getInsertEntryStatement(IDBStoreAccessor accessor)
+  {
+    return accessor.getDBConnection().prepareStatement(sqlInsertEntry, ReuseProbability.HIGH);
+  }
+
+  public void writeBulkValues(BatchedStatement stmt, IIDHandler idHandler, InternalCDORevision revision,
+      MoveableList<Object> list) throws SQLException
+  {
+    CDOID id = revision.getID();
+    int version = revision.getVersion();
+    int index = 0;
+
+    for (Object value : list)
+    {
+      addEntry(stmt, idHandler, id, version, index++, value);
+      stmt.executeUpdate();
+    }
+  }
+
   private void addEntry(IDBStoreAccessor accessor, CDOID id, int version, int index, Object value)
   {
     if (TRACER.isEnabled())
@@ -607,16 +629,11 @@ public class AuditListTableMappingWithRanges extends AbstractBasicListTableMappi
     }
 
     IIDHandler idHandler = getMappingStrategy().getStore().getIDHandler();
-    IDBPreparedStatement stmt = accessor.getDBConnection().prepareStatement(sqlInsertEntry, ReuseProbability.HIGH);
+    IDBPreparedStatement stmt = getInsertEntryStatement(accessor);
 
     try
     {
-      int column = 1;
-      idHandler.setCDOID(stmt, column++, id);
-      stmt.setInt(column++, version);
-      stmt.setInt(column++, index);
-      typeMapping.setValue(stmt, column++, value);
-
+      addEntry(stmt, idHandler, id, version, index, value);
       DBUtil.update(stmt, true);
     }
     catch (SQLException e)
@@ -631,6 +648,16 @@ public class AuditListTableMappingWithRanges extends AbstractBasicListTableMappi
     {
       DBUtil.close(stmt);
     }
+  }
+
+  private void addEntry(PreparedStatement stmt, IIDHandler idHandler, CDOID id, int version, int index, Object value)
+      throws SQLException
+  {
+    int column = 1;
+    idHandler.setCDOID(stmt, column++, id);
+    stmt.setInt(column++, version);
+    stmt.setInt(column++, index);
+    typeMapping.setValue(stmt, column++, value);
   }
 
   private void removeEntry(IDBStoreAccessor accessor, CDOID id, int oldVersion, int newVersion, int index)
@@ -828,12 +855,10 @@ public class AuditListTableMappingWithRanges extends AbstractBasicListTableMappi
     InternalCDORevision originalRevision = (InternalCDORevision)repo.getRevisionManager().getRevision(id,
         repo.getBranchManager().getMainBranch().getHead(), /* chunksize = */0, CDORevision.DEPTH_NONE, true);
 
-    int oldListSize = originalRevision.getList(getFeature()).size();
-
     if (TRACER.isEnabled())
     {
       TRACER.format("ListTableMapping.processDelta for revision {0} - previous list size: {1}", originalRevision, //$NON-NLS-1$
-          oldListSize);
+          originalRevision.getList(getFeature()).size());
     }
 
     // let the visitor collect the changes

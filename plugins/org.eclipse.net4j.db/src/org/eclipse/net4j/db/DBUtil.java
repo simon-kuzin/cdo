@@ -421,13 +421,24 @@ public final class DBUtil
     return null;
   }
 
-  public static Exception close(Statement statement)
+  /**
+   * @since 4.5
+   */
+  public static Exception close(Statement statement, OMMonitor monitor)
   {
     if (statement != null)
     {
       try
       {
-        statement.close();
+        if (monitor != null && statement instanceof BatchedStatement)
+        {
+          BatchedStatement batchedStatement = (BatchedStatement)statement;
+          batchedStatement.close(monitor);
+        }
+        else
+        {
+          statement.close();
+        }
       }
       catch (Exception ex)
       {
@@ -442,6 +453,11 @@ public final class DBUtil
     }
 
     return null;
+  }
+
+  public static Exception close(Statement statement)
+  {
+    return close(statement, null);
   }
 
   public static Exception close(Connection connection)
