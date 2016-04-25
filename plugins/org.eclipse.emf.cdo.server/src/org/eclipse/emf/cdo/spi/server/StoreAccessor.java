@@ -75,7 +75,7 @@ public abstract class StoreAccessor extends StoreAccessorBase
 
     try
     {
-      monitor.begin(1 + newPackageUnits.length + 2 + newObjects.length + detachedObjects.length + dirtyCount + 1);
+      monitor.begin(newPackageUnits.length + 3 + newObjects.length + detachedObjects.length + dirtyCount + 1);
 
       writeCommitInfo(branch, timeStamp, previousTimeStamp, userID, commitComment, monitor.fork());
       writePackageUnits(newPackageUnits, monitor.fork(newPackageUnits.length));
@@ -84,6 +84,10 @@ public abstract class StoreAccessor extends StoreAccessorBase
       if (idGenerationLocation == IDGenerationLocation.STORE)
       {
         addIDMappings(context, monitor.fork());
+      }
+      else
+      {
+        monitor.worked();
       }
 
       applyIDMappings(context, monitor);

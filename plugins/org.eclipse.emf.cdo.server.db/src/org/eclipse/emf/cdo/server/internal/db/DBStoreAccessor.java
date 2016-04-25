@@ -166,7 +166,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor, 
       public IDBPreparedStatement getPreparedStatement(String sql, ReuseProbability reuseProbability)
       {
         org.eclipse.net4j.db.IDBPreparedStatement.ReuseProbability converted = //
-        org.eclipse.net4j.db.IDBPreparedStatement.ReuseProbability.values()[reuseProbability.ordinal()];
+            org.eclipse.net4j.db.IDBPreparedStatement.ReuseProbability.values()[reuseProbability.ordinal()];
 
         return connection.prepareStatement(sql, converted);
       }
@@ -896,7 +896,14 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor, 
 
       IMappingStrategy mappingStrategy = store.getMappingStrategy();
       mappingStrategy.createMapping(connection, packageUnits, monitor.fork());
+
+      int writePackageUnits; // TODO Extra commit needed for Mysql between DDL and DML.
+      // connection.commit();
     }
+    // catch (SQLException ex)
+    // {
+    // throw new DBException(ex);
+    // }
     finally
     {
       monitor.done();
@@ -1308,7 +1315,7 @@ public class DBStoreAccessor extends StoreAccessor implements IDBStoreAccessor, 
       Connection connection = getConnection();
 
       Collection<InternalCDOPackageUnit> imported = //
-      metaDataManager.rawImport(connection, in, fromCommitTime, toCommitTime, monitor.fork());
+          metaDataManager.rawImport(connection, in, fromCommitTime, toCommitTime, monitor.fork());
       packageUnits.addAll(imported);
 
       if (!packageUnits.isEmpty())
