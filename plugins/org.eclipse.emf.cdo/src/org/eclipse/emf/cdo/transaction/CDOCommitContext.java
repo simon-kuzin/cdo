@@ -55,11 +55,6 @@ public interface CDOCommitContext
   public CDOTransaction getTransaction();
 
   /**
-   * @since 4.1
-   */
-  public boolean isAutoReleaseLocks();
-
-  /**
    * @since 4.0
    */
   public boolean isPartialCommit();
@@ -78,11 +73,6 @@ public interface CDOCommitContext
    * Returns a list of the new {@link CDOPackageUnit package units} that are to be committed with this commit context.
    */
   public List<CDOPackageUnit> getNewPackageUnits();
-
-  /**
-   * @since 4.1
-   */
-  public Collection<CDOLockState> getLocksOnNewObjects();
 
   /**
    * Returns a map of the new {@link CDOObject objects} that are to be committed with this commit context.
@@ -108,4 +98,21 @@ public interface CDOCommitContext
    * @since 4.0
    */
   public Collection<CDOLob<?>> getLobs();
+
+  /**
+   * @since 4.1
+   * @deprecated As of 4.5 no longer supported. See {@link #getUnlocksOnChangedObjects()}.
+   */
+  @Deprecated
+  public boolean isAutoReleaseLocks();
+
+  /**
+   * @since 4.1
+   */
+  public Collection<CDOLockState> getLocksOnNewObjects();
+
+  /**
+   * @since 4.5
+   */
+  public Collection<CDOID> getUnlocksOnChangedObjects();
 }

@@ -62,6 +62,7 @@ public class UnlockObjectsRequest extends CDOClientRequest<UnlockObjectsResult>
     out.writeInt(viewID);
     out.writeCDOLockType(lockType);
     out.writeBoolean(recursive);
+
     if (objectIDs == null)
     {
       if (TRACER.isEnabled())
@@ -97,11 +98,13 @@ public class UnlockObjectsRequest extends CDOClientRequest<UnlockObjectsResult>
   {
     long timestamp = in.readLong();
     int n = in.readInt();
+
     CDOLockState[] newLockStates = new CDOLockState[n];
     for (int i = 0; i < n; i++)
     {
       newLockStates[i] = in.readCDOLockState();
     }
+
     return new UnlockObjectsResult(newLockStates, timestamp);
   }
 }

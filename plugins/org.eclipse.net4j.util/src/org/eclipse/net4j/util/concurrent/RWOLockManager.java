@@ -482,8 +482,7 @@ public class RWOLockManager<OBJECT, CONTEXT> extends Lifecycle implements IRWOLo
       return lockedObject;
     }
 
-    public boolean hasLock(org.eclipse.net4j.util.concurrent.IRWLockManager.LockType type, CONTEXT view,
-        boolean byOthers)
+    public boolean hasLock(LockType type, CONTEXT view, boolean byOthers)
     {
       CheckUtil.checkArg(view, "view");
 
@@ -517,7 +516,7 @@ public class RWOLockManager<OBJECT, CONTEXT> extends Lifecycle implements IRWOLo
       return false;
     }
 
-    public boolean hasLock(org.eclipse.net4j.util.concurrent.IRWLockManager.LockType type)
+    public boolean hasLock(LockType type)
     {
       switch (type)
       {
@@ -532,6 +531,49 @@ public class RWOLockManager<OBJECT, CONTEXT> extends Lifecycle implements IRWOLo
       }
 
       return false;
+    }
+
+    public Set<CONTEXT> getReadLockOwners()
+    {
+      return Collections.unmodifiableSet(readLockOwners);
+    }
+
+    public CONTEXT getWriteLockOwner()
+    {
+      return writeLockOwner;
+    }
+
+    public CONTEXT getWriteOptionOwner()
+    {
+      return writeOptionOwner;
+    }
+
+    @Override
+    public int hashCode()
+    {
+      return lockedObject.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+      if (this == obj)
+      {
+        return true;
+      }
+
+      if (obj == null)
+      {
+        return false;
+      }
+
+      if (!(obj instanceof LockState))
+      {
+        return false;
+      }
+
+      LockState<?, ?> other = (LockState<?, ?>)obj;
+      return lockedObject.equals(other.lockedObject);
     }
 
     @Override
@@ -807,21 +849,6 @@ public class RWOLockManager<OBJECT, CONTEXT> extends Lifecycle implements IRWOLo
     private void doWriteUnoption(CONTEXT context)
     {
       writeOptionOwner = null;
-    }
-
-    public Set<CONTEXT> getReadLockOwners()
-    {
-      return Collections.unmodifiableSet(readLockOwners);
-    }
-
-    public CONTEXT getWriteLockOwner()
-    {
-      return writeLockOwner;
-    }
-
-    public CONTEXT getWriteOptionOwner()
-    {
-      return writeOptionOwner;
     }
   }
 }

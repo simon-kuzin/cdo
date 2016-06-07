@@ -125,6 +125,7 @@ public class HibernateRawCommitContext implements InternalCommitContext
   {
   }
 
+  @Deprecated
   public boolean isAutoReleaseLocksEnabled()
   {
     return false;
@@ -156,6 +157,11 @@ public class HibernateRawCommitContext implements InternalCommitContext
   }
 
   public CDOLockState[] getLocksOnNewObjects()
+  {
+    return null;
+  }
+
+  public CDOID[] getUnlocksOnChangedObjects()
   {
     return null;
   }
@@ -303,6 +309,10 @@ public class HibernateRawCommitContext implements InternalCommitContext
   {
   }
 
+  public void setUnlocksOnChangedObjects(CDOID[] unlocksOnChangedObjects)
+  {
+  }
+
   public void setNewObjects(InternalCDORevision[] newObjects)
   {
   }
@@ -327,6 +337,7 @@ public class HibernateRawCommitContext implements InternalCommitContext
   {
   }
 
+  @Deprecated
   public void setAutoReleaseLocksEnabled(boolean on)
   {
   }

@@ -118,11 +118,6 @@ public interface InternalCommitContext extends IStoreAccessor.CommitContext, CDO
 
   public void setNewPackageUnits(InternalCDOPackageUnit[] newPackageUnits);
 
-  /**
-   * @since 4.1
-   */
-  public void setLocksOnNewObjects(CDOLockState[] locksOnNewObjects);
-
   public void setNewObjects(InternalCDORevision[] newObjects);
 
   public void setDirtyObjectDeltas(InternalCDORevisionDelta[] dirtyObjectDeltas);
@@ -144,7 +139,21 @@ public interface InternalCommitContext extends IStoreAccessor.CommitContext, CDO
    */
   public void setLastUpdateTime(long lastUpdateTime);
 
+  /**
+   * @deprecated As of 4.5 no longer supported. See {@link #setUnlocksOnChangedObjects(CDOID[])}.
+   */
+  @Deprecated
   public void setAutoReleaseLocksEnabled(boolean on);
+
+  /**
+   * @since 4.1
+   */
+  public void setLocksOnNewObjects(CDOLockState[] locksOnNewObjects);
+
+  /**
+   * @since 4.5
+   */
+  public void setUnlocksOnChangedObjects(CDOID[] unlocksOnChangedObjects);
 
   /**
    * @since 4.5
