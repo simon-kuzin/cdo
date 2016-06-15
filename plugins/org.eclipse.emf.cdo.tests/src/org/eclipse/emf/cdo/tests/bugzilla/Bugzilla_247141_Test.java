@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2012, 2015 Eike Stepper (Berlin, Germany) and others.
+ * Copyright (c) 2011, 2012 Eike Stepper (Berlin, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,24 +15,26 @@ import org.eclipse.emf.cdo.common.id.CDOID;
 import org.eclipse.emf.cdo.eresource.CDOResource;
 import org.eclipse.emf.cdo.session.CDOSession;
 import org.eclipse.emf.cdo.tests.AbstractCDOTest;
+import org.eclipse.emf.cdo.tests.model1.Company;
 import org.eclipse.emf.cdo.tests.model1.Customer;
 import org.eclipse.emf.cdo.transaction.CDOTransaction;
 import org.eclipse.emf.cdo.util.CDOLazyContentAdapter;
 import org.eclipse.emf.cdo.util.CDOUtil;
 import org.eclipse.emf.cdo.view.CDOView;
 
-import org.eclipse.emf.ecore.util.EContentAdapter;
+import org.eclipse.emf.common.notify.Adapter;
 
 /**
  * Create a lazy self-attaching adapter for CDOObject
  * <p>
  * See bug 247141
- * 
+ *
  * @author Victor Roldan Betancort
  */
 public class Bugzilla_247141_Test extends AbstractCDOTest
 {
-  public void testContentAdapterBehavior() throws Exception
+
+  public void testContentAdapterBehaviour() throws Exception
   {
     CDOID id1 = null;
     CDOID id2 = null;
@@ -69,7 +71,7 @@ public class Bugzilla_247141_Test extends AbstractCDOTest
     CDOSession session = openSession();
     CDOTransaction transaction = session.openTransaction();
     CDOResource resource1 = transaction.getResource(getResourcePath("/test1"));
-    EContentAdapter adapter = new CDOLazyContentAdapter();
+    Adapter.Internal adapter = new CDOLazyContentAdapter();
     resource1.eAdapters().add(adapter);
 
     CDOView view = resource1.cdoView();
@@ -99,7 +101,7 @@ public class Bugzilla_247141_Test extends AbstractCDOTest
     assertEquals(false, resource1.eAdapters().contains(adapter));
   }
 
-  public void testBehaviorOnUncommittedObjects() throws Exception
+  public void testBehaviourOnUncommittedObjects() throws Exception
   {
     CDOSession session = openSession();
     CDOTransaction transaction = session.openTransaction();
@@ -112,7 +114,7 @@ public class Bugzilla_247141_Test extends AbstractCDOTest
 
     transaction.commit();
 
-    EContentAdapter adapter = new CDOLazyContentAdapter();
+    Adapter.Internal adapter = new CDOLazyContentAdapter();
     resource1.eAdapters().add(adapter);
 
     // resource1 and all its loaded contents should have been adapted
@@ -139,5 +141,86 @@ public class Bugzilla_247141_Test extends AbstractCDOTest
     assertEquals(false, customer2.eAdapters().contains(adapter));
     assertEquals(false, customer3.eAdapters().contains(adapter));
     assertEquals(false, customer4.eAdapters().contains(adapter));
+  }
+
+  public void testContentAdapterBehaviourOnNonResourceRoot() throws Exception
+  {
+    CDOID id1 = null;
+    CDOID id1_1 = null;
+
+    CDOID id2 = null;
+    CDOID id3 = null;
+    CDOID id4 = null;
+
+    {
+      CDOSession session = openSession();
+      CDOTransaction transaction = session.openTransaction();
+      CDOResource resource1 = transaction.createResource(getResourcePath("/test1"));
+
+      // 2 level containment.
+      Company comp1 = getModel1Factory().createCompany();
+      Customer customer1 = getModel1Factory().createCustomer();
+      comp1.getCustomers().add(customer1);
+
+      Company comp2 = getModel1Factory().createCompany();
+
+      resource1.getContents().add(comp1);
+      resource1.getContents().add(comp2);
+
+      CDOResource resource2 = transaction.createResource(getResourcePath("/test2"));
+
+      Company comp3 = getModel1Factory().createCompany();
+      Company comp4 = getModel1Factory().createCompany();
+
+      resource2.getContents().add(comp3);
+      resource2.getContents().add(comp4);
+
+      transaction.commit();
+
+      id1 = CDOUtil.getCDOObject(comp1).cdoID();
+      id1_1 = CDOUtil.getCDOObject(customer1).cdoID();
+
+      id2 = CDOUtil.getCDOObject(comp2).cdoID();
+      id3 = CDOUtil.getCDOObject(comp3).cdoID();
+      id4 = CDOUtil.getCDOObject(comp4).cdoID();
+
+      transaction.close();
+      session.close();
+    }
+
+    CDOSession session = openSession();
+    CDOTransaction transaction = session.openTransaction();
+    CDOResource resource1 = transaction.getResource(getResourcePath("/test1"));
+    Adapter.Internal adapter = new CDOLazyContentAdapter();
+
+    CDOView view = resource1.cdoView();
+    CDOObject object1 = view.getObject(id1);
+    CDOObject object1_1 = view.getObject(id1_1);
+    CDOObject object2 = view.getObject(id2);
+
+    object1.eAdapters().add(adapter);
+
+    // object1 and all its loaded contents should have been adapted
+    assertEquals(true, object1.eAdapters().contains(adapter));
+    assertEquals(true, object1_1.eAdapters().contains(adapter));
+    assertEquals(false, object2.eAdapters().contains(adapter));
+
+    // res2 should NOT be adapted, as its not in the content tree of res1
+    CDOResource resource2 = transaction.getResource(getResourcePath("/test2"));
+    // neither should its children
+    CDOObject object3 = view.getObject(id3);
+    CDOObject object4 = view.getObject(id4);
+
+    assertEquals(false, resource2.eAdapters().contains(adapter));
+    assertEquals(false, object3.eAdapters().contains(adapter));
+    assertEquals(false, object4.eAdapters().contains(adapter));
+
+    // Removing adapter
+    adapter.unsetTarget(object1);
+
+    assertEquals(false, object1.eAdapters().contains(adapter));
+    assertEquals(false, object1_1.eAdapters().contains(adapter));
+    assertEquals(false, object2.eAdapters().contains(adapter));
+    assertEquals(false, resource1.eAdapters().contains(adapter));
   }
 }

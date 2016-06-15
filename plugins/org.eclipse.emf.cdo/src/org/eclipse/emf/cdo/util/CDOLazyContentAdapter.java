@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2012, 2014 Eike Stepper (Berlin, Germany) and others.
+ * Copyright (c) 2011, 2012 Eike Stepper (Berlin, Germany) and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,9 +15,12 @@ import org.eclipse.emf.cdo.CDOState;
 import org.eclipse.emf.cdo.view.CDOObjectHandler;
 import org.eclipse.emf.cdo.view.CDOView;
 
+import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.Notifier;
+import org.eclipse.emf.common.notify.impl.AdapterImpl;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.util.EContentAdapter;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.spi.cdo.FSMUtil;
@@ -34,36 +37,55 @@ import java.util.Set;
  * @author Victor Roldan Betancort
  * @since 4.0
  */
-public class CDOLazyContentAdapter extends EContentAdapter
+public class CDOLazyContentAdapter extends AdapterImpl
 {
   private CDOObjectHandler handler = new CleanObjectHandler();
 
   private Set<WeakReference<CDOObject>> adaptedObjects = new HashSet<WeakReference<CDOObject>>();
 
-  /**
-   * The root object to be adapted.
-   */
-  private WeakReference<CDOObject> adaptedRoot;
+  private WeakReference<Notifier> adaptedRoot;
 
   @Override
+  public Notifier getTarget()
+  {
+    return null;
+  }
+
+  @Override
+  public void setTarget(Notifier target)
+  {
+    if (isConnectedObject(target))
+    {
+      if (adaptedRoot == null)
+      {
+        adaptedRoot = new WeakReference<Notifier>(CDOUtil.getCDOObject(target));
+      }
+
+      if (target instanceof Resource)
+      {
+        addCleanObjectHandler(target);
+      }
+    }
+  }
+
+  @Override
+  public void notifyChanged(Notification notification)
+  {
+  }
+
   protected void setTarget(EObject target)
   {
     if (isConnectedObject(target))
     {
       if (adaptedRoot == null)
       {
-        adaptedRoot = new WeakReference<CDOObject>(CDOUtil.getCDOObject(target));
+        adaptedRoot = new WeakReference<Notifier>(CDOUtil.getCDOObject(target));
       }
 
-      basicSetTarget(target);
       if (target instanceof Resource)
       {
         addCleanObjectHandler(target);
       }
-    }
-    else
-    {
-      super.setTarget(target);
     }
   }
 
@@ -72,11 +94,10 @@ public class CDOLazyContentAdapter extends EContentAdapter
    * loaded objects
    */
   @Override
-  protected void unsetTarget(EObject target)
+  public void unsetTarget(Notifier target)
   {
     if (isConnectedObject(target))
     {
-      basicUnsetTarget(target);
       if (target instanceof Resource)
       {
         InternalCDOView view = getCDOView(target);
@@ -96,10 +117,6 @@ public class CDOLazyContentAdapter extends EContentAdapter
         target.eAdapters().remove(this);
         removeCleanObjectHandler(target);
       }
-    }
-    else
-    {
-      super.unsetTarget(target);
     }
   }
 
@@ -147,20 +164,65 @@ public class CDOLazyContentAdapter extends EContentAdapter
     }
   }
 
-  @Override
   protected void addAdapter(Notifier notifier)
   {
     if (isConnectedObject(notifier) && !isAlreadyAdapted(notifier))
     {
       adaptedObjects.add(new WeakReference<CDOObject>(CDOUtil.getCDOObject((EObject)notifier)));
     }
+  }
 
-    super.addAdapter(notifier);
+  protected void removeAdapter(Notifier notifier)
+  {
+    notifier.eAdapters().remove(this);
   }
 
   private boolean isAlreadyAdapted(Notifier notifier)
   {
     return notifier.eAdapters().contains(this);
+  }
+
+  /**
+   * Checks if the argument is contained in the object graph of the root element
+   */
+  private boolean isContained(CDOObject object)
+  {
+    if (adaptedRoot == null)
+    {
+      return false;
+    }
+
+    Notifier root = adaptedRoot.get();
+    return isContained(object, root);
+  }
+
+  private boolean isContained(CDOObject object, Notifier root)
+  {
+    if (object == null || root == null)
+    {
+      return false;
+    }
+
+    if (root instanceof Resource)
+    {
+      return root == (object instanceof Resource ? object : object.cdoResource());
+    }
+
+    if (root instanceof ResourceSet)
+    {
+      ResourceSet resourceSet = (ResourceSet)root;
+      for (Resource resource : resourceSet.getResources())
+      {
+        if (isContained(object, resource))
+        {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    return EcoreUtil.isAncestor((EObject)root, object);
   }
 
   private static InternalCDOView getCDOView(EObject target)
@@ -186,30 +248,6 @@ public class CDOLazyContentAdapter extends EContentAdapter
     }
 
     return false;
-  }
-
-  /**
-   * Checks if the argument is contained in the object graph of the root element
-   */
-  private boolean isContained(CDOObject object)
-  {
-    if (adaptedRoot == null)
-    {
-      return false;
-    }
-
-    CDOObject root = adaptedRoot.get();
-    if (object == null)
-    {
-      return false;
-    }
-
-    if (root instanceof Resource)
-    {
-      return root == (object instanceof Resource ? object : object.cdoResource());
-    }
-
-    return EcoreUtil.isAncestor(root, object);
   }
 
   /**
