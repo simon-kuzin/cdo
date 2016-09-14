@@ -441,7 +441,8 @@ public class CDOObjectImpl extends MinimalEStoreEObjectImpl implements InternalC
     int eContainerFeatureID = eBasicContainerFeatureID();
 
     InternalCDORevision revision = cdoRevision();
-    revision.setContainerID(eContainer == null ? CDOID.NULL : viewAndState.view.convertObjectToID(eContainer, true));
+    revision.setContainerID(
+        eContainer == null ? CDOID.NULL : viewAndState.view.convertObjectToIDUnsynced(eContainer, true));
     revision.setContainingFeatureID(eContainerFeatureID);
 
     Resource directResource = eDirectResource();

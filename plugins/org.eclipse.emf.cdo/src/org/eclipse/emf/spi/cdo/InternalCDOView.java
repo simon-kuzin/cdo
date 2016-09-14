@@ -69,6 +69,11 @@ public interface InternalCDOView extends CDOView, CDOIDProvider, ILifecycle
 
   public void setViewSet(InternalCDOViewSet viewSet);
 
+  /**
+   * @since 4.6
+   */
+  public CDOFeatureAnalyzer getFeatureAnalyzerUnsynced();
+
   @Deprecated
   public CDOFeatureAnalyzer getFeatureAnalyzer();
 
@@ -166,6 +171,11 @@ public interface InternalCDOView extends CDOView, CDOIDProvider, ILifecycle
   public Object convertObjectToID(Object potentialObject);
 
   public Object convertObjectToID(Object potentialObject, boolean onlyPersistedID);
+
+  /**
+   * @since 4.6
+   */
+  public Object convertObjectToIDUnsynced(Object potentialObject, boolean onlyPersistedID);
 
   public Object convertIDToObject(Object potentialID);
 

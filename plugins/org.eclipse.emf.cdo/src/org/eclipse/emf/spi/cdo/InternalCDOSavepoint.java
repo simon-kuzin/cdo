@@ -28,9 +28,24 @@ public interface InternalCDOSavepoint extends CDOSavepoint, InternalCDOUserSavep
 {
   public InternalCDOTransaction getTransaction();
 
+  /**
+   * @since 4.6
+   */
+  public InternalCDOSavepoint getFirstSavePointUnsynced();
+
   public InternalCDOSavepoint getFirstSavePoint();
 
+  /**
+   * @since 4.6
+   */
+  public InternalCDOSavepoint getPreviousSavepointUnsynced();
+
   public InternalCDOSavepoint getPreviousSavepoint();
+
+  /**
+   * @since 4.6
+   */
+  public InternalCDOSavepoint getNextSavepointUnsynced();
 
   public InternalCDOSavepoint getNextSavepoint();
 

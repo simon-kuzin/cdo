@@ -122,6 +122,12 @@ public class CDOSavepointImpl extends CDOUserSavepointImpl implements InternalCD
   }
 
   @Override
+  public InternalCDOSavepoint getFirstSavePointUnsynced()
+  {
+    return (InternalCDOSavepoint)super.getFirstSavePointUnsynced();
+  }
+
+  @Override
   public InternalCDOSavepoint getFirstSavePoint()
   {
     synchronized (transaction.getViewMonitor())
@@ -130,13 +136,19 @@ public class CDOSavepointImpl extends CDOUserSavepointImpl implements InternalCD
 
       try
       {
-        return (InternalCDOSavepoint)super.getFirstSavePoint();
+        return getFirstSavePointUnsynced();
       }
       finally
       {
         transaction.unlockView();
       }
     }
+  }
+
+  @Override
+  public InternalCDOSavepoint getPreviousSavepointUnsynced()
+  {
+    return (InternalCDOSavepoint)super.getPreviousSavepointUnsynced();
   }
 
   @Override
@@ -148,13 +160,19 @@ public class CDOSavepointImpl extends CDOUserSavepointImpl implements InternalCD
 
       try
       {
-        return (InternalCDOSavepoint)super.getPreviousSavepoint();
+        return getPreviousSavepointUnsynced();
       }
       finally
       {
         transaction.unlockView();
       }
     }
+  }
+
+  @Override
+  public InternalCDOSavepoint getNextSavepointUnsynced()
+  {
+    return (InternalCDOSavepoint)super.getNextSavepointUnsynced();
   }
 
   @Override
@@ -166,7 +184,7 @@ public class CDOSavepointImpl extends CDOUserSavepointImpl implements InternalCD
 
       try
       {
-        return (InternalCDOSavepoint)super.getNextSavepoint();
+        return getNextSavepointUnsynced();
       }
       finally
       {
@@ -413,13 +431,14 @@ public class CDOSavepointImpl extends CDOUserSavepointImpl implements InternalCD
 
       try
       {
-        if (getPreviousSavepoint() == null)
+        if (getPreviousSavepointUnsynced() == null)
         {
           return Collections.unmodifiableMap(getDirtyObjects());
         }
 
         MultiMap.ListBased<CDOID, CDOObject> dirtyObjects = new MultiMap.ListBased<CDOID, CDOObject>();
-        for (InternalCDOSavepoint savepoint = this; savepoint != null; savepoint = savepoint.getPreviousSavepoint())
+        for (InternalCDOSavepoint savepoint = this; savepoint != null; savepoint = savepoint
+            .getPreviousSavepointUnsynced())
         {
           dirtyObjects.getDelegates().add(savepoint.getDirtyObjects());
         }
@@ -444,14 +463,14 @@ public class CDOSavepointImpl extends CDOUserSavepointImpl implements InternalCD
 
       try
       {
-        if (getPreviousSavepoint() == null)
+        if (getPreviousSavepointUnsynced() == null)
         {
           return Collections.unmodifiableMap(getNewObjects());
         }
 
         Map<CDOID, CDOObject> newObjects = CDOIDUtil.createMap();
-        for (InternalCDOSavepoint savepoint = getFirstSavePoint(); savepoint != null; savepoint = savepoint
-            .getNextSavepoint())
+        for (InternalCDOSavepoint savepoint = getFirstSavePointUnsynced(); savepoint != null; savepoint = savepoint
+            .getNextSavepointUnsynced())
         {
           newObjects.putAll(savepoint.getNewObjects());
           for (CDOID removedID : savepoint.getDetachedObjects().keySet())
@@ -480,13 +499,14 @@ public class CDOSavepointImpl extends CDOUserSavepointImpl implements InternalCD
 
       try
       {
-        if (getPreviousSavepoint() == null)
+        if (getPreviousSavepointUnsynced() == null)
         {
           return Collections.unmodifiableMap(getBaseNewObjects());
         }
 
         MultiMap.ListBased<CDOID, CDORevision> newObjects = new MultiMap.ListBased<CDOID, CDORevision>();
-        for (InternalCDOSavepoint savepoint = this; savepoint != null; savepoint = savepoint.getPreviousSavepoint())
+        for (InternalCDOSavepoint savepoint = this; savepoint != null; savepoint = savepoint
+            .getPreviousSavepointUnsynced())
         {
           newObjects.getDelegates().add(savepoint.getBaseNewObjects());
         }
@@ -511,15 +531,15 @@ public class CDOSavepointImpl extends CDOUserSavepointImpl implements InternalCD
 
       try
       {
-        if (getPreviousSavepoint() == null)
+        if (getPreviousSavepointUnsynced() == null)
         {
           return Collections.unmodifiableMap(getRevisionDeltas2());
         }
 
         // We need to combined the result for all delta in different Savepoint
         Map<CDOID, CDORevisionDelta> allRevisionDeltas = CDOIDUtil.createMap();
-        for (InternalCDOSavepoint savepoint = getFirstSavePoint(); savepoint != null; savepoint = savepoint
-            .getNextSavepoint())
+        for (InternalCDOSavepoint savepoint = getFirstSavePointUnsynced(); savepoint != null; savepoint = savepoint
+            .getNextSavepointUnsynced())
         {
           for (CDORevisionDelta revisionDelta : savepoint.getRevisionDeltas2().values())
           {
@@ -569,14 +589,14 @@ public class CDOSavepointImpl extends CDOUserSavepointImpl implements InternalCD
 
       try
       {
-        if (getPreviousSavepoint() == null && getReattachedObjects().isEmpty())
+        if (getPreviousSavepointUnsynced() == null && getReattachedObjects().isEmpty())
         {
           return Collections.unmodifiableMap(getDetachedObjects());
         }
 
         Map<CDOID, CDOObject> detachedObjects = CDOIDUtil.createMap();
-        for (InternalCDOSavepoint savepoint = getFirstSavePoint(); savepoint != null; savepoint = savepoint
-            .getNextSavepoint())
+        for (InternalCDOSavepoint savepoint = getFirstSavePointUnsynced(); savepoint != null; savepoint = savepoint
+            .getNextSavepointUnsynced())
         {
           for (Entry<CDOID, CDOObject> entry : savepoint.getDetachedObjects().entrySet())
           {
@@ -617,7 +637,8 @@ public class CDOSavepointImpl extends CDOUserSavepointImpl implements InternalCD
 
       try
       {
-        for (InternalCDOSavepoint savepoint = this; savepoint != null; savepoint = savepoint.getPreviousSavepoint())
+        for (InternalCDOSavepoint savepoint = this; savepoint != null; savepoint = savepoint
+            .getPreviousSavepointUnsynced())
         {
           if (savepoint.getNewObjects().containsKey(id))
           {
@@ -646,7 +667,8 @@ public class CDOSavepointImpl extends CDOUserSavepointImpl implements InternalCD
   // boolean wasNew = false;
   // synchronized (transaction) // TODO synchronized -> transaction.getViewLock().lock()
   // {
-  // for (InternalCDOSavepoint savepoint = this; savepoint != null; savepoint = savepoint.getPreviousSavepoint())
+  // for (InternalCDOSavepoint savepoint = this; savepoint != null; savepoint =
+  // savepoint.getPreviousSavepointUnsynced())
   // {
   // if (savepoint.getNewObjects().containsKey(id))
   // {
@@ -677,7 +699,8 @@ public class CDOSavepointImpl extends CDOUserSavepointImpl implements InternalCD
 
       try
       {
-        for (InternalCDOSavepoint savepoint = this; savepoint != null; savepoint = savepoint.getPreviousSavepoint())
+        for (InternalCDOSavepoint savepoint = this; savepoint != null; savepoint = savepoint
+            .getPreviousSavepointUnsynced())
         {
           Map<CDOID, CDOObject> reattachedObjects = savepoint.getReattachedObjects();
           if (!reattachedObjects.isEmpty())
@@ -717,7 +740,8 @@ public class CDOSavepointImpl extends CDOUserSavepointImpl implements InternalCD
 
       try
       {
-        for (InternalCDOSavepoint savepoint = this; savepoint != null; savepoint = savepoint.getPreviousSavepoint())
+        for (InternalCDOSavepoint savepoint = this; savepoint != null; savepoint = savepoint
+            .getPreviousSavepointUnsynced())
         {
           Map<CDOID, CDOObject> dirtyObjects = savepoint.getDirtyObjects();
           if (!dirtyObjects.isEmpty())

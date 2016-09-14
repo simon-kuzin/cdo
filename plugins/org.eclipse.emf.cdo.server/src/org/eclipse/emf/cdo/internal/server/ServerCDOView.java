@@ -249,6 +249,11 @@ public class ServerCDOView extends AbstractCDOView implements org.eclipse.emf.cd
     throw new UnsupportedOperationException();
   }
 
+  public CDOFeatureAnalyzer getFeatureAnalyzerUnsynced()
+  {
+    return options().getFeatureAnalyzer();
+  }
+
   @SuppressWarnings("deprecation")
   public CDOFeatureAnalyzer getFeatureAnalyzer()
   {

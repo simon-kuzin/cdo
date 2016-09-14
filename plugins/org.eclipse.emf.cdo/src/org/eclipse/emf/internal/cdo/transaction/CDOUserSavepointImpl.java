@@ -45,6 +45,11 @@ public abstract class CDOUserSavepointImpl implements InternalCDOUserSavepoint
 
   public InternalCDOUserSavepoint getPreviousSavepoint()
   {
+    return getPreviousSavepointUnsynced();
+  }
+
+  public InternalCDOUserSavepoint getPreviousSavepointUnsynced()
+  {
     return previousSavepoint;
   }
 
@@ -55,6 +60,11 @@ public abstract class CDOUserSavepointImpl implements InternalCDOUserSavepoint
 
   public InternalCDOUserSavepoint getNextSavepoint()
   {
+    return getNextSavepointUnsynced();
+  }
+
+  public InternalCDOUserSavepoint getNextSavepointUnsynced()
+  {
     return nextSavepoint;
   }
 
@@ -64,6 +74,11 @@ public abstract class CDOUserSavepointImpl implements InternalCDOUserSavepoint
   }
 
   public InternalCDOUserSavepoint getFirstSavePoint()
+  {
+    return getFirstSavePointUnsynced();
+  }
+
+  public InternalCDOUserSavepoint getFirstSavePointUnsynced()
   {
     return previousSavepoint != null ? previousSavepoint.getFirstSavePoint() : this;
   }

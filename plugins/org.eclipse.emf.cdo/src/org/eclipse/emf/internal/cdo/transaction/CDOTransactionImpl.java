@@ -1477,36 +1477,20 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
     return null;
   }
 
-  /**
-   * @since 2.0
-   */
   @Override
-  public InternalCDOObject getObject(CDOID id, boolean loadOnDemand)
+  protected InternalCDOObject getObjectUnsynced(CDOID id, boolean loadOnDemand)
   {
-    checkActive();
-    synchronized (getViewMonitor())
+    if (CDOIDUtil.isNull(id))
     {
-      lockView();
-
-      try
-      {
-        if (CDOIDUtil.isNull(id))
-        {
-          return null;
-        }
-
-        if (isObjectNew(id) && isObjectDetached(id))
-        {
-          throw new ObjectNotFoundException(id, this);
-        }
-
-        return super.getObject(id, loadOnDemand);
-      }
-      finally
-      {
-        unlockView();
-      }
+      return null;
     }
+
+    if (isObjectNew(id) && isObjectDetached(id))
+    {
+      throw new ObjectNotFoundException(id, this);
+    }
+
+    return super.getObjectUnsynced(id, loadOnDemand);
   }
 
   @Override
@@ -2314,19 +2298,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
    */
   public void registerFeatureDelta(InternalCDOObject object, CDOFeatureDelta featureDelta)
   {
-    synchronized (getViewMonitor())
-    {
-      lockView();
-
-      try
-      {
-        registerFeatureDelta(object, featureDelta, null);
-      }
-      finally
-      {
-        unlockView();
-      }
-    }
+    registerFeatureDelta(object, featureDelta, null);
   }
 
   public void registerFeatureDelta(InternalCDOObject object, CDOFeatureDelta featureDelta,
@@ -2344,7 +2316,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
         if (object.cdoState() == CDOState.NEW)
         {
           // Register Delta for new objects only if objectA doesn't belong to this savepoint
-          if (getLastSavepoint().getPreviousSavepoint() == null || featureDelta == null)
+          if (getLastSavepoint().getPreviousSavepointUnsynced() == null || featureDelta == null)
           {
             needToSaveFeatureDelta = false;
           }
@@ -2977,49 +2949,37 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
   }
 
   @Override
-  protected CDOID getID(InternalCDOObject object, boolean onlyPersistedID)
+  protected CDOID getIDUnsynced(InternalCDOObject object, boolean onlyPersistedID)
   {
-    synchronized (getViewMonitor())
+    CDOID id = super.getIDUnsynced(object, onlyPersistedID);
+    if (id != null)
     {
-      lockView();
+      return id;
+    }
 
-      try
+    // Don't perform the trickery that follows later in this method, if we are being called
+    // indirectly through provideCDOID. This occurs when deltas or revisions are
+    // being written out to a stream; in which case null must be returned (for transients) so that
+    // the caller will detect a dangling reference
+    if (providingCDOID.get() == Boolean.TRUE)
+    {
+      return null;
+    }
+
+    // The super implementation returns null for a transient (unattached) object;
+    // but in a transaction, a transient object may have been attached previously.
+    // So we consult the cleanRevisions if that's the case.
+    CDORevisionKey revisionKey = cleanRevisions.get(object);
+    if (revisionKey != null)
+    {
+      CDOID revisionID = revisionKey.getID();
+      if (lastSavepoint.getDetachedObject(revisionID) != null)
       {
-        CDOID id = super.getID(object, onlyPersistedID);
-        if (id != null)
-        {
-          return id;
-        }
-
-        // Don't perform the trickery that follows later in this method, if we are being called
-        // indirectly through provideCDOID. This occurs when deltas or revisions are
-        // being written out to a stream; in which case null must be returned (for transients) so that
-        // the caller will detect a dangling reference
-        if (providingCDOID.get() == Boolean.TRUE)
-        {
-          return null;
-        }
-
-        // The super implementation returns null for a transient (unattached) object;
-        // but in a transaction, a transient object may have been attached previously.
-        // So we consult the cleanRevisions if that's the case.
-        CDORevisionKey revisionKey = cleanRevisions.get(object);
-        if (revisionKey != null)
-        {
-          CDOID revisionID = revisionKey.getID();
-          if (lastSavepoint.getDetachedObject(revisionID) != null)
-          {
-            return revisionID;
-          }
-        }
-
-        return null;
-      }
-      finally
-      {
-        unlockView();
+        return revisionID;
       }
     }
+
+    return null;
   }
 
   @Override
@@ -3034,7 +2994,7 @@ public class CDOTransactionImpl extends CDOViewImpl implements InternalCDOTransa
         try
         {
           providingCDOID.set(Boolean.TRUE);
-          return super.provideCDOID(idOrObject);
+          return provideCDOIDUnsynced(idOrObject);
         }
         finally
         {

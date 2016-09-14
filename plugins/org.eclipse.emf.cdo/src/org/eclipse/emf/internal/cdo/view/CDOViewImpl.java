@@ -659,7 +659,7 @@ public class CDOViewImpl extends AbstractCDOView implements IExecutorServiceProv
             }
             else if (FSMUtil.isTransient(object))
             {
-              CDOID id = getID((InternalCDOObject)object, true);
+              CDOID id = getIDUnsynced((InternalCDOObject)object, true);
               if (id != null)
               {
                 objectIDs.add(id);
@@ -864,6 +864,11 @@ public class CDOViewImpl extends AbstractCDOView implements IExecutorServiceProv
     }
   }
 
+  public CDOFeatureAnalyzer getFeatureAnalyzerUnsynced()
+  {
+    return options().featureAnalyzer;
+  }
+
   /**
    * @since 2.0
    */
@@ -941,37 +946,25 @@ public class CDOViewImpl extends AbstractCDOView implements IExecutorServiceProv
   }
 
   @Override
-  public void remapObject(CDOID oldID)
+  protected void remapObjectUnsynced(CDOID oldID)
   {
-    synchronized (getViewMonitor())
+    InternalCDOObject object = getObjectUnsynced(oldID, false);
+    InternalCDOLockState oldLockState = (InternalCDOLockState)lockStates.remove(object);
+    if (oldLockState != null)
     {
-      lockView();
-
-      try
-      {
-        InternalCDOObject object = getObject(oldID, false);
-        InternalCDOLockState oldLockState = (InternalCDOLockState)lockStates.remove(object);
-        if (oldLockState != null)
-        {
-          Object lockedObject = getLockTarget(object); // CDOID or CDOIDAndBranch
-          InternalCDOLockState newLockState = (InternalCDOLockState)CDOLockUtil.createLockState(lockedObject);
-          newLockState.updateFrom(oldLockState);
-          lockStates.put(object, newLockState);
-        }
-        else if (options().isLockStatePrefetchEnabled())
-        {
-          Object lockedObject = getLockTarget(object); // CDOID or CDOIDAndBranch
-          CDOLockState newLockState = CDOLockUtil.createLockState(lockedObject);
-          lockStates.put(object, newLockState);
-        }
-
-        super.remapObject(oldID);
-      }
-      finally
-      {
-        unlockView();
-      }
+      Object lockedObject = getLockTarget(object); // CDOID or CDOIDAndBranch
+      InternalCDOLockState newLockState = (InternalCDOLockState)CDOLockUtil.createLockState(lockedObject);
+      newLockState.updateFrom(oldLockState);
+      lockStates.put(object, newLockState);
     }
+    else if (options().isLockStatePrefetchEnabled())
+    {
+      Object lockedObject = getLockTarget(object); // CDOID or CDOIDAndBranch
+      CDOLockState newLockState = CDOLockUtil.createLockState(lockedObject);
+      lockStates.put(object, newLockState);
+    }
+
+    super.remapObjectUnsynced(oldID);
   }
 
   @Override
@@ -988,19 +981,7 @@ public class CDOViewImpl extends AbstractCDOView implements IExecutorServiceProv
 
   public CDOLockState[] getLockStates(Collection<CDOID> ids)
   {
-    synchronized (getViewMonitor())
-    {
-      lockView();
-
-      try
-      {
-        return getLockStates(ids, true);
-      }
-      finally
-      {
-        unlockView();
-      }
-    }
+    return getLockStates(ids, true);
   }
 
   protected CDOLockState[] getLockStates(Collection<CDOID> ids, boolean loadOnDemand)
@@ -1017,7 +998,7 @@ public class CDOViewImpl extends AbstractCDOView implements IExecutorServiceProv
 
         for (CDOID id : ids)
         {
-          InternalCDOObject object = getObject(id, false);
+          InternalCDOObject object = getObjectUnsynced(id, false);
           if (object != null)
           {
             CDOLockState lockState = lockStates.get(object);
