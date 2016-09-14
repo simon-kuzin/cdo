@@ -452,8 +452,14 @@ public abstract class AbstractCDOView extends CDOCommitHistoryProviderImpl<CDOOb
     return viewLock;
   }
 
+  // Uncomment to find optimization potential w.r.t. view locking.
+  // private final MethodStack methods = new MethodStack();
+
   public final void lockView()
   {
+    // Uncomment to find optimization potential w.r.t. view locking.
+    // methods.push();
+
     if (viewLock != null)
     {
       viewLock.lock();
@@ -466,6 +472,9 @@ public abstract class AbstractCDOView extends CDOCommitHistoryProviderImpl<CDOOb
     {
       viewLock.unlock();
     }
+
+    // Uncomment to find optimization potential w.r.t. view locking.
+    // methods.pop();
   }
 
   public void syncExec(Runnable runnable)
@@ -1648,61 +1657,61 @@ public abstract class AbstractCDOView extends CDOCommitHistoryProviderImpl<CDOOb
 
       try
       {
-        if (rootResource != null && rootResource.cdoID() == id)
+    if (rootResource != null && rootResource.cdoID() == id)
+    {
+      return rootResource;
+    }
+
+    if (id == lastLookupID)
+    {
+      return lastLookupObject;
+    }
+
+    lastLookupID = null;
+    lastLookupObject = null;
+    InternalCDOObject localLookupObject = null;
+
+    if (id.isExternal())
+    {
+      URI uri = URI.createURI(((CDOIDExternal)id).getURI());
+      ResourceSet resourceSet = getResourceSet();
+
+      localLookupObject = (InternalCDOObject)CDOUtil.getCDOObject(resourceSet.getEObject(uri, loadOnDemand));
+      if (localLookupObject == null)
+      {
+        if (!loadOnDemand)
         {
-          return rootResource;
+          return null;
         }
 
-        if (id == lastLookupID)
-        {
-          return lastLookupObject;
-        }
-
-        lastLookupID = null;
-        lastLookupObject = null;
-        InternalCDOObject localLookupObject = null;
-
-        if (id.isExternal())
-        {
-          URI uri = URI.createURI(((CDOIDExternal)id).getURI());
-          ResourceSet resourceSet = getResourceSet();
-
-          localLookupObject = (InternalCDOObject)CDOUtil.getCDOObject(resourceSet.getEObject(uri, loadOnDemand));
-          if (localLookupObject == null)
-          {
-            if (!loadOnDemand)
-            {
-              return null;
-            }
-
-            throw new ObjectNotFoundException(id, this);
-          }
-        }
-        else
-        {
-          // Needed for recursive call to getObject. (from createObject/cleanObject/getResource/getObject)
-          localLookupObject = objects.get(id);
-          if (localLookupObject == null)
-          {
-            if (!loadOnDemand)
-            {
-              return null;
-            }
-
-            excludeNewObject(id);
-            localLookupObject = createObject(id);
-
-            if (id == rootResourceID)
-            {
-              setRootResource((CDOResourceImpl)localLookupObject);
-            }
-          }
-        }
-
-        lastLookupID = id;
-        lastLookupObject = localLookupObject;
-        return lastLookupObject;
+        throw new ObjectNotFoundException(id, this);
       }
+    }
+    else
+    {
+      // Needed for recursive call to getObject. (from createObject/cleanObject/getResource/getObject)
+      localLookupObject = objects.get(id);
+      if (localLookupObject == null)
+      {
+        if (!loadOnDemand)
+        {
+          return null;
+        }
+
+        excludeNewObject(id);
+        localLookupObject = createObject(id);
+
+        if (id == rootResourceID)
+        {
+          setRootResource((CDOResourceImpl)localLookupObject);
+        }
+      }
+    }
+
+    lastLookupID = id;
+    lastLookupObject = localLookupObject;
+    return lastLookupObject;
+  }
       finally
       {
         unlockView();
@@ -1997,49 +2006,49 @@ public abstract class AbstractCDOView extends CDOCommitHistoryProviderImpl<CDOOb
       try
       {
         Object shouldBeCDOID = convertObjectToID(idOrObject);
-        if (shouldBeCDOID instanceof CDOID)
-        {
-          CDOID id = (CDOID)shouldBeCDOID;
-          if (TRACER.isEnabled() && id != idOrObject)
-          {
-            TRACER.format("Converted object to CDOID: {0} --> {1}", idOrObject, id); //$NON-NLS-1$
-          }
-
-          return id;
-        }
-
-        if (idOrObject instanceof InternalEObject)
-        {
-          InternalEObject eObject = (InternalEObject)idOrObject;
-          if (eObject instanceof InternalCDOObject)
-          {
-            InternalCDOObject object = (InternalCDOObject)idOrObject;
-            if (object.cdoView() != null && FSMUtil.isNew(object))
-            {
-              String uri = EcoreUtil.getURI(object.cdoInternalInstance()).toString();
-              if (object.cdoID().isTemporary())
-              {
-                return CDOIDUtil.createTempObjectExternal(uri);
-              }
-            }
-          }
-
-          Resource eResource = eObject.eResource();
-          if (eResource != null)
-          {
-            // Check if eObject is contained by a deleted resource
-            if (!(eResource instanceof CDOResource) || ((CDOResource)eResource).cdoState() != CDOState.TRANSIENT)
-            {
-              String uri = EcoreUtil.getURI(CDOUtil.getEObject(eObject)).toString();
-              return CDOIDUtil.createExternal(uri);
-            }
-          }
-
-          throw new DanglingReferenceException(eObject);
-        }
-
-        throw new IllegalStateException(MessageFormat.format(Messages.getString("CDOViewImpl.16"), idOrObject)); //$NON-NLS-1$
+    if (shouldBeCDOID instanceof CDOID)
+    {
+      CDOID id = (CDOID)shouldBeCDOID;
+      if (TRACER.isEnabled() && id != idOrObject)
+      {
+        TRACER.format("Converted object to CDOID: {0} --> {1}", idOrObject, id); //$NON-NLS-1$
       }
+
+      return id;
+    }
+
+    if (idOrObject instanceof InternalEObject)
+    {
+      InternalEObject eObject = (InternalEObject)idOrObject;
+      if (eObject instanceof InternalCDOObject)
+      {
+        InternalCDOObject object = (InternalCDOObject)idOrObject;
+        if (object.cdoView() != null && FSMUtil.isNew(object))
+        {
+          String uri = EcoreUtil.getURI(object.cdoInternalInstance()).toString();
+          if (object.cdoID().isTemporary())
+          {
+            return CDOIDUtil.createTempObjectExternal(uri);
+          }
+        }
+      }
+
+      Resource eResource = eObject.eResource();
+      if (eResource != null)
+      {
+        // Check if eObject is contained by a deleted resource
+        if (!(eResource instanceof CDOResource) || ((CDOResource)eResource).cdoState() != CDOState.TRANSIENT)
+        {
+          String uri = EcoreUtil.getURI(CDOUtil.getEObject(eObject)).toString();
+          return CDOIDUtil.createExternal(uri);
+        }
+      }
+
+      throw new DanglingReferenceException(eObject);
+    }
+
+    throw new IllegalStateException(MessageFormat.format(Messages.getString("CDOViewImpl.16"), idOrObject)); //$NON-NLS-1$
+  }
       finally
       {
         unlockView();
@@ -2068,36 +2077,36 @@ public abstract class AbstractCDOView extends CDOCommitHistoryProviderImpl<CDOOb
 
       try
       {
-        if (potentialObject instanceof InternalEObject)
-        {
-          if (potentialObject instanceof InternalCDOObject)
-          {
-            InternalCDOObject object = (InternalCDOObject)potentialObject;
+    if (potentialObject instanceof InternalEObject)
+    {
+      if (potentialObject instanceof InternalCDOObject)
+      {
+        InternalCDOObject object = (InternalCDOObject)potentialObject;
             CDOID id = getID(object, onlyPersistedID);
-            if (id != null)
-            {
-              return id;
-            }
-          }
-          else
-          {
-            InternalCDOObject object = (InternalCDOObject)EcoreUtil
-                .getAdapter(((InternalEObject)potentialObject).eAdapters(), CDOLegacyAdapter.class);
-            if (object != null)
-            {
-              CDOID id = getID(object, onlyPersistedID);
-              if (id != null)
-              {
-                return id;
-              }
-
-              potentialObject = object;
-            }
-          }
+        if (id != null)
+        {
+          return id;
         }
-
-        return potentialObject;
       }
+      else
+      {
+        InternalCDOObject object = (InternalCDOObject)EcoreUtil
+            .getAdapter(((InternalEObject)potentialObject).eAdapters(), CDOLegacyAdapter.class);
+        if (object != null)
+        {
+              CDOID id = getID(object, onlyPersistedID);
+          if (id != null)
+          {
+            return id;
+          }
+
+          potentialObject = object;
+        }
+      }
+    }
+
+    return potentialObject;
+  }
       finally
       {
         unlockView();
@@ -2113,34 +2122,34 @@ public abstract class AbstractCDOView extends CDOCommitHistoryProviderImpl<CDOOb
 
       try
       {
-        if (onlyPersistedID)
-        {
-          if (FSMUtil.isTransient(object) || FSMUtil.isNew(object))
-          {
-            return null;
-          }
-        }
+    if (onlyPersistedID)
+    {
+      if (FSMUtil.isTransient(object) || FSMUtil.isNew(object))
+      {
+        return null;
+      }
+    }
 
-        CDOView view = object.cdoView();
-        if (view == this)
-        {
-          return object.cdoID();
-        }
+    CDOView view = object.cdoView();
+    if (view == this)
+    {
+      return object.cdoID();
+    }
 
-        if (view != null && view.getSession() == getSession())
-        {
-          boolean sameTarget = view.getBranch() == getBranch() && view.getTimeStamp() == getTimeStamp();
-          if (sameTarget)
-          {
-            return object.cdoID();
-          }
+    if (view != null && view.getSession() == getSession())
+    {
+      boolean sameTarget = view.getBranch() == getBranch() && view.getTimeStamp() == getTimeStamp();
+      if (sameTarget)
+      {
+        return object.cdoID();
+      }
 
           throw new IllegalArgumentException(
               "Object " + object + " is managed by a view with different target: " + view);
-        }
+    }
 
-        return null;
-      }
+    return null;
+  }
       finally
       {
         unlockView();
@@ -2364,23 +2373,23 @@ public abstract class AbstractCDOView extends CDOCommitHistoryProviderImpl<CDOOb
 
       try
       {
-        CDOID newID;
-        InternalCDOObject object = objects.remove(oldID);
-        newID = object.cdoID();
+    CDOID newID;
+    InternalCDOObject object = objects.remove(oldID);
+    newID = object.cdoID();
 
-        objects.put(newID, object);
+    objects.put(newID, object);
 
-        if (lastLookupID == oldID)
-        {
-          lastLookupID = null;
-          lastLookupObject = null;
-        }
+    if (lastLookupID == oldID)
+    {
+      lastLookupID = null;
+      lastLookupObject = null;
+    }
 
-        if (TRACER.isEnabled())
-        {
-          TRACER.format("Remapping {0} --> {1}", oldID, newID); //$NON-NLS-1$
-        }
-      }
+    if (TRACER.isEnabled())
+    {
+      TRACER.format("Remapping {0} --> {1}", oldID, newID); //$NON-NLS-1$
+    }
+  }
       finally
       {
         unlockView();
