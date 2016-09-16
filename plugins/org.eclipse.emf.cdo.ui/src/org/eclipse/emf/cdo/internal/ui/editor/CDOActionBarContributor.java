@@ -16,6 +16,9 @@ import org.eclipse.emf.cdo.internal.ui.actions.AutoReleaseLockExemptionAction;
 import org.eclipse.emf.cdo.internal.ui.actions.ImportRootsAction;
 
 import org.eclipse.emf.common.ui.viewer.IViewerProvider;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.edit.domain.EditingDomain;
 import org.eclipse.emf.edit.domain.IEditingDomainProvider;
 import org.eclipse.emf.edit.ui.action.ControlAction;
@@ -36,17 +39,21 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.action.SubContributionItem;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PartInitException;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Eike Stepper
@@ -134,6 +141,69 @@ public class CDOActionBarContributor extends EditingDomainActionBarContributor i
         {
           viewer.refresh();
         }
+      }
+    }
+  };
+
+  protected IAction benchmarkAction = new Action("Benchmark")
+  {
+    @Override
+    public void run()
+    {
+      if (activeEditorPart instanceof IViewerProvider)
+      {
+        Viewer viewer = ((IViewerProvider)activeEditorPart).getViewer();
+        if (viewer instanceof TreeViewer)
+        {
+          TreeViewer treeViewer = (TreeViewer)viewer;
+          IStructuredContentProvider contentProvider = (IStructuredContentProvider)treeViewer.getContentProvider();
+          Object[] elements = contentProvider.getElements(viewer.getInput());
+
+          long start = System.currentTimeMillis();
+
+          for (Object element : elements)
+          {
+            if (element instanceof EObject)
+            {
+              EObject eObject = (EObject)element;
+              iterate(eObject);
+            }
+          }
+
+          long millis = System.currentTimeMillis() - start;
+          System.out.println(millis);
+          MessageDialog.openInformation(activeEditor.getSite().getShell(), "Benchmark", "Millis: " + millis);
+        }
+      }
+    }
+
+    private void iterate(EObject eObject)
+    {
+      for (EStructuralFeature feature : eObject.eClass().getEAllStructuralFeatures())
+      {
+        Object value = eObject.eGet(feature, true);
+        boolean containment = feature instanceof EReference && ((EReference)feature).isContainment();
+
+        if (feature.isMany())
+        {
+          List<?> list = (List<?>)value;
+          for (Object element : list)
+          {
+            access(element, containment);
+          }
+        }
+        else
+        {
+          access(value, containment);
+        }
+      }
+    }
+
+    private void access(Object element, boolean containment)
+    {
+      if (containment)
+      {
+        iterate((EObject)element);
       }
     }
   };
@@ -547,6 +617,8 @@ public class CDOActionBarContributor extends EditingDomainActionBarContributor i
     refreshViewerAction.setEnabled(refreshViewerAction.isEnabled());
     refreshViewerAction.setId(REFRESH_VIEWER_ID);
     menuManager.insertAfter("ui-actions", refreshViewerAction); //$NON-NLS-1$
+
+    menuManager.insertAfter("ui-actions", benchmarkAction); //$NON-NLS-1$
 
     if (autoReleaseLockExemptionAction.init())
     {

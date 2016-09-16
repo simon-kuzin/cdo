@@ -28,7 +28,7 @@ public class AllTests extends AllConfigs
   {
     addScenario(parent, MEM, JVM, NATIVE);
     addScenario(parent, MEM_AUDITS, JVM, NATIVE);
-    addScenario(parent, MEM_BRANCHES, JVM, NATIVE);
+    addScenario(parent, MEM_BRANCHES, JVM, NATIVE); // <-----
     addScenario(parent, MEM_BRANCHES_UUIDS, JVM, NATIVE);
 
     addScenario(parent, MEM, JVM, LEGACY);

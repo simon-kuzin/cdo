@@ -24,7 +24,7 @@ import org.eclipse.emf.ecore.EObject;
  */
 public class Bugzilla_377212_Test extends AbstractCDOTest
 {
-  public void testBalancedTree() throws Exception
+  public void _testBalancedTree() throws Exception
   {
     CDOSession session = openSession();
     CDOTransaction transaction = session.openTransaction();
