@@ -104,11 +104,22 @@
         user="sa"/>
       -->
 
-      <!-- Example:
+      <!-- Example: MySQL 5.1+
       <dbAdapter name="mysql"/>
       <dataSource class="com.mysql.jdbc.jdbc2.optional.MysqlDataSource"
+        useLocalSessionState="true"
         url="jdbc:mysql://localhost/big"
-        user="test" password="0000"/>
+        user="test" password="0000"
+        />
+      -->
+      
+      <!-- Example: MySQL 8.0+
+      <dbAdapter name="mysql"/>
+      <dataSource class="com.mysql.cj.jdbc.MysqlDataSource"
+        useLocalSessionState="true"
+        url="jdbc:mysql://localhost/big"
+        user="test" password="0000"
+        />
       -->
 
       <!-- Example:

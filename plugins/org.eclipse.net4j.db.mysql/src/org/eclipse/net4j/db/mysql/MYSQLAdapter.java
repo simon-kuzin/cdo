@@ -16,8 +16,6 @@ import org.eclipse.net4j.db.ddl.IDBField;
 import org.eclipse.net4j.db.ddl.IDBIndex;
 import org.eclipse.net4j.spi.db.DBAdapter;
 
-import com.mysql.jdbc.ConnectionProperties;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -31,7 +29,7 @@ public class MYSQLAdapter extends DBAdapter
 {
   public static final String NAME = "mysql"; //$NON-NLS-1$
 
-  public static final String VERSION = "5.1.5"; //$NON-NLS-1$
+  public static final String VERSION = "8.0.1"; //$NON-NLS-1$
 
   private static final String[] RESERVED_WORDS = { "ACCESSIBLE", "ACTION", "ADD", "ALL", "ALTER", "ANALYZE", "AND", //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
       "AS", //$NON-NLS-1$
@@ -167,11 +165,20 @@ public class MYSQLAdapter extends DBAdapter
   @Override
   public Connection modifyConnection(Connection connection)
   {
-    if (connection instanceof ConnectionProperties)
-    {
-      ConnectionProperties connectionProperties = (ConnectionProperties)connection;
-      connectionProperties.setUseLocalSessionState(true);
-    }
+    /*
+     * Simon Kuzin In MySQL 8 Connector/J Connection properties are immutable. Properties can be set - Using the set*()
+     * methods on MySQL implementations of java.sql.DataSource - As a key-value pair in the java.util.Properties
+     * instance passed to DriverManager.getConnection() or Driver.connect() - As a JDBC URL parameter in the URL given
+     * to java.sql.DriverManager.getConnection(), java.sql.Driver.connect() or the MySQL implementations of the
+     * javax.sql.DataSource setURL() method
+     * https://dev.mysql.com/doc/connector-j/8.0/en/connector-j-reference-configuration-properties.html As such setting
+     * setting useLocalSessionState property removed from this method For time being, useLocalSessionState property
+     * included into sample cdo-server.xml in cdo.server.product
+     */
+
+    // TODO: Implement setting connection properties using DBAdapter on level of
+    // DataSourceConnectionProvider.getConnection or setting default Properties on DataSource in
+    // DBStoreFactory.createStore
 
     return super.modifyConnection(connection);
   }
