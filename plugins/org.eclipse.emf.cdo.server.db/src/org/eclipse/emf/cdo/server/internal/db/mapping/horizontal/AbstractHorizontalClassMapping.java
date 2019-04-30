@@ -140,7 +140,7 @@ public abstract class AbstractHorizontalClassMapping implements IClassMapping, I
     {
       if (accessor != null)
       {
-        IDBSchemaTransaction schemaTransaction = database.openSchemaTransaction();
+        IDBSchemaTransaction schemaTransaction = database.openSchemaTransaction(accessor.getDBConnection());
 
         try
         {
